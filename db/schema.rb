@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_22_150751) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -348,6 +348,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_22_150751) do
     t.text "bgs_special_issue_responses_ciphertext"
     t.text "encrypted_kms_key"
     t.string "cid"
+    t.string "transaction_id"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
@@ -375,6 +376,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_22_150751) do
     t.integer "vbms_upload_failure_count", default: 0
     t.integer "bgs_upload_failure_count", default: 0
     t.string "claim_id"
+    t.integer "tracked_items", default: [], array: true
   end
 
   create_table "claims_api_intent_to_files", force: :cascade do |t|
@@ -834,13 +836,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_22_150751) do
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
     t.index ["user_account_id"], name: "index_in_progress_forms_on_user_account_id"
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
-  end
-
-  create_table "inherited_proof_verified_user_accounts", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
   end
 
   create_table "intent_to_file_queue_exhaustions", force: :cascade do |t|
@@ -1599,7 +1594,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_22_150751) do
   add_foreign_key "form_submissions", "user_accounts"
   add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
-  add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
   add_foreign_key "lighthouse526_document_uploads", "form526_submissions"
   add_foreign_key "lighthouse526_document_uploads", "form_attachments"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"

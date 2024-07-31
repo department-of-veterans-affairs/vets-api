@@ -1538,6 +1538,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -1591,6 +1595,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -1643,6 +1651,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -1958,6 +1970,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -2573,6 +2589,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -2625,6 +2645,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -2776,8 +2800,6 @@
                                   "required": [
                                     "addressLine1",
                                     "city",
-                                    "state",
-                                    "zipFirstFive",
                                     "country"
                                   ],
                                   "properties": {
@@ -2812,10 +2834,11 @@
                                       "example": "Portland"
                                     },
                                     "state": {
-                                      "description": "State for the Veteran's current mailing address.",
+                                      "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR"
+                                      "example": "OR",
+                                      "nullable": true
                                     },
                                     "country": {
                                       "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -2824,16 +2847,23 @@
                                       "example": "USA"
                                     },
                                     "zipFirstFive": {
-                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^\\d{5}?$",
-                                      "example": "12345"
+                                      "example": "12345",
+                                      "nullable": true
                                     },
                                     "zipLastFour": {
                                       "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                       "type": "string",
                                       "pattern": "^\\d{4}?$",
                                       "example": "6789",
+                                      "nullable": true
+                                    },
+                                    "internationalPostalCode": {
+                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                      "type": "string",
+                                      "maxLength": 100,
                                       "nullable": true
                                     }
                                   }
@@ -2912,10 +2942,11 @@
                                   "example": "Portland"
                                 },
                                 "state": {
-                                  "description": "State for the Veteran's new address.",
+                                  "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^[a-z,A-Z]{2}$",
-                                  "example": "OR"
+                                  "example": "OR",
+                                  "nullable": true
                                 },
                                 "country": {
                                   "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -2924,10 +2955,11 @@
                                   "example": "USA"
                                 },
                                 "zipFirstFive": {
-                                  "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                  "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^\\d{5}?$",
-                                  "example": "12345"
+                                  "example": "12345",
+                                  "nullable": true
                                 },
                                 "zipLastFour": {
                                   "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -2935,6 +2967,12 @@
                                   "nullable": true,
                                   "pattern": "^$|^\\d{4}?$",
                                   "example": "6789"
+                                },
+                                "internationalPostalCode": {
+                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                  "type": "string",
+                                  "maxLength": 100,
+                                  "nullable": true
                                 },
                                 "dates": {
                                   "type": "object",
@@ -2961,6 +2999,16 @@
                               "nullable": true,
                               "additionalProperties": false,
                               "properties": {
+                                "isCurrentlyHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently homeless?"
+                                },
+                                "isAtRiskOfBecomingHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently at risk of becoming homeless?"
+                                },
                                 "currentlyHomeless": {
                                   "type": "object",
                                   "nullable": true,
@@ -3477,7 +3525,6 @@
                                   "description": "Identifies the Service dates and Branch the Veteran served in.",
                                   "type": "array",
                                   "minItems": 1,
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "required": [
@@ -4128,8 +4175,6 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
@@ -4164,10 +4209,11 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the Veteran's current mailing address.",
+                                    "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -4176,16 +4222,23 @@
                                     "example": "USA"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
-                                    "example": "12345"
+                                    "example": "12345",
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789",
+                                    "nullable": true
+                                  },
+                                  "internationalPostalCode": {
+                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "type": "string",
+                                    "maxLength": 100,
                                     "nullable": true
                                   }
                                 }
@@ -4264,10 +4317,11 @@
                                 "example": "Portland"
                               },
                               "state": {
-                                "description": "State for the Veteran's new address.",
+                                "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR"
+                                "example": "OR",
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -4276,10 +4330,11 @@
                                 "example": "USA"
                               },
                               "zipFirstFive": {
-                                "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^\\d{5}?$",
-                                "example": "12345"
+                                "example": "12345",
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -4287,6 +4342,12 @@
                                 "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
+                              },
+                              "internationalPostalCode": {
+                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "type": "string",
+                                "maxLength": 100,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
@@ -4313,6 +4374,16 @@
                             "nullable": true,
                             "additionalProperties": false,
                             "properties": {
+                              "isCurrentlyHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently homeless?"
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
+                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -4829,7 +4900,6 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -5702,230 +5772,466 @@
             "description": "Successful response",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "id": "80c499f0-0343-46a2-8b16-9c1c2307ab3b",
-                    "type": "forms/526",
-                    "attributes": {
-                      "claimId": "600442191",
-                      "claimProcessType": "STANDARD_CLAIM_PROCESS",
-                      "claimNotes": "Some things that are important to know, and are not included in any other place.",
-                      "veteranIdentification": {
-                        "serviceNumber": "123456789",
-                        "veteranNumber": {
-                          "telephone": "5555555555",
-                          "internationalTelephone": "+44 20 1234 5678"
-                        },
-                        "mailingAddress": {
-                          "addressLine1": "1234 Couch Street",
-                          "addressLine2": "Unit 4",
-                          "addressLine3": "Room 1",
-                          "city": "Portland",
-                          "state": "OR",
-                          "country": "USA",
-                          "zipFirstFive": "41726",
-                          "zipLastFour": "1234"
-                        },
-                        "emailAddress": {
-                          "email": "valid@somedomain.com",
-                          "agreeToEmailRelatedToClaim": true
-                        },
-                        "currentVaEmployee": false
-                      },
-                      "changeOfAddress": {
-                        "typeOfAddressChange": "TEMPORARY",
-                        "addressLine1": "10 Peach St",
-                        "addressLine2": "Unit 4",
-                        "addressLine3": "Room 1",
-                        "city": "Atlanta",
-                        "state": "GA",
-                        "country": "USA",
-                        "zipFirstFive": "42220",
-                        "zipLastFour": "9897",
-                        "dates": {
-                          "beginDate": "2023-06-04",
-                          "endDate": "2023-12-04"
-                        }
-                      },
-                      "homeless": {
-                        "currentlyHomeless": {
-                          "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
-                          "otherDescription": "ABCDEFGHIJKLM"
-                        },
-                        "pointOfContact": "john stewart",
-                        "pointOfContactNumber": {
-                          "telephone": "5555555555",
-                          "internationalTelephone": "+44 20 1234 5678"
-                        }
-                      },
-                      "toxicExposure": {
-                        "gulfWarHazardService": {
-                          "servedInGulfWarHazardLocations": "YES",
-                          "serviceDates": {
-                            "beginDate": "2018-07",
-                            "endDate": "2018-08"
-                          }
-                        },
-                        "herbicideHazardService": {
-                          "servedInHerbicideHazardLocations": "YES",
-                          "otherLocationsServed": "ABCDEFGHIJKLM",
-                          "serviceDates": {
-                            "beginDate": "2018-07",
-                            "endDate": "2018-08"
-                          }
-                        },
-                        "additionalHazardExposures": {
-                          "additionalExposures": [
-                            "ASBESTOS",
-                            "SHIPBOARD_HAZARD_AND_DEFENSE"
-                          ],
-                          "specifyOtherExposures": "Other exposure details",
-                          "exposureDates": {
-                            "beginDate": "2018-07",
-                            "endDate": "2018-08"
-                          }
-                        },
-                        "multipleExposures": [
-                          {
-                            "hazardExposedTo": "RADIATION",
-                            "exposureLocation": "Guam",
-                            "exposureDates": {
-                              "beginDate": "2012-12",
-                              "endDate": "2013-07"
+                "examples": {
+                  "202 without a transactionId": {
+                    "value": {
+                      "data": {
+                        "id": "afcad79e-bcce-4f3d-9643-56408b4aa8bf",
+                        "type": "forms/526",
+                        "attributes": {
+                          "claimId": "600442191",
+                          "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                          "claimNotes": "Some things that are important to know, and are not included in any other place.",
+                          "veteranIdentification": {
+                            "serviceNumber": "123456789",
+                            "veteranNumber": {
+                              "telephone": "5555555555",
+                              "internationalTelephone": "+44 20 1234 5678"
+                            },
+                            "mailingAddress": {
+                              "addressLine1": "1234 Couch Street",
+                              "addressLine2": "Unit 4",
+                              "addressLine3": "Room 1",
+                              "city": "Portland",
+                              "state": "OR",
+                              "country": "USA",
+                              "zipFirstFive": "41726",
+                              "zipLastFour": "1234"
+                            },
+                            "emailAddress": {
+                              "email": "valid@somedomain.com",
+                              "agreeToEmailRelatedToClaim": true
+                            },
+                            "currentVaEmployee": false
+                          },
+                          "changeOfAddress": {
+                            "typeOfAddressChange": "TEMPORARY",
+                            "addressLine1": "10 Peach St",
+                            "addressLine2": "Unit 4",
+                            "addressLine3": "Room 1",
+                            "city": "Atlanta",
+                            "state": "GA",
+                            "country": "USA",
+                            "zipFirstFive": "42220",
+                            "zipLastFour": "9897",
+                            "dates": {
+                              "beginDate": "2023-06-04",
+                              "endDate": "2023-12-04"
                             }
-                          }
-                        ]
-                      },
-                      "disabilities": [
-                        {
-                          "name": "Traumatic Brain Injury",
-                          "exposureOrEventOrInjury": "EXPOSURE",
-                          "serviceRelevance": "ABCDEFG",
-                          "approximateDate": "2018-03-11",
-                          "disabilityActionType": "NEW",
-                          "classificationCode": "9014",
-                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                          "diagnosticCode": 9020,
-                          "isRelatedToToxicExposure": true,
-                          "secondaryDisabilities": [
+                          },
+                          "homeless": {
+                            "currentlyHomeless": {
+                              "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
+                              "otherDescription": "ABCDEFGHIJKLM"
+                            },
+                            "pointOfContact": "john stewart",
+                            "pointOfContactNumber": {
+                              "telephone": "5555555555",
+                              "internationalTelephone": "+44 20 1234 5678"
+                            }
+                          },
+                          "toxicExposure": {
+                            "gulfWarHazardService": {
+                              "servedInGulfWarHazardLocations": "YES",
+                              "serviceDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "herbicideHazardService": {
+                              "servedInHerbicideHazardLocations": "YES",
+                              "otherLocationsServed": "ABCDEFGHIJKLM",
+                              "serviceDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "additionalHazardExposures": {
+                              "additionalExposures": [
+                                "ASBESTOS",
+                                "SHIPBOARD_HAZARD_AND_DEFENSE"
+                              ],
+                              "specifyOtherExposures": "Other exposure details",
+                              "exposureDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "multipleExposures": [
+                              {
+                                "hazardExposedTo": "RADIATION",
+                                "exposureLocation": "Guam",
+                                "exposureDates": {
+                                  "beginDate": "2012-12",
+                                  "endDate": "2013-07"
+                                }
+                              }
+                            ]
+                          },
+                          "disabilities": [
                             {
-                              "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                              "name": "Traumatic Brain Injury",
                               "exposureOrEventOrInjury": "EXPOSURE",
-                              "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
-                              "disabilityActionType": "SECONDARY",
-                              "approximateDate": "2018-03-12",
-                              "classificationCode": "9014"
+                              "serviceRelevance": "ABCDEFG",
+                              "approximateDate": "2018-03-11",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 9020,
+                              "isRelatedToToxicExposure": true,
+                              "secondaryDisabilities": [
+                                {
+                                  "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                                  "exposureOrEventOrInjury": "EXPOSURE",
+                                  "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                                  "disabilityActionType": "SECONDARY",
+                                  "approximateDate": "2018-03-12",
+                                  "classificationCode": "9014"
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Cancer - Musculoskeletal - Elbow",
+                              "exposureOrEventOrInjury": "EXPOSURE",
+                              "approximateDate": "2018-03-02",
+                              "serviceRelevance": "ABCDEFG",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 249470,
+                              "isRelatedToToxicExposure": true
+                            },
+                            {
+                              "name": "Cancer - Musculoskeletal - Knee",
+                              "exposureOrEventOrInjury": "EXPOSURE",
+                              "approximateDate": "2015",
+                              "serviceRelevance": "ABCDEFG",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 249470,
+                              "isRelatedToToxicExposure": true
                             }
-                          ]
-                        },
-                        {
-                          "name": "Cancer - Musculoskeletal - Elbow",
-                          "exposureOrEventOrInjury": "EXPOSURE",
-                          "approximateDate": "2018-03-02",
-                          "serviceRelevance": "ABCDEFG",
-                          "disabilityActionType": "NEW",
-                          "classificationCode": "9014",
-                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                          "diagnosticCode": 249470,
-                          "isRelatedToToxicExposure": true
-                        },
-                        {
-                          "name": "Cancer - Musculoskeletal - Knee",
-                          "exposureOrEventOrInjury": "EXPOSURE",
-                          "approximateDate": "2015",
-                          "serviceRelevance": "ABCDEFG",
-                          "disabilityActionType": "NEW",
-                          "classificationCode": "9014",
-                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                          "diagnosticCode": 249470,
-                          "isRelatedToToxicExposure": true
-                        }
-                      ],
-                      "treatments": [
-                        {
-                          "beginDate": "2009-03",
-                          "treatedDisabilityNames": [
-                            "Traumatic Brain Injury",
-                            "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
-                            "Cancer - Musculoskeletal - Elbow"
                           ],
-                          "center": {
-                            "name": "Center One",
-                            "city": "Decatur",
-                            "state": "GA"
-                          }
+                          "treatments": [
+                            {
+                              "beginDate": "2009-03",
+                              "treatedDisabilityNames": [
+                                "Traumatic Brain Injury",
+                                "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                                "Cancer - Musculoskeletal - Elbow"
+                              ],
+                              "center": {
+                                "name": "Center One",
+                                "city": "Decatur",
+                                "state": "GA"
+                              }
+                            }
+                          ],
+                          "serviceInformation": {
+                            "alternateNames": [
+                              "john jacob",
+                              "johnny smith"
+                            ],
+                            "servicePeriods": [
+                              {
+                                "serviceBranch": "Public Health Service",
+                                "serviceComponent": "Active",
+                                "activeDutyBeginDate": "2008-11-14",
+                                "activeDutyEndDate": "2023-10-30",
+                                "separationLocationCode": "98282"
+                              }
+                            ],
+                            "servedInActiveCombatSince911": "NO",
+                            "reservesNationalGuardService": {
+                              "component": "National Guard",
+                              "obligationTermsOfService": {
+                                "beginDate": "2019-06-04",
+                                "endDate": "2020-06-04"
+                              },
+                              "unitName": "National Guard Unit Name",
+                              "unitAddress": "1243 pine court",
+                              "unitPhone": {
+                                "areaCode": "555",
+                                "phoneNumber": "5555555"
+                              },
+                              "receivingInactiveDutyTrainingPay": "YES"
+                            },
+                            "federalActivation": {
+                              "activationDate": "2023-10-01",
+                              "anticipatedSeparationDate": "2024-08-01"
+                            },
+                            "confinements": [
+                              {
+                                "approximateBeginDate": "2018-06-04",
+                                "approximateEndDate": "2018-07-04"
+                              },
+                              {
+                                "approximateBeginDate": "2020-06",
+                                "approximateEndDate": "2020-07"
+                              }
+                            ]
+                          },
+                          "servicePay": {
+                            "receivingMilitaryRetiredPay": "NO",
+                            "futureMilitaryRetiredPay": "YES",
+                            "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                            "militaryRetiredPay": {
+                              "branchOfService": "Army",
+                              "monthlyAmount": 840
+                            },
+                            "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
+                            "favorMilitaryRetiredPay": false,
+                            "receivedSeparationOrSeverancePay": "NO",
+                            "separationSeverancePay": {
+                              "datePaymentReceived": "2022-03-12",
+                              "branchOfService": "Naval Academy",
+                              "preTaxAmountReceived": 379
+                            },
+                            "favorTrainingPay": true
+                          },
+                          "directDeposit": {
+                            "noAccount": false,
+                            "accountNumber": "ABCDEF",
+                            "accountType": "CHECKING",
+                            "financialInstitutionName": "Chase",
+                            "routingNumber": "123123123"
+                          },
+                          "claimantCertification": true
                         }
-                      ],
-                      "serviceInformation": {
-                        "alternateNames": [
-                          "john jacob",
-                          "johnny smith"
-                        ],
-                        "servicePeriods": [
-                          {
-                            "serviceBranch": "Public Health Service",
-                            "serviceComponent": "Active",
-                            "activeDutyBeginDate": "2008-11-14",
-                            "activeDutyEndDate": "2023-10-30",
-                            "separationLocationCode": "98282"
-                          }
-                        ],
-                        "servedInActiveCombatSince911": "NO",
-                        "reservesNationalGuardService": {
-                          "component": "National Guard",
-                          "obligationTermsOfService": {
-                            "beginDate": "2019-06-04",
-                            "endDate": "2020-06-04"
+                      }
+                    }
+                  },
+                  "202 with a transactionId": {
+                    "value": {
+                      "data": {
+                        "id": "edb28482-636a-4933-9e7d-ff5670f5b268",
+                        "type": "forms/526",
+                        "attributes": {
+                          "claimId": "600442191",
+                          "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                          "claimNotes": "Some things that are important to know, and are not included in any other place.",
+                          "veteranIdentification": {
+                            "serviceNumber": "123456789",
+                            "veteranNumber": {
+                              "telephone": "5555555555",
+                              "internationalTelephone": "+44 20 1234 5678"
+                            },
+                            "mailingAddress": {
+                              "addressLine1": "1234 Couch Street",
+                              "addressLine2": "Unit 4",
+                              "addressLine3": "Room 1",
+                              "city": "Portland",
+                              "state": "OR",
+                              "country": "USA",
+                              "zipFirstFive": "41726",
+                              "zipLastFour": "1234"
+                            },
+                            "emailAddress": {
+                              "email": "valid@somedomain.com",
+                              "agreeToEmailRelatedToClaim": true
+                            },
+                            "currentVaEmployee": false
                           },
-                          "unitName": "National Guard Unit Name",
-                          "unitAddress": "1243 pine court",
-                          "unitPhone": {
-                            "areaCode": "555",
-                            "phoneNumber": "5555555"
+                          "changeOfAddress": {
+                            "typeOfAddressChange": "TEMPORARY",
+                            "addressLine1": "10 Peach St",
+                            "addressLine2": "Unit 4",
+                            "addressLine3": "Room 1",
+                            "city": "Atlanta",
+                            "state": "GA",
+                            "country": "USA",
+                            "zipFirstFive": "42220",
+                            "zipLastFour": "9897",
+                            "dates": {
+                              "beginDate": "2023-06-04",
+                              "endDate": "2023-12-04"
+                            }
                           },
-                          "receivingInactiveDutyTrainingPay": "YES"
-                        },
-                        "federalActivation": {
-                          "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-07-25"
-                        },
-                        "confinements": [
-                          {
-                            "approximateBeginDate": "2018-06-04",
-                            "approximateEndDate": "2018-07-04"
+                          "homeless": {
+                            "currentlyHomeless": {
+                              "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
+                              "otherDescription": "ABCDEFGHIJKLM"
+                            },
+                            "pointOfContact": "john stewart",
+                            "pointOfContactNumber": {
+                              "telephone": "5555555555",
+                              "internationalTelephone": "+44 20 1234 5678"
+                            }
                           },
-                          {
-                            "approximateBeginDate": "2020-06",
-                            "approximateEndDate": "2020-07"
-                          }
-                        ]
+                          "toxicExposure": {
+                            "gulfWarHazardService": {
+                              "servedInGulfWarHazardLocations": "YES",
+                              "serviceDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "herbicideHazardService": {
+                              "servedInHerbicideHazardLocations": "YES",
+                              "otherLocationsServed": "ABCDEFGHIJKLM",
+                              "serviceDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "additionalHazardExposures": {
+                              "additionalExposures": [
+                                "ASBESTOS",
+                                "SHIPBOARD_HAZARD_AND_DEFENSE"
+                              ],
+                              "specifyOtherExposures": "Other exposure details",
+                              "exposureDates": {
+                                "beginDate": "2018-07",
+                                "endDate": "2018-08"
+                              }
+                            },
+                            "multipleExposures": [
+                              {
+                                "hazardExposedTo": "RADIATION",
+                                "exposureLocation": "Guam",
+                                "exposureDates": {
+                                  "beginDate": "2012-12",
+                                  "endDate": "2013-07"
+                                }
+                              }
+                            ]
+                          },
+                          "disabilities": [
+                            {
+                              "name": "Traumatic Brain Injury",
+                              "exposureOrEventOrInjury": "EXPOSURE",
+                              "serviceRelevance": "ABCDEFG",
+                              "approximateDate": "2018-03-11",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 9020,
+                              "isRelatedToToxicExposure": true,
+                              "secondaryDisabilities": [
+                                {
+                                  "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                                  "exposureOrEventOrInjury": "EXPOSURE",
+                                  "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                                  "disabilityActionType": "SECONDARY",
+                                  "approximateDate": "2018-03-12",
+                                  "classificationCode": "9014"
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Cancer - Musculoskeletal - Elbow",
+                              "exposureOrEventOrInjury": "EXPOSURE",
+                              "approximateDate": "2018-03-02",
+                              "serviceRelevance": "ABCDEFG",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 249470,
+                              "isRelatedToToxicExposure": true
+                            },
+                            {
+                              "name": "Cancer - Musculoskeletal - Knee",
+                              "exposureOrEventOrInjury": "EXPOSURE",
+                              "approximateDate": "2015",
+                              "serviceRelevance": "ABCDEFG",
+                              "disabilityActionType": "NEW",
+                              "classificationCode": "9014",
+                              "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                              "diagnosticCode": 249470,
+                              "isRelatedToToxicExposure": true
+                            }
+                          ],
+                          "treatments": [
+                            {
+                              "beginDate": "2009-03",
+                              "treatedDisabilityNames": [
+                                "Traumatic Brain Injury",
+                                "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                                "Cancer - Musculoskeletal - Elbow"
+                              ],
+                              "center": {
+                                "name": "Center One",
+                                "city": "Decatur",
+                                "state": "GA"
+                              }
+                            }
+                          ],
+                          "serviceInformation": {
+                            "alternateNames": [
+                              "john jacob",
+                              "johnny smith"
+                            ],
+                            "servicePeriods": [
+                              {
+                                "serviceBranch": "Public Health Service",
+                                "serviceComponent": "Active",
+                                "activeDutyBeginDate": "2008-11-14",
+                                "activeDutyEndDate": "2023-10-30",
+                                "separationLocationCode": "98282"
+                              }
+                            ],
+                            "servedInActiveCombatSince911": "NO",
+                            "reservesNationalGuardService": {
+                              "component": "National Guard",
+                              "obligationTermsOfService": {
+                                "beginDate": "2019-06-04",
+                                "endDate": "2020-06-04"
+                              },
+                              "unitName": "National Guard Unit Name",
+                              "unitAddress": "1243 pine court",
+                              "unitPhone": {
+                                "areaCode": "555",
+                                "phoneNumber": "5555555"
+                              },
+                              "receivingInactiveDutyTrainingPay": "YES"
+                            },
+                            "federalActivation": {
+                              "activationDate": "2023-10-01",
+                              "anticipatedSeparationDate": "2024-10-31"
+                            },
+                            "confinements": [
+                              {
+                                "approximateBeginDate": "2018-06-04",
+                                "approximateEndDate": "2018-07-04"
+                              },
+                              {
+                                "approximateBeginDate": "2020-06",
+                                "approximateEndDate": "2020-07"
+                              }
+                            ]
+                          },
+                          "servicePay": {
+                            "receivingMilitaryRetiredPay": "NO",
+                            "futureMilitaryRetiredPay": "YES",
+                            "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                            "militaryRetiredPay": {
+                              "branchOfService": "Army",
+                              "monthlyAmount": 840
+                            },
+                            "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
+                            "favorMilitaryRetiredPay": false,
+                            "receivedSeparationOrSeverancePay": "NO",
+                            "separationSeverancePay": {
+                              "datePaymentReceived": "2022-03-12",
+                              "branchOfService": "Naval Academy",
+                              "preTaxAmountReceived": 379
+                            },
+                            "favorTrainingPay": true
+                          },
+                          "directDeposit": {
+                            "noAccount": false,
+                            "accountNumber": "ABCDEF",
+                            "accountType": "CHECKING",
+                            "financialInstitutionName": "Chase",
+                            "routingNumber": "123123123"
+                          },
+                          "claimantCertification": true
+                        }
                       },
-                      "servicePay": {
-                        "receivingMilitaryRetiredPay": "NO",
-                        "futureMilitaryRetiredPay": "YES",
-                        "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
-                        "militaryRetiredPay": {
-                          "branchOfService": "Army",
-                          "monthlyAmount": 840
-                        },
-                        "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
-                        "favorMilitaryRetiredPay": false,
-                        "receivedSeparationOrSeverancePay": "NO",
-                        "separationSeverancePay": {
-                          "datePaymentReceived": "2022-03-12",
-                          "branchOfService": "Naval Academy",
-                          "preTaxAmountReceived": 379
-                        },
-                        "favorTrainingPay": true
-                      },
-                      "directDeposit": {
-                        "noAccount": false,
-                        "accountNumber": "ABCDEF",
-                        "accountType": "CHECKING",
-                        "financialInstitutionName": "Chase",
-                        "routingNumber": "123123123"
-                      },
-                      "claimantCertification": true
+                      "meta": {
+                        "transactionId": "00000000-0000-0000-0000-000000000000"
+                      }
                     }
                   }
                 },
@@ -6013,8 +6319,6 @@
                                   "required": [
                                     "addressLine1",
                                     "city",
-                                    "state",
-                                    "zipFirstFive",
                                     "country"
                                   ],
                                   "properties": {
@@ -6049,10 +6353,11 @@
                                       "example": "Portland"
                                     },
                                     "state": {
-                                      "description": "State for the Veteran's current mailing address.",
+                                      "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR"
+                                      "example": "OR",
+                                      "nullable": true
                                     },
                                     "country": {
                                       "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -6061,16 +6366,23 @@
                                       "example": "USA"
                                     },
                                     "zipFirstFive": {
-                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                      "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^\\d{5}?$",
-                                      "example": "12345"
+                                      "example": "12345",
+                                      "nullable": true
                                     },
                                     "zipLastFour": {
                                       "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                       "type": "string",
                                       "pattern": "^\\d{4}?$",
                                       "example": "6789",
+                                      "nullable": true
+                                    },
+                                    "internationalPostalCode": {
+                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                      "type": "string",
+                                      "maxLength": 100,
                                       "nullable": true
                                     }
                                   }
@@ -6149,10 +6461,11 @@
                                   "example": "Portland"
                                 },
                                 "state": {
-                                  "description": "State for the Veteran's new address.",
+                                  "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^[a-z,A-Z]{2}$",
-                                  "example": "OR"
+                                  "example": "OR",
+                                  "nullable": true
                                 },
                                 "country": {
                                   "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -6161,10 +6474,11 @@
                                   "example": "USA"
                                 },
                                 "zipFirstFive": {
-                                  "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                  "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^\\d{5}?$",
-                                  "example": "12345"
+                                  "example": "12345",
+                                  "nullable": true
                                 },
                                 "zipLastFour": {
                                   "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -6172,6 +6486,12 @@
                                   "nullable": true,
                                   "pattern": "^$|^\\d{4}?$",
                                   "example": "6789"
+                                },
+                                "internationalPostalCode": {
+                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                  "type": "string",
+                                  "maxLength": 100,
+                                  "nullable": true
                                 },
                                 "dates": {
                                   "type": "object",
@@ -6198,6 +6518,16 @@
                               "nullable": true,
                               "additionalProperties": false,
                               "properties": {
+                                "isCurrentlyHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently homeless?"
+                                },
+                                "isAtRiskOfBecomingHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently at risk of becoming homeless?"
+                                },
                                 "currentlyHomeless": {
                                   "type": "object",
                                   "nullable": true,
@@ -6714,7 +7044,6 @@
                                   "description": "Identifies the Service dates and Branch the Veteran served in.",
                                   "type": "array",
                                   "minItems": 1,
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "required": [
@@ -7365,8 +7694,6 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
@@ -7401,10 +7728,11 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the Veteran's current mailing address.",
+                                    "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -7413,16 +7741,23 @@
                                     "example": "USA"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
-                                    "example": "12345"
+                                    "example": "12345",
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789",
+                                    "nullable": true
+                                  },
+                                  "internationalPostalCode": {
+                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "type": "string",
+                                    "maxLength": 100,
                                     "nullable": true
                                   }
                                 }
@@ -7501,10 +7836,11 @@
                                 "example": "Portland"
                               },
                               "state": {
-                                "description": "State for the Veteran's new address.",
+                                "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR"
+                                "example": "OR",
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -7513,10 +7849,11 @@
                                 "example": "USA"
                               },
                               "zipFirstFive": {
-                                "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^\\d{5}?$",
-                                "example": "12345"
+                                "example": "12345",
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -7524,6 +7861,12 @@
                                 "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
+                              },
+                              "internationalPostalCode": {
+                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "type": "string",
+                                "maxLength": 100,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
@@ -7550,6 +7893,16 @@
                             "nullable": true,
                             "additionalProperties": false,
                             "properties": {
+                              "isCurrentlyHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently homeless?"
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
+                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -8066,7 +8419,6 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -8895,6 +9247,236 @@
                       }
                     }
                   }
+                },
+                "Transaction ID": {
+                  "value": {
+                    "meta": {
+                      "transactionId": "00000000-0000-0000-0000-000000000000"
+                    },
+                    "data": {
+                      "type": "form/526",
+                      "attributes": {
+                        "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "claimNotes": "Some things that are important to know, and are not included in any other place.",
+                        "veteranIdentification": {
+                          "serviceNumber": "123456789",
+                          "veteranNumber": {
+                            "telephone": "5555555555",
+                            "internationalTelephone": "+44 20 1234 5678"
+                          },
+                          "mailingAddress": {
+                            "addressLine1": "1234 Couch Street",
+                            "addressLine2": "Unit 4",
+                            "addressLine3": "Room 1",
+                            "city": "Portland",
+                            "state": "OR",
+                            "country": "USA",
+                            "zipFirstFive": "41726",
+                            "zipLastFour": "1234"
+                          },
+                          "emailAddress": {
+                            "email": "valid@somedomain.com",
+                            "agreeToEmailRelatedToClaim": true
+                          },
+                          "currentVaEmployee": false
+                        },
+                        "changeOfAddress": {
+                          "typeOfAddressChange": "TEMPORARY",
+                          "addressLine1": "10 Peach St",
+                          "addressLine2": "Unit 4",
+                          "addressLine3": "Room 1",
+                          "city": "Atlanta",
+                          "state": "GA",
+                          "country": "USA",
+                          "zipFirstFive": "42220",
+                          "zipLastFour": "9897",
+                          "dates": {
+                            "beginDate": "2023-06-04",
+                            "endDate": "2023-12-04"
+                          }
+                        },
+                        "homeless": {
+                          "currentlyHomeless": {
+                            "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
+                            "otherDescription": "ABCDEFGHIJKLM"
+                          },
+                          "pointOfContact": "john stewart",
+                          "pointOfContactNumber": {
+                            "telephone": "5555555555",
+                            "internationalTelephone": "+44 20 1234 5678"
+                          }
+                        },
+                        "toxicExposure": {
+                          "gulfWarHazardService": {
+                            "servedInGulfWarHazardLocations": "YES",
+                            "serviceDates": {
+                              "beginDate": "2018-07",
+                              "endDate": "2018-08"
+                            }
+                          },
+                          "herbicideHazardService": {
+                            "servedInHerbicideHazardLocations": "YES",
+                            "otherLocationsServed": "ABCDEFGHIJKLM",
+                            "serviceDates": {
+                              "beginDate": "2018-07",
+                              "endDate": "2018-08"
+                            }
+                          },
+                          "additionalHazardExposures": {
+                            "additionalExposures": [
+                              "ASBESTOS",
+                              "SHIPBOARD_HAZARD_AND_DEFENSE"
+                            ],
+                            "specifyOtherExposures": "Other exposure details",
+                            "exposureDates": {
+                              "beginDate": "2018-07",
+                              "endDate": "2018-08"
+                            }
+                          },
+                          "multipleExposures": [
+                            {
+                              "hazardExposedTo": "RADIATION",
+                              "exposureLocation": "Guam",
+                              "exposureDates": {
+                                "beginDate": "2012-12",
+                                "endDate": "2013-07"
+                              }
+                            }
+                          ]
+                        },
+                        "disabilities": [
+                          {
+                            "name": "Traumatic Brain Injury",
+                            "exposureOrEventOrInjury": "EXPOSURE",
+                            "serviceRelevance": "ABCDEFG",
+                            "approximateDate": "2018-03-11",
+                            "disabilityActionType": "NEW",
+                            "classificationCode": "9014",
+                            "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                            "diagnosticCode": 9020,
+                            "isRelatedToToxicExposure": true,
+                            "secondaryDisabilities": [
+                              {
+                                "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                                "exposureOrEventOrInjury": "EXPOSURE",
+                                "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                                "disabilityActionType": "SECONDARY",
+                                "approximateDate": "2018-03-12",
+                                "classificationCode": "9014"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "Cancer - Musculoskeletal - Elbow",
+                            "exposureOrEventOrInjury": "EXPOSURE",
+                            "approximateDate": "2018-03-02",
+                            "serviceRelevance": "ABCDEFG",
+                            "disabilityActionType": "NEW",
+                            "classificationCode": "9014",
+                            "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                            "diagnosticCode": 249470,
+                            "isRelatedToToxicExposure": true
+                          },
+                          {
+                            "name": "Cancer - Musculoskeletal - Knee",
+                            "exposureOrEventOrInjury": "EXPOSURE",
+                            "approximateDate": "2015",
+                            "serviceRelevance": "ABCDEFG",
+                            "disabilityActionType": "NEW",
+                            "classificationCode": "9014",
+                            "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                            "diagnosticCode": 249470,
+                            "isRelatedToToxicExposure": true
+                          }
+                        ],
+                        "treatments": [
+                          {
+                            "beginDate": "2009-03",
+                            "treatedDisabilityNames": [
+                              "Traumatic Brain Injury",
+                              "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                              "Cancer - Musculoskeletal - Elbow"
+                            ],
+                            "center": {
+                              "name": "Center One",
+                              "city": "Decatur",
+                              "state": "GA"
+                            }
+                          }
+                        ],
+                        "serviceInformation": {
+                          "alternateNames": [
+                            "john jacob",
+                            "johnny smith"
+                          ],
+                          "servicePeriods": [
+                            {
+                              "serviceBranch": "Public Health Service",
+                              "serviceComponent": "Active",
+                              "activeDutyBeginDate": "2008-11-14",
+                              "activeDutyEndDate": "2023-10-30",
+                              "separationLocationCode": "98282"
+                            }
+                          ],
+                          "servedInActiveCombatSince911": "NO",
+                          "reservesNationalGuardService": {
+                            "component": "National Guard",
+                            "obligationTermsOfService": {
+                              "beginDate": "2019-06-04",
+                              "endDate": "2020-06-04"
+                            },
+                            "unitName": "National Guard Unit Name",
+                            "unitAddress": "1243 pine court",
+                            "unitPhone": {
+                              "areaCode": "555",
+                              "phoneNumber": "5555555"
+                            },
+                            "receivingInactiveDutyTrainingPay": "YES"
+                          },
+                          "federalActivation": {
+                            "activationDate": "2023-10-01",
+                            "anticipatedSeparationDate": "2024-10-31"
+                          },
+                          "confinements": [
+                            {
+                              "approximateBeginDate": "2018-06-04",
+                              "approximateEndDate": "2018-07-04"
+                            },
+                            {
+                              "approximateBeginDate": "2020-06",
+                              "approximateEndDate": "2020-07"
+                            }
+                          ]
+                        },
+                        "servicePay": {
+                          "receivingMilitaryRetiredPay": "NO",
+                          "futureMilitaryRetiredPay": "YES",
+                          "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                          "militaryRetiredPay": {
+                            "branchOfService": "Army",
+                            "monthlyAmount": 840
+                          },
+                          "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
+                          "favorMilitaryRetiredPay": false,
+                          "receivedSeparationOrSeverancePay": "NO",
+                          "separationSeverancePay": {
+                            "datePaymentReceived": "2022-03-12",
+                            "branchOfService": "Naval Academy",
+                            "preTaxAmountReceived": 379
+                          },
+                          "favorTrainingPay": true
+                        },
+                        "directDeposit": {
+                          "noAccount": false,
+                          "accountNumber": "ABCDEF",
+                          "accountType": "CHECKING",
+                          "financialInstitutionName": "Chase",
+                          "routingNumber": "123123123"
+                        },
+                        "claimantCertification": true
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -9260,8 +9842,6 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
@@ -9296,10 +9876,11 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the Veteran's current mailing address.",
+                                    "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -9308,16 +9889,23 @@
                                     "example": "USA"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
+                                    "description": "Zip code (First 5 digits) for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
-                                    "example": "12345"
+                                    "example": "12345",
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789",
+                                    "nullable": true
+                                  },
+                                  "internationalPostalCode": {
+                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "type": "string",
+                                    "maxLength": 100,
                                     "nullable": true
                                   }
                                 }
@@ -9396,10 +9984,11 @@
                                 "example": "Portland"
                               },
                               "state": {
-                                "description": "State for the Veteran's new address.",
+                                "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR"
+                                "example": "OR",
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -9408,10 +9997,11 @@
                                 "example": "USA"
                               },
                               "zipFirstFive": {
-                                "description": "Zip code (First 5 digits) for the Veteran's new address.",
+                                "description": "Zip code (First 5 digits) for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^\\d{5}?$",
-                                "example": "12345"
+                                "example": "12345",
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -9419,6 +10009,12 @@
                                 "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
+                              },
+                              "internationalPostalCode": {
+                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "type": "string",
+                                "maxLength": 100,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
@@ -9445,6 +10041,16 @@
                             "nullable": true,
                             "additionalProperties": false,
                             "properties": {
+                              "isCurrentlyHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently homeless?"
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
+                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -9961,7 +10567,6 @@
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
                                 "minItems": 1,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -10585,7 +11190,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0b34bc0b-dfc4-4820-b04b-98e2235f7e05",
+                    "id": "3b9bd54b-0559-4383-923c-1a758f39c639",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13054,6 +13659,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -13079,6 +13685,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -13106,6 +13716,7 @@
                 "example": {
                   "errors": [
                     {
+                      "status": "404",
                       "title": "Resource not found",
                       "detail": "Claim not found"
                     }
@@ -13133,6 +13744,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -13146,6 +13761,50 @@
                           }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "attributes": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "description": "Claims API 5103 Schema",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "trackedItemIds": {
+                            "description": "Array of tracked items ids.",
+                            "type": "array",
+                            "nullable": true,
+                            "uniqueItems": true,
+                            "items": {
+                              "type": "integer",
+                              "additionalProperties": false
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "type": "form/5103",
+                    "attributes": {
+                      "trackedItemIds": [
+                        1234
+                      ]
                     }
                   }
                 }
@@ -13314,6 +13973,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -13366,6 +14029,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -13438,8 +14105,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-23",
-                      "expirationDate": "2025-07-23",
+                      "creationDate": "2024-07-30",
+                      "expirationDate": "2025-07-30",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13540,6 +14207,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -13593,6 +14264,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -13645,6 +14320,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -13849,6 +14528,10 @@
                             "type": "string",
                             "description": "HTTP error detail"
                           },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
                           "source": {
                             "type": "object",
                             "additionalProperties": false,
@@ -13901,6 +14584,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -14315,7 +15002,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e4c93b8c-9ce0-47ee-bbf9-8d344fbeaf53",
+                    "id": "46fedb7e-9141-4080-9c19-6247fe86e77f",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15008,7 +15695,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a6322256-baf4-42de-a6f7-fda9d559f799",
+                    "id": "a48f35ac-d472-48e0-a19d-b60e0b26e72d",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16959,10 +17646,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3c2bcaaa-4c6a-47c5-a8ce-8bc85a23ebb1",
+                    "id": "25fcda8b-a9e5-48b8-ac33-4a6ba64d55d0",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-23",
+                      "dateRequestAccepted": "2024-07-30",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

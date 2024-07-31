@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
-require_relative '../concerns/json_api_pagination_links'
-
 module Mobile
   module V0
     class MessagesController < MessagingController
       include Filterable
-      include Mobile::Concerns::JsonApiPaginationLinks
 
       def index
         resource = client.get_folder_messages(@current_user.uuid, params[:folder_id].to_s, use_cache?)

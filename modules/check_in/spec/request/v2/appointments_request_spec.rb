@@ -153,7 +153,10 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
                   facilityTimezone: 'America/New_York',
-                  facilityPhoneMain: '843-577-5011'
+                  facilityPhoneMain: '843-577-5011',
+                  clinicServiceName: 'CHS NEUROSURGERY VARMA',
+                  clinicPhysicalLocation: '1ST FL SPECIALTY MODULE 2',
+                  clinicFriendlyName: 'CHS NEUROSURGERY VARMA'
                 }
               },
               {
@@ -171,7 +174,141 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
                   facilityTimezone: 'America/New_York',
-                  facilityPhoneMain: '843-577-5011'
+                  facilityPhoneMain: '843-577-5011',
+                  clinicServiceName: 'CHS NEUROSURGERY VARMA',
+                  clinicPhysicalLocation: '1ST FL SPECIALTY MODULE 2',
+                  clinicFriendlyName: 'CHS NEUROSURGERY VARMA'
+                }
+              }
+            ]
+          }.to_json
+        end
+
+        it 'returns appointments' do
+          VCR.use_cassette 'check_in/clinics/get_clinics_200' do
+            VCR.use_cassette 'check_in/facilities/get_facilities_200' do
+              VCR.use_cassette 'check_in/appointments/get_appointments_200' do
+                VCR.use_cassette 'check_in/map/security_token_service_200' do
+                  get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+                end
+              end
+            end
+          end
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to eq(appts_response)
+        end
+      end
+
+      context 'when appointment service returns successfully without location id for single appointment' do
+        let(:appts_response) do
+          {
+            data: [
+              {
+                id: '180766',
+                type: 'appointments',
+                attributes: {
+                  kind: 'clinic',
+                  status: 'booked',
+                  serviceType: 'amputation',
+                  locationId: nil,
+                  clinic: '1024',
+                  start: '2023-11-13T16:00:00Z',
+                  end: '2023-11-13T16:30:00Z',
+                  minutesDuration: 30,
+                  facilityName: nil,
+                  facilityVistaSite: nil,
+                  facilityTimezone: nil,
+                  facilityPhoneMain: nil,
+                  clinicServiceName: nil,
+                  clinicPhysicalLocation: nil,
+                  clinicFriendlyName: nil
+                }
+              },
+              {
+                id: '180770',
+                type: 'appointments',
+                attributes: {
+                  kind: 'clinic',
+                  status: 'booked',
+                  serviceType: 'amputation',
+                  locationId: '534',
+                  clinic: '1081',
+                  start: '2023-12-11T16:00:00Z',
+                  end: '2023-12-11T16:30:00Z',
+                  minutesDuration: 30,
+                  facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
+                  facilityVistaSite: '534',
+                  facilityTimezone: 'America/New_York',
+                  facilityPhoneMain: '843-577-5011',
+                  clinicServiceName: 'CHS NEUROSURGERY VARMA',
+                  clinicPhysicalLocation: '1ST FL SPECIALTY MODULE 2',
+                  clinicFriendlyName: 'CHS NEUROSURGERY VARMA'
+                }
+              }
+            ]
+          }.to_json
+        end
+
+        it 'returns appointments' do
+          VCR.use_cassette 'check_in/clinics/get_clinics_200' do
+            VCR.use_cassette 'check_in/facilities/get_facilities_200' do
+              VCR.use_cassette 'check_in/appointments/get_appointments_without_location_200' do
+                VCR.use_cassette 'check_in/map/security_token_service_200' do
+                  get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+                end
+              end
+            end
+          end
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to eq(appts_response)
+        end
+      end
+
+      context 'when appointment service returns successfully without clinic' do
+        let(:appts_response) do
+          {
+            data: [
+              {
+                id: '180766',
+                type: 'appointments',
+                attributes: {
+                  kind: 'clinic',
+                  status: 'booked',
+                  serviceType: 'amputation',
+                  locationId: '534',
+                  clinic: nil,
+                  start: '2023-11-13T16:00:00Z',
+                  end: '2023-11-13T16:30:00Z',
+                  minutesDuration: 30,
+                  facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
+                  facilityVistaSite: '534',
+                  facilityTimezone: 'America/New_York',
+                  facilityPhoneMain: '843-577-5011',
+                  clinicServiceName: nil,
+                  clinicPhysicalLocation: nil,
+                  clinicFriendlyName: nil
+                }
+              },
+              {
+                id: '180770',
+                type: 'appointments',
+                attributes: {
+                  kind: 'clinic',
+                  status: 'booked',
+                  serviceType: 'amputation',
+                  locationId: '534',
+                  clinic: nil,
+                  start: '2023-12-11T16:00:00Z',
+                  end: '2023-12-11T16:30:00Z',
+                  minutesDuration: 30,
+                  facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
+                  facilityVistaSite: '534',
+                  facilityTimezone: 'America/New_York',
+                  facilityPhoneMain: '843-577-5011',
+                  clinicServiceName: nil,
+                  clinicPhysicalLocation: nil,
+                  clinicFriendlyName: nil
                 }
               }
             ]
@@ -180,7 +317,7 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
 
         it 'returns appointments' do
           VCR.use_cassette 'check_in/facilities/get_facilities_200' do
-            VCR.use_cassette 'check_in/appointments/get_appointments_200' do
+            VCR.use_cassette 'check_in/appointments/get_appointments_without_clinic_200' do
               VCR.use_cassette 'check_in/map/security_token_service_200' do
                 get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
               end
@@ -207,11 +344,9 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
         end
 
         it 'returns error' do
-          VCR.use_cassette 'check_in/facilities/get_facilities_200' do
-            VCR.use_cassette 'check_in/appointments/get_appointments_500' do
-              VCR.use_cassette 'check_in/map/security_token_service_200' do
-                get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
-              end
+          VCR.use_cassette 'check_in/appointments/get_appointments_500' do
+            VCR.use_cassette 'check_in/map/security_token_service_200' do
+              get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
             end
           end
 
@@ -239,6 +374,36 @@ RSpec.describe 'V2::AppointmentsController', type: :request do
             VCR.use_cassette 'check_in/appointments/get_appointments_200' do
               VCR.use_cassette 'check_in/map/security_token_service_200' do
                 get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+              end
+            end
+          end
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response.body).to eq(error_response)
+        end
+      end
+
+      context 'when facility service succeeds 200 but clinic service returns 500' do
+        let(:error_response) do
+          {
+            errors: [
+              {
+                title: 'Operation failed',
+                detail: 'Operation failed',
+                code: 'VA900',
+                status: '400'
+              }
+            ]
+          }.to_json
+        end
+
+        it 'returns error' do
+          VCR.use_cassette 'check_in/clinics/get_clinics_500' do
+            VCR.use_cassette 'check_in/facilities/get_facilities_200' do
+              VCR.use_cassette 'check_in/appointments/get_appointments_200' do
+                VCR.use_cassette 'check_in/map/security_token_service_200' do
+                  get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
+                end
               end
             end
           end
