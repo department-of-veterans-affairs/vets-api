@@ -311,9 +311,12 @@ module VAOS
         icn&.gsub(/V[\d]{6}$/, '')
       end
 
-      # Scrubs the ICN of non-alphanumeric values
+      # Scrubs the ICN of any values that produce an invalid format.
+      # The ICN format consists of 17 alpha-numeric characters (10 digits + "V" + 6 digits) with
+      # V being a deliminator, and the 6 trailing digits a checksum.
+      #
       def scrub_icn(icn)
-        icn&.gsub(/[^0-9a-z]/i, '')
+        icn&.gsub(/[^0-9V]/, '')
       end
 
       # Checks equality between two ICNs (Integration Control Numbers)
