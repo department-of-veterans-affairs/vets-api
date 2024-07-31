@@ -90,7 +90,7 @@ module BenefitsIntakeService
     end
 
     def generate_metadata(metadata)
-      metadata = {
+      metadata_to_convert = {
         veteranFirstName: metadata[:veteran_first_name],
         veteranLastName: metadata[:veteran_last_name],
         fileNumber: metadata[:file_number],
@@ -100,7 +100,7 @@ module BenefitsIntakeService
         businessLine: 'CMP',
         claimDate: metadata[:claim_date]
       }
-      BenefitsIntake::Metadata.validate(metadata)
+      BenefitsIntake::Metadata.validate(metadata_to_convert.stringify_keys)
     end
 
     def generate_tmp_metadata_file(metadata)
