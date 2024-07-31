@@ -43,24 +43,33 @@ module FacilitiesApi
         # services is a string here
         def facility_with_services(services)
           facility = V2::Lighthouse::Facility.new(data)
-          parsed_services = JSON.parse(services)
-          services_data = parsed_services.key?('data') ? parsed_services['data'] : []
-          health_services = services_data.map do |service|
-            V2::Lighthouse::Service.new(service)
-          end
-          health_services = health_services.select { |service| service['new'] || service['established'] }
-          facility.access = if health_services.first
-                              { 'health' => health_services,
-                                'effectiveDate' => health_services.first['effectiveDate'] }
-                            else
-                              {
-                                'health' => [], effectiveDate: ''
-                              }
-                            end
+          parsed_services = parse_services(services)
+          health_services = extract_health_services(parsed_services)
+          facility.access = build_access_data(health_services)
           facility
         end
 
         private
+
+        def parse_services(services)
+          JSON.parse(services).fetch('data', [])
+        end
+
+        def extract_health_services(services_data)
+          health_services = services_data.map do |service|
+            V2::Lighthouse::Service.new(service)
+          end
+
+          health_services.select { |service| service['new'] || service['established'] }
+        end
+
+        def build_access_data(health_services)
+          if health_services.empty?
+            { 'health' => [], 'effectiveDate' => '' }
+          else
+            { 'health' => health_services, 'effectiveDate' => health_services.first['effectiveDate'] }
+          end
+        end
 
         def set_metadata(meta)
           self.current_page = meta['pagination']['currentPage']

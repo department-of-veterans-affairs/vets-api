@@ -6,8 +6,8 @@ module FacilitiesApi
   class V2::Lighthouse::Service < Common::Base
     include ActiveModel::Serializers::JSON
 
+    attribute :serviceName, String
     attribute :service, String
-    attribute :serviceId, String
     attribute :serviceType, String
     attribute :new, Float
     attribute :established, Float
@@ -18,8 +18,8 @@ module FacilitiesApi
 
     def initialize(svc)
       super(svc)
-      self.service = svc['serviceInfo']['name'] if svc['serviceInfo']['name']
-      self.serviceId = svc['serviceInfo']['serviceId'] if svc['serviceInfo']['serviceId']
+      self.serviceName = svc['serviceInfo']['name'] if svc['serviceInfo']['name']
+      self.service = svc['serviceInfo']['serviceId'] if svc['serviceInfo']['serviceId']
       self.serviceType = svc['serviceInfo']['serviceType'] if svc['serviceInfo']['serviceType']
       if svc['waitTime']
         self.new = svc['waitTime']['new']
