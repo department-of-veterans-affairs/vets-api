@@ -119,13 +119,12 @@ module Pensions
       # upload must be performed within 15 minutes of this request
       @intake_service.request_upload
       @pension_monitor.track_submission_begun(@claim, @intake_service, @user_account_uuid)
-
       form_submission_polling
 
       payload = {
         upload_url: @intake_service.location,
         document: @form_path,
-        metadata: @metadata,
+        metadata: @metadata.to_json,
         attachments: @attachment_paths
       }
 

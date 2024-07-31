@@ -37,7 +37,7 @@ module BenefitsIntake
     #
     # @raise JSON::ParserError
     #
-    # @param metadata [Hash|JSONString] metadata to be sent with upload, must result in valid JSON
+    # @param metadata [JSONString] metadata to be sent with upload, must be valid JSON
     # @param document [String] main document file path
     # @param attachments [Array<String>] attachment file path; optional, default = []
     # @param upload_url [String] override instance upload_url; optional, default = @location
@@ -45,7 +45,6 @@ module BenefitsIntake
     def perform_upload(metadata:, document:, attachments: [], upload_url: nil)
       upload_url, _uuid = request_upload unless upload_url
 
-      metadata = metadata.to_json if metadata.respond_to?(:to_json)
       metadata = JSON.parse(metadata)
       meta_tmp = Common::FileHelpers.generate_temp_file(metadata.to_json, "#{STATSD_KEY_PREFIX}.#{@uuid}.metadata.json")
 
