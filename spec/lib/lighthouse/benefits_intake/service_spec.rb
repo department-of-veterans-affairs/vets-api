@@ -64,10 +64,11 @@ RSpec.describe BenefitsIntake::Service do
       service.instance_variable_set(:@uuid, 'uuid')
 
       allow(Common::FileHelpers).to receive(:generate_temp_file).and_return 'a-temp-file'
-      allow(Faraday::UploadIO).to receive(:new).and_return 'a-file-io-object'
     end
 
     it 'performs the upload' do
+      allow(Faraday::UploadIO).to receive(:new).and_return 'a-file-io-object'
+
       expect(Common::FileHelpers).to(
         receive(:generate_temp_file).once.with(metadata.to_json, 'api.benefits_intake.uuid.metadata.json')
       )
@@ -83,6 +84,8 @@ RSpec.describe BenefitsIntake::Service do
 
     it 'performs the upload to a different url' do
       args[:upload_url] = 'another-location'
+      allow(Faraday::UploadIO).to receive(:new).and_return 'a-file-io-object'
+
       expect(service).not_to receive(:request_upload)
       expect(service).to receive(:perform).with(:put, 'another-location', expected_params, headers)
       service.perform_upload(**args)
@@ -94,6 +97,11 @@ RSpec.describe BenefitsIntake::Service do
       expect(Common::FileHelpers).not_to receive(:generate_temp_file)
       expect(service).not_to receive(:perform)
       expect { service.perform_upload(**args) }.to raise_error JSON::ParserError
+    end
+
+    it 'errors on missing File' do
+      expect(service).not_to receive(:perform)
+      expect { service.perform_upload(**args) }.to raise_error Errno::ENOENT
     end
   end
 
