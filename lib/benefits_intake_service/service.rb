@@ -7,6 +7,7 @@ require 'common/exceptions/forbidden'
 require 'common/exceptions/schema_validation_errors'
 require 'benefits_intake_service/configuration'
 require 'benefits_intake_service/utilities/convert_to_pdf'
+require 'lighthouse/benefits_intake/metadata'
 
 module BenefitsIntakeService
   ##
@@ -89,7 +90,7 @@ module BenefitsIntakeService
     end
 
     def generate_metadata(metadata)
-      {
+      metadata = {
         veteranFirstName: metadata[:veteran_first_name],
         veteranLastName: metadata[:veteran_last_name],
         fileNumber: metadata[:file_number],
@@ -99,6 +100,7 @@ module BenefitsIntakeService
         businessLine: 'CMP',
         claimDate: metadata[:claim_date]
       }
+      BenefitsIntake::Metadata.validate(metadata)
     end
 
     def generate_tmp_metadata_file(metadata)
