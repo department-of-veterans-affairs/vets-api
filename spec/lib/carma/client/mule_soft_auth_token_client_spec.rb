@@ -72,7 +72,8 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
 
         expect do
           subject
-        end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
+        end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError,
+                           "Response: #{mock_error_token_response}")
       end
     end
   end

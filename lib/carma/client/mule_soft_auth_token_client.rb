@@ -26,7 +26,7 @@ module CARMA
 
           return response.body[:access_token] if response.status == 201
 
-          raise GetAuthTokenError
+          raise GetAuthTokenError, "Response: #{response}"
         end
       end
 
