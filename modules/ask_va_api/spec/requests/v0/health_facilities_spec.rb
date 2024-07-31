@@ -291,20 +291,20 @@ RSpec.describe AskVAApi::V0::HealthFacilitiesController, team: :facilities, type
                       'serviceName' => 'Audiology and speech',
                       'service' => 'audiology',
                       'serviceType' => 'health',
-                      'new' => 55.0,
-                      'established' => 26.0,
-                      'effectiveDate' => '2024-07-24'
+                      'new' => 53.0,
+                      'established' => 28.0,
+                      'effectiveDate' => '2024-07-29'
                     },
                     {
                       'serviceName' => 'Optometry',
                       'service' => 'optometry',
                       'serviceType' => 'health',
-                      'new' => 58.0,
-                      'established' => 19.0,
-                      'effectiveDate' => '2024-07-24'
+                      'new' => 56.0,
+                      'established' => 17.0,
+                      'effectiveDate' => '2024-07-29'
                     }
                   ],
-                  'effectiveDate' => '2024-07-24'
+                  'effectiveDate' => '2024-07-29'
                 },
                 address: {
                   physical: {

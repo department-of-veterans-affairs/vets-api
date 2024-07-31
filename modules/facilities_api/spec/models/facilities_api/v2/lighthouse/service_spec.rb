@@ -8,7 +8,7 @@ describe FacilitiesApi::V2::Lighthouse::Service, team: :facilities, type: :model
       {
         'serviceInfo' => {
           'name' => 'Audiology and speech',
-          'service' => 'audiology',
+          'serviceId' => 'audiology',
           'serviceType' => 'health'
         },
         'waitTime' => {
