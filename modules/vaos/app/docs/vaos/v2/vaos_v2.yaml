@@ -1286,6 +1286,15 @@ components:
             end:
               type: string
               example: "2020-01-01T13:00:00Z"
+            locationId:
+              type: string
+              example: "757GC"
+            practitionerName:
+              type: string
+              example: "Doe, John D, MD"
+            clinicIen:
+              type: string
+              example: "32216049"
     ContactPoint:
       type: object
       properties:
