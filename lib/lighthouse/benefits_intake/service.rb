@@ -35,7 +35,9 @@ module BenefitsIntake
     # Perform the upload to BenefitsIntake
     # parameters should be run through validation functions first, to prevent downstream processing errors
     #
-    # @param metadata [Hash] metadata to be sent with upload
+    # @raise JSON::ParserError
+    #
+    # @param metadata [Hash|JSONString] metadata to be sent with upload, must result in valid JSON
     # @param document [String] main document file path
     # @param attachments [Array<String>] attachment file path; optional, default = []
     # @param upload_url [String] override instance upload_url; optional, default = @location
@@ -43,7 +45,9 @@ module BenefitsIntake
     def perform_upload(metadata:, document:, attachments: [], upload_url: nil)
       upload_url, _uuid = request_upload unless upload_url
 
-      meta_tmp = Common::FileHelpers.generate_temp_file(metadata.to_s, "#{STATSD_KEY_PREFIX}.#{@uuid}.metadata.json")
+      metadata = metadata.to_json if metadata.respond_to?(:to_json)
+      metadata = JSON.parse(metadata)
+      meta_tmp = Common::FileHelpers.generate_temp_file(metadata.to_json, "#{STATSD_KEY_PREFIX}.#{@uuid}.metadata.json")
 
       params = {}
       params[:metadata] = Faraday::UploadIO.new(meta_tmp, Mime[:json].to_s, 'metadata.json')
