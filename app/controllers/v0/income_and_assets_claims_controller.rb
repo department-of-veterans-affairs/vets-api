@@ -13,10 +13,10 @@ module V0
     def claim_class
       SavedClaim::IncomeAndAssets
     end
-    
+
     def show
       return unless Flipper.enabled?(:pension_income_and_assets_clarification)
-      
+
       claim = claim_class.find_by!(guid: params[:id]) # will raise ActiveRecord::NotFound
 
       form_submission = claim.form_submissions&.order(id: :asc)&.last
@@ -38,7 +38,7 @@ module V0
 
     def create
       return unless Flipper.enabled?(:pension_income_and_assets_clarification)
-      
+
       claim = claim_class.new(form: filtered_params[:form])
       ia_monitor.track_create_attempt(claim, current_user)
 
