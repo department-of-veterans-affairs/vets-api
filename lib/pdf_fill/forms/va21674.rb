@@ -240,6 +240,36 @@ module PdfFill
             'tuition_is_paid_by_gov_agency' => {
               'is_paid_yes' => { key: 'form1[0].#subform[0].YES1[0]' },
               'is_paid_no' => { key: 'form1[0].#subform[0].NO1[0]' }
+            },
+            'agency_name' => { # temporary addition while new fields have not been added that changes the schema
+              key: 'form1[0].#subform[0].FederalAssistanceProgram[0]',
+              limit: 200,
+              question_num: 9,
+              question_suffix: 'A',
+              question_text: 'Federally funded school or program'
+            },
+            'date_payments_began' => { # temporary addition while new fields have not been added that changes the schema
+              'month' => {
+                key: 'form1[0].#subform[0].DatePaymentsBegan.month[0]',
+                limit: 2,
+                question_num: 9,
+                question_suffix: 'C',
+                question_text: 'School Attendance Information > DATE PAYMENTS BEGAN (MM-DD-YYYY)'
+              },
+              'day' => {
+                key: 'form1[0].#subform[0].DatePaymentsBegan.day[0]',
+                limit: 2,
+                question_num: 9,
+                question_suffix: 'C',
+                question_text: 'School Attendance Information > DATE PAYMENTS BEGAN (MM-DD-YYYY)'
+              },
+              'year' => {
+                key: 'form1[0].#subform[0].DatePaymentsBegan.year[0]',
+                limit: 4,
+                question_num: 9,
+                question_suffix: 'C',
+                question_text: 'School Attendance Information > DATE PAYMENTS BEGAN (MM-DD-YYYY)'
+              }
             }
           }, # end student_address_marriage_tuition
           'agency_or_program' => {
@@ -571,6 +601,12 @@ module PdfFill
         if student_address_marriage_tuition.present?
           student_address_marriage_tuition['marriage_date'] =
             split_date(student_address_marriage_tuition['marriage_date'])
+
+          # handle old format of fields before merging in front end, remove once merged
+          if student_address_marriage_tuition['date_payments_began'].present?
+            date_payments_began = student_address_marriage_tuition['date_payments_began']
+            student_address_marriage_tuition['date_payments_began'] = split_date(date_payments_began)
+          end
         end
 
         if agency_or_program.present?
