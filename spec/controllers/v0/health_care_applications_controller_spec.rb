@@ -45,7 +45,7 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
       target_facility = OpenStruct.new(id: 'vha_456ab')
       facilities_response = [unrelated_facility, target_facility]
 
-      StdInstitutionFacility.create(station_number: '456ab', deactivation_date: Time.now)
+      StdInstitutionFacility.create(station_number: '456ab', deactivation_date: Time.current)
 
       expect(lighthouse_service).to receive(:get_facilities) { facilities_response }
 
