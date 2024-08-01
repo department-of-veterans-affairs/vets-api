@@ -10,6 +10,7 @@ module ClaimsApi
 
       def generate(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
         auto_claim = get_claim(claim_id)
+        original_form_data = Marshal.load(Marshal.dump(auto_claim.form_data))
 
         log_service_progress(auto_claim.id, 'pdf',
                              "526EZ PDF generator started for claim #{auto_claim.id}")
@@ -38,6 +39,8 @@ module ClaimsApi
                                "526EZ PDF generator Uploaded 526EZ PDF #{file_name} to S3")
 
           auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
+          auto_claim.form_data = original_form_data
+          auto_claim.save!
 
           ::Common::FileHelpers.delete_file_if_exists(path)
         end
