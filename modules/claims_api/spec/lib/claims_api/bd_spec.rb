@@ -7,7 +7,9 @@ describe ClaimsApi::BD do
   subject { described_class.new }
 
   let(:ews) do
-    create(:claims_api_evidence_waiver_submission, :with_full_headers_jesse, claim_id: '60897890')
+    create(:claims_api_evidence_waiver_submission, :with_full_headers_jesse, claim_id: '60897890',
+                                                                             id: '43fc03ab-86df-4386-977b-4e5b87f0817f',
+                                                                             tracked_items: [234, 235])
   end.freeze
   let(:claim) { create(:auto_established_claim, evss_id: 600_400_688, id: '581128c6-ad08-4b1e-8b82-c3640e829fb3') }
 
@@ -22,7 +24,7 @@ describe ClaimsApi::BD do
     describe '#upload' do
       it 'uploads a document to BD' do
         VCR.use_cassette('claims_api/bd/upload') do
-          result = subject.upload(claim:, pdf_path:)
+          result = subject.upload(claim:, pdf_path:, doc_type: 'L122')
           expect(result).to be_a Hash
           expect(result[:data][:success]).to be true
         end
@@ -147,7 +149,9 @@ describe ClaimsApi::BD do
       end
 
       it 'raises a GatewayTimeout exception' do
-        expect { subject.upload(claim:, pdf_path:) }.to raise_error(Common::Exceptions::GatewayTimeout)
+        expect do
+          subject.upload(claim:, pdf_path:, doc_type: 'L122')
+        end.to raise_error(Common::Exceptions::GatewayTimeout)
       end
     end
   end
@@ -163,23 +167,26 @@ describe ClaimsApi::BD do
         expect(js['data']['docType']).to eq 'L705'
         expect(js['data']['claimId']).to eq ews.claim_id
         expect(js['data']['systemName']).to eq 'VA.gov'
-        expect(js['data']['trackedItemIds']).to eq []
+        expect(js['data']['trackedItemIds']).to eq [234, 235]
       end
     end
 
     describe '#build_body' do
+      let(:tracked_item_ids) { ews.tracked_items }
+
       it 'builds an L705 (5103) body correctly' do
-        result = subject.send(:build_body, doc_type: 'L705', file_name: '5103.pdf', claim_id: ews.claim_id)
+        result = subject.send(:build_body, doc_type: 'L705', file_name: '5103.pdf', claim_id: ews.claim_id,
+                                           tracked_item_ids:)
 
         expected = { data: { systemName: 'VA.gov', docType: 'L705', claimId: '60897890',
-                             fileName: '5103.pdf', trackedItemIds: [] } }
+                             fileName: '5103.pdf', trackedItemIds: [234, 235] } }
         expect(result).to eq(expected)
       end
 
       it 'builds an L705 (5103) body with all of the params correctly' do
         result = subject.send(:build_body, doc_type: 'L705', file_name: '5103.pdf', claim_id: ews.claim_id,
-                                           tracked_item_ids: [234, 235], participant_id: '60289076',
-                                           file_number: '7348296')
+                                           participant_id: '60289076',
+                                           file_number: '7348296', tracked_item_ids:)
 
         expected = { data: { systemName: 'VA.gov', docType: 'L705', claimId: '60897890',
                              fileName: '5103.pdf', trackedItemIds: [234, 235], participantId: '60289076',

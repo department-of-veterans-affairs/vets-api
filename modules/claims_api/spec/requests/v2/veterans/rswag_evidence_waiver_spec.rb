@@ -38,6 +38,8 @@ describe 'EvidenceWaiver5103',
       let(:Authorization) { 'Bearer token' }
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
 
+      parameter name: :evidence_waiver_submission_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:evidence_waiver_submission_request][:schema]
       let(:target_veteran) do
         OpenStruct.new(
           icn: '1012667145V762142',
@@ -65,7 +67,7 @@ describe 'EvidenceWaiver5103',
                                                       'submit_waiver_5103.json')))
 
           let(:scopes) { %w[system/claim.write] }
-
+          let(:evidence_waiver_submission_request) {}
           before do |example|
             allow_any_instance_of(ClaimsApi::V2::ApplicationController)
               .to receive(:target_veteran).and_return(target_veteran)
@@ -105,6 +107,7 @@ describe 'EvidenceWaiver5103',
 
           let(:Authorization) { nil }
           let(:scopes) { %w[system/claim.read] }
+          let(:evidence_waiver_submission_request) {}
 
           before do |example|
             submit_request(example.metadata)
@@ -132,6 +135,7 @@ describe 'EvidenceWaiver5103',
           let(:Authorization) { nil }
           let(:scopes) { %w[system/claim.read] }
           let(:sponsorIcn) { '1012861229V078999' } # rubocop:disable RSpec/VariableName
+          let(:evidence_waiver_submission_request) {}
 
           before do |example|
             mock_ccg(scopes) do

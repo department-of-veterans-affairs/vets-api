@@ -206,6 +206,34 @@ module SwaggerSharedComponents
         )
       )
 
+      evidence_waiver_submission_request_json_schema = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            '5103.json'
+          )
+        )
+      )
+
+      evidence_waiver_submission_request_body_example = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'spec',
+            'fixtures',
+            'v2',
+            'veterans',
+            '5103',
+            'form_5103_api.json'
+          )
+        )
+      )
+
       {
         veteran_identifier: {
           in: :body,
@@ -351,6 +379,23 @@ module SwaggerSharedComponents
               }
             },
             example: power_of_attorney_request_body_example
+          }
+        },
+        evidence_waiver_submission_request: {
+          in: :body,
+          name: 'data',
+          required: false,
+          schema: {
+            type: :object,
+            properties: {
+              data: {
+                type: :object,
+                properties: {
+                  attributes: evidence_waiver_submission_request_json_schema
+                }
+              }
+            },
+            example: evidence_waiver_submission_request_body_example
           }
         }
       }
