@@ -31,7 +31,7 @@ bin/test
 
 *Note*: `pry` is not supported. Consider `pry` alternative: [debugger](https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem)
 
-*Note*: parallel can be produce false failures. This issue is being investigated
+*Note*: parallel can produce false failures. This issue is being investigated
 
 
 ## Lint
