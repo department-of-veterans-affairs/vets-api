@@ -25,6 +25,7 @@ module ClaimsApi
         begin
           resp = client.post('submit', data)&.body&.deep_symbolize_keys
           log_outcome_for_claims_api('submit', 'success', resp, claim) # return is for v1 Sidekiq worker
+
           resp
         rescue => e
           detail = e.respond_to?(:original_body) ? e.original_body : e
@@ -85,8 +86,7 @@ module ClaimsApi
       end
 
       def access_token
-        ''
-        # @auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
+        @auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
       end
 
       def log_outcome_for_claims_api(action, status, response, claim)
