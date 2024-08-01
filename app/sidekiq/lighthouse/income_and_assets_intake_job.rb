@@ -16,7 +16,7 @@ module Lighthouse
 
     def perform(saved_claim_id, user_account_id = nil)
       return unless Flipper.enabled?(:pension_income_and_assets_clarification)
-      
+
       init(saved_claim_id, user_account_id)
 
       # generate and validate claim pdf documents
