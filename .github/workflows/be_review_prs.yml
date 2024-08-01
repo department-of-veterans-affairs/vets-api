@@ -1,5 +1,4 @@
 name: Require backend-review-group approval
-
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
@@ -21,6 +20,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get bot token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
       - name: Check required reviewers
         id: check_reviewers
         run: |
@@ -31,6 +36,15 @@ jobs:
             echo "skip_backend_review=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Get backend-review-group members
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
+        id: get_team_members
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /orgs/department-of-veterans-affairs/teams/backend-review-group/members
+        env:
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
       - name: Check backend-review-group approval status
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: check_backend_review_group_approval_status
@@ -39,13 +53,13 @@ jobs:
           route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}/reviews
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
+
       - name: Verify backend-review-group approval
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: verify_approval
         run: |
-          BACKEND_REVIEWERS=("ericboehs" "lindseysaari" "rmtolmach" "rachalcassity" "ryan-mcneil" "rjohnson2011" "stevenjcumming")
-          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$(IFS="|"; echo "${BACKEND_REVIEWERS[*]}")" | wc -l)
+          BACKEND_REVIEWERS=$(echo '${{ steps.get_team_members.outputs.data }}' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//')
+          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l)
           echo "Number of backend-review-group approvals: $APPROVALS"
           if [ "$APPROVALS" -eq 0 ]; then
             echo "approval_status=required" >> $GITHUB_OUTPUT
@@ -53,7 +67,7 @@ jobs:
           else
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
-  
+
       - name: Comment PR - Approval Required
         if: failure() && steps.verify_approval.outputs.approval_status == 'required'
         uses: peter-evans/create-or-update-comment@v3
