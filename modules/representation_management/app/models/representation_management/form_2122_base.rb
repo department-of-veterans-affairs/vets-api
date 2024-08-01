@@ -15,11 +15,13 @@ module RepresentationManagement
       veteran_social_security_number
       veteran_va_file_number
       veteran_date_of_birth
-      veteran_address_line1 veteran_address_line2
+      veteran_address_line1
+      veteran_address_line2
       veteran_city
       veteran_country
       veteran_state_code
-      veteran_zip_code veteran_zip_code_suffix
+      veteran_zip_code
+      veteran_zip_code_suffix
       veteran_phone
       veteran_email
       veteran_service_number
@@ -27,14 +29,18 @@ module RepresentationManagement
     ]
 
     claimant_attrs = %i[
-      claimant_first_name claimant_middle_initial claimant_last_name
+      claimant_first_name
+      claimant_middle_initial
+      claimant_last_name
       claimant_date_of_birth
       claimant_relationship
-      claimant_address_line1 claimant_address_line2
+      claimant_address_line1
+      claimant_address_line2
       claimant_city
       claimant_country
       claimant_state_code
-      claimant_zip_code claimant_zip_code_suffix
+      claimant_zip_code
+      claimant_zip_code_suffix
       claimant_phone
       claimant_email
     ]
@@ -51,7 +57,10 @@ module RepresentationManagement
     validates :veteran_middle_initial, length: { maximum: 1 }
     validates :veteran_last_name, presence: true, length: { maximum: 18 }
     validates :veteran_social_security_number, presence: true, format: { with: NINE_DIGIT_NUMBER }
-    validates :veteran_va_file_number, format: { with: NINE_DIGIT_NUMBER }, if: -> { veteran_va_file_number.present? }
+    validates :veteran_va_file_number,
+              length: { is: 9 },
+              format: { with: NINE_DIGIT_NUMBER },
+              if: -> { veteran_va_file_number.present? }
     validates :veteran_date_of_birth, presence: true
     validates :veteran_address_line1, presence: true, length: { maximum: 30 }
     validates :veteran_address_line2, length: { maximum: 5 }, if: -> { veteran_address_line2.present? }
@@ -62,8 +71,10 @@ module RepresentationManagement
     validates :veteran_zip_code_suffix, length: { is: 4 }, format: { with: FOUR_DIGIT_NUMBER },
                                         if: -> { veteran_zip_code_suffix.present? }
     validates :veteran_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }, if: -> { veteran_phone.present? }
-    validates :veteran_service_number, length: { is: 9 }, format: { with: NINE_DIGIT_NUMBER },
-                                       if: -> { veteran_service_number.present? }
+    validates :veteran_service_number,
+              length: { is: 9 },
+              format: { with: NINE_DIGIT_NUMBER },
+              if: -> { veteran_service_number.present? }
 
     validate :consent_limits_must_contain_valid_values
 
