@@ -6,7 +6,7 @@ module MyHealth
   class SMController < ApplicationController
     include ActionController::Serialization
     include MyHealth::MHVControllerConcerns
-    include MyHealth::JsonApiPaginationLinks
+    include JsonApiPaginationLinks
     service_tag 'mhv-messaging'
 
     protected

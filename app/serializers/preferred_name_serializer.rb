@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-class PreferredNameSerializer < ActiveModel::Serializer
-  attributes :preferred_name
+class PreferredNameSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  set_id { '' }
+  attributes :preferred_name
 end
