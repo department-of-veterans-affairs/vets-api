@@ -7,16 +7,12 @@ module RepresentationManagement
                                   USPHS].freeze
     representative_attrs = %i[
       representative_type
-      representative_first_name
-      representative_middle_initial
-      representative_last_name
-      representative_address_line1
-      representative_address_line2
+      representative_first_name representative_middle_initial representative_last_name
+      representative_address_line1 representative_address_line2
       representative_city
       representative_country
       representative_state_code
-      representative_zip_code
-      representative_zip_code_suffix
+      representative_zip_code representative_zip_code_suffix
       representative_phone
       representative_email_address
     ]
@@ -34,7 +30,6 @@ module RepresentationManagement
     validates :veteran_service_branch,
               inclusion: { in: VETERAN_SERVICE_BRANCHES },
               if: -> { veteran_service_branch.present? }
-
     validates :representative_type, presence: true, inclusion: { in: REPRESENTATIVE_TYPES }
     validates :representative_first_name, presence: true, length: { maximum: 12 }
     validates :representative_middle_initial, length: { maximum: 1 }
