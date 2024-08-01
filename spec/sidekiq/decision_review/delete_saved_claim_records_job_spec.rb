@@ -58,6 +58,18 @@ RSpec.describe DecisionReview::DeleteSavedClaimRecordsJob, type: :job do
           end
         end
       end
+
+      context 'when an exception is thrown' do
+        before do
+          allow(::SavedClaim).to receive(:where).and_raise(ActiveRecord::ActiveRecordError.new('Error message'))
+        end
+
+        it 'rescues and logs the exception' do
+          expect(Rails.logger).to receive(:error).with('DecisionReview::DeleteSavedClaimRecordsJob perform exception', 'Error message')
+
+          expect{ subject.new.perform }.not_to raise_error
+        end
+      end
     end
 
     context 'when feature flag is disabled' do

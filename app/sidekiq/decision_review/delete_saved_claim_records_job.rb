@@ -13,6 +13,8 @@ module DecisionReview
       return unless enabled?
 
       ::SavedClaim.where(delete_date: ..DateTime.now).destroy_all
+    rescue => e
+      Rails.logger.error('DecisionReview::DeleteSavedClaimRecordsJob perform exception', e.message)
     end
 
     private
