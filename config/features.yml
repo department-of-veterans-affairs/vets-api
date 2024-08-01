@@ -81,6 +81,9 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
+  cg1010_oauth_2_enabled:
+    actor_type: user
+    description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -175,6 +178,10 @@ features:
   check_in_experience_unified_landing_page:
     actor_type: user
     description: Enables the unified experience version of the landing page.
+    enable_in_development: true
+  check_in_experience_medication_review_content:
+    actor_type: cookie_id
+    description: Enables the medication review content in pre-check-in.
     enable_in_development: true
   claim_letters_access:
     actor_type: user
@@ -921,6 +928,9 @@ features:
    actor_type: user
    description: >
      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
+  pension_military_prefill:
+    actor_type: user
+    description: 'When enabled, 21P-527EZ will prefill military information.'
   pre_entry_covid19_screener:
     actor_type: user
     description: >
