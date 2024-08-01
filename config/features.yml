@@ -763,6 +763,10 @@ features:
     actor_type: user
     description: Lighthouse Benefits Claims API uses Lighthouse Benefits Documents API to upload POA forms instead of VBMS
     enable_in_development: true
+  lighthouse_claims_api_use_birls_id:
+    actor_type: user
+    description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
