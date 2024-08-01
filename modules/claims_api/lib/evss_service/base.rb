@@ -24,14 +24,9 @@ module ClaimsApi
 
         begin
           resp = client.post('submit', data)&.body&.deep_symbolize_keys
-          # error = {
-          #   detail: 'EVSS DOCKER CONTAINER validate error: {:messages=>[{:key=>"form526.submit.establishClaim.serviceError", :severity=>"FATAL", :text=>"Claim not established. System error with BGS. GUID: 75a0a5e4-0fd4-4c41-9959-1c1931c1efc4"}]}', claim: '1dfcf905-fbac-4581-a1be-60639b93c187'
-          # }
-          # raise ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException, error
           log_outcome_for_claims_api('submit', 'success', resp, claim) # return is for v1 Sidekiq worker
           resp
         rescue => e
-          debugger
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('validate', 'error', detail, claim)
 
