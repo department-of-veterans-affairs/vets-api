@@ -29,8 +29,10 @@ bin/test
 - Options include --ci, --parallel, --coverage, --log
 - Input folders/files can be include like with rspec 
 
-*Note*: bin/test ignores all `binding.pry` breakpoints
+*Note*: `pry` is not supported. Consider `pry` alternative: [debugger](https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem)
+
 *Note*: parallel can be produce false failures. This issue is being investigated
+
 
 ## Lint
 
