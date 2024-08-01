@@ -11,6 +11,8 @@ module DecisionReviewV1
       # in the future.
       include DecisionReviewV1::Appeals::LoggingUtils
 
+      DR_LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
+
       def middle_initial(user)
         user.middle_name.to_s.strip.presence&.first&.upcase
       end
@@ -18,7 +20,7 @@ module DecisionReviewV1
       # Takes original payload (or anything that responds to to_json)
       # Then encrypts it so that there is no PII in the sidekiq args
       def payload_encrypted_string(payload)
-        KmsEncrypted::Box.new.encrypt(payload.to_json)
+        DR_LOCKBOX.encrypt(payload.to_json)
       end
 
       def get_and_rejigger_required_info(request_body:, form4142:, user:)

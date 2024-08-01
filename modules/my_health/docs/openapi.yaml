@@ -1272,6 +1272,37 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/threads/{id}/move
+  /v1/messaging/preferences/recipients:
+    post:
+      description: Update recipients `preferredTeam` value
+      operationId: update_triage_team_preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/SecureMessagingUpdateTriageTeamRequest.yml
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              type: string
+              example: "Success"
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/recipients
   /v1/prescriptions:
     get:
       description: List medications.
