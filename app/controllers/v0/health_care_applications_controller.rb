@@ -73,7 +73,7 @@ module V0
 
     def facilities
       lighthouse_facilities = lighthouse_facilities_service.get_facilities(lighthouse_facilities_params)
-      active_ids = StdInstitutionFacility.pluck(:station_number).compact
+      active_ids = StdInstitutionFacility.where(deactivation_date: nil).pluck(:station_number).compact
       active_facilities = lighthouse_facilities.select { |facility| active_ids.include?(facility.id[4..]) }
 
       render(json: active_facilities)
