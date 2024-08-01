@@ -2,7 +2,7 @@ name: VES Data Sync
 on:
   workflow_dispatch: null
   schedule:
-    - cron: "0 21 * * *"
+    - cron: "30 13 * * *"
 
 env:
   BUCKET_NAME: "sitewide-public-websites-income-limits-data"
