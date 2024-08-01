@@ -43,8 +43,7 @@ module V0
         )
         api_provider.get_separation_locations
       end
-      render json: response,
-             each_serializer: EVSSSeparationLocationSerializer
+      render json: EVSSSeparationLocationSerializer.new(response)
     end
 
     def suggested_conditions
