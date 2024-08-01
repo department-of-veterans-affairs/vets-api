@@ -40,10 +40,8 @@ module RepresentationManagement
     validates :representative_country, presence: true, length: { is: 2 }
     validates :representative_state_code, presence: true, length: { is: 2 }
     validates :representative_zip_code, presence: true, length: { is: 5 }, format: { with: FIVE_DIGIT_NUMBER }
-    validates :representative_zip_code_suffix,
-              length: { is: 4 },
-              format: { with: FOUR_DIGIT_NUMBER },
-              if: -> { representative_zip_code_suffix.present? }
+    validates :representative_zip_code_suffix, length: { is: 4 }, format: { with: FOUR_DIGIT_NUMBER },
+                                               if: -> { representative_zip_code_suffix.present? }
     validates :representative_phone, presence: true, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
   end
 end
