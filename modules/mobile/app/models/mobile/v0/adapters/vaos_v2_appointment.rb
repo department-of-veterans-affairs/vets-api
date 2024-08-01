@@ -90,7 +90,7 @@ module Mobile
           adapted_appointment = {
             id: appointment[:id],
             appointment_type:,
-            appointment_ien: extract_station_and_ien(appointment),
+            appointment_ien: appointment[:ien],
             cancel_id:,
             comment:,
             facility_id:,
@@ -149,17 +149,6 @@ module Mobile
             name = [first_name, last_name].compact.join(' ')
             return name if name.present?
           end
-        end
-
-        def extract_station_and_ien(appointment)
-          return nil if appointment[:identifier].nil?
-
-          regex = %r{VistADefinedTerms/409_(84|85)}
-          identifier = appointment[:identifier].find { |id| id[:system]&.match? regex }
-
-          return if identifier.nil?
-
-          identifier[:value]&.split(':', 2)&.second
         end
 
         # this does not match the way friendly name is set for web.
