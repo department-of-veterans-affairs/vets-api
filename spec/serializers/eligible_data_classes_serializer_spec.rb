@@ -11,7 +11,6 @@ describe EligibleDataClassesSerializer, type: :serializer do
   let(:attributes) { data['attributes'] }
 
   it 'includes :id' do
-    debugger
     expect(data['data']).to be_blank
   end
 
