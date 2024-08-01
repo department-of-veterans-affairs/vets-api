@@ -68,5 +68,32 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
     it { expect(subject_with_claimant).to allow_value('1234567890').for(:claimant_phone) }
     it { expect(subject_with_claimant).not_to allow_value('123456789A').for(:claimant_phone) }
     it { expect(subject_with_claimant).not_to allow_value('123456789').for(:claimant_phone) }
+
+    # Custom validation tests
+    context 'consent_limits_must_contain_valid_values' do
+      it 'is not valid if consent_limits contains invalid values' do
+        subject.consent_limits = ['alcolholism'] # Not fully capitalized
+        subject.send(:consent_limits_must_contain_valid_values)
+        expect(subject.errors[:consent_limits].first).to include('is not a valid limitation of consent')
+      end
+
+      it 'is not valid if there are a mix of valid and invalid values' do
+        subject.consent_limits = %w[ALCOHOLISM drug_abuse] # Not fully capitalized
+        subject.send(:consent_limits_must_contain_valid_values)
+        expect(subject.errors[:consent_limits].first).to include('is not a valid limitation of consent')
+      end
+
+      it 'is valid if consent_limits contains valid values' do
+        subject.consent_limits = ['ALCOHOLISM']
+        subject.send(:consent_limits_must_contain_valid_values)
+        expect(subject.errors[:consent_limits]).to be_empty
+      end
+
+      it 'is valid if multiple valid values are present' do
+        subject.consent_limits = %w[ALCOHOLISM DRUG_ABUSE]
+        subject.send(:consent_limits_must_contain_valid_values)
+        expect(subject.errors[:consent_limits]).to be_empty
+      end
+    end
   end
 end
