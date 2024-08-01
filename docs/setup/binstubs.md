@@ -26,8 +26,11 @@ bin/test
 ```
 
 - Replace existing testing command(s)
-- Options include --ci, --no-parallel, --coverage, --log
+- Options include --ci, --parallel, --coverage, --log
 - Input folders/files can be include like with rspec 
+
+*Note*: bin/test ignores all `binding.pry` breakpoints
+*Note*: parallel can be produce false failures. This issue is being investigated
 
 ## Lint
 
