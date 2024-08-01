@@ -21,7 +21,7 @@ module V0
 
       Rails.logger.info "Success creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment.id}"
 
-      render json: attachment
+      render json: PersistentAttachmentSerializer.new(attachment)
     rescue => e
       Rails.logger.error "Error creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment.id} #{e}"
       raise e
