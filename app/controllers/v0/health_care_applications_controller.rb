@@ -73,13 +73,18 @@ module V0
 
     def facilities
       lighthouse_facilities = lighthouse_facilities_service.get_facilities(lighthouse_facilities_params)
-      active_ids = StdInstitutionFacility.where(deactivation_date: nil).pluck(:station_number).compact
-      active_facilities = lighthouse_facilities.select { |facility| active_ids.include?(facility.id[4..]) }
+      active_facilities = ves_active_facilities(lighthouse_facilities)
 
       render(json: active_facilities)
     end
 
     private
+
+    def ves_active_facilities(lighthouse_facilities)
+      active_ids = StdInstitutionFacility.where(deactivation_date: nil).pluck(:station_number).compact
+
+      lighthouse_facilities.select { |facility| active_ids.include?(facility.id[4..]) }
+    end
 
     def health_care_application
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))
