@@ -258,7 +258,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
     it 'filters out facilities not yet supported downstream' do
       VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
-        get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
+        get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358], ves_active: true))
       end
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body[0]).to be_nil
