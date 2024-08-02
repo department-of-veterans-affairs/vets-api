@@ -97,9 +97,7 @@ module RepresentationManagement
     private
 
     def consent_limits_must_contain_valid_values
-      return if consent_limits.nil?
-      return unless consent_limits.any?
-      return if consent_limits.size == 1 && consent_limits.first.blank?
+      return if consent_limits.blank? || (consent_limits.size == 1 && consent_limits.first.blank?)
 
       consent_limits.each do |limit|
         unless LIMITATIONS_OF_CONSENT.include?(limit)
