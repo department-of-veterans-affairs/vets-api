@@ -73,9 +73,14 @@ module V0
 
     def facilities
       lighthouse_facilities = lighthouse_facilities_service.get_facilities(lighthouse_facilities_params)
-      active_facilities = ves_active_facilities(lighthouse_facilities)
 
-      render(json: active_facilities)
+      if params[:ves_active]
+        active_facilities = ves_active_facilities(lighthouse_facilities)
+
+        render(json: active_facilities)
+      else
+        render(json: lighthouse_facilities)
+      end
     end
 
     private
