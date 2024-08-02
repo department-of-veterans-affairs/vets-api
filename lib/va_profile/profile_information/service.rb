@@ -120,7 +120,6 @@ module VAProfile
       # create_or_update cannot determine if record exists
       # Reassign :update to either :put or :post
 
-
       def get_email_personalisation(type)
         { 'contact_info' => EMAIL_PERSONALISATIONS[type] }
       end

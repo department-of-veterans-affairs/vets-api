@@ -22,7 +22,7 @@ module Vet360
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
       record = build_record(type, params)
       validate!(record)
-      http_verb = http_verb == 'update' ?  build_http_verb(record) : http_verb
+      http_verb = build_http_verb(record) if http_verb == 'update'
 
       response = write_valid_record!(http_verb, type, record)
       render_new_transaction!(type, response)
@@ -34,11 +34,10 @@ module Vet360
 
     def build_record(type, params)
       "VAProfile::Models::#{type.capitalize}"
-      .constantize
-      .new(params)
-      .set_defaults(@current_user)
+        .constantize
+        .new(params)
+        .set_defaults(@current_user)
     end
-
 
     private
 
@@ -76,7 +75,6 @@ module Vet360
       record.id = contact_info.public_send(attr)&.id
       record.id.present? ? :put : :post
     end
-
 
     def render_new_transaction!(type, response)
       transaction = "AsyncTransaction::VAProfile::#{type.capitalize}Transaction".constantize.start(
