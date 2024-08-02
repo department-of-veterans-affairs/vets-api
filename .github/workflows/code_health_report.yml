@@ -25,6 +25,7 @@ jobs:
           PRONTO_GITHUB_ACCESS_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: pronto run -f github_status github_pr_review -c origin/${{ github.base_ref }}
   unit_test_coverage:
+    runs-on: ubuntu-latest
     steps:
       - name: Rspec
         run: |
