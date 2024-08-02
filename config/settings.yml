@@ -174,7 +174,7 @@ form_10_10cg:
       client_secret: ~
       timeout: 30
       async_timeout: 600
-      auth: 
+      auth:
         mock: false
         timeout: ~
         token_url: ~
@@ -281,6 +281,10 @@ vet360:
     api_key: "<AV_KEY>"
   health_benefit:
     mock: true
+  profile_information:
+    enabled: true
+    timeout: 30
+    use_mocks: false
 
 # Settings for IHub
 ihub:
