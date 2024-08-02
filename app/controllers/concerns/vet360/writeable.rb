@@ -32,7 +32,7 @@ module Vet360
       VAProfileRedis::Cache.invalidate(@current_user)
     end
 
-    def build_profile_record(type, params)
+    def build_record(type, params)
       "VAProfile::Models::#{type.capitalize}"
       .constantize
       .new(params)
