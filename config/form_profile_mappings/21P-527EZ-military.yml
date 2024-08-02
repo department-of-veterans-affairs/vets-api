@@ -4,5 +4,5 @@ veteran_social_security_number: [identity_information, ssn]
 veteranAddress: [contact_information, address]
 serviceBranch: [military_information, service_branches_for_pensions]
 activeServiceDateRange:
-  from: [military_information, first_entry_date]
-  to: [military_information, last_discharge_date]
+  from: [military_information, first_uniformed_entry_date]
+  to: [military_information, last_active_discharge_date]

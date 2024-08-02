@@ -50,7 +50,7 @@ module VAProfile
           'profile',
           'military_person',
           'military_service_history',
-          'uniformedServiceInitialEntryDate')
+          'uniformed_service_initial_entry_date')
       end
 
       def self.get_release_from_active_duty_date(body)
@@ -58,7 +58,7 @@ module VAProfile
           'profile',
           'military_person',
           'military_service_history',
-          'releaseFromActiveDutyDate')
+          'release_from_active_duty_date')
       end
 
       def self.sort_by_begin_date(service_episodes)

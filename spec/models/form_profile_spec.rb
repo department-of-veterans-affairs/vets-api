@@ -703,7 +703,7 @@ RSpec.describe FormProfile, type: :model do
       'veteranSocialSecurityNumber' => user.ssn,
       'veteranDateOfBirth' => user.birth_date,
       'activeServiceDateRange' => {
-        'from' => '1985-08-19',
+        'from' => '1984-08-01',
         'to' => '2014-08-31'
       },
       'serviceBranch' => {
