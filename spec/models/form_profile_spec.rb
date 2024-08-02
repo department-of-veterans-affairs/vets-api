@@ -1618,6 +1618,7 @@ RSpec.describe FormProfile, type: :model do
           28-1900
           26-1880
           26-4555
+          # FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
@@ -1892,4 +1893,27 @@ RSpec.describe FormProfile, type: :model do
       end
     end
   end
+
+#   let(:form_mock_ae_design_patterns_expected) do
+#     {
+#       'veteran' => {
+#         'firstName' => user.first_name&.capitalize,
+#         'middleName' => user.middle_name&.capitalize,
+#         'lastName' => user.last_name&.capitalize,
+#         'address' => {
+#           'addressLine1' => street_check[:street],
+#           'addressLine2' => street_check[:street2],
+#           'city' => user.address[:city],
+#           'stateCode' => user.address[:state],
+#           'countryName' => user.address[:country],
+#           'zipCode5' => user.address[:zip][0..4]
+#         },
+#         'phone' => {
+#             'areaCode' => '702',
+#             'phoneNumber' => '7025005000'
+#           },
+#         'emailAddressText': user.pciu_email,
+#       }
+#     }
+#   end
 end
