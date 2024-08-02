@@ -1,2 +1,8 @@
-# Add a seeds script here that can fill the AccreditedIndividual and
-# AccreditedOrganization tables with data for development purposes.
+# Create AccreditedIndividuals
+20.times do
+  FactoryBot.create(:accredited_individual)
+end
+# Create AccreditedOrganizations
+20.times do
+  FactoryBot.create(:accredited_organization)
+end
