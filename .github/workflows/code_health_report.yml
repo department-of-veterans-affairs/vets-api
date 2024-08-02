@@ -27,8 +27,8 @@ jobs:
   pronto:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: git fetch origin master --depth=0
+      - uses: actions/checkout@v4
+      - run: git fetch origin master
       - uses: adwerx/pronto-ruby@v4.1 # use a tag version here
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
