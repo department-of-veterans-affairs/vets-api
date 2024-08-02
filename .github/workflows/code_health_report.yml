@@ -18,7 +18,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
       - name: Setup pronto
-        run: gem install pronto pronto-rubocop
+        run: gem install pronto pronto-reek pronto-flay
       - name: Run Pronto
         env:
           PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
