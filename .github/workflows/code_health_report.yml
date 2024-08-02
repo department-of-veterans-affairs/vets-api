@@ -8,7 +8,7 @@ on:
       - synchronize
       - reopened
 jobs:
-  pronto:
+  code_smells:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,3 +24,15 @@ jobs:
           PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
           PRONTO_GITHUB_ACCESS_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: pronto run -f github_status github_pr_review -c origin/${{ github.base_ref }}
+  unit_test_coverage:
+    steps:
+      - name: Rspec
+        run: |
+          rspec **/spec/models **/spec/lib **/spec/serializers **/spec/services **/spec/uploaders
+      - name: Simplecov Report
+        if: success() || failure() 
+        uses: shettytejas/simplecov-reporter@v1
+        with:
+          title: Coverage Report for Unit Tests
+          result-path: coverage/unit_test_results.json
+          token: ${{ secrets.GITHUB_TOKEN }}
