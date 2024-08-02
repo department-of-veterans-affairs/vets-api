@@ -82,8 +82,14 @@ module ClaimsApi
     end
 
     def handle_strings
-      detail = @error.message
-      messages = [{ detail:, status: 422, title: 'string error' }]
+      if @error.is_a?(RuntimeError)
+        detail = @error.message
+        title = 'runtime error'
+      elsif @error.is_a?(String)
+        detail = @error
+        title = 'string error'
+      end
+      messages = [{ detail:, status: 422, title: }]
       @error = ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException.new(messages)
     end
   end
