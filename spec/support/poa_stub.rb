@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require 'bgs/power_of_attorney_verifier'
-
 def stub_poa_verification
-  verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
-  allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
-  allow(verifier_stub).to receive(:verify)
-  allow(verifier_stub).to receive(:current_poa).and_return('A01')
+  veteran_user_stub = instance_double('Veteran::User')
+  allow(Veteran::User).to receive(:new).and_return(veteran_user_stub)
+
+  poa_stub = instance_double('PowerOfAttorney', code: 'A01')
+  allow(veteran_user_stub).to receive(:power_of_attorney).and_return(poa_stub)
 end

@@ -84,7 +84,7 @@ module ClaimsApi
           new_homeless_info = @pdf_data&.dig(:data, :attributes, :homeless)
 
           homeless_phone_info(homeless_info, new_homeless_info) if homeless_info && new_homeless_info
-          if @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber].empty?
+          if @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber].blank?
             @pdf_data[:data][:attributes][:homelessInformation].delete(:pointOfContactNumber)
           end
           homeless_at_risk_or_currently
