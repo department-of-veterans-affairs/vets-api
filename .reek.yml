@@ -1,0 +1,7 @@
+---
+
+### https://github.com/troessner/reek
+
+detectors:
+  IrresponsibleModule:
+    enabled: false
