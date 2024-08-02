@@ -8,30 +8,36 @@ on:
       - synchronize
       - reopened
 jobs:
-  reek:
-    name: runner / reek
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.3.3
-      - name: reek
-        uses: reviewdog/action-reek@v1
-        with:
-          reek_version: gemfile
-          reporter: github-pr-review
   pronto:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - run: git fetch --no-tags --prune origin +refs/heads/*:refs/remotes/origin/*
-      - uses: adwerx/pronto-ruby@v4.1 # use a tag version here
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      # Pronto docs suggest limiting the depth of the clone
+      # to speed things up.
+      - run: |
+          git fetch --no-tags --prune --depth=10 origin +refs/heads/*:refs/remotes/origin/*
+
+      # If your project only specifies its Ruby version in its
+      # Gemfile, you'll need to specify a version for the
+      # action to use. See documentation for the
+      # ruby/setup-ruby action for details.
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@1d0e911f615a112e322369596f10ee0b95b010ae # v1.183.0
         with:
-          runners: >-
-            reek flay
+          bundler-cache: true
+
+      # Install the runners you'd like Pronto to use on each
+      # scan. This setup includes the Standard Ruby style
+      # guide, and Brakeman security analyzer
+      - name: Set up Pronto
+        run: gem install pronto pronto-reek pronto-flay
+
+      # Perform a scan on the diff between your branch and
+      # your PR's target branch (e.g, staging, main ...)
+      - name: Run Pronto
+        run: pronto run -f github_status github_pr -c origin/$
+        env:
+          PRONTO_PULL_REQUEST_ID: $
+          PRONTO_GITHUB_ACCESS_TOKEN: "$"
