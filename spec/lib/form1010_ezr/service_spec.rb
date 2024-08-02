@@ -6,13 +6,9 @@ require 'form1010_ezr/service'
 RSpec.describe Form1010Ezr::Service do
   include SchemaMatchers
 
-  before do
-    Flipper.disable(:ezr_async)
-  end
-
   let(:form) { get_fixture('form1010_ezr/valid_form') }
   let(:current_user) do
-    build(
+    create(
       :evss_user,
       :loa3,
       icn: '1013032368V065534',
@@ -136,27 +132,23 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   describe '#submit_form' do
-    context 'with ezr_async on' do
-      before do
-        Flipper.enable(:ezr_async)
-      end
+    it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+      VCR.use_cassette(
+        'form1010_ezr/authorized_submit',
+        match_requests_on: %i[method uri body],
+        erb: true,
+        allow_unused_http_interactions: false
+      ) do
+        expect { submit_form(form) }.to change {
+          HCA::EzrSubmissionJob.jobs.size
+        }.by(1)
 
-      it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
-        VCR.use_cassette(
-          'form1010_ezr/authorized_submit',
-          match_requests_on: %i[method uri body],
-          erb: true,
-          allow_unused_http_interactions: false
-        ) do
-          expect { submit_form(form) }.to change {
-            HCA::EzrSubmissionJob.jobs.size
-          }.by(1)
-
-          HCA::EzrSubmissionJob.drain
-        end
+        HCA::EzrSubmissionJob.drain
       end
     end
+  end
 
+  describe '#submit_sync' do
     context 'when successful' do
       before do
         allow_logger_to_receive_info
@@ -177,7 +169,7 @@ RSpec.describe Form1010Ezr::Service do
           # pass validation
           %w[veteranDateOfBirth veteranFullName veteranSocialSecurityNumber gender].each { |key| form.delete(key) }
 
-          submission_response = submit_form(form)
+          submission_response = service.submit_sync(form)
 
           expect(submission_response).to be_a(Object)
           expect(submission_response).to eq(
@@ -196,7 +188,7 @@ RSpec.describe Form1010Ezr::Service do
           'form1010_ezr/authorized_submit_with_attachments',
           { match_requests_on: %i[method uri body], erb: true }
         ) do
-          submission_response = submit_form(ezr_form_with_attachments)
+          submission_response = service.submit_sync(ezr_form_with_attachments)
 
           expect(Rails.logger).to have_received(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
           expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
@@ -219,7 +211,7 @@ RSpec.describe Form1010Ezr::Service do
             # The initial form data should include the JSON schema Mexican provinces before they're overridden
             expect(form['veteranAddress']['state']).to eq('chihuahua')
             expect(form['veteranHomeAddress']['state']).to eq('chihuahua')
-            expect(submit_form(form)).to eq(
+            expect(service.submit_sync(form)).to eq(
               {
                 success: true,
                 formSubmissionId: 432_777_930,
@@ -238,7 +230,7 @@ RSpec.describe Form1010Ezr::Service do
             'form1010_ezr/authorized_submit_with_next_of_kin_and_emergency_contact',
             { match_requests_on: %i[method uri body], erb: true }
           ) do
-            expect(submit_form(form)).to eq(
+            expect(service.submit_sync(form)).to eq(
               {
                 success: true,
                 formSubmissionId: 432_861_975,
@@ -257,7 +249,7 @@ RSpec.describe Form1010Ezr::Service do
             'form1010_ezr/authorized_submit_with_tera',
             { match_requests_on: %i[method uri body], erb: true }
           ) do
-            expect(submit_form(form)).to eq(
+            expect(service.submit_sync(form)).to eq(
               {
                 success: true,
                 formSubmissionId: 433_956_488,
@@ -277,7 +269,7 @@ RSpec.describe Form1010Ezr::Service do
               'form1010_ezr/authorized_submit_with_attachments',
               { match_requests_on: %i[method uri body], erb: true }
             ) do
-              expect(submit_form(ezr_form_with_attachments)).to eq(
+              expect(service.submit_sync(ezr_form_with_attachments)).to eq(
                 {
                   success: true,
                   formSubmissionId: 435_845_348,
@@ -314,7 +306,7 @@ RSpec.describe Form1010Ezr::Service do
                 ]
               )
 
-              expect(submit_form(form_with_non_pdf_attachment)).to eq(
+              expect(service.submit_sync(form_with_non_pdf_attachment)).to eq(
                 {
                   success: true,
                   formSubmissionId: 435_845_365,
@@ -342,10 +334,10 @@ RSpec.describe Form1010Ezr::Service do
         it 'logs and raises a schema validation error' do
           form_sans_required_field = form.except('privacyAgreementAccepted')
 
-          expect(StatsD).to receive(:increment).with('api.1010ezr.validation_error')
-          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+          allow(StatsD).to receive(:increment)
 
-          expect { submit_form(form_sans_required_field) }.to raise_error do |e|
+          expect(StatsD).to receive(:increment).with('api.1010ezr.validation_error')
+          expect { service.submit_sync(form_sans_required_field) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
             expect(e.errors[0].title).to eq('Validation error')
             expect(e.errors[0].detail).to include(
@@ -367,10 +359,7 @@ RSpec.describe Form1010Ezr::Service do
           expect(StatsD).to receive(:increment).with('api.1010ezr.submit_sync.fail',
                                                      tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
           expect(StatsD).to receive(:increment).with('api.1010ezr.submit_sync.total')
-
-          expect do
-            submit_form(form)
-          end.to raise_error(StandardError)
+          expect { service.submit_sync(form) }.to raise_error(StandardError)
         end
 
         # REMOVE THIS TEST ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
@@ -380,7 +369,7 @@ RSpec.describe Form1010Ezr::Service do
           end
 
           it 'adds to the PersonalInformationLog and saves the unprocessed DOB' do
-            expect { submit_form(form) }.to raise_error do |e|
+            expect { service.submit_sync(form) }.to raise_error do |e|
               personal_information_log =
                 PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
 
@@ -402,10 +391,11 @@ RSpec.describe Form1010Ezr::Service do
           allow_logger_to_receive_error
         end
 
-        it 'logs and raises the error' do
-          expect do
-            submit_form(form)
-          end.to raise_error(
+        it 'increments StatsD as well as logs and raises the error' do
+          allow(StatsD).to receive(:increment)
+
+          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+          expect { service.submit_sync(form) }.to raise_error(
             StandardError, 'Uh oh. Some bad error occurred.'
           )
           expect_logger_errors(

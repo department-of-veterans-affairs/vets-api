@@ -27,9 +27,11 @@ module HCA
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.async.retries")
     end
 
-    def perform(encrypted_form, user_identifier)
+    def perform(encrypted_form, user_uuid)
+      user = User.find(user_uuid)
       parsed_form = self.class.decrypt_form(encrypted_form)
-      Form1010Ezr::Service.new(user_identifier).submit_sync(parsed_form)
+
+      Form1010Ezr::Service.new(user).submit_sync(parsed_form)
     rescue VALIDATION_ERROR => e
       self.class.log_submission_failure(parsed_form)
       log_exception_to_sentry(e)
