@@ -35,7 +35,7 @@ module RepresentationManagement
         "organizations names: #{organizations.map(&:name).sort}"
 
       combined_results = (individuals + organizations).sort_by do |record|
-        word_similarity(@query_string, record)
+        levenshtein_distance(@query_string, record)
       end
       p "combined_results: #{combined_results}"
     end
@@ -46,7 +46,7 @@ module RepresentationManagement
       0.5
     end
 
-    def word_similarity(query, record)
+    def levenshtein_distance(query, record)
       text = record.is_a?(AccreditedIndividual) ? record.full_name : record.name
       StringHelpers.levenshtein_distance(query, text)
     end
