@@ -41,7 +41,7 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
 
         StdInstitutionFacility.create(station_number: '456ab')
 
-        get :facilities, params: params
+        get(:facilities, params:)
 
         expect(response.body).to eq([target_facility].to_json)
       end
@@ -51,7 +51,7 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
 
         StdInstitutionFacility.create(station_number: '456ab', deactivation_date: Time.current)
 
-        get :facilities, params: params
+        get(:facilities, params:)
 
         expect(response.body).to eq({ data: [] }.to_json)
       end
