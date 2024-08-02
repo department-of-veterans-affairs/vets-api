@@ -69,7 +69,11 @@ module Vet360
     end
 
     def build_http_verb(record)
-      contact_info = VAProfileRedis::ContactInformation.for_user(@user)
+      if Flipper.enabled?(:va_profile_information_v3_redis, @current_user)
+        contact_info = VAProfileRedis::ProfileInformation.for_user(@user)
+      else
+        contact_info = VAProfileRedis::ContactInformation.for_user(@user)
+      end
       attr = record.contact_info_attr
       raise "invalid #{record.model} VAProfile::ProfileInformation" if attr.nil?
 

@@ -10,7 +10,7 @@ RSpec.describe 'telephone' do
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
   let(:time) { Time.zone.local(2018, 6, 6, 15, 35, 55) }
 
-  if Flipper.enabled?(:va_profile_information_v3_service)
+  if Flipper.enabled?(:va_profile_information_v3_service, user)
     let(:cassette) { 'va_profile/profile_information/' }
   else
     let(:cassette) { 'va_profile/contact_information/' }
@@ -30,7 +30,7 @@ RSpec.describe 'telephone' do
 
     it 'calls update_telephone' do
       # This can be removed after Contact Information is degraded
-      unless Flipper.enabled?(:va_profile_information_v3_service)
+      unless Flipper.enabled?(:va_profile_information_v3_service, user)
         expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_telephone).and_call_original
         VCR.use_cassette("#{cassette}put_telephone_success") do
           post('/v0/profile/telephones/create_or_update', params: telephone.to_json, headers:)

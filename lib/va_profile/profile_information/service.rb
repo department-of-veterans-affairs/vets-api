@@ -35,7 +35,6 @@ module VAProfile
         with_monitoring do
           vet360_id_present!
           raw_response = perform(:get, @user.vet360_id)
-
           PersonResponse.from(raw_response)
         end
       rescue Common::Client::Errors::ClientError => e
@@ -59,7 +58,7 @@ module VAProfile
 
       def self.get_person(vet360_id)
         stub_user = OpenStruct.new(vet360_id:)
-        new(stub_user).get_response('person')
+        new(stub_user).get_person
       end
 
       def submit(params)
@@ -116,10 +115,6 @@ module VAProfile
 
         OldEmail.find(transaction_id).try(:email)
       end
-
-      # create_or_update cannot determine if record exists
-      # Reassign :update to either :put or :post
-
 
       def get_email_personalisation(type)
         { 'contact_info' => EMAIL_PERSONALISATIONS[type] }

@@ -27,8 +27,11 @@ module VAProfile
       def init_vet360_id(icn = nil)
         with_monitoring do
           raw_response = perform(:post, encode_url!(icn), empty_body)
-
-          VAProfile::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
+          if Flipper.enabled?(:va_profile_information_v3_service, @user)
+            VAProfile::ProfileInformation::PersonTransactionResponse.from(raw_response, @user)
+          else
+            VAProfile::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
+          end
         end
       rescue => e
         handle_error(e)
