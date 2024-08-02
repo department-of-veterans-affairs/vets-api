@@ -73,7 +73,7 @@ module VAProfile
         "#{user.vet360_id}/emails/status/#{transaction_id}"
       end
 
-      def self.send_change_notifcations?
+      def self.send_change_notifications?
         true
       end
 
