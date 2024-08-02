@@ -35,7 +35,6 @@ module Form1010Ezr
       { success: true, formSubmissionId: nil, timestamp: nil }
     end
 
-
     def submit_sync(parsed_form)
       # Log the 'veteranDateOfBirth' to ensure the frontend validation is working as intended
       # REMOVE THE FOLLOWING TWO LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
