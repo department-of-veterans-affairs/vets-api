@@ -541,7 +541,7 @@ RSpec.describe Form1010cg::Service do
         allow(mule_soft_client).to receive(:create_submission_v2).and_raise(Common::Client::Errors::ClientError)
       end
 
-      it 'submits to mulesoft' do
+      it 'logs claim_guid for any exceptions and raises error' do
         expect(Rails.logger).to receive(:info).with(
           "[Form 10-10CG] Submission failed for claim_guid: #{claim_with_mpi_veteran.guid}"
         )
