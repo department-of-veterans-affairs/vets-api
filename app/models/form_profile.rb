@@ -6,7 +6,14 @@ require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
+class FormFullName
+  include Virtus.model
 
+  attribute :first, String
+  attribute :middle, String
+  attribute :last, String
+  attribute :suffix, String
+end
 
 class FormDate
   include Virtus.model
@@ -45,14 +52,6 @@ class FormAddress
   attribute :state
   attribute :country
   attribute :postal_code
-end
-
-class FormFullName
-  include Virtus.model
-
-  attribute :first, String
-  attribute :middle, String
-  attribute :last, String
 end
 
 class FormIdentityInformation
@@ -104,8 +103,8 @@ class FormProfile
     adapted_housing: ['26-4555'],
     intent_to_file: ['21-0966'],
     ivc_champva: %w[10-7959F-1 10-7959C],
-    form_upload_flow: ['FORM-UPLOAD-FLOW']
-    # form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS']
+    form_upload_flow: ['FORM-UPLOAD-FLOW'],
+    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -145,8 +144,8 @@ class FormProfile
     '26-4555' => ::FormProfiles::VA264555,
     '21-0966' => ::FormProfiles::VA210966,
     '10-7959F-1' => ::FormProfiles::VA107959f1,
-    'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow
-    # 'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns
+    'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
+    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -421,9 +420,23 @@ class FormProfile
     end
   end
 
+  # def clean_hash!(hash)
+  #   # hash.deep_transform_keys! { |k| k.camelize(:lower) }
+  #   # hash.each { |k, v| hash[k] = clean!(v) }
+  #   # hash.delete_if { |_k, v| v.blank? }
+  # end
+  
   def clean_hash!(hash)
-    hash.deep_transform_keys! { |k| k.camelize(:lower) }
-    hash.each { |k, v| hash[k] = clean!(v) }
-    hash.delete_if { |_k, v| v.blank? }
+    hash.deep_transform_keys! do |key|
+      # convert key to string if it is a symbol
+      key = key.to_s if key.is_a?(Symbol)
+      key.camelize(:lower)
+    end
+
+    hash.each do |key, value|
+      hash[key] = clean!(value)
+    end
+  
+    hash.delete_if { |_key, value| value.blank? }
   end
 end
