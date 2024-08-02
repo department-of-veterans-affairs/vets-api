@@ -431,29 +431,29 @@ module ClaimsApi
       def disability_attributes
         @pdf_data[:data][:attributes][:claimInformation] = {}
         conditions_related_to_exposure?
-        transform_disabilities
+        @pdf_data[:data][:attributes][:claimInformation][:disabilities] = transform_disabilities
         @pdf_data[:data][:attributes].delete(:disabilities)
       end
 
 
       def transform_disabilities
-        disabilities_list = []
-        @auto_claim&.dig('disabilities')&.map do |disability|
-          dis_name = disability['name']
-          dis_date = make_date_string_month_first(disability['approximateDate'], disability['approximateDate'].length) if disability['approximateDate'].present?
-          exposure = disability['exposureOrEventOrInjury']
-          service_relevance = disability['serviceRelevance']
-
-          disabilities_list << build_disability_item(dis_name, dis_date, exposure, service_relevance)
-          disabilities_list << disability['secondaryDisabilities']&.map do |secondary_disability|
-            dis_name = "#{secondary_disability['name']} secondary to: #{disability['name']}"
-            dis_date = make_date_string_month_first(secondary_disability['approximateDate'], secondary_disability['approximateDate'].length) if secondary_disability['approximateDate'].present?
+        [].tap do |disabilities_list|
+          @auto_claim&.dig('disabilities')&.map do |disability|
+            dis_name = disability['name']
+            dis_date = make_date_string_month_first(disability['approximateDate'], disability['approximateDate'].length) if disability['approximateDate'].present?
             exposure = disability['exposureOrEventOrInjury']
-            service_relevance = secondary_disability['serviceRelevance']
-            build_disability_item(dis_name, dis_date, exposure, service_relevance)
-          end unless disability['secondaryDisabilities'].blank?
-        end
-        @pdf_data[:data][:attributes][:claimInformation][:disabilities] = disabilities_list.flatten
+            service_relevance = disability['serviceRelevance']
+
+            disabilities_list << build_disability_item(dis_name, dis_date, exposure, service_relevance)
+            disabilities_list << disability['secondaryDisabilities']&.map do |secondary_disability|
+              dis_name = "#{secondary_disability['name']} secondary to: #{disability['name']}"
+              dis_date = make_date_string_month_first(secondary_disability['approximateDate'], secondary_disability['approximateDate'].length) if secondary_disability['approximateDate'].present?
+              exposure = disability['exposureOrEventOrInjury']
+              service_relevance = secondary_disability['serviceRelevance']
+              build_disability_item(dis_name, dis_date, exposure, service_relevance)
+            end unless disability['secondaryDisabilities'].blank?
+          end
+        end.flatten
       end
 
       def build_disability_item(disability, approximateDate, exposureOrEventOrInjury, serviceRelevance)
