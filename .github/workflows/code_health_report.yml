@@ -9,6 +9,3 @@ jobs:
       - uses: adwerx/pronto-ruby@v4.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          runners: >-
-            flay reek
