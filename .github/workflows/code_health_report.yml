@@ -1,12 +1,12 @@
 name: Code Health Report
 on: [push]
 jobs:
-  review:
+  pronto:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 1
       - run: git fetch origin master
       - uses: adwerx/pronto-ruby@main
         env:
