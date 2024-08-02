@@ -16,42 +16,45 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
   end
 
   describe '#facilities' do
-    it 'retrieves facilities from Lighthouse, filtered by the list from VES' do
-      state_params = { state: 'AK' }
+    let(:lighthouse_service) { instance_double(Lighthouse::Facilities::V1::Client) }
+    let(:unrelated_facility) { OpenStruct.new(id: 'vha_123') }
+    let(:target_facility) { OpenStruct.new(id: 'vha_456ab') }
+    let(:facilities) { [unrelated_facility, target_facility] }
 
-      lighthouse_service = instance_double(Lighthouse::Facilities::V1::Client)
-      expect(Lighthouse::Facilities::V1::Client).to receive(:new) { lighthouse_service }
-
-      unrelated_facility = OpenStruct.new(id: 'vha_123')
-      target_facility = OpenStruct.new(id: 'vha_456ab')
-      facilities_response = [unrelated_facility, target_facility]
-
-      StdInstitutionFacility.create(station_number: '456ab')
-
-      expect(lighthouse_service).to receive(:get_facilities) { facilities_response }
-
-      get :facilities, params: state_params
-
-      expect(response.body).to eq([target_facility].to_json)
+    before do
+      allow(Lighthouse::Facilities::V1::Client).to receive(:new) { lighthouse_service }
+      allow(lighthouse_service).to receive(:get_facilities) { facilities }
     end
 
-    it 'filters out deactivated facilities' do
+    it 'retrieves facilities from Lighthouse' do
       state_params = { state: 'AK' }
 
-      lighthouse_service = instance_double(Lighthouse::Facilities::V1::Client)
-      expect(Lighthouse::Facilities::V1::Client).to receive(:new) { lighthouse_service }
-
-      unrelated_facility = OpenStruct.new(id: 'vha_123')
-      target_facility = OpenStruct.new(id: 'vha_456ab')
-      facilities_response = [unrelated_facility, target_facility]
-
-      StdInstitutionFacility.create(station_number: '456ab', deactivation_date: Time.current)
-
-      expect(lighthouse_service).to receive(:get_facilities) { facilities_response }
-
+      StdInstitutionFacility.create(station_number: '456ab')
       get :facilities, params: state_params
 
-      expect(response.body).to eq({ data: [] }.to_json)
+      expect(response.body).to eq(facilities.to_json)
+    end
+
+    context 'ves_active flag enabled' do
+      it 'only returns facilities in VES' do
+        params = { state: 'AK', ves_active: true }
+
+        StdInstitutionFacility.create(station_number: '456ab')
+
+        get :facilities, params: params
+
+        expect(response.body).to eq([target_facility].to_json)
+      end
+
+      it 'filters out deactivated facilities' do
+        params = { state: 'AK', ves_active: true }
+
+        StdInstitutionFacility.create(station_number: '456ab', deactivation_date: Time.current)
+
+        get :facilities, params: params
+
+        expect(response.body).to eq({ data: [] }.to_json)
+      end
     end
   end
 end
