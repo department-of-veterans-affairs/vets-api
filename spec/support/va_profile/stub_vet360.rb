@@ -31,7 +31,6 @@ def stub_vet360(person = nil)
       build(:permission, permission_type: VAProfile::Models::Permission::TEXT, id: 1012)
     ]
   )
-
   if Flipper.enabled?(:va_profile_information_v3_service)
     allow_any_instance_of(VAProfile::ProfileInformation::Service).to receive(:get_person).and_return(
       VAProfile::ProfileInformation::PersonResponse.new(200, person:)

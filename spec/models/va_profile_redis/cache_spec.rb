@@ -7,7 +7,6 @@ describe VAProfileRedis::Cache, :skip_vet360 do
   let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
 
   before do
-    Flipper.disable(:va_profile_information_v3_redis)
     allow(user).to receive(:vet360_id).and_return('1')
     allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
   end
