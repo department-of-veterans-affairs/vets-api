@@ -1,0 +1,14 @@
+name: Code Health Report
+on: [push]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: git fetch origin master --depth=1
+      - uses: adwerx/pronto-ruby@v4.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          runners: >-
+            flay reek
