@@ -104,10 +104,12 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: KUBE_DEPLOYMENT
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels.app
             - name: GIT_REVISION
               value: {{ $root.Values.image.tag}}
-            - name: BACKLOG_POD
-              value: "{{ if lt (randInt 0 100) 20 }}true{{ else }}false{{ end }}"
 {{ toYaml $root.Values.web.envSecrets | indent 12 }}
           {{- range $keys, $key := $root.Values.common.secrets }}
           {{- range $secrets, $secret := $key }}
