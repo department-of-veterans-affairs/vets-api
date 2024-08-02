@@ -7,6 +7,7 @@ properties:
   id:
     type: string
     example: "{87B6DE5D-CD79-4D15-B6DC-A5F9A324DC3E}"
+    description: Document id
   type:
     type: string
     example: "decisionLetter"

@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative 'shared_evss_claim_base_serializer_spec'
+require_relative 'shared_examples_evss_claim_spec'
 
 RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
   subject { serialize(evss_claim, serializer_class: described_class) }
 
   let(:evss_claim) { build(:evss_claim) }
   let(:data) { JSON.parse(subject)['data'] }
+  let(:object_data) { evss_claim.data }
   let(:attributes) { data['attributes'] }
 
-  it_behaves_like 'EVSSClaimBaseSerializer'
+  it_behaves_like 'shared_evss_claim'
 
-  it 'includes c:ontention_list' do
+  it 'includes :contention_list' do
     expect(attributes['contention_list']).to eq(evss_claim.data['contention_list'])
   end
 
@@ -106,6 +107,6 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
 
   it 'includes :phase' do
     phase = evss_claim.data.dig('claim_phase_dates', 'latest_phase_type')&.downcase
-    expect(attributes['phase']).to eq EVSSClaimBaseSerializer::PHASE_MAPPING[phase]
+    expect(attributes['phase']).to eq EVSSClaimBaseHelper::PHASE_MAPPING[phase]
   end
 end

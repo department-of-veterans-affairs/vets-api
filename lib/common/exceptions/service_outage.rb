@@ -13,7 +13,7 @@ module Common
       end
 
       def errors
-        Array(SerializableError.new(i18n_data.merge(detail: @detail)))
+        Array(SerializableError.new(i18n_data.merge(detail: @detail, status: 503)))
       end
     end
   end

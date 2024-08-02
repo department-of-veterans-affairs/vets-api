@@ -26,6 +26,18 @@ features:
   appointments_consolidation:
     actor_type: user
     description: For features being tested while merging logic for appointments between web and mobile
+  ask_va_form_feature:
+    actor_type: user
+    description: show/hide experimental features for Ask VA 0873
+    enable_in_development: true
+  ask_va_dashboard_feature:
+    actor_type: user
+    description: show/hide experimental features for Ask VA 0873 dashboard feature
+    enable_in_development: true
+  ask_va_introduction_page_feature:
+    actor_type: user
+    description: show/hide experimental features for Ask VA 0873 introduction feature
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -69,9 +81,9 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
-  hca_submission_failure_email_va_notify:
+  cg1010_oauth_2_enabled:
     actor_type: user
-    description: Send HCA Submission Failure email using VANotify.
+    description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -166,6 +178,10 @@ features:
   check_in_experience_unified_landing_page:
     actor_type: user
     description: Enables the unified experience version of the landing page.
+    enable_in_development: true
+  check_in_experience_medication_review_content:
+    actor_type: cookie_id
+    description: Enables the medication review content in pre-check-in.
     enable_in_development: true
   claim_letters_access:
     actor_type: user
@@ -302,6 +318,9 @@ features:
   debt_letters_show_letters_vbms:
     actor_type: user
     description: Enables debt letter download from VBMS
+  debts_cache_dmc_empty_response:
+    actor_type: user
+    description: Enables caching of empty DMC response
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
@@ -346,6 +365,22 @@ features:
     actor_type: user
     description: Enable using MAR 2024 revision of 200996 Higher Level Review form when submitting to EMMS for intake
     enable_in_development: false
+  decision_review_form_store_saved_claims:
+    actor_type: user
+    description: Enable storage of SavedClaim records for Decision Review forms (HLR, NOD, SC)
+    enable_in_development: true
+  decision_review_saved_claim_hlr_status_updater_job_enabled:
+    actor_type: user
+    description: Enable job to set delete_date for completed SavedClaim::HigherLevelReviews
+    enable_in_development: true
+  decision_review_saved_claim_nod_status_updater_job_enabled:
+    actor_type: user
+    description: Enable job to set delete_date for completed SavedClaim::NoticeOfDisagreements
+    enable_in_development: true
+  decision_review_saved_claim_sc_status_updater_job_enabled:
+    actor_type: user
+    description: Enable job to set delete_date for completed SavedClaim::SupplementalClaims
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -515,6 +550,10 @@ features:
   find_a_representative_flag_results_enabled:
     actor_type: user
     description: Enables flagging feature for Find a Representative frontend
+    enable_in_development: true
+  find_a_representative_use_accredited_models:
+    actor_type: user
+    description: Enables Find A Representative APIs using AccreditedX models
     enable_in_development: true
   representative_status_enabled:
     actor_type: cookie_id
@@ -838,6 +877,10 @@ features:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
     enable_in_development: true
+  mhv_medications_display_allergies:
+    actor_type: user
+    description: Enables/disables allergies and reactions data
+    enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)
@@ -881,10 +924,17 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
+  pension_income_and_assets_clarification:
+   actor_type: user
+   description: >
+     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
   pension_medical_evidence_clarification:
    actor_type: user
    description: >
      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
+  pension_military_prefill:
+    actor_type: user
+    description: 'When enabled, 21P-527EZ will prefill military information.'
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1290,6 +1340,14 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to update the Medication Review instructions on the Appointment Details page.
+  va_online_scheduling_OH_direct_schedule:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to enable direct scheduling workflow for Oracle Health appointments.
+  va_online_scheduling_OH_request:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to enable request workflow for Oracle Health appointments.
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
@@ -1308,6 +1366,9 @@ features:
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
+  veteran_onboarding_contact_info_flow:
+    actor_type: user
+    description: Enables the complete your profile workflow
   veteran_onboarding_show_to_newly_onboarded:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user, based upon number of days since verified
@@ -1494,6 +1555,9 @@ features:
   virtual_agent_enable_pva2_chatbot:
     actor_type: user
     description: If enabled, switches VA chatbot from PVA1 to PVA2
+  virtual_agent_enable_root_bot:
+    actor_type: user
+    description: If enabled, switches VA chatbot from PVA to Root Bot
   virtual_agent_component_testing:
     actor_type: user
     description: If enabled, allows for testing of the chatbot components
@@ -1524,6 +1588,12 @@ features:
   pension_introduction_update:
     actor_type: user
     description: Show updated introduction page
+  pension_supporting_documents_update:
+   actor_type: user
+   description: Show updated supporting documents page
+  pension_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page
   pension_module_enabled:
     actor_type: user
     description: Enable the pension module routes
@@ -1593,7 +1663,7 @@ features:
     description: swap order of the military details in GI search filters
   merge_1995_and_5490:
     actore_type: user
-    description: Activating the combined 1995 and 5490 form 
-  use_new_get_all_features:
+    description: Activating the combined 1995 and 5490 form
+  mgib_verifications_maintenance:
     actor_type: user
-    description: Used to test new feature toggle code. Removal ETA July 15, 2024
+    description: Used to show  maintenance alert for MGIB Verifications
