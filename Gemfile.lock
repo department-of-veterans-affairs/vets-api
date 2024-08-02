@@ -521,6 +521,11 @@ GEM
     google-protobuf (4.27.3)
       bigdecimal
       rake (>= 13)
+    google-protobuf (4.27.3-java)
+      bigdecimal
+      ffi (~> 1)
+      ffi-compiler (~> 1)
+      rake (>= 13)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
@@ -844,6 +849,11 @@ GEM
       connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)
+    reek (6.3.0)
+      dry-schema (~> 1.13.0)
+      parser (~> 3.3.0)
+      rainbow (>= 2.0, < 4.0)
+      rexml (~> 3.1)
     regexp_parser (2.9.2)
     reline (0.5.9)
       io-console (~> 0.5)
@@ -1242,6 +1252,7 @@ DEPENDENCIES
   rainbow
   redis
   redis-namespace
+  reek
   representation_management!
   request_store
   restforce

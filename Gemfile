@@ -212,6 +212,7 @@ group :development, :test do
   gem 'rack-test', '2.1.0', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
+  gem 'reek'
   gem 'rspec-instrumentation-matcher'
   gem 'rspec-its'
   gem 'rspec-rails'
