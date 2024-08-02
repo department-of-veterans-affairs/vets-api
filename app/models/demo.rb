@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-class ShoppingCart < ActiveRecord::Base
-  has_many :items
+class ShoppingCart < ApplicationRecord
+  has_many :items, dependent: :destroy
 
   def gross_price
     items.sum { |item| item.net + item.tax }
   end
 end
 
-class Item < ActiveRecord::Base
+class Item < ApplicationRecord
   belongs_to :shopping_cart
 end
