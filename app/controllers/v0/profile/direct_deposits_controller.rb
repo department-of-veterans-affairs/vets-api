@@ -18,16 +18,13 @@ module V0
         error = { status: exception.status_code, body: exception.errors.first }
         response = Lighthouse::DirectDeposit::ErrorParser.parse(error)
 
-        # temporary - will be removed after direct deposit merge is complete
-        update_error_code_prefix(response) if single_form_enabled?
-
         render status: response.status, json: response.body
       end
 
       def show
         response = client.get_payment_info
 
-        render json: DisabilityCompensationsSerializer.new(response.body), status: response.status
+        render json: DirectDepositsSerializer.new(response.body), status: response.status
       end
 
       def update
@@ -36,18 +33,10 @@ module V0
         response = client.update_payment_info(@payment_account)
         send_confirmation_email
 
-        render json: DisabilityCompensationsSerializer.new(response.body), status: response.status
+        render json: DirectDepositsSerializer.new(response.body), status: response.status
       end
 
       private
-
-      def single_form_enabled?
-        Flipper.enabled?(:profile_show_direct_deposit_single_form, @current_user)
-      end
-
-      def update_error_code_prefix(response)
-        response.code = response.code.sub('cnp.payment', 'direct.deposit')
-      end
 
       def client
         @client ||= DirectDeposit::Client.new(@current_user.icn)

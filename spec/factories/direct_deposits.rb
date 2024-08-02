@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :disability_compensation, class: Hash do
+  factory :direct_deposit, class: Hash do
     control_information
 
     trait :with_payment_account do
