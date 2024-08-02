@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pdf_fill/forms/va21p527ez'
 require 'pdf_fill/forms/va21p0969'
 require 'pdf_fill/forms/va21p530'
 require 'pdf_fill/forms/va21p530v2'
@@ -22,6 +21,7 @@ module PdfFill
   #
   # This module includes methods to register form classes, fill out PDF forms, and handle extra PDF generation.
   module Filler
+    class PdfFillerException < StandardError; end
     module_function
 
     # A PdfForms instance for handling standard PDF forms.
@@ -96,13 +96,14 @@ module PdfFill
     # @param file_name_extension [String, nil] Optional file name extension.
     # @param fill_options [Hash] Options for filling the form.
     #
+    # @raise [PdfFillerException] If the form is not found.
     # @return [String] The path to the filled PDF form.
     #
     def fill_form(saved_claim, file_name_extension = nil, fill_options = {})
       form_id = saved_claim.form_id
       form_class = FORM_CLASSES[form_id]
 
-      raise 'Form was not found.' if form_class.nil?
+      raise PdfFillerException, 'Form was not found.' if form_class.nil?
 
       process_form(form_id, saved_claim.parsed_form, form_class, file_name_extension || saved_claim.id, fill_options)
     end
