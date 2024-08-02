@@ -27,7 +27,7 @@ jobs:
   pronto:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v
+      - uses: actions/checkout@v4
       - run: git fetch --no-tags --prune origin +refs/heads/*:refs/remotes/origin/*
       - uses: adwerx/pronto-ruby@v4.1 # use a tag version here
         env:
