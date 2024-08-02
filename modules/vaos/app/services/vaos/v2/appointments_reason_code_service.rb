@@ -31,7 +31,7 @@ module VAOS
 
         # Convert the text to a hash for querying, or return if no valid key value pairs are found
         reason_code_hash = reason_code_text.split('|')
-                                           .select { |pair| pair.count(':') == 1 }
+                                           .select { |pair| pair.split(':').count == 2 }
                                            .to_h { |pair| pair.split(':').map!(&:strip) }
         return if reason_code_hash.empty?
 

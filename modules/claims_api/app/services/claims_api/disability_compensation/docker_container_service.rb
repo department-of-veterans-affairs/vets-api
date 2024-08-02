@@ -9,22 +9,20 @@ module ClaimsApi
     class DockerContainerService < ServiceBase
       LOG_TAG = '526_v2_Docker_Container_job'
 
-      def upload(claim_id)
-        log_job_progress(claim_id,
+      def upload(auto_claim)
+        log_job_progress(auto_claim.id,
                          'Docker container service started')
-
-        auto_claim = get_claim(claim_id)
 
         update_auth_headers(auto_claim) if auto_claim.transaction_id.present?
 
         evss_data = get_evss_data(auto_claim)
 
-        log_job_progress(claim_id,
+        log_job_progress(auto_claim.id,
                          'Submitting mapped data to Docker container')
 
         evss_res = evss_service.submit(auto_claim, evss_data, false)
 
-        log_job_progress(claim_id,
+        log_job_progress(auto_claim.id,
                          "Successfully submitted to Docker container with response: #{evss_res}")
         # update with the evss_id returned
         auto_claim.update!(evss_id: evss_res[:claimId])
