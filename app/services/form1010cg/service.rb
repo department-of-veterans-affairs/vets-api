@@ -71,6 +71,9 @@ module Form1010cg
       [claim_pdf_path, poa_attachment_path].each { |p| File.delete(p) if p.present? }
 
       CARMA::Client::MuleSoftClient.new.create_submission_v2(payload)
+    rescue
+      Rails.logger.info "[Form 10-10CG] Submission failed for claim_guid: #{claim.guid}"
+      raise
     end
 
     # Will raise an error unless the veteran specified on the claim's data can be found in MVI

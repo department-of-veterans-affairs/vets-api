@@ -488,6 +488,10 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#process_claim_v2!' do
+    subject do
+      described_class.new(claim_with_mpi_veteran).process_claim_v2!
+    end
+
     let(:mule_soft_client) { instance_double(CARMA::Client::MuleSoftClient) }
     let(:mule_soft_payload) { { fake_payload: 'value' } }
 
@@ -501,27 +505,47 @@ RSpec.describe Form1010cg::Service do
       allow(from_claim_result).to receive(:to_request_payload).and_return(mule_soft_payload)
 
       allow(CARMA::Client::MuleSoftClient).to receive(:new).and_return(mule_soft_client)
-      allow(mule_soft_client).to receive(:create_submission_v2)
     end
 
-    it 'submits to mulesoft' do
-      described_class.new(claim_with_mpi_veteran).process_claim_v2!
-      expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
-    end
+    context 'success' do
+      before do
+        allow(mule_soft_client).to receive(:create_submission_v2)
+      end
 
-    context 'with a poa attachment' do
       it 'submits to mulesoft' do
-        claim_with_mpi_veteran.parsed_form['poaAttachmentId'] = create(:form1010cg_attachment, :with_attachment).guid
-
-        expect_any_instance_of(Form1010cg::Attachment).to receive(:to_local_file).and_return(
-          'spec/fixtures/files/doctors-note.jpg'
-        )
-
-        allow(File).to receive(:delete).with('spec/fixtures/files/doctors-note.jpg')
-
-        described_class.new(claim_with_mpi_veteran).process_claim_v2!
+        subject
         expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
-        expect(File).to have_received(:delete).with('spec/fixtures/files/doctors-note.jpg')
+      end
+
+      context 'with a poa attachment' do
+        it 'submits to mulesoft' do
+          claim_with_mpi_veteran.parsed_form['poaAttachmentId'] = create(:form1010cg_attachment, :with_attachment).guid
+
+          expect_any_instance_of(Form1010cg::Attachment).to receive(:to_local_file).and_return(
+            'spec/fixtures/files/doctors-note.jpg'
+          )
+
+          allow(File).to receive(:delete).with('spec/fixtures/files/doctors-note.jpg')
+
+          subject
+
+          expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
+          expect(File).to have_received(:delete).with('spec/fixtures/files/doctors-note.jpg')
+        end
+      end
+    end
+
+    context 'handles errors' do
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(mule_soft_client).to receive(:create_submission_v2).and_raise(Common::Client::Errors::ClientError)
+      end
+
+      it 'submits to mulesoft' do
+        expect(Rails.logger).to receive(:info).with(
+          "[Form 10-10CG] Submission failed for claim_guid: #{claim_with_mpi_veteran.guid}"
+        )
+        expect { subject }.to raise_error(Common::Client::Errors::ClientError)
       end
     end
   end
