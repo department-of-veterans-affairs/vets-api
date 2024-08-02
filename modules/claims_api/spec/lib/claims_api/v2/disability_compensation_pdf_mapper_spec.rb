@@ -276,6 +276,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       end
 
       it 'maps the homeless_point_of_contact' do
+        form_attributes['homeless'].delete('isAtRiskOfBecomingHomeless')
+        form_attributes['homeless'].delete('isCurrentlyHomeless')
         mapper.map_claim
 
         homeless_point_of_contact = pdf_data[:data][:attributes][:homelessInformation][:pointOfContact]

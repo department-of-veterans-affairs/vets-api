@@ -3004,11 +3004,6 @@
                                   "nullable": true,
                                   "description": "Is the Veteran currently homeless?"
                                 },
-                                "isAtRiskOfBecomingHomeless": {
-                                  "type": "boolean",
-                                  "nullable": true,
-                                  "description": "Is the Veteran currently at risk of becoming homeless?"
-                                },
                                 "currentlyHomeless": {
                                   "type": "object",
                                   "nullable": true,
@@ -3036,6 +3031,11 @@
                                       "example": "other living situation"
                                     }
                                   }
+                                },
+                                "isAtRiskOfBecomingHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently at risk of becoming homeless?"
                                 },
                                 "riskOfBecomingHomeless": {
                                   "type": "object",
@@ -4379,11 +4379,6 @@
                                 "nullable": true,
                                 "description": "Is the Veteran currently homeless?"
                               },
-                              "isAtRiskOfBecomingHomeless": {
-                                "type": "boolean",
-                                "nullable": true,
-                                "description": "Is the Veteran currently at risk of becoming homeless?"
-                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -4411,6 +4406,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",
@@ -5547,10 +5547,12 @@
                           }
                         },
                         "homeless": {
+                          "isCurrentlyHomeless": true,
                           "currentlyHomeless": {
                             "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                             "otherDescription": "ABCDEFGHIJKLM"
                           },
+                          "isAtRiskOfBecomingHomeless": false,
                           "pointOfContact": "john stewart",
                           "pointOfContactNumber": {
                             "telephone": "5555555555",
@@ -5820,10 +5822,12 @@
                             }
                           },
                           "homeless": {
+                            "isCurrentlyHomeless": true,
                             "currentlyHomeless": {
                               "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                               "otherDescription": "ABCDEFGHIJKLM"
                             },
+                            "isAtRiskOfBecomingHomeless": false,
                             "pointOfContact": "john stewart",
                             "pointOfContactNumber": {
                               "telephone": "5555555555",
@@ -6049,10 +6053,12 @@
                             }
                           },
                           "homeless": {
+                            "isCurrentlyHomeless": true,
                             "currentlyHomeless": {
                               "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                               "otherDescription": "ABCDEFGHIJKLM"
                             },
+                            "isAtRiskOfBecomingHomeless": false,
                             "pointOfContact": "john stewart",
                             "pointOfContactNumber": {
                               "telephone": "5555555555",
@@ -6523,11 +6529,6 @@
                                   "nullable": true,
                                   "description": "Is the Veteran currently homeless?"
                                 },
-                                "isAtRiskOfBecomingHomeless": {
-                                  "type": "boolean",
-                                  "nullable": true,
-                                  "description": "Is the Veteran currently at risk of becoming homeless?"
-                                },
                                 "currentlyHomeless": {
                                   "type": "object",
                                   "nullable": true,
@@ -6555,6 +6556,11 @@
                                       "example": "other living situation"
                                     }
                                   }
+                                },
+                                "isAtRiskOfBecomingHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently at risk of becoming homeless?"
                                 },
                                 "riskOfBecomingHomeless": {
                                   "type": "object",
@@ -7898,11 +7904,6 @@
                                 "nullable": true,
                                 "description": "Is the Veteran currently homeless?"
                               },
-                              "isAtRiskOfBecomingHomeless": {
-                                "type": "boolean",
-                                "nullable": true,
-                                "description": "Is the Veteran currently at risk of becoming homeless?"
-                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -7930,6 +7931,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",
@@ -9066,10 +9072,12 @@
                           }
                         },
                         "homeless": {
+                          "isCurrentlyHomeless": true,
                           "currentlyHomeless": {
                             "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                             "otherDescription": "ABCDEFGHIJKLM"
                           },
+                          "isAtRiskOfBecomingHomeless": false,
                           "pointOfContact": "john stewart",
                           "pointOfContactNumber": {
                             "telephone": "5555555555",
@@ -9296,10 +9304,12 @@
                           }
                         },
                         "homeless": {
+                          "isCurrentlyHomeless": true,
                           "currentlyHomeless": {
                             "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                             "otherDescription": "ABCDEFGHIJKLM"
                           },
+                          "isAtRiskOfBecomingHomeless": false,
                           "pointOfContact": "john stewart",
                           "pointOfContactNumber": {
                             "telephone": "5555555555",
@@ -10046,11 +10056,6 @@
                                 "nullable": true,
                                 "description": "Is the Veteran currently homeless?"
                               },
-                              "isAtRiskOfBecomingHomeless": {
-                                "type": "boolean",
-                                "nullable": true,
-                                "description": "Is the Veteran currently at risk of becoming homeless?"
-                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -10078,6 +10083,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",
@@ -11233,10 +11243,12 @@
                         }
                       },
                       "homeless": {
+                        "isCurrentlyHomeless": true,
                         "currentlyHomeless": {
                           "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                           "otherDescription": "ABCDEFGHIJKLM"
                         },
+                        "isAtRiskOfBecomingHomeless": false,
                         "pointOfContact": "john stewart",
                         "pointOfContactNumber": {
                           "telephone": "5555555555",
@@ -12515,6 +12527,11 @@
                             "nullable": true,
                             "additionalProperties": false,
                             "properties": {
+                              "isCurrentlyHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently homeless?"
+                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -12542,6 +12559,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",

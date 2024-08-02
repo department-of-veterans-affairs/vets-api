@@ -881,6 +881,10 @@ features:
     actor_type: user
     description: Enables/disables documentation-related content for Medications on VA.gov
     enable_in_development: true
+  mhv_medications_display_allergies:
+    actor_type: user
+    description: Enables/disables allergies and reactions data
+    enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)
@@ -1555,6 +1559,9 @@ features:
   virtual_agent_enable_pva2_chatbot:
     actor_type: user
     description: If enabled, switches VA chatbot from PVA1 to PVA2
+  virtual_agent_enable_root_bot:
+    actor_type: user
+    description: If enabled, switches VA chatbot from PVA to Root Bot
   virtual_agent_component_testing:
     actor_type: user
     description: If enabled, allows for testing of the chatbot components
@@ -1661,6 +1668,6 @@ features:
   merge_1995_and_5490:
     actore_type: user
     description: Activating the combined 1995 and 5490 form
-  mgib_verifications_maintenance: 
+  mgib_verifications_maintenance:
     actor_type: user
     description: Used to show  maintenance alert for MGIB Verifications
