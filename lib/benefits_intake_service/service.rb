@@ -95,9 +95,9 @@ module BenefitsIntakeService
         veteranLastName: metadata[:veteran_last_name],
         fileNumber: metadata[:file_number],
         zipCode: metadata[:zip],
-        source: 'va.gov backup submission',
+        source: metadata[:source] || 'va.gov submission',
         docType: metadata[:doc_type],
-        businessLine: 'CMP',
+        businessLine: metadata[:business_line] || 'CMP',
         claimDate: metadata[:claim_date]
       }
       BenefitsIntake::Metadata.validate(metadata_to_convert.stringify_keys)
