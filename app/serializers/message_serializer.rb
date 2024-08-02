@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
 class MessageSerializer < MessagesSerializer
-  has_many :attachments, each_serializer: AttachmentSerializer
+  include JSONAPI::Serializer
+
+  set_type :messages
+
+  has_many :attachments, serializer: AttachmentSerializer, &:attachments
 end

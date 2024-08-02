@@ -7,10 +7,8 @@ module MyHealth
         resource = fetch_folder_threads
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: ThreadsSerializer,
-               meta: resource.metadata
+        options = { meta: resource.metadata }
+        render json: ThreadsSerializer.new(resource.data, options)
       end
 
       def move
