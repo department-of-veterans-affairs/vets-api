@@ -1412,7 +1412,7 @@ spec/lib/facilities @department-of-veterans-affairs/vfs-facilities-frontend @dep
 spec/lib/faraday_adapter_socks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/flipper @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/form526_backup_submission @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/lib/formatters/date_formatter_spec.rb @department-of-veterans-affairs/octo-identity
+spec/lib/formatters @department-of-veterans-affairs/octo-identity
 spec/lib/forms/client_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/forms/submission_statuses @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/generators @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
