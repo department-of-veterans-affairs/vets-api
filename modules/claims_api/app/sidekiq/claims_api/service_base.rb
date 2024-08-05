@@ -63,7 +63,7 @@ module ClaimsApi
       auto_claim.evss_response ||= []
       errors_to_add = []
 
-      if error.respond_to?(:original_body)
+      if error_responds_to_original_body?(error)
         if error&.original_body.present?
           errors_to_add.concat(error.original_body)
         else
@@ -83,7 +83,7 @@ module ClaimsApi
     end
 
     def get_error_message(error)
-      if error.respond_to? :original_body
+      if error_responds_to_original_body?(error)
         error.original_body
       elsif error.respond_to? :message
         error.message
@@ -128,7 +128,7 @@ module ClaimsApi
     def will_retry?(auto_claim, error)
       msg = if auto_claim.evss_response.present?
               auto_claim.evss_response&.dig(0, 'key')
-            elsif error.respond_to? :original_body
+            elsif error_responds_to_original_body?(error)
               get_error_key(error.original_body)
             else
               ''
@@ -162,6 +162,10 @@ module ClaimsApi
       ClaimsApi::Logger.log(self.class::LOG_TAG,
                             claim_id:,
                             detail:)
+    end
+
+    def error_responds_to_original_body?(error)
+      error.respond_to? :original_body
     end
 
     def extract_poa_code(poa_form_data)
