@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
-
 require 'csv'
 require 'net/http'
 
@@ -53,7 +51,14 @@ module HCA
       http.use_ssl = true if uri.scheme == 'https'
       request = Net::HTTP::Get.new(uri.request_uri)
       response = http.request(request)
-      response.body if response.code == '200'
+
+      if response.code == '200'
+        response.body
+      else
+        Rails.logger.info("CSV retrieval failed with response code #{response.code}")
+
+        nil
+      end
     end
 
     def perform
@@ -79,10 +84,6 @@ module HCA
         end
         Rails.logger.info("Job ended with #{StdInstitutionFacility.count} existing facilities.")
       end
-    rescue => e
-      ActiveRecord::Base.rollback_transaction
-      raise "error: #{e}"
     end
   end
 end
-# rubocop:enable Metrics/MethodLength
