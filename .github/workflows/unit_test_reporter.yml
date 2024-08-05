@@ -76,5 +76,4 @@ jobs:
         uses: shettytejas/simplecov-reporter@v1
         with:
           title: Coverage Report for Unit Tests
-          result-path: coverage/unit_test_results.json
           token: ${{ secrets.GITHUB_TOKEN }}
