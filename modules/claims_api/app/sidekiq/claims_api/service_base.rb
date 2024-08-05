@@ -61,19 +61,23 @@ module ClaimsApi
 
     def set_evss_response(auto_claim, error)
       auto_claim.evss_response ||= []
+      errors_to_add = []
 
-      if error.respond_to? :original_body
+      if error.respond_to?(:original_body)
         if error&.original_body.present?
-          error&.original_body&.each { |e| auto_claim.evss_response << e }
+          errors_to_add.concat(error.original_body)
         else
           # This is a default catch all
           # Since the error could theoretically respond_to the
           # original_body method but still not have it
-          auto_claim.evss_response << error
+          errors_to_add << error
         end
       elsif error&.errors.present?
-        error&.errors&.each { |e| auto_claim.evss_response << e }
+        errors_to_add.concat(error.errors)
       end
+
+      # Add all collected errors to the auto_claim evss_response
+      auto_claim.evss_response.concat(errors_to_add)
 
       auto_claim.save!
     end
