@@ -26,35 +26,32 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
       allow(lighthouse_service).to receive(:get_facilities) { facilities }
     end
 
-    it 'retrieves facilities from Lighthouse' do
-      state_params = { state: 'AK' }
+    it 'retrieves all facilities from Lighthouse when specified' do
+      params = { state: 'AK', include_all: true }
 
-      StdInstitutionFacility.create(station_number: '456ab')
-      get :facilities, params: state_params
+      get :facilities, params: params
 
       expect(response.body).to eq(facilities.to_json)
     end
 
-    context 'ves_active flag enabled' do
-      it 'only returns facilities in VES' do
-        params = { state: 'AK', ves_active: true }
+    it 'only returns facilities in VES' do
+      params = { state: 'AK' }
 
-        StdInstitutionFacility.create(station_number: '456ab')
+      StdInstitutionFacility.create(station_number: '456ab')
 
-        get(:facilities, params:)
+      get(:facilities, params:)
 
-        expect(response.body).to eq([target_facility].to_json)
-      end
+      expect(response.body).to eq([target_facility].to_json)
+    end
 
-      it 'filters out deactivated facilities' do
-        params = { state: 'AK', ves_active: true }
+    it 'filters out deactivated facilities' do
+      params = { state: 'AK' }
 
-        StdInstitutionFacility.create(station_number: '456ab', deactivation_date: Time.current)
+      StdInstitutionFacility.create(station_number: '456ab', deactivation_date: Time.current)
 
-        get(:facilities, params:)
+      get(:facilities, params:)
 
-        expect(response.body).to eq({ data: [] }.to_json)
-      end
+      expect(response.body).to eq({ data: [] }.to_json)
     end
   end
 end
