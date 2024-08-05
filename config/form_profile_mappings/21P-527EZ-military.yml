@@ -1,8 +1,9 @@
 veteran_full_name: [identity_information, full_name]
 veteran_date_of_birth: [identity_information, date_of_birth]
 veteran_social_security_number: [identity_information, ssn]
-veteranAddress: [contact_information, address]
-serviceBranch: [military_information, service_branches_for_pensions]
-activeServiceDateRange:
+veteran_address: [contact_information, address]
+service_branch: [military_information, service_branches_for_pensions]
+active_service_date_range:
   from: [military_information, first_uniformed_entry_date]
   to: [military_information, last_active_discharge_date]
+service_number: [military_information, service_number]

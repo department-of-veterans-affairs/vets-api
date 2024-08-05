@@ -709,7 +709,8 @@ RSpec.describe FormProfile, type: :model do
       'serviceBranch' => {
         'army' => true,
         'airForce' => true
-      }
+      },
+      'serviceNumber' => '796111863'
     }
   end
 
