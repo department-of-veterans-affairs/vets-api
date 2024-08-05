@@ -20,7 +20,7 @@ module ClaimsApi
                 detail: err[:detail] || err[:text]
               }
             end
-            errors_array.compact
+            errors_array
           end
 
           def status_code
