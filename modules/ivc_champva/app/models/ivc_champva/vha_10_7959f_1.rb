@@ -43,6 +43,12 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-7959F-1 Current User LOA', current_user_loa:)
     end
 
+    def track_email_usage
+      email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
+      StatsD.increment("#{STATS_KEY}.#{email_used}")
+      Rails.logger.info('IVC ChampVA Forms - 10-7959F-1 Email Used', email_used:)
+    end
+
     def method_missing(_, *args)
       args&.first
     end

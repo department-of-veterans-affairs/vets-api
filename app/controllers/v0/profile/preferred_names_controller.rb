@@ -16,7 +16,7 @@ module V0
           response = service.save_preferred_name preferred_name
           Rails.logger.info('PreferredNamesController#create request completed', sso_logging_info)
 
-          render json: response, serializer: PreferredNameSerializer
+          render json: PreferredNameSerializer.new(response)
         else
           raise Common::Exceptions::ValidationErrors, preferred_name
         end

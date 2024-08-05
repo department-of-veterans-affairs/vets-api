@@ -842,6 +842,21 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
         end
+
+        context "when only 'isCurrentlyHomeless' and 'isAtRiskOfBecomingHomeless' are provided" do
+          it 'responds with a 200' do
+            mock_ccg(scopes) do |auth_header|
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['homeless'] = {
+                isCurrentlyHomeless: false,
+                isAtRiskOfBecomingHomeless: false
+              }
+              post submit_path, params: params.to_json, headers: auth_header
+              expect(response).to have_http_status(:success)
+            end
+          end
+        end
       end
 
       context "when neither 'currentlyHomeless' nor 'riskOfBecomingHomeless' is provided" do

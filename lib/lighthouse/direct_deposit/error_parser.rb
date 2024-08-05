@@ -63,8 +63,7 @@ module Lighthouse
         return 'cnp.payment.night.phone.number.invalid' if detail.include? 'Night phone number is invalid'
         return 'cnp.payment.night.area.number.invalid' if detail.include? 'Night area number is invalid'
         return 'cnp.payment.mailing.address.invalid' if detail.include? 'field not entered for mailing address update'
-        return 'cnp.payment.potential.fraud' if detail.include? 'GUIE50041'
-        return 'cnp.payment.unspecified.error' if detail.include? 'GUIE50022'
+        return 'cnp.payment.potential.fraud' if %w[GUIE50022 GUIE50041].any? { |code| detail.include?(code) }
 
         'cnp.payment.generic.error'
       end
