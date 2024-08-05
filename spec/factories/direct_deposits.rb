@@ -13,6 +13,8 @@ FactoryBot.define do
 
   factory :control_information, class: Hash do
     can_update_direct_deposit { true }
+    has_cp_claim { true }
+    has_cp_award { true }
     is_corp_available { true }
     is_corp_rec_found { true }
     has_no_bdn_payments { true }
