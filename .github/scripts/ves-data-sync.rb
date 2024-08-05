@@ -12,6 +12,7 @@ db_host = ENV['VA_INCOME_LIMITS_VES_DB_SERVER']
 db_port = ENV['VA_INCOME_LIMITS_VES_DB_PORT']
 db_sid = ENV['VA_INCOME_LIMITS_VES_DB_SID']
 db_connection_string = "//#{db_host}:#{db_port}/#{db_sid}"
+puts "Connecting to: #{db_connection_string}"
 
 # Define temp directory
 temp_directory = ENV['TEMP_FOLDER']
@@ -21,7 +22,7 @@ conn = OCI8.new(db_username, db_password, db_connection_string)
 
 # Query the data for the table.
 sql_query = "SELECT * FROM sdsadm.std_institution"
-puts "Running query: " + sql_query
+puts "Running query: #{sql_query}"
 result = conn.exec(sql_query)
 
 puts result.get_col_names
