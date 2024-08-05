@@ -700,6 +700,9 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.address[:country],
         'postal_code' => user.address[:postal_code][0..4]
       },
+      'email' => 'test2@test1.net',
+      'phone' => '4445551212',
+      'internationalPhone' => '14445551212',
       'veteranSocialSecurityNumber' => user.ssn,
       'veteranDateOfBirth' => user.birth_date,
       'activeServiceDateRange' => {
