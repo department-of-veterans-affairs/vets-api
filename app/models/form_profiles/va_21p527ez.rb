@@ -2,6 +2,7 @@
 
 require 'pension_21p527ez/pension_military_information'
 
+# extends app/models/form_profile.rb, which handles form prefill
 class FormProfiles::VA21p527ez < FormProfile
   def metadata
     {
@@ -11,6 +12,9 @@ class FormProfiles::VA21p527ez < FormProfile
     }
   end
 
+  # overrides FormProfile.initialize_military_information (when pension_military_prefill
+  # flag is enabled) to use Pension21p527ez::PensionFormMilitaryInformation instead of
+  # FormProfile::FormMilitaryInformation in order to add additional military information fields.
   def initialize_military_information
     if Flipper.enabled?(:pension_military_prefill, @user)
       return {} unless user.authorize :va_profile, :access?
@@ -26,6 +30,10 @@ class FormProfiles::VA21p527ez < FormProfile
 
   private
 
+  # overrides FormProfile.initialize_va_profile_prefill_military_information
+  # (when pension_military_prefill flag is enabled) to use
+  # Pension21p527ez::PensionMilitaryInformation instead of
+  # FormProfile::MilitaryInformation in order to add additional military information fields.
   def initialize_va_profile_prefill_military_information
     if Flipper.enabled?(:pension_military_prefill, @user)
       military_information_data = {}

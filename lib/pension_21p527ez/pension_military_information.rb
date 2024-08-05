@@ -4,6 +4,9 @@ require 'va_profile/prefill/military_information'
 require 'claims_api/service_branch_mapper'
 
 module Pension21p527ez
+  ##
+  # extends app/models/form_profile.rb FormProfile::FormMilitaryInformation
+  # to add additional military information fields to Pension prefill.
   class PensionFormMilitaryInformation < FormMilitaryInformation
     include Virtus.model
 
@@ -13,6 +16,9 @@ module Pension21p527ez
     attribute :service_number, String
   end
 
+  ##
+  # extends lib/va_profile/prefill/military_information.rb VAProfile::Prefill::MilitaryInformation
+  # to add additional prefill methods to Pensions military information prefill
   class PensionMilitaryInformation < VAProfile::Prefill::MilitaryInformation
     PREFILL_METHODS = %w[
       currently_active_duty
@@ -36,6 +42,9 @@ module Pension21p527ez
       tours_of_duty
     ].freeze
 
+    ##
+    # Map between https://api.va.gov/services/benefits-reference-data/v1/service-branches service branch names
+    # and the fields used for pensions.serviceBranch
     PENSION_SERVICE_BRANCHES_MAPPING = {
       'Army' => 'army',
       'Navy' => 'navy',
@@ -52,14 +61,17 @@ module Pension21p527ez
       super
     end
 
+    # @return [String] "YYYY-MM-DD"
     def first_uniformed_entry_date
       service_history.uniformed_service_initial_entry_date
     end
 
+    # @return [String] "YYYY-MM-DD"
     def last_active_discharge_date
       service_history.release_from_active_duty_date
     end
 
+    # @return [Hash] { army => true, navy => true } in the format required for pensions.serviceBranch
     def service_branches_for_pensions
       branches = {}
       service_history.episodes.map(&:branch_of_service).uniq.each do |branch|
@@ -73,9 +85,12 @@ module Pension21p527ez
       {}
     end
 
+    ##
+    # If the veteran began service after 1971, their service number is their SSN
+    # We haven't identified a source for pre-1971 service numbers for prefill
     def service_number
       year_of_entry = first_uniformed_entry_date.to_i if first_uniformed_entry_date
-      @user.ssn_normalized if year_of_entry > 1971
+      @user&.ssn_normalized if year_of_entry > 1971
     rescue => e
       Rails.logger.error("Error fetching service number for Pension prefill: #{e}")
       nil
