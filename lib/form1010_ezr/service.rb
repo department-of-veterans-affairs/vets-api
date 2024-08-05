@@ -36,11 +36,6 @@ module Form1010Ezr
     end
 
     def submit_sync(parsed_form)
-      # Log the 'veteranDateOfBirth' to ensure the frontend validation is working as intended
-      # REMOVE THE FOLLOWING TWO LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
-      @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
-      parsed_form = configure_and_validate_form(parsed_form)
-
       res = with_monitoring do
         es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
       end
@@ -55,6 +50,11 @@ module Form1010Ezr
 
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
     def submit_form(parsed_form)
+      # Log the 'veteranDateOfBirth' to ensure the frontend validation is working as intended
+      # REMOVE THE FOLLOWING TWO LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+      @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
+      parsed_form = configure_and_validate_form(parsed_form)
+
       submit_async(parsed_form)
     rescue => e
       log_and_raise_error(e, parsed_form)
@@ -73,9 +73,9 @@ module Form1010Ezr
           '1010EZR total failure',
           :error,
           {
-            first_initial: parsed_form['veteranFullName']['first'][0],
-            middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
-            last_initial: parsed_form['veteranFullName']['last'][0]
+            first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
+            middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
+            last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
           },
           ezr: :total_failure
         )

@@ -7,7 +7,15 @@ RSpec.describe Form1010Ezr::Service do
   include SchemaMatchers
 
   let(:form) { get_fixture('form1010_ezr/valid_form') }
-  let(:current_user) do
+  let(:ves_fields) {
+    {
+      'discloseFinancialInformation' => true,
+      'isEssentialAcaCoverage' => false,
+      'vaMedicalFacility' => '988'
+    }
+  }
+  let(:form_with_ves_fields) { form.merge!(ves_fields) }
+  let(:current_user) {
     create(
       :evss_user,
       :loa3,
@@ -20,7 +28,7 @@ RSpec.describe Form1010Ezr::Service do
       ssn: '111111234',
       gender: 'F'
     )
-  end
+  }
   let(:service) { described_class.new(current_user) }
 
   def allow_logger_to_receive_error
@@ -42,7 +50,7 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   def ezr_form_with_attachments
-    form.merge(
+    form_with_ves_fields.merge(
       'attachments' => [
         {
           'confirmationCode' => create(:form1010_ezr_attachment).guid
@@ -74,6 +82,23 @@ RSpec.describe Form1010Ezr::Service do
         expect(service.send(:add_financial_flag, {})).to eq({})
       end
     end
+  end
+
+  describe '#post_fill_required_fields' do
+    it 'Adds required fields in the Enrollment System API to the form object',
+       run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
+       VCR.use_cassette(
+         'hca/ee/lookup_user',
+         VCR::MATCH_EVERYTHING.merge(erb: true)
+       ) do
+         expect(form['isEssentialAcaCoverage']).to eq(nil)
+         expect(form['vaMedicalFacility']).to eq(nil)
+
+         service.send(:post_fill_required_fields, form)
+
+         expect(form.keys).to include('isEssentialAcaCoverage', 'vaMedicalFacility')
+       end
+     end
   end
 
   describe '#post_fill_required_user_fields' do
@@ -146,9 +171,121 @@ RSpec.describe Form1010Ezr::Service do
         HCA::EzrSubmissionJob.drain
       end
     end
+
+    context 'when an error occurs' do
+      let(:current_user) {
+        create(
+          :evss_user,
+          :loa3,
+          icn: '1013032368V065534',
+          birth_date: nil,
+          first_name: nil,
+          middle_name: nil,
+          last_name: 'test',
+          suffix: nil,
+          ssn: nil,
+          gender: nil
+        )
+      }
+
+      context 'schema validation failure' do
+        before do
+          allow_logger_to_receive_error
+          allow_any_instance_of(
+            HCA::EnrollmentEligibility::Service
+          ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
+        end
+
+        it 'logs and raises a schema validation error' do
+          form_sans_required_fields = form.except(
+            'privacyAgreementAccepted',
+            'veteranDateOfBirth',
+            'veteranFullName',
+            'veteranSocialSecurityNumber',
+            'gender'
+          )
+
+          allow(StatsD).to receive(:increment)
+
+          expect(StatsD).to receive(:increment).with('api.1010ezr.validation_error')
+          expect { submit_form(form_sans_required_fields) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
+            expect(e.errors.length).to eq(6)
+            e.errors.each do |error|
+              expect(error.title).to eq('Validation error')
+              expect(error.status).to eq('422')
+            end
+          end
+          expect_logger_errors(
+            [
+              '10-10EZR form validation failed. Form does not match schema.',
+              "The property '#/veteranFullName' did not contain a required property of 'first'",
+              "The property '#/veteranDateOfBirth' of type null did not match the following type: string",
+              "The property '#/veteranSocialSecurityNumber' of type null did not match the following type: string",
+              "The property '#/gender' of type null did not match the following type: string",
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            ]
+          )
+        end
+
+        # REMOVE THIS TEST ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+        context "when the error pertains to the Veteran's DOB" do
+          before do
+            allow(JSON::Validator).to receive(:fully_validate).and_return(['veteranDateOfBirth error'])
+          end
+
+          it 'adds to the PersonalInformationLog and saves the unprocessed DOB' do
+            expect { submit_form(form) }.to raise_error do |e|
+              personal_information_log =
+                PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
+
+              expect(personal_information_log.present?).to eq(true)
+              expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
+              expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
+            end
+          end
+        end
+      end
+
+      context 'any other error' do
+        before do
+          allow_any_instance_of(
+            Common::Client::Base
+          ).to receive(:perform).and_raise(
+            StandardError.new('Uh oh. Some bad error occurred.')
+          )
+          allow_logger_to_receive_error
+        end
+
+        it 'increments StatsD as well as logs and raises the error' do
+          allow(StatsD).to receive(:increment)
+
+          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+          expect { submit_form(form) }.to raise_error(
+            StandardError, 'Uh oh. Some bad error occurred.'
+          )
+          expect_logger_errors(
+            ['10-10EZR form submission failed: Uh oh. Some bad error occurred.']
+          )
+        end
+      end
+    end
   end
 
   describe '#submit_sync' do
+    context 'when an error occurs' do
+      it 'increments statsd' do
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:increment).with(
+          'api.1010ezr.submit_sync.fail',
+          tags: ['error:VCRErrorsUnhandledHTTPRequestError']
+        )
+        expect(StatsD).to receive(:increment).with('api.1010ezr.submit_sync.total')
+        expect { service.submit_sync(form_with_ves_fields) }.to raise_error(StandardError)
+      end
+    end
+
     context 'when successful' do
       before do
         allow_logger_to_receive_info
@@ -160,16 +297,7 @@ RSpec.describe Form1010Ezr::Service do
           'form1010_ezr/authorized_submit',
           { match_requests_on: %i[method uri body], erb: true }
         ) do
-          # The required fields for the Enrollment System should be absent from the form data initially
-          # and then added via the 'post_fill_required_fields' method
-          expect(form['isEssentialAcaCoverage']).to eq(nil)
-          expect(form['vaMedicalFacility']).to eq(nil)
-          # If the 'veteranDateOfBirth', 'veteranFullName', 'veteranSocialSecurityNumber', and/or 'gender' fields are
-          # missing from the parsed_form, they should get added in via the 'post_fill_user_fields' method and
-          # pass validation
-          %w[veteranDateOfBirth veteranFullName veteranSocialSecurityNumber gender].each { |key| form.delete(key) }
-
-          submission_response = service.submit_sync(form)
+          submission_response = service.submit_sync(form_with_ves_fields)
 
           expect(submission_response).to be_a(Object)
           expect(submission_response).to eq(
@@ -200,17 +328,17 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       context 'when the form includes a Mexican province' do
-        let(:form) { get_fixture('form1010_ezr/valid_form_with_mexican_province') }
+        let(:form) {
+          get_fixture('form1010_ezr/valid_form_with_mexican_province').merge!(ves_fields)
+        }
 
-        it "overrides the original province 'state' with the correct province initial and renders a " \
-           'successful response', run_at: 'Tue, 21 Nov 2023 22:29:52 GMT' do
+        it 'returns a success object', run_at: 'Tue, 21 Nov 2023 22:29:52 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit_with_mexican_province',
             { match_requests_on: %i[method uri body], erb: true }
           ) do
-            # The initial form data should include the JSON schema Mexican provinces before they're overridden
-            expect(form['veteranAddress']['state']).to eq('chihuahua')
-            expect(form['veteranHomeAddress']['state']).to eq('chihuahua')
+            overridden_form = HCA::OverridesParser.new(form).override
+
             expect(service.submit_sync(form)).to eq(
               {
                 success: true,
@@ -223,7 +351,11 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       context 'when the form includes next of kin and/or emergency contact info' do
-        let(:form) { get_fixture('form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact') }
+        let(:form) {
+          get_fixture(
+            'form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact'
+          ).merge!(ves_fields)
+        }
 
         it 'returns a success object', run_at: 'Thu, 30 Nov 2023 15:52:36 GMT' do
           VCR.use_cassette(
@@ -242,7 +374,9 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       context 'when the form includes TERA info' do
-        let(:form) { get_fixture('form1010_ezr/valid_form_with_tera') }
+        let(:form) {
+          get_fixture('form1010_ezr/valid_form_with_tera').merge!(ves_fields)
+        }
 
         it 'returns a success object', run_at: 'Wed, 13 Mar 2024 18:14:49 GMT' do
           VCR.use_cassette(
@@ -298,7 +432,7 @@ RSpec.describe Form1010Ezr::Service do
               )
               ezr_attachment.save!
 
-              form_with_non_pdf_attachment = form.merge(
+              form_with_non_pdf_attachment = form_with_ves_fields.merge(
                 'attachments' => [
                   {
                     'confirmationCode' => ezr_attachment.guid
@@ -318,89 +452,6 @@ RSpec.describe Form1010Ezr::Service do
               )
             end
           end
-        end
-      end
-    end
-
-    context 'when an error occurs' do
-      context 'schema validation failure' do
-        before do
-          allow_logger_to_receive_error
-          allow_any_instance_of(
-            HCA::EnrollmentEligibility::Service
-          ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
-        end
-
-        it 'logs and raises a schema validation error' do
-          form_sans_required_field = form.except('privacyAgreementAccepted')
-
-          allow(StatsD).to receive(:increment)
-
-          expect(StatsD).to receive(:increment).with('api.1010ezr.validation_error')
-          expect { service.submit_sync(form_sans_required_field) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
-            expect(e.errors[0].title).to eq('Validation error')
-            expect(e.errors[0].detail).to include(
-              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-            )
-            expect(e.errors[0].status).to eq('422')
-          end
-          expect_logger_errors(
-            [
-              '10-10EZR form validation failed. Form does not match schema.',
-              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-            ]
-          )
-        end
-
-        it 'increments statsd' do
-          allow(StatsD).to receive(:increment)
-
-          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_sync.fail',
-                                                     tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
-          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_sync.total')
-          expect { service.submit_sync(form) }.to raise_error(StandardError)
-        end
-
-        # REMOVE THIS TEST ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
-        context "when the error pertains to the Veteran's DOB" do
-          before do
-            allow(JSON::Validator).to receive(:fully_validate).and_return(['veteranDateOfBirth error'])
-          end
-
-          it 'adds to the PersonalInformationLog and saves the unprocessed DOB' do
-            expect { service.submit_sync(form) }.to raise_error do |e|
-              personal_information_log =
-                PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
-
-              expect(personal_information_log.present?).to eq(true)
-              expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
-              expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
-            end
-          end
-        end
-      end
-
-      context 'any other error' do
-        before do
-          allow_any_instance_of(
-            Common::Client::Base
-          ).to receive(:perform).and_raise(
-            StandardError.new('Uh oh. Some bad error occurred.')
-          )
-          allow_logger_to_receive_error
-        end
-
-        it 'increments StatsD as well as logs and raises the error' do
-          allow(StatsD).to receive(:increment)
-
-          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
-          expect { service.submit_sync(form) }.to raise_error(
-            StandardError, 'Uh oh. Some bad error occurred.'
-          )
-          expect_logger_errors(
-            ['10-10EZR form submission failed: Uh oh. Some bad error occurred.']
-          )
         end
       end
     end

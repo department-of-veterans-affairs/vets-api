@@ -1021,10 +1021,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
           it 'returns a 422 if form validation fails', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
             VCR.use_cassette('form1010_ezr/authorized_submit_with_es_dev_uri', match_requests_on: [:body]) do
-              allow_any_instance_of(Form1010Ezr::Service).to receive(:submit_form) do
-                raise Common::Exceptions::SchemaValidationErrors, ['error message']
-              end
-
               expect(subject).to validate(
                 :post,
                 '/v0/form1010_ezrs',
