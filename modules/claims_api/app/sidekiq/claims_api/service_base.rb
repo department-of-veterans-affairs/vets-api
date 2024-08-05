@@ -66,7 +66,9 @@ module ClaimsApi
         if error&.original_body.present?
           error&.original_body&.each { |e| auto_claim.evss_response << e }
         else
-          # default catch all, no idea what this would look like but want to be safe
+          # This is a default catch all
+          # Since the error could theoretically respond_to the
+          # original_body method but still not have it
           auto_claim.evss_response << error
         end
       elsif error&.errors.present?
