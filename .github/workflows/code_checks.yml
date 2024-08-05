@@ -80,28 +80,14 @@ jobs:
 
       - name: Setup Database
         run: |
-          docker compose -f docker-compose.test.yml run web bash \
+          docker-compose -f docker-compose.test.yml run web bash \
           -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
 
-      # - name: Run Specs
-      #   timeout-minutes: 20
-      #   run: |
-      #     docker compose -f docker-compose.test.yml run web bash \
-      #     -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
-
-      - name: Run Unit Tests
+      - name: Run Specs
+        timeout-minutes: 20
         run: |
-          docker compose -f docker-compose.test.yml run web bash \
-          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/models spec/lib spec/serializers spec/services spec/uploaders spec/sidekiq -n 13 -o '--tag ~type:request --tag ~type:controller --color --tty'"
-
-      - name: Simplecov Report
-        if: success() || failure() 
-        uses: shettytejas/simplecov-reporter@v1
-        with:
-          title: Coverage Report for Unit Tests
-          result-path: coverage/unit_test_results.json
-          token: ${{ secrets.GITHUB_TOKEN }}
-
+          docker-compose -f docker-compose.test.yml run web bash \
+          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
