@@ -13,6 +13,8 @@ module ClaimsApi
     end
 
     def build_error
+      handle_strings if @error.is_a?(String)
+
       case @error
       when Faraday::ParsingError
         raise_backend_exception
@@ -77,6 +79,15 @@ module ClaimsApi
       else
         ClaimsApi::V2::Error::LighthouseErrorMapper.new(error).get_details
       end
+    end
+
+    def handle_strings
+      return unless @error.is_a?(String)
+
+      detail = @error
+      title = 'string error'
+      messages = [{ detail:, status: 422, title: }]
+      @error = ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException.new(messages)
     end
   end
 end
