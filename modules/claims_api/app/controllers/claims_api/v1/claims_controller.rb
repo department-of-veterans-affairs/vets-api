@@ -23,7 +23,6 @@ module ClaimsApi
 
       def show # rubocop:disable Metrics/MethodLength
         claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id])
-
         if claim && claim.status == 'errored'
           fetch_errored(claim)
         elsif claim && claim.evss_id.blank?
@@ -61,7 +60,8 @@ module ClaimsApi
       end
 
       def format_evss_errors(errors)
-        errors.map do |err|
+        error_list = errors.is_a?(Hash) && errors['messages'].presence ? errors['messages'] : errors
+        error_list.map do |err|
           error = err.deep_symbolize_keys
           # Some old saved error messages saved key is an integer, so need to call .to_s before .gsub
           formatted = error[:key] ? error[:key].to_s.gsub('.', '/') : error[:key]
