@@ -25,13 +25,13 @@ module DebtManagementCenter
     def get_debts
       has_dependent_debts = veteran_has_dependent_debts?
       debts = debts_with_sorted_histories
-      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts.success") # since the below doesn't fire, this seems uneeded
+      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts.success")
       {
         has_dependent_debts:,
         debts:
       }
     rescue => e
-      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts.failure") # this never seems to fire
+      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts.failure")
       raise e
     end
 
