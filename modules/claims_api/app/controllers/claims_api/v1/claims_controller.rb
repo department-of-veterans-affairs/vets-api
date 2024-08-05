@@ -23,6 +23,7 @@ module ClaimsApi
 
       def show # rubocop:disable Metrics/MethodLength
         claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id])
+
         if claim && claim.status == 'errored'
           fetch_errored(claim)
         elsif claim && claim.evss_id.blank?
