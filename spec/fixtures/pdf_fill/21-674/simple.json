@@ -1,20 +1,18 @@
 {
   "veteran_information": {
     "full_name": {
-      "first": "Adam",
-      "middle": "B",
-      "last": "Huberws",
-      "suffix": "Jr."
+      "first": "Mark",
+      "last": "Webb"
     },
-    "ssn": "796-10-4437",
-    "va_file_number": "796104437",
-    "service_number": "123456789",
-    "birth_date": "1950-10-04"
+    "ssn": "000000000",
+    "va_file_number": "000000000",
+    "birth_date": "1980-01-01"
   },
   "dependents_application": {
     "household_income": true,
     "student_did_attend_school_last_term": false,
     "current_term_dates": {
+      "is_school_accredited": true,
       "official_school_start_date": "2020-09-12",
       "expected_student_start_date": "2020-09-22",
       "expected_graduation_date": "2025-05-05"
@@ -45,22 +43,22 @@
     },
     "student_name_and_ssn": {
       "full_name": {
-        "first": "Juan",
-        "last": "Barrett"
+        "first": "Test",
+        "last": "Childname"
       },
-      "ssn": "333224444",
-      "birth_date": "2001-10-06"
+      "ssn": "987654321",
+      "birth_date": "2005-01-01"
     },
     "veteran_contact_information": {
       "veteran_address": {
         "country_name": "USA",
-        "address_line1": "One E 161 St",
-        "city": "Bronx",
-        "state_code": "NY",
-        "zip_code": "10451"
+        "address_line1": "123 Fake Street",
+        "city": "Portland",
+        "state_code": "ME",
+        "zip_code": "04102"
       },
-      "phone_number": "6469778000",
-      "email_address": "barrett@test.com"
+      "phone_number": "5555555555",
+      "email_address": "vets.gov.user+228@gmail.com"
     },
     "view:selectable686_options": {
       "report674": true

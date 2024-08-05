@@ -284,6 +284,27 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
               id: 'vha_648A4',
               type: 'facility',
               attributes: {
+                access: {
+                  health: [
+                    {
+                      'serviceName' => 'Audiology and speech',
+                      'service' => 'audiology',
+                      'serviceType' => 'health',
+                      'new' => 53.0,
+                      'established' => 28.0,
+                      'effectiveDate' => '2024-07-29'
+                    },
+                    {
+                      'serviceName' => 'Optometry',
+                      'service' => 'optometry',
+                      'serviceType' => 'health',
+                      'new' => 56.0,
+                      'established' => 17.0,
+                      'effectiveDate' => '2024-07-29'
+                    }
+                  ],
+                  'effectiveDate' => '2024-07-29'
+                },
                 address: {
                   physical: {
                     zip: '98661-3753',
@@ -506,6 +527,10 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
               id: 'vha_506GG',
               type: 'facility',
               attributes: {
+                access: {
+                  health: [],
+                  effectiveDate: ''
+                },
                 address: [],
                 classification: 'Primary Care CBOC',
                 distance: nil,
