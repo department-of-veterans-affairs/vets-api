@@ -60,6 +60,31 @@ RSpec.describe ClaimsApi::ServiceBase do
     end
   end
 
+  describe '#set_evss_response' do
+    it 'sets the response correctly when there is no original_body in the error' do
+      error_details = [
+        {
+          key: 'form526.submit.establishClaim.serviceError',
+          severity: 'FATAL',
+          detail: 'Claim not established. System error with BGS. GUID: 8c947124-10dc-4609-9098-f577edf9313e',
+          text: 'Claim not established. System error with BGS. GUID: 8c947124-10dc-4609-9098-f577edf9313e'
+        }
+      ]
+      error = ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException.new(error_details)
+      @service.send(:set_evss_response, claim, error)
+      claim.reload
+
+      expect(claim.evss_response[0]).to eq(
+        {
+          'key' => 'form526.submit.establishClaim.serviceError',
+          'status' => '422',
+          'title' => 'Backend Service Exception',
+          'detail' => 'Claim not established. System error with BGS. GUID: 8c947124-10dc-4609-9098-f577edf9313e'
+        }
+      )
+    end
+  end
+
   describe '#save_auto_claim!' do
     it 'saves claim with the validation_method property of v2' do
       @service.send(:save_auto_claim!, claim, claim.status)

@@ -14,12 +14,13 @@ module ClaimsApi
             errors_array = []
             @errors.each do |err|
               errors_array << {
+                key: err[:key] || nil,
                 status: status_code.to_s, # LH standards want this be a string
                 title: err[:title] || 'Backend Service Exception',
                 detail: err[:detail] || err[:text]
               }
             end
-            errors_array
+            errors_array.compact
           end
 
           def status_code

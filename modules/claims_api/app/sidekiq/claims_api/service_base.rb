@@ -62,8 +62,13 @@ module ClaimsApi
     def set_evss_response(auto_claim, error)
       auto_claim.evss_response ||= []
 
-      if error&.original_body.present?
-        error&.original_body&.each { |e| auto_claim.evss_response << e }
+      if error.respond_to? :original_body
+        if error&.original_body.present?
+          error&.original_body&.each { |e| auto_claim.evss_response << e }
+        else
+          # default catch all, no idea what this would look like but want to be safe
+          auto_claim.evss_response << error
+        end
       elsif error&.errors.present?
         error&.errors&.each { |e| auto_claim.evss_response << e }
       end
