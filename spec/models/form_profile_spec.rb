@@ -1139,7 +1139,6 @@ RSpec.describe FormProfile, type: :model do
     end
 
     def strip_required(schema)
-      return {} if schema.nil?
       new_schema = {}
 
       schema.each do |k, v|
@@ -1159,6 +1158,8 @@ RSpec.describe FormProfile, type: :model do
         '10-10EZ'
       when '21-526EZ'
         '21-526EZ-ALLCLAIMS'
+      when 'FORM-MOCK-AE-DESIGN-PATTERNS'
+        '10-10EZ'
       else
         form_id
       end.tap do |schema_form_id|
