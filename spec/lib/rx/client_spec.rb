@@ -7,7 +7,8 @@ describe Rx::Client do
   before(:all) do
     VCR.use_cassette 'rx_client/session', record: :new_episodes do
       @client ||= begin
-        client = Rx::Client.new(session: { user_id: '12210827' })
+        client = Rx::Client.new(upstream_request: { 'env' => { 'SOURCE_APP' => 'myapp' } },
+                                session: { user_id: '12210827' })
         client.authenticate
         client
       end
@@ -49,6 +50,7 @@ describe Rx::Client do
   shared_examples 'prescriptions' do |caching_enabled|
     before do
       allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(caching_enabled)
+      allow(StatsD).to receive(:increment)
     end
 
     let(:cache_keys) { ["#{client.session.user_id}:getactiverx", "#{client.session.user_id}:gethistoryrx"] }
@@ -101,6 +103,22 @@ describe Rx::Client do
         expect(client_response.status).to equal 200
         # This is what MHV returns, even though we don't care
         expect(client_response.body).to eq(status: 'success')
+        expect(StatsD).to have_received(:increment).with(
+          "#{described_class::STATSD_KEY_PREFIX}.refills.requested", 1, tags: ['source_app:myapp']
+        ).exactly(:once)
+      end
+    end
+
+    it 'refills multiple prescriptions' do
+      VCR.use_cassette('rx_client/prescriptions/refills_multiple_prescriptions') do
+        ids = [13_650_545, 13_650_546]
+        client_response = client.post_refill_rxs(ids)
+        expect(client_response.status).to equal 200
+        # This is what MHV returns, even though we don't care
+        expect(client_response.body).to eq(status: 'success')
+        expect(StatsD).to have_received(:increment).with(
+          "#{described_class::STATSD_KEY_PREFIX}.refills.requested", ids.size, tags: ['source_app:myapp']
+        ).exactly(:once)
       end
     end
 

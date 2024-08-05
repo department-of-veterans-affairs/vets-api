@@ -122,6 +122,7 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
     context 'evidence is uploaded from the NOD (10182) form' do
       it 'formatted success log and statsd metric are specific to NOD (10182)' do
         request.env['SOURCE_APP'] = '10182-board-appeal'
+        puts request.env
         params = { param_namespace => { file_data: pdf_file } }
         allow(Rails.logger).to receive(:info)
         expect(Rails.logger).to receive(:info).with(hash_including(form_id: '10182'))

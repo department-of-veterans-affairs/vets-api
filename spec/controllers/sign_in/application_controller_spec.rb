@@ -30,7 +30,10 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     end
 
     def client_connection_failed
-      client = Rx::Client.new(session: { user_id: 123 })
+      client = Rx::Client.new(
+        session: { user_id: 123 },
+        upstream_request: { 'env' => { 'SOURCE_APP' => 'my_app' } }
+      )
       client.get_session
     end
 

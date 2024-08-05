@@ -45,6 +45,7 @@ RSpec.describe 'VAOS::V1::HeathcareService', type: :request do
               expect { get "/vaos/v1/HealthcareService#{query_string}" }
                 .to trigger_statsd_increment('api.vaos.fhir.search.healthcare_service.total', times: 1, value: 1)
 
+
               expect(response).to have_http_status(:success)
               expect(response.body).to eq(expected_body)
             end

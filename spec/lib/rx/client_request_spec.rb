@@ -16,7 +16,10 @@ describe 'ClientRequestSpec', type: :request do
       skip_before_action :authenticate
 
       def index
-        client = Rx::Client.new(session: { user_id: 123 })
+        client = Rx::Client.new(
+          session: { user_id: 123 },
+          upstream_request: { 'env' => { 'SOURCE_APP' => 'my_app' } }
+        )
         client.get_history_rxs
       end
     end

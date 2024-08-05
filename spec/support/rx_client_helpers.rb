@@ -12,7 +12,8 @@ module Rx
     def authenticated_client
       Rx::Client.new(session: { user_id: 123,
                                 expires_at: Time.current + 60 * 60,
-                                token: TOKEN })
+                                token: TOKEN },
+                     upstream_request: { 'env' => { 'SOURCE_APP' => 'myapp' } })
     end
 
     def stub_varx_request(method, api_endpoint, response_hash, opts = {})
