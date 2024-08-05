@@ -97,7 +97,8 @@ type: application
 # 0.13.1  - Add BACKLOG_POD for a 20% chance of always ready
 # 0.13.2  - HPA settings to scale up quickly, and down slowly for workers
 # 0.13.3  - Sidekiq Utilization HPA
-version: 0.13.3
+# 0.13.4  - Set KUBE_DEPLOYMENT ENV Var to bulkhead name
+version: 0.13.4
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
