@@ -26,9 +26,6 @@ module RepresentationManagement
         end
       end
 
-      p 'AccreditedEntityQuery#results', "AccreditedIndividual.count: #{AccreditedIndividual.count}",
-        "AccreditedOrganization.count: #{AccreditedOrganization.count}", "individuals: #{AccreditedIndividual.all.map(&:full_name)}",
-        "organizations: #{AccreditedOrganization.all.map(&:name)}"
       individuals = AccreditedIndividual.where('word_similarity(?, full_name) >= ?', @query_string, threshold)
       organizations = AccreditedOrganization.where('word_similarity(?, name) >= ?', @query_string, threshold)
       p "individuals full_names: #{individuals.map(&:full_name).sort}",
@@ -37,7 +34,8 @@ module RepresentationManagement
       combined_results = (individuals + organizations).sort_by do |record|
         levenshtein_distance(@query_string, record)
       end
-      p "combined_results: #{combined_results}"
+      p "combined_results: #{combined_results}",
+        "combined_results class names: #{combined_results.map(&:class).map(&:name)}"
     end
 
     private

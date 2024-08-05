@@ -9,10 +9,10 @@ module RepresentationManagement
 
       def index
         data = RepresentationManagement::AccreditedEntityQuery.new(params[:query]).results
-        render json: RepresentationManagement::AccreditedIndividuals::IndividualSerializer.new(data)
+        render json: data.map { |record|
+                       RepresentationManagement::AccreditedEntities::EntitySerializer.new(record).serializable_hash
+                     }
       end
-
-      private
 
       # def feature_enabled
       #   routing_error unless Flipper.enabled?(:find_a_representative_use_accredited_models)
