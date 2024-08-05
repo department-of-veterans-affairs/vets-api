@@ -52,10 +52,11 @@ module HCA
       request = Net::HTTP::Get.new(uri.request_uri)
       response = http.request(request)
 
-      if response.code == '200'
+      response_code = response.code
+      if response_code == '200'
         response.body
       else
-        Rails.logger.info("CSV retrieval failed with response code #{response.code}")
+        Rails.logger.info("CSV retrieval failed with response code #{response_code}")
 
         nil
       end
@@ -69,13 +70,14 @@ module HCA
         raise 'Failed to fetch CSV data.' unless data
 
         CSV.parse(data, headers: true) do |row|
-          std_institution_facility = StdInstitutionFacility.find_or_initialize_by(id: row['ID'].to_i)
-          Rails.logger.info("institution #{row['ID'].to_i} new? #{std_institution_facility.new_record?}")
+          id = row['ID'].to_i
+          std_institution_facility = StdInstitutionFacility.find_or_initialize_by(id: id)
+          Rails.logger.info("institution #{id} new? #{std_institution_facility.new_record?}")
 
           created = DateTime.strptime(row['CREATED'], '%F %H:%M:%S %z').to_s
           updated = DateTime.strptime(row['UPDATED'], '%F %H:%M:%S %z').to_s if row['UPDATED']
-          string_attributes = STRING_ATTRIBUTES.transform_values { |csv_field| row[csv_field]&.to_s }
-          integer_attributes = INTEGER_ATTRIBUTES.transform_values { |csv_field| row[csv_field]&.to_i }
+          string_attributes = STRING_ATTRIBUTES.transform_values { |string_field| row[string_field]&.to_s }
+          integer_attributes = INTEGER_ATTRIBUTES.transform_values { |integer_field| row[integer_field]&.to_i }
           std_institution_facility.assign_attributes(
             { created:, updated: }.merge(string_attributes).merge(integer_attributes)
           )
