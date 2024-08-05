@@ -6,7 +6,6 @@ require 'medical_records/phr_mgr/client'
 
 module MyHealth
   class MrController < ApplicationController
-    include ActionController::Serialization
     include MyHealth::MHVControllerConcerns
     service_tag 'mhv-medical-records'
 
