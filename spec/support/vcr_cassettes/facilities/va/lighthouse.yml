@@ -2569,3 +2569,294 @@ http_interactions:
         VA Clinic","facilityType":"va_health_facility","classification":"Primary Care
         CBOC","parent":{"id":"vha_506","link":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_506"},"lat":41.066235,"long":-83.619621,"timeZone":"America/New_York","mobile":false,"visn":"10"}}}'
   recorded_at: Mon, 17 Jun 2024 18:40:34 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vc_0617V/services
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 31 Jul 2024 22:07:34 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '26'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"serviceInfo":{"name":"Addiction and substance use care","serviceId":"addiction","serviceType":"health"},"serviceLocations":[{"serviceAddress":{"addressLine1":"1505
+        NE 122nd Avenue","city":"Portland","state":"OR","zipCode":"97230","countryCode":"US"},"phones":[{"label":"Main
+        phone","number":"503-688-5361","type":"tel"}],"serviceHours":{"monday":"08:00
+        a.m. to 04:30 p.m.","tuesday":"08:00 a.m. to 04:30 p.m.","wednesday":"08:00
+        a.m. to 04:30 p.m.","thursday":"08:00 a.m. to 04:30 p.m.","friday":"08:00
+        a.m. to 04:30 p.m.","saturday":"Closed","sunday":"Closed"}}]},{"serviceInfo":{"name":"Community
+        engagement","serviceId":"communityEngagement","serviceType":"health"},"serviceLocations":[{"serviceAddress":{"addressLine1":"1505
+        NE 122nd Avenue","city":"Portland","state":"OR","zipCode":"97230","countryCode":"US"},"phones":[{"label":"Main
+        phone","number":"503-688-5361","type":"tel"}],"serviceHours":{"monday":"08:00
+        a.m. to 04:30 p.m.","tuesday":"08:00 a.m. to 04:30 p.m.","wednesday":"08:00
+        a.m. to 04:30 p.m.","thursday":"08:00 a.m. to 04:30 p.m.","friday":"08:00
+        a.m. to 04:30 p.m.","saturday":"Closed","sunday":"Closed"}}]},{"serviceInfo":{"name":"Intimate
+        partner violence support","serviceId":"domesticAbuseSupport","serviceType":"health"},"serviceLocations":[{"serviceAddress":{"addressLine1":"1505
+        NE 122nd Avenue","city":"Portland","state":"OR","zipCode":"97230","countryCode":"US"},"phones":[{"label":"Main
+        phone","number":"503-688-5361","type":"tel"}],"serviceHours":{"monday":"08:00
+        a.m. to 04:30 p.m.","tuesday":"08:00 a.m. to 04:30 p.m.","wednesday":"08:00
+        a.m. to 04:30 p.m.","thursday":"08:00 a.m. to 04:30 p.m.","friday":"08:00
+        a.m. to 04:30 p.m.","saturday":"Closed","sunday":"Closed"}}]},{"serviceInfo":{"name":"Couples
+        and family counseling","serviceId":"familyCounseling","serviceType":"health"},"serviceLocations":[{"serviceAddress":{"addressLine1":"1505
+        NE 122nd Avenue","city":"Portland","state":"OR","zipCode":"97230","countryCode":"US"},"phones":[{"label":"Main
+        phone","number":"503-688-5361","type":"tel"}],"serviceHours":{"monday":"08:00
+        a.m. to 04:30 p.m.","tuesday":"08:00 a.m. to 04:30 p.m.","wednesday":"08:00
+        a.m. to 04:30 p.m.","thursday":"08:00 a.m. to 04:30 p.m.","friday":"08:00
+        a.m. to 04:30 p.m.","saturday":"Closed","sunday":"Closed"}}]},{"serviceInfo":{"name":"Grief
+        and bereavement counseling","serviceId":"griefCounseling","serviceType":"health"},"serviceLocations":[{"serviceAddress":{"addressLine1":"1505
+        NE 122nd Avenue","city":"Portland","state":"OR","zipCode":"97230","countryCode":"US"},"phones":[{"label":"Main
+        phone","number":"503-688-5361","type":"tel"}],"serviceHours":{"monday":"08:00
+        a.m. to 04:30 p.m.","tuesday":"08:00 a.m. to 04:30 p.m.","wednesday":"08:00
+        a.m. to 04:30 p.m.","thursday":"08:00 a.m. to 04:30 p.m.","friday":"08:00
+        a.m. to 04:30 p.m.","saturday":"Closed","sunday":"Closed"}}]},{"serviceInfo":{"name":"Homeless
+        Veteran care","serviceId":"homeless","serviceType":"health"},"serviceLocations":[{"serviceAddress":{"addressLine1":"1505
+        NE 122nd Avenue","city":"Portland","state":"OR","zipCode":"97230","countryCode":"US"},"phones":[{"label":"Main
+        phone","number":"503-688-5361","type":"tel"}],"serviceHours":{"monday":"08:00
+        a.m. to 04:30 p.m.","tuesday":"08:00 a.m. to 04:30 p.m.","wednesday":"08:00
+        a.m. to 04:30 p.m.","thursday":"08:00 a.m. to 04:30 p.m.","friday":"08:00
+        a.m. to 04:30 p.m.","saturday":"Closed","sunday":"Closed"}}]},{"serviceInfo":{"name":"LGBTQ+
+        Veteran care","serviceId":"lgbtq","serviceType":"health"},"serviceLocations":[{"serviceAddress":{"addressLine1":"1505
+        NE 122nd Avenue","city":"Portland","state":"OR","zipCode":"97230","countryCode":"US"},"phones":[{"label":"Main
+        phone","number":"503-688-5361","type":"tel"}],"serviceHours":{"monday":"08:00
+        a.m. to 04:30 p.m.","tuesday":"08:00 a.m. to 04:30 p.m.","wednesday":"08:00
+        a.m. to 04:30 p.m.","thursday":"08:00 a.m. to 04:30 p.m.","friday":"08:00
+        a.m. to 04:30 p.m.","saturday":"Closed","sunday":"Closed"}}]},{"serviceInfo":{"name":"Military
+        sexual trauma care","serviceId":"militarySexualTrauma","serviceType":"health"},"serviceLocations":[{"serviceAddress":{"addressLine1":"1505
+        NE 122nd Avenue","city":"Portland","state":"OR","zipCode":"97230","countryCode":"US"},"phones":[{"label":"Main
+        phone","number":"503-688-5361","type":"tel"}],"serviceHours":{"monday":"08:00
+        a.m. to 04:30 p.m.","tuesday":"08:00 a.m. to 04:30 p.m.","wednesday":"08:00
+        a.m. to 04:30 p.m.","thursday":"08:00 a.m. to 04:30 p.m.","friday":"08:00
+        a.m. to 04:30 p.m.","saturday":"Closed","sunday":"Closed"}}]},{"serviceInfo":{"name":"Minority
+        Veteran care","serviceId":"minorityCare","serviceType":"health"},"serviceLocations":[{"serviceAddress":{"addressLine1":"1505
+        NE 122nd Avenue","city":"Portland","state":"OR","zipCode":"97230","countryCode":"US"},"phones":[{"label":"Main
+        phone","number":"503-688-5361","type":"tel"}],"serviceHours":{"monday":"08:00
+        a.m. to 04:30 p.m.","tuesday":"08:00 a.m. to 04:30 p.m.","wednesday":"08:00
+        a.m. to 04:30 p.m.","thursday":"08:00 a.m. to 04:30 p.m.","friday":"08:00
+        a.m. to 04:30 p.m.","saturday":"Closed","sunday":"Closed"}}]},{"serviceInfo":{"name":"PTSD
+        care","serviceId":"ptsd","serviceType":"health"},"serviceLocations":[{"serviceAddress":{"addressLine1":"1505
+        NE 122nd Avenue","city":"Portland","state":"OR","zipCode":"97230","countryCode":"US"},"phones":[{"label":"Main
+        phone","number":"503-688-5361","type":"tel"}],"serviceHours":{"monday":"08:00
+        a.m. to 04:30 p.m.","tuesday":"08:00 a.m. to 04:30 p.m.","wednesday":"08:00
+        a.m. to 04:30 p.m.","thursday":"08:00 a.m. to 04:30 p.m.","friday":"08:00
+        a.m. to 04:30 p.m.","saturday":"Closed","sunday":"Closed"}}]}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vc_0617V/services?page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vc_0617V/services?page=1&per_page=10","next":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vc_0617V/services?page=2&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vc_0617V/services?page=2&per_page=10"},"meta":{"pagination":{"currentPage":1,"perPage":10,"totalPages":2,"totalEntries":15}}}'
+  recorded_at: Wed, 31 Jul 2024 22:07:34 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 31 Jul 2024 22:07:35 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Reset:
+      - '25'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"serviceInfo":{"name":"Ophthalmology","serviceId":"ophthalmology","serviceType":"health"},"waitTime":{"new":133,"established":34,"effectiveDate":"2024-07-29"}},{"serviceInfo":{"name":"Audiology","serviceId":"audiology","serviceType":"health"},"waitTime":{"new":150,"established":21,"effectiveDate":"2024-07-29"}},{"serviceInfo":{"name":"Cardiology","serviceId":"cardiology","serviceType":"health"},"waitTime":{"new":126,"established":19,"effectiveDate":"2024-07-29"}},{"serviceInfo":{"name":"Gastroenterology","serviceId":"gastroenterology","serviceType":"health"},"waitTime":{"new":75,"established":13,"effectiveDate":"2024-07-29"}},{"serviceInfo":{"name":"Dermatology","serviceId":"dermatology","serviceType":"health"},"waitTime":{"new":201,"established":32,"effectiveDate":"2024-07-29"}},{"serviceInfo":{"name":"MentalHealth","serviceId":"mentalHealth","serviceType":"health"},"waitTime":{"new":54,"established":22,"effectiveDate":"2024-07-29"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services?page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services?page=1&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_358/services?page=1&per_page=10"},"meta":{"pagination":{"currentPage":1,"perPage":10,"totalPages":1,"totalEntries":6}}}'
+  recorded_at: Wed, 31 Jul 2024 22:07:35 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_506GG/services
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 31 Jul 2024 22:07:43 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Ratelimit-Remaining:
+      - '57'
+      Ratelimit-Reset:
+      - '18'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '57'
+      Ratelimit-Limit:
+      - '60'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"serviceInfo":{"name":"Mental health care","serviceId":"mentalHealth","serviceType":"health"},"appointmentPhones":[{"label":"Main
+        phone","number":"734-769-7100","type":"tel"}],"serviceLocations":[{"serviceAddress":{"addressLine1":"1720
+        East Melrose Avenue","city":"Findlay","state":"OH","zipCode":"45840-4413","countryCode":"US"},"phones":[{"label":"Main
+        phone","number":"734-769-7100","type":"tel"}],"serviceHours":{"monday":"08:00
+        a.m. to 04:30 p.m.","tuesday":"08:00 a.m. to 04:30 p.m.","wednesday":"08:00
+        a.m. to 04:30 p.m.","thursday":"08:00 a.m. to 04:30 p.m.","friday":"08:00
+        a.m. to 04:30 p.m.","saturday":"Closed","sunday":"Closed"},"onlineSchedulingAvailable":"true","referralRequired":"false","walkInsAccepted":"yes_appointment_only"}]}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_506GG/services?page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_506GG/services?page=1&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_506GG/services?page=1&per_page=10"},"meta":{"pagination":{"currentPage":1,"perPage":10,"totalPages":1,"totalEntries":1}}}'
+  recorded_at: Wed, 31 Jul 2024 22:07:43 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v1/facilities/vha_648A4/services
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 31 Jul 2024 22:07:43 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '56'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '56'
+      Ratelimit-Reset:
+      - '17'
+      Ratelimit-Limit:
+      - '60'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJkYXRhIjpbeyJzZXJ2aWNlSW5mbyI6eyJuYW1lIjoiQWRkaWN0aW9uIGFuZCBzdWJzdGFuY2UgdXNlIGNhcmUiLCJzZXJ2aWNlSWQiOiJhZGRpY3Rpb24iLCJzZXJ2aWNlVHlwZSI6ImhlYWx0aCJ9LCJhcHBvaW50bWVudExlYWRJbiI6IllvdXIgVkEgaGVhbHRoIGNhcmUgdGVhbSB3aWxsIGNvbnRhY3QgeW91IGlmIHlvdeKAmXJlIGVsaWdpYmxlIHRvIGdldCBhIHZhY2NpbmUgZHVyaW5nIHRoaXMgdGltZS4gQXMgdGhlIHN1cHBseSBvZiB2YWNjaW5lIGluY3JlYXNlcywgd2UnbGwgd29yayB3aXRoIG91ciBjYXJlIHRlYW1zIHRvIGxldCBWZXRlcmFucyBrbm93IHRoZWlyIG9wdGlvbnMuIiwiYXBwb2ludG1lbnRQaG9uZXMiOlt7ImxhYmVsIjoiTWFpbiBwaG9uZSIsIm51bWJlciI6IjU0MC05ODItMjQ2MyIsInR5cGUiOiJ0ZWwifV0sInNlcnZpY2VMb2NhdGlvbnMiOlt7Im9mZmljZU5hbWUiOiJWZXRlcmFucyBSZWNvdmVyeSBIb3VzZSAvIFJlc2lkZW50aWFsIFJlaGFiaWxpdGF0aW9uIFRyZWF0bWVudCBQcm9ncmFtIiwic2VydmljZUFkZHJlc3MiOnsiYnVpbGRpbmdOYW1lTnVtYmVyIjoiQmxkZyAxMiBvbiBjb3JuZXIgb2YgTWFyaW5lIENvcnBzIERyaXZlICYgQWlyIEZvcmNlIFdheSIsImFkZHJlc3NMaW5lMSI6IlZhbmNvdXZlciBWQSBDYW1wdXMiLCJhZGRyZXNzTGluZTIiOiIxNjAxIEVhc3QgRm91cnRoIFBsYWluIEJsdmQuIiwiY2l0eSI6IlZhbmNvdXZlciIsInN0YXRlIjoiV0EiLCJ6aXBDb2RlIjoiOTg2NjEiLCJjb3VudHJ5Q29kZSI6IlVTIn0sInBob25lcyI6W3siZXh0ZW5zaW9uIjoiMzM2MjEiLCJsYWJlbCI6IlZldGVyYW5zIFJlY292ZXJ5IEhvdXNlIGludGFrZSBjb29yZGluYXRvciAoUmVzaWRlbnRpYWwgUmVoYWJpbGl0YXRpb24gVHJlYXRtZW50IFByb2dyYW0gKFJSVFApKSIsIm51bWJlciI6IjUwMy0yMjAtODI2MiIsInR5cGUiOiJ0ZWwifV0sInJlZmVycmFsUmVxdWlyZWQiOiJ0cnVlIn1dfSx7InNlcnZpY2VJbmZvIjp7Im5hbWUiOiJBdWRpb2xvZ3kgYW5kIHNwZWVjaCIsInNlcnZpY2VJZCI6ImF1ZGlvbG9neSIsInNlcnZpY2VUeXBlIjoiaGVhbHRoIn0sIndhaXRUaW1lIjp7Im5ldyI6NTMsImVzdGFibGlzaGVkIjoyOCwiZWZmZWN0aXZlRGF0ZSI6IjIwMjQtMDctMjkifSwiYXBwb2ludG1lbnRMZWFkSW4iOiJZb3VyIFZBIGhlYWx0aCBjYXJlIHRlYW0gd2lsbCBjb250YWN0IHlvdSBpZiB5b3XigJlyZSBlbGlnaWJsZSB0byBnZXQgYSB2YWNjaW5lIGR1cmluZyB0aGlzIHRpbWUuIEFzIHRoZSBzdXBwbHkgb2YgdmFjY2luZSBpbmNyZWFzZXMsIHdlJ2xsIHdvcmsgd2l0aCBvdXIgY2FyZSB0ZWFtcyB0byBsZXQgVmV0ZXJhbnMga25vdyB0aGVpciBvcHRpb25zLiIsImFwcG9pbnRtZW50UGhvbmVzIjpbeyJsYWJlbCI6Ik1haW4gcGhvbmUiLCJudW1iZXIiOiI1NDAtOTgyLTI0NjMiLCJ0eXBlIjoidGVsIn1dLCJzZXJ2aWNlTG9jYXRpb25zIjpbeyJzZXJ2aWNlQWRkcmVzcyI6eyJhZGRyZXNzTGluZTEiOiIxNjAxIEVhc3QgNHRoIFBsYWluIEJvdWxldmFyZCIsImNpdHkiOiJWYW5jb3V2ZXIiLCJzdGF0ZSI6IldBIiwiemlwQ29kZSI6Ijk4NjYxLTM3NTMiLCJjb3VudHJ5Q29kZSI6IlVTIn0sInBob25lcyI6W3sibGFiZWwiOiJNYWluIHBob25lIiwibnVtYmVyIjoiMzYwLTc1OS0xOTAxIiwidHlwZSI6InRlbCJ9XSwic2VydmljZUhvdXJzIjp7Im1vbmRheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsInR1ZXNkYXkiOiIwNzozMCBhLm0uIHRvIDA0OjMwIHAubS4iLCJ3ZWRuZXNkYXkiOiIwNzozMCBhLm0uIHRvIDA0OjMwIHAubS4iLCJ0aHVyc2RheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsImZyaWRheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsInNhdHVyZGF5IjoiQ2xvc2VkIiwic3VuZGF5IjoiQ2xvc2VkIn0sInJlZmVycmFsUmVxdWlyZWQiOiJmYWxzZSIsIndhbGtJbnNBY2NlcHRlZCI6Inllc19hcHBvaW50bWVudF9vbmx5In1dfSx7InNlcnZpY2VJbmZvIjp7Im5hbWUiOiJEZW50YWwvb3JhbCBzdXJnZXJ5Iiwic2VydmljZUlkIjoiZGVudGFsIiwic2VydmljZVR5cGUiOiJoZWFsdGgifSwiYXBwb2ludG1lbnRMZWFkSW4iOiJZb3VyIFZBIGhlYWx0aCBjYXJlIHRlYW0gd2lsbCBjb250YWN0IHlvdSBpZiB5b3XigJlyZSBlbGlnaWJsZSB0byBnZXQgYSB2YWNjaW5lIGR1cmluZyB0aGlzIHRpbWUuIEFzIHRoZSBzdXBwbHkgb2YgdmFjY2luZSBpbmNyZWFzZXMsIHdlJ2xsIHdvcmsgd2l0aCBvdXIgY2FyZSB0ZWFtcyB0byBsZXQgVmV0ZXJhbnMga25vdyB0aGVpciBvcHRpb25zLiIsImFwcG9pbnRtZW50UGhvbmVzIjpbeyJsYWJlbCI6Ik1haW4gcGhvbmUiLCJudW1iZXIiOiI1NDAtOTgyLTI0NjMiLCJ0eXBlIjoidGVsIn1dLCJzZXJ2aWNlTG9jYXRpb25zIjpbeyJzZXJ2aWNlQWRkcmVzcyI6eyJhZGRyZXNzTGluZTEiOiIxNjAxIEVhc3QgNHRoIFBsYWluIEJvdWxldmFyZCIsImNpdHkiOiJWYW5jb3V2ZXIiLCJzdGF0ZSI6IldBIiwiemlwQ29kZSI6Ijk4NjYxLTM3NTMiLCJjb3VudHJ5Q29kZSI6IlVTIn0sInBob25lcyI6W3sibGFiZWwiOiJNYWluIHBob25lIiwibnVtYmVyIjoiMzYwLTc1OS0xOTAxIiwidHlwZSI6InRlbCJ9XSwic2VydmljZUhvdXJzIjp7Im1vbmRheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsInR1ZXNkYXkiOiIwNzozMCBhLm0uIHRvIDA0OjMwIHAubS4iLCJ3ZWRuZXNkYXkiOiIwNzozMCBhLm0uIHRvIDA0OjMwIHAubS4iLCJ0aHVyc2RheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsImZyaWRheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsInNhdHVyZGF5IjoiQ2xvc2VkIiwic3VuZGF5IjoiQ2xvc2VkIn19XX0seyJzZXJ2aWNlSW5mbyI6eyJuYW1lIjoiVmV0ZXJhbiByZWFkaW5lc3MgYW5kIGVtcGxveW1lbnQgcHJvZ3JhbXMiLCJzZXJ2aWNlSWQiOiJlbXBsb3ltZW50UHJvZ3JhbXMiLCJzZXJ2aWNlVHlwZSI6ImhlYWx0aCJ9LCJhcHBvaW50bWVudExlYWRJbiI6IllvdXIgVkEgaGVhbHRoIGNhcmUgdGVhbSB3aWxsIGNvbnRhY3QgeW91IGlmIHlvdeKAmXJlIGVsaWdpYmxlIHRvIGdldCBhIHZhY2NpbmUgZHVyaW5nIHRoaXMgdGltZS4gQXMgdGhlIHN1cHBseSBvZiB2YWNjaW5lIGluY3JlYXNlcywgd2UnbGwgd29yayB3aXRoIG91ciBjYXJlIHRlYW1zIHRvIGxldCBWZXRlcmFucyBrbm93IHRoZWlyIG9wdGlvbnMuIiwiYXBwb2ludG1lbnRQaG9uZXMiOlt7ImxhYmVsIjoiTWFpbiBwaG9uZSIsIm51bWJlciI6IjU0MC05ODItMjQ2MyIsInR5cGUiOiJ0ZWwifV0sInNlcnZpY2VMb2NhdGlvbnMiOlt7InNlcnZpY2VBZGRyZXNzIjp7ImJ1aWxkaW5nTmFtZU51bWJlciI6IkJ1aWxkaW5nIDE4Iiwid2luZ0Zsb29yT3JSb29tTnVtYmVyIjoiMTYwMSBFYXN0IDR0aCBQbGFpbiBCb3VsZXZhcmQiLCJjb3VudHJ5Q29kZSI6IlVTIn0sInBob25lcyI6W3sibGFiZWwiOiJNYWluIHBob25lIiwibnVtYmVyIjoiMzYwLTc1OS0xOTAxIiwidHlwZSI6InRlbCJ9XSwic2VydmljZUhvdXJzIjp7Im1vbmRheSI6Ijg6MDAgYS5tLiDigJMgNDozMCBwLm0uIFdhbGstaW4gU2VydmljZXMgZnJvbSA5OjAwIGEubS4g4oCTIDExOjAwIGEubS4iLCJ0dWVzZGF5IjoiMDg6MDAgYS5tLiB0byAwNDozMCBwLm0uIiwid2VkbmVzZGF5IjoiMDg6MDAgYS5tLiB0byAwNDozMCBwLm0uIiwidGh1cnNkYXkiOiIwODowMCBhLm0uIHRvIDA0OjMwIHAubS4iLCJmcmlkYXkiOiIwODowMCBhLm0uIHRvIDA0OjMwIHAubS4iLCJzYXR1cmRheSI6IkNsb3NlZCIsInN1bmRheSI6IkNsb3NlZCJ9LCJhZGRpdGlvbmFsSG91cnNJbmZvIjoiQ29udGFjdCB1cyB0byBzY2hlZHVsZSwgcmVzY2hlZHVsZSwgb3IgY2FuY2VsIHlvdXIgYXBwb2ludG1lbnQuIElmIGEgcmVmZXJyYWwgaXMgcmVxdWlyZWQsIHlvdeKAmWxsIG5lZWQgdG8gY29udGFjdCB5b3VyIHByaW1hcnkgY2FyZSBwcm92aWRlciBmaXJzdC4iLCJyZWZlcnJhbFJlcXVpcmVkIjoiZmFsc2UifV19LHsic2VydmljZUluZm8iOnsibmFtZSI6IkdlcmlhdHJpY3MiLCJzZXJ2aWNlSWQiOiJnZXJpYXRyaWNzIiwic2VydmljZVR5cGUiOiJoZWFsdGgifSwiYXBwb2ludG1lbnRMZWFkSW4iOiJXZSBvZmZlciB2aXJ0dWFsIGdyb3VwcywgYXMgd2VsbCBhcyBpbmRpdmlkdWFsIHZpcnR1YWwgYW5kIGluLXBlcnNvbiBhcHBvaW50bWVudHMsIGFuZCB0ZWxlcGhvbmUgIGFwcG9pbnRtZW50cy4iLCJhcHBvaW50bWVudFBob25lcyI6W3sibGFiZWwiOiJNaWRkbGV0b3duIENsaW5pYyIsIm51bWJlciI6IjQwMS04NDctNjIzOSIsInR5cGUiOiJ0ZWwifSx7ImxhYmVsIjoiTWlkZGxldG93biBDbGluaWMiLCJudW1iZXIiOiI0MDEtODQ3LTYyMzkiLCJ0eXBlIjoidGVsIn1dLCJzZXJ2aWNlTG9jYXRpb25zIjpbeyJzZXJ2aWNlQWRkcmVzcyI6eyJhZGRyZXNzTGluZTEiOiIxNjAxIEVhc3QgNHRoIFBsYWluIEJvdWxldmFyZCIsImNpdHkiOiJWYW5jb3V2ZXIiLCJzdGF0ZSI6IldBIiwiemlwQ29kZSI6Ijk4NjYxLTM3NTMiLCJjb3VudHJ5Q29kZSI6IlVTIn0sInBob25lcyI6W3siZXh0ZW5zaW9uIjoiMzE4MzkiLCJsYWJlbCI6IkNvbW11bml0eSBMaXZpbmcgQ2VudGVyIChDTEMpIiwibnVtYmVyIjoiNTAzLTIyMC04MjYyIiwidHlwZSI6InRlbCJ9LHsiZXh0ZW5zaW9uIjoiMzM1NTAiLCJsYWJlbCI6IkNvbXByZWhlbnNpdmUgUmVoYWJpbGl0YXRpb24gVW5pdCAoQ1JVKSAoRS1XaW5nKSIsIm51bWJlciI6IjUwMy0yMjAtODI2MiIsInR5cGUiOiJ0ZWwifSx7ImV4dGVuc2lvbiI6IjMzNjkwIiwibGFiZWwiOiJQYWxsaWF0aXZlIENhcmUgVW5pdCAvIEhvc3BpY2UgKEItV2luZykiLCJudW1iZXIiOiI1MDMtMjIwLTgyNjIiLCJ0eXBlIjoidGVsIn0seyJsYWJlbCI6IkhvbWUgYW5kIENvbW11bml0eS1CYXNlZCBTZXJ2aWNlcyAoSENCUykiLCJudW1iZXIiOiIzNjAtOTA1LTE3NDEiLCJ0eXBlIjoidGVsIn0seyJleHRlbnNpb24iOiIzMzM4MCIsImxhYmVsIjoiUmVoYWJpbGl0YXRpb24gYW5kIExvbmcgVGVybSBDYXJlIEFkbWluaXN0cmF0aXZlIG9mZmljZSAoUkxUQykiLCJudW1iZXIiOiI1MDMtMjIwLTgyNjIiLCJ0eXBlIjoidGVsIn1dLCJzZXJ2aWNlSG91cnMiOnsibW9uZGF5IjoiMDc6MzAgYS5tLiB0byAwNDozMCBwLm0uIiwidHVlc2RheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsIndlZG5lc2RheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsInRodXJzZGF5IjoiMDc6MzAgYS5tLiB0byAwNDozMCBwLm0uIiwiZnJpZGF5IjoiMDc6MzAgYS5tLiB0byAwNDozMCBwLm0uIiwic2F0dXJkYXkiOiJDbG9zZWQiLCJzdW5kYXkiOiJDbG9zZWQifSwicmVmZXJyYWxSZXF1aXJlZCI6Im5vdCBhcHBsaWNhYmxlIn1dfSx7InNlcnZpY2VJbmZvIjp7Im5hbWUiOiJISVYvaGVwYXRpdGlzIGNhcmUiLCJzZXJ2aWNlSWQiOiJoaXYiLCJzZXJ2aWNlVHlwZSI6ImhlYWx0aCJ9LCJhcHBvaW50bWVudExlYWRJbiI6IldlIG9mZmVyIHZpcnR1YWwgZ3JvdXBzLCBhcyB3ZWxsIGFzIGluZGl2aWR1YWwgdmlydHVhbCBhbmQgaW4tcGVyc29uIGFwcG9pbnRtZW50cywgYW5kIHRlbGVwaG9uZSAgYXBwb2ludG1lbnRzLiIsImFwcG9pbnRtZW50UGhvbmVzIjpbeyJsYWJlbCI6Ik1pZGRsZXRvd24gQ2xpbmljIiwibnVtYmVyIjoiNDAxLTg0Ny02MjM5IiwidHlwZSI6InRlbCJ9LHsibGFiZWwiOiJNaWRkbGV0b3duIENsaW5pYyIsIm51bWJlciI6IjQwMS04NDctNjIzOSIsInR5cGUiOiJ0ZWwifV0sInNlcnZpY2VMb2NhdGlvbnMiOlt7InNlcnZpY2VBZGRyZXNzIjp7ImFkZHJlc3NMaW5lMSI6IjE2MDEgRWFzdCA0dGggUGxhaW4gQm91bGV2YXJkIiwiY2l0eSI6IlZhbmNvdXZlciIsInN0YXRlIjoiV0EiLCJ6aXBDb2RlIjoiOTg2NjEtMzc1MyIsImNvdW50cnlDb2RlIjoiVVMifSwicGhvbmVzIjpbeyJsYWJlbCI6Ik1haW4gcGhvbmUiLCJudW1iZXIiOiIzNjAtNzU5LTE5MDEiLCJ0eXBlIjoidGVsIn1dLCJzZXJ2aWNlSG91cnMiOnsibW9uZGF5IjoiMDc6MDAgYS5tLiB0byAwMzozMCBwLm0uIGxlYXZlIGEgbWVzc2FnZSAyNC83LCBDbGluaWMgQXBwdHMgV2VkLiwgVGh1cnMuLCBGcmkuIiwidHVlc2RheSI6IjA3OjAwIGEubS4gdG8gMDM6MzAgcC5tLiBsZWF2ZSBhIG1lc3NhZ2UgMjQvNywgQ2xpbmljIEFwcHRzIFdlZC4sIFRodXJzLiwgRnJpLiIsIndlZG5lc2RheSI6IjA3OjAwIGEubS4gdG8gMDM6MzAgcC5tLiBsZWF2ZSBhIG1lc3NhZ2UgMjQvNywgQ2xpbmljIEFwcHRzIFdlZC4sIFRodXJzLiwgRnJpLiIsInRodXJzZGF5IjoiMDc6MDAgYS5tLiB0byAwMzozMCBwLm0uIGxlYXZlIGEgbWVzc2FnZSAyNC83LCBDbGluaWMgQXBwdHMgV2VkLiwgVGh1cnMuLCBGcmkuIiwiZnJpZGF5IjoiMDc6MDAgYS5tLiB0byAwMzozMCBwLm0uIGxlYXZlIGEgbWVzc2FnZSAyNC83LCBDbGluaWMgQXBwdHMgV2VkLiwgVGh1cnMuLCBGcmkuIiwic2F0dXJkYXkiOiJsZWF2ZSBhIG1lc3NhZ2UgMjQvNyIsInN1bmRheSI6ImxlYXZlIGEgbWVzc2FnZSAyNC83In0sInJlZmVycmFsUmVxdWlyZWQiOiJub3QgYXBwbGljYWJsZSJ9XX0seyJzZXJ2aWNlSW5mbyI6eyJuYW1lIjoiTGFib3JhdG9yeSBhbmQgcGF0aG9sb2d5Iiwic2VydmljZUlkIjoibGFib3JhdG9yeSIsInNlcnZpY2VUeXBlIjoiaGVhbHRoIn0sImFwcG9pbnRtZW50TGVhZEluIjoiWW91ciBWQSBoZWFsdGggY2FyZSB0ZWFtIHdpbGwgY29udGFjdCB5b3UgaWYgeW914oCZcmUgZWxpZ2libGUgdG8gZ2V0IGEgdmFjY2luZSBkdXJpbmcgdGhpcyB0aW1lLiBBcyB0aGUgc3VwcGx5IG9mIHZhY2NpbmUgaW5jcmVhc2VzLCB3ZSdsbCB3b3JrIHdpdGggb3VyIGNhcmUgdGVhbXMgdG8gbGV0IFZldGVyYW5zIGtub3cgdGhlaXIgb3B0aW9ucy4iLCJhcHBvaW50bWVudFBob25lcyI6W3sibGFiZWwiOiJNYWluIHBob25lIiwibnVtYmVyIjoiNTQwLTk4Mi0yNDYzIiwidHlwZSI6InRlbCJ9XSwic2VydmljZUxvY2F0aW9ucyI6W3sic2VydmljZUFkZHJlc3MiOnsiYWRkcmVzc0xpbmUxIjoiMTYwMSBFYXN0IDR0aCBQbGFpbiBCb3VsZXZhcmQiLCJjaXR5IjoiVmFuY291dmVyIiwic3RhdGUiOiJXQSIsInppcENvZGUiOiI5ODY2MS0zNzUzIiwiY291bnRyeUNvZGUiOiJVUyJ9LCJwaG9uZXMiOlt7ImxhYmVsIjoiTWFpbiBwaG9uZSIsIm51bWJlciI6IjM2MC03NTktMTkwMSIsInR5cGUiOiJ0ZWwifV0sInNlcnZpY2VIb3VycyI6eyJtb25kYXkiOiIwNzowMCBhLm0uIHRvIDA0OjAwIHAubS4iLCJ0dWVzZGF5IjoiMDc6MDAgYS5tLiB0byAwNDowMCBwLm0uIiwid2VkbmVzZGF5IjoiMDc6MDAgYS5tLiB0byAwNDowMCBwLm0uIiwidGh1cnNkYXkiOiIwNzowMCBhLm0uIHRvIDA0OjAwIHAubS4iLCJmcmlkYXkiOiIwNzowMCBhLm0uIHRvIDA0OjAwIHAubS4iLCJzYXR1cmRheSI6IkNsb3NlZCIsInN1bmRheSI6IkNsb3NlZCJ9LCJvbmxpbmVTY2hlZHVsaW5nQXZhaWxhYmxlIjoidHJ1ZSIsInJlZmVycmFsUmVxdWlyZWQiOiJ0cnVlIiwid2Fsa0luc0FjY2VwdGVkIjoieWVzX3dpdGhfb3Jfd2l0aG91dF9hcHBvaW50bWVudCJ9XX0seyJzZXJ2aWNlSW5mbyI6eyJuYW1lIjoiTnV0cml0aW9uLCBmb29kLCBhbmQgZGlldGFyeSBjYXJlIiwic2VydmljZUlkIjoibnV0cml0aW9uIiwic2VydmljZVR5cGUiOiJoZWFsdGgifSwiYXBwb2ludG1lbnRMZWFkSW4iOiJXZSBvZmZlciB2aXJ0dWFsIGdyb3VwcywgYXMgd2VsbCBhcyBpbmRpdmlkdWFsIHZpcnR1YWwgYW5kIGluLXBlcnNvbiBhcHBvaW50bWVudHMsIGFuZCB0ZWxlcGhvbmUgIGFwcG9pbnRtZW50cy4iLCJhcHBvaW50bWVudFBob25lcyI6W3sibGFiZWwiOiJNaWRkbGV0b3duIENsaW5pYyIsIm51bWJlciI6IjQwMS04NDctNjIzOSIsInR5cGUiOiJ0ZWwifSx7ImxhYmVsIjoiTWlkZGxldG93biBDbGluaWMiLCJudW1iZXIiOiI0MDEtODQ3LTYyMzkiLCJ0eXBlIjoidGVsIn1dLCJzZXJ2aWNlTG9jYXRpb25zIjpbeyJzZXJ2aWNlQWRkcmVzcyI6eyJhZGRyZXNzTGluZTEiOiIxNjAxIEVhc3QgNHRoIFBsYWluIEJvdWxldmFyZCIsImNpdHkiOiJWYW5jb3V2ZXIiLCJzdGF0ZSI6IldBIiwiemlwQ29kZSI6Ijk4NjYxLTM3NTMiLCJjb3VudHJ5Q29kZSI6IlVTIn0sInBob25lcyI6W3sibGFiZWwiOiJNYWluIHBob25lIiwibnVtYmVyIjoiMzYwLTc1OS0xOTAxIiwidHlwZSI6InRlbCJ9XSwic2VydmljZUhvdXJzIjp7Im1vbmRheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsInR1ZXNkYXkiOiIwNzozMCBhLm0uIHRvIDA0OjMwIHAubS4iLCJ3ZWRuZXNkYXkiOiIwNzozMCBhLm0uIHRvIDA0OjMwIHAubS4iLCJ0aHVyc2RheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsImZyaWRheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsInNhdHVyZGF5IjoiQ2xvc2VkIiwic3VuZGF5IjoiQ2xvc2VkIn0sInJlZmVycmFsUmVxdWlyZWQiOiJmYWxzZSJ9XX0seyJzZXJ2aWNlSW5mbyI6eyJuYW1lIjoiT3B0b21ldHJ5Iiwic2VydmljZUlkIjoib3B0b21ldHJ5Iiwic2VydmljZVR5cGUiOiJoZWFsdGgifSwid2FpdFRpbWUiOnsibmV3Ijo1NiwiZXN0YWJsaXNoZWQiOjE3LCJlZmZlY3RpdmVEYXRlIjoiMjAyNC0wNy0yOSJ9LCJhcHBvaW50bWVudExlYWRJbiI6IllvdXIgVkEgaGVhbHRoIGNhcmUgdGVhbSB3aWxsIGNvbnRhY3QgeW91IGlmIHlvdeKAmXJlIGVsaWdpYmxlIHRvIGdldCBhIHZhY2NpbmUgZHVyaW5nIHRoaXMgdGltZS4gQXMgdGhlIHN1cHBseSBvZiB2YWNjaW5lIGluY3JlYXNlcywgd2UnbGwgd29yayB3aXRoIG91ciBjYXJlIHRlYW1zIHRvIGxldCBWZXRlcmFucyBrbm93IHRoZWlyIG9wdGlvbnMuIiwiYXBwb2ludG1lbnRQaG9uZXMiOlt7ImxhYmVsIjoiTWFpbiBwaG9uZSIsIm51bWJlciI6IjU0MC05ODItMjQ2MyIsInR5cGUiOiJ0ZWwifV0sInNlcnZpY2VMb2NhdGlvbnMiOlt7Im9mZmljZU5hbWUiOiJFeWUgQ2xpbmljIC8gT3B0aWNhbCBTaG9wIiwic2VydmljZUFkZHJlc3MiOnsiYnVpbGRpbmdOYW1lTnVtYmVyIjoiQnVpbGRpbmcgMTcgKENsYXJrIENvdW50eSBCdWlsZGluZykiLCJ3aW5nRmxvb3JPclJvb21OdW1iZXIiOiIzcmQgRmxvb3IiLCJhZGRyZXNzTGluZTEiOiIxNjAxIEVhc3QgNHRoIFBsYWluIEJvdWxldmFyZCIsImNpdHkiOiJWYW5jb3V2ZXIiLCJzdGF0ZSI6IldBIiwiemlwQ29kZSI6Ijk4NjYxLTM3NTMiLCJjb3VudHJ5Q29kZSI6IlVTIn0sInBob25lcyI6W3sibGFiZWwiOiJNYWluIHBob25lIiwibnVtYmVyIjoiMzYwLTc1OS0xOTAxIiwidHlwZSI6InRlbCJ9XSwic2VydmljZUhvdXJzIjp7Im1vbmRheSI6IjA5OjAwIGEubS4gdG8gMDM6MzAgcC5tLiBXZSBhcmUgY2xvc2VkIGZvciBsdW5jaCBmcm9tIDEyLTFwLm0uIiwidHVlc2RheSI6IjA5OjAwIGEubS4gdG8gMDM6MzAgcC5tLiBXZSBhcmUgY2xvc2VkIGZvciBsdW5jaCBmcm9tIDEyLTFwLm0uIiwid2VkbmVzZGF5IjoiMDk6MDAgYS5tLiB0byAwMzozMCBwLm0uIFdlIGFyZSBjbG9zZWQgZm9yIGx1bmNoIGZyb20gMTItMXAubS4iLCJ0aHVyc2RheSI6IjA5OjAwIGEubS4gdG8gMDM6MzAgcC5tLiBXZSBhcmUgY2xvc2VkIGZvciBsdW5jaCBmcm9tIDEyLTFwLm0uIiwiZnJpZGF5IjoiMDk6MDAgYS5tLiB0byAwMzozMCBwLm0uIFdlIGFyZSBjbG9zZWQgZm9yIGx1bmNoIGZyb20gMTItMXAubS4iLCJzYXR1cmRheSI6IkNsb3NlZCIsInN1bmRheSI6IkNsb3NlZCJ9LCJyZWZlcnJhbFJlcXVpcmVkIjoiZmFsc2UifV19LHsic2VydmljZUluZm8iOnsibmFtZSI6Ik9ydGhvcGVkaWNzIiwic2VydmljZUlkIjoib3J0aG9wZWRpY3MiLCJzZXJ2aWNlVHlwZSI6ImhlYWx0aCJ9LCJhcHBvaW50bWVudExlYWRJbiI6IllvdXIgVkEgaGVhbHRoIGNhcmUgdGVhbSB3aWxsIGNvbnRhY3QgeW91IGlmIHlvdeKAmXJlIGVsaWdpYmxlIHRvIGdldCBhIHZhY2NpbmUgZHVyaW5nIHRoaXMgdGltZS4gQXMgdGhlIHN1cHBseSBvZiB2YWNjaW5lIGluY3JlYXNlcywgd2UnbGwgd29yayB3aXRoIG91ciBjYXJlIHRlYW1zIHRvIGxldCBWZXRlcmFucyBrbm93IHRoZWlyIG9wdGlvbnMuIiwiYXBwb2ludG1lbnRQaG9uZXMiOlt7ImxhYmVsIjoiTWFpbiBwaG9uZSIsIm51bWJlciI6IjU0MC05ODItMjQ2MyIsInR5cGUiOiJ0ZWwifV0sInNlcnZpY2VMb2NhdGlvbnMiOlt7InNlcnZpY2VBZGRyZXNzIjp7ImFkZHJlc3NMaW5lMSI6IjE2MDEgRWFzdCA0dGggUGxhaW4gQm91bGV2YXJkIiwiY2l0eSI6IlZhbmNvdXZlciIsInN0YXRlIjoiV0EiLCJ6aXBDb2RlIjoiOTg2NjEtMzc1MyIsImNvdW50cnlDb2RlIjoiVVMifSwicGhvbmVzIjpbeyJsYWJlbCI6Ik1haW4gcGhvbmUiLCJudW1iZXIiOiIzNjAtNzU5LTE5MDEiLCJ0eXBlIjoidGVsIn1dLCJzZXJ2aWNlSG91cnMiOnsibW9uZGF5IjoiMDc6MzAgYS5tLiB0byAwNDozMCBwLm0uIiwidHVlc2RheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsIndlZG5lc2RheSI6IjA3OjMwIGEubS4gdG8gMDQ6MzAgcC5tLiIsInRodXJzZGF5IjoiMDc6MzAgYS5tLiB0byAwNDozMCBwLm0uIiwiZnJpZGF5IjoiMDc6MzAgYS5tLiB0byAwNDozMCBwLm0uIiwic2F0dXJkYXkiOiJDbG9zZWQiLCJzdW5kYXkiOiJDbG9zZWQifSwicmVmZXJyYWxSZXF1aXJlZCI6InRydWUifV19XSwibGlua3MiOnsic2VsZiI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL3ZhX2ZhY2lsaXRpZXMvdjEvZmFjaWxpdGllcy92aGFfNjQ4QTQvc2VydmljZXM/cGFnZT0xJnBlcl9wYWdlPTEwIiwiZmlyc3QiOiJodHRwczovL3NhbmRib3gtYXBpLnZhLmdvdi9zZXJ2aWNlcy92YV9mYWNpbGl0aWVzL3YxL2ZhY2lsaXRpZXMvdmhhXzY0OEE0L3NlcnZpY2VzP3BhZ2U9MSZwZXJfcGFnZT0xMCIsIm5leHQiOiJodHRwczovL3NhbmRib3gtYXBpLnZhLmdvdi9zZXJ2aWNlcy92YV9mYWNpbGl0aWVzL3YxL2ZhY2lsaXRpZXMvdmhhXzY0OEE0L3NlcnZpY2VzP3BhZ2U9MiZwZXJfcGFnZT0xMCIsImxhc3QiOiJodHRwczovL3NhbmRib3gtYXBpLnZhLmdvdi9zZXJ2aWNlcy92YV9mYWNpbGl0aWVzL3YxL2ZhY2lsaXRpZXMvdmhhXzY0OEE0L3NlcnZpY2VzP3BhZ2U9MyZwZXJfcGFnZT0xMCJ9LCJtZXRhIjp7InBhZ2luYXRpb24iOnsiY3VycmVudFBhZ2UiOjEsInBlclBhZ2UiOjEwLCJ0b3RhbFBhZ2VzIjozLCJ0b3RhbEVudHJpZXMiOjI5fX19
+  recorded_at: Wed, 31 Jul 2024 22:07:43 GMT
+recorded_with: VCR 6.2.0
