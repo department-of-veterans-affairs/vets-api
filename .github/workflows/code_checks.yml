@@ -84,7 +84,7 @@ jobs:
           timeout_minutes: 20
           retry_wait_seconds: 3 # Seconds
           max_attempts: 3
-          command: docker compose build -f docker-compose.test.yml
+          command: docker compose -f docker-compose.test.yml build
 
       - name: Setup Database
         run: |
