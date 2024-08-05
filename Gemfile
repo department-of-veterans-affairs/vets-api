@@ -42,7 +42,6 @@ end
 gem 'rails', '~> 7.1.3'
 
 gem 'aasm'
-gem 'active_model_serializers'
 gem 'activerecord-import'
 gem 'activerecord-postgis-adapter'
 gem 'addressable'
