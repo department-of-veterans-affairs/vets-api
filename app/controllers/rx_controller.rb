@@ -3,7 +3,6 @@
 require 'rx/client'
 
 class RxController < ApplicationController
-  include ActionController::Serialization
   include MHVControllerConcerns
   include JsonApiPaginationLinks
   service_tag 'legacy-mhv'

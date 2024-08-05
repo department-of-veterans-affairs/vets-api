@@ -6,7 +6,11 @@ module AskVAApi
   module V0
     class StaticDataController < ApplicationController
       skip_before_action :authenticate
-      around_action :handle_exceptions, except: %i[index]
+      around_action :handle_exceptions, except: %i[test_endpoint]
+
+      def test_endpoint
+        Crm::Service.new(icn: nil).call(endpoint: params[:endpoint], payload: params[:payload] || {})
+      end
 
       def announcements
         get_resource('announcements', user_mock_data: params[:user_mock_data])
