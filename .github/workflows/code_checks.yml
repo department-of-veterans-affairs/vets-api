@@ -147,6 +147,3 @@ jobs:
           result_path: Coverage Report/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
-
-
-CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec **/spec/models **/spec/lib **/spec/serializers **/spec/services **/spec/uploaders **/spec/sidekiq -n 13 -o '--color --tty'
