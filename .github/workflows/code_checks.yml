@@ -91,10 +91,9 @@ jobs:
 
       - name: Run Unit Tests
         run: |
-          rspec 
           docker compose -f docker-compose.test.yml run web bash \
           -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec **/spec/models **/spec/lib **/spec/serializers **/spec/services **/spec/uploaders **/sidekiq -n 13 -o '--color --tty'"
-          
+
       - name: Simplecov Report
         if: success() || failure() 
         uses: shettytejas/simplecov-reporter@v1
