@@ -26,14 +26,6 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
       allow(lighthouse_service).to receive(:get_facilities) { facilities }
     end
 
-    it 'retrieves all facilities from Lighthouse when specified' do
-      params = { state: 'AK', include_all: true }
-
-      get(:facilities, params:)
-
-      expect(response.body).to eq(facilities.to_json)
-    end
-
     it 'only returns facilities in VES' do
       params = { state: 'AK' }
 
@@ -51,7 +43,7 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
 
       get(:facilities, params:)
 
-      expect(response.body).to eq({ data: [] }.to_json)
+      expect(response.body).to eq([].to_json)
     end
   end
 end
