@@ -7,15 +7,15 @@ RSpec.describe Form1010Ezr::Service do
   include SchemaMatchers
 
   let(:form) { get_fixture('form1010_ezr/valid_form') }
-  let(:ves_fields) {
+  let(:ves_fields) do
     {
       'discloseFinancialInformation' => true,
       'isEssentialAcaCoverage' => false,
       'vaMedicalFacility' => '988'
     }
-  }
+  end
   let(:form_with_ves_fields) { form.merge!(ves_fields) }
-  let(:current_user) {
+  let(:current_user) do
     create(
       :evss_user,
       :loa3,
@@ -28,7 +28,7 @@ RSpec.describe Form1010Ezr::Service do
       ssn: '111111234',
       gender: 'F'
     )
-  }
+  end
   let(:service) { described_class.new(current_user) }
 
   def allow_logger_to_receive_error
@@ -87,18 +87,18 @@ RSpec.describe Form1010Ezr::Service do
   describe '#post_fill_required_fields' do
     it 'Adds required fields in the Enrollment System API to the form object',
        run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
-       VCR.use_cassette(
-         'hca/ee/lookup_user',
-         VCR::MATCH_EVERYTHING.merge(erb: true)
-       ) do
-         expect(form['isEssentialAcaCoverage']).to eq(nil)
-         expect(form['vaMedicalFacility']).to eq(nil)
+      VCR.use_cassette(
+        'hca/ee/lookup_user',
+        VCR::MATCH_EVERYTHING.merge(erb: true)
+      ) do
+        expect(form['isEssentialAcaCoverage']).to eq(nil)
+        expect(form['vaMedicalFacility']).to eq(nil)
 
-         service.send(:post_fill_required_fields, form)
+        service.send(:post_fill_required_fields, form)
 
-         expect(form.keys).to include('isEssentialAcaCoverage', 'vaMedicalFacility')
-       end
-     end
+        expect(form.keys).to include('isEssentialAcaCoverage', 'vaMedicalFacility')
+      end
+    end
   end
 
   describe '#post_fill_required_user_fields' do
@@ -173,7 +173,7 @@ RSpec.describe Form1010Ezr::Service do
     end
 
     context 'when an error occurs' do
-      let(:current_user) {
+      let(:current_user) do
         create(
           :evss_user,
           :loa3,
@@ -186,7 +186,7 @@ RSpec.describe Form1010Ezr::Service do
           ssn: nil,
           gender: nil
         )
-      }
+      end
 
       context 'schema validation failure' do
         before do
@@ -328,9 +328,9 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       context 'when the form includes a Mexican province' do
-        let(:form) {
+        let(:form) do
           get_fixture('form1010_ezr/valid_form_with_mexican_province').merge!(ves_fields)
-        }
+        end
 
         it 'returns a success object', run_at: 'Tue, 21 Nov 2023 22:29:52 GMT' do
           VCR.use_cassette(
@@ -339,7 +339,7 @@ RSpec.describe Form1010Ezr::Service do
           ) do
             overridden_form = HCA::OverridesParser.new(form).override
 
-            expect(service.submit_sync(form)).to eq(
+            expect(service.submit_sync(overridden_form)).to eq(
               {
                 success: true,
                 formSubmissionId: 432_777_930,
@@ -351,11 +351,11 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       context 'when the form includes next of kin and/or emergency contact info' do
-        let(:form) {
+        let(:form) do
           get_fixture(
             'form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact'
           ).merge!(ves_fields)
-        }
+        end
 
         it 'returns a success object', run_at: 'Thu, 30 Nov 2023 15:52:36 GMT' do
           VCR.use_cassette(
@@ -374,9 +374,9 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       context 'when the form includes TERA info' do
-        let(:form) {
+        let(:form) do
           get_fixture('form1010_ezr/valid_form_with_tera').merge!(ves_fields)
-        }
+        end
 
         it 'returns a success object', run_at: 'Wed, 13 Mar 2024 18:14:49 GMT' do
           VCR.use_cassette(
