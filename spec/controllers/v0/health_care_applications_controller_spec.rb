@@ -29,7 +29,7 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
     it 'retrieves all facilities from Lighthouse when specified' do
       params = { state: 'AK', include_all: true }
 
-      get :facilities, params: params
+      get(:facilities, params:)
 
       expect(response.body).to eq(facilities.to_json)
     end
