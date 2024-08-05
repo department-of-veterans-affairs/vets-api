@@ -7,7 +7,7 @@ module ClaimsApi
   module DisabilityCompensation
     class PdfGenerationService < ServiceBase
       EVSS_DOCUMENT_TYPE = 'L023'
-      LOG_TAG = '526_v2_PDF_Generator_job'
+      LOG_TAG = '526_v2_PDF_Generator_service'
 
       def generate(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
         auto_claim = get_claim(claim_id)

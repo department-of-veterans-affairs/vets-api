@@ -7,7 +7,7 @@ require 'evss_service/base'
 module ClaimsApi
   module DisabilityCompensation
     class DockerContainerService < ServiceBase
-      LOG_TAG = '526_v2_Docker_Container_job'
+      LOG_TAG = '526_v2_Docker_Container_service'
 
       def upload(auto_claim)
         log_job_progress(auto_claim.id,
