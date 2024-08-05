@@ -61,7 +61,7 @@ module ClaimsApi
       end
 
       def format_evss_errors(errors)
-        error_list = errors.is_a?(Hash) && errors['messages'].presence ? errors['messages'] : errors
+        error_list = errors.is_a?(Hash) ? errors['messages'].presence : errors
         error_list.map do |err|
           error = err.deep_symbolize_keys
           # Some old saved error messages saved key is an integer, so need to call .to_s before .gsub
