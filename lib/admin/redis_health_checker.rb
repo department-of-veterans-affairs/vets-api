@@ -6,7 +6,7 @@ module RedisHealthChecker
   end
 
   def self.app_data_redis_up
-    @app_data_redis_up ||= begin
+    Thread.current[:app_data_redis_up] ||= begin
       # Test 1: Check attribute that uses redis key
       bank_name = BankName.find_or_build('fake routing number')
       bank_name.update(bank_name: 'fake bank name')
@@ -21,7 +21,7 @@ module RedisHealthChecker
   end
 
   def self.rails_cache_up
-    @rails_cache_up ||= begin
+    Thread.current[:rails_cache_up] ||= begin
       # Test 2: Check Rails cache Redis
       Rails.cache.write('test_key', 'test_value')
       result = Rails.cache.read('test_key')
@@ -36,7 +36,7 @@ module RedisHealthChecker
   end
 
   def self.sidekiq_redis_up
-    @sidekiq_redis_up ||= begin
+    Thread.current[:sidekiq_redis_up] ||= begin
       # Test 3: Check Sidekiq Redis
       Sidekiq.redis do |conn|
         conn.set('test_key', 'test_value')
