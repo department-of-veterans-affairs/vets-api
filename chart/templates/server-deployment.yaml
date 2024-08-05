@@ -107,7 +107,7 @@ spec:
             - name: KUBE_DEPLOYMENT
               valueFrom:
                 fieldRef:
-                  fieldPath: metadata.labels.app
+                  fieldPath: metadata.labels['app']
             - name: GIT_REVISION
               value: {{ $root.Values.image.tag}}
 {{ toYaml $root.Values.web.envSecrets | indent 12 }}
