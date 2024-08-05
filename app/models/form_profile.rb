@@ -421,11 +421,11 @@ class FormProfile
   end
 
   # def clean_hash!(hash)
-  #   # hash.deep_transform_keys! { |k| k.camelize(:lower) }
-  #   # hash.each { |k, v| hash[k] = clean!(v) }
-  #   # hash.delete_if { |_k, v| v.blank? }
+  #   hash.deep_transform_keys! { |k| k.camelize(:lower) }
+  #   hash.each { |k, v| hash[k] = clean!(v) }
+  #   hash.delete_if { |_k, v| v.blank? }
   # end
-  
+
   def clean_hash!(hash)
     hash.deep_transform_keys! do |key|
       # convert key to string if it is a symbol
