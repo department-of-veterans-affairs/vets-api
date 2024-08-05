@@ -83,15 +83,18 @@ jobs:
           docker compose -f docker-compose.test.yml run web bash \
           -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
 
-      - name: Run Specs
-        timeout-minutes: 20
-        run: |
-          docker compose -f docker-compose.test.yml run web bash \
-          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
+      # - name: Run Specs
+      #   timeout-minutes: 20
+      #   run: |
+      #     docker compose -f docker-compose.test.yml run web bash \
+      #     -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
 
       - name: Run Unit Tests
         run: |
-          rspec **/spec/models **/spec/lib **/spec/serializers **/spec/services **/spec/uploaders **/sidekiq
+          rspec 
+          docker compose -f docker-compose.test.yml run web bash \
+          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec **/spec/models **/spec/lib **/spec/serializers **/spec/services **/spec/uploaders **/sidekiq -n 13 -o '--color --tty'"
+          
       - name: Simplecov Report
         if: success() || failure() 
         uses: shettytejas/simplecov-reporter@v1
