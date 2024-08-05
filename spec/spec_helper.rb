@@ -21,7 +21,8 @@ unless ENV['NOCOVERAGE']
   require 'simplecov'
 
   SimpleCov.start 'rails' do
-    track_files '**/{app,lib}/**/*.rb'
+    track_files '**/app/{models,serializers,services,uploaders,sidekiq,policies}/**/*.rb'
+    track_files '**/lib/**/*.rb'
 
     add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'app/models/in_progress_disability_compensation_form.rb'
@@ -48,10 +49,10 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
 
-    add_group 'services', 'app/services'
-    add_group 'sidekiq', 'app/sidekiq'
-    add_group 'uploaders', 'app/uploaders'
-    add_group 'policies', 'app/policies'
+    add_group 'Services', 'app/services'
+    add_group 'Sidekiq', 'app/sidekiq'
+    add_group 'Uploaders', 'app/uploaders'
+    add_group 'Policies', 'app/policies'
 
     # Modules
     # add_group 'AccreditedRepresentativePortal', 'modules/accredited_representative_portal/'
