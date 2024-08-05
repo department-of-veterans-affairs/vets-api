@@ -92,7 +92,7 @@ module DebtManagementCenter
         ).body
 
         if response.is_a?(Array) && response.empty?
-          Rails.logger.info('DebtManagement - DebtService#init_cached_debts: Writing empty response to cache')
+          # DMC refreshes DB at 5am every morning
           Rails.cache.write(cache_key, response, expires_in: time_until_5am_utc)
           StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.empty_response_cached")
         end
