@@ -92,10 +92,7 @@ jobs:
       - name: Run Unit Tests
         run: |
           docker compose -f docker-compose.test.yml run web bash \
-          -c "CI=true DISABLE_BOOTSNAP=true bundle exec rspec \
-          spec/models spec/lib spec/serializers spec/services spec/uploaders sidekiq \
-          modules/**/spec/models modules/**/spec/lib modules/**/spec/serializers modules/**/spec/services modules/**/spec/uploaders modules/**/sidekiq
-          --color --tty"
+          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/models spec/lib spec/serializers spec/services spec/uploaders spec/sidekiq -n 13 -o '--tag ~type:request --tag ~type:controller --color --tty'"
 
       - name: Simplecov Report
         if: success() || failure() 
@@ -150,3 +147,6 @@ jobs:
           result_path: Coverage Report/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
+
+
+CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec **/spec/models **/spec/lib **/spec/serializers **/spec/services **/spec/uploaders **/spec/sidekiq -n 13 -o '--color --tty'
