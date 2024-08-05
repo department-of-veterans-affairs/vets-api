@@ -27,7 +27,7 @@ module SearchTypeahead
     #
     def suggestions
       with_monitoring do
-        Faraday.get(suggestions_url, query_params)
+        perform(:get, suggestions_url, query_params)
       end
     rescue => e
       e
