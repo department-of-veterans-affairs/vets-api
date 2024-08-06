@@ -15,11 +15,7 @@ module CopayNotifications
     sidekiq_options retry: 14
 
     def perform(vet360_id, template_id, backup_email = nil, personalisation = nil)
-      if Flipper.enabled?(:va_profile_information_v3_service))
-        person_resp = VAProfile::ProfileInformation::Service.get_person(vet360_id)
-      else
-        person_resp = VAProfile::ContactInformation::Service.get_person(vet360_id)
-      end
+      person_resp = VAProfile::ContactInformation::Service.get_person(vet360_id)
       email_address = person_resp.person&.emails&.first&.email_address || backup_email
 
       if email_address
