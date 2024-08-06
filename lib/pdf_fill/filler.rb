@@ -103,7 +103,7 @@ module PdfFill
       form_id = saved_claim.form_id
       form_class = FORM_CLASSES[form_id]
 
-      raise PdfFillerException, 'Form was not found.' if form_class.nil?
+      raise PdfFillerException, "Form #{form_id} was not found." if form_class.nil?
 
       process_form(form_id, saved_claim.parsed_form, form_class, file_name_extension || saved_claim.id, fill_options)
     end

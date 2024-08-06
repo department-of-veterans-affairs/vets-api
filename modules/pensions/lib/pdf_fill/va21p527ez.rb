@@ -5,19 +5,21 @@ require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
+require 'pensions/version'
+
 # rubocop:disable Metrics/ClassLength
-module PdfFill
-  module Forms
-    class Va21p527ez < FormBase
-      include FormHelper
-      include FormHelper::PhoneNumberFormatting
+module Pensions
+  module PdfFill
+    class Va21p527ez < ::PdfFill::Forms::FormBase
+      include ::PdfFill::Forms::FormHelper
+      include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
       include ActiveSupport::NumberHelper
 
       FORM_ID = '21P-527EZ'
 
-      TEMPLATE = 'modules/pensions/lib/pdf_fill/forms/pdfs/21P-527EZ.pdf'
+      TEMPLATE = "#{Pensions::MODULE_PATH}/lib/pdf_fill/pdfs/21P-527EZ.pdf".freeze
 
-      ITERATOR = PdfFill::HashConverter::ITERATOR
+      ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
       RECIPIENTS = {
         'VETERAN' => 0,
