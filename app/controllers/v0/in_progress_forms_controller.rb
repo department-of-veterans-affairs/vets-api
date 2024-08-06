@@ -75,7 +75,7 @@ module V0
       context = {
         in_progress_form_id: form.id,
         user_uuid: @current_user.uuid,
-        user_account_uuid: @current_user.user_account_id
+        user_account_uuid: @current_user.user_account_uuid
       }
       Rails.logger.info('V0 InProgressFormsController async ITF user.participant_id is blank', context)
     end
