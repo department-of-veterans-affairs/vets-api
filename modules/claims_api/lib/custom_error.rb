@@ -5,11 +5,11 @@ require 'claims_api/common/exceptions/lighthouse/timeout'
 require 'claims_api/v2/error/lighthouse_error_mapper'
 module ClaimsApi
   class CustomError
-    def initialize(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
+    def initialize(error, detail = nil, async = true) # rubocop:disable Style/OptionalBooleanParameter
       @error = error
       @async = async
       @original_status = @error&.original_status if @error&.methods&.include?(:original_status)
-      @original_body = @error&.original_body if @error&.methods&.include?(:original_body)
+      @original_body = detail || @error&.original_body if @error&.methods&.include?(:original_body)
     end
 
     def build_error
