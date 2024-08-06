@@ -540,7 +540,7 @@ GEM
       rubocop (< 2.0)
     gyoku (1.4.0)
       builder (>= 2.1.2)
-      rexml (>= 3.3.3)
+      rexml (~> 3.0)
     hana (1.3.7)
     hashdiff (1.1.0)
     hashery (2.1.2)
