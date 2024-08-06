@@ -12,41 +12,40 @@ class FormProfiles::VA21p527ez < FormProfile
     }
   end
 
-  # overrides FormProfile.initialize_military_information (when pension_military_prefill
+  # overrides FormProfile#initialize_military_information (when pension_military_prefill
   # flag is enabled) to use Pension21p527ez::PensionFormMilitaryInformation instead of
   # FormProfile::FormMilitaryInformation in order to add additional military information fields.
+  # @see lib/pension_21p527ez/pension_military_information.rb PensionFormMilitaryInformation
+  # @see lib/va_profile/prefill/military_information.rb FormMilitaryInformation
   def initialize_military_information
-    if Flipper.enabled?(:pension_military_prefill, @user)
-      return {} unless user.authorize :va_profile, :access?
+    return super unless Flipper.enabled?(:pension_military_prefill, @user)
+    return {} unless user.authorize :va_profile, :access?
 
-      military_information_data = {}
-      military_information_data.merge!(initialize_va_profile_prefill_military_information)
-      military_information_data[:vic_verified] = user.can_access_id_card?
-      Pension21p527ez::PensionFormMilitaryInformation.new(military_information_data)
-    else
-      super
-    end
+    military_information_data = {}
+    military_information_data.merge!(initialize_va_profile_prefill_military_information)
+    military_information_data[:vic_verified] = user.can_access_id_card?
+    Pension21p527ez::PensionFormMilitaryInformation.new(military_information_data)
   end
 
   private
 
-  # overrides FormProfile.initialize_va_profile_prefill_military_information
+  # overrides FormProfile#initialize_va_profile_prefill_military_information
   # (when pension_military_prefill flag is enabled) to use
   # Pension21p527ez::PensionMilitaryInformation instead of
   # FormProfile::MilitaryInformation in order to add additional military information fields.
+  # @see lib/pension_21p527ez/pension_military_information.rb PensionMilitaryInformation
+  # @see lib/va_profile/prefill/military_information.rb MilitaryInformation
   def initialize_va_profile_prefill_military_information
-    if Flipper.enabled?(:pension_military_prefill, @user)
-      military_information_data = {}
-      military_information = Pension21p527ez::PensionMilitaryInformation.new(user)
+    return super unless Flipper.enabled?(:pension_military_prefill, @user)
 
-      Pension21p527ez::PensionMilitaryInformation::PREFILL_METHODS.each do |attr|
-        military_information_data[attr] = military_information.public_send(attr)
-      end
+    military_information_data = {}
+    military_information = Pension21p527ez::PensionMilitaryInformation.new(user)
 
-      military_information_data
-    else
-      super
+    Pension21p527ez::PensionMilitaryInformation::PREFILL_METHODS.each do |attr|
+      military_information_data[attr] = military_information.public_send(attr)
     end
+
+    military_information_data
   rescue => e
     log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
 

@@ -5,8 +5,8 @@ require 'claims_api/service_branch_mapper'
 
 module Pension21p527ez
   ##
-  # extends app/models/form_profile.rb FormProfile::FormMilitaryInformation
-  # to add additional military information fields to Pension prefill.
+  # extends FormMilitaryInformation to add additional military information fields to Pension prefill.
+  # @see app/models/form_profile.rb FormProfile::FormMilitaryInformation
   class PensionFormMilitaryInformation < FormMilitaryInformation
     include Virtus.model
 
@@ -17,34 +17,19 @@ module Pension21p527ez
   end
 
   ##
-  # extends lib/va_profile/prefill/military_information.rb VAProfile::Prefill::MilitaryInformation
-  # to add additional prefill methods to Pensions military information prefill
+  # extends MilitaryInformation to add additional prefill methods to Pensions military information prefill
+  # @see lib/va_profile/prefill/military_information.rb VAProfile::Prefill::MilitaryInformation
   class PensionMilitaryInformation < VAProfile::Prefill::MilitaryInformation
-    PREFILL_METHODS = %w[
-      currently_active_duty
-      currently_active_duty_hash
-      discharge_type
+    PREFILL_METHODS = VAProfile::Prefill::MilitaryInformation::PREFILL_METHODS + %w[
       first_uniformed_entry_date
-      guard_reserve_service_history
-      hca_last_service_branch
-      last_discharge_date
       last_active_discharge_date
-      last_entry_date
-      last_service_branch
-      latest_guard_reserve_service_period
-      post_nov111998_combat
-      service_branches
       service_branches_for_pensions
-      service_episodes_by_date
       service_number
-      service_periods
-      sw_asia_combat
-      tours_of_duty
     ].freeze
 
     ##
-    # Map between https://api.va.gov/services/benefits-reference-data/v1/service-branches service branch names
-    # and the fields used for pensions.serviceBranch
+    # Map between service branch names and the fields used for pensions.serviceBranch
+    # @see https://api.va.gov/services/benefits-reference-data/v1/service-branches
     PENSION_SERVICE_BRANCHES_MAPPING = {
       'Army' => 'army',
       'Navy' => 'navy',
@@ -71,7 +56,7 @@ module Pension21p527ez
       service_history.release_from_active_duty_date
     end
 
-    # @return [Hash] { army => true, navy => true } in the format required for pensions.serviceBranch
+    # @return [Hash] { army => true, navy => true, ... } in the format required for pensions.serviceBranch
     def service_branches_for_pensions
       branches = {}
       service_history.episodes.map(&:branch_of_service).uniq.each do |branch|
