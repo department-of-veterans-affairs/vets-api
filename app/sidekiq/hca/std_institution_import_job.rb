@@ -71,7 +71,7 @@ module HCA
 
         CSV.parse(data, headers: true) do |row|
           id = row['ID'].to_i
-          std_institution_facility = StdInstitutionFacility.find_or_initialize_by(id: id)
+          std_institution_facility = StdInstitutionFacility.find_or_initialize_by(id:)
           Rails.logger.info("institution #{id} new? #{std_institution_facility.new_record?}")
 
           created = DateTime.strptime(row['CREATED'], '%F %H:%M:%S %z').to_s
