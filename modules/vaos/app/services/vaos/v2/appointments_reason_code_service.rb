@@ -29,8 +29,11 @@ module VAOS
         reason_code_text = appointment&.dig(:reason_code, :text)
         return if reason_code_text.nil?
 
+        appointment_kind = appointment[:kind]
+        requested_periods = appointment[:requested_periods]
+
         # Community care appointments and requests
-        if appointment[:kind] == 'cc'
+        if appointment_kind == 'cc'
           appointment[:patient_comments] = reason_code_text
           return
         end
@@ -44,12 +47,12 @@ module VAOS
         # VA Direct Scheduling appointments
         # Note we check requested periods to ensure booked DS appointments and booked DS
         # appointments that are later cancelled are both processed here.
-        if appointment[:kind] == 'clinic' && appointment[:requested_periods].blank?
+        if appointment_kind == 'clinic' && requested_periods.blank?
           comments = reason_code_hash['comments'] if reason_code_hash.key?('comments')
           reason = extract_reason_for_appointment(reason_code_hash)
 
         # VA appointment requests
-        elsif appointment[:requested_periods].present? && appointment[:kind] != 'cc'
+        elsif requested_periods.present? && appointment_kind != 'cc'
           contact = extract_contact_fields(reason_code_hash)
           comments = reason_code_hash['comments'] if reason_code_hash.key?('comments')
           reason = extract_reason_for_appointment(reason_code_hash)
