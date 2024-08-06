@@ -26,9 +26,17 @@ module Mobile
                               else
                                 evss_proxy.get_payment_information
                               end
-        render json: Mobile::V0::PaymentInformationSerializer.new(@current_user,
-                                                                  payment_information.payment_account,
-                                                                  payment_information.control_information)
+        hashified = payment_information.to_h.transform_values(&:to_h)
+        hashified[:id] = @current_user.uuid
+        unless Flipper.enabled?(:mobile_lighthouse_direct_deposit, @current_user)
+          hashified.control_information.merge(can_update_payment: hashified.control_information.authorized?)
+        end
+        hashified[:account_control] = hashified.delete(:control_information)
+        hashified[:payment_account][:account_number] = StringHelpers.mask_sensitive(hashified[:payment_account][:account_number])
+        pi = Mobile::V0::PaymentInformation.new(hashified)
+        foo = Mobile::V0::PaymentInformationSerializer.new(pi)
+
+        render json: foo
       end
 
       def update
