@@ -59,15 +59,20 @@ module Pension21p527ez
     # @return [Hash] { army => true, navy => true, ... } in the format required for pensions.serviceBranch
     def service_branches_for_pensions
       branches = {}
-      service_history.episodes.map(&:branch_of_service).uniq.each do |branch|
-        branch_value = ClaimsApi::ServiceBranchMapper.new(branch).value
-        pension_branch = PENSION_SERVICE_BRANCHES_MAPPING[branch_value]
-        branches[pension_branch] = true if pension_branch
+      service_history.episodes.map { |ep| map_service_episode_to_branch(ep) }.each do |branch|
+        branches[branch] = true if branch
       end
       branches
     rescue => e
       Rails.logger.error("Error fetching service branches for Pension prefill: #{e}")
       {}
+    end
+
+    # @return [String] valid pensions.serviceBranch branch name
+    def map_service_episode_to_branch(episode)
+      branch = episode.branch_of_service
+      branch_value = ClaimsApi::ServiceBranchMapper.new(branch).value
+      PENSION_SERVICE_BRANCHES_MAPPING[branch_value]
     end
 
     ##
