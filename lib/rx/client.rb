@@ -21,7 +21,7 @@ module Rx
     CACHE_TTL = 3600 * 1 # 1 hour cache
     CACHE_TTL_ZERO = 0
 
-    def initialize(session:, upstream_request:)
+    def initialize(session:, upstream_request: {})
       @upstream_request = upstream_request
       super(session:)
     end
