@@ -43,9 +43,10 @@ module SimpleFormsApi
         render response
       rescue Prawn::Errors::IncompatibleStringEncoding
         raise
-      rescue SimpleFormsApi::Exceptions::MpiAddPersonProxyFailure, Common::Exceptions::UnprocessableEntity => e
-        # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
-        # through the Benefits Intake API
+      rescue SimpleFormsApi::Exceptions::MpiAddPersonProxyFailure, Common::Exceptions::UnprocessableEntity, Net::ReadTimeout => e
+        # Common::Exceptions::UnprocessableEntity: There is an authentication issue with the Intent to File API
+        # Net::ReadTimeout: The Intent to File API is down or timed out
+        # In either case, we revert to sending a PDF to Central Mail through the Benefits Intake API
         prepare_params_for_benefits_intake_and_log_error(e)
         submit_form_to_benefits_intake
       rescue => e
