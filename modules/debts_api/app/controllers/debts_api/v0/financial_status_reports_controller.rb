@@ -345,7 +345,19 @@ module DebtsApi
       end
 
       def full_transform_service
+        Rails.logger.info(full_transform_logging('info'))
         DebtsApi::V0::FsrFormTransform::FullTransformService.new(full_transform_form)
+      rescue => e
+        Rails.logger.error(full_transform_logging('error'))
+        Rails.logger.error(e.backtrace&.join('\n'))
+
+        raise e
+      end
+
+      def full_transform_logging(type)
+        user_uuid = current_user.uuid
+        submission_id = params[:submission_id]
+        "DebtsApi::V0::FsrFormTransform::FullTransformService #{type}: form ID #{submission_id} - UUID #{user_uuid}"
       end
     end
   end
