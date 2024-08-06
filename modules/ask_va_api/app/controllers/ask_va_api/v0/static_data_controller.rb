@@ -9,7 +9,8 @@ module AskVAApi
       around_action :handle_exceptions, except: %i[test_endpoint]
 
       def test_endpoint
-        Crm::Service.new(icn: nil).call(endpoint: params[:endpoint], payload: params[:payload] || {})
+        data = Crm::Service.new(icn: nil).call(endpoint: params[:endpoint], payload: params[:payload] || {})
+        render json: data.to_json, status: :ok
       end
 
       def announcements
