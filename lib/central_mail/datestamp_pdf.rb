@@ -19,14 +19,25 @@ module CentralMail
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
     end
 
+    def formatted_date
+      Time.zone.now.strftime('%m/%d/%Y')
+    end
+
+    def date_object
+      Date.strptime(formatted_date, '%m/%d/%Y')
+    end
+
     # rubocop:disable Metrics/ParameterLists
     # rubocop:disable Metrics/MethodLength
     def generate_stamp(stamp_path, text, x, y, text_only, size = 10, timestamp = nil, page_number = nil,
                        template = nil, file_path = nil)
       timestamp ||= Time.zone.now
+
+      timestamp4010007 = date_object
+
       unless text_only
-        text += if file_path == 'tmp/vba_40_10007-stamped.pdf'
-                  " #{I18n.l(timestamp, format: :pdf_stamp4010007)}"
+        text += if File.basename(file_path) == 'vba_40_10007-stamped.pdf'
+                  " #{I18n.l(timestamp4010007, format: :pdf_stamp4010007)}"
                 else
                   " #{I18n.l(timestamp, format: :pdf_stamp_utc)}"
                 end

@@ -27,8 +27,9 @@ module AppealsApi
     # 401 Unauthorized - missing or incorrect token
     # 429 Too many requests (for a single GUID)
     # 500 Server Error
+    # 502 BadGateway
     # 503 Database Offline || SOLR Service Offline || Intake API is undergoing maintenance
-    RETRYABLE_EMMS_RESP_STATUS_CODES = [401, 429, 500, 503].freeze
+    RETRYABLE_EMMS_RESP_STATUS_CODES = [401, 429, 500, 502, 503].freeze
 
     STATSD_DUPLICATE_UUID_KEY = 'api.appeals.document_upload.duplicate_uuid'
 
