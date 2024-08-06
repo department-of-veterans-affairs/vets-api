@@ -1510,6 +1510,9 @@ features:
   disability_compensation_lighthouse_generate_pdf:
     actor_type: user
     description: If enabled uses the lighthouse Benefits Claims service to generate a 526 pdf
+  disability_compensation_lighthouse_upload_supplemental_document:
+    actor_type: user
+    description: If enabled uses the Lighthouse Benefits Documents API to submit Form 526 documents
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
