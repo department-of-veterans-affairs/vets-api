@@ -1154,12 +1154,10 @@ RSpec.describe FormProfile, type: :model do
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
-      when '1010ez'
+      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS'
         '10-10EZ'
       when '21-526EZ'
         '21-526EZ-ALLCLAIMS'
-      when 'FORM-MOCK-AE-DESIGN-PATTERNS'
-        '10-10EZ'
       else
         form_id
       end.tap do |schema_form_id|

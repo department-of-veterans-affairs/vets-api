@@ -421,16 +421,8 @@ class FormProfile
   end
 
   def clean_hash!(hash)
-    hash.deep_transform_keys! do |key|
-      # convert key to string if it is a symbol
-      key = key.to_s if key.is_a?(Symbol)
-      key.camelize(:lower)
-    end
-
-    hash.each do |key, value|
-      hash[key] = clean!(value)
-    end
-  
-    hash.delete_if { |_key, value| value.blank? }
+    hash.deep_transform_keys! { |k| k.camelize(:lower) }
+    hash.each { |k, v| hash[k] = clean!(v) }
+    hash.delete_if { |_k, v| v.blank? }
   end
 end
