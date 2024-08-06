@@ -3,7 +3,6 @@
 require 'bb/client'
 
 class BBController < ApplicationController
-  include ActionController::Serialization
   include MHVControllerConcerns
   service_tag 'legacy-mhv'
 
