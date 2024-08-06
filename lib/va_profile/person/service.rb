@@ -4,6 +4,8 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'va_profile/contact_information/configuration'
 require 'va_profile/contact_information/transaction_response'
+require 'va_profile/profile_information/configuration'
+require 'va_profile/profile_information/transaction_response'
 require 'va_profile/service'
 require 'va_profile/stats'
 require 'identity/parsers/gc_ids_constants'
@@ -16,6 +18,7 @@ module VAProfile
 
       STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.person".freeze
       configuration VAProfile::ContactInformation::Configuration
+      configuration VAProfile::ProfileInformation::Configuration
 
       # Initializes a vet360_id for a user that does not have one. Can be used when a current user
       # is present, or through a rake task when no user is present (through passing in their ICN).
@@ -27,8 +30,11 @@ module VAProfile
       def init_vet360_id(icn = nil)
         with_monitoring do
           raw_response = perform(:post, encode_url!(icn), empty_body)
-
-          VAProfile::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
+          if Flipper.enabled?(:va_profile_information_v3_service)
+            VAProfile::ProfileInformation::PersonTransactionResponse.from(raw_response, @user)
+          else
+            VAProfile::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
+          end
         end
       rescue => e
         handle_error(e)
