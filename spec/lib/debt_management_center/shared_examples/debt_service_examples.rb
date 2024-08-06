@@ -21,9 +21,7 @@ RSpec.shared_examples 'Flipper debts_cache_dmc_empty_response behavior' do |flip
       it 'returns a bad request error' do
         VCR.use_cassette('bgs/people_service/no_person_data') do
           VCR.use_cassette('debts/get_letters_empty_ssn', VCR::MATCH_EVERYTHING) do
-            if flipper_enabled
-              expect(StatsD).to receive(:increment).once.with('api.dmc.init_cached_debts.fired')
-            end
+            expect(StatsD).to receive(:increment).once.with('api.dmc.init_cached_debts.fired') if flipper_enabled
 
             expect(StatsD).to receive(:increment).once.with(
               flipper_enabled ? cached_error_metric : non_cached_error_metric, tags: [
