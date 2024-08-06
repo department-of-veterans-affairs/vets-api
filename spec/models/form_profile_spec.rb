@@ -860,12 +860,12 @@ RSpec.describe FormProfile, type: :model do
                 'city' => user.address[:city],
                 'stateCode' => user.address[:state],
                 'countryName' => user.address[:country],
-                'zipCode5' => user.address[:postal_code][0..4]
+                'zipCode5' => user.address[:postal_code][0..4],
               },
               'phone' => {
-                  'areaCode' => us_phone[0..2],
-                  'phoneNumber' => us_phone[3..9]
-                },
+                'areaCode' => us_phone[0..2],
+                'phoneNumber' => us_phone[3..9]
+              },
               'homePhone' => '14445551212',
               'emailAddressText': user.pciu_email,
               'lastServiceBranch' => 'Army'

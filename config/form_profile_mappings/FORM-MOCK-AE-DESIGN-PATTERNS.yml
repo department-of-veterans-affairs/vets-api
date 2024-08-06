@@ -20,6 +20,6 @@ data:
         areaCode: [phone_object, area_code]
         phoneNumber: [phone_object, phone_number]
       homePhone: [contact_information, home_phone]
-      mobilePhone: [contact_information, mobile_phone]
       emailAddressText: [contact_information, email]
+      mobilePhone: [contact_information, mobile_phone]
       lastServiceBranch: [military_information, last_service_branch]
