@@ -6,7 +6,6 @@ module RepresentationManagement
       include JSONAPI::Serializer
 
       def initialize(object)
-        p 'RepresentationManagement::AccreditedEntities::EntitySerializer ' * 20, "object: #{object}"
         @object = object
       end
 
@@ -17,7 +16,6 @@ module RepresentationManagement
       private
 
       def serializer_class
-        p "Object: #{@object}", "Object class: #{@object.class.name}"
         case @object
         when AccreditedIndividual
           RepresentationManagement::AccreditedEntities::IndividualSerializer
