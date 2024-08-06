@@ -55,6 +55,8 @@ module ClaimsApi
         validate_form_526_change_of_address_beginning_date
         validate_form_526_change_of_address_ending_date
         validate_form_526_change_of_address_country
+        validate_form_526_change_of_address_state
+        validate_form_526_change_of_address_zip
       end
 
       def validate_form_526_change_of_address_required_fields
@@ -112,6 +114,36 @@ module ClaimsApi
         )
       end
 
+      def validate_form_526_change_of_address_state
+        address = form_attributes['changeOfAddress'] || {}
+        return if address['country'] != 'USA' || address['state'].present?
+
+        collect_error_messages(
+          source: '/changeOfAddress/state',
+          detail: 'The state is required if the country is USA.'
+        )
+      end
+
+      def validate_form_526_change_of_address_zip
+        address = form_attributes['changeOfAddress'] || {}
+        if address['country'] == 'USA' && address['zipFirstFive'].blank?
+          collect_error_messages(
+            source: '/changeOfAddress/zipFirstFive',
+            detail: 'The zipFirstFive is required if the country is USA.'
+          )
+        elsif address['country'] != 'USA' && address['internationalPostalCode'].blank?
+          collect_error_messages(
+            source: '/changeOfAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode is required if the country is not USA.'
+          )
+        elsif address['country'] == 'USA' && address['internationalPostalCode'].present?
+          collect_error_messages(
+            source: '/changeOfAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode should not be provided if the country is USA.'
+          )
+        end
+      end
+
       def validate_form_526_claimant_certification
         return unless form_attributes['claimantCertification'] == false
 
@@ -122,9 +154,11 @@ module ClaimsApi
       end
 
       def validate_form_526_identification
-        return if form_attributes['veteranIdentification'].nil? || form_attributes['veteranIdentification'].blank?
+        return if form_attributes['veteranIdentification'].blank?
 
         validate_form_526_current_mailing_address_country
+        validate_form_526_current_mailing_address_state
+        validate_form_526_current_mailing_address_zip
         validate_form_526_service_number
       end
 
@@ -145,6 +179,36 @@ module ClaimsApi
           source: '/veteranIdentification/mailingAddress/country',
           detail: 'The country provided is not valid.'
         )
+      end
+
+      def validate_form_526_current_mailing_address_state
+        mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
+        return if mailing_address['country'] != 'USA' || mailing_address['state'].present?
+
+        collect_error_messages(
+          source: '/veteranIdentification/mailingAddress/state',
+          detail: 'The state is required if the country is USA.'
+        )
+      end
+
+      def validate_form_526_current_mailing_address_zip
+        mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
+        if mailing_address['country'] == 'USA' && mailing_address['zipFirstFive'].blank?
+          collect_error_messages(
+            source: '/veteranIdentification/mailingAddress/zipFirstFive',
+            detail: 'The zipFirstFive is required if the country is USA.'
+          )
+        elsif mailing_address['country'] != 'USA' && mailing_address['internationalPostalCode'].blank?
+          collect_error_messages(
+            source: '/veteranIdentification/mailingAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode is required if the country is not USA.'
+          )
+        elsif mailing_address['country'] == 'USA' && mailing_address['internationalPostalCode'].present?
+          collect_error_messages(
+            source: '/veteranIdentification/mailingAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode should not be provided if the country is USA.'
+          )
+        end
       end
 
       def validate_form_526_disabilities

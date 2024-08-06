@@ -1,20 +1,18 @@
 # frozen_string_literal: true
 
-##
-# Pension 21P-527EZ Module
-#
 module Pensions
   ##
   # Pension 21P-527EZ Active::Record
   #
   class SavedClaim < ::SavedClaim
-    self.inheritance_column = 'SavedClaim::Pension'
+    self.inheritance_column = :_type_disabled
+    default_scope -> { where(type: 'SavedClaim::Pension') }, all_queries: true
 
     # form_id, form_type
     FORM = '21P-527EZ'
 
     ##
-    # the predfined regional office address
+    # the predefined regional office address
     #
     # @return [Array<String>] the address lines of the regional office
     #
@@ -86,7 +84,7 @@ module Pensions
       files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
       files.find_each { |f| f.update(saved_claim_id: id) }
 
-      Pensions::PensionBenefitIntakeJob.perform_async(id, current_user&.uuid)
+      Pensions::PensionBenefitIntakeJob.perform_async(id, current_user&.user_account_uuid)
     end
   end
 end
