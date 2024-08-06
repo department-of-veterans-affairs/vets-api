@@ -82,11 +82,11 @@ module ClaimsApi
     end
 
     def handle_strings
-      return unless @error.is_a?(String) || @original_body.is_a?(String)
+      is_string = @error.is_a?(String)
+      return unless is_string || @original_body.is_a?(String)
 
-      detail = @error.is_a?(String) ? @error : @original_body
-      title = 'String error'
-      messages = [{ detail:, status: 422, title: }]
+      detail = is_string ? @error : @original_body
+      messages = [{ detail:, status: 422, title: 'String error' }]
       @error = ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException.new(messages)
     end
   end
