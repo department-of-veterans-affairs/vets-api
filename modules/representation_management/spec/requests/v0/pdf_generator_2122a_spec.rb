@@ -11,6 +11,7 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
           record_consent: '',
           consent_address_change: '',
           consent_limits: [],
+          conditions_of_appointment: [],
           claimant: {
             date_of_birth: '1980-01-01',
             relationship: 'Spouse',
@@ -83,9 +84,9 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
         expect(response).to have_http_status(:created)
       end
 
-      it 'responds with the expected body' do
+      it 'responds with a PDF' do
         post(base_path, params:)
-        expect(response.body).to eq({ message: 'Form is valid' }.to_json)
+        expect(response.content_type).to eq('application/pdf')
       end
     end
 

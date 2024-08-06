@@ -127,6 +127,7 @@ module V0
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
       Swagger::Requests::BenefitsReferenceData,
+      Swagger::Requests::ClaimDocuments,
       Swagger::Requests::ClaimStatus,
       Swagger::Requests::ClaimLetters,
       Swagger::Requests::Coe,

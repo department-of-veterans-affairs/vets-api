@@ -636,6 +636,32 @@
     :path: "/appointments/v1/patients/*/appointments/*"
     :file_path: "hqva_mobile/appointments/default"
 
+#VAOS Appointments Service
+- :name: "VAOS Appointments"
+  :base_uri: <%= "#{URI(Settings.va_mobile.url).host}:#{URI(Settings.va_mobile.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/vaos/v1/patients/*/appointments"
+      :file_path: "vaos/appointments"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments'
+    - :method: :get
+      :path: "/facilities/v2/facilities/*"
+      :file_path: "vaos/facilities"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$'
+    - :method: :get
+      :path: "/facilities/v2/facilities/*/clinics/*"
+      :file_path: "vaos/clinics"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$\/clinics\/^[0-9]+$'
+
 #LoROTA (CheckIn)
 - :name: "LoROTA"
   :base_uri: <%= "#{URI(Settings.check_in.lorota_v2.url).host}:#{URI(Settings.check_in.lorota_v2.url).port}" %>
@@ -894,3 +920,6 @@
     - :method: :get
       :path: "/demographics/demographics/v1/*/*"
       :file_path: "vet360/demographics/default"
+    - :method: :post
+      :path: "/profile-service/profile/v3/*/*"
+      :file_path: "vet360/profile-service/default"

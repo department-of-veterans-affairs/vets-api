@@ -200,11 +200,6 @@ GEM
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
-    active_model_serializers (0.10.14)
-      actionpack (>= 4.1)
-      activemodel (>= 4.1)
-      case_transform (>= 0.2)
-      jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
     activejob (7.1.3.4)
       activesupport (= 7.1.3.4)
       globalid (>= 0.3.6)
@@ -246,8 +241,8 @@ GEM
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.957.0)
-    aws-sdk-core (3.201.2)
+    aws-partitions (1.961.0)
+    aws-sdk-core (3.201.3)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
       aws-sigv4 (~> 1.8)
@@ -255,14 +250,14 @@ GEM
     aws-sdk-kms (1.88.0)
       aws-sdk-core (~> 3, >= 3.201.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.156.0)
+    aws-sdk-s3 (1.157.0)
       aws-sdk-core (~> 3, >= 3.201.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
     aws-sdk-sns (1.82.0)
       aws-sdk-core (~> 3, >= 3.201.0)
       aws-sigv4 (~> 1.5)
-    aws-sigv4 (1.8.0)
+    aws-sigv4 (1.9.1)
       aws-eventstream (~> 1, >= 1.0.2)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
@@ -275,7 +270,7 @@ GEM
     bigdecimal (3.1.8-java)
     bindex (0.8.1)
     blueprinter (1.0.2)
-    bootsnap (1.18.3)
+    bootsnap (1.18.4)
       msgpack (~> 1.2)
     brakeman (6.1.2)
       racc
@@ -297,8 +292,6 @@ GEM
     carrierwave-aws (1.6.0)
       aws-sdk-s3 (~> 1.0)
       carrierwave (>= 2.0, < 4)
-    case_transform (0.2)
-      activesupport
     claide (1.1.0)
     claide-plugins (0.9.2)
       cork
@@ -327,7 +320,8 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    danger (9.4.3)
+    csv (3.3.0)
+    danger (9.5.0)
       claide (~> 1.0)
       claide-plugins (>= 0.9.2)
       colored2 (~> 3.1)
@@ -337,7 +331,6 @@ GEM
       git (~> 1.13)
       kramdown (~> 2.3)
       kramdown-parser-gfm (~> 1.0)
-      no_proxy_fix
       octokit (>= 4.0)
       terminal-table (>= 1, < 4)
     database_cleaner (2.0.2)
@@ -423,7 +416,7 @@ GEM
       railties (>= 5.0.0)
     faker (3.4.2)
       i18n (>= 1.8.11, < 2)
-    faraday (2.10.0)
+    faraday (2.10.1)
       faraday-net_http (>= 2.0, < 3.2)
       logger
     faraday-follow_redirects (0.3.0)
@@ -434,7 +427,7 @@ GEM
       httpclient (>= 2.2)
     faraday-multipart (1.0.4)
       multipart-post (~> 2)
-    faraday-net_http (3.1.0)
+    faraday-net_http (3.1.1)
       net-http
     faraday-retry (2.2.1)
       faraday (~> 2.0)
@@ -499,31 +492,26 @@ GEM
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
       google-apis-generator (~> 0.1)
-    google-apis-core (0.15.0)
+    google-apis-core (0.15.1)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (~> 1.9)
-      httpclient (>= 2.8.1, < 3.a)
+      httpclient (>= 2.8.3, < 3.a)
       mini_mime (~> 1.0)
+      mutex_m
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
-      rexml
-    google-apis-discovery_v1 (0.16.0)
-      google-apis-core (>= 0.14.0, < 2.a)
-    google-apis-generator (0.15.0)
+    google-apis-discovery_v1 (0.18.0)
+      google-apis-core (>= 0.15.0, < 2.a)
+    google-apis-generator (0.15.1)
       activesupport (>= 5.0)
       gems (~> 1.2)
       google-apis-core (>= 0.15.0, < 2.a)
-      google-apis-discovery_v1 (~> 0.14)
+      google-apis-discovery_v1 (~> 0.18)
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
-    google-protobuf (4.27.2)
+    google-protobuf (4.27.3)
       bigdecimal
-      rake (>= 13)
-    google-protobuf (4.27.2-java)
-      bigdecimal
-      ffi (~> 1)
-      ffi-compiler (~> 1)
       rake (>= 13)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
@@ -600,7 +588,6 @@ GEM
       regexp_parser (~> 2.0)
       simpleidn (~> 0.2)
     jsonapi-parser (0.1.1)
-    jsonapi-renderer (0.2.2)
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     jwe (0.4.0)
@@ -631,7 +618,7 @@ GEM
     llhttp-ffi (0.5.0)
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
-    lockbox (1.3.0)
+    lockbox (1.3.3)
     logger (1.6.0)
     loofah (2.22.0)
       crass (~> 1.0.2)
@@ -681,18 +668,19 @@ GEM
     net-ssh (7.2.0)
     nio4r (2.7.3)
     nio4r (2.7.3-java)
-    no_proxy_fix (0.1.2)
-    nokogiri (1.16.6)
+    nkf (0.2.0)
+    nkf (0.2.0-java)
+    nokogiri (1.16.7)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.16.6-java)
+    nokogiri (1.16.7-java)
       racc (~> 1.4)
     nori (2.7.0)
       bigdecimal
     notiffany (0.1.3)
       nenv (~> 0.1)
       shellany (~> 0.0)
-    notifications-ruby-client (6.1.0)
+    notifications-ruby-client (6.2.0)
       jwt (>= 1.5, < 3)
     oauth2 (2.0.9)
       faraday (>= 0.17.3, < 3.0)
@@ -739,7 +727,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (1.5.6)
+    pg (1.5.7)
     pg_query (5.1.0)
       google-protobuf (>= 3.22.3)
     pg_search (2.3.6)
@@ -769,7 +757,7 @@ GEM
       stringio
     psych (5.1.2-java)
       jar-dependencies (>= 0.1.7)
-    public_suffix (6.0.0)
+    public_suffix (6.0.1)
     puma (6.4.2)
       nio4r (~> 2.0)
     puma (6.4.2-java)
@@ -777,8 +765,8 @@ GEM
     pundit (2.3.2)
       activesupport (>= 3.0.0)
     raabro (1.4.0)
-    racc (1.8.0)
-    racc (1.8.0-java)
+    racc (1.8.1)
+    racc (1.8.1-java)
     rack (2.2.9)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
@@ -863,7 +851,7 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.3.2)
+    rexml (3.3.4)
       strscan
     rgeo (3.0.1)
     rgeo-activerecord (7.0.1)
@@ -919,7 +907,8 @@ GEM
     rswag-ui (2.13.0)
       actionpack (>= 3.1, < 7.2)
       railties (>= 3.1, < 7.2)
-    rubocop (1.65.0)
+    rtesseract (3.1.3)
+    rubocop (1.65.1)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
@@ -930,7 +919,7 @@ GEM
       rubocop-ast (>= 1.31.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.31.3)
+    rubocop-ast (1.32.0)
       parser (>= 3.3.1.0)
     rubocop-capybara (2.21.0)
       rubocop (~> 1.41)
@@ -942,7 +931,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (3.0.3)
+    rubocop-rspec (3.0.4)
       rubocop (~> 1.61)
     rubocop-rspec_rails (2.30.0)
       rubocop (~> 1.61)
@@ -993,9 +982,6 @@ GEM
       connection_pool (>= 2.3.0)
       rack (>= 2.2.4)
       redis-client (>= 0.19.0)
-    sidekiq_alive (2.4.0)
-      gserver (~> 0.0.1)
-      sidekiq (>= 5, < 8)
     signet (0.19.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
@@ -1110,7 +1096,6 @@ PLATFORMS
 DEPENDENCIES
   aasm
   accredited_representative_portal!
-  active_model_serializers
   activerecord-import
   activerecord-postgis-adapter
   addressable
@@ -1142,6 +1127,7 @@ DEPENDENCIES
   coverband
   covid_research!
   covid_vaccine!
+  csv
   danger
   database_cleaner
   date_validator
@@ -1155,7 +1141,7 @@ DEPENDENCIES
   facilities_api!
   factory_bot_rails
   faker
-  faraday (~> 2.9)
+  faraday (~> 2.10)
   faraday-follow_redirects
   faraday-httpclient
   faraday-multipart
@@ -1208,6 +1194,7 @@ DEPENDENCIES
   mocked_authentication!
   my_health!
   net-sftp
+  nkf
   nokogiri
   notifications-ruby-client
   octokit
@@ -1257,6 +1244,7 @@ DEPENDENCIES
   rspec_junit_formatter
   rswag-specs
   rswag-ui
+  rtesseract
   rubocop
   rubocop-capybara
   rubocop-factory_bot
@@ -1276,7 +1264,6 @@ DEPENDENCIES
   sidekiq (~> 7.2.0)
   sidekiq-ent!
   sidekiq-pro!
-  sidekiq_alive
   simple_forms_api!
   simplecov
   slack-notify
