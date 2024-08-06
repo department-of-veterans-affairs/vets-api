@@ -528,16 +528,18 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'handles errors' do
+      let(:exception) { Common::Client::Errors::ClientError.new(message: 'something happened') }
+
       before do
         allow(Rails.logger).to receive(:info)
-        allow(mule_soft_client).to receive(:create_submission_v2).and_raise(Common::Client::Errors::ClientError)
+        allow(mule_soft_client).to receive(:create_submission_v2).and_raise(exception)
       end
 
       it 'logs claim_guid for any exceptions and raises error' do
         expect(Rails.logger).to receive(:info).with(
-          "[Form 10-10CG] Submission failed for claim_guid: #{claim_with_mpi_veteran.guid}"
+          "[Form 10-10CG] Submission failed for claim_guid: #{claim_with_mpi_veteran.guid}. Exception: #{exception.message}"
         )
-        expect { subject }.to raise_error(Common::Client::Errors::ClientError)
+        expect { subject }.to raise_error(exception)
       end
     end
   end
