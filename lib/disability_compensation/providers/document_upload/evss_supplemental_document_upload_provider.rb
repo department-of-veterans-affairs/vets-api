@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'disability_compensation/providers/supplemental_document_upload/supplemental_document_upload_provider'
+require 'disability_compensation/providers/document_upload/supplemental_document_upload_provider'
 
 class EVSSSupplementalDocumentUploadProvider
   include SupplementalDocumentUploadProvider

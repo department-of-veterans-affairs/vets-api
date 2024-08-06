@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'disability_compensation/providers/supplemental_document_upload/lighthouse_supplemental_document_upload_provider'
+require 'disability_compensation/providers/document_upload/lighthouse_supplemental_document_upload_provider'
 require 'support/disability_compensation_form/shared_examples/supplemental_document_upload_provider'
 
 RSpec.describe LighthouseSupplementalDocumentUploadProvider do
