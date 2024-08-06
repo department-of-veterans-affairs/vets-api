@@ -5,7 +5,6 @@ require 'support/controller_spec_helper'
 
 RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   routes { Pensions::Engine.routes }
-  subject { described_class.new }
 
   let(:monitor) { double('Pensions::Monitor') }
 
@@ -13,7 +12,6 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     allow(Pensions::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
                                        track_create_error: nil, track_create_success: nil)
-    allow(subject).to receive(:check_flipper_flag)
   end
 
   it_behaves_like 'a controller that deletes an InProgressForm', 'pension_claim', 'pension_claim', '21P-527EZ'
