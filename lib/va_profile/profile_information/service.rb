@@ -59,7 +59,7 @@ module VAProfile
 
       def self.get_person(vet360_id)
         stub_user = OpenStruct.new(vet360_id:)
-        new(stub_user).get_response('person')
+        new(stub_user).get_person
       end
 
       def submit(params)
