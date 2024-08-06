@@ -9,7 +9,7 @@ module ClaimsApi
       @error = error
       @async = async
       @original_status = @error&.original_status if @error&.methods&.include?(:original_status)
-      @original_body = detail || @error&.original_body if @error&.methods&.include?(:original_body)
+      @original_body = get_original_body(detail)
     end
 
     def build_error
@@ -85,6 +85,10 @@ module ClaimsApi
       @error = ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException.new(
         [{ detail: @error.is_a?(String) ? @error : @original_body, status: 422, title: 'String error' }]
       )
+    end
+
+    def get_original_body(detail)
+      detail || @error&.original_body if @error&.methods&.include?(:original_body)
     end
   end
 end
