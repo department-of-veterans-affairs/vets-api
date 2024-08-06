@@ -8,8 +8,9 @@ module ClaimsApi
     def initialize(error, detail = nil, async = true) # rubocop:disable Style/OptionalBooleanParameter
       @error = error
       @async = async
+      @detail = detail
       @original_status = @error&.original_status if @error&.methods&.include?(:original_status)
-      @original_body = get_original_body(detail)
+      @original_body = get_original_body
     end
 
     def build_error
@@ -87,8 +88,8 @@ module ClaimsApi
       )
     end
 
-    def get_original_body(detail)
-      detail || @error&.original_body if @error&.methods&.include?(:original_body)
+    def get_original_body
+      @detail ||= @error&.original_body if @error&.methods&.include?(:original_body)
     end
   end
 end
