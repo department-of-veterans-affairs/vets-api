@@ -25,8 +25,8 @@ module ClaimsApi
           loa:
         )
         unless target_veteran.mpi_record?(user_key: veteran_id)
-          claims_logging('unble_to_locate_id_or_icn',
-                         message: 'unble_to_locate_id_or_icn on request in target veteran.')
+          claims_logging('unable_to_locate_id_or_icn',
+                         message: 'unable_to_locate_id_or_icn on request in target veteran.')
 
           raise ::Common::Exceptions::ResourceNotFound.new(
             detail: "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
@@ -39,8 +39,8 @@ module ClaimsApi
       def mpi_profile_from(target_veteran)
         mpi_profile = target_veteran&.mpi&.mvi_response&.profile || {}
         if mpi_profile[:participant_id].blank?
-          claims_logging('unble_to_locate_participant_id',
-                         message: 'unble_to_locate_participant_id on request in target veteran.')
+          claims_logging('unable_to_locate_participant_id',
+                         message: 'unable_to_locate_participant_id on request in target veteran.')
 
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
