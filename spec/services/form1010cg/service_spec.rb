@@ -75,14 +75,6 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  describe '#carma_client' do
-    it 'gets a mulesoft client' do
-      service = described_class.new(build(:caregivers_assistance_claim))
-
-      expect(service.send(:carma_client)).to be_an_instance_of(CARMA::Client::MuleSoftClient)
-    end
-  end
-
   describe '::collect_attachments' do
     let(:claim_pdf_path) { 'tmp/10-10cg-application.pdf' }
     let(:poa_attachment_path) { 'tmp/poa_file.jpg' }

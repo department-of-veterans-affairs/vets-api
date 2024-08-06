@@ -1,0 +1,11 @@
+---
+
+### https://github.com/troessner/reek
+
+detectors:
+  IrresponsibleModule:
+    enabled: false
+  UnusedParameters:
+    enabled: false # rubocop takes care of this
+  UtilityFunction:
+    public_methods_only: true

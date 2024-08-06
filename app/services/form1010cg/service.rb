@@ -34,14 +34,6 @@ module Form1010cg
       [claim_pdf_path, poa_attachment_path]
     end
 
-    def_delegator self, :carma_client # make accessible as instance method
-
-    def self.carma_client
-      client = CARMA::Client::MuleSoftClient.new
-      Rails.logger.info "[10-10CG] Using #{client.class} for submissions"
-      client
-    end
-
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.
