@@ -842,36 +842,36 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-    let(:vform_mock_ae_design_patterns_expected) do
-      {
-        'data' => {
-          'attributes' => {
-            'veteran' => {
-              'firstName' => user.first_name&.capitalize,
-              'middleName' => user.middle_name&.capitalize,
-              'lastName' => user.last_name&.capitalize,
-              'suffix' => user.suffix,
-              'dateOfBirth' => user.birth_date,
-              'ssn' => user.ssn.last(4),
-              'gender' => user.gender,
-              'address' => {
-                'addressLine1' => street_check[:street],
-                'addressLine2' => street_check[:street2],
-                'city' => user.address[:city],
-                'stateCode' => user.address[:state],
-                'countryName' => user.address[:country],
-                'zipCode5' => user.address[:postal_code][0..4],
-              },
-              'phone' => {
-                'areaCode' => us_phone[0..2],
-                'phoneNumber' => us_phone[3..9]
-              },
-              'homePhone' => '14445551212',
-              'emailAddressText': user.pciu_email,
-              'lastServiceBranch' => 'Army'
-            }
+  let(:vform_mock_ae_design_patterns_expected) do
+    {
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'firstName' => user.first_name&.capitalize,
+            'middleName' => user.middle_name&.capitalize,
+            'lastName' => user.last_name&.capitalize,
+            'suffix' => user.suffix,
+            'dateOfBirth' => user.birth_date,
+            'ssn' => user.ssn.last(4),
+            'gender' => user.gender,
+            'address' => {
+              'addressLine1' => street_check[:street],
+              'addressLine2' => street_check[:street2],
+              'city' => user.address[:city],
+              'stateCode' => user.address[:state],
+              'countryName' => user.address[:country],
+              'zipCode5' => user.address[:postal_code][0..4]
+            },
+            'phone' => {
+              'areaCode' => us_phone[0..2],
+              'phoneNumber' => us_phone[3..9]
+            },
+            'homePhone' => '14445551212',
+            'emailAddressText' => user.pciu_email,
+            'lastServiceBranch' => 'Army'
           }
         }
+      }
     }
   end
 
