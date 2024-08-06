@@ -4,7 +4,6 @@ require 'lighthouse/service_exception'
 require 'lighthouse/direct_deposit/client'
 require 'lighthouse/direct_deposit/error_parser'
 require 'lighthouse/direct_deposit/payment_account'
-require 'lighthouse/direct_deposit/control_information'
 
 module V0
   module Profile
