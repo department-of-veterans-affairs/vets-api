@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FormProfiles::VHA1010d< FormProfile
+class FormProfiles::VHA1010d < FormProfile
   FORM_ID = '10-10D'
 
   def metadata
