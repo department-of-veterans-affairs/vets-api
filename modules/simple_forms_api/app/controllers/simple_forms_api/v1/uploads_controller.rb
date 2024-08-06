@@ -139,7 +139,8 @@ module SimpleFormsApi
       def get_file_paths_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN'
+        # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
+        if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && @current_user
           form = form.populate_veteran_data(@current_user)
         end
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
