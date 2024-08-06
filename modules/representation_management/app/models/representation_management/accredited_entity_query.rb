@@ -11,7 +11,7 @@ module RepresentationManagement
 
     def initialize(query_string)
       @query_string = query_string
-      p "query_string: #{@query_string}"
+      p 'RepresentationManagement::AccreditedEntityQuery ' * 20, "query_string: #{@query_string}"
     end
 
     def results
@@ -35,7 +35,9 @@ module RepresentationManagement
         levenshtein_distance(@query_string, record)
       end
       p "combined_results: #{combined_results}",
-        "combined_results class names: #{combined_results.map(&:class).map(&:name)}"
+        "combined_results class names: #{combined_results.map(&:class).map(&:name)}",
+        "combined_results.class.name: #{combined_results.class.name}"
+      combined_results
     end
 
     private
