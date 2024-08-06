@@ -33,6 +33,13 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2.0.1
         with:
           mask-password: true
+      - name: Get repository URL
+        run: |
+          echo "REPO_URL=$(git config --get remote.origin.url)" >> $GITHUB_ENV
+
+      - name: Get current commit SHA
+        run: |
+          echo "COMMIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
       - name: Build Docker Image
         uses: docker/build-push-action@v6
         env:
@@ -42,6 +49,8 @@ jobs:
             BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
             USER_ID=${{ env.VETS_API_USER_ID }}
             RAILS_ENV=production
+            DD_GIT_REPOSITORY_URL=${{ env.REPO_URL }}
+            DD_GIT_REPOSITORY_URL=${{ env.COMMIT_SHA }}
           context: .
           file: Dockerfile
           push: true
