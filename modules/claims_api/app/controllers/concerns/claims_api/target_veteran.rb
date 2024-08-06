@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require 'claims_api/claim_logger'
+
 module ClaimsApi
   module TargetVeteran
     extend ActiveSupport::Concern
 
-    included do
+    included do # rubocop:disable Metrics/BlockLength
       def target_veteran
         @target_veteran ||= if @is_valid_ccg_flow
                               build_target_veteran(veteran_id: params[:veteranId], loa: { current: 3, highest: 3 })
@@ -23,6 +25,9 @@ module ClaimsApi
           loa:
         )
         unless target_veteran.mpi_record?(user_key: veteran_id)
+          claims_logging('unble_to_locate_id_or_icn',
+                         message: 'unble_to_locate_id_or_icn on request in target veteran.')
+
           raise ::Common::Exceptions::ResourceNotFound.new(
             detail: "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
                     'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
@@ -34,6 +39,9 @@ module ClaimsApi
       def mpi_profile_from(target_veteran)
         mpi_profile = target_veteran&.mpi&.mvi_response&.profile || {}
         if mpi_profile[:participant_id].blank?
+          claims_logging('unble_to_locate_participant_id',
+                         message: 'unble_to_locate_participant_id on request in target veteran.')
+
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
                     'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
@@ -92,6 +100,12 @@ module ClaimsApi
       target_veteran[:last_signed_in] = Time.now.utc
       target_veteran[:va_profile] = ClaimsApi::Veteran.build_profile(mpi_profile.birth_date)
       target_veteran
+    end
+
+    def claims_logging(tag = 'traceability', level: :info, message: nil)
+      ClaimsApi::Logger.log(tag,
+                            message:,
+                            level:)
     end
   end
 end
