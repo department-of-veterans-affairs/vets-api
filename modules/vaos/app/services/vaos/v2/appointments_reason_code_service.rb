@@ -24,10 +24,16 @@ module VAOS
       # Modifies the appointment, extracting individual fields from the reason code text whenever possible.
       #
       # @param appointment [Hash] the appointment to modify
-      def extract_reason_code_fields(appointment)
+      def extract_reason_code_fields(appointment) # rubocop:disable Metrics/MethodLength
         # Retrieve the reason code text, or return if it is not present
         reason_code_text = appointment&.dig(:reason_code, :text)
         return if reason_code_text.nil?
+
+        # Community care appointments and requests
+        if appointment[:kind] == 'cc'
+          appointment[:patient_comments] = reason_code_text
+          return
+        end
 
         # Convert the text to a hash for querying, or return if no valid key value pairs are found
         reason_code_hash = reason_code_text.split('|')
@@ -35,14 +41,14 @@ module VAOS
                                            .to_h { |pair| pair.split(':').map!(&:strip) }
         return if reason_code_hash.empty?
 
-        # Direct Scheduling appointments
+        # VA Direct Scheduling appointments
         # Note we check requested periods to ensure booked DS appointments and booked DS
         # appointments that are later cancelled are both processed here.
         if appointment[:kind] == 'clinic' && appointment[:requested_periods].blank?
           comments = reason_code_hash['comments'] if reason_code_hash.key?('comments')
           reason = extract_reason_for_appointment(reason_code_hash)
 
-        # Appointment requests
+        # VA appointment requests
         elsif appointment[:requested_periods].present? && appointment[:kind] != 'cc'
           contact = extract_contact_fields(reason_code_hash)
           comments = reason_code_hash['comments'] if reason_code_hash.key?('comments')
