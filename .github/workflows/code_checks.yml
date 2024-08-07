@@ -84,9 +84,7 @@ jobs:
           file: docker-compose.test.yml
           shared: true
           bake: true
-          bake-opts: |
-            --set web.args.BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }} \
-            --set web.args.USER_ID=${{ env.VETS_API_USER_ID }}
+          bake-opts: "--set web.args.BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }} --set web.args.USER_ID=${{ env.VETS_API_USER_ID }}"
           pull: false
           up: false
 
