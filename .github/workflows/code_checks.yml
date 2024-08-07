@@ -78,13 +78,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build Test Image
-        uses: nick-fields/retry@v3
+      - name: Setup Caching for Docker Compose
+        uses: yu-ichiro/spin-up-docker-compose-action@main
         with:
-          timeout_minutes: 20
-          retry_wait_seconds: 3 # Seconds
-          max_attempts: 3
-          command: docker compose -f docker-compose.test.yml build
+          file: docker-compose.test.yml
+          shared: true
+          pull: false
+          up: false
 
       - name: Setup Database
         run: |
