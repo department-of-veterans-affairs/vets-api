@@ -35,7 +35,8 @@ module Form1010cg
       end
     rescue CARMA::Client::MuleSoftClient::RecordParseError
       StatsD.increment("#{STATSD_KEY_PREFIX}record_parse_error", tags: ["claim_id:#{claim_id}"])
-    rescue
+    rescue => e
+      log_exception_to_sentry(e)
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
 
       increment_applications_retried(claim_id)

@@ -4,7 +4,6 @@ require 'caseflow/service'
 require 'decision_review_v1/service'
 
 class AppealsBaseControllerV1 < ApplicationController
-  include ActionController::Serialization
   include FailedRequestLoggable
   before_action { authorize :appeals, :access? }
 
