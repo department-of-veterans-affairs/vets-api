@@ -40,9 +40,9 @@ module Swagger
             example VetsJsonSchema::EXAMPLES.fetch 'HLR-CREATE-REQUEST-BODY_V1'
           end
 
-          VetsJsonSchema::SCHEMAS.fetch('HLR-SHOW-RESPONSE-200_V2')['definitions'].each do |k, v|
-            v.delete('$comment')
-            swagger_schema(k == 'root' ? 'hlrShowRoot' : k, v) {}
+          VetsJsonSchema::SCHEMAS.fetch('HLR-SHOW-RESPONSE-200_V2')['definitions'].each do |key, value|
+            value.delete('$comment')
+            swagger_schema(key == 'root' ? 'hlrShowRoot' : key, value) {}
           end
 
           swagger_schema 'hlrShowRoot' do

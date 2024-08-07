@@ -25,8 +25,8 @@ module Swagger
             example VetsJsonSchema::EXAMPLES.fetch('NOD-CREATE-REQUEST-BODY_V1')
           end
 
-          VetsJsonSchema::SCHEMAS.fetch('NOD-SHOW-RESPONSE-200_V2')['definitions'].each do |k, v|
-            swagger_schema(k == 'root' ? 'nodShowRoot' : k, v) {}
+          VetsJsonSchema::SCHEMAS.fetch('NOD-SHOW-RESPONSE-200_V2')['definitions'].each do |key, value|
+            swagger_schema(key == 'root' ? 'nodShowRoot' : key, value) {}
           end
 
           swagger_schema 'nodShowRoot' do
