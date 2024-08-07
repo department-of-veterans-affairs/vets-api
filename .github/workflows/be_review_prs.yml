@@ -33,6 +33,8 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
+      - run: echo "${{ steps.pr_details.outputs.data }}"
+
       - name: Check required reviewers
         id: check_reviewers
         run: |
