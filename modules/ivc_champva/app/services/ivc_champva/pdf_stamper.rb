@@ -84,6 +84,8 @@ module IvcChampva
         current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
         File.rename(current_file_path, stamped_template_path)
       end
+    rescue => e
+      raise StandardError, "An error occurred while stamping the PDF: #{e}"
     end
 
     def self.perform_multistamp(stamped_template_path, stamp_path)
