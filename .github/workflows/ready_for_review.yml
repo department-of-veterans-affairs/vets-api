@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: check
+      - name: Audit PR Labels
         run: |
           if [ ${{ contains(github.event.pull_request.labels.*.name, 'audit-service-failure') }} ]; then
             echo "ready_for_review=false" >> $GITHUB_OUTPUT
@@ -23,7 +23,7 @@ jobs:
             echo "ready_for_review=false" >> $GITHUB_OUTPUT
           elif [ ${{ contains(github.event.pull_request.labels.*.name, 'test-failure') }} ]; then
             echo "ready_for_review=false" >> $GITHUB_OUTPUT
-          else
+          elif [ ${{ contains(github.event.pull_request.labels.*.name, 'test-passing') }} ]; then
             echo "ready_for_review=true" >> $GITHUB_OUTPUT
           fi
 
