@@ -37,7 +37,7 @@ jobs:
         id: check_reviewers
         run: |
           REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
-          if echo "$REQUESTED_TEAMS" | grep -qiE '(backend-review-group|mobile|lighthouse|octo-identity)'; then
+          if echo "$REQUESTED_TEAMS" | grep -qiE '(backend|lighthouse|octo-identity)'; then
             echo "skip_backend_review=true" >> $GITHUB_OUTPUT
           else
             echo "skip_backend_review=false" >> $GITHUB_OUTPUT
