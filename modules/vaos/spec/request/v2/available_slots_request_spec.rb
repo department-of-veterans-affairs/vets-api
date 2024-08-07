@@ -38,6 +38,9 @@ RSpec.describe 'Available Slots Request', type: :request do
               expect(slot['type']).to eq('slots')
               expect(slot['attributes']['start']).to eq('2021-10-26T21:30:00Z')
               expect(slot['attributes']['end']).to eq('2021-10-26T22:00:00Z')
+              expect(slot['attributes']['locationId']).to be_nil
+              expect(slot['attributes']['practitionerName']).to be_nil
+              expect(slot['attributes']['clinicIen']).to be_nil
             end
           end
         end
@@ -78,6 +81,9 @@ RSpec.describe 'Available Slots Request', type: :request do
               expect(slot['type']).to eq('slots')
               expect(slot['attributes']['start']).to eq('2021-10-26T21:30:00Z')
               expect(slot['attributes']['end']).to eq('2021-10-26T22:00:00Z')
+              expect(slot['attributes']['locationId']).to eq('757GC')
+              expect(slot['attributes']['practitionerName']).to eq('Doe, John D, MD')
+              expect(slot['attributes']['clinicIen']).to eq('123')
             end
           end
         end
@@ -97,6 +103,9 @@ RSpec.describe 'Available Slots Request', type: :request do
               expect(slot['type']).to eq('slots')
               expect(slot['attributes']['start']).to eq('2021-10-26T21:30:00Z')
               expect(slot['attributes']['end']).to eq('2021-10-26T22:00:00Z')
+              expect(slot['attributes']['locationId']).to eq('757GC')
+              expect(slot['attributes']['practitionerName']).to eq('Doe, John D, MD')
+              expect(slot['attributes']['clinicIen']).to eq('123')
             end
           end
 
@@ -115,6 +124,9 @@ RSpec.describe 'Available Slots Request', type: :request do
               expect(slot['type']).to eq('slots')
               expect(slot['attributes']['start']).to eq('2021-10-26T21:30:00Z')
               expect(slot['attributes']['end']).to eq('2021-10-26T22:00:00Z')
+              expect(slot['attributes']['locationId']).to eq('757GC')
+              expect(slot['attributes']['practitionerName']).to eq('Doe, John D, MD')
+              expect(slot['attributes']['clinicIen']).to eq('123')
             end
           end
         end

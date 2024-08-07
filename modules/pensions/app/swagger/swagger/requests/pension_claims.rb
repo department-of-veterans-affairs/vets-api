@@ -5,7 +5,7 @@ module Swagger
     class PensionClaims
       include Swagger::Blocks
 
-      swagger_path 'pensions/v0/pension_claims' do
+      swagger_path 'pensions/v0/claims' do
         operation :post do
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm

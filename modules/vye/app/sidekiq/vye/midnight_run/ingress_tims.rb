@@ -4,7 +4,7 @@ module Vye
   class MidnightRun
     class IngressTims
       include Sidekiq::Job
-      sidekiq_options retry: 8, unique_for: 12.hours
+      sidekiq_options retry: 0
 
       def perform
         Vye::BatchTransfer::IngressFiles.tims_load

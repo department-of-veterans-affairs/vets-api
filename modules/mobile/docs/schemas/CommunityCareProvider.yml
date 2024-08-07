@@ -10,6 +10,7 @@ properties:
   id:
     type: string
     example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+    description: Upstream identifier. provider id.
   attributes:
     type: object
     required:
