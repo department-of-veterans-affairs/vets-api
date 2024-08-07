@@ -26,11 +26,15 @@ module BGS
       Rails.logger.info('BGS::SubmitForm686cJob running!', { user_uuid:, saved_claim_id:, icn: })
       instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id)
 
-      submit_forms(encrypted_vet_info)
+      #temp for testing logs
+      vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
+      self.class.send_backup_submission(vet_info, saved_claim_id, user_uuid)
 
-      send_confirmation_email
-      Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
-      InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:) unless claim.submittable_674?
+      # submit_forms(encrypted_vet_info)
+
+      # send_confirmation_email
+      # Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
+      # InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:) unless claim.submittable_674?
     rescue => e
       handle_filtered_errors!(e:, encrypted_vet_info:)
 
