@@ -86,5 +86,12 @@ module Pensions
 
       Pensions::PensionBenefitIntakeJob.perform_async(id, current_user&.user_account_uuid)
     end
+
+    def kms_encryption_context
+      {
+        model_name: 'SavedClaim::Pensions',
+        model_id: id
+      }
+    end
   end
 end
