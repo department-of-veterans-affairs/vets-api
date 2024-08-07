@@ -86,6 +86,7 @@ module HCA
         end
         Rails.logger.info("Job ended with #{StdInstitutionFacility.count} existing facilities.")
       end
+      StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.ves_facilities_import_complete")
     end
   end
 end
