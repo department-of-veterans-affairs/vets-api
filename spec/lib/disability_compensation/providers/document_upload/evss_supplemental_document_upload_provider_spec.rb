@@ -60,10 +60,16 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
   end
 
   describe '#submit_upload_document' do
-    context 'for a valid payload'
-    it 'submits the document via the EVSSDocumentService' do
-      expect_any_instance_of(EVSS::DocumentsService).to receive(:upload).with(file_body, evss_claim_document)
-      provider.submit_upload_document(evss_claim_document)
+    context 'for a valid payload' do
+      let(:faraday_response) { instance_double(Faraday::Response) }
+
+      it 'submits the document via the EVSSDocumentService and returns the API response' do
+        allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
+          .with(file_body, evss_claim_document)
+          .and_return(faraday_response)
+
+        expect(provider.submit_upload_document(evss_claim_document)).to eq(faraday_response)
+      end
     end
   end
 end
