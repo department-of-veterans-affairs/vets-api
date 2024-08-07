@@ -481,9 +481,10 @@ RSpec.describe Form1010cg::Service do
 
   describe '#process_claim_v2!' do
     subject do
-      described_class.new(claim_with_mpi_veteran).process_claim_v2!
+      service.process_claim_v2!
     end
 
+    let(:service) { described_class.new(claim_with_mpi_veteran) }
     let(:mule_soft_client) { instance_double(CARMA::Client::MuleSoftClient) }
     let(:mule_soft_payload) { { fake_payload: 'value' } }
 
@@ -536,9 +537,12 @@ RSpec.describe Form1010cg::Service do
       end
 
       it 'logs claim_guid for any exceptions and raises error' do
-        expect(Rails.logger).to receive(:info).with(
-          "[Form 10-10CG] Submission failed for claim_guid: #{claim_with_mpi_veteran.guid}. Exception: #{exception.message}"
-        )
+        expect(service).to receive(:log_exception_to_sentry)
+          .with(exception, {
+                  form: '10-10CG',
+                  claim_guid: claim_with_mpi_veteran.guid
+                })
+
         expect { subject }.to raise_error(exception)
       end
     end
