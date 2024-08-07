@@ -93,7 +93,7 @@ module MedicalCopays
     # @return [Hash]
     def request_options
       {
-        open_timeout:,
+        open_timeout: 15,
         timeout: 15
       }
     end
