@@ -2,12 +2,17 @@ name: Pull Request Ready for Review
 on:
   pull_request:
      types: [labeled, unlabeled]
+  workflow_run: ["Code Checks"]
+    types: [completed]
+    branches: ['!master']
 
 jobs:
   ready_for_review:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - run: echo "${{ github.event_name }}"
 
       - name: Audit PR Labels
         id: audit_pr_labels
