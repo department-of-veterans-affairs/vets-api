@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-class FormProfiles::VHA107959c < FormProfile
-  FORM_ID = '10-7959C'
+class FormProfiles::VHA1010d < FormProfile
+  FORM_ID = '10-10D'
 
   def metadata
     {
       version: 0,
       prefill: true,
-      returnUrl: '/applicant-info'
+      returnUrl: '/signer-type'
     }
   end
 end
