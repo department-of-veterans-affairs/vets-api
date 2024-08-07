@@ -9,3 +9,6 @@ detectors:
     enabled: false # rubocop takes care of this
   UtilityFunction:
     public_methods_only: true
+  UncommunicativeVariableName:
+    accept:
+      - e
