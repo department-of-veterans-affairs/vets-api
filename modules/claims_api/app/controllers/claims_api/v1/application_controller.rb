@@ -185,7 +185,7 @@ module ClaimsApi
         )
         # Fail fast if mpi_record can't be found
         unless vet.mpi_record?
-          # Purposefully NOT calling the claims_v1_logging method here
+          # Intentionally NOT calling the claims_v1_logging method here
           # to avoid the infinite loop that calling target_veteran there can create
           # While we technically can just pass in icn: nil when doing that I felt it was best
           # to avoid it entirely
