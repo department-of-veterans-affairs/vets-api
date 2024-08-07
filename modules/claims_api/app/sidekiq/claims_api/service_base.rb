@@ -4,6 +4,7 @@ require 'sidekiq'
 require 'claims_api/claim_logger'
 require 'sidekiq/monitored_worker'
 require 'sentry_logging'
+require 'lib/claims_api/v2/error/error_base'
 
 module ClaimsApi
   class ServiceBase
@@ -71,19 +72,19 @@ module ClaimsApi
       auto_claim.save!
     end
 
-    def get_error_message(error)
-      if error.respond_to? :original_body
-        error.original_body
-      elsif error.respond_to? :message
-        error.message
-      elsif error.respond_to? :errors
-        error.errors
-      elsif error.respond_to? :detailed_message
-        error.detailed_message
-      else
-        error
-      end
-    end
+    # def get_error_message(error)
+    #   if error.respond_to? :original_body
+    #     error.original_body
+    #   elsif error.respond_to? :message
+    #     error.message
+    #   elsif error.respond_to? :errors
+    #     error.errors
+    #   elsif error.respond_to? :detailed_message
+    #     error.detailed_message
+    #   else
+    #     error
+    #   end
+    # end
 
     def get_error_key(error_message)
       return error_message if error_message.is_a? String
@@ -159,6 +160,15 @@ module ClaimsApi
       elsif poa_form_data.key?('representative') # V2 2122a
         poa_form_data['representative']['poaCode']
       end
+    end
+
+    def error_base(error)
+      ClaimsApi::V2::Error::ErrorBase.new(error)
+    end
+
+    def set_error_response(auto_claim)
+      auto_claim.evss_response = error_base(e).get_error_message
+      auto_claim.save
     end
   end
 end

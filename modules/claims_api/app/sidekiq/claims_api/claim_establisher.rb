@@ -44,12 +44,12 @@ module ClaimsApi
       queue_special_issues_updater(auto_claim.special_issues, auto_claim)
     rescue ::Common::Exceptions::BackendServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = get_error_message(e)
+      auto_claim.evss_response = error_base(error).get_error_message(e)
       auto_claim.form_data = orig_form_data
       auto_claim.save
     rescue => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = get_error_message(e)
+      auto_claim.evss_response = error_base(error).get_error_message(e)
       auto_claim.form_data = orig_form_data
       auto_claim.save
       raise e

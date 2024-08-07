@@ -50,14 +50,15 @@ module ClaimsApi
       ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:, original_filename:)
     # Temporary errors (returning HTML, connection timeout), retry call
     rescue Faraday::ParsingError, Faraday::TimeoutError => e
-      message = get_error_message(e)
+      message = error_base(e).get_error_message
+      claim.evss_response = message
       ClaimsApi::Logger.log('lighthouse_claim_uploader',
                             retry: true,
                             detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
       raise e
     # Check to determine if job should be retried based on status code
     rescue ::Common::Exceptions::BackendServiceException => e
-      message = get_error_message(e)
+      message = error_base(e).get_error_message
       if will_retry_status_code?(e)
         ClaimsApi::Logger.log('lighthouse_claim_uploader',
                               retry: true,
@@ -71,11 +72,14 @@ module ClaimsApi
           detail: 'ClaimUploader job failed',
           error: message
         )
+        claim.evss_response = message
         {}
       end
     # Permanent failures, don't retry
     rescue => e
-      message = get_error_message(e)
+      message = error_base(e).get_error_message
+      claim.evss_response = message
+
       ClaimsApi::Logger.log('lighthouse_claim_uploader',
                             retry: false,
                             detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")

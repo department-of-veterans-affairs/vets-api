@@ -30,7 +30,7 @@ module ClaimsApi
                          'BD upload succeeded, Claim workflow finished')
       # Temporary errors (returning HTML, connection timeout), retry call
       rescue => e
-        error_message = get_error_message(e)
+        error_message = error_base(e).get_error_message
         log_job_progress(claim_id,
                          "BD failure #{e.class}: #{error_message}")
         log_exception_to_sentry(e)

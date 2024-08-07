@@ -4,6 +4,7 @@ require 'claims_api/v2/benefits_documents/service'
 require 'claims_api/claim_logger'
 require 'common/client/errors'
 require 'custom_error'
+require 'lib/claims_api/v2/error/error_base'
 
 module ClaimsApi
   ##
@@ -96,6 +97,15 @@ module ClaimsApi
 
       def error_handler(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
         ClaimsApi::CustomError.new(error, async).build_error
+      end
+
+      def error_base(error)
+        ClaimsApi::V2::Error::ErrorBase.new(error)
+      end
+
+      def set_error_response(auto_claim)
+        auto_claim.evss_response = error_base(e).get_error_message
+        auto_claim.save
       end
     end
   end

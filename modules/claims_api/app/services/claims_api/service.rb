@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lib/claims_api/v2/error/error_base'
+
 module ClaimsApi
   class Service
     def self.process(**args)
@@ -40,6 +42,15 @@ module ClaimsApi
 
     def set_errored_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
+    end
+
+    def error_base(error)
+      ClaimsApi::V2::Error::ErrorBase.new(error)
+    end
+
+    def set_error_response(auto_claim)
+      auto_claim.evss_response = error_base(e).get_error_message
+      auto_claim.save
     end
   end
 end

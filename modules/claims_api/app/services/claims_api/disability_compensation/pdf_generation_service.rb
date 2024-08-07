@@ -20,7 +20,7 @@ module ClaimsApi
         if pdf_string.empty?
           log_service_progress(auto_claim.id, 'pdf',
                                '526EZ PDF generator failed to return PDF string for claim')
-
+          set_error_response(auto_claim)
           set_errored_state_on_claim(auto_claim)
         elsif pdf_string
           log_service_progress(auto_claim.id, 'pdf',
