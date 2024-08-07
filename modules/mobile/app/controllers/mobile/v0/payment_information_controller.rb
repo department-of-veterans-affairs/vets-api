@@ -22,19 +22,13 @@ module Mobile
 
       def index
         payment_information = if lighthouse?
-                                lighthouse_adapter.parse(lighthouse_service.get_payment_info)
+                                raw_data = lighthouse_adapter.parse(lighthouse_service.get_payment_info)
+                                Mobile::V0::PaymentInformation.create_from_upstream(raw_data, current_user.uuid)
                               else
-                                evss_proxy.get_payment_information
+                                raw_data = evss_proxy.get_payment_information
+                                Mobile::V0::PaymentInformation.legacy_create_from_upstream(raw_data, current_user.uuid)
                               end
-        hashified = payment_information.to_h.transform_values(&:to_h)
-        hashified[:id] = @current_user.uuid
-        unless Flipper.enabled?(:mobile_lighthouse_direct_deposit, @current_user)
-          hashified.control_information.merge(can_update_payment: hashified.control_information.authorized?)
-        end
-        hashified[:account_control] = hashified.delete(:control_information)
-        hashified[:payment_account][:account_number] = StringHelpers.mask_sensitive(hashified[:payment_account][:account_number])
-        pi = Mobile::V0::PaymentInformation.new(hashified)
-        foo = Mobile::V0::PaymentInformationSerializer.new(pi)
+        foo = Mobile::V0::PaymentInformationSerializer.new(payment_information)
 
         render json: foo
       end
@@ -65,7 +59,7 @@ module Mobile
       private
 
       def evss_proxy
-        @evss_proxy ||= Mobile::V0::PaymentInformation::Proxy.new(@current_user)
+        @evss_proxy ||= Mobile::V0::LegacyPaymentInformation::Proxy.new(@current_user)
       end
 
       def evss_ppiu_params

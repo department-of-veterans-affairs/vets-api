@@ -24,6 +24,21 @@ module Mobile
         attribute :account_number, Types::String
         attribute :financial_institution_routing_number, Types::String
       end
+
+      def self.create_from_upstream(record, user_uuid)
+        record = record.to_h.transform_values(&:to_h)
+        record[:id] = user_uuid
+        record[:account_control] = record.delete(:control_information)
+        record[:payment_account][:account_number] = StringHelpers.mask_sensitive(record[:payment_account][:account_number])
+        new(record)
+      end
+
+      def self.legacy_create_from_upstream(record, user_uuid)
+        prepared_record = { id: user_uuid, account_control: record.control_information.to_h, payment_account: record.payment_account.to_h }
+        prepared_record[:account_control][:can_update_payment] = record.control_information.authorized?
+        prepared_record[:payment_account][:account_number] = StringHelpers.mask_sensitive(prepared_record[:payment_account][:account_number])
+        new(prepared_record)
+      end
     end
   end
 end

@@ -181,6 +181,9 @@ RSpec.describe 'payment information', type: :request do
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
                                                          headers: sis_headers(json: true)
+
+binding.pry
+
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(post_payment_info_body)
           expect(response.body).to match_json_schema('payment_information')
