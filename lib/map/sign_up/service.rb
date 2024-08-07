@@ -10,11 +10,11 @@ module MAP
 
       def status(icn:)
         response = perform(:get, config.status_unauthenticated_path(icn), nil)
-        Rails.logger.info("#{config.logging_prefix} status success, icn: #{icn}")
+        logger.info("#{logging_prefix} status success, icn: #{icn}")
         build_response(response.body)
       rescue Common::Client::Errors::ParsingError => e
-        message = "#{config.logging_prefix} status response parsing error"
-        Rails.logger.error(message, { icn: })
+        message = "#{logging_prefix} status response parsing error"
+        logger.error(message, { icn: })
         raise e, "#{message}, response unknown, icn: #{icn}"
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, 'status')
@@ -25,10 +25,10 @@ module MAP
                 config.patients_agreements_path(icn),
                 agreements_body(icn, signature_name, version),
                 authenticated_header(icn))
-        Rails.logger.info("#{config.logging_prefix} agreements accept success, icn: #{icn}")
+        logger.info("#{logging_prefix} agreements accept success, icn: #{icn}")
       rescue Common::Client::Errors::ParsingError => e
-        message = "#{config.logging_prefix} agreements accept response parsing error"
-        Rails.logger.error(message, { icn: })
+        message = "#{logging_prefix} agreements accept response parsing error"
+        logger.error(message, { icn: })
         raise e, "#{message}, response unknown, icn: #{icn}"
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, 'agreements accept')
@@ -36,10 +36,10 @@ module MAP
 
       def agreements_decline(icn:)
         perform(:delete, config.patients_agreements_path(icn), nil, authenticated_header(icn))
-        Rails.logger.info("#{config.logging_prefix} agreements decline success, icn: #{icn}")
+        logger.info("#{logging_prefix} agreements decline success, icn: #{icn}")
       rescue Common::Client::Errors::ParsingError => e
-        message = "#{config.logging_prefix} agreements decline response parsing error"
-        Rails.logger.error(message, { icn: })
+        message = "#{logging_prefix} agreements decline response parsing error"
+        logger.error(message, { icn: })
         raise e, "#{message}, response unknown, icn: #{icn}"
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, 'agreements decline')
@@ -52,8 +52,8 @@ module MAP
                            config.authenticated_provisioning_header)
         successful_update_provisioning_response(response, icn)
       rescue Common::Client::Errors::ParsingError => e
-        message = "#{config.logging_prefix} update provisioning response parsing error"
-        Rails.logger.error(message, { icn: })
+        message = "#{logging_prefix} update provisioning response parsing error"
+        logger.error(message, { icn: })
         raise e, "#{message}, response unknown, icn: #{icn}"
       rescue Common::Client::Errors::ClientError => e
         if config.provisioning_acceptable_status.include?(e.status)
@@ -92,8 +92,8 @@ module MAP
       def successful_update_provisioning_response(response, icn)
         parsed_response = build_response(response.body)
 
-        Rails.logger.info("#{config.logging_prefix} update provisioning success," \
-                          " icn: #{icn}, parsed_response: #{parsed_response}")
+        logger.info("#{logging_prefix} update provisioning success," \
+                    " icn: #{icn}, parsed_response: #{parsed_response}")
 
         parsed_response
       end
@@ -108,7 +108,7 @@ module MAP
           message: parsed_body['message'],
           trace_id: parsed_body['traceId']
         }.compact
-        raise e, "#{config.logging_prefix} #{action} failed, client error, status: #{status}," \
+        raise e, "#{logging_prefix} #{action} failed, client error, status: #{status}," \
                  " icn: #{icn}, context: #{context}"
       end
 
@@ -119,6 +119,14 @@ module MAP
           cerner_provisioned: response_body['cernerProvisioned'],
           bypass_eligible: response_body['bypassEligible']
         }
+      end
+
+      def logger
+        Rails.logger
+      end
+
+      def logging_prefix
+        config.logging_prefix
       end
     end
   end
