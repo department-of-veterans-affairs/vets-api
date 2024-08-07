@@ -10,6 +10,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Audit PR Labels
+        id: audit_pr_labels
         run: |
           if [ ${{ contains(github.event.pull_request.labels.*.name, 'audit-service-failure') }} ]; then
             echo "ready_for_review=false" >> $GITHUB_OUTPUT
@@ -29,7 +30,7 @@ jobs:
 
       - name: Add Review label
         uses: actions-ecosystem/action-add-labels@v1
-        if: steps.check_reviewers.outputs.ready_for_review == 'true'
+        if: steps.audit_pr_labels.outputs.ready_for_review == 'true'
         with:
           fail_on_error: true
           number: ${{ github.event.pull_request.number }}
@@ -38,7 +39,7 @@ jobs:
 
       - name: Remove Review label
         uses: actions-ecosystem/action-remove-labels@v1
-        if: steps.check_reviewers.outputs.ready_for_review == 'false'
+        if: steps.audit_pr_labels.outputs.ready_for_review == 'false'
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
