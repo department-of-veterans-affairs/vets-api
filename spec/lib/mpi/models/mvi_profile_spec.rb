@@ -48,32 +48,6 @@ describe MPI::Models::MviProfile do
     end
   end
 
-  describe '#multiple_sec_ids?' do
-    context 'with no sec_id' do
-      subject { build(:mpi_profile, sec_id: nil) }
-
-      it 'returns false' do
-        expect(subject.multiple_sec_ids?).to be false
-      end
-    end
-
-    context 'with a single sec_id' do
-      subject { build(:mpi_profile, sec_id: '1234567890') }
-
-      it 'returns false' do
-        expect(subject.multiple_sec_ids?).to be false
-      end
-    end
-
-    context 'with multiple sec_ids' do
-      subject { build(:mpi_profile, sec_ids: %w[1234567890 0987654321]) }
-
-      it 'returns true' do
-        expect(subject.multiple_sec_ids?).to be true
-      end
-    end
-  end
-
   describe '#normalized_suffix' do
     context 'with a non-nil suffix' do
       cases = {

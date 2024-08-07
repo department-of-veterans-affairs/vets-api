@@ -136,11 +136,6 @@ class MPIData < Common::RedisStore
   # @return [String] the home_phone
   delegate :home_phone, to: :profile, allow_nil: true
 
-  # The presence or absence of multiple sec_ids
-  #
-  # @return [Boolean] presence or absence of multiple sec_ids
-  delegate :multiple_sec_ids?, to: :profile, allow_nil: true
-
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
   # @return [MPI::Models::MviProfile] patient 'golden record' data from MVI

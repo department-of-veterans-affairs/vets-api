@@ -29,10 +29,6 @@ module MPI
       def mhv_correlation_id
         @active_mhv_ids&.first
       end
-
-      def multiple_sec_ids?
-        sec_ids.present? && sec_ids.size > 1
-      end
     end
   end
 end

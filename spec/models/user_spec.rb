@@ -165,26 +165,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#multiple_sec_ids?' do
-    let(:sec_ids) { %w[1234567890 0987654321] }
-    let(:mpi_profile) { build(:mpi_profile, sec_ids:) }
-    let(:user) { build(:user, :loa3, mpi_profile:) }
-
-    context 'when multiple sec ids exist' do
-      it 'returns true' do
-        expect(user).to be_multiple_sec_ids
-      end
-    end
-
-    context 'when only one sec id exists' do
-      let(:sec_ids) { %w[1234567890] }
-
-      it 'returns false' do
-        expect(user).not_to be_multiple_sec_ids
-      end
-    end
-  end
-
   describe '.create()' do
     context 'with LOA 1' do
       subject(:loa1_user) { described_class.new(build(:user, loa: loa_one)) }
