@@ -49,6 +49,9 @@ module ClaimsApi
         return if require_birls && target_veteran.participant_id.present? && target_veteran.birls_id.present?
 
         if require_birls && target_veteran.participant_id.present? && target_veteran.birls_id.blank?
+          claims_v1_logging('unable_to_locate_birls',
+                            message: 'unable_to_locate_birls on request in v1 application controller.')
+
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's BIRLS ID in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
