@@ -63,20 +63,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker Image
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
-        with:
-          build-args: |
-            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-            USER_ID=${{ env.VETS_API_USER_ID }}
-          context: .
-          push: false
-          load: true
-          tags: vets-api
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # - name: Build Docker Image
+      #   uses: docker/build-push-action@v6
+      #   env:
+      #     DOCKER_BUILD_SUMMARY: false
+      #   with:
+      #     build-args: |
+      #       BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      #       USER_ID=${{ env.VETS_API_USER_ID }}
+      #     context: .
+      #     push: false
+      #     load: true
+      #     tags: vets-api
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
       - name: Setup Caching for Docker Compose
         uses: yu-ichiro/spin-up-docker-compose-action@main
