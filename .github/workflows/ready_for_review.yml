@@ -35,7 +35,6 @@ jobs:
         uses: actions-ecosystem/action-add-labels@v1
         if: steps.audit_pr_labels.outputs.ready_for_review != 'false'
         with:
-          fail_on_error: true
           number: ${{ github.event.pull_request.number }}
           labels: |
             ready-for-backend-review
