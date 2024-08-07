@@ -60,6 +60,7 @@ RSpec.describe EducationForm::Forms::VA1995 do
     %w[
       ch30_guardian_not_graduated
       ch30_guardian_graduated_sponsor
+      ch30_guardian_graduated
     ].each do |test_application|
       test_spool_file('1995', test_application)
     end
@@ -74,6 +75,7 @@ RSpec.describe EducationForm::Forms::VA1995 do
     %w[
       ch30_guardian_not_graduated
       ch30_guardian_graduated_sponsor
+      ch30_guardian_graduated
     ].each do |test_application|
       test_spool_file('1995', test_application)
     end
