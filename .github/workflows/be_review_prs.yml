@@ -47,6 +47,8 @@ jobs:
 
       - run: echo "$REQUESTED_TEAMS"
 
+      - run: echo "${{ steps.check_reviewers.outputs.skip_backend_review }}"
+
       - name: Get backend-review-group members
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: get_team_members
