@@ -25,9 +25,7 @@ RSpec.describe V0::InProgressFormsController do
     end
 
     describe '#index' do
-      subject do
-        get v0_in_progress_forms_url, params: nil
-      end
+      subject { get v0_in_progress_forms_url, params: nil }
 
       let(:user) { loa3_user }
       let!(:in_progress_form_edu) do
@@ -37,15 +35,12 @@ RSpec.describe V0::InProgressFormsController do
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
+        let(:response_body) { JSON.parse(response.body) }
         let(:top_level_keys) { response_body.keys }
         let(:data) { response_body['data'] }
         let(:in_progress_form_with_nested_hash) { data.find { |ipf| ipf['attributes']['metadata']['howNow'] } }
         let(:metadata_returned_with_the_request) { in_progress_form_with_nested_hash['attributes']['metadata'] }
         let(:metadata_before_the_request) { in_progress_form_edu.metadata }
-
-        def response_body
-          JSON.parse response.body
-        end
 
         it 'returns a 200' do
           subject
@@ -110,6 +105,7 @@ RSpec.describe V0::InProgressFormsController do
             subject
             expect(metadata_before_the_request['howNow']['brown-cow']['-an eas-i-ly corRupted KEY.'])
               .to be_present
+            expect(metadata_returned_with_the_request['howNow']['brownCow']).to be_present
             expect(metadata_returned_with_the_request['howNow']['brownCow']['-an eas-i-ly corRupted KEY.'])
               .not_to be_present
           end
@@ -314,7 +310,9 @@ RSpec.describe V0::InProgressFormsController do
             'createdAt' => 1_483_228_800,
             'expiresAt' => 1_488_412_800, # <- these are inserted by the model on access, and will always be camelCase
             'lastUpdated' => 1_483_228_800, # now so that the front end will always receive camelCase (with or without
-            'inProgressFormId' => in_progress_form.id # the inflection header)
+            'inProgressFormId' => in_progress_form.id, # the inflection header)
+            'submission' => { 'status' => false, 'error_message' => false, 'id' => false, 'timestamp' => false,
+                              'has_attempted_submit' => false }
           )
         end
 

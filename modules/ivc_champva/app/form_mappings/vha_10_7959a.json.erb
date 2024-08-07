@@ -31,7 +31,7 @@
   "form1[0].#subform[0].SignatureMiddleInitial[0]":                           "<%= form.data.dig('certifier_name', 'middle') %>",
   "form1[0].#subform[0].SignatureFirstName[0]":                               "<%= form.data.dig('certifier_name', 'first') %>",
   "form1[0].#subform[0].SignatureLastName[0]":                                "<%= form.data.dig('certifier_name', 'last') %>",
-  "form1[0].#subform[0].relationshipToApplicant[0]":                          "<%= form.data.dig('certifier_relationship') !== 'other' ? 
+  "form1[0].#subform[0].relationshipToApplicant[0]":                          "<%= form.data.dig('certifier_relationship') != 'other' ? 
                                                                                    form.data.dig('certifier_relationship') : 
                                                                                    form.data.dig('certifier_other_relationship') %>",
   "form1[0].#subform[0].SignatureTelephoneNumber[0]":                         "<%= form.data.dig('certifier_phone') %>",

@@ -10,6 +10,7 @@ properties:
   id:
     type: string
     example: "3230323230383032313833303A323032323038303231393030"
+    description: Upstream identifier
   attributes:
     type: object
     required:
@@ -22,3 +23,12 @@ properties:
       end_date:
         type: string
         example: 2022-08-5T12:30:00Z
+      locationId:
+        type: string
+        example: "757GC"
+      practitionerName:
+        type: string
+        example: "Doe, John D, MD"
+      clinicIen:
+        type: string
+        example: "32216049"
