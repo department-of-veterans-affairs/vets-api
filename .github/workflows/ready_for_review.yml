@@ -18,7 +18,7 @@ jobs:
       - name: Audit PR Labels
         id: audit_pr_labels
         run: |
-          if [ ${{ contains(github.event.pull_request.labels.*.name, 'audit-service-failure') }} ]; then
+          if [ ${{ contains(github.event.pull_request.labels.*.name, 'audit-service-failure') }} == 'true' ]; then
             echo "ready_for_review=false" >> $GITHUB_OUTPUT
           elif [ ${{ contains(github.event.pull_request.labels.*.name, 'code-health-failure') }} ]; then
             echo "ready_for_review=false" >> $GITHUB_OUTPUT
