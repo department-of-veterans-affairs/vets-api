@@ -17,11 +17,19 @@ module IvcChampva
       @name = name || form_number
     end
 
-    def generate(current_loa = nil)
+    def generate(current_loa = nil) # rubocop:disable Metrics/MethodLength
       template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
-      generated_form_path = "tmp/#{name}-tmp.pdf"
-      stamped_template_path = "tmp/#{name}-stamped.pdf"
-      FileUtils.copy(template_form_path, stamped_template_path)
+      generated_form_path = Rails.root.join("tmp/#{name}-tmp.pdf").to_s
+      stamped_template_path = Rails.root.join("tmp/#{name}-stamped.pdf").to_s
+
+      # Tempfile workaround inspired by this and SimpleForms:
+      #   https://github.com/actions/runner-images/issues/4443#issuecomment-965391736
+      tempfile = Tempfile.new(['', '.pdf'], Rails.root.join('tmp')).tap do |tmpfile|
+        IO.copy_stream(template_form_path, tmpfile)
+        tmpfile.close
+      end
+      FileUtils.touch(tempfile)
+      FileUtils.copy_file(tempfile.path, stamped_template_path)
 
       if File.exist? stamped_template_path
         begin
