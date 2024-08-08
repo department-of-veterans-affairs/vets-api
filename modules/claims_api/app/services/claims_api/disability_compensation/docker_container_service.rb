@@ -26,7 +26,7 @@ module ClaimsApi
         # update with the evss_id returned
         auto_claim.update!(evss_id: evss_res[:claimId])
       rescue => e
-        auto_claim.evss_response = e.errors
+        auto_claim.evss_response = e&.errors if e.methods.include?(:errors)
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
         auto_claim.save
       end

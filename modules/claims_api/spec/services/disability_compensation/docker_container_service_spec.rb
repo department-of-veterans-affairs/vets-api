@@ -56,5 +56,35 @@ describe ClaimsApi::DisabilityCompensation::DockerContainerService do
           .to eq(claim_with_transaction_id.transaction_id)
       end
     end
+
+    context 'the error is saved to the claim in the evss response' do
+      errors = {
+        messages: [
+          {
+            'key' => 'header.va_eauth_birlsfilenumber.Invalid',
+            'severity' => 'ERROR',
+            'text' => 'Size must be between 8 and 9'
+          }
+        ]
+      }
+
+      let(:backend_error) do
+        Common::Exceptions::BackendServiceException.new(
+          { status: 400, detail: nil, code: 'VA900', source: nil },
+          400,
+          errors
+        )
+      end
+
+      it 'sets the evss_response to the original body error message' do
+        VCR.use_cassette('/claims_api/evss/error', record: :all) do
+          docker_container_service.send(:upload, claim.id)
+          allow(docker_container_service).to receive(:upload).with(claim.id).and_return(backend_error)
+
+          claim.reload
+          expect(claim.evss_response).to eq([''])
+        end
+      end
+    end
   end
 end
