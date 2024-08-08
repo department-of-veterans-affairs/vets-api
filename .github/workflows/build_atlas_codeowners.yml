@@ -48,4 +48,3 @@ jobs:
           user_email: 'devops@va.gov'
           user_name: 'va-vsp-bot'
           commit_message: 'Auto update Atlas with Vets-API CODEOWNERS'
-

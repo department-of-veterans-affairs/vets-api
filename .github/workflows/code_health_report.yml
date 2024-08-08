@@ -24,3 +24,19 @@ jobs:
           PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
           PRONTO_GITHUB_ACCESS_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: pronto run -f github_status github_pr_review -c origin/${{ github.base_ref }}
+
+      - name: Add Failure label
+        uses: actions-ecosystem/action-add-labels@v1
+        if:  ${{ failure() }}
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            code-health-failure
+
+      - name: Remove Failure label
+        uses: actions-ecosystem/action-remove-labels@v1
+        if: ${{ success() }}
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            code-health-failure
