@@ -49,9 +49,10 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
     end
 
     it 'pulls from the correct Lighthouse provider according to the startedFormVersion' do
-      allow_any_instance_of(LighthouseGeneratePdfProvider).to receive(:generate_526_pdf).and_return(Faraday::Response.new(
-                                                                                                      status: 200, body: '526pdf'
-                                                                                                    ))
+      allow_any_instance_of(LighthouseGeneratePdfProvider).to receive(:generate_526_pdf)
+        .and_return(Faraday::Response.new(
+                      status: 200, body: '526pdf'
+                    ))
 
       expect(ApiProviderFactory).to receive(:call).with(
         {

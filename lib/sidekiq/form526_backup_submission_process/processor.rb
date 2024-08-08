@@ -330,8 +330,8 @@ module Sidekiq
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
 
-        formVersion = submission.saved_claim.parsed_form['startedFormVersion']
-        if formVersion.present?
+        form_version = submission.saved_claim.parsed_form['startedFormVersion']
+        if form_version.present?
           resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json)
           content = resp.env.response_body
         else
@@ -451,8 +451,8 @@ module Sidekiq
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
 
-        formVersion = submission.saved_claim.parsed_form['startedFormVersion']
-        if formVersion.present?
+        form_version = submission.saved_claim.parsed_form['startedFormVersion']
+        if form_version.present?
           resp = get_from_non_breakered_service(headers, ApiProviderFactory::API_PROVIDER[:lighthouse],
                                                 form_json.to_json)
           content = resp.env.response_body
