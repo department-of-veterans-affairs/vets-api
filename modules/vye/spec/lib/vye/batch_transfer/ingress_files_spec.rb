@@ -3,32 +3,35 @@
 require 'rails_helper'
 
 RSpec.describe Vye::BatchTransfer::IngressFiles do
-  describe '#bdn_feed_filename' do
+  describe '::bdn_feed_filename' do
     it 'returns a string' do
       expect(described_class.send(:bdn_feed_filename)).to be_a(String)
     end
   end
 
-  describe '#tims_feed_filename' do
+  describe '::tims_feed_filename' do
     it 'returns a string' do
       expect(described_class.send(:tims_feed_filename)).to be_a(String)
     end
   end
 
-  it 'imports lines from BDN extract' do
-    data = Vye::Engine.root / 'spec/fixtures/bdn_sample/WAVE.txt'
-    expect do
-      described_class.send(:bdn_import, data)
-    end.to(
-      change(Vye::UserProfile, :count).by(1).and(
-        change(Vye::UserInfo, :count).by(1).and(
-          change(Vye::Award, :count).by(1)
+  describe '::bdn_import' do
+    let(:data) { Vye::Engine.root / 'spec/fixtures/bdn_sample/WAVE.txt' }
+
+    it 'imports the data from the bdn feed' do
+      expect do
+        described_class.send(:bdn_import, data)
+      end.to(
+        change(Vye::UserProfile, :count).by(1).and(
+          change(Vye::UserInfo, :count).by(1).and(
+            change(Vye::Award, :count).by(1)
+          )
         )
       )
-    )
+    end
   end
 
-  describe 'imports lines from TIMS extract' do
+  describe '::tims_import' do
     before do
       create(:vye_user_profile_fresh_import, ssn: '441972624', file_number: '227366592')
       create(:vye_user_profile_fresh_import, ssn: '596100167', file_number: '662929072')
@@ -55,41 +58,27 @@ RSpec.describe Vye::BatchTransfer::IngressFiles do
     end
   end
 
-  it 'loads the BDN feed from AWS' do
-    path = instance_double(Pathname)
-    expect(Rails.root).to receive(:/).once.and_return(path)
-    expect(Rails.root).to receive(:/).and_call_original
+  describe '::tims_load' do
+    let(:file) { instance_double(Pathname) }
 
-    allow(path).to receive(:basename)
-    allow(path).to receive(:dirname).and_return(path)
-    allow(path).to receive(:mkpath)
-    expect(path).to receive(:delete)
+    it 'downloads the dataset and laods it in to the database' do
+      expect(described_class).to receive(:download).and_yield(file)
+      expect(described_class).to receive(:tims_feed_filename)
+      expect(described_class).to receive(:tims_import).with(file)
 
-    s3_client = instance_double(Aws::S3::Client)
-    expect(described_class).to receive(:s3_client).and_return(s3_client)
-    expect(s3_client).to receive(:get_object)
-
-    expect(described_class).to receive(:bdn_import)
-
-    described_class.bdn_load
+      described_class.tims_load
+    end
   end
 
-  it 'loads the TIMS feed from AWS' do
-    path = instance_double(Pathname)
-    expect(Rails.root).to receive(:/).once.and_return(path)
-    expect(Rails.root).to receive(:/).and_call_original
+  describe '::bdn_load' do
+    let(:file) { instance_double(Pathname) }
 
-    allow(path).to receive(:basename)
-    allow(path).to receive(:dirname).and_return(path)
-    allow(path).to receive(:mkpath)
-    expect(path).to receive(:delete)
+    it 'downloads the dataset and laods it in to the database' do
+      expect(described_class).to receive(:download).and_yield(file)
+      expect(described_class).to receive(:bdn_feed_filename)
+      expect(described_class).to receive(:bdn_import).with(file)
 
-    s3_client = instance_double(Aws::S3::Client)
-    expect(described_class).to receive(:s3_client).and_return(s3_client)
-    expect(s3_client).to receive(:get_object)
-
-    expect(described_class).to receive(:tims_import)
-
-    described_class.tims_load
+      described_class.bdn_load
+    end
   end
 end
