@@ -7,6 +7,8 @@ module VAProfile
   module MilitaryPersonnel
     class ServiceHistoryResponse < VAProfile::Response
       attribute :episodes, Array
+      attribute :uniformed_service_initial_entry_date, String
+      attribute :release_from_active_duty_date, String
 
       def self.from(current_user, raw_response = nil)
         body = raw_response&.body
@@ -17,7 +19,9 @@ module VAProfile
 
         new(
           raw_response&.status,
-          episodes: episodes ? sort_by_begin_date(episodes) : episodes
+          episodes: episodes ? sort_by_begin_date(episodes) : episodes,
+          uniformed_service_initial_entry_date: get_uniformed_service_initial_entry_date(body),
+          release_from_active_duty_date: get_release_from_active_duty_date(body)
         )
       end
 
@@ -39,6 +43,22 @@ module VAProfile
           episode_type)
 
         episodes&.map { |e| VAProfile::Models::ServiceHistory.build_from(e, episode_type) }
+      end
+
+      def self.get_uniformed_service_initial_entry_date(body)
+        body&.dig(
+          'profile',
+          'military_person',
+          'military_service_history',
+          'uniformed_service_initial_entry_date')
+      end
+
+      def self.get_release_from_active_duty_date(body)
+        body&.dig(
+          'profile',
+          'military_person',
+          'military_service_history',
+          'release_from_active_duty_date')
       end
 
       def self.sort_by_begin_date(service_episodes)
