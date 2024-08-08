@@ -48,7 +48,7 @@ jobs:
           !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
           !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
         run: |
-          echo "skip_backend_review=true" >> $GITHUB_OUTPUT
+          echo "skip_backend_review=false" >> $GITHUB_OUTPUT
 
       - name: Check required submitted reviewers
         id: check_submitted_reviewers
@@ -58,7 +58,7 @@ jobs:
           !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'lighthouse') ||
           !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'identity')
         run: |
-          echo "skip_backend_review=true" >> $GITHUB_OUTPUT
+          echo "skip_backend_review=false" >> $GITHUB_OUTPUT
 
       - name: Get backend-review-group members
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
