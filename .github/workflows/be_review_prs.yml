@@ -46,7 +46,7 @@ jobs:
           github.event_name == 'pull_request' &&
           !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
           !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
-          !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity') )
+          !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
         run: |
           skip_backend_review=true" >> $GITHUB_OUTPUT
 
@@ -56,7 +56,7 @@ jobs:
           github.event_name == 'pull_request_review' &&
           !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'mobile') ||
           !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'lighthouse') ||
-          !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'identity') )
+          !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'identity')
         run: |
           skip_backend_review=true" >> $GITHUB_OUTPUT
 
