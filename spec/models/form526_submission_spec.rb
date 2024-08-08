@@ -27,6 +27,10 @@ RSpec.describe Form526Submission do
   let(:submit_endpoint) { nil }
   let(:backup_submitted_claim_status) { nil }
 
+  before do
+    Flipper.disable(:disability_compensation_production_tester)
+  end
+
   describe 'associations' do
     it { is_expected.to have_many(:form526_submission_remediations) }
   end
