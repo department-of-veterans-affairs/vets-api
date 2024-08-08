@@ -161,11 +161,11 @@ module SignIn
       handle_error("#{attribute_description} Detected", code, error: Errors::MPILockedAccountError) if attribute
     end
 
-    def check_id_mismatch(id_array, id_description, code, prevent_auth: true)
-      error = prevent_auth ? Errors::MPIMalformedAccountError : nil
-
+    def check_id_mismatch(id_array, id_description, code)
       if id_array && id_array.compact.uniq.size > 1
-        handle_error("User attributes contain multiple distinct #{id_description} values", code, error:)
+        handle_error("User attributes contain multiple distinct #{id_description} values",
+                     code,
+                     error: Errors::MPIMalformedAccountError)
       end
     end
 
