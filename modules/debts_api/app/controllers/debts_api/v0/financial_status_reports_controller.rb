@@ -10,6 +10,8 @@ module DebtsApi
       service_tag 'financial-report'
       before_action { authorize :debt, :access? }
 
+      STATSD_KEY_PREFIX = 'api.dmc'
+
       rescue_from DebtsApi::V0::FinancialStatusReportService::FSRNotFoundInRedis, with: :render_not_found
 
       def create
@@ -345,9 +347,11 @@ module DebtsApi
       end
 
       def full_transform_service
+        StatsD.increment("#{STATSD_KEY_PREFIX}.fsr_form_full_transform.run")
         Rails.logger.info(full_transform_logging('info'))
         DebtsApi::V0::FsrFormTransform::FullTransformService.new(full_transform_form)
       rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.fsr_form_full_transform.error")
         Rails.logger.error(full_transform_logging('error'))
         Rails.logger.error(e.backtrace&.join('\n'))
 
