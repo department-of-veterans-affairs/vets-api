@@ -81,7 +81,7 @@ jobs:
 
       - name: Whole PR
         if:  github.event_name == 'pull_request'
-        run: echo "${{ github.event.pull_request }}"
+        run: echo "${{ github.event.pull_request.review_comments }}"
 
       - name: Backend Status outpus
         run: echo "${{ steps.check_backend_review_group_approval_status.outputs.data }}"
