@@ -14,6 +14,14 @@ module Lighthouse
     STATSD_KEY_PREFIX = 'worker.lighthouse.income_and_assets_intake_job'
     INCOME_AND_ASSETS_SOURCE = 'app/sidekiq/lighthouse/income_and_assets_intake_job.rb'
 
+    ##
+    # Process income and assets pdfs and upload to Benefits Intake API
+    #
+    # @param saved_claim_id [Integer] the pension claim id
+    # @param user_account_uuid [UUID] the user submitting the form
+    #
+    # @return [UUID] benefits intake upload uuid
+    #
     def perform(saved_claim_id, user_account_id = nil)
       return unless Flipper.enabled?(:pension_income_and_assets_clarification)
 

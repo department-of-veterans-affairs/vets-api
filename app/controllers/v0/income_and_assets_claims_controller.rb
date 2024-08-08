@@ -7,14 +7,17 @@ module V0
     before_action :check_flipper_flag
     service_tag 'income-and-assets-application'
 
+    # an identifier that matches the parameter that the form will be set as in the JSON submission.
     def short_name
       'income_and_assets_claim'
     end
 
+    # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
     def claim_class
       SavedClaim::IncomeAndAssets
     end
 
+    # GET serialized pension form data
     def show
       claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
       render json: SavedClaimSerializer.new(claim)
@@ -26,6 +29,7 @@ module V0
       raise e
     end
 
+    # POST creates and validates an instance of `claim_class`
     def create
       claim = claim_class.new(form: filtered_params[:form])
       ia_monitor.track_create_attempt(claim, current_user.user_account_uuid)
@@ -58,6 +62,18 @@ module V0
                                                                   current_user)
     end
 
+    # Filters out the parameters to form access.
+    def filtered_params
+      params.require(short_name.to_sym).permit(:form)
+    end
+
+    ##
+    # include validation error on in_progress_form metadata.
+    # `noop` if in_progress_form is `blank?`
+    #
+    # @param in_progress_form [InProgressForm]
+    # @param claim [Pensions::SavedClaim]
+    #
     def log_validation_error_to_metadata(in_progress_form, claim)
       return if in_progress_form.blank?
 
@@ -66,23 +82,11 @@ module V0
       in_progress_form.update(metadata:)
     end
 
-    def format_show_response(claim, state, form_submission, submission_attempt)
-      {
-        data: {
-          id: claim.id,
-          form_id: claim.form_id,
-          guid: claim.guid,
-          attributes: {
-            state:,
-            benefits_intake_uuid: form_submission.benefits_intake_uuid,
-            form_type: form_submission.form_type,
-            attempt_id: submission_attempt.id,
-            aasm_state: submission_attempt.aasm_state
-          }
-        }
-      }
-    end
-
+    ##
+    # retreive a monitor for tracking
+    #
+    # @return [IncomeAndAssets::Monitor]
+    #
     def ia_monitor
       @monitor ||= IncomeAndAssets::Monitor.new
     end
