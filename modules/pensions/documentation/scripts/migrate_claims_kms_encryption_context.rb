@@ -36,29 +36,41 @@ module MigrateClaimsScript
   end
 
   ##
-  # Main migration method
+  # Migrate an individual claim
+  # @param [Array<Integer>] record_ids Array of record IDs to migrate
+  #
+  def self.migrate_claim(record_id)
+    record = SavedClaim::Pension.find_by(id: record_id)
+    return unless record # Skip if record not found
+
+    # Use the old context to read the form
+    with_kms_encryption_context(record, OLD_CONTEXT_PROC) do
+      record.form
+    end
+
+    # Re-encrypt using the new context
+    with_kms_encryption_context(record, NEW_CONTEXT_PROC) do
+      record.rotate_kms_key!
+    end
+
+    puts "Record ID #{record.id} migrated successfully."
+  end
+
+  ##
+  # Main migration method to migrate claims
   # @param [Array<Integer>] record_ids Array of record IDs to migrate
   #
   def self.migrate_claims(record_ids)
     record_ids.each do |record_id|
-      record = SavedClaim::Pension.find_by(id: record_id)
-      next unless record # Skip if record not found
-
-      # Use the old context to read the form
-      with_kms_encryption_context(record, OLD_CONTEXT_PROC) do
-        record.form
-      end
-
-      # Re-encrypt using the new context
-      with_kms_encryption_context(record, NEW_CONTEXT_PROC) do
-        record.rotate_kms_key!
-      end
-
-      puts "Record ID #{record.id} migrated successfully."
-    rescue KmsEncrypted::DecryptionError => e
-      puts "Decryption failed for record ID #{record_id}: #{e.message}"
+      migrate_claim(record_id)
     rescue => e
-      puts "An error occurred for record ID #{record_id}: #{e.message}"
+      error_message = e.message
+      out = if e.is_a?(KmsEncrypted::DecryptionError)
+              "Decryption failed for record ID #{record_id}: #{error_message}"
+            else
+              "An error occurred for record ID #{record_id}: #{error_message}"
+            end
+      puts out
     end
   end
 
