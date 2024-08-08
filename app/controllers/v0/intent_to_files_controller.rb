@@ -55,7 +55,24 @@ module V0
         feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE
       )
       type = params['itf_type'] || 'compensation'
-      response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
+      if Flipper.enabled?(:disability_compensation_production_tester, @current_user)
+        Rails.logger.info("ITF submit call skipped for user #{@current_user.account_uuid}")
+        response = DisabilityCompensation::ApiProvider::IntentToFilesResponse.new(
+          intent_to_file: [
+            DisabilityCompensation::ApiProvider::IntentToFile.new(
+              id: '0',
+              creation_date: DateTime.now,
+              expiration_date: DateTime.now + 1.year,
+              source: '',
+              participant_id: 0,
+              status: 'active',
+              type: 'compensation'
+            )
+          ]
+        )
+      else
+        response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
+      end
       render json: IntentToFileSerializer.new(response)
     end
 

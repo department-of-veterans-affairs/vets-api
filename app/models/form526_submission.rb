@@ -363,7 +363,11 @@ class Form526Submission < ApplicationRecord
     )
     workflow_batch.jobs do
       submit_uploads if form[FORM_526_UPLOADS].present?
-      submit_form_4142 if form[FORM_4142].present?
+      if Flipper.enabled?(:disability_compensation_production_tester, User.find(submission.user_uuid))
+        Rails.logger.info("submit_form_4142 call skipped for submission #{submission.id}")
+      else
+        submit_form_4142 if form[FORM_4142].present?
+      end
       submit_form_0781 if form[FORM_0781].present?
       submit_form_8940 if form[FORM_8940].present?
       upload_bdd_instructions if bdd?

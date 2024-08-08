@@ -5,6 +5,12 @@ module Sidekiq
     module BackupSubmission
       def send_backup_submission_if_enabled(form526_submission_id:, job_class:, job_id:, error_class:,
                                             error_message:)
+        submission_obj = Form526Submission.find(form526_submission_id)
+        if Flipper.enabled?(:disability_compensation_production_tester, User.find(submission_obj.user_uuid))
+          Rails.logger.info("send_backup_submission_if_enabled call skipped for submission #{form526_submission_id}")
+          return
+        end
+
         backup_job_jid = nil
         flipper_sym = :form526_backup_submission_temp_killswitch
         # Entry-point for backup 526 CMP submission
@@ -16,7 +22,6 @@ module Sidekiq
         # Does not have a backup submission ID (protect against dup submissions)
         # Does not have a submission ID (protect against dup submissions)
         # Does not have additional birls it is going to try and submit with
-        submission_obj = Form526Submission.find(form526_submission_id)
         send_backup_submission = Settings.form526_backup.enabled && Flipper.enabled?(flipper_sym) &&
                                  job_class == 'SubmitForm526AllClaim' &&
                                  submission_obj.submitted_claim_id.nil? &&
