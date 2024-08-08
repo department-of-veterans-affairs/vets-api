@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "vets-api-postman-test"
+  annotations:
+    "helm.sh/hook": test,post-install,post-upgrade
+spec:
+  containers:
+    - name: postman
+      image: "{{ .Values.image.testRepository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      env:
+        - name: "API_URL"
+          value: "http://vets-api-service/
+  restartPolicy: Never
