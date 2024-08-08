@@ -4,10 +4,9 @@
 {{- $pool := "avg:puma.pool_capacity{kube_cluster_name:dsva-vagov-" }}
 {{- $threads := "avg:puma.max_threads{kube_cluster_name:dsva-vagov-" }}
 {{- $replicas_available := "sum:kubernetes_state.deployment.replicas_available{kube_cluster_name:dsva-vagov-" }}
-{{- $pool_with_filters := $pool | cat $root.Values.target_env "-cluster,kube_deployment:" $name "}" }}
-{{- $threads_with_filters := $threads | cat $root.Values.target_env "-cluster,kube_deployment:" $name "}" }}
-{{- $replicas_with_filters := $replicas_available | cat $root.Values.target_env "-cluster,kube_deployment:" $name "}" }}
-
+{{- $pool_with_filters := cat $pool $root.Values.target_env "-cluster,kube_deployment:" $name "}" | trimAll " " }}
+{{- $threads_with_filters := cat $threads $root.Values.target_env "-cluster,kube_deployment:" $name "}" | trimAll " " }}
+{{- $replicas_with_filters := cat $replicas_available $root.Values.target_env "-cluster,kube_deployment:" $name "}" | trimAll " " }}
 
 ---
 apiVersion: datadoghq.com/v1alpha1
