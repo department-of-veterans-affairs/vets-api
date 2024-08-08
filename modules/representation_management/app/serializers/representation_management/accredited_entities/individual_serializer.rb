@@ -15,7 +15,6 @@ module RepresentationManagement
                  :individual_type, :registration_number
 
       attribute :accredited_organizations do |object|
-        # OrganizationSerializer.new(object.accredited_organizations)
         RepresentationManagement::AccreditedIndividuals::OrganizationSerializer.new(object.accredited_organizations)
       end
     end

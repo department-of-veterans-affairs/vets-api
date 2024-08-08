@@ -20,7 +20,7 @@ module RepresentationManagement
         when AccreditedIndividual
           RepresentationManagement::AccreditedEntities::IndividualSerializer
         when AccreditedOrganization
-          RepresentationManagement::AccreditedEntities::OrganizationSerializer
+          RepresentationManagement::AccreditedIndividuals::OrganizationSerializer
         else
           raise "Unknown object type: #{@object.class}"
         end
