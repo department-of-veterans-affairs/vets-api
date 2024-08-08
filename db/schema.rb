@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_30_174253) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_08_215701) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -1034,6 +1034,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_30_174253) do
     t.datetime "itf_datetime"
     t.datetime "form_start_date"
     t.datetime "delete_date"
+    t.string "metadata"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
