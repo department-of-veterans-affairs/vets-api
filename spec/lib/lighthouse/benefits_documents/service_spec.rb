@@ -55,10 +55,8 @@ RSpec.describe BenefitsDocuments::Service do
           c.debug_logger = $stderr
         end
         VCR.use_cassette(
-          'spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_document_upload_200_jpg.yml',
-          match_requests_on: [:host],
-          allow_unused_http_interactions: false,
-          record_on_error: false,
+          'spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf',
+          match_requests_on: [:uri],
           record: :none
         ) do
           Flipper.enable(:cst_synchronous_evidence_uploads)
