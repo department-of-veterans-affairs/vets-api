@@ -38,14 +38,13 @@ jobs:
         run: |
           echo "APPROVED=${{ github.event.review.state == 'approved'}}" >> GITHUB_OUTPUT
 
-      - run: echo "${{ github.event.pull_request.requested_teams }}"
+      - name: Requested teams
+        run: echo "${{ fromJSON(github.event.pull_request.requested_teams) }}"
 
       - name: Fetch Requested Teams
         id: fetch_requested_teams
         run: |
           echo "REQUESTED_TEAMS=$('${{ github.event.pull_request.requested_teams }}' | jq -r '.teams[].slug')" >> GITHUB_OUTPUT
-
-      - run: echo "${{ toJSON(steps.fetch_requested_teams.requested_teams) }}"
 
       - name: Check required reviewers
         id: check_reviewers
