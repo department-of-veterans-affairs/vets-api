@@ -33,7 +33,18 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-      - run: echo "${{ fromJSON(github.event.pull_request.requested_teams) }}"
+      - name: Check for approval
+        id: check-for-approvlas
+        run: |
+          github.event.review.state == 'approved'
+
+      - name: Fetch Requested Teams
+        id: fetch_requested_teams
+        run: |
+          echo "REQUESTED_TEAMS=$('${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')" >> GITHUB_OUTPUT
+
+
+      - run: echo "${{ steps.fetch_requested_teams.requested_teams}}"
 
       - name: Check required reviewers
         id: check_reviewers
@@ -45,6 +56,10 @@ jobs:
             echo "skip_backend_review=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Check for approval
+        id: check-for-approvlas
+        run: |
+          github.event.review.state == 'approved'
 
       - name: Get backend-review-group members
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
