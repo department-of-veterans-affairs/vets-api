@@ -14,8 +14,9 @@ module IvcChampva
       results = @attachment_ids.zip(@file_paths).map do |attachment_id, file_path|
         next unless attachment_id != 'Form ID'
 
-        response_status = upload_file(attachment_id, file_path)
-        insert_form(file_path.gsub('tmp/', '').gsub('-tmp', ''), response_status.to_s) if @insert_db_row
+        file_name = File.basename(file_path).gsub('-tmp', '')
+        response_status = upload_file(attachment_id, file_name, file_path)
+        insert_form(file_name, response_status.to_s) if @insert_db_row
 
         response_status
       end.compact
@@ -47,8 +48,7 @@ module IvcChampva
       Rails.logger.error("Database Insertion Error for #{@metadata['uuid']}: #{e.message}")
     end
 
-    def upload_file(attachment_id, file_path)
-      file_name = file_path.gsub('tmp/', '').gsub('-tmp', '')
+    def upload_file(attachment_id, file_name, file_path)
       upload(file_name, file_path, attachment_ids: [attachment_id])
     end
 
