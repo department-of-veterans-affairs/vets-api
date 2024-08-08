@@ -684,6 +684,39 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v21_p_527_ez_expected_military) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix
+      },
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.address[:city],
+        'state' => user.address[:state],
+        'country' => user.address[:country],
+        'postal_code' => user.address[:postal_code][0..4]
+      },
+      'email' => 'test2@test1.net',
+      'phone' => '4445551212',
+      'internationalPhone' => '14445551212',
+      'veteranSocialSecurityNumber' => user.ssn,
+      'veteranDateOfBirth' => user.birth_date,
+      'activeServiceDateRange' => {
+        'from' => '1984-08-01',
+        'to' => '2014-08-31'
+      },
+      'serviceBranch' => {
+        'army' => true,
+        'airForce' => true
+      },
+      'serviceNumber' => '796111863'
+    }
+  end
+
   let(:v21_p_530_expected) do
     {
       'claimantFullName' => {
@@ -839,6 +872,39 @@ RSpec.describe FormProfile, type: :model do
       },
       'claimantPhoneNumber' => us_phone,
       'claimantEmailAddress' => user.pciu_email
+    }
+  end
+
+  let(:vform_mock_ae_design_patterns_expected) do
+    {
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'firstName' => user.first_name&.capitalize,
+            'middleName' => user.middle_name&.capitalize,
+            'lastName' => user.last_name&.capitalize,
+            'suffix' => user.suffix,
+            'dateOfBirth' => user.birth_date,
+            'ssn' => user.ssn.last(4),
+            'gender' => user.gender,
+            'address' => {
+              'addressLine1' => street_check[:street],
+              'addressLine2' => street_check[:street2],
+              'city' => user.address[:city],
+              'stateCode' => user.address[:state],
+              'countryName' => user.address[:country],
+              'zipCode5' => user.address[:postal_code][0..4]
+            },
+            'phone' => {
+              'areaCode' => us_phone[0..2],
+              'phoneNumber' => us_phone[3..9]
+            },
+            'homePhone' => '14445551212',
+            'emailAddressText' => user.pciu_email,
+            'lastServiceBranch' => 'Army'
+          }
+        }
+      }
     }
   end
 
@@ -1187,7 +1253,7 @@ RSpec.describe FormProfile, type: :model do
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
-      when '1010ez'
+      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS'
         '10-10EZ'
       when '21-526EZ'
         '21-526EZ-ALLCLAIMS'
@@ -1669,6 +1735,7 @@ RSpec.describe FormProfile, type: :model do
         end
 
         %w[
+          21P-527EZ
           22-1990
           22-1990N
           22-1990E
@@ -1685,11 +1752,36 @@ RSpec.describe FormProfile, type: :model do
           26-1880
           26-4555
           21-22
+          FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
+            Flipper.disable(:pension_military_prefill)
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                              allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
               expect_prefilled(form_id)
+            end
+          end
+        end
+
+        context 'with pension_military_prefill' do
+          it 'returns prefilled 21P-527EZ' do
+            Flipper.enable(:pension_military_prefill)
+            VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
+                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+              form_id = '21P-527EZ'
+              prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
+              schema = strip_required(VetsJsonSchema::SCHEMAS[form_id]).except('anyOf')
+              schema_data = prefilled_data.deep_dup
+              errors = JSON::Validator.fully_validate(
+                schema,
+                schema_data.deep_transform_keys { |key| key.camelize(:lower) }, validate_schema: true
+              )
+
+              expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+
+              expect(prefilled_data).to eq(
+                form_profile.send(:clean!, public_send('v21_p_527_ez_expected_military'))
+              )
             end
           end
         end
@@ -1901,12 +1993,6 @@ RSpec.describe FormProfile, type: :model do
           validate_schema: true
         )
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
-      end
-    end
-
-    context 'with a pension application form' do
-      it 'returns the va profile mapped to the pension form' do
-        expect_prefilled('21P-527EZ')
       end
     end
 

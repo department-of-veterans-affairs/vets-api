@@ -5,9 +5,7 @@ module V0
     class CemeteriesController < PreneedsController
       def index
         resource = client.get_cemeteries
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: CemeterySerializer
+        render json: CemeterySerializer.new(resource.data)
       end
     end
   end

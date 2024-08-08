@@ -44,7 +44,7 @@ module DebtsApi
 
         def total_discretionary_income
           monthly_net_income = @income_data[:totalMonthlyNetIncome]
-          monthly_expenses = @enhanced_expense_calculator['totalMonthlyExpenses']
+          monthly_expenses = @enhanced_expense_calculator['totalMonthlyExpenses']&.to_f
 
           monthly_net_income - monthly_expenses
         end
@@ -82,15 +82,21 @@ module DebtsApi
         end
 
         def are_liquid_assets_below_gmt_threshold?
+          return false if @gmt_data['gmt_threshold'].blank?
+
           liquid_assets = @asset_data['cashOnHand'].to_f + @asset_data['cashInBank'].to_f
           liquid_assets < @gmt_data['gmt_threshold']
         end
 
         def income_below_gmt_threshold?
+          return false if @gmt_data['gmt_threshold'].blank?
+
           total_annual_income < @gmt_data['gmt_threshold']
         end
 
         def cash_below_gmt_threshold?
+          return false if @gmt_data['gmt_threshold'].blank?
+
           @asset_data['cashOnHand'].to_f < @gmt_data['gmt_threshold']
         end
 

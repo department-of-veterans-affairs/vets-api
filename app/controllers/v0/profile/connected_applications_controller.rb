@@ -7,7 +7,7 @@ module V0
       service_tag 'profile'
 
       def index
-        render json: apps_from_grants, each_serializer: OktaAppSerializer
+        render json: apps_from_grants
       end
 
       def destroy

@@ -398,14 +398,6 @@
       :uid_location: "url"
       :uid_locator: "\/wss-lettergenerator-services-web/rest/letters/v1\/(.+)\/generate"
 
-  # GIBS
-  - :method: :get
-    :path: "/wss-education-services-web/rest/education/chapter33/v1"
-    :file_path: "evss/gibs"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-
   # Claims
   - :method: :get
     :path: <%= "/wss-claims-services-web-#{Settings.evss.versions.claims}/rest/vbaClaimStatusService/getClaims" %>
@@ -644,6 +636,32 @@
     :path: "/appointments/v1/patients/*/appointments/*"
     :file_path: "hqva_mobile/appointments/default"
 
+#VAOS Appointments Service
+- :name: "VAOS Appointments"
+  :base_uri: <%= "#{URI(Settings.va_mobile.url).host}:#{URI(Settings.va_mobile.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/vaos/v1/patients/*/appointments"
+      :file_path: "vaos/appointments"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments'
+    - :method: :get
+      :path: "/facilities/v2/facilities/*"
+      :file_path: "vaos/facilities"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$'
+    - :method: :get
+      :path: "/facilities/v2/facilities/*/clinics/*"
+      :file_path: "vaos/clinics"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$\/clinics\/^[0-9]+$'
+
 #LoROTA (CheckIn)
 - :name: "LoROTA"
   :base_uri: <%= "#{URI(Settings.check_in.lorota_v2.url).host}:#{URI(Settings.check_in.lorota_v2.url).port}" %>
@@ -785,6 +803,17 @@
         :uid_location: 'query'
         :uid_locator: 'edipi'
 
+# Lighthouse Benefits Education API (GI Bill Statement of Benefits - GIBS)
+- :name: "Lighthouse Benefits Education"
+  :base_uri: <%= "#{URI(Settings.lighthouse.benefits_education.host).host}:#{URI(Settings.lighthouse.benefits_education.host).port}" %>
+  :endpoints:
+  - :method: :get
+    :path: '/services/benefits-education/v1/education/chapter33'
+    :file_path: "/lighthouse/benefits_education"
+    :cache_multiple_responses:
+      :uid_location: "query"
+      :uid_locator: "icn"
+
 # Lighthouse Benefits Claims API
 - :name: "Lighthouse Benefits Claims"
   :base_uri: <%= "#{URI(Settings.lighthouse.benefits_claims.host).host}:#{URI(Settings.lighthouse.benefits_claims.host).port}" %>
@@ -891,3 +920,6 @@
     - :method: :get
       :path: "/demographics/demographics/v1/*/*"
       :file_path: "vet360/demographics/default"
+    - :method: :post
+      :path: "/profile-service/profile/v3/*/*"
+      :file_path: "vet360/profile-service/default"

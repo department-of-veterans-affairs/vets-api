@@ -12,10 +12,9 @@ module V0
       resource = resource.sort(params[:sort])
       resource = resource.paginate(**pagination_params)
 
-      render json: resource.data,
-             serializer: CollectionSerializer,
-             each_serializer: MessagesSerializer,
-             meta: resource.metadata
+      links = pagination_links(resource)
+      options = { meta: resource.metadata, links: }
+      render json: MessagesSerializer.new(resource.data, options)
     end
 
     def show
@@ -24,10 +23,10 @@ module V0
 
       raise Common::Exceptions::RecordNotFound, message_id if response.blank?
 
-      render json: response,
-             serializer: MessageSerializer,
-             include: 'attachments',
-             meta: response.metadata
+      options = {
+        meta: response.metadata
+      }
+      render json: MessageSerializer.new(response, options)
     end
 
     def create
@@ -42,11 +41,9 @@ module V0
                         else
                           client.post_create_message(message_params)
                         end
-
-      render json: client_response,
-             serializer: MessageSerializer,
-             include: 'attachments',
-             meta: {}
+      options = { meta: {} }
+      options[:include] = [:attachments] if client_response.attachment
+      render json: MessageSerializer.new(client_response, options)
     end
 
     def destroy
@@ -59,10 +56,8 @@ module V0
       resource = client.get_message_history(message_id)
       raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
-      render json: resource.data,
-             serializer: CollectionSerializer,
-             each_serializer: MessagesSerializer,
-             meta: resource.metadata
+      options = { meta: resource.metadata }
+      render json: MessagesSerializer.new(resource.data, options)
     end
 
     def reply
@@ -77,18 +72,13 @@ module V0
                         else
                           client.post_create_message_reply(params[:id], message_params)
                         end
-
-      render json: client_response,
-             serializer: MessageSerializer,
-             include: 'attachments',
-             status: :created
+      options = { meta: {} }
+      options[:include] = [:attachments] if client_response.attachment
+      render json: MessageSerializer.new(client_response, options), status: :created
     end
 
     def categories
-      resource = client.get_categories
-
-      render json: resource,
-             serializer: CategorySerializer
+      render json: CategorySerializer.new(client.get_categories)
     end
 
     def move

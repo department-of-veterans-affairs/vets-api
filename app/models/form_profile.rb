@@ -105,6 +105,7 @@ class FormProfile
     ivc_champva: %w[10-7959F-1 10-7959C],
     form_upload_flow: ['FORM-UPLOAD-FLOW'],
     acc_rep_management: %w[21-22 21-22A]
+    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -147,6 +148,7 @@ class FormProfile
     'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a
+    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -180,6 +182,8 @@ class FormProfile
 
   def self.mappings_for_form(form_id)
     @mappings ||= {}
+    # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
+    form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
     @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
   end
 

@@ -13,6 +13,10 @@ RSpec.describe CemeterySerializer do
     expect(data['id']).to eq(cemetery.id)
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq('preneeds_cemeteries')
+  end
+
   it 'includes :cemetery_id' do
     expect(attributes['cemetery_id']).to eq(cemetery.id)
   end
