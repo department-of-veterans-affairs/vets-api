@@ -29,6 +29,7 @@ module ClaimsApi
           resp
         rescue => e
           detail = get_error_message(e)
+
           log_outcome_for_claims_api('submit', 'error', detail, claim)
 
           error_handler(e, detail, async)
