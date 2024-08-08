@@ -917,7 +917,7 @@ va_mobile:
   ppms_base_url: "https://staff.apps.va.gov"
   mock: false
   key_path: /fake/client/key/path
-  timeout: 55
+  timeout: 25
 
 vetext:
   url: "https://something.fake.va.gov"
@@ -1250,6 +1250,7 @@ virtual_agent:
   webchat_secret_msft: fake_secret
   webchat_secret_nlu: fake_secret
   webchat_pva2_secret: fake_secret
+  webchat_root_bot_secret: fake_secret
   lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
   lighthouse_api_key: fake_api_key
   cxdw_client_secret: fake_secret
