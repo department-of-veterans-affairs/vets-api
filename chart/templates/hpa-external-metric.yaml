@@ -2,8 +2,11 @@
 {{- range $name, $service := $root.Values.web.webServices }}
 {{- if $service.autoscaling.enabled }}
 {{- $pool := "avg:puma.pool_capacity{kube_cluster_name:dsva-vagov-" }}
+{{- $pool_with_filters := "(" $pool $root.Values.target_env "-cluster,kube_deployment:" $name ")" }}
 {{- $threads := "avg:puma.max_threads{kube_cluster_name:dsva-vagov-" }}
+{{- $threads_with_filters := "(" $threads $root.Values.target_env "-cluster,kube_deployment:" $name ")" }}
 {{- $replicas_available := "sum:kubernetes_state.deployment.replicas_available{kube_cluster_name:dsva-vagov-" }}
+{{- $replicas_with_filters := "(" $replicas_available $root.Values.target_env "-cluster,kube_deployment:" $name ")" }}
 {{- $deployment := "-cluster,kube_deployment:" }}
 
 ---
@@ -16,19 +19,17 @@ spec:
   query: >-
     (
       (
-        (avg:puma.max_threads{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_deployment:{{ $name }}}
-        * sum:kubernetes_state.deployment.replicas_available{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_deployment:{{ $name }}})
+        ({{ $threads_with_filters }} * {{ $replicas_with_filters }})
         -
-        (avg:puma.pool_capacity{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_deployment:{{ $name }}}
-        * sum:kubernetes_state.deployment.replicas_available{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_deployment:{{ $name }}})
+        ({{ $pool_with_filters }} * {{ $replicas_with_filters }})
       )
       /
-      (
-        avg:puma.max_threads{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_deployment:{{ $name }}}
-        * sum:kubernetes_state.deployment.replicas_available{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_deployment:{{ $name }}})
-      )
+      ({{ $threads_with_filters }} * {{ $replicas_with_filters }})
     )
     * 100
+{{- end }}
+{{- end }}
+
 
 {{- if .Values.worker.autoscaling.enabled }}
 {{- $sidekiq_busy := "max:sidekiq.busy{kube_cluster_name:dsva-vagov-" }}
