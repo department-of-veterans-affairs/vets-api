@@ -145,8 +145,8 @@ module EVSS
 
           if Flipper.enabled?(:disability_compensation_production_tester, User.find(submission.user_uuid))
             Rails.logger.info("send_post_evss_notifications call skipped for submission #{submission.id}")
-          else
-            send_post_evss_notifications(submission) if send_notifications
+          elsif send_notifications
+            send_post_evss_notifications(submission)
           end
         end
       end

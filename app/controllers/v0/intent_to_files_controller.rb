@@ -57,19 +57,7 @@ module V0
       type = params['itf_type'] || 'compensation'
       if Flipper.enabled?(:disability_compensation_production_tester, @current_user)
         Rails.logger.info("ITF submit call skipped for user #{@current_user.account_uuid}")
-        response = DisabilityCompensation::ApiProvider::IntentToFilesResponse.new(
-          intent_to_file: [
-            DisabilityCompensation::ApiProvider::IntentToFile.new(
-              id: '0',
-              creation_date: DateTime.now,
-              expiration_date: DateTime.now + 1.year,
-              source: '',
-              participant_id: 0,
-              status: 'active',
-              type: 'compensation'
-            )
-          ]
-        )
+        response = set_success_response
       else
         response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
       end
@@ -77,6 +65,22 @@ module V0
     end
 
     private
+
+    def set_success_response
+      DisabilityCompensation::ApiProvider::IntentToFilesResponse.new(
+        intent_to_file: [
+          DisabilityCompensation::ApiProvider::IntentToFile.new(
+            id: '0',
+            creation_date: DateTime.now,
+            expiration_date: DateTime.now + 1.year,
+            source: '',
+            participant_id: 0,
+            status: 'active',
+            type: 'compensation'
+          )
+        ]
+      )
+    end
 
     def authorize_service
       # Is this necessary if we've fully migrated to Lighthouse? EVSS tests still exist in the request spec,
