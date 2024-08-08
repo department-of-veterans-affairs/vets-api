@@ -26,6 +26,7 @@ module IvcChampva
         'businessLine' => 'CMP',
         'ssn_or_tin' => @data['applicant_member_number'],
         'member_number' => @data['applicant_member_number'],
+        'fileNumber' => @data['applicant_member_number'],
         'country' => @data.dig('applicant_address', 'country') || 'USA',
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info']

@@ -53,7 +53,7 @@ jobs:
           elif [ "$(date -d "${commit_time}" +%s)" -gt "$(date -d '45 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 45 minutes. Skipping notification."
             echo "dev_summary=${info_message} has been delayed for more than 45 minutes. Skipping notification." >> $GITHUB_OUTPUT
-          elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
+          elif [ "$(date -d "${commit_time}" +%s)" -gt "$(date -d '30 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 30 minutes."
             echo "Current commit on development is ${deployed_sha:0:8}."
             echo "dev_summary=${info_message} has been delayed for more than 30 minutes. Current commit on development is ${deployed_sha:0:8}.\n\nCheck the following list of items for errors: ${action_items}" >> $GITHUB_OUTPUT
@@ -79,7 +79,7 @@ jobs:
           elif [ "$(date -d "${commit_time}" +%s)" -gt "$(date -d '45 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 45 minutes. Skipping notification."
             echo "staging_summary=${info_message} has been delayed for more than 45 minutes. Skipping notification." >> $GITHUB_OUTPUT
-          elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
+          elif [ "$(date -d "${commit_time}" +%s)" -gt "$(date -d '30 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 30 minutes."
             echo "Current commit on staging is ${deployed_sha:0:8}."
             echo "staging_summary=${info_message} has been delayed for more than 30 minutes. Current commit on staging is ${deployed_sha:0:8}.\n\nCheck the following list of items for errors: ${action_items}" >> $GITHUB_OUTPUT
