@@ -77,6 +77,11 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
         end
 
         it 'submits' do
+          new_form_data = submission.saved_claim.parsed_form
+          new_form_data['startedFormVersion'] = nil
+          submission.saved_claim.form = new_form_data.to_json
+          submission.saved_claim.save
+          submission.saved_claim.parsed_form
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
             VCR.use_cassette('form526_backup/200_evss_get_pdf') do
               VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
@@ -181,6 +186,11 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       end
 
       it 'converts and submits' do
+        new_form_data = submission.saved_claim.parsed_form
+        new_form_data['startedFormVersion'] = nil
+        submission.saved_claim.form = new_form_data.to_json
+        submission.saved_claim.save
+        submission.saved_claim.parsed_form
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
           VCR.use_cassette('form526_backup/200_evss_get_pdf') do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
