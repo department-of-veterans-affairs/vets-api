@@ -43,9 +43,9 @@ jobs:
       - name: Fetch Requested Teams
         id: fetch_requested_teams
         run: |
-          echo "REQUESTED_TEAMS=$('${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')" >> GITHUB_OUTPUT
+          echo "REQUESTED_TEAMS=${{ steps.fetch_requested_teams.requested_teams}}" >> GITHUB_OUTPUT
 
-      - run: echo "${{ steps.fetch_requested_teams.requested_teams}} | jq -r '.teams[].slug'"
+      - run: echo "${{ steps.fetch_requested_teams.requested_teams}}"
 
       - name: Check required reviewers
         id: check_reviewers
