@@ -33,6 +33,13 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
+      - name: Fetch Requested Teams
+        id: requested_teams
+        run: |
+          echo "REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')" >> GITHUB_OUTPUT
+
+      - run: echo '${{ steps.requested_teams.outputs.requested_teams }}'
+
       - name: Check required reviewers
         id: check_reviewers
         run: |
