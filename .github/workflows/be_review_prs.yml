@@ -1,7 +1,7 @@
 name: Require backend-review-group approval
 on:
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
+    types: [opened, reopened, ready_for_review]
   pull_request_review:
     types: [submitted]
 
@@ -33,6 +33,8 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
+      - run: echo "${{ github.event.pull_request.pull_request.requested_teams}}"
+
       - name: Check required reviewers
         id: check_reviewers
         run: |
@@ -42,6 +44,7 @@ jobs:
           else
             echo "skip_backend_review=false" >> $GITHUB_OUTPUT
           fi
+
 
       - name: Get backend-review-group members
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
