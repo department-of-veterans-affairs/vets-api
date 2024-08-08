@@ -10,7 +10,12 @@ module Vye
       def initialize(filename:, block_size:)
         @filename = filename
         @block_size = block_size
-        @stem, @ext = filename.match(/(.*)[.]([^.]*)/).values_at(1, 2)
+        @stem, @ext =
+          if filename.include?('.')
+            filename.rpartition('.').values_at(0, 2)
+          else
+            [filename, 'noext']
+          end
         @chunks = []
         @flags = %i[uploaded split].index_with { |_f| false }
       end
