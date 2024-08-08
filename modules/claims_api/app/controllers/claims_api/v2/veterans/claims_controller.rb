@@ -7,13 +7,10 @@ module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
+        before_action :set_bgs_claims, :set_lighthouse_claims, :render_if_no_claims, only: %i[index]
+
         def index
-          bgs_claims = find_bgs_claims!
-
-          lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(veteran_icn: target_veteran.mpi.icn)
-
-          render json: [] && return unless bgs_claims || lighthouse_claims
-          mapped_claims = map_claims(bgs_claims:, lighthouse_claims:)
+          mapped_claims = map_claims(bgs_claims: @bgs_claims, lighthouse_claims: @lighthouse_claims)
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :index, root: :data }
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, blueprint_options)
         end
@@ -37,6 +34,18 @@ module ClaimsApi
         end
 
         private
+
+        def set_bgs_claims
+          @bgs_claims = find_bgs_claims!
+        end
+
+        def set_lighthouse_claims
+          @lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(veteran_icn: target_veteran.mpi.icn)
+        end
+
+        def render_if_no_claims
+          render json: [] && return unless @bgs_claims || @lighthouse_claims
+        end
 
         def evss_docs_service
           EVSS::DocumentsService.new(auth_headers)
