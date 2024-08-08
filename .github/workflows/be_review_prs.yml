@@ -36,7 +36,7 @@ jobs:
       - name: Check for approval
         id: check-for-approvlas
         run: |
-          github.event.review.state == 'approved'
+          echo "${{ github.event.review.state == 'approved'}}"
 
       - name: Fetch Requested Teams
         id: fetch_requested_teams
