@@ -45,18 +45,18 @@ module ClaimsApi
 
     private
 
-      def request_headers
-        {
-          Authorization: "Bearer #{@token_string}",
-          apiKey: Settings.claims_api.token_validation.api_key
-        }
-      end
+    def request_headers
+      {
+        Authorization: "Bearer #{@token_string}",
+        apiKey: Settings.claims_api.token_validation.api_key
+      }
+    end
 
-      def request_options
-        {
-          open_timeout: 15,
-          timeout: 15
-        }
-      end
+    def request_options
+      {
+        open_timeout: 15,
+        timeout: 15
+      }
+    end
   end
 end
