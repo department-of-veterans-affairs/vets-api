@@ -27,12 +27,12 @@ module Swagger
             example VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV')
           end
 
-          VetsJsonSchema::SCHEMAS.fetch('SC-SHOW-RESPONSE-200_V1')['definitions'].each do |k, v|
-            swagger_schema(k == 'root' ? 'scShowRoot' : k, v) {}
+          VetsJsonSchema::SCHEMAS.fetch('SC-SHOW-RESPONSE-200_V2')['definitions'].each do |key, value|
+            swagger_schema(key == 'root' ? 'scShowRoot' : key, value) {}
           end
 
           swagger_schema 'scShowRoot' do
-            example VetsJsonSchema::EXAMPLES.fetch('SC-SHOW-RESPONSE-200_V1')
+            example VetsJsonSchema::EXAMPLES.fetch('SC-SHOW-RESPONSE-200_V2')
           end
 
           swagger_schema 'scContestableIssues' do
