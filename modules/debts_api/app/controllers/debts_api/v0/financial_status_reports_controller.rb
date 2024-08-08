@@ -355,9 +355,8 @@ module DebtsApi
       end
 
       def full_transform_logging(type)
-        user_uuid = current_user.uuid
-        submission_id = params[:submission_id]
-        "DebtsApi::V0::FsrFormTransform::FullTransformService #{type}: form ID #{submission_id} - UUID #{user_uuid}"
+        "DebtsApi::V0::FsrFormTransform::FullTransformService #{type}: " \
+          "form ID #{params[:submission_id]} - UUID #{current_user.uuid}"
       end
     end
   end
