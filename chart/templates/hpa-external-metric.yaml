@@ -30,7 +30,6 @@ spec:
 {{- end }}
 {{- end }}
 
-
 {{- if .Values.worker.autoscaling.enabled }}
 {{- $sidekiq_busy := "max:sidekiq.busy{kube_cluster_name:dsva-vagov-" }}
 {{- $sidekiq_processes := "max:kubernetes_state.deployment.replicas_available{kube_cluster_name:dsva-vagov-" }}
