@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-class FormProfiles::VHA107959c < FormProfile
-  FORM_ID = '10-7959C'
-
+class FormProfiles::FormMockAeDesignPatterns < FormProfile
   def metadata
     {
       version: 0,
       prefill: true,
-      returnUrl: '/applicant-info'
+      returnUrl: '/veteran-details'
     }
   end
 end
