@@ -45,7 +45,7 @@ jobs:
         run: |
           echo "REQUESTED_TEAMS=$('${{ github.event.pull_request.requested_teams }}' | jq -r '.teams[].slug')" >> GITHUB_OUTPUT
 
-      - run: echo "${{ jsonString="$(jq --compact-output --null-input '$ARGS.positional' --args -- "${${{ steps.fetch_requested_teams.requested_teams}}[@]}")" }}"
+      - run: echo "fromJSON({{ steps.fetch_requested_teams.requested_teams }})"
 
       - name: Check required reviewers
         id: check_reviewers
