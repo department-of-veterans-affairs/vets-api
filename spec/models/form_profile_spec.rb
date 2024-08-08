@@ -887,7 +887,7 @@ RSpec.describe FormProfile, type: :model do
           'country' => user.address[:country],
           'postal_code' => user.address[:postal_code][0..4]
         },
-        'primaryPhone' => '4445551212',
+        'primaryPhone' => '4445551212'
       },
       'militaryInformation' => {
         'serviceBranch' => 'Army',
@@ -895,7 +895,7 @@ RSpec.describe FormProfile, type: :model do
           'from' => '2002-07-02',
           'to' => '2014-08-31'
         }
-      },
+      }
     }
   end
 
@@ -920,7 +920,7 @@ RSpec.describe FormProfile, type: :model do
           'country' => user.address[:country],
           'postal_code' => user.address[:postal_code][0..4]
         },
-        'primaryPhone' => '4445551212',
+        'primaryPhone' => '4445551212'
       },
       'militaryInformation' => {
         'serviceBranch' => 'Army',
@@ -928,7 +928,7 @@ RSpec.describe FormProfile, type: :model do
           'from' => '2002-07-02',
           'to' => '2014-08-31'
         }
-      },
+      }
     }
   end
 
