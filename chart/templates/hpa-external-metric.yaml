@@ -1,12 +1,16 @@
 {{- $root := . -}}
 {{- range $name, $service := $root.Values.web.webServices }}
 {{- if $service.autoscaling.enabled }}
-{{- $pool := "avg:puma.pool_capacity{kube_cluster_name:dsva-vagov-" }}
-{{- $threads := "avg:puma.max_threads{kube_cluster_name:dsva-vagov-" }}
-{{- $replicas_available := "sum:kubernetes_state.deployment.replicas_available{kube_cluster_name:dsva-vagov-" }}
-{{- $pool_with_filters := cat $pool $root.Values.target_env "-cluster,kube_deployment:" $name "}" | trimAll " " }}
-{{- $threads_with_filters := cat $threads $root.Values.target_env "-cluster,kube_deployment:" $name "}" | trimAll " " }}
-{{- $replicas_with_filters := cat $replicas_available $root.Values.target_env "-cluster,kube_deployment:" $name "}" | trimAll " " }}
+{{- $env := trim $root.Values.target_env }}
+{{- $deployment := trim $name }}
+{{- $cluster_name := "dsva-vagov-" }}
+{{- $pool := "avg:puma.pool_capacity{kube_cluster_name:" }}
+{{- $threads := "avg:puma.max_threads{kube_cluster_name:" }}
+{{- $replicas_available := "sum:kubernetes_state.deployment.replicas_available{kube_cluster_name:" }}
+
+{{- $pool_with_filters := cat $pool $cluster_name $env "-cluster,kube_deployment:" $deployment "}" }}
+{{- $threads_with_filters := cat $threads $cluster_name $env "-cluster,kube_deployment:" $deployment "}" }}
+{{- $replicas_with_filters := cat $replicas_available $cluster_name $env "-cluster,kube_deployment:" $deployment "}" }}
 
 ---
 apiVersion: datadoghq.com/v1alpha1
