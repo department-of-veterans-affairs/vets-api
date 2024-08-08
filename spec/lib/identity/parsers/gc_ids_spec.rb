@@ -113,8 +113,8 @@ describe Identity::Parsers::GCIds do
           let(:id_object_two) { '9988776655^PN^200PROV^USDVA^A' }
           let(:ids) do
             [
-              OpenStruct.new(attributes: { extension: id_object_one, root: root_oid }),
-              OpenStruct.new(attributes: { extension: id_object_two, root: root_oid })
+              double(attributes: { extension: id_object_one, root: root_oid }),
+              double(attributes: { extension: id_object_two, root: root_oid })
             ]
           end
           let(:expected_sec_ids) { %w[123454321 9988776655] }

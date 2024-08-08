@@ -50,12 +50,16 @@ module TermsOfUse
 
     def sec_id?
       if mpi_profile.sec_id.present?
-        Rails.logger.info("#{LOG_TITLE} Multiple sec_id values detected", { icn: }) if mpi_profile.sec_ids.size > 1
+        validate_multiple_sec_ids
         return true
       end
 
       Rails.logger.info("#{LOG_TITLE} Sign Up Service not updated due to user missing sec_id", { icn: })
       false
+    end
+
+    def validate_multiple_sec_ids
+      Rails.logger.info("#{LOG_TITLE} Multiple sec_id values detected", { icn: }) if mpi_profile.sec_ids.many?
     end
 
     def user_account
