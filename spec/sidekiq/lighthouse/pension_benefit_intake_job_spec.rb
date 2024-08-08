@@ -10,7 +10,7 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, :uploader_helpers do
   let(:claim) { create(:pension_claim) }
   let(:service) { double('service') }
   let(:monitor) { double('monitor') }
-  let(:user_uuid) { 123 }
+  let(:user_account_uuid) { 123 }
 
   describe '#perform' do
     let(:response) { double('response') }
@@ -42,24 +42,40 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, :uploader_helpers do
       expect(FormSubmission).to receive(:create)
       expect(FormSubmissionAttempt).to receive(:create)
       expect(Datadog::Tracing).to receive(:active_trace)
+      expect(UserAccount).to receive(:find)
 
       expect(service).to receive(:perform_upload).with(
         upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
       )
       expect(job).to receive(:cleanup_file_paths)
 
-      job.perform(claim.id, :user_uuid)
+      job.perform(claim.id, :user_account_uuid)
+    end
+
+    it 'is unable to find user_account' do
+      expect(SavedClaim::Pension).not_to receive(:find)
+      expect(BenefitsIntake::Service).not_to receive(:new)
+      expect(claim).not_to receive(:to_pdf)
+
+      expect(job).to receive(:cleanup_file_paths)
+
+      expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
+        ActiveRecord::RecordNotFound,
+        "Couldn't find UserAccount with 'id'=user_account_uuid"
+      )
     end
 
     it 'is unable to find saved_claim_id' do
       allow(SavedClaim::Pension).to receive(:find).and_return(nil)
+
+      expect(UserAccount).to receive(:find)
 
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
       expect(job).to receive(:cleanup_file_paths)
 
-      expect { job.perform(claim.id, :user_uuid) }.to raise_error(
+      expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         Lighthouse::PensionBenefitIntakeJob::PensionBenefitIntakeError,
         "Unable to find SavedClaim::Pension #{claim.id}"
       )

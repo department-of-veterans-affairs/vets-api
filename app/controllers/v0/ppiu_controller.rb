@@ -23,16 +23,14 @@ module V0
 
     def index
       response = service.get_payment_information
-      render json: response,
-             serializer: PPIUSerializer
+      render json: PPIUSerializer.new(response)
     end
 
     def update
       response = service.update_payment_information(pay_info)
       Rails.logger.warn('PPIUController#update request completed', sso_logging_info)
       send_confirmation_email
-      render json: response,
-             serializer: PPIUSerializer
+      render json: PPIUSerializer.new(response)
     end
 
     private

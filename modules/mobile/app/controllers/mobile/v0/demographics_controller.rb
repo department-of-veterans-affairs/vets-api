@@ -11,7 +11,7 @@ module Mobile
       def index
         response = service.get_demographics
         raise_error(response) if response.status != 200
-        render json: Mobile::V0::DemographicsSerializer.new(@current_user.icn, response)
+        render json: Mobile::V0::DemographicsSerializer.new(@current_user.uuid, response)
       end
 
       private
@@ -21,7 +21,7 @@ module Mobile
         when 400
           raise Common::Exceptions::BadRequest
         when 404
-          raise Common::Exceptions::RecordNotFound, @current_user.icn
+          raise Common::Exceptions::RecordNotFound, @current_user.uuid
         end
 
         raise Common::Exceptions::BackendServiceException

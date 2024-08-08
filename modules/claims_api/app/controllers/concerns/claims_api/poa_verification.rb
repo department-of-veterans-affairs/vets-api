@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-require 'bgs/power_of_attorney_verifier'
-
 module ClaimsApi
   module PoaVerification
     extend ActiveSupport::Concern
 
-    included do # rubocop:disable Metrics/BlockLength
+    included do
       #
       # Validate poa code provided exists in OGC dataset, that provided poa code is a valid/active poa code
       # @param poa_code [String] poa code to validate
@@ -105,19 +103,13 @@ module ClaimsApi
       def verify_power_of_attorney!
         return if token.client_credentials_token?
 
-        logged_in_representative_user = @current_user
-        target_veteran_to_be_verified = target_veteran
-        verify_representative_and_veteran(logged_in_representative_user, target_veteran_to_be_verified)
+        target_veteran_to_verify = ::Veteran::User.new(target_veteran)
+        poa_code_to_verify = target_veteran_to_verify.power_of_attorney.try(:code)
+        valid_poa_code_for_current_user?(poa_code_to_verify)
       rescue ::Common::Exceptions::UnprocessableEntity
         raise
       rescue
         raise ::Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
-      end
-
-      def verify_representative_and_veteran(logged_in_representative_user, target_veteran_to_be_verified)
-        verifying_bgs_service = BGS::PowerOfAttorneyVerifier.new(target_veteran_to_be_verified)
-        verifying_bgs_service.verify(logged_in_representative_user)
-        true
       end
 
       def poa_code_in_organization?(poa_code)

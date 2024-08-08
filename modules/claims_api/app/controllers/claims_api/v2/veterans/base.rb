@@ -23,6 +23,10 @@ module ClaimsApi
           @json_body&.dig('data', 'attributes') || {}
         end
 
+        def claim_transaction_id
+          @json_body&.dig('meta', 'transactionId') || nil
+        end
+
         def validate_veteran_name(require_first_and_last)
           first_name_blank = target_veteran[:first_name].blank?
           last_name_blank = target_veteran[:last_name].blank?

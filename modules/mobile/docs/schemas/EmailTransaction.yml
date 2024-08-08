@@ -11,6 +11,7 @@ properties:
       id:
         type: string
         example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+        description: Upstream identifier
       type:
         type: string
         example: "asyncTransactionVet360EmailTransactions"

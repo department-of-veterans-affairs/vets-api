@@ -27,9 +27,7 @@ module V0
       def show
         response = client.get_payment_info
 
-        render status: response.status,
-               json: response.body,
-               serializer: DisabilityCompensationsSerializer
+        render json: DisabilityCompensationsSerializer.new(response.body), status: response.status
       end
 
       def update
@@ -38,9 +36,7 @@ module V0
         response = client.update_payment_info(@payment_account)
         send_confirmation_email
 
-        render status: response.status,
-               json: response.body,
-               serializer: DisabilityCompensationsSerializer
+        render json: DisabilityCompensationsSerializer.new(response.body), status: response.status
       end
 
       private

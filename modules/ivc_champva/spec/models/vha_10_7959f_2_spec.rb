@@ -15,6 +15,7 @@ RSpec.describe IvcChampva::VHA107959f2 do
       'veteran' => {
         'full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
         'va_claim_number' => '123456789',
+        'ssn' => '123456789',
         'mailing_address' => { 'country' => 'USA', 'postal_code' => '12345' }
       },
       'form_number' => '10-7959F-2',
@@ -35,6 +36,7 @@ RSpec.describe IvcChampva::VHA107959f2 do
         'veteranMiddleName' => 'P',
         'veteranLastName' => 'Doe',
         'fileNumber' => '123456789',
+        'ssn_or_tin' => '123456789',
         'zipCode' => '12345',
         'country' => 'USA',
         'source' => 'VA Platform Digital Forms',

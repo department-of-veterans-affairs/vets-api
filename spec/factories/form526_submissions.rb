@@ -34,6 +34,10 @@ FactoryBot.define do
     backup_submitted_claim_status { 'rejected' }
   end
 
+  trait :paranoid_success do
+    backup_submitted_claim_status { 'paranoid_success' }
+  end
+
   trait :with_everything do
     form_json do
       File.read("#{submissions_path}/with_everything.json")
@@ -271,8 +275,8 @@ FactoryBot.define do
     submitted_claim_id { SecureRandom.rand(900_000_000) }
   end
 
-  trait :created_more_than_3_days_ago do
-    created_at { 4.days.ago }
+  trait :created_more_than_3_weeks_ago do
+    created_at { (3.weeks + 1.day).ago }
   end
 
   trait :remediated do

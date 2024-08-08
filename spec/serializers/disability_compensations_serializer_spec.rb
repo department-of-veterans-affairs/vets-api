@@ -5,7 +5,7 @@ require 'rails_helper'
 describe DisabilityCompensationsSerializer, type: :serializer do
   subject { serialize(compensation, serializer_class: described_class) }
 
-  let(:compensation) { build(:disability_compensation) }
+  let(:compensation) { build(:disability_compensation, :with_payment_account) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
@@ -33,5 +33,13 @@ describe DisabilityCompensationsSerializer, type: :serializer do
   it 'masks routing number' do
     masked_routing_number = StringHelpers.mask_sensitive(compensation[:payment_account][:routing_number])
     expect(attributes['payment_account']['routing_number']).to eq masked_routing_number
+  end
+
+  context 'when payment_account does not exist' do
+    let(:compensation) { build(:disability_compensation) }
+
+    it 'includes :payment_account as nil' do
+      expect(attributes['payment_account']).to be_nil
+    end
   end
 end

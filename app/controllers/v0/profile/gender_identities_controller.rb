@@ -17,7 +17,7 @@ module V0
 
           Rails.logger.info('GenderIdentitiesController#create request completed', sso_logging_info)
 
-          render json: response, serializer: GenderIdentitySerializer
+          render json: GenderIdentitySerializer.new(response)
         else
           raise Common::Exceptions::ValidationErrors, gender_identity
         end

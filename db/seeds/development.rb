@@ -86,15 +86,15 @@ sample_sts_config.update!(
 )
 
 # Create Config for VA Identity Dashboard using cookie auth
-vaid_dash = SignIn::ClientConfig.find_or_initialize_by(client_id: 'identity_dashboard')
+vaid_dash = SignIn::ClientConfig.find_or_initialize_by(client_id: 'identity_dashboard_rails')
 vaid_dash.update!(authentication: SignIn::Constants::Auth::COOKIE,
                   anti_csrf: true,
                   pkce: true,
-                  redirect_uri: 'http://localhost:3001/auth/login/callback',
+                  redirect_uri: 'http://localhost:4000/sessions/callback',
                   access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
-                  access_token_audience: 'sample_client',
+                  access_token_audience: 'identity dashboard',
                   access_token_attributes: %w[first_name last_name email],
-                  logout_redirect_uri: 'http://localhost:3001',
+                  logout_redirect_uri: 'http://localhost:4000/sessions/logout_callback',
                   refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Service Account Config for VA Identity Dashboard Service Account auth
@@ -160,3 +160,8 @@ btsss.update!(
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
   certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
 )
+
+# Update any exisitng ServiceAccountConfigs and ClientConfigs with default empty arrays
+SignIn::ServiceAccountConfig.where(certificates: nil).update(certificates: [])
+SignIn::ServiceAccountConfig.where(scopes: nil).update(scopes: [])
+SignIn::ClientConfig.where(certificates: nil).update(certificates: [])

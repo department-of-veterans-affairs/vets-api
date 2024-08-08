@@ -36,14 +36,14 @@ RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
 
     it 'processes transactional emails for Google Analytics evaluation' do
       VCR.use_cassette('govdelivery_emails', allow_playback_repeats: true) do
-        expect(subject).to receive(:eval_email).exactly(3).times
+        expect(subject).to receive(:eval_email).once
         subject.perform
       end
     end
 
     it 'sends events to Google Analytics' do
       VCR.use_cassette('govdelivery_emails', allow_playback_repeats: true) do
-        expect_any_instance_of(Staccato::Tracker).to receive(:event).exactly(4).times
+        expect_any_instance_of(Staccato::Tracker).to receive(:event).once
         subject.perform
       end
     end

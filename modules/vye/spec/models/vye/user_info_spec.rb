@@ -43,5 +43,279 @@ RSpec.describe Vye::UserInfo, type: :model do
         expect(pending_verifications.first.trace).to eq('case_eom')
       end
     end
+
+    describe 'case 1a' do
+      let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
+      let(:date_last_certified) { Date.parse('2024-05-15') }
+      let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
+      let(:award_begin_date) { Date.parse('2024-07-01') }
+      let(:award_end_date) { Date.parse('2024-07-01') }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
+
+      before do
+        Timecop.travel(now)
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it 'shows an enrollment' do
+        pending_verifications = user_info.pending_verifications
+
+        expect(pending_verifications.length).to eq(1)
+        expect(pending_verifications.first.trace).to eq('case1a')
+      end
+    end
+
+    describe 'case 1b' do
+      let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
+      let(:date_last_certified) { Date.parse('2024-05-15') }
+      let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
+      let(:award_begin_date) { Date.parse('2024-06-01') }
+      let(:award_end_date) { Date.parse('2024-06-29') }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
+
+      before do
+        Timecop.travel(now)
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it 'shows an enrollment' do
+        pending_verifications = user_info.pending_verifications
+
+        expect(pending_verifications.length).to eq(1)
+        expect(pending_verifications.first.trace).to eq('case1b')
+      end
+    end
+
+    describe 'case 2' do
+      let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
+      let(:date_last_certified) { Date.parse('2024-05-15') }
+      let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
+      let(:award_begin_date) { Date.parse('2024-06-01') }
+      let(:award_end_date) { Date.parse('2024-07-20') }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
+
+      before do
+        Timecop.travel(now)
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it 'shows an enrollment' do
+        pending_verifications = user_info.pending_verifications
+
+        expect(pending_verifications.length).to eq(1)
+        expect(pending_verifications.first.trace).to eq('case2')
+      end
+    end
+
+    describe 'case 3' do
+      let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
+      let(:date_last_certified) { Date.parse('2024-05-15') }
+      let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
+      let(:award_begin_date) { Date.parse('2024-07-01') }
+      let(:award_end_date) { Date.parse('2024-07-20') }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
+
+      before do
+        Timecop.travel(now)
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it 'shows an enrollment' do
+        pending_verifications = user_info.pending_verifications
+
+        expect(pending_verifications.length).to eq(1)
+        expect(pending_verifications.first.trace).to eq('case3')
+      end
+    end
+
+    describe 'case 4' do
+      let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
+      let(:date_last_certified) { Date.parse('2024-04-15') }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:award1) do
+        cur_award_ind = Vye::Award.cur_award_inds[:current]
+        award_begin_date = Date.parse('2024-05-01')
+        award_end_date = nil
+        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+      end
+      let!(:award2) do
+        cur_award_ind = Vye::Award.cur_award_inds[:future]
+        award_begin_date = Date.parse('2024-07-01')
+        award_end_date = Date.parse('2024-07-31')
+        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+      end
+
+      before do
+        Timecop.travel(now)
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it 'shows an enrollment' do
+        pending_verifications = user_info.pending_verifications
+
+        expect(pending_verifications.length).to eq(1)
+        expect(pending_verifications.first.trace).to eq('case4')
+      end
+    end
+
+    describe 'case 5' do
+      let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
+      let(:date_last_certified) { Date.parse('2024-05-15') }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:award1) do
+        cur_award_ind = Vye::Award.cur_award_inds[:current]
+        award_begin_date = Date.parse('2024-05-01')
+        award_end_date = nil
+        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+      end
+      let!(:award2) do
+        cur_award_ind = Vye::Award.cur_award_inds[:future]
+        award_begin_date = Date.parse('2024-06-01')
+        award_end_date = Date.parse('2024-08-01')
+        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+      end
+
+      before do
+        Timecop.travel(now)
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it 'shows an enrollment' do
+        pending_verifications = user_info.pending_verifications
+
+        expect(pending_verifications.length).to eq(1)
+        expect(pending_verifications.find { |v| v.award_id = award2.id }.trace).to eq('case5')
+      end
+    end
+
+    describe 'case 6' do
+      let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
+      let(:date_last_certified) { nil }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:award) do
+        cur_award_ind = Vye::Award.cur_award_inds[:future]
+        award_begin_date = Date.parse('2024-06-01')
+        award_end_date = Date.parse('2024-07-15')
+        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+      end
+
+      before do
+        Timecop.travel(now)
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it 'shows an enrollment' do
+        pending_verifications = user_info.pending_verifications
+
+        expect(pending_verifications.length).to eq(1)
+        expect(pending_verifications.first.trace).to eq('case6')
+      end
+    end
+
+    describe 'case 7' do
+      let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
+      let(:date_last_certified) { Date.parse('2024-05-15') }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:award) do
+        cur_award_ind = Vye::Award.cur_award_inds[:future]
+        award_begin_date = Date.parse('2024-06-01')
+        award_end_date = Date.parse('2024-07-15')
+        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+      end
+
+      before do
+        Timecop.travel(now)
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it 'shows an enrollment' do
+        pending_verifications = user_info.pending_verifications
+
+        expect(pending_verifications.length).to eq(1)
+        expect(pending_verifications.first.trace).to eq('case7')
+      end
+    end
+
+    describe 'case 8' do
+      let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
+      let(:date_last_certified) { Date.parse('2024-05-15') }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:award) do
+        cur_award_ind = Vye::Award.cur_award_inds[:future]
+        award_begin_date = Date.parse('2024-05-01')
+        award_end_date = Date.parse('2024-06-30')
+        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+      end
+
+      before do
+        Timecop.travel(now)
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it 'shows an enrollment' do
+        pending_verifications = user_info.pending_verifications
+
+        expect(pending_verifications.length).to eq(1)
+        expect(pending_verifications.first.trace).to eq('case8')
+      end
+    end
+
+    describe 'case 9' do
+      let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
+      let(:date_last_certified) { Date.parse('2024-06-30') }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:award) do
+        cur_award_ind = Vye::Award.cur_award_inds[:future]
+        award_begin_date = Date.parse('2024-07-01')
+        award_end_date = Date.parse('2024-07-18')
+        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+      end
+
+      before do
+        Timecop.travel(now)
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it 'shows an enrollment' do
+        pending_verifications = user_info.pending_verifications
+
+        expect(pending_verifications.length).to eq(1)
+        expect(pending_verifications.first.trace).to eq('case9')
+      end
+    end
   end
 end

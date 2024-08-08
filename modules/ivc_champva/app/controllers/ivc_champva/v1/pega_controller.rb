@@ -40,8 +40,9 @@ module IvcChampva
             )
           end
 
-          ivc_forms_by_email = ivc_forms.select { |record| record.email.present? }.group_by(&:email)
-          send_emails(ivc_forms_by_email) if ivc_forms_by_email.present?
+          # We only need the first form, outside of the file_names field, the data is the same.
+          form = ivc_forms.first
+          send_email(form_uuid, ivc_forms.first) if form.email.present?
 
           { json: {}, status: :ok }
         else
@@ -51,21 +52,26 @@ module IvcChampva
         end
       end
 
-      def send_emails(ivc_forms_by_email)
-        form_data = ivc_forms_by_email.map do |email, forms|
-          {
-            email:,
-            first_name: forms.first.first_name,
-            last_name: forms.first.last_name,
-            form_number: forms.first.form_number,
-            file_names: forms.map(&:file_name),
-            pega_status: forms.first.pega_status,
-            updated_at: forms.first.updated_at.strftime('%B %d, %Y')
-          }
-        end
+      def send_email(form_uuid, form)
+        return if form.email_sent
 
-        form_data.each do |data|
-          IvcChampva::Email.new(data).send_email
+        form_data =
+          {
+            email: form.email,
+            first_name: form.first_name,
+            last_name: form.last_name,
+            form_number: form.form_number,
+            file_count: fetch_forms_by_uuid(form_uuid).where('file_name LIKE ?', '%supporting_doc%').count,
+            pega_status: form.pega_status,
+            created_at: form.created_at.strftime('%B %d, %Y')
+          }
+
+        ActiveRecord::Base.transaction do
+          if IvcChampva::Email.new(form_data).send_email
+            fetch_forms_by_uuid(form_uuid).update_all(email_sent: true) # rubocop:disable Rails/SkipsModelValidations
+          else
+            raise ActiveRecord::Rollback, 'Pega Status Update Email send failure'
+          end
         end
       end
 
@@ -79,7 +85,11 @@ module IvcChampva
           query.or(IvcChampvaForm.where(condition))
         end
 
-        IvcChampvaForm.where(form_uuid:).merge(file_name_query)
+        fetch_forms_by_uuid(form_uuid).merge(file_name_query)
+      end
+
+      def fetch_forms_by_uuid(form_uuid)
+        @fetch_forms_by_uuid ||= IvcChampvaForm.where(form_uuid:)
       end
     end
   end
