@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'claims_api/bgs_claim_status_mapper'
-require 'claims_api/v2/mock_documents_service'
 
 module ClaimsApi
   module V2
@@ -540,8 +539,6 @@ module ClaimsApi
                    # add with_indifferent_access so ['documents'] works below
                    # we can remove when EVSS is gone and access it via it's symbol
                    supporting_docs_list.with_indifferent_access if supporting_docs_list.present?
-                 elsif sandbox?
-                   { documents: ClaimsApi::V2::MockDocumentsService.new.generate_documents }.with_indifferent_access
                  else
                    get_evss_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id])
                  end
@@ -591,10 +588,6 @@ module ClaimsApi
               phase_type: bgs_phase_status_mapper.get_phase_type_from_dictionary(bgs_claim[:phase_type].downcase)
             }
           end
-        end
-
-        def sandbox?
-          Settings.claims_api.claims_error_reporting.environment_name&.downcase.eql? 'sandbox'
         end
 
         def benefits_documents_enabled?
