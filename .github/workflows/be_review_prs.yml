@@ -39,10 +39,11 @@ jobs:
           echo "APPROVED=${{ github.event.review.state == 'approved'}}" >> GITHUB_OUTPUT
 
       - name: Requested teams
-        run: echo "REQUESTED_TEAMS=${{ toJSON(github.event.pull_request.requested_teams.*.name) }}" >> GITHUB_ENV
+        id: required_teams
+        run: echo "REQUESTED_TEAMS=${{ toJSON(github.event.pull_request.requested_teams.*.name) }}" >> GITHUB_OUTPUT
 
       - name: Check requested teams
-        run: echo "$REQUESTED_TEAMS"
+        run: echo "${{ steps.required_teams.outputs.requested_teams }}"
 
       - name: Check required reviewers
         id: check_reviewers
