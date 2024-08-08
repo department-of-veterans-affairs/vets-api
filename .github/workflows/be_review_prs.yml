@@ -20,7 +20,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
@@ -34,14 +33,10 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-      - name: Fetch Requested Teams
-        id: requested_teams
-        run: |
-          echo "REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')" >> GITHUB_ENV
-
       - name: Check required reviewers
         id: check_reviewers
         run: |
+          REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
           if echo "$REQUESTED_TEAMS" | grep -qiE '(mobile|lighthouse|identity)'; then
             echo "skip_backend_review=true" >> $GITHUB_OUTPUT
           else
@@ -57,14 +52,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
-      - run: echo '${{ steps.get_team_members.outputs.data }}'
-
       - name: Check backend-review-group approval status
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: check_backend_review_group_approval_status
         uses: octokit/request-action@v2.x
         with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}/reviews
+          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
