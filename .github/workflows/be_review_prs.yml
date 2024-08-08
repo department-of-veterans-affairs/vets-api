@@ -33,7 +33,7 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-      - run: echo "${{ github.event.pull_request.pull_request.requested_teams}}"
+      - run: echo "${{ github.event.pull_request.requested_teams}}"
 
       - name: Check required reviewers
         id: check_reviewers
