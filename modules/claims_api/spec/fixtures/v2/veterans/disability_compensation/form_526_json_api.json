@@ -42,10 +42,12 @@
         }
       },
       "homeless": {
+        "isCurrentlyHomeless": true,
         "currentlyHomeless": {
           "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
           "otherDescription": "ABCDEFGHIJKLM"
         },
+        "isAtRiskOfBecomingHomeless": false,
         "pointOfContact": "john stewart",
         "pointOfContactNumber": {
           "telephone": "5555555555",

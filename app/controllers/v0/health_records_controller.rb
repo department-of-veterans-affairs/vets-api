@@ -5,18 +5,15 @@ module V0
     def refresh
       resource = client.get_extract_status
 
-      render json: resource.data,
-             serializer: CollectionSerializer,
-             each_serializer: ExtractStatusSerializer,
-             meta: resource.metadata
+      options = { meta: resource.metadata }
+      render json: ExtractStatusSerializer.new(resource.data, options)
     end
 
     def eligible_data_classes
       resource = client.get_eligible_data_classes
 
-      render json: resource.data,
-             serializer: EligibleDataClassesSerializer,
-             meta: resource.metadata
+      options = { meta: resource.metadata, is_collection: false }
+      render json: EligibleDataClassesSerializer.new(resource.data, options)
     end
 
     def create

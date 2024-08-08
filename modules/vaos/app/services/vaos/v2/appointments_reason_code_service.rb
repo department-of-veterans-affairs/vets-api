@@ -25,27 +25,33 @@ module VAOS
       #
       # @param appointment [Hash] the appointment to modify
       def extract_reason_code_fields(appointment)
-        # Return if the appointment is a CC request or not a request.
-        # We consider appointments with requested_periods as requests.
-        return if appointment[:kind] == 'cc' || appointment[:requested_periods].blank?
-
         # Retrieve the reason code text, or return if it is not present
         reason_code_text = appointment&.dig(:reason_code, :text)
         return if reason_code_text.nil?
 
         # Convert the text to a hash for querying, or return if no valid key value pairs are found
         reason_code_hash = reason_code_text.split('|')
-                                           .select { |pair| pair.count(':') == 1 }
+                                           .select { |pair| pair.split(':').count == 2 }
                                            .to_h { |pair| pair.split(':').map!(&:strip) }
         return if reason_code_hash.empty?
 
-        contact = extract_contact_fields(reason_code_hash)
-        comments = reason_code_hash['comments'] if reason_code_hash.key?('comments')
-        reason = extract_reason_for_appointment(reason_code_hash)
-        preferred_dates = extract_preferred_dates(reason_code_hash)
+        # Direct Scheduling appointments
+        # Note we check requested periods to ensure booked DS appointments and booked DS
+        # appointments that are later cancelled are both processed here.
+        if appointment[:kind] == 'clinic' && appointment[:requested_periods].blank?
+          comments = reason_code_hash['comments'] if reason_code_hash.key?('comments')
+          reason = extract_reason_for_appointment(reason_code_hash)
+
+        # Appointment requests
+        elsif appointment[:requested_periods].present? && appointment[:kind] != 'cc'
+          contact = extract_contact_fields(reason_code_hash)
+          comments = reason_code_hash['comments'] if reason_code_hash.key?('comments')
+          reason = extract_reason_for_appointment(reason_code_hash)
+          preferred_dates = extract_preferred_dates(reason_code_hash)
+        end
 
         appointment[:contact] = contact unless contact.nil?
-        appointment[:additional_appointment_details] = comments unless comments.nil?
+        appointment[:patient_comments] = comments unless comments.nil?
         appointment[:reason_for_appointment] = reason unless reason.nil?
         appointment[:preferred_dates] = preferred_dates unless preferred_dates.nil?
       end
@@ -72,6 +78,9 @@ module VAOS
       def extract_reason_for_appointment(reason_code_hash)
         if reason_code_hash.key?('reason code') && PURPOSE_TEXT.key?(reason_code_hash['reason code'])
           PURPOSE_TEXT[reason_code_hash['reason code']]
+        # Direct schedule appointments also used 'reasonCode' as the key in the past so we need this as well
+        elsif reason_code_hash.key?('reasonCode') && PURPOSE_TEXT.key?(reason_code_hash['reasonCode'])
+          PURPOSE_TEXT[reason_code_hash['reasonCode']]
         end
       end
 

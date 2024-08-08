@@ -3,7 +3,7 @@
 module Vye
   module BatchTransfer
     module IngressFiles
-      BDN_FEED_FILENAME = 'wave.txt'
+      BDN_FEED_FILENAME = 'WAVE.txt'
       TIMS_FEED_FILENAME = 'tims32towave.txt'
 
       private_constant :BDN_FEED_FILENAME, :TIMS_FEED_FILENAME
