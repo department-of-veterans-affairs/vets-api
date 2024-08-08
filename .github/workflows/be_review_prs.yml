@@ -25,13 +25,18 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-
+      - name: Github Event
+        run: echo "${{ github.event_name }}"
 
       - name: echo pr teams
-        run: echo "${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), '') }}"
+        run: |
+          echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) }}"
+          echo "${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), '') }}"
 
       - name: echo review teams
-        run: echo "${{ contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), '') }}"
+        run: |
+          echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}""
+          echo "${{ contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), '') }}"
 
       - name: Check required reviewers
         id: check_reviewers
