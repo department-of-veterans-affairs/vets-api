@@ -56,10 +56,6 @@ jobs:
             echo "skip_backend_review=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Check for approval
-        id: check-for-approvlas
-        run: |
-          github.event.review.state == 'approved'
 
       - name: Get backend-review-group members
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
