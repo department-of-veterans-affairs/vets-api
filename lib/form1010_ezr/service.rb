@@ -73,9 +73,9 @@ module Form1010Ezr
           '1010EZR total failure',
           :error,
           {
-            first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
-            middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
-            last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
+            first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
+            middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
+            last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
           },
           ezr: :total_failure
         )
