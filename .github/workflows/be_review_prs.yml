@@ -33,6 +33,9 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
+      - name: Github event
+        run: echo "${{ github.event_name }}"
+
       - name: Check required reviewers
         id: check_reviewers
         run: |
