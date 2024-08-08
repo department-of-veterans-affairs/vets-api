@@ -143,6 +143,7 @@ module EVSS
           else
             send_post_evss_notifications(submission) if send_notifications
           end
+        end
       end
 
       private
