@@ -22,35 +22,34 @@ module V0
       claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
       render json: SavedClaimSerializer.new(claim)
     rescue ActiveRecord::RecordNotFound => e
-      ia_monitor.track_show404(params[:id], current_user.user_account_uuid, e)
+      ia_monitor.track_show404(params[:id], current_user&.user_account_uuid, e)
       render(json: { error: e.to_s }, status: :not_found)
     rescue => e
-      ia_monitor.track_show_error(params[:id], current_user.user_account_uuid, e)
+      ia_monitor.track_show_error(params[:id], current_user&.user_account_uuid, e)
       raise e
     end
 
     # POST creates and validates an instance of `claim_class`
     def create
       claim = claim_class.new(form: filtered_params[:form])
-      ia_monitor.track_create_attempt(claim, current_user.user_account_uuid)
+      ia_monitor.track_create_attempt(claim, current_user&.user_account_uuid)
 
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
       claim.form_start_date = in_progress_form.created_at if in_progress_form
 
       unless claim.save
-        ia_monitor.track_create_error(in_progress_form, claim, current_user.user_account_uuid)
         log_validation_error_to_metadata(in_progress_form, claim)
         raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
       claim.upload_to_lighthouse(current_user)
 
-      ia_monitor.track_create_success(in_progress_form, claim, current_user.user_account_uuid)
+      ia_monitor.track_create_success(in_progress_form&.id, claim, current_user&.user_account_uuid)
 
       clear_saved_form(claim.form_id)
       render json: SavedClaimSerializer.new(claim)
     rescue => e
-      ia_monitor.track_create_error(in_progress_form, claim, current_user.user_account_uuid, e)
+      ia_monitor.track_create_error(in_progress_form&.id, claim, current_user&.user_account_uuid, e)
       raise e
     end
 
