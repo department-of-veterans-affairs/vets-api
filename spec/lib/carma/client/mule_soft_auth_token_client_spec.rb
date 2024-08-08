@@ -45,8 +45,12 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
 
     let(:options) { { timeout: } }
 
-    let(:access_token) { 'my-token' }
-    let(:mock_token_response) { Faraday::Response.new(response_body: { access_token: }, status: 200) }
+    let(:token) { 'my-token' }
+    let(:response_body) do
+      "{\"token_type\":\"Bearer\",\"expires_in\":3600,\"access_token\":\"#{token}\",\"scope\":\"DTCWriteResource\"}"
+    end
+
+    let(:mock_token_response) { Faraday::Response.new(response_body:, status: 200) }
 
     context 'successfully gets token' do
       it 'calls perform with expected params' do
@@ -58,7 +62,7 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
           )
           .and_return(mock_token_response)
 
-        expect(subject).to eq access_token
+        expect(subject).to eq token
       end
     end
 
