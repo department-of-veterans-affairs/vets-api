@@ -6,7 +6,7 @@ class SavedClaim::IncomeAndAssets < SavedClaim
   FORM = '21P-0969'
 
   ##
-  # the predfined regional office address
+  # the predefined regional office address
   #
   # @return [Array<String>] the address lines of the regional office
   #
