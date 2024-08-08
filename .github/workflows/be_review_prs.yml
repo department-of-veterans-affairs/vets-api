@@ -52,6 +52,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
+      - run: echo '${{ steps.get_team_members.outputs.data }}'
+
       - name: Check backend-review-group approval status
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: check_backend_review_group_approval_status
