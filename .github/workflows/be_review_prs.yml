@@ -40,7 +40,7 @@ jobs:
 
       - name: Requested teams
         id: required_teams
-        run: echo "REQUESTED_TEAMS=${{ toJSON(github.event.pull_request.requested_teams.*.name) }}" >> GITHUB_OUTPUT
+        run: echo "requested_teams=${{ toJSON(github.event.pull_request.requested_teams.*.name) }}" >> GITHUB_OUTPUT
 
       - name: Check requested teams
         run: echo "${{ steps.required_teams.outputs.requested_teams }}"
