@@ -42,7 +42,7 @@ jobs:
 
       - name: PR Requested reviewers Submitted
         if: github.event_name == 'pull_request_review'
-        run: echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}"
+        run: echo "${{ contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'accredited-representation-management') }}"
 
       - name: Check required reviewers
         id: check_reviewers
