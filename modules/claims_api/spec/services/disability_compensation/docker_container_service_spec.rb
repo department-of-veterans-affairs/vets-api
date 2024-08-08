@@ -57,7 +57,7 @@ describe ClaimsApi::DisabilityCompensation::DockerContainerService do
       end
     end
 
-    context 'the error is saved to the claim in the evss response' do
+    context 'the error is saved on the claim in the evss_response attribute' do
       errors = {
         messages: [
           {
@@ -67,23 +67,20 @@ describe ClaimsApi::DisabilityCompensation::DockerContainerService do
           }
         ]
       }
-
-      let(:backend_error) do
-        Common::Exceptions::BackendServiceException.new(
-          { status: 400, detail: nil, code: 'VA900', source: nil },
-          400,
-          errors
-        )
-      end
+      let(:file_number) { '635781568' }
 
       it 'sets the evss_response to the original body error message' do
-        VCR.use_cassette('/claims_api/evss/error', record: :all) do
-          docker_container_service.send(:upload, claim.id)
-          allow(docker_container_service).to receive(:upload).with(claim.id).and_return(backend_error)
-
-          claim.reload
-          expect(claim.evss_response).to eq([''])
-        end
+        evss_mapper_stub = instance_double(ClaimsApi::V2::DisabilityCompensationEvssMapper)
+        allow(ClaimsApi::V2::DisabilityCompensationEvssMapper).to receive(:new) { evss_mapper_stub }
+        allow(evss_mapper_stub).to receive(:map_claim).and_raise(Common::Exceptions::BackendServiceException.new(
+                                                                   errors
+                                                                 ))
+        subject.upload(claim.id)
+        claim.reload
+        expect(claim.evss_id).to be_nil
+        expect(claim.evss_response).to eq([{ 'title' => 'Operation failed', 'detail' => 'Operation failed',
+                                             'code' => 'VA900', 'status' => '400' }])
+        expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
       end
     end
   end
