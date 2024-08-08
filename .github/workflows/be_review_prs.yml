@@ -43,10 +43,17 @@ jobs:
       - name: Check required pr reviewers
         id: check_reviewers
         if: |
-          github.event_name == 'pull_request' &&
+          ( github.event_name == 'pull_request' &&
           !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
           !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
           !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
+          ) ||
+          (
+          github.event_name == 'pull_request_review' &&
+          !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'mobile') ||
+          !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'lighthouse') ||
+          !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'identity')
+          )
         run: |
           skip_backend_review=true" >> $GITHUB_OUTPUT
 
