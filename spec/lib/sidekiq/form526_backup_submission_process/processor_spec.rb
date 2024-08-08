@@ -77,7 +77,6 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
       new_form_data['startedFormVersion'] = nil
       submission.saved_claim.form = new_form_data.to_json
       submission.saved_claim.save
-      submission.saved_claim.parsed_form
 
       expect(ApiProviderFactory).to receive(:call).with(
         {
