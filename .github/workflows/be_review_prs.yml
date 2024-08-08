@@ -78,6 +78,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+
+      - name: Whole PR
+        if:  github.event_name == 'pull_request'
+        run: echo "${{ github.event.pull_request }}"
+
+      - name: Backend Status outpus
+        run: echo "${{ steps.check_backend_review_group_approval_status.outputs.data }}"
+
       - name: Verify backend-review-group approval
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: verify_approval
