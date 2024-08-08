@@ -34,15 +34,16 @@ jobs:
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Check for approval
-        id: check-for-approvlas
+        id: check_for_approvals
         run: |
           echo "APPROVED=${{ github.event.review.state == 'approved'}}" >> GITHUB_OUTPUT
+
+      - run: echo "${{ github.event.pull_request.requested_teams}}"
 
       - name: Fetch Requested Teams
         id: fetch_requested_teams
         run: |
           echo "REQUESTED_TEAMS=$('${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')" >> GITHUB_OUTPUT
-
 
       - run: echo "${{ steps.fetch_requested_teams.requested_teams}}"
 
