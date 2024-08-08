@@ -9,9 +9,16 @@ module RepresentationManagement
 
       def index
         data = RepresentationManagement::AccreditedEntityQuery.new(params[:query]).results
-        render json: data.map { |record|
-                       RepresentationManagement::AccreditedEntities::EntitySerializer.new(record).serializable_hash
-                     }
+        json_response = data.map do |record|
+          if record.is_a?(AccreditedIndividual)
+            RepresentationManagement::AccreditedEntities::IndividualSerializer.new(record).serializable_hash
+          elsif record.is_a?(AccreditedOrganization)
+            RepresentationManagement::AccreditedIndividuals::OrganizationSerializer.new(record).serializable_hash
+          else
+            raise "Unknown object type: #{record.class}"
+          end
+        end
+        render json: json_response
       end
 
       # def feature_enabled
