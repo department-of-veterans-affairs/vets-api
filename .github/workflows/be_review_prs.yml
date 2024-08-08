@@ -27,13 +27,16 @@ jobs:
 
 
 
-      - name: echo tams
+      - name: echo pr teams
         run: echo "${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), '') }}"
+
+      - name: echo review teams
+        run: echo "${{ contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), '') }}"
 
       - name: Check required reviewers
         id: check_reviewers
         run: |
-          if github.event_name == 'pull_request' && ( contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') || contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') | contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')); then
+          if github.event_name == 'pull_request' && ( contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') || contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') | contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity') ); then
             echo "skip_backend_review=true" >> $GITHUB_OUTPUT
           elif github.event_name == 'pull_request_review' && ( contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'mobile') || contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'lighthouse') | contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'identity')); then
             echo "skip_backend_review=true" >> $GITHUB_OUTPUT
