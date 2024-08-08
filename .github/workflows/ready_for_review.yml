@@ -33,6 +33,7 @@ jobs:
 
       - name: Add Review label
         uses: actions-ecosystem/action-add-labels@v1
+        permissions: write-all
         if: steps.audit_passing_labels.outputs.ready_for_review == 'true' && steps.audit_pr_labels.outputs.no_failures != 'false'
         with:
           number: ${{ github.event.pull_request.number }}
@@ -41,6 +42,7 @@ jobs:
 
       - name: Remove Review label
         uses: actions-ecosystem/action-remove-labels@v1
+        permissions: write-all
         if: steps.audit_passing_labels.outputs.ready_for_review != 'true' || steps.audit_pr_labels.outputs.no_failures == 'false'
         with:
           number: ${{ github.event.pull_request.number }}
