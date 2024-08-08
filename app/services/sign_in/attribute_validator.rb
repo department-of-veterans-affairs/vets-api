@@ -62,10 +62,6 @@ module SignIn
       check_id_mismatch(mpi_response_profile.edipis, 'EDIPI', Constants::ErrorCode::MULTIPLE_EDIPI)
       check_id_mismatch(mpi_response_profile.mhv_iens, 'MHV_ID', Constants::ErrorCode::MULTIPLE_MHV_IEN)
       check_id_mismatch(mpi_response_profile.participant_ids, 'CORP_ID', Constants::ErrorCode::MULTIPLE_CORP_ID)
-      check_id_mismatch(mpi_response_profile.sec_ids,
-                        'SEC_ID',
-                        Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
-                        prevent_auth: false)
     end
 
     def add_mpi_user
