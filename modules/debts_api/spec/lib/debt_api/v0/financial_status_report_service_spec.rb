@@ -33,7 +33,11 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     let(:user) { build(:user, :loa3) }
     let(:user_data) { build(:user_profile_attributes) }
 
-    context 'The environment is production' do
+    context 'The flipper is turned on' do
+      before do
+        Flipper.enable(:combined_financial_status_report)
+      end
+
       it 'submits combined fsr' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
@@ -45,7 +49,11 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       end
     end
 
-    context 'The environment is NOT production' do
+    context 'The flipper is turned off' do
+      before do
+        Flipper.disable(:combined_financial_status_report)
+      end
+
       it 'ignores flipper and uses combined fsr' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
