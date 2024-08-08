@@ -363,11 +363,7 @@ class Form526Submission < ApplicationRecord
     )
     workflow_batch.jobs do
       submit_uploads if form[FORM_526_UPLOADS].present?
-      if Flipper.enabled?(:disability_compensation_production_tester, User.find(user_uuid))
-        Rails.logger.info("submit_form_4142 call skipped for submission #{submission.id}")
-      else
-        submit_form_4142 if form[FORM_4142].present?
-      end
+      conditionally_submit_form_4142
       submit_form_0781 if form[FORM_0781].present?
       submit_form_8940 if form[FORM_8940].present?
       upload_bdd_instructions if bdd?
@@ -492,6 +488,14 @@ class Form526Submission < ApplicationRecord
   end
 
   private
+
+  def conditionally_submit_form_4142
+    if Flipper.enabled?(:disability_compensation_production_tester, User.find(user_uuid))
+      Rails.logger.info("submit_form_4142 call skipped for submission #{submission.id}")
+    elsif form[FORM_4142].present?
+      submit_form_4142
+    end
+  end
 
   attr_accessor :lighthouse_validation_response
 

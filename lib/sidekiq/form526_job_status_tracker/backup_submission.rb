@@ -3,6 +3,7 @@
 module Sidekiq
   module Form526JobStatusTracker
     module BackupSubmission
+      # rubocop:disable Metrics/MethodLength
       def send_backup_submission_if_enabled(form526_submission_id:, job_class:, job_id:, error_class:,
                                             error_message:)
         submission_obj = Form526Submission.find(form526_submission_id)
@@ -40,6 +41,7 @@ module Sidekiq
         log_message['backup_job_id'] = backup_job_jid unless backup_job_jid.nil?
         ::Rails.logger.error('Form526 Exhausted or Errored (retryable-error-path)', log_message)
       end
+      # rubocop:enable Metrics/MethodLength
     end
   end
 end
