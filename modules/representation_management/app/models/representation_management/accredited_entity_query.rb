@@ -4,11 +4,6 @@ module RepresentationManagement
   class AccreditedEntityQuery
     include ActiveModel::Model
 
-    # Here we need to take the query string and compare it to the full names of
-    # the accredited individuals and organizations in their respective tables.
-    # We need to order the records by word similarity to the query string.
-    # Then those records need to be passed to the seralizer to be rendered as JSON.
-
     def initialize(query_string)
       @query_string = query_string
     end
@@ -16,17 +11,20 @@ module RepresentationManagement
     def results
       create_accredited_entities if AccreditedIndividual.count.zero? && AccreditedOrganization.count.zero?
 
-      individuals = AccreditedIndividual.where('word_similarity(?, full_name) >= ?', @query_string, threshold)
-      organizations = AccreditedOrganization.where('word_similarity(?, name) >= ?', @query_string, threshold)
-      p "individuals full_names: #{individuals.map(&:full_name).sort}",
-        "organizations names: #{organizations.map(&:name).sort}"
-
       (individuals + organizations).sort_by do |record|
         levenshtein_distance(@query_string, record)
       end
     end
 
     private
+
+    def individuals
+      AccreditedIndividual.where('word_similarity(?, full_name) >= ?', @query_string, threshold)
+    end
+
+    def organizations
+      AccreditedOrganization.where('word_similarity(?, name) >= ?', @query_string, threshold)
+    end
 
     def threshold
       0.5
