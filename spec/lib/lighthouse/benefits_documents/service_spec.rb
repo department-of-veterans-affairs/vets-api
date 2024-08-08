@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'lighthouse/benefits_documents/service'
 require 'lighthouse_document'
+require 'lighthouse/benefits_documents/configuration'
 
 RSpec.describe BenefitsDocuments::Service do
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -11,6 +12,8 @@ RSpec.describe BenefitsDocuments::Service do
   describe '#queue_document_upload' do
     before do
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+      token = 'abcd1234'
+      allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return(token)
     end
 
     describe 'when uploading single file' do
@@ -48,7 +51,16 @@ RSpec.describe BenefitsDocuments::Service do
       end
 
       it 'does not enqueue a job when cst_synchronous_evidence_uploads is true' do
-        VCR.use_cassette('spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_document_upload_200_jpg.yml', match_requests_on: [:uri]) do # rubocop:disable Layout/LineLength
+        VCR.configure do |c|
+          c.debug_logger = $stderr
+        end
+        VCR.use_cassette(
+          'spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_document_upload_200_jpg.yml',
+          match_requests_on: [:host],
+          allow_unused_http_interactions: false,
+          record_on_error: false,
+          record: :none
+        ) do
           Flipper.enable(:cst_synchronous_evidence_uploads)
           expect do
             service.queue_document_upload(params)
