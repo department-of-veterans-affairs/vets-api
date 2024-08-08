@@ -61,7 +61,7 @@ jobs:
           echo "skip_backend_review=false" >> $GITHUB_OUTPUT
 
       - name: Get backend-review-group members
-        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
+        if: steps.check_submitted_reviewers.outputs.skip_backend_review == 'false' || steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: get_team_members
         uses: octokit/request-action@v2.x
         with:
