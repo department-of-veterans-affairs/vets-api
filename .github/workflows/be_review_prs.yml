@@ -40,16 +40,25 @@ jobs:
           echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}""
           echo "${{ contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), '[]') }}"
 
-      - name: Check required reviewers
-        id: check_reviewers
+      - name: Check required pr reviewers
+        id: check_pr_reviewers
+        if: |
+          github.event_name == 'pull_request' &&
+          !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
+          !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
+          !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity') )
         run: |
-          if github.event_name == 'pull_request' && ( contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') || contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') || contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity') ); then
-            echo "skip_backend_review=true" >> $GITHUB_OUTPUT
-          elif github.event_name == 'pull_request_review' && ( contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'mobile') || contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'lighthouse') || contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'identity')); then
-            echo "skip_backend_review=true" >> $GITHUB_OUTPUT
-          else
-            echo "skip_backend_review=false" >> $GITHUB_OUTPUT
-          fi
+          skip_backend_review=true" >> $GITHUB_OUTPUT
+
+      - name: Check required submitted reviewers
+        id: check_submitted_reviewers
+        if: |
+          github.event_name == 'pull_request_review' &&
+          !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'mobile') ||
+          !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'lighthouse') ||
+          !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'identity') )
+        run: |
+          skip_backend_review=true" >> $GITHUB_OUTPUT
 
       - name: Get backend-review-group members
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
