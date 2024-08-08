@@ -30,12 +30,14 @@ module ClaimsApi
     end
 
     def call_token_validation_service(token_validation_url, payload)
-      headers = {
-        Authorization: "Bearer #{@token_string}",
-        apiKey: Settings.claims_api.token_validation.api_key
-      }
+      connection = Faraday.new do |faraday|
+        faraday.options.timeout = 15
+        faraday.options.open_timeout = 15
+        faraday.headers['Authorization'] = "Bearer #{@token_string}"
+        faraday.headers['apiKey'] = Settings.claims_api.token_validation.api_key
+      end
 
-      Faraday.post(token_validation_url, payload, headers)
+      connection.post(token_validation_url, payload)
     rescue Faraday::Error => e
       error = JSON.parse(e.response.body)
       if !error['errors'].nil? && error['errors'].size.positive?
