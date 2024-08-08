@@ -36,15 +36,15 @@ jobs:
       - name: Check for approval
         id: check-for-approvlas
         run: |
-          echo "${{ github.event.review.state == 'approved'}}"
+          echo "APPROVED=${{ github.event.review.state == 'approved'}}" >> GITHUB_OUTPUT
 
       - name: Fetch Requested Teams
         id: fetch_requested_teams
         run: |
-          echo "REQUESTED_TEAMS=$('${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')" >> GITHUB_OUTPUT
+          echo "REQUESTED_TEAMS=$('${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')" >> GITHUB_ENV
 
 
-      - run: echo "${{ steps.fetch_requested_teams.requested_teams}}"
+      - run: echo "$REQUESTED_TEAMS"
 
       - name: Check required reviewers
         id: check_reviewers
@@ -55,7 +55,6 @@ jobs:
           else
             echo "skip_backend_review=false" >> $GITHUB_OUTPUT
           fi
-
 
       - name: Get backend-review-group members
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
