@@ -26,7 +26,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       appt = FactoryBot.build(:appointment_form_v2, :community_cares_valid_reason_code_text).attributes
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
-      expect(appt[:patient_comments]).to be_nil
+      expect(appt[:patient_comments]).to eq('test request')
       expect(appt[:reason_for_appointment]).to be_nil
       expect(appt[:preferred_dates]).to be_nil
     end
@@ -35,7 +35,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       appt = FactoryBot.build(:appointment_form_v2, :ds_cc_booked_valid_reason_code_text).attributes
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
-      expect(appt[:patient_comments]).to be_nil
+      expect(appt[:patient_comments]).to eq('test booked')
       expect(appt[:reason_for_appointment]).to be_nil
       expect(appt[:preferred_dates]).to be_nil
     end
