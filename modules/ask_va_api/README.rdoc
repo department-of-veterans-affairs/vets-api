@@ -1,5 +1,6 @@
 = AskVAApi
-TODO: Short description and motivation.
+
+This API is a facade (technically, it's middleware) for the APIs that were developed on the Dynamics / PowerApps platform on the government Azure cloud. 
 
 == Installation
 Ensure the following line is in the root project's Gemfile:
