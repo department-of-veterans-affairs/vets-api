@@ -2,7 +2,7 @@
 
 module Mobile
   module V0
-    module PaymentInformation
+    module LegacyPaymentInformation
       class Proxy
         include SentryLogging
 
