@@ -45,7 +45,6 @@ jobs:
       - name: Check required pr reviewers
         id: check_reviewers
         if: |
-          github.event.review.state != 'approved' &&
           (
             github.event_name == 'pull_request' &&
             !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
