@@ -23,7 +23,7 @@ module ClaimsApi
       log_outcome_for_claims_api('pdf_generator', 'error', detail)
 
       raise ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest,
-            JSON.parse(e.original_body).deep_symbolize_keys[:errors]
+            JSON.parse(detail).deep_symbolize_keys[:errors]
     end
 
     private
