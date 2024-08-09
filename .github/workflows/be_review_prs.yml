@@ -30,7 +30,6 @@ jobs:
           echo "${{ github.event_name }}"
           echo "${{ github.event.review.state == 'approved' }}"
           echo "${{ github.event.pull_request.number }}"
-          echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) }}"
 
       - name: Pull Request Review Teams
         if: github.event_name == 'pull_request'
@@ -50,7 +49,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: "There were changes made to this pull request after inital approval. Please assign your team or backend-review-group to this pull request and re-run this check again."
+          body: "There were changes made to this pull request after the inital approval. Please assign your team or backend-review-group to this pull request and re-run this check again."
 
       - name: Fetch review teams
         id: fetch_review_teams
@@ -58,7 +57,6 @@ jobs:
           ( github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) == '[]') ||
           ( github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]')
         run: |
-            echo "review_teams_present=false" >> $GITHUB_OUTPUT
             exit 1
 
       - name: Check required pr reviewers
@@ -80,7 +78,7 @@ jobs:
           echo "skip_backend_review=false" >> $GITHUB_OUTPUT
 
       - name: Get backend-review-group members
-        if: steps.check_reviewers.outputs.skip_backend_review == 'false' && steps.fetch_review_teams.outputs.review_teams_present == 'true'
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: get_team_members
         uses: octokit/request-action@v2.x
         with:
@@ -89,7 +87,7 @@ jobs:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Check backend-review-group approval status
-        if: steps.check_reviewers.outputs.skip_backend_review == 'false' && steps.fetch_review_teams.outputs.review_teams_present == 'true'
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: check_backend_review_group_approval_status
         uses: octokit/request-action@v2.x
         with:
@@ -98,7 +96,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify backend-review-group approval
-        if: steps.check_reviewers.outputs.skip_backend_review == 'false' && steps.fetch_review_teams.outputs.review_teams_present == 'true'
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: verify_approval
         run: |
           BACKEND_REVIEWERS=$(echo '${{ steps.get_team_members.outputs.data }}' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//')
@@ -112,14 +110,14 @@ jobs:
           fi
 
       - name: Comment PR - Approval Required
-        if: failure() && steps.verify_approval.outputs.approval_status == 'required' && steps.fetch_review_teams.outputs.review_teams_present == 'true'
+        if: failure() && steps.verify_approval.outputs.approval_status == 'required'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "This PR requires approval from backend-review-group. Please add backend-review-group as reviewers (if they're not already listed)."
 
       - name: Comment PR - Approval Confirmed
-        if: success() && steps.verify_approval.outputs.approval_status == 'confirmed' && steps.fetch_review_teams.outputs.review_teams_present == 'true'
+        if: success() && steps.verify_approval.outputs.approval_status == 'confirmed'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
