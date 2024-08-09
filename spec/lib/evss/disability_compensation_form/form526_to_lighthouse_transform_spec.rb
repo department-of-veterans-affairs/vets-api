@@ -121,7 +121,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_veteran, data['form526']['veteran'])
       expect(result.mailing_address.city).to eq('APO')
       expect(result.mailing_address.state).to eq('AE')
-      expect(result.mailing_address.zip_first_five).to eq('817')
+      expect(result.mailing_address.international_postal_code).to eq('817')
     end
 
     it 'trims leading/trailing spaces from address line 1' do

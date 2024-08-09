@@ -42,6 +42,7 @@ module Requests
     attribute :zip_first_five, String
     attribute :zip_last_four, String
     attribute :state, String
+    attribute :international_postal_code, String
   end
 
   class EmailAddress
