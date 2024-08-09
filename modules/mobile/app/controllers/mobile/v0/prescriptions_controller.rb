@@ -33,7 +33,9 @@ module Mobile
       private
 
       def client
-        @client ||= Rx::Client.new(session: { user_id: @current_user.mhv_correlation_id }).authenticate
+        @client ||= Rx::Client.new(
+          session: { user_id: @current_user.mhv_correlation_id }, upstream_request: request
+        ).authenticate
       end
 
       def pagination_params
