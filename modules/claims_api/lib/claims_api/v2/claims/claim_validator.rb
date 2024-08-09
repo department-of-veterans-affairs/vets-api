@@ -11,6 +11,7 @@ module ClaimsApi
       end
 
       def validate!
+        byebug
         unless valid_claim_with_id_with_icn?
           raise ::Common::Exceptions::ResourceNotFound.new(
             detail: 'Invalid claim ID for the veteran identified.'
@@ -30,20 +31,30 @@ module ClaimsApi
         veteran_icn = if @lighthouse_claim.present? && @lighthouse_claim['veteran_icn'].present?
                         @lighthouse_claim['veteran_icn']
                       end
-byebug
-        if clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id) && veteran_icn != @request_icn
+
+        byebug
+        if clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id) # && veteran_icn != @request_icn
           raise ::Common::Exceptions::ResourceNotFound.new(
             detail: 'Invalid claim ID for the veteran identified.'
           )
         end
+
+        return true
       end
 
       def clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id)
-        byebug
-        return true if clm_prtcpnt_vet_id.empty? || clm_prtcpnt_clmnt_id.empty?
+        return true if clm_prtcpnt_vet_id.nil? || clm_prtcpnt_clmnt_id.nil?
 
-        # if either of these is false then we have a match and can show the record
-        clm_prtcpnt_vet_id != @target_veteran.participant_id && clm_prtcpnt_clmnt_id != @target_veteran.participant_id
+        return false if validated_clm_prtcpnt_vet_id(clm_prtcpnt_vet_id)
+        return false if validated_clm_prtcpnt_clmnt_id(clm_prtcpnt_clmnt_id)
+      end
+
+      def validated_clm_prtcpnt_vet_id(clm_prtcpnt_vet_id)
+        clm_prtcpnt_vet_id != @target_veteran.participant_id
+      end
+
+      def validated_clm_prtcpnt_clmnt_id(clm_prtcpnt_clmnt_id)
+        clm_prtcpnt_clmnt_id != @target_veteran.participant_id
       end
     end
   end
