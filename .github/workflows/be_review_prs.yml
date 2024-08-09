@@ -30,6 +30,11 @@ jobs:
           echo "${{ github.event.review.state == 'approved' }}"
           echo "${{ github.event.requested_team.name }}"
 
+      - id: codeowners
+        uses: SvanBoxel/codeowners-action@v1
+      - run: |
+          echo ${{ steps.codeowners.outputs.codeowners }};
+
 
       # - name: Submitted Review Teams
       #   if: github.event_name == 'pull_request_review'
