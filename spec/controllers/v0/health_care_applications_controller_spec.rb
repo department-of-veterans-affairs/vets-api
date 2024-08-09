@@ -14,4 +14,36 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
       expect(json['attributes']).to eq(hca_response['attributes'])
     end
   end
+
+  describe '#facilities' do
+    let(:lighthouse_service) { instance_double(Lighthouse::Facilities::V1::Client) }
+    let(:unrelated_facility) { OpenStruct.new(id: 'vha_123') }
+    let(:target_facility) { OpenStruct.new(id: 'vha_456ab') }
+    let(:facilities) { [unrelated_facility, target_facility] }
+
+    before do
+      allow(Lighthouse::Facilities::V1::Client).to receive(:new) { lighthouse_service }
+      allow(lighthouse_service).to receive(:get_facilities) { facilities }
+    end
+
+    it 'only returns facilities in VES' do
+      params = { state: 'AK' }
+
+      StdInstitutionFacility.create(station_number: '456ab')
+
+      get(:facilities, params:)
+
+      expect(response.body).to eq([target_facility].to_json)
+    end
+
+    it 'filters out deactivated facilities' do
+      params = { state: 'AK' }
+
+      StdInstitutionFacility.create(station_number: '456ab', deactivation_date: Time.current)
+
+      get(:facilities, params:)
+
+      expect(response.body).to eq([].to_json)
+    end
+  end
 end

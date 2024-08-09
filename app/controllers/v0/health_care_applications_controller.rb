@@ -72,10 +72,24 @@ module V0
     end
 
     def facilities
-      render(json: lighthouse_facilities_service.get_facilities(lighthouse_facilities_params))
+      lighthouse_facilities = lighthouse_facilities_service.get_facilities(lighthouse_facilities_params)
+
+      render(json: active_facilities(lighthouse_facilities))
     end
 
     private
+
+    def active_facilities(lighthouse_facilities)
+      active_ids = StdInstitutionFacility.active.pluck(:station_number).compact
+
+      lighthouse_facilities.select { |facility| active_ids.include?(station_number(facility)) }
+    end
+
+    def station_number(facility)
+      # remove the Health prefix from the ID: vha_402GA -> 402GA. see Facility ID formats in
+      #   https://developer.va.gov/explore/api/va-facilities/docs?version=current
+      facility.id[4..]
+    end
 
     def health_care_application
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))

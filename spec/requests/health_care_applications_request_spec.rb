@@ -212,6 +212,8 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
   describe 'GET facilities' do
     it 'responds with facilities data' do
+      StdInstitutionFacility.create(station_number: '042')
+
       VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
         get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
       end
@@ -252,6 +254,14 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
                                               'unique_id' => '042',
                                               'visn' => nil,
                                               'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp' })
+    end
+
+    it 'filters out facilities not yet supported downstream' do
+      VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+        get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
+      end
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body[0]).to be_nil
     end
   end
 
