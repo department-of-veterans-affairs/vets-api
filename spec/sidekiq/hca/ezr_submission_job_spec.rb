@@ -3,8 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe HCA::EzrSubmissionJob, type: :job do
-  let(:user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
-  let(:user_identifier) { HealthCareApplication.get_user_identifier(user) }
+  let(:user) { create(:evss_user, :loa3, icn: '1013032368V065534') }
   let(:form) do
     get_fixture('form1010_ezr/valid_form')
   end
@@ -30,47 +29,42 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
 
   describe '#perform' do
     subject do
-      described_class.new.perform(encrypted_form, user_identifier)
+      described_class.new.perform(encrypted_form, user.uuid)
     end
 
     before do
-      expect(Form1010Ezr::Service).to receive(:new).with(user_identifier).once.and_return(ezr_service)
+      allow(User).to receive(:find).with(user.uuid).and_return(user)
+      allow(Form1010Ezr::Service).to receive(:new).with(user).once.and_return(ezr_service)
     end
 
     context 'when submission has an error' do
-      let(:error) { Common::Client::Errors::HTTPError }
-
-      before do
-        expect(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
-      end
-
-      context 'with a random error' do
-        let(:error) { ArgumentError }
-
-        it 'logs the retry' do
-          expect do
-            subject
-          rescue error
-            nil
-          end.to trigger_statsd_increment(
-            'api.1010ezr.async.retries'
-          )
-        end
-      end
-
       context 'with a validation error' do
-        before do
-          expect(Form1010Ezr::Service).to receive(:new).with(nil).once.and_return(ezr_service)
-        end
-
         let(:error) { HCA::SOAPParser::ValidationError }
 
         it 'logs the submission failure and logs exception to sentry' do
+          allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
+          # Because we're calling the 'log_submission_failure' method from a new instance
+          # of the 'Form1010Ezr::Service', we need to stub out a new instance of the service
+          allow(Form1010Ezr::Service).to receive(:new).with(nil).once.and_return(ezr_service)
+
           expect_any_instance_of(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
           expect(ezr_service).to receive(:log_submission_failure).with(
             form
           )
+
           subject
+        end
+      end
+
+      context 'with any other error' do
+        let(:error) { Common::Client::Errors::HTTPError }
+
+        it 'logs the retry' do
+          allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
+
+          expect { subject }.to trigger_statsd_increment(
+            'api.1010ezr.async.retries'
+          ).and raise_error(error)
         end
       end
     end
