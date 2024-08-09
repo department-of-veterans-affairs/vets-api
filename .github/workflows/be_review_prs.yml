@@ -38,7 +38,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: "Please assign your team or backend-review-group to this pull request."
+          body: "Please assign your team or backend-review-group to this pull request and re-run this check again."
 
 
       - name: Add Assign team to Pull Request Review Comment
@@ -46,7 +46,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: "Please assign your team or backend-review-group to this pull request."
+          body: "Please assign your team or backend-review-group to this pull request and re-run this check again."
 
 
       - name: Check required pr reviewers
