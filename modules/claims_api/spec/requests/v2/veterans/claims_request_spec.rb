@@ -626,7 +626,6 @@ RSpec.describe 'Claims', type: :request do
 
           get claim_by_id_path, headers: auth_header
           json_response = JSON.parse(response.body)
-
           expect(response.status).to eq(200)
           expect(json_response['data']['attributes']['supportingDocuments'].length).to eq(2)
         end
@@ -1315,6 +1314,7 @@ RSpec.describe 'Claims', type: :request do
                   expect(response.status).to eq(200)
                   expect(json_response['data']['id']).to eq(claim_id_with_items)
                   expect(first_doc_id).to eq(293_439)
+                  byebug
                   expect(resp_tracked_items[0]['status']).to eq('SUBMITTED_AWAITING_REVIEW')
                 end
               end
