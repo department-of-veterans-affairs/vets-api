@@ -75,9 +75,16 @@ features:
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
+  hca_reg_only_enabled:
+    actor_type: user
+    description: Enables the registration-only path for the Health Care Application
+    enable_in_development: true
   hca_sigi_enabled:
     actor_type: user
     description: Enables Self-Identifying Gender Identity question for health care applicants.
+  hca_tera_branching_enabled:
+    actor_type: user
+    description: Enables branching logic for the Toxic Exposure questionset in the Health Care Application
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
