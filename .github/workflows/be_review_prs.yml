@@ -35,12 +35,14 @@ jobs:
         run: |
           echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}"
           echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '' }}"
+          echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]' }}"
 
       - name: Pull Request Review Teams
         if: github.event_name == 'pull_request'
         run: |
           echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) }}"
           echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) == '' }}"
+           echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) == '[]' }}"
 
       - name: Check required pr reviewers
         id: check_reviewers
