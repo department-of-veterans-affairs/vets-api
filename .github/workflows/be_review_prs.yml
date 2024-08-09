@@ -28,6 +28,7 @@ jobs:
         run: |
           echo "${{ github.event_name }}"
           echo "${{ github.event.review.state == 'approved' }}"
+          echo "${{ github.event.requested_team.name }}"
 
 
       # - name: Submitted Review Teams
