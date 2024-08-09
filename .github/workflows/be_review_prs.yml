@@ -55,10 +55,11 @@ jobs:
       - name: Fetch review teams
         id: fetch_review_teams
         if: |
-          ( github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) != '[]') ||
-          ( github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) != '[]')
+          ( github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) == '[]') ||
+          ( github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]')
         run: |
-            echo "review_teams_present=true" >> $GITHUB_OUTPUT
+            echo "review_teams_present=false" >> $GITHUB_OUTPUT
+            exit 0
 
       - name: Check required pr reviewers
         id: check_reviewers
