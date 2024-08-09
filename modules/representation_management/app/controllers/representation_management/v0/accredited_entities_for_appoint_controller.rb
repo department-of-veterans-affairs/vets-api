@@ -5,7 +5,7 @@ module RepresentationManagement
     class AccreditedEntitiesForAppointController < ApplicationController
       service_tag 'representation-management'
       skip_before_action :authenticate
-      # before_action :feature_enabled
+      before_action :feature_enabled
 
       def index
         data = RepresentationManagement::AccreditedEntityQuery.new(params[:query]).results
@@ -21,9 +21,9 @@ module RepresentationManagement
         render json: json_response
       end
 
-      # def feature_enabled
-      #   routing_error unless Flipper.enabled?(:find_a_representative_use_accredited_models)
-      # end
+      def feature_enabled
+        routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
+      end
     end
   end
 end

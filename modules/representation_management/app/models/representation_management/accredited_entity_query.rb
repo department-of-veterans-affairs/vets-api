@@ -9,11 +9,11 @@ module RepresentationManagement
     end
 
     def results
-      create_accredited_entities if AccreditedIndividual.count.zero? && AccreditedOrganization.count.zero?
+      # create_accredited_entities if AccreditedIndividual.count.zero? && AccreditedOrganization.count.zero?
 
       (individuals + organizations).sort_by do |record|
         levenshtein_distance(@query_string, record)
-      end
+      end.take(10)
     end
 
     private
@@ -27,7 +27,7 @@ module RepresentationManagement
     end
 
     def threshold
-      0.5
+      AccreditedRepresentation::Constants::FUZZY_SEARCH_THRESHOLD
     end
 
     def levenshtein_distance(query, record)

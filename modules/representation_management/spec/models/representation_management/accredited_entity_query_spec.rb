@@ -63,5 +63,13 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
       expect(results.map { |r| r.is_a?(AccreditedIndividual) ? r.full_name : r.name })
         .to eq(%w[a ab abc abcd abcde])
     end
+
+    it 'returns at most 10 results' do
+      create_list(:accredited_individual, 20, full_name: 'Bob')
+
+      results = described_class.new('Bob').results
+
+      expect(results.size).to eq(10)
+    end
   end
 end
