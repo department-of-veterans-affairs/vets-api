@@ -25,8 +25,6 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-
-
       - name: Github Event
         run: |
           echo "${{ github.event_name }}"
@@ -42,13 +40,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull Request Review Teams
+        id: review_teams
         if: github.event_name == 'pull_request'
         run: |
-           echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) == '[]' }}"
-
-      - run: |
           REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
-          echo "$REQUESTED_TEAMS"
+          echo "REQUESTED_TEAMS=$REQUESTED_TEAMS" >> $GITHUB_ENV
+
+      - run: echo "$REQUESTED_TEAMS"
+
+      - name: Assign Requested Teams
+        id: assign_requested_teams
+        run: |
+          REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
+          if echo "$REQUESTED_TEAMS" == ''; then
+            exit 1
+          else
+            echo "skip_backend_review=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Pull Request Submitted Teams
         if: github.event_name == 'pull_request_review'
