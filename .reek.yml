@@ -53,4 +53,7 @@ detectors:
   UncommunicativeVariableName:
     accept:
       - e
+      - k
+      - v
+      - i
       - "/\d+$/"
