@@ -34,6 +34,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
 
       it 'renders 404' do
         post('/debts_api/v0/financial_status_reports', params: valid_form_data)
+        expect(StatsD).to receive(:increment).once.with('api.dmc.fsr_form_full_transform.error')
         expect(response).to have_http_status(:not_found)
         expect(response.header['Content-Type']).to include('application/json')
         expect(JSON.parse(response.body)).to eq(nil)
@@ -80,6 +81,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
           params: pre_transform_fsr_form_data.to_h,
           as: :json
         )
+        expect(StatsD).to receive(:increment).once.with('api.dmc.fsr_form_full_transform.error')
         expect(response).to have_http_status(:not_found)
         expect(response.header['Content-Type']).to include('application/json')
         expect(JSON.parse(response.body)).to eq(nil)
@@ -94,6 +96,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
             params: pre_transform_fsr_streamlined_form_data.to_h,
             as: :json
           )
+          expect(StatsD).to receive(:increment).once.with('api.dmc.fsr_form_full_transform.run')
           expect(response.code).to eq('200')
         end
       end
@@ -107,6 +110,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
             params: pre_transform_fsr_form_data.to_h,
             as: :json
           )
+          expect(StatsD).to receive(:increment).once.with('api.dmc.fsr_form_full_transform.run')
           expect(response.code).to eq('200')
         end
       end
@@ -120,6 +124,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
             params: pre_transform_fsr_streamlined_long_form_data.to_h,
             as: :json
           )
+          expect(StatsD).to receive(:increment).once.with('api.dmc.fsr_form_full_transform.run')
           expect(response.code).to eq('200')
         end
       end

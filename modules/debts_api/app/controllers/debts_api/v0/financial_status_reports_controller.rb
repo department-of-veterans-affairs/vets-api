@@ -345,9 +345,11 @@ module DebtsApi
       end
 
       def full_transform_service
+        StatsD.increment("#{STATSD_KEY_PREFIX}.fsr_form_full_transform.run")
         Rails.logger.info(full_transform_logging('info'))
         DebtsApi::V0::FsrFormTransform::FullTransformService.new(full_transform_form)
       rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.fsr_form_full_transform.error")
         Rails.logger.error(full_transform_logging('error'))
         Rails.logger.error(e.backtrace&.join('\n'))
 
