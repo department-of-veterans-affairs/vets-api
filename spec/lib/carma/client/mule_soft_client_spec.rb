@@ -58,7 +58,12 @@ describe CARMA::Client::MuleSoftClient do
 
         context 'successfully gets token' do
           let(:bearer_token) { 'my-bearer-token' }
-          let(:headers) { { Authorization: "Bearer #{bearer_token}" } }
+          let(:headers) do
+            {
+              'Authorization' => "Bearer #{bearer_token}",
+              'Content-Type' => 'application/json'
+            }
+          end
 
           before do
             allow(mulesoft_auth_token_client).to receive(:new_bearer_token).and_return(bearer_token)
