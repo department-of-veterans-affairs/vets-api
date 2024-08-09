@@ -52,11 +52,11 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: "There were changes made to this pull request after inital approval. Please assign your team or backend-review-group to this pull request and re-run this check again."
 
-      - name: Add Assign team to Pull Request Review Comment
+      - name: Fetch review teams
         id: fetch_review_teams
         run: |
-          if ( github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) != '[]') ||
-          ( github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) != '[]'); then
+          if ( github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) != '[]' ) ||
+            ( github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) != '[]'); then
             echo "review_teams_present=true" >> $GITHUB_OUTPUT
           else
             echo "review_teams_present=false" >> $GITHUB_OUTPUT
