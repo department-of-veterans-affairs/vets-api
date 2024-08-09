@@ -59,7 +59,7 @@ jobs:
           ( github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]')
         run: |
             echo "review_teams_present=false" >> $GITHUB_OUTPUT
-            exit 0
+            exit 1
 
       - name: Check required pr reviewers
         id: check_reviewers
