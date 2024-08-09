@@ -54,6 +54,9 @@ jobs:
         if: env.REQUESTED_TEAMS == ''
         run: exit 1
 
+      - name: Check approvals
+        run: echo "${{ github.event.pull_request.reviewers }}"
+
       - name: Check required reviewers
         id: check_reviewers
         run: |
