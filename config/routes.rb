@@ -26,8 +26,8 @@ Rails.application.routes.draw do
 
   unless Settings.vsp_environment == 'production'
     namespace :sign_in do
-      resources :client_configs
-      resources :service_account_configs
+      resources :client_configs, param: :client_id
+      resources :service_account_configs, param: :service_account_id
     end
   end
 
