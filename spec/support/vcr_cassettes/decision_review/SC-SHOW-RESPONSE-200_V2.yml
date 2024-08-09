@@ -1,0 +1,45 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews/supplemental_claims/75f5735b-c41d-499c-8ae2-ab2740180254
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 05 Aug 2024 16:19:54 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '193'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"75f5735b-c41d-499c-8ae2-ab2740180254","type":"supplementalClaim","attributes":{"status":"pending","updatedAt":"2024-07-31T19:19:37.131Z","createdAt":"2024-07-31T19:19:32.340Z"}}}'
+  recorded_at: Mon, 05 Aug 2024 16:19:54 GMT
+recorded_with: VCR 6.2.0
