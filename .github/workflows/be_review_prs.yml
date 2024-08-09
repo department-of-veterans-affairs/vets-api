@@ -25,16 +25,30 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
+
+
       - name: Github Event
         run: |
           echo "${{ github.event_name }}"
           echo "${{ github.event.review.state == 'approved' }}"
           echo "${{ github.event.pull_request.number }}"
 
+      - name: Get PR details
+        id: pr_details
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}/requested_reviewers
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Pull Request Review Teams
         if: github.event_name == 'pull_request'
         run: |
            echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) == '[]' }}"
+
+        run: |
+          REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
+          echo "$REQUESTED_TEAMS"
 
       - name: Pull Request Submitted Teams
         if: github.event_name == 'pull_request_review'
