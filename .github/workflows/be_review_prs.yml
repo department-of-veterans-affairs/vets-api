@@ -2,7 +2,8 @@ name: Require backend-review-group approval
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   check-approval-requirements:
@@ -28,29 +29,24 @@ jobs:
         run: |
           echo "${{ github.event_name }}"
           echo "${{ github.event.review.state == 'approved' }}"
-          echo "${{ github.event.requested_team.name }}"
+          echo "${{ github.event.pull_request.number }}"
 
-      - id: codeowners
-        uses: SvanBoxel/codeowners-action@v1
+
+      - name: Add Assign team to Pull Request Comment
+        if: github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]'
+        uses: peter-evans/create-or-update-comment@v3
         with:
-          path: './.github/CODEOWNERS'
-      - run: |
-          echo ${{ steps.codeowners.outputs.codeowners }};
+          issue-number: ${{ github.event.pull_request.number }}
+          body: "Please assign your team or backend-review-group to this pull request."
 
 
-      # - name: Submitted Review Teams
-      #   if: github.event_name == 'pull_request_review'
-      #   run: |
-      #     echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}"
-      #     echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '' }}"
-      #     echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]' }}"
+      - name: Add Assign team to Pull Request Comment
+        if: github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]'
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request_review.pull_request.number }}
+          body: "Please assign your team or backend-review-group to this pull request."
 
-      - name: Pull Request Review Teams
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) }}"
-          echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) == '' }}"
-           echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) == '[]' }}"
 
       - name: Check required pr reviewers
         id: check_reviewers
