@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'disability_compensation/providers/supplemental_document_upload/supplemental_document_upload_provider'
+require 'disability_compensation/providers/document_upload/supplemental_document_upload_provider'
 
 RSpec.describe SupplementalDocumentUploadProvider do
   it 'raises an error if the generate_upload_document method is not implemented' do
