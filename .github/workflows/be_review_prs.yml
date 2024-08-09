@@ -32,22 +32,24 @@ jobs:
           echo "${{ github.event.pull_request.number }}"
           echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) }}"
 
+      - name: Pull Request Review Teams
+        if: github.event_name == 'pull_request'
+        run: |
+           echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) == '[]' }}"
 
-      - name: Add Assign team to Pull Request Comment
-        if: github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) == '[]'
-        uses: peter-evans/create-or-update-comment@v3
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: "Please assign your team or backend-review-group to this pull request and re-run this check again."
-
+      - name: Pull Request Submitted Teams
+        if: github.event_name == 'pull_request_review'
+        run: |
+          echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]' }}"
 
       - name: Add Assign team to Pull Request Review Comment
-        if: github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]'
+        if: |
+          ( github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) == '[]') ||
+          ( github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]')
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "Please assign your team or backend-review-group to this pull request and re-run this check again."
-
 
       - name: Check required pr reviewers
         id: check_reviewers
