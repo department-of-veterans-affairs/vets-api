@@ -5,12 +5,14 @@ module AccreditedRepresentativePortal
     # Form21aController handles the submission of Form 21a to the accreditation service.
     # It parses the request body, submits the form via AccreditationService, and processes the response.
     class Form21aController < ApplicationController
-      before_action :parse_request_body, only: [:post]
+      before_action :parse_request_body, only: [:submit]
 
       # Parses the request body and submits the form.
       # Renders the appropriate response based on the service's outcome.
-      def post
+      def submit
         response = AccreditationService.submit_form21a(parsed_request_body)
+
+        clear_saved_form('21a') if response.success?
         render_ogc_service_response(response)
       rescue => e
         Rails.logger.error("Form21aController: Unexpected error occurred - #{e.message}")
