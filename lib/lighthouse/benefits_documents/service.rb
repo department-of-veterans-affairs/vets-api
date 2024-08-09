@@ -67,7 +67,11 @@ module BenefitsDocuments
       uploader.store!(document_data.file_obj)
       # the uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
-      Lighthouse::DocumentUpload.perform_async(@user.icn, document_data.to_serializable_hash)
+      if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
+        Lighthouse::DocumentUploadSynchronous.upload(@user.icn, document_data.to_serializable_hash)
+      else
+        Lighthouse::DocumentUpload.perform_async(@user.icn, document_data.to_serializable_hash)
+      end
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)
       raise e
