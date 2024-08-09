@@ -614,6 +614,7 @@ RSpec.describe 'Claims', type: :request do
 
       it 'uses BD when it should', vcr: 'claims_api/v2/claims_show' do
         allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
         lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                    evss_id: '111111111')
         mock_ccg(scopes) do |auth_header|
@@ -833,6 +834,8 @@ RSpec.describe 'Claims', type: :request do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:benefits_documents_enabled?).and_return(true)
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:use_birls_id_file_number?).and_return(false)
 
                       local_bgs_service = double
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
@@ -849,6 +852,113 @@ RSpec.describe 'Claims', type: :request do
 
                       expect(json_response['data']['attributes']['supportingDocuments']).to eq([])
                       expect(response.status).not_to eq(404)
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          describe 'when BD is enabled, and using birls_id as the file number' do
+            context 'when the file_number is nil' do
+              let(:no_ssn_target_veteran) do
+                OpenStruct.new(
+                  icn: '1012832025V743496',
+                  first_name: 'Wesley',
+                  last_name: 'Ford',
+                  birth_date: '19630211',
+                  loa: { current: 3, highest: 3 },
+                  edipi: '2536798',
+                  ssn: nil,
+                  participant_id: '600061742',
+                  birls_id: nil,
+                  mpi: OpenStruct.new(
+                    icn: '1012832025V743496',
+                    profile: OpenStruct.new(ssn: '796043735', birls_id: nil)
+                  )
+                )
+              end
+
+              it 'returns an empty array and not a 404' do
+                mock_ccg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                    VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:benefits_documents_enabled?).and_return(true)
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:use_birls_id_file_number?).and_return(true)
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:target_veteran).and_return(no_ssn_target_veteran)
+
+                      local_bgs_service = double
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:local_bgs_service)
+                        .and_return(local_bgs_service)
+
+                      allow(local_bgs_service)
+                        .to receive_messages(find_benefit_claim_details_by_benefit_claim_id: bgs_claim,
+                                             find_by_ssn: nil, find_tracked_items: { dvlpmt_items: [] })
+
+                      get claim_by_id_path, headers: auth_header
+
+                      json_response = JSON.parse(response.body)
+                      expect(json_response['data']['attributes']['supportingDocuments']).to eq([])
+                      expect(response.status).not_to eq(404)
+                    end
+                  end
+                end
+              end
+            end
+
+            context 'when the birls_id is present' do
+              let(:no_ssn_target_veteran) do
+                OpenStruct.new(
+                  icn: '1012832025V743496',
+                  first_name: 'Wesley',
+                  last_name: 'Ford',
+                  birth_date: '19630211',
+                  loa: { current: 3, highest: 3 },
+                  edipi: '2536798',
+                  ssn: nil,
+                  participant_id: '600061742',
+                  birls_id: '796043735',
+                  mpi: OpenStruct.new(
+                    icn: '1012832025V743496',
+                    profile: OpenStruct.new(ssn: nil, birls_id: '796043735')
+                  )
+                )
+              end
+
+              it 'the file_number should equal the birls_id' do
+                mock_ccg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+                    VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:benefits_documents_enabled?).and_return(true)
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:use_birls_id_file_number?).and_return(true)
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:target_veteran).and_return(no_ssn_target_veteran)
+
+                      local_bgs_service = double
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:local_bgs_service)
+                        .and_return(local_bgs_service)
+
+                      allow(local_bgs_service)
+                        .to receive_messages(find_benefit_claim_details_by_benefit_claim_id: bgs_claim,
+                                             find_by_ssn: nil, find_tracked_items: { dvlpmt_items: [] })
+
+                      benefits_doc_api = double
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:benefits_doc_api)
+                        .and_return(benefits_doc_api)
+
+                      expect(benefits_doc_api).to receive(:search).with(claim_id, '796043735')
+
+                      get claim_by_id_path, headers: auth_header
+
+                      expect(response.status).to eq(200)
                     end
                   end
                 end
