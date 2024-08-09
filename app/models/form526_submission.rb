@@ -491,7 +491,7 @@ class Form526Submission < ApplicationRecord
 
   def conditionally_submit_form_4142
     if Flipper.enabled?(:disability_compensation_production_tester, User.find(user_uuid))
-      Rails.logger.info("submit_form_4142 call skipped for submission #{submission.id}")
+      Rails.logger.info("submit_form_4142 call skipped for submission #{id}")
     elsif form[FORM_4142].present?
       submit_form_4142
     end
