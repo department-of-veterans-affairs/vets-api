@@ -22,8 +22,9 @@ module Mobile
 
       def index
         payment_information = if lighthouse?
-                                data = lighthouse_adapter.parse(lighthouse_service.get_payment_info, current_user.uuid)
-                                Mobile::V0::PaymentInformation.new(data)
+                                data = lighthouse_service.get_payment_info
+                                adapted_data = lighthouse_adapter.parse(data, current_user.uuid)
+                                Mobile::V0::PaymentInformation.new(adapted_data)
                               else
                                 data = evss_proxy.get_payment_information
                                 Mobile::V0::PaymentInformation.legacy_create_from_upstream(data, current_user.uuid)
@@ -37,8 +38,8 @@ module Mobile
         payment_information = if lighthouse?
                                 begin
                                   data = lighthouse_service.update_payment_info(pay_info)
-                                  parsed_data = lighthouse_adapter.parse(data, current_user.uuid)
-                                  Mobile::V0::PaymentInformation.new(parsed_data)
+                                  adapted_data = lighthouse_adapter.parse(data, current_user.uuid)
+                                  Mobile::V0::PaymentInformation.new(adapted_data)
                                 rescue Common::Exceptions::BaseError => e
                                   error = { status: e.status_code, body: e.errors.first }
                                   lh_error_response = Mobile::V0::Adapters::LighthouseDirectDepositError.parse(error)
