@@ -25,12 +25,6 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-      - name: Github Event
-        run: |
-          echo "${{ github.event_name }}"
-          echo "${{ github.event.review.state == 'approved' }}"
-          echo "${{ github.event.pull_request.number }}"
-
       - name: Get PR details
         id: pr_details
         uses: octokit/request-action@v2.x
@@ -48,56 +42,26 @@ jobs:
 
       - run: echo "$REQUESTED_TEAMS"
 
-      - name: Assign Requested Teams
-        id: assign_requested_teams
-        run: |
-          REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
-          if echo "$REQUESTED_TEAMS" == ''; then
-            exit 1
-          else
-            echo "skip_backend_review=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Pull Request Submitted Teams
-        if: github.event_name == 'pull_request_review'
-        run: |
-          echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]' }}"
-
       - name: Add Assign team to Pull Request Review Comment
         id: assign_team_review_comment
-        if: |
-          ( github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) == '[]') ||
-          ( github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]')
+        if: env.REQUESTED_TEAMS == ''
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "There were changes made to this pull request after the inital approval. Please assign your team or backend-review-group to this pull request and re-run this check again."
 
-      - name: Fetch review teams
-        id: fetch_review_teams
-        if: |
-          ( github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) == '[]') ||
-          ( github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]')
-        run: |
-            exit 1
+      - name: Fail if no teams are requested
+        if: env.REQUESTED_TEAMS == ''
+        run: exit 1
 
-      - name: Check required pr reviewers
+      - name: Check required reviewers
         id: check_reviewers
-        if: |
-          (
-            github.event_name == 'pull_request' &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
-          ) ||
-          (
-            github.event_name == 'pull_request_review' &&
-            !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'mobile') ||
-            !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'lighthouse') ||
-            !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'identity')
-          )
         run: |
-          echo "skip_backend_review=false" >> $GITHUB_OUTPUT
+          if echo "$REQUESTED_TEAMS" | grep -qiE '(mobile|lighthouse|identity)'; then
+            echo "skip_backend_review=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip_backend_review=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Get backend-review-group members
         if: steps.check_reviewers.outputs.skip_backend_review == 'false'
