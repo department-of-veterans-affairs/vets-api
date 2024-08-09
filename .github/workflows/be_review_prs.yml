@@ -28,40 +28,42 @@ jobs:
       - name: Github Event
         run: echo "${{ github.event_name }}"
 
-      - name: echo pr teams
-        if: github.event_name == 'pull_request'
+      - name: Check required pr reviewers
+        id: check_reviewers
+        if: |
+          (
+            github.event_name == 'pull_request' &&
+            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
+            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
+            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
+          ) ||
+          (
+            github.event_name == 'pull_request_review' &&
+            !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'mobile') ||
+            !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'lighthouse') ||
+            !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'identity')
+          )
         run: |
-          echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) }}"
-          echo "${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), '[]') }}"
+          echo "skip_backend_review=false" >> $GITHUB_OUTPUT
 
       - name: echo review teams
         if: github.event_name == 'pull_request_review'
         run: |
           echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}""
           echo "${{ contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), '[]') }}"
+          echo "${{ contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), '') }}"
 
-      - name: Check required pr reviewers
-        id: check_reviewers
+      - name: Check submitted review
+        id: submitted_reviewers
         if: |
-          github.event_name == 'pull_request' &&
-          !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
-          !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
-          !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
-        run: |
-          echo "skip_backend_review=false" >> $GITHUB_OUTPUT
-
-      - name: Check required submitted reviewers
-        id: check_submitted_reviewers
-        if: |
-          github.event_name == 'pull_request_review' &&
-          !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'mobile') ||
-          !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'lighthouse') ||
-          !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'identity')
+          github.event_name == 'pull_request_review &&
+          github.event.review.state == 'approved' &&
+          toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) != ''
         run: |
           echo "skip_backend_review=false" >> $GITHUB_OUTPUT
 
       - name: Get backend-review-group members
-        if: steps.check_submitted_reviewers.outputs.skip_backend_review == 'false' || steps.check_reviewers.outputs.skip_backend_review == 'false'
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false' || steps.submitted_reviewers.outputs.skip_backend_review == 'false'
         id: get_team_members
         uses: octokit/request-action@v2.x
         with:
@@ -70,18 +72,13 @@ jobs:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Check backend-review-group approval status
-        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false' || steps.submitted_reviewers.outputs.skip_backend_review == 'false'
         id: check_backend_review_group_approval_status
         uses: octokit/request-action@v2.x
         with:
           route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}/reviews
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-      - name: Whole PR
-        if:  github.event_name == 'pull_request'
-        run: echo "${{ github.event.pull_request.review_comments }}"
 
       - name: Backend Status outpus
         run: echo "${{ steps.check_backend_review_group_approval_status.outputs.data }}"
