@@ -67,7 +67,7 @@ jobs:
         if: |
           github.event_name == 'pull_request_review' &&
           github.event.review.state == 'approved' &&
-          toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == ''
+          ( toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '' || toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]')
         run: |
           echo "skip_backend_review=false" >> $GITHUB_OUTPUT
 
