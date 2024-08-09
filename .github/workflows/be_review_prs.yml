@@ -2,8 +2,6 @@ name: Require backend-review-group approval
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-  pull_request_review:
-    types: [submitted]
 
 jobs:
   check-approval-requirements:
@@ -30,12 +28,12 @@ jobs:
           echo "${{ github.event_name }}"
           echo "${{ github.event.review.state == 'approved' }}"
 
-      - name: Submitted Review Teams
-        if: github.event_name == 'pull_request_review'
-        run: |
-          echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}"
-          echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '' }}"
-          echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]' }}"
+      # - name: Submitted Review Teams
+      #   if: github.event_name == 'pull_request_review'
+      #   run: |
+      #     echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}"
+      #     echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '' }}"
+      #     echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]' }}"
 
       - name: Pull Request Review Teams
         if: github.event_name == 'pull_request'
