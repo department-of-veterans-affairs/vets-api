@@ -1,0 +1,42 @@
+{
+  "preparer_type": "third-party-non-veteran",
+  "third_party_full_name": {
+    "first": "Joe",
+    "last": "Third-Pty-Non-Vet"
+  },
+  "third_party_type": "power-of-attorney",
+  "non_veteran_full_name": {
+    "first": "John",
+    "last": "Non-Veteran"
+  },
+  "non_veteran_date_of_birth": "1980-01-01",
+  "non_veteran_id": {
+    "ssn": "321540990"
+  },
+  "living_situation": {
+    "NONE": true
+  },
+  "non_veteran_phone": "1234567893",
+  "veteran_full_name": {
+    "first": "John",
+    "last": "Veteran"
+  },
+  "veteran_date_of_birth": "1980-01-01",
+  "veteran_id": {
+    "ssn": "321540987"
+  },
+  "view:has_received_medical_treatment": true,
+  "medical_treatments": [
+    {
+      "facility_name": "Facility Name",
+      "facility_address": {
+        "country": "USA",
+        "street": "123 Any St",
+        "city": "Anytown",
+        "state": "CA",
+        "postal_code": "12345"
+      },
+      "start_date": "2018-01-01"
+    }
+  ]
+}
