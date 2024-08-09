@@ -42,13 +42,10 @@ jobs:
           echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) }}"
           echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) == '' }}"
 
-      - name: Fail if not approved
-        if: github.event.review.state != 'approved'
-        run: exit 1
-
       - name: Check required pr reviewers
         id: check_reviewers
         if: |
+          github.event.review.state != 'approved' &&
           (
             github.event_name == 'pull_request' &&
             !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
