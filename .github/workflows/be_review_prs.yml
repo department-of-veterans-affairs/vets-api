@@ -44,7 +44,7 @@ jobs:
 
       - name: Fail if not approved
         if: github.event.review.state != 'approved'
-        run: exit 0
+        run: exit 1
 
       - name: Check required pr reviewers
         id: check_reviewers
