@@ -61,18 +61,29 @@ module ClaimsApi
 
     def set_evss_response(auto_claim, error)
       auto_claim.evss_response ||= []
+      errors_to_add = []
 
-      if error&.original_body.present?
-        error&.original_body&.each { |e| auto_claim.evss_response << e }
+      if error_responds_to_original_body?(error)
+        if error&.original_body.present?
+          errors_to_add.concat(error.original_body)
+        else
+          # This is a default catch all
+          # Since the error could theoretically respond_to the
+          # original_body method but still not have it
+          errors_to_add << error
+        end
       elsif error&.errors.present?
-        error&.errors&.each { |e| auto_claim.evss_response << e }
+        errors_to_add.concat(error.errors)
       end
+
+      # Add all collected errors to the auto_claim evss_response
+      auto_claim.evss_response.concat(errors_to_add)
 
       auto_claim.save!
     end
 
     def get_error_message(error)
-      if error.respond_to? :original_body
+      if error_responds_to_original_body?(error)
         error.original_body
       elsif error.respond_to? :message
         error.message
@@ -117,7 +128,7 @@ module ClaimsApi
     def will_retry?(auto_claim, error)
       msg = if auto_claim.evss_response.present?
               auto_claim.evss_response&.dig(0, 'key')
-            elsif error.respond_to? :original_body
+            elsif error_responds_to_original_body?(error)
               get_error_key(error.original_body)
             else
               ''
@@ -151,6 +162,10 @@ module ClaimsApi
       ClaimsApi::Logger.log(self.class::LOG_TAG,
                             claim_id:,
                             detail:)
+    end
+
+    def error_responds_to_original_body?(error)
+      error.respond_to? :original_body
     end
 
     def extract_poa_code(poa_form_data)
