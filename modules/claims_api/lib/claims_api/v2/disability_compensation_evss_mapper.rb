@@ -51,9 +51,7 @@ module ClaimsApi
         addr = @data.dig(:veteranIdentification, :mailingAddress) || {}
         type = addr[:internationalPostalCode].present? ? 'INTERNATIONAL' : 'DOMESTIC'
         @evss_claim[:veteran] ||= {}
-        debugger
         @evss_claim[:veteran][:currentMailingAddress] = addr.compact
-        debugger
         @evss_claim[:veteran][:currentMailingAddress].merge!({ type: })
         @evss_claim[:veteran][:currentMailingAddress].except!(:numberAndStreet, :apartmentOrUnitNumber)
         if @evss_claim[:veteran][:currentMailingAddress][:zipLastFour].blank?
