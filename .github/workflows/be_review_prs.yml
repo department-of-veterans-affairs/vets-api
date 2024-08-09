@@ -43,25 +43,34 @@ jobs:
           echo "${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]' }}"
 
       - name: Add Assign team to Pull Request Review Comment
+        id: assign_team_review_comment
         if: |
           ( github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) == '[]') ||
           ( github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]')
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: "Please assign your team or backend-review-group to this pull request and re-run this check again."
+          body: "There were changes made to this pull request after inital approval. Please assign your team or backend-review-group to this pull request and re-run this check again."
+        run: |
+          echo "missing_review_teams=true" >> $GITHUB_OUTPUT
+
+      - name: check assigned teams
+        run: |
+          echo "${{ steps.assign_team_review_comment.outputs.missing_review_teams }}"
 
       - name: Check required pr reviewers
         id: check_reviewers
         if: |
           (
             github.event_name == 'pull_request' &&
+            toJSON(github.event.pull_request.requested_teams.*.name) != '[]' &&
             !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
             !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
             !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
           ) ||
           (
             github.event_name == 'pull_request_review' &&
+            toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) != '[]' &&
             !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'mobile') ||
             !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'lighthouse') ||
             !contains(toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name), 'identity')
@@ -69,17 +78,8 @@ jobs:
         run: |
           echo "skip_backend_review=false" >> $GITHUB_OUTPUT
 
-      - name: Check submitted review
-        id: submitted_reviewers
-        if: |
-          github.event_name == 'pull_request_review' &&
-          github.event.review.state == 'approved' &&
-          ( toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '' || toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]')
-        run: |
-          echo "skip_backend_review=false" >> $GITHUB_OUTPUT
-
       - name: Get backend-review-group members
-        if: steps.check_reviewers.outputs.skip_backend_review == 'false' || steps.submitted_reviewers.outputs.skip_backend_review == 'false'
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: get_team_members
         uses: octokit/request-action@v2.x
         with:
@@ -88,7 +88,7 @@ jobs:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Check backend-review-group approval status
-        if: steps.check_reviewers.outputs.skip_backend_review == 'false' || steps.submitted_reviewers.outputs.skip_backend_review == 'false'
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: check_backend_review_group_approval_status
         uses: octokit/request-action@v2.x
         with:
@@ -100,7 +100,7 @@ jobs:
         run: echo "${{ steps.check_backend_review_group_approval_status.outputs.data }}"
 
       - name: Verify backend-review-group approval
-        if: steps.check_reviewers.outputs.skip_backend_review == 'false' || steps.submitted_reviewers.outputs.skip_backend_review == 'false'
+        if: steps.check_reviewers.outputs.skip_backend_review == 'false'
         id: verify_approval
         run: |
           BACKEND_REVIEWERS=$(echo '${{ steps.get_team_members.outputs.data }}' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//')
