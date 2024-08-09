@@ -9,5 +9,13 @@ module Pensions
     initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do
       FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
     end
+
+    initializer 'pensions.after_initialize' do |app|
+      app.config.after_initialize do
+        require 'pdf_fill/va21p527ez'
+        # Register our Pension Pdf Fill form
+        ::PdfFill::Filler.register_form(Pensions::PdfFill::Va21p527ez::FORM_ID, Pensions::PdfFill::Va21p527ez)
+      end
+    end
   end
 end
