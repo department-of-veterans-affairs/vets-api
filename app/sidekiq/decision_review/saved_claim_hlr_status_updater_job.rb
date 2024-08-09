@@ -19,13 +19,23 @@ module DecisionReview
 
       higher_level_reviews.each do |hlr|
         guid = hlr.guid
-        status = decision_review_service.get_higher_level_review(guid).dig('data', 'attributes', 'status')
+        response = decision_review_service.get_higher_level_review(guid)
+        status = response.dig('data', 'attributes', 'status')
+        attributes = response.dig('data', 'attributes')
+
+        params = { metadata: attributes.to_json }
 
         if SUCCESSFUL_STATUS.include? status
-          hlr.update(delete_date: DateTime.now + RETENTION_PERIOD)
+          params[:delete_date] = DateTime.now + RETENTION_PERIOD
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
         end
+
+        hlr.update(params)
       end
+
+      nil
+    rescue => e
+      Rails.logger.error('DecisionReview::SavedClaimHlrStatusUpdaterJob #perform error', e.message)
     end
 
     private

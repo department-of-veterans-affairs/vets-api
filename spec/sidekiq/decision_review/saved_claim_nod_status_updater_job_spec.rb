@@ -56,9 +56,11 @@ RSpec.describe DecisionReview::SavedClaimNodStatusUpdaterJob, type: :job do
 
             claim1 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid1)
             expect(claim1.delete_date).to eq frozen_time + 59.days
+            expect(claim1.metadata).to include 'complete'
 
             claim2 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid2)
             expect(claim2.delete_date).to be_nil
+            expect(claim2.metadata).to include 'pending'
           end
         end
       end

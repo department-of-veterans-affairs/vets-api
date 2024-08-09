@@ -19,14 +19,23 @@ module DecisionReview
 
       supplemental_claims.each do |sc|
         guid = sc.guid
-        status = decision_review_service.get_supplemental_claim(guid).dig('data', 'attributes', 'status')
+        response = decision_review_service.get_supplemental_claim(guid)
+        status = response.dig('data', 'attributes', 'status')
+        attributes = response.dig('data', 'attributes')
 
-        # check status of SC and update delete_date
+        params = { metadata: attributes.to_json }
+
         if SUCCESSFUL_STATUS.include? status
-          sc.update(delete_date: DateTime.now + RETENTION_PERIOD)
+          params[:delete_date] = DateTime.now + RETENTION_PERIOD
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
         end
+
+        sc.update(params)
       end
+
+      nil
+    rescue => e
+      Rails.logger.error('DecisionReview::SavedClaimScStatusUpdaterJob #perform error', e.message)
     end
 
     private
