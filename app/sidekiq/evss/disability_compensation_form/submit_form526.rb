@@ -83,6 +83,11 @@ module EVSS
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
 
+        if Flipper.enabled?(:disability_compensation_fail_submission, User.find(submission.user_uuid))
+          Rails.logger.info("disability_compensation_fail_submission enabled for submission #{submission.id}")
+          throw StandardError
+        end
+
         # This instantiates the service as defined by the inheriting object
         # TODO: this meaningless variable assignment is required for the specs to pass, which
         # indicates a problematic coupling of implementation and test logic.  This should eventually
@@ -138,7 +143,11 @@ module EVSS
             handle_errors(submission, e)
           end
 
-          send_post_evss_notifications(submission) if send_notifications
+          if Flipper.enabled?(:disability_compensation_production_tester, User.find(submission.user_uuid))
+            Rails.logger.info("send_post_evss_notifications call skipped for submission #{submission.id}")
+          elsif send_notifications
+            send_post_evss_notifications(submission)
+          end
         end
       end
 
