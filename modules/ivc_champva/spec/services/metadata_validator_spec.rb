@@ -185,6 +185,24 @@ describe IvcChampva::MetadataValidator do
         end.to raise_error(ArgumentError, 'file number is invalid. It must be 8 or 9 digits')
       end
     end
+
+    describe 'missing' do
+      it 'succeeds' do
+        metadata = {
+          'veteranFirstName' => 'John',
+          'veteranLastName' => 'Doe',
+          'fileNumber' => '',
+          'zipCode' => '12345',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => '21-0845',
+          'businessLine' => 'CMP'
+        }
+
+        validated_metadata = IvcChampva::MetadataValidator.validate(metadata)
+
+        expect(validated_metadata).to eq(metadata)
+      end
+    end
   end
 
   describe 'zip code is malformed' do
