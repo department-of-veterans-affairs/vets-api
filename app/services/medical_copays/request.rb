@@ -94,7 +94,7 @@ module MedicalCopays
     def request_options
       {
         open_timeout: 15,
-        timeout: 15
+        timeout: 50
       }
     end
 
