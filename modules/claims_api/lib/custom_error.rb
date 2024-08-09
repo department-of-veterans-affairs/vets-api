@@ -5,14 +5,17 @@ require 'claims_api/common/exceptions/lighthouse/timeout'
 require 'claims_api/v2/error/lighthouse_error_mapper'
 module ClaimsApi
   class CustomError
-    def initialize(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
+    def initialize(error, detail = nil, async = true) # rubocop:disable Style/OptionalBooleanParameter
       @error = error
       @async = async
+      @detail = detail
       @original_status = @error&.original_status if @error&.methods&.include?(:original_status)
-      @original_body = @error&.original_body if @error&.methods&.include?(:original_body)
+      @original_body = get_original_body
     end
 
     def build_error
+      handle_strings if @error.is_a?(String) || @original_body.is_a?(String)
+
       case @error
       when Faraday::ParsingError
         raise_backend_exception
@@ -77,6 +80,16 @@ module ClaimsApi
       else
         ClaimsApi::V2::Error::LighthouseErrorMapper.new(error).get_details
       end
+    end
+
+    def handle_strings
+      @error = ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException.new(
+        [{ detail: @error.is_a?(String) ? @error : @original_body, status: 422, title: 'String error' }]
+      )
+    end
+
+    def get_original_body
+      @detail ||= @error&.original_body if @error&.methods&.include?(:original_body)
     end
   end
 end

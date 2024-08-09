@@ -88,5 +88,42 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
         expect(e.errors[0][:title]).to eq('Backend Service Exception')
       end
     end
+
+    context 'the error is returned as a string from the EVSS docker container' do
+      error_original_body = 'ClamsApi::claim failed '
+
+      let(:backend_error) do
+        Common::Exceptions::BackendServiceException.new(
+          backtrace.backtrace,
+          { status: 400, detail: nil, code: 'VA900', source: nil },
+          400,
+          error_original_body
+        )
+      end
+
+      let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error) }
+
+      it 'handles a string error message' do
+        backend_error_submit.build_error
+      rescue => e
+        expect(e.errors[0][:title]).to eq('String error')
+        expect(e.errors[0][:status]).to eq('422')
+        expect(e.errors[0][:detail]).to eq(error_original_body)
+      end
+    end
+
+    context 'the error.original_body is returned as a string from the EVSS docker container' do
+      let(:string_error) { 'ClamsApi::claim failed ' }
+
+      let(:string_error_submit) { ClaimsApi::CustomError.new(string_error) }
+
+      it 'handles a string error message' do
+        string_error_submit.build_error
+      rescue => e
+        expect(e.errors[0][:title]).to eq('String error')
+        expect(e.errors[0][:status]).to eq('422')
+        expect(e.errors[0][:detail]).to eq(string_error)
+      end
+    end
   end
 end
