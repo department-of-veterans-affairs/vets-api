@@ -102,7 +102,7 @@ class FormProfile
     coe: ['26-1880'],
     adapted_housing: ['26-4555'],
     intent_to_file: ['21-0966'],
-    ivc_champva: %w[10-7959C],
+    ivc_champva: %w['10-7959C'],
     form_upload_flow: ['FORM-UPLOAD-FLOW'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS']
   }.freeze
