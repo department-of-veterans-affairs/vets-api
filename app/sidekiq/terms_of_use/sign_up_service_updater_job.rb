@@ -39,11 +39,11 @@ module TermsOfUse
     private
 
     def accept
-      MAP::SignUp::Service.new.agreements_accept(icn:, signature_name:, version:)
+      MAP::SignUp::Service.new.agreements_accept(icn: mpi_profile.icn, signature_name:, version:)
     end
 
     def decline
-      MAP::SignUp::Service.new.agreements_decline(icn:)
+      MAP::SignUp::Service.new.agreements_decline(icn: mpi_profile.icn)
     end
 
     def sec_id?

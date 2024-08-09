@@ -88,7 +88,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
           job.perform(user_account_uuid, version)
 
           expect(MAP::SignUp::Service).to have_received(:new)
-          expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
+          expect(service_instance).to have_received(:agreements_accept).with(icn: mpi_profile.icn,
                                                                              signature_name: common_name,
                                                                              version:)
         end
@@ -105,7 +105,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
           job.perform(user_account_uuid, version)
 
           expect(MAP::SignUp::Service).to have_received(:new)
-          expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)
+          expect(service_instance).to have_received(:agreements_decline).with(icn: mpi_profile.icn)
         end
       end
     end
