@@ -29,29 +29,39 @@ describe IvcChampva::PdfFiller do
     end
   end
 
-  # describe '#generate' do
-  #   forms.each do |file_name|
-  #     context "when mapping the pdf data given JSON file: #{file_name}" do
-  #       let(:form_number) { file_name.gsub('-min', '') }
-  #       let(:expected_pdf_path) { "tmp/#{file_name}-tmp.pdf" }
-  #       let(:data) { JSON.parse(File.read("modules/ivc_champva/spec/fixtures/form_json/#{file_name}.json")) }
-  #       let(:form) { "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data) }
+  describe '#generate' do
+    forms.each do |file_name|
+      context "when mapping the pdf data given JSON file: #{file_name}" do
+        let(:form_number) { file_name.gsub('-min', '') }
+        let(:expected_pdf_path) { Rails.root.join("tmp/#{name}-tmp.pdf") }
+        let(:expected_stamped_path) { Rails.root.join("tmp/#{name}-stamped.pdf") }
+        let(:data) { JSON.parse(File.read("modules/ivc_champva/spec/fixtures/form_json/#{file_name}.json")) }
+        let(:form) { "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data) }
+        let(:name) { SecureRandom.hex }
 
-  #       after { FileUtils.rm_f(expected_pdf_path) }
+        after { FileUtils.rm_f(expected_pdf_path) }
 
-  #       context 'when a legitimate JSON payload is provided' do
-  #         it 'properly fills out the associated PDF' do
-  #           filled_pdf_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'pdfs',
-  #                                             "#{file_name}-filled.pdf")
+        context 'when a legitimate JSON payload is provided' do
+          it 'properly fills out the associated PDF and compares text' do
+            filled_pdf_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'pdfs',
+                                              "#{file_name}-filled.pdf")
 
-  #           described_class.new(form_number:, form:).generate
+            described_class.new(form_number:, form:, name:).generate
 
-  #           expect(expected_pdf_path).to match_pdf_content_of(filled_pdf_path)
-  #         end
-  #       end
-  #     end
-  #   end
-  # end
+            expect(expected_pdf_path).to match_pdf_content_of(filled_pdf_path)
+          end
+
+          it 'uses a temporary file to initialize a stampable template file' do
+            allow(FileUtils).to receive(:copy_file).and_call_original
+
+            described_class.new(form_number:, form:, name:).generate
+
+            expect(FileUtils).to have_received(:copy_file).with(anything, expected_stamped_path.to_s)
+          end
+        end
+      end
+    end
+  end
 
   describe 'form mappings' do
     list = forms.map { |f| f.gsub('-min', '') }.uniq
