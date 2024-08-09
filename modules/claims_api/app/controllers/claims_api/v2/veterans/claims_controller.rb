@@ -58,7 +58,8 @@ module ClaimsApi
             token:,
             current_user:,
             target_veteran:,
-            params:
+            params:,
+            auth_headers:
           ).map_claim
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :show, root: :data }
 

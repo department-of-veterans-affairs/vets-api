@@ -5,7 +5,7 @@ module ClaimsApi
     class ClaimMapper # rubocop:disable Metrics/ClassLength
       # rubocop:disable Metrics/ParameterLists
       def initialize(request:, token:, current_user:, target_veteran:, bgs_claims: nil,
-                     lighthouse_claims: nil, bgs_claim: nil, lighthouse_claim: nil, params: nil)
+                     lighthouse_claims: nil, bgs_claim: nil, lighthouse_claim: nil, params: nil, auth_headers: nil)
         @bgs_claims = bgs_claims
         @lighthouse_claims = lighthouse_claims
         @bgs_claim = bgs_claim
@@ -15,6 +15,7 @@ module ClaimsApi
         @current_user = current_user
         @target_veteran = target_veteran
         @params = params
+        @auth_headers = auth_headers
       end
       # rubocop:enable Metrics/ParameterLists
 
@@ -159,7 +160,6 @@ module ClaimsApi
 
       # rubocop:disable Metrics/MethodLength
       def build_supporting_docs(bgs_claim)
-        byebug
         return [] if bgs_claim.nil?
 
         @supporting_documents = []
@@ -525,7 +525,7 @@ module ClaimsApi
       end
 
       def evss_docs_service
-        EVSS::DocumentsService.new(auth_headers)
+        EVSS::DocumentsService.new(@auth_headers)
       end
 
       def benefits_doc_api

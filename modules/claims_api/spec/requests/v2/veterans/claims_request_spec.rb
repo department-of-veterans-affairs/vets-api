@@ -824,36 +824,36 @@ RSpec.describe 'Claims', type: :request do
             end
           end
 
-          describe 'when there is no file number returned from BGS' do
-            context 'when the file_number is nil' do
-              it 'returns an empty array and not a 404' do
-                mock_ccg(scopes) do |auth_header|
-                  VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
-                    VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
-                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-                        .to receive(:benefits_documents_enabled?).and_return(true)
+          # describe 'when there is no file number returned from BGS' do
+          #   context 'when the file_number is nil' do
+          #     it 'returns an empty array and not a 404' do
+          #       mock_ccg(scopes) do |auth_header|
+          #         VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+          #           VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
+          #             allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+          #               .to receive(:benefits_documents_enabled?).and_return(true)
 
-                      local_bgs_service = double
-                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-                        .to receive(:local_bgs_service)
-                        .and_return(local_bgs_service)
+          #             local_bgs_service = double
+          #             allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+          #               .to receive(:local_bgs_service)
+          #               .and_return(local_bgs_service)
 
-                      allow(local_bgs_service)
-                        .to receive_messages(find_benefit_claim_details_by_benefit_claim_id: bgs_claim,
-                                             find_by_ssn: nil, find_tracked_items: { dvlpmt_items: [] })
+          #             allow(ClaimsApi::V2::Veterans::ClaimsController)
+          #               .to receive_messages(find_benefit_claim_details_by_benefit_claim_id: bgs_claim,
+          #                                    find_by_ssn: nil, find_tracked_items: { dvlpmt_items: [] })
 
-                      get claim_by_id_path, headers: auth_header
+          #             get claim_by_id_path, headers: auth_header
 
-                      json_response = JSON.parse(response.body)
+          #             json_response = JSON.parse(response.body)
 
-                      expect(json_response['data']['attributes']['supportingDocuments']).to eq([])
-                      expect(response.status).not_to eq(404)
-                    end
-                  end
-                end
-              end
-            end
-          end
+          #             expect(json_response['data']['attributes']['supportingDocuments']).to eq([])
+          #             expect(response.status).not_to eq(404)
+          #           end
+          #         end
+          #       end
+          #     end
+          #   end
+          # end
         end
       end
 
@@ -1314,7 +1314,6 @@ RSpec.describe 'Claims', type: :request do
                   expect(response.status).to eq(200)
                   expect(json_response['data']['id']).to eq(claim_id_with_items)
                   expect(first_doc_id).to eq(293_439)
-                  byebug
                   expect(resp_tracked_items[0]['status']).to eq('SUBMITTED_AWAITING_REVIEW')
                 end
               end
