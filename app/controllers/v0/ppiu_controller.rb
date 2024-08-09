@@ -15,7 +15,7 @@ module V0
       if Flipper.enabled?(:profile_ppiu_reject_requests, @current_user)
         message = 'EVSS PPIU endpoint is being deprecated. Please contact the ' \
                   'Authenticated Experience team with any questions or use the ' \
-                  "'/v0/profile/direct_deposits/disability_compensations' endpoint instead."
+                  "'/v0/profile/direct_deposits' endpoint instead."
 
         raise Common::Exceptions::Forbidden, detail: message
       end
