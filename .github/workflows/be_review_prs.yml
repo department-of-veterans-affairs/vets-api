@@ -32,6 +32,8 @@ jobs:
 
       - id: codeowners
         uses: SvanBoxel/codeowners-action@v1
+        with:
+          path: './.github/CODEOWNERS'
       - run: |
           echo ${{ steps.codeowners.outputs.codeowners }};
 
