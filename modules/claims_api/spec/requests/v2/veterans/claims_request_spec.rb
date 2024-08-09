@@ -569,6 +569,7 @@ RSpec.describe 'Claims', type: :request do
                 get claim_by_id_path, headers: auth_header
 
                 json_response = JSON.parse(response.body)
+                byebug
                 expect(response.status).to eq(200)
                 expect(json_response).to be_an_instance_of(Hash)
               end
@@ -583,7 +584,7 @@ RSpec.describe 'Claims', type: :request do
 
       before do
         allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-          .to receive(:validate_id_with_icn).and_return(nil)
+          .to receive(:validate_id_with_icn!).and_return(nil)
       end
 
       describe 'BGS attributes' do

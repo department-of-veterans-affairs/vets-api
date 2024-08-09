@@ -2,35 +2,22 @@
 
 require 'claims_api/bgs_claim_status_mapper'
 require 'claims_api/v2/mock_documents_service'
+require 'claims_api/v2/claims/claim_validator'
 
 module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
         before_action :set_bgs_claims, :set_lighthouse_claims, :render_if_no_claims, only: %i[index]
+        before_action :set_lighthouse_claim, :set_bgs_claim, :raise_if_no_claims_for_id!, :validate_id_with_icn!,
+                      only: %i[show]
 
         def index
-          mapped_claims = map_claims(bgs_claims: @bgs_claims, lighthouse_claims: @lighthouse_claims)
-          blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :index, root: :data }
-          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, blueprint_options)
+          render json: claims_map
         end
 
         def show
-          lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
-          benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
-          bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
-
-          if lighthouse_claim.blank? && bgs_claim.blank?
-            claims_v2_logging('claims_show', level: :warn, message: 'Claim not found.')
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
-          end
-
-          validate_id_with_icn(bgs_claim, lighthouse_claim, params[:veteranId])
-
-          output = generate_show_output(bgs_claim:, lighthouse_claim:)
-          blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :show, root: :data }
-
-          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(output, blueprint_options)
+          render json: claim_map
         end
 
         private
@@ -47,36 +34,46 @@ module ClaimsApi
           render json: [] && return unless @bgs_claims || @lighthouse_claims
         end
 
+        def claims_map
+          mapped_claims = map_claims(bgs_claims: @bgs_claims, lighthouse_claims: @lighthouse_claims)
+          blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :index, root: :data }
+
+          ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, blueprint_options)
+        end
+
+        def claim_map
+          output = generate_show_output(bgs_claim: @bgs_claim, lighthouse_claim: @lighthouse_claim)
+          blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :show, root: :data }
+
+          ClaimsApi::V2::Blueprints::ClaimBlueprint.render(output, blueprint_options)
+        end
+
+        def set_lighthouse_claim
+          @lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
+        end
+
+        def set_bgs_claim
+          benefit_claim_id = @lighthouse_claim.present? ? @lighthouse_claim.evss_id : params[:id]
+          @bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
+        end
+
+        def raise_if_no_claims_for_id!
+          if @lighthouse_claim.blank? && @bgs_claim.blank?
+            claims_v2_logging('claims_show', level: :warn, message: 'Claim not found.')
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
+          end
+        end
+
+        def validate_id_with_icn!
+          ClaimValidator.new(@bgs_claim, @lighthouse_claim, params[:veteranId], target_veteran).validate!
+        end
+
         def evss_docs_service
           EVSS::DocumentsService.new(auth_headers)
         end
 
         def bgs_phase_status_mapper
           ClaimsApi::BGSClaimStatusMapper.new
-        end
-
-        def validate_id_with_icn(bgs_claim, lighthouse_claim, request_icn)
-          if bgs_claim&.dig(:benefit_claim_details_dto).present?
-            clm_prtcpnt_vet_id = bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_vet_id)
-            clm_prtcpnt_clmnt_id = bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_clmant_id)
-          end
-
-          veteran_icn = if lighthouse_claim.present? && lighthouse_claim['veteran_icn'].present?
-                          lighthouse_claim['veteran_icn']
-                        end
-
-          if clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id) && veteran_icn != request_icn
-            raise ::Common::Exceptions::ResourceNotFound.new(
-              detail: 'Invalid claim ID for the veteran identified.'
-            )
-          end
-        end
-
-        def clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id)
-          return true if clm_prtcpnt_vet_id.nil? || clm_prtcpnt_clmnt_id.nil?
-
-          # if either of these is false then we have a match and can show the record
-          clm_prtcpnt_vet_id != target_veteran.participant_id && clm_prtcpnt_clmnt_id != target_veteran.participant_id
         end
 
         def generate_show_output(bgs_claim:, lighthouse_claim:) # rubocop:disable Metrics/MethodLength
