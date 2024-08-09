@@ -292,6 +292,7 @@ module Requests
     attribute :zip_last_four, String
     attribute :state, String
     attribute :country, String
+    attribute :international_postal_code, String
   end
 
   class ServicePay

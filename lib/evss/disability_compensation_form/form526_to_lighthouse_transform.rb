@@ -149,9 +149,9 @@ module EVSS
         change_of_address.address_line_2 = change_of_address_source['addressLine2']
         change_of_address.address_line_3 = change_of_address_source['addressLine3']
 
-        change_of_address.zip_first_five = change_of_address_source['internationalPostalCode'] ||
-                                           change_of_address_source['zipFirstFive']
+        change_of_address.zip_first_five = change_of_address_source['zipFirstFive']
         change_of_address.zip_last_four = change_of_address_source['zipLastFour']
+        change_of_address.international_postal_code = change_of_address_source['internationalPostalCode']
         change_of_address.type_of_address_change = change_of_address_source['addressChangeType']
         change_of_address.dates = Requests::Dates.new
 
