@@ -506,7 +506,8 @@ module EVSS
           veteran['currentMailingAddress']['zipFirstFive']
         veteran_identification.mailing_address.zip_last_four = veteran['currentMailingAddress']['zipLastFour']
         veteran_identification.mailing_address.country = veteran['currentMailingAddress']['country']
-        veteran_identification.mailing_address.international_postal_code = veteran['currentMailingAddress']['internationalPostalCode']
+        veteran_identification.mailing_address.international_postal_code =
+          veteran['currentMailingAddress']['internationalPostalCode']
       end
 
       def transform_service_periods(service_information_source, service_information)
