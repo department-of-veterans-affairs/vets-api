@@ -30,21 +30,22 @@ jobs:
           echo "${{ github.event_name }}"
           echo "${{ github.event.review.state == 'approved' }}"
           echo "${{ github.event.pull_request.number }}"
+          echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) }}"
 
 
       - name: Add Assign team to Pull Request Comment
-        if: github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]'
+        if: github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) == '[]'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "Please assign your team or backend-review-group to this pull request."
 
 
-      - name: Add Assign team to Pull Request Comment
+      - name: Add Assign team to Pull Request Review Comment
         if: github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) == '[]'
         uses: peter-evans/create-or-update-comment@v3
         with:
-          issue-number: ${{ github.event.pull_request_review.pull_request.number }}
+          issue-number: ${{ github.event.pull_request.number }}
           body: "Please assign your team or backend-review-group to this pull request."
 
 
