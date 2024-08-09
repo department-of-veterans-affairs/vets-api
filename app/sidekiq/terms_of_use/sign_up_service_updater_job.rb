@@ -7,6 +7,8 @@ module TermsOfUse
   class SignUpServiceUpdaterJob
     include Sidekiq::Job
 
+    LOG_TITLE = '[TermsOfUse][SignUpServiceUpdaterJob]'
+
     sidekiq_options retry_for: 48.hours
 
     sidekiq_retries_exhausted do |job, exception|
@@ -22,7 +24,7 @@ module TermsOfUse
         exception_message: exception.message
       }
 
-      Rails.logger.warn('[TermsOfUse][SignUpServiceUpdaterJob] retries exhausted', payload)
+      Rails.logger.warn("#{LOG_TITLE} retries exhausted", payload)
     end
 
     attr_reader :user_account_uuid, :version
@@ -47,11 +49,17 @@ module TermsOfUse
     end
 
     def sec_id?
-      return true if mpi_profile.sec_id.present?
+      if mpi_profile.sec_id.present?
+        validate_multiple_sec_ids
+        return true
+      end
 
-      Rails.logger.info('[TermsOfUse][SignUpServiceUpdaterJob] Sign Up Service not updated due to user missing sec_id',
-                        { icn: })
+      Rails.logger.info("#{LOG_TITLE} Sign Up Service not updated due to user missing sec_id", { icn: })
       false
+    end
+
+    def validate_multiple_sec_ids
+      Rails.logger.info("#{LOG_TITLE} Multiple sec_id values detected", { icn: }) if mpi_profile.sec_ids.many?
     end
 
     def user_account
