@@ -46,7 +46,7 @@ jobs:
         run: |
            echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) == '[]' }}"
 
-        run: |
+      - run: |
           REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
           echo "$REQUESTED_TEAMS"
 
