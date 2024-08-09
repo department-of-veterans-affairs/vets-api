@@ -55,8 +55,8 @@ jobs:
       - name: Fetch review teams
         id: fetch_review_teams
         run: |
-          if [ ( ${{ github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) != '[]' }} ) ||
-            ( ${{ github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) != '[]' }} )]; then
+          if [ ${{ github.event_name == 'pull_request' && toJSON(github.event.pull_request.requested_teams.*.name) != '[]' }} ||
+              ${{ github.event_name == 'pull_request_review' && toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) != '[]' }} ]; then
             echo "review_teams_present=true" >> $GITHUB_OUTPUT
           else
             echo "review_teams_present=false" >> $GITHUB_OUTPUT
