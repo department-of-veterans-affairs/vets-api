@@ -790,6 +790,9 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  mhv_va_health_chat_enabled:
+    actor_type: user
+    description: Enables the VA Health Chat link at /my-health
   mhv_landing_page_show_priority_group:
     actor_type: user
     description: Shows Veterans their Priority Group on the MHV Landing Page
