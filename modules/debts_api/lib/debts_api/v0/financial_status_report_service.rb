@@ -236,7 +236,7 @@ module DebtsApi
     end
 
     def send_confirmation_email(template_id)
-      return unless Rails.env.production?
+      return unless Settings.vsp_environment == 'production'
 
       email = @user.email&.downcase
       return if email.blank?
