@@ -50,10 +50,19 @@ detectors:
     enabled: false # rubocop takes care of this
   UtilityFunction:
     public_methods_only: true
+  UncommunicativeMethodName:
+    accept:
+      - "/[0-9]+$/"
+  UncommunicativeModuleName:
+    accept:
+      - "/[0-9]+$/"
+  UncommunicativeParameterName:
+    accept:
+      - "/[0-9]+$/"
   UncommunicativeVariableName:
     accept:
       - e
       - k
       - v
       - i
-      - "/\d+$/"
+      - "/[0-9]+$/"
