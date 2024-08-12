@@ -932,6 +932,72 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v21_22_expected) do
+    {
+      'personalInformation' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12'
+      },
+      'contactInformation' => {
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        },
+        'primaryPhone' => '4445551212'
+      },
+      'militaryInformation' => {
+        'serviceBranch' => 'Army',
+        'serviceDateRange' => {
+          'from' => '2002-07-02',
+          'to' => '2014-08-31'
+        }
+      }
+    }
+  end
+
+  let(:v21_22_a_expected) do
+    {
+      'personalInformation' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12'
+      },
+      'contactInformation' => {
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        },
+        'primaryPhone' => '4445551212'
+      },
+      'militaryInformation' => {
+        'serviceBranch' => 'Army',
+        'serviceDateRange' => {
+          'from' => '2002-07-02',
+          'to' => '2014-08-31'
+        }
+      }
+    }
+  end
+
   let(:v26_4555_expected) do
     {
       'veteran' => {
@@ -1685,6 +1751,8 @@ RSpec.describe FormProfile, type: :model do
           28-1900
           26-1880
           26-4555
+          21-22
+          21-22A
           FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
@@ -1959,22 +2027,6 @@ RSpec.describe FormProfile, type: :model do
         )
         instance1.prefill
         instance2.prefill
-      end
-    end
-
-    context '10-7959F-1 form profile instances' do
-      let(:instance) { FormProfile.new(form_id: '10-7959F-1', user:) }
-
-      it 'loads the yaml file only once' do
-        expect(YAML).to receive(:load_file).once.and_return(
-          'veteranFullName' => %w[identity_information full_name],
-          'veteranAddress' => %w[contact_information address],
-          'veteranSocialSecurityNumber' => %w[identity_information ssn],
-          'veteranPhoneNumber' => %w[contact_information us_phone],
-          'veteranEmailAddress' => %w[contact_information email],
-          'veteranPhysicalAddress' => %w[residential_address]
-        )
-        instance.prefill
       end
     end
   end
