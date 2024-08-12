@@ -51,7 +51,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: "There were changes made to this pull request after the inital approval. Please assign your team or backend-review-group to this pull request and re-run this check again."
+          body: "There were changes made to this pull request after the inital approval. Github API may haved unassigned your team from Reviewers. Please assign your team or backend-review-group to this pull request and re-run this check again."
 
       - name: Fail if no teams are requested
         if: env.REQUESTED_TEAMS == ''
