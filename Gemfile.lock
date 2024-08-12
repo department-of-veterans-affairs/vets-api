@@ -708,7 +708,7 @@ GEM
     os (1.1.4)
     ostruct (0.6.0)
     ox (2.14.18)
-    parallel (1.25.1)
+    parallel (1.26.2)
     parallel_tests (4.7.1)
       parallel
     parser (3.3.4.0)
