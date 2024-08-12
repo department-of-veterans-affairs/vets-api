@@ -27,8 +27,8 @@ module BenefitsDocuments
         @lighthouse_document = lighthouse_document
       end
 
-      # return [Faraday::Response] all client communicaiton in Common::Client::Base
-      # subclasses is wrapped in the Faraday gem
+      # return [Faraday::Response] BenefitsDocuments::WorkerService makes http
+      # calls with the Faraday gem under the hood
       def call
         client = BenefitsDocuments::WorkerService.new
         client.upload_document(@file_body, @lighthouse_document)
