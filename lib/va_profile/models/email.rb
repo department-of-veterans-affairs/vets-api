@@ -77,7 +77,7 @@ module VAProfile
         true
       end
 
-      def contact_info_attr
+      def contact_info_attr(*)
         'email'
       end
     end

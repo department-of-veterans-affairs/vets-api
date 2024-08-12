@@ -88,7 +88,7 @@ module VAProfile
         false
       end
 
-      def contact_info_attr
+      def contact_info_attr(*)
         'text_permission'
       end
     end

@@ -110,12 +110,9 @@ module VAProfile
         true
       end
 
-      def contact_info_attr
-        'address'
-      end
-
-      def self.contact_info_attr(record)
-        return 'residential_address' if record.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
+      def contact_info_attr(contact_info: false)
+        return 'address' if contact_info == false
+        return 'residential_address' if address_pou == VAProfile::Models::BaseAddress::RESIDENCE
 
         'mailing_address'
       end

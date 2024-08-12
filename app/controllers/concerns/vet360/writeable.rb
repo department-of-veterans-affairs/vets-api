@@ -71,11 +71,7 @@ module Vet360
 
     def build_http_verb(record)
       contact_info = VAProfileRedis::ContactInformation.for_user(@current_user)
-      attr = if record.contact_info_attr == ('telephone' || 'address')
-               record.class.contact_info_attr(record)
-             else
-               record.contact_info_attr
-             end
+      attr = record.contact_info_attr(contact_info: true)
       raise "invalid #{record.model} VAProfile::ProfileInformation" if attr.nil?
 
       record.id = contact_info.public_send(attr)&.id

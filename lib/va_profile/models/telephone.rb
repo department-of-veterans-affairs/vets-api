@@ -159,12 +159,10 @@ module VAProfile
         true
       end
 
-      def contact_info_attr
-        'telephone'
-      end
+      def contact_info_attr(contact_info: false)
+        return 'telephone' if contact_info == false
 
-      def self.contact_info_attr(record)
-        case record.phone_type
+        case phone_type
         when VAProfile::Models::Telephone::MOBILE
           'mobile_phone'
         when VAProfile::Models::Telephone::HOME
