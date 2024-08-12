@@ -40,7 +40,5 @@ def stub_vet360(person = nil)
       VAProfile::ContactInformation::PersonResponse.new(200, person:)
     )
   end
-
-
 end
 # rubocop:enable Metrics/MethodLength

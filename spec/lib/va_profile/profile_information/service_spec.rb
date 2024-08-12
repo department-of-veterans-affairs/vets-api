@@ -218,7 +218,7 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
             old_email = user.vet360_contact_info.email.email_address
             expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
             response = subject.create_or_update_info(:put, email)
-            #expect(OldEmail.find(response.transaction_id).email).to eq(old_email)
+            # expect(OldEmail.find(response.transaction_id).email).to eq(old_email)
             expect(OldEmail.find(response.transaction.id).email).to eq(old_email)
           end
         end

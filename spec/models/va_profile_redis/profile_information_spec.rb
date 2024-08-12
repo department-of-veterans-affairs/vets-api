@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 describe VAProfileRedis::ProfileInformation do
+  Flipper.enable(:va_profile_information_v3_redis)
+  Flipper.enable(:va_profile_information_v3_service)
   let(:user) { build(:user, :loa3) }
   let(:person_response) do
     raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
@@ -26,8 +28,6 @@ describe VAProfileRedis::ProfileInformation do
   end
 
   before do
-    Flipper.enable(:va_profile_information_v3_redis)
-    Flipper.enable(:va_profile_information_v3_service)
     allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
   end
 
@@ -109,7 +109,6 @@ describe VAProfileRedis::ProfileInformation do
 
       describe '#email' do
         it 'returns the users email address object', :aggregate_failures do
-
           expect(contact_info.email).to eq person.emails.first
           expect(contact_info.email.class).to eq VAProfile::Models::Email
         end
