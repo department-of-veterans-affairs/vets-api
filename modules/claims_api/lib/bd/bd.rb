@@ -61,9 +61,9 @@ module ClaimsApi
       res
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
-                            detail: "/upload failure for ,
+                            detail: "/upload failure for
                                                     #{doc_type_to_plain_language(doc_type)}_id: #{claim.id},
-                                                    ##{e.message}")
+                                                    #{e.message}")
       raise e
     end
 
