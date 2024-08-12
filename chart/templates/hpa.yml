@@ -10,17 +10,33 @@ metadata:
 spec:
   behavior:
     scaleUp:
+      {{- if hasKey $service.autoscaling "scaleUp" }}
       stabilizationWindowSeconds: {{ $service.autoscaling.scaleUp.stabilizationWindowSeconds | default $root.Values.web.autoscaling.scaleUp.stabilizationWindowSeconds }}
       policies:
       - type: Pods
         value: {{ $service.autoscaling.scaleUp.pods | default $root.Values.web.autoscaling.scaleUp.pods }}
         periodSeconds: {{ $service.autoscaling.scaleUp.periodSeconds | default $root.Values.web.autoscaling.scaleUp.periodSeconds }}
+      {{- else }}
+      stabilizationWindowSeconds: {{ $root.Values.web.autoscaling.scaleUp.stabilizationWindowSeconds }}
+      policies:
+      - type: Pods
+        value: {{ $root.Values.web.autoscaling.scaleUp.pods }}
+        periodSeconds: {{ $root.Values.web.autoscaling.scaleUp.periodSeconds }}
+      {{- end }}
     scaleDown:
+      {{- if hasKey $service.autoscaling "scaleDown" }}
       stabilizationWindowSeconds: {{ $service.autoscaling.scaleDown.stabilizationWindowSeconds | default $root.Values.web.autoscaling.scaleDown.stabilizationWindowSeconds }}
       policies:
       - type: Pods
         value: {{ $service.autoscaling.scaleDown.pods | default $root.Values.web.autoscaling.scaleDown.pods }}
         periodSeconds: {{ $service.autoscaling.scaleDown.periodSeconds | default $root.Values.web.autoscaling.scaleDown.periodSeconds }}
+      {{- else }}
+      stabilizationWindowSeconds: {{ $root.Values.web.autoscaling.scaleDown.stabilizationWindowSeconds }}
+      policies:
+      - type: Pods
+        value: {{ $root.Values.web.autoscaling.scaleDown.pods }}
+        periodSeconds: {{ $root.Values.web.autoscaling.scaleDown.periodSeconds }}
+      {{- end }}
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
@@ -51,14 +67,14 @@ spec:
       stabilizationWindowSeconds: {{ .Values.worker.autoscaling.scaleUp.stabilizationWindowSeconds }}
       policies:
       - type: Pods
-        value: {{ .Values.web.autoscaling.scaleUp.pods }}
-        periodSeconds: {{ .Values.web.autoscaling.scaleUp.periodSeconds }}
+        value: {{ .Values.worker.autoscaling.scaleUp.pods }}
+        periodSeconds: {{ .Values.worker.autoscaling.scaleUp.periodSeconds }}
     scaleDown:
       stabilizationWindowSeconds: {{ .Values.worker.autoscaling.scaleDown.stabilizationWindowSeconds }}
       policies:
       - type: Pods
-        value: {{ .Values.web.autoscaling.scaleDown.pods }}
-        periodSeconds: {{ .Values.web.autoscaling.scaleDown.periodSeconds }}
+        value: {{ .Values.worker.autoscaling.scaleDown.pods }}
+        periodSeconds: {{ .Values.worker.autoscaling.scaleDown.periodSeconds }}
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
