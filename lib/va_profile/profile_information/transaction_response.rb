@@ -112,8 +112,7 @@ module VAProfile
                 'va profile mpi not found',
                 :error,
                 {
-                  icn: @user.icn,
-                  edipi: @user.edipi,
+                  uuid: @user.uuid,
                   response_body: @response_body
                 },
                 error: :va_profile

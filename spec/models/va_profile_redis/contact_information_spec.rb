@@ -90,25 +90,15 @@ describe VAProfileRedis::ContactInformation do
   #     expect(contact_info.response.person).to have_deep_attributes(person)
   #   end
   # end
+        # if VAProfile::Configuration::SETTINGS.contact_information.cache_enabled
+        #   expect(contact_info.redis_namespace).to receive(:set).once
+        # end
+        # expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).twice
+    #     expect(contact_info.status).to eq 200
+    #     expect(contact_info.response.person).to have_deep_attributes(person)
+    #   end
+    # end
 
-  #       if VAProfile::Configuration::SETTINGS.contact_information.cache_enabled
-  #         expect(contact_info.redis_namespace).to receive(:set).once
-  #       end
-  #       expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).twice
-  #       expect(contact_info.status).to eq 200
-  #       expect(contact_info.response.person).to have_deep_attributes(person)
-  #     end
-  #   end
-
-  #   context 'when there is cached data' do
-  #     it 'returns the cached data', :aggregate_failures do
-  #       contact_info.cache(user.uuid, person_response)
-
-  #       expect_any_instance_of(VAProfile::ContactInformation::Service).not_to receive(:get_person)
-  #       expect(contact_info.response.person).to have_deep_attributes(person)
-  #     end
-  #   end
-  # end
 
   describe 'contact information attributes' do
     context 'with a successful response' do

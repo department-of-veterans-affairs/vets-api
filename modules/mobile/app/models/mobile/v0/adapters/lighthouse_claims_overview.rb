@@ -34,6 +34,10 @@ module Mobile
           )
         end
 
+        def documents_needed(attributes)
+          attributes['evidenceWaiverSubmitted5103'] ? false : attributes['documentsNeeded']
+        end
+
         def date(attribute)
           return nil unless attribute
 
