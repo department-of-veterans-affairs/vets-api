@@ -438,6 +438,10 @@ argocd:
   slack:
     api_key: ~
 
+# Settings for Accredited Rep Management
+acc_rep_management:
+  prefill: true
+
 # Settings for EVSS
 evss:
   prefill: true
