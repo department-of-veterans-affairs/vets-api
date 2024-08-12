@@ -22,7 +22,7 @@ module SignIn
       if client_config.save
         render json: client_config, status: :created
       else
-        render json: client_config.errors, status: :unprocessable_entity
+        render json: { errors: client_config.errors }, status: :unprocessable_entity
       end
     end
 
@@ -30,7 +30,7 @@ module SignIn
       if @client_config.update(client_config_params)
         render json: @client_config, status: :ok
       else
-        render json: @client_config.errors, status: :unprocessable_entity
+        render json: { errors: @client_config.errors }, status: :unprocessable_entity
       end
     end
 
@@ -38,7 +38,7 @@ module SignIn
       if @client_config.destroy
         head :no_content
       else
-        render json: @client_config.errors, status: :unprocessable_entity
+        render json: { errors: @client_config.errors }, status: :unprocessable_entity
       end
     end
 
@@ -51,11 +51,11 @@ module SignIn
     end
 
     def set_client_config
-      @client_config = SignIn::ClientConfig.find(params[:id])
+      @client_config = SignIn::ClientConfig.find_by!(client_id: params[:client_id])
     end
 
     def not_found
-      render json: { error: 'Client config not found' }, status: :not_found
+      render json: { errors: { client_config: ['not found'] } }, status: :not_found
     end
   end
 end

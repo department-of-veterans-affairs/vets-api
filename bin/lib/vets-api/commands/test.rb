@@ -30,12 +30,12 @@ module VetsApi
       def execute_command(command, docker:)
         command = "docker compose run --rm --service-ports web bash -c \"#{command}\"" if docker
         puts "running: #{command}"
-        ShellCommand.run(command)
+        system(command)
         puts 'Results can be found at log/rspec.log' if @options.include?('--log')
       end
 
       def rspec_command
-        runtime_variables = 'RAILS_ENV=test DISABLE_BOOTSNAP=true'
+        runtime_variables = 'DISABLE_PRY=1 RAILS_ENV=test DISABLE_BOOTSNAP=true'
         "#{runtime_variables} #{coverage} #{test_command} #{@inputs} #{test_options}".strip.gsub(/\s+/, ' ')
       end
 
@@ -44,7 +44,7 @@ module VetsApi
       end
 
       def parallel?
-        !@options.include?('--no-parallel') # rubocop:disable Rails/NegateInclude
+        @options.include?('--parallel')
       end
 
       def test_command
