@@ -120,11 +120,30 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
           allow(service_instance).to receive(:agreements_accept)
         end
 
+        context 'and user account icn does not equal the mpi profile icn' do
+          let(:expected_log) do
+            '[TermsOfUse][SignUpServiceUpdaterJob] Detected changed ICN for user'
+          end
+          let(:mpi_profile) { build(:mpi_profile, icn: mpi_icn, sec_id:, given_names:, family_name:) }
+          let(:mpi_icn) { 'some-mpi-icn' }
+
+          before do
+            allow(Rails.logger).to receive(:info)
+          end
+
+          it 'logs a detected changed ICN message' do
+            job.perform(user_account_uuid, version)
+
+            expect(MAP::SignUp::Service).to have_received(:new)
+            expect(Rails.logger).to have_received(:info).with(expected_log, { icn:, mpi_icn: })
+          end
+        end
+
         it 'updates the terms of use agreement in sign up service' do
           job.perform(user_account_uuid, version)
 
           expect(MAP::SignUp::Service).to have_received(:new)
-          expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
+          expect(service_instance).to have_received(:agreements_accept).with(icn: mpi_profile.icn,
                                                                              signature_name: common_name,
                                                                              version:)
         end
@@ -137,11 +156,30 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
           allow(service_instance).to receive(:agreements_decline)
         end
 
+        context 'and user account icn does not equal the mpi profile icn' do
+          let(:expected_log) do
+            '[TermsOfUse][SignUpServiceUpdaterJob] Detected changed ICN for user'
+          end
+          let(:mpi_profile) { build(:mpi_profile, icn: mpi_icn, sec_id:, given_names:, family_name:) }
+          let(:mpi_icn) { 'some-mpi-icn' }
+
+          before do
+            allow(Rails.logger).to receive(:info)
+          end
+
+          it 'logs a detected changed ICN message' do
+            job.perform(user_account_uuid, version)
+
+            expect(MAP::SignUp::Service).to have_received(:new)
+            expect(Rails.logger).to have_received(:info).with(expected_log, { icn:, mpi_icn: })
+          end
+        end
+
         it 'updates the terms of use agreement in sign up service' do
           job.perform(user_account_uuid, version)
 
           expect(MAP::SignUp::Service).to have_received(:new)
-          expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)
+          expect(service_instance).to have_received(:agreements_decline).with(icn: mpi_profile.icn)
         end
       end
     end

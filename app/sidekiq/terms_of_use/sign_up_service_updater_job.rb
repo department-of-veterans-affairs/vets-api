@@ -35,17 +35,25 @@ module TermsOfUse
 
       return unless sec_id?
 
+      log_updated_icn
       terms_of_use_agreement.accepted? ? accept : decline
     end
 
     private
 
+    def log_updated_icn
+      if user_account.icn != mpi_profile.icn
+        Rails.logger.info("#{LOG_TITLE} Detected changed ICN for user",
+                          { icn: user_account.icn, mpi_icn: mpi_profile.icn })
+      end
+    end
+
     def accept
-      MAP::SignUp::Service.new.agreements_accept(icn:, signature_name:, version:)
+      MAP::SignUp::Service.new.agreements_accept(icn: mpi_profile.icn, signature_name:, version:)
     end
 
     def decline
-      MAP::SignUp::Service.new.agreements_decline(icn:)
+      MAP::SignUp::Service.new.agreements_decline(icn: mpi_profile.icn)
     end
 
     def sec_id?
@@ -54,20 +62,19 @@ module TermsOfUse
         return true
       end
 
-      Rails.logger.info("#{LOG_TITLE} Sign Up Service not updated due to user missing sec_id", { icn: })
+      Rails.logger.info("#{LOG_TITLE} Sign Up Service not updated due to user missing sec_id",
+                        { icn: user_account.icn })
       false
     end
 
     def validate_multiple_sec_ids
-      Rails.logger.info("#{LOG_TITLE} Multiple sec_id values detected", { icn: }) if mpi_profile.sec_ids.many?
+      if mpi_profile.sec_ids.many?
+        Rails.logger.info("#{LOG_TITLE} Multiple sec_id values detected", { icn: user_account.icn })
+      end
     end
 
     def user_account
       @user_account ||= UserAccount.find(user_account_uuid)
-    end
-
-    def icn
-      @icn ||= user_account.icn
     end
 
     def terms_of_use_agreement
@@ -79,7 +86,7 @@ module TermsOfUse
     end
 
     def mpi_profile
-      @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier: icn,
+      @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier: user_account.icn,
                                                                    identifier_type: MPI::Constants::ICN)&.profile
     end
   end
