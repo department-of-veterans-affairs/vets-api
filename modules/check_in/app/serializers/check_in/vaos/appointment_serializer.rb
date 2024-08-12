@@ -25,6 +25,18 @@ module CheckIn
       attribute :facilityPhoneMain do |object|
         object.dig(:facility, :phone, :main)
       end
+
+      attribute :clinicServiceName do |object|
+        object.dig(:clinicInfo, :data, :serviceName)
+      end
+
+      attribute :clinicPhysicalLocation do |object|
+        object.dig(:clinicInfo, :data, :physicalLocation)
+      end
+
+      attribute :clinicFriendlyName do |object|
+        object.dig(:clinicInfo, :data, :friendlyName)
+      end
     end
   end
 end

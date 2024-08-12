@@ -12,7 +12,7 @@ module V0
         state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
         render(json: { data: { attributes: { state: } } })
       elsif central_mail_submission
-        render(json: central_mail_submission)
+        render json: CentralMailSubmissionSerializer.new(central_mail_submission)
       else
         Rails.logger.error("ActiveRecord::RecordNotFound: Claim submission not found for claim_id: #{params[:id]}")
         render(json: { data: { attributes: { state: 'not found' } } }, status: :not_found)
@@ -43,7 +43,7 @@ module V0
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.form_id}"
       clear_saved_form(claim.form_id)
-      render(json: claim)
+      render json: SavedClaimSerializer.new(claim)
     end
 
     def short_name

@@ -146,6 +146,35 @@ module VAProfile
           effective_start_date: body['effective_start_date']
         )
       end
+
+      def transaction_response_class
+        VAProfile::ProfileInformation::TelephoneTransactionResponse
+      end
+
+      def self.transaction_status_path(user, transaction_id)
+        "#{user.vet360_id}/telephones/status/#{transaction_id}"
+      end
+
+      def self.send_change_notifications?
+        true
+      end
+
+      def contact_info_attr(contact_info: false)
+        return 'telephone' if contact_info == false
+
+        case phone_type
+        when VAProfile::Models::Telephone::MOBILE
+          'mobile_phone'
+        when VAProfile::Models::Telephone::HOME
+          'home_phone'
+        when VAProfile::Models::Telephone::WORK
+          'work_phone'
+        when VAProfile::Models::Telephone::FAX
+          'fax_number'
+        when VAProfile::Models::Telephone::TEMPORARY
+          'temporary_phone'
+        end
+      end
     end
   end
 end

@@ -4,16 +4,21 @@ require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
 
 RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
-  subject do
+  subject { perform_request(params) }
+
+  def perform_request(params)
     get(
       '/services/claims/v2/power-of-attorney-requests',
       headers:,
       params:
     )
 
+    body = response.body.presence
+    body &&= JSON.parse(body)
+
     OpenStruct.new(
-      body: JSON.parse(response.body),
-      response:
+      response:,
+      body:
     )
   end
 
@@ -90,7 +95,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
                   'decision' => {
                     'statuses' => {
                       '0' => [
-                        'must be one of: None, Accepted, Declined'
+                        'must be one of: none, accepting, declining'
                       ]
                     }
                   }
@@ -202,9 +207,9 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
             ],
             'decision' => {
               'statuses' => %w[
-                None
-                Accepted
-                Declined
+                none
+                accepting
+                declining
               ]
             }
           },
@@ -227,66 +232,63 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
 
   # Just wanted to see some different flavors.
   describe 'with a healthy mixture of params' do
-    let(:params) do
-      {
-        'filter' => {
-          'poaCodes' => %w[
-            083 002 003 065 074 022 091 070
-            097 077 1EY 6B6 862 9U7 BQX
-          ],
-          'decision' => {
-            'statuses' => %w[
-              Accepted
-              Declined
-            ]
-          }
-        },
-        'page' => {
-          'number' => 2,
-          'size' => 5
-        },
-        'sort' => {
-          'field' => 'createdAt',
-          'order' => 'asc'
-        }
-      }
-    end
-
-    it 'returns one of a few pages in a decently filtered total result' do
-      mock_ccg(scopes) do
-        use_soap_cassette('healthy_parameter_set', use_spec_name_prefix: true) do
-          subject
+    it 'returns one of a few pages in a decently filtered total result and total count depends on filters' do
+      result =
+        mock_ccg(scopes) do
+          use_soap_cassette('healthy_parameter_set', use_spec_name_prefix: true) do
+            perform_request(
+              'filter' => {
+                'poaCodes' => %w[
+                  083 002 003 065 074 022 091 070
+                  097 077 1EY 6B6 862 9U7 BQX
+                ],
+                'decision' => {
+                  'statuses' => %w[
+                    accepting
+                    declining
+                  ]
+                }
+              },
+              'page' => {
+                'number' => 2,
+                'size' => 5
+              },
+              'sort' => {
+                'field' => 'createdAt',
+                'order' => 'asc'
+              }
+            )
+          end
         end
-      end
 
-      expect(subject.body['data'].first).to eq(
-        'id' => '600061742_3854197',
+      expect(result.body['data'].first).to eq(
+        'id' => '600043203_3851911',
         'type' => 'powerOfAttorneyRequest',
         'attributes' => {
           'powerOfAttorneyCode' => '074',
-          'createdAt' => '2024-03-08T13:56:37Z',
+          'createdAt' => '2023-08-23T17:16:37Z',
           'isAddressChangingAuthorized' => true,
           'isTreatmentDisclosureAuthorized' => true,
           'veteran' => {
-            'firstName' => 'WESLEY',
-            'middleName' => 'WATSON',
-            'lastName' => 'FORD'
+            'firstName' => 'KYLE',
+            'middleName' => 'M',
+            'lastName' => 'COLE'
           },
           'claimant' => nil,
           'decision' => {
-            'status' => 'Accepted',
-            'declinedReason' => nil,
-            'createdAt' => '2024-03-08T14:10:41Z',
+            'status' => 'declining',
+            'decliningReason' => 'Kyle has an appeal in progress.',
+            'createdAt' => '2024-04-03T15:58:35Z',
             'createdBy' => {
-              'firstName' => 'BEATRICE',
-              'lastName' => 'STROUD',
-              'email' => 'Beatrice.Stroud44@va.gov'
+              'firstName' => 'NATE',
+              'lastName' => 'KAREV',
+              'email' => 'test evss_5@id.me'
             }
           },
           'claimantAddress' => {
-            'city' => 'WASHINGTON',
-            'state' => 'DC',
-            'zip' => '20420',
+            'city' => 'Alpharetta',
+            'state' => 'GA',
+            'zip' => '30022',
             'country' => 'USA',
             'militaryPostOffice' => nil,
             'militaryPostalCode' => nil
@@ -294,13 +296,31 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
         }
       )
 
-      expect(subject.body['data'].size).to(
-        eq(5)
-      )
+      expect(result.body.dig('metadata', 'totalCount')).to eq(36)
+      expect(result.body['data'].size).to eq(5)
+      expect(result.response).to have_http_status(:ok)
 
-      expect(subject.response).to(
-        have_http_status(:ok)
-      )
+      result =
+        mock_ccg(scopes) do
+          use_soap_cassette('healthy_parameter_set', use_spec_name_prefix: true, record: :new_episodes) do
+            perform_request(
+              'filter' => {
+                'poaCodes' => %w[
+                  083 002 003 065 074 022 091 070
+                  097 077 1EY 6B6 862 9U7 BQX
+                ],
+                'decision' => {
+                  'statuses' => %w[
+                    declining
+                  ]
+                }
+              }
+            )
+          end
+        end
+
+      expect(result.body.dig('metadata', 'totalCount')).to eq(7)
+      expect(result.response).to have_http_status(:ok)
     end
   end
 
@@ -345,7 +365,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
           ],
           'decision' => {
             'statuses' => [
-              'Declined'
+              'declining'
             ]
           }
         }
@@ -371,7 +391,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               ],
               'decision' => {
                 'statuses' => [
-                  'Declined'
+                  'declining'
                 ]
               }
             },
@@ -430,9 +450,9 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               ],
               'decision' => {
                 'statuses' => %w[
-                  None
-                  Accepted
-                  Declined
+                  none
+                  accepting
+                  declining
                 ]
               }
             },
@@ -485,9 +505,9 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
               ],
               'decision' => {
                 'statuses' => %w[
-                  None
-                  Accepted
-                  Declined
+                  none
+                  accepting
+                  declining
                 ]
               }
             },

@@ -23,10 +23,7 @@ module V0
       #   }
       #
       def show
-        render(
-          json: @current_user.full_name_normalized,
-          serializer: FullNameSerializer
-        )
+        render json: FullNameSerializer.new(@current_user.full_name_normalized)
       end
     end
   end

@@ -90,7 +90,7 @@ module Mobile
           adapted_appointment = {
             id: appointment[:id],
             appointment_type:,
-            appointment_ien: extract_station_and_ien(appointment),
+            appointment_ien: appointment[:ien],
             cancel_id:,
             comment:,
             facility_id:,
@@ -109,7 +109,7 @@ module Mobile
             vetext_id:,
             reason:,
             is_covid_vaccine: appointment[:service_type] == COVID_SERVICE,
-            is_pending: requested_periods.present?,
+            is_pending: appointment_request?,
             proposed_times:,
             type_of_care: type_of_care(appointment[:service_type]),
             patient_phone_number:,
@@ -126,6 +126,10 @@ module Mobile
         # rubocop:enable Metrics/MethodLength
 
         private
+
+        def appointment_request?
+          requested_periods.present?
+        end
 
         # to match web behavior, prefer the value found in the practitioners list over the preferred_provider_name.
         # Unlike web, we want to remove the not found message because it's too long and may cause formatting issues.
@@ -147,19 +151,10 @@ module Mobile
           end
         end
 
-        def extract_station_and_ien(appointment)
-          return nil if appointment[:identifier].nil?
-
-          regex = %r{VistADefinedTerms/409_(84|85)}
-          identifier = appointment[:identifier].find { |id| id[:system]&.match? regex }
-
-          return if identifier.nil?
-
-          identifier[:value]&.split(':', 2)&.second
-        end
-
+        # this does not match the way friendly name is set for web.
+        # our mocks do not match the web mocks 1:1 so different data is needed
         def friendly_location_name
-          return location[:name] if va_appointment?
+          return appointment.dig(:location, :name) if va_appointment? || appointment_request?
 
           appointment.dig(:extension, :cc_location, :practice_name)
         end
@@ -317,100 +312,111 @@ module Mobile
               APPOINTMENT_TYPES[:va_video_connect_onsite]
             else
               APPOINTMENT_TYPES[:va]
-
             end
           end
         end
 
-        # rubocop:disable Metrics/MethodLength
         def location
           @location ||= begin
-            location = {
-              id: nil,
-              name: nil,
-              address: {
-                street: nil,
-                city: nil,
-                state: nil,
-                zip_code: nil
-              },
-              lat: nil,
-              long: nil,
-              phone: {
-                area_code: nil,
-                number: nil,
-                extension: nil
-              },
-              url: nil,
-              code: nil
-            }
-
             case appointment_type
             when APPOINTMENT_TYPES[:cc]
-              cc_location = appointment.dig(:extension, :cc_location)
-
-              if cc_location.present?
-                location[:name] = cc_location[:practice_name]
-                location[:address] = {
-                  street: cc_location.dig(:address, :line)&.join(' ')&.strip,
-                  city: cc_location.dig(:address, :city),
-                  state: cc_location.dig(:address, :state),
-                  zip_code: cc_location.dig(:address, :postal_code)
-                }
-                if cc_location[:telecom].present?
-                  phone_number = cc_location[:telecom]&.find do |contact|
-                    contact[:system] == CONTACT_TYPE[:phone]
-                  end&.dig(:value)
-
-                  location[:phone] = parse_phone(phone_number)
-                end
-
-              end
+              appointment_request? ? set_cc_appointment_request_location : set_cc_appointment_location
             when APPOINTMENT_TYPES[:va_video_connect_atlas],
               APPOINTMENT_TYPES[:va_video_connect_home],
               APPOINTMENT_TYPES[:va_video_connect_gfe]
-
-              location[:name] = appointment.dig(:location, :name)
-              location[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
-              telehealth = appointment[:telehealth]
-
-              if telehealth
-                address = telehealth.dig(:atlas, :address)
-
-                if address
-                  location[:address] = {
-                    street: address[:street_address],
-                    city: address[:city],
-                    state: address[:state],
-                    zip_code: address[:zip_code],
-                    country: address[:country]
-                  }
-                end
-                location[:url] = telehealth[:url]
-                location[:code] = telehealth.dig(:atlas, :confirmation_code)
-              end
+              set_telehealth_location
             else
-              location[:id] = appointment.dig(:location, :id)
-              location[:name] = appointment.dig(:location, :name)
-
-              address = appointment.dig(:location, :physical_address)
-              if address.present?
-                location[:address] = {
-                  street: address[:line]&.join(' ')&.strip,
-                  city: address[:city],
-                  state: address[:state],
-                  zip_code: address[:postal_code]
-                }
-              end
-              location[:lat] = appointment.dig(:location, :lat)
-              location[:long] = appointment.dig(:location, :long)
-              location[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
+              set_va_appointment_location
             end
 
-            location
+            location_template
           end
         end
-        # rubocop:enable Metrics/MethodLength
+
+        def location_template
+          @location_template ||= {
+            id: nil,
+            name: nil,
+            address: {
+              street: nil,
+              city: nil,
+              state: nil,
+              zip_code: nil
+            },
+            lat: nil,
+            long: nil,
+            phone: {
+              area_code: nil,
+              number: nil,
+              extension: nil
+            },
+            url: nil,
+            code: nil
+          }
+        end
+
+        def set_cc_appointment_request_location
+          practitioners_address = appointment.dig(:practitioners, 0, :address)
+          return if practitioners_address.blank?
+
+          location_template[:address][:street] = practitioners_address.dig(:line, 0)
+          location_template[:address][:city] = practitioners_address[:city]
+          location_template[:address][:state] = practitioners_address[:state]
+          location_template[:address][:zip_code] = practitioners_address[:postal_code]
+        end
+
+        def set_cc_appointment_location
+          cc_location = appointment.dig(:extension, :cc_location)
+          return if cc_location.blank?
+
+          location_template[:name] = cc_location[:practice_name]
+          location_template[:address][:street] = cc_location.dig(:address, :line)&.join(' ')&.strip
+          location_template[:address][:city] = cc_location.dig(:address, :city)
+          location_template[:address][:state] = cc_location.dig(:address, :state)
+          location_template[:address][:zip_code] = cc_location.dig(:address, :postal_code)
+
+          return if cc_location[:telecom].blank?
+
+          phone_number = cc_location[:telecom].find do |contact|
+            contact[:system] == CONTACT_TYPE[:phone]
+          end&.dig(:value)
+          location_template[:phone] = parse_phone(phone_number)
+        end
+
+        def set_telehealth_location
+          location_template[:name] = appointment.dig(:location, :name)
+          location_template[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
+          telehealth = appointment[:telehealth]
+          return if telehealth.blank?
+
+          location_template[:url] = telehealth[:url]
+          location_template[:code] = telehealth.dig(:atlas, :confirmation_code)
+
+          address = telehealth.dig(:atlas, :address)
+          return if address.blank?
+
+          location_template[:address][:street] = address[:street_address]
+          location_template[:address][:city] = address[:city]
+          location_template[:address][:state] = address[:state]
+          location_template[:address][:zip_code] = address[:zip_code]
+          location_template[:address][:country] = address[:country]
+        end
+
+        def set_va_appointment_location
+          location_template[:id] = appointment.dig(:location, :id)
+          location_template[:name] = appointment.dig(:location, :name)
+          location_template[:lat] = appointment.dig(:location, :lat)
+          location_template[:long] = appointment.dig(:location, :long)
+          location_template[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
+
+          address = appointment.dig(:location, :physical_address)
+          return if address.blank?
+
+          location_template[:address][:street] = address[:line]&.join(' ')&.strip
+          location_template[:address][:city] = address[:city]
+          location_template[:address][:state] = address[:state]
+          location_template[:address][:zip_code] = address[:postal_code]
+        end
 
         def parse_phone(phone)
           # captures area code (\d{3}) number (\d{3}-\d{4})

@@ -59,7 +59,6 @@ module EVSS
 
         # if no more unused birls to attempt submit with, give up, let vet know
         begin
-          submission.fail_primary_delivery!
           notify_enabled = Flipper.enabled?(:disability_compensation_pif_fail_notification)
           if submission && next_birls_jid.nil? && msg['error_message'] == 'PIF in use' && notify_enabled
             first_name = submission.get_first_name&.capitalize || 'Sir or Madam'
@@ -83,6 +82,11 @@ module EVSS
 
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
+
+        if Flipper.enabled?(:disability_compensation_fail_submission, User.find(submission.user_uuid))
+          Rails.logger.info("disability_compensation_fail_submission enabled for submission #{submission.id}")
+          throw StandardError
+        end
 
         # This instantiates the service as defined by the inheriting object
         # TODO: this meaningless variable assignment is required for the specs to pass, which
@@ -139,7 +143,11 @@ module EVSS
             handle_errors(submission, e)
           end
 
-          send_post_evss_notifications(submission) if send_notifications
+          if Flipper.enabled?(:disability_compensation_production_tester, User.find(submission.user_uuid))
+            Rails.logger.info("send_post_evss_notifications call skipped for submission #{submission.id}")
+          elsif send_notifications
+            send_post_evss_notifications(submission)
+          end
         end
       end
 
@@ -151,7 +159,6 @@ module EVSS
 
       def response_handler(response)
         submission.submitted_claim_id = response.claim_id
-        submission.deliver_to_primary!
         submission.save
       end
 
@@ -172,7 +179,6 @@ module EVSS
         # retry submitting the form for specific upstream errors
         retry_form526_error_handler!(submission, e)
       rescue => e
-        submission.fail_primary_delivery!
         non_retryable_error_handler(submission, e)
       end
 

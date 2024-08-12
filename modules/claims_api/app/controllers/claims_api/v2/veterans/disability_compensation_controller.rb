@@ -72,7 +72,6 @@ module ClaimsApi
         # Returns filled out 526EZ form as PDF
         def generate_pdf # rubocop:disable Metrics/MethodLength
           validate_json_schema('GENERATE_PDF_526')
-
           mapped_claim = generate_pdf_mapper_service(
             form_attributes,
             get_pdf_data_wrapper,
@@ -80,6 +79,8 @@ module ClaimsApi
             veteran_middle_initial,
             Time.zone.now
           ).map_claim
+          # Calling after target_veteran is created via auth_headers call above
+          validate_veteran_name(false)
           pdf_string = generate_526_pdf(mapped_claim)
           if pdf_string.present?
             file_name = SecureRandom.hex.to_s
@@ -109,8 +110,8 @@ module ClaimsApi
             auto_claim.reload
           end
 
-          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
-            auto_claim, root: :data, async: false
+          render json: ClaimsApi::V2::Blueprints::MetaBlueprint.render(
+            auto_claim, async: false
           ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
         end
 
@@ -118,6 +119,7 @@ module ClaimsApi
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:, form_data: form_attributes,
+            transaction_id: claim_transaction_id,
             flashes:,
             cid: token&.payload&.[]('cid'), veteran_icn: target_veteran&.mpi&.icn,
             validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
@@ -182,6 +184,7 @@ module ClaimsApi
           @claims_api_forms_validation_errors = validate_form_526_submission_values(target_veteran)
           # JSON validations for 526 submission, will combine with previously captured errors and raise
           validate_json_schema
+          validate_veteran_name(true)
           # if we get here there were only validations file errors
           if @claims_api_forms_validation_errors
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,

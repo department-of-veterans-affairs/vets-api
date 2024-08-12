@@ -24,6 +24,7 @@ describe FacilitiesApi::V2::Lighthouse::Facility, team: :facilities, type: :mode
       facility = FacilitiesApi::V2::Lighthouse::Facility.new(attributes)
       expect(facility.attributes).to match(
         {
+          access: nil,
           address: nil,
           classification: nil,
           distance: nil,

@@ -1,0 +1,22 @@
+data:
+  - type: claim
+    id: "600117255"
+    attributes:
+      subtype: Compensation
+      completed: false
+      dateFiled: "2020-01-01"
+      updatedAt: "2020-01-01"
+      displayTitle: Compensation
+      decisionLetterSent: false
+      phase: 1
+      documentsNeeded: true
+      developmentLetterSent: false
+      claimTypeCode: '020NEW'
+meta:
+  errors: []
+  pagination:
+    currentPage: 1
+    perPage: 60
+    totalPages: 1
+    totalEntries: 11
+  activeClaimsCount: 7

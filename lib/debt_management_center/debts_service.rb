@@ -15,7 +15,11 @@ module DebtManagementCenter
 
     def initialize(user)
       super(user)
-      @debts = init_debts
+      @debts = if Flipper.enabled?(:debts_cache_dmc_empty_response)
+                 init_cached_debts
+               else
+                 init_debts
+               end
     end
 
     def get_debts
@@ -57,11 +61,43 @@ module DebtManagementCenter
       end
     end
 
+    # Provided the cached version of this continues to work as intended, this method is not needed 8/5/24
     def init_debts
       with_monitoring_and_error_handling do
+        Rails.logger.info('DebtManagement - DebtService#init_debts')
+        options = { timeout: 30 }
         DebtManagementCenter::DebtsResponse.new(
-          perform(:post, Settings.dmc.debts_endpoint, fileNumber: @file_number).body
+          perform(
+            :post, Settings.dmc.debts_endpoint, { fileNumber: @file_number }, nil, options
+          ).body
         ).debts
+      end
+    end
+
+    def init_cached_debts
+      StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.fired")
+
+      with_monitoring_and_error_handling do
+        cache_key = "debts_data_#{@user.uuid}"
+        cached_response = Rails.cache.read(cache_key)
+
+        if cached_response
+          StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.cached_response_returned")
+          return DebtManagementCenter::DebtsResponse.new(cached_response).debts
+        end
+
+        options = { timeout: 30 }
+        response = perform(
+          :post, Settings.dmc.debts_endpoint, { fileNumber: @file_number }, nil, options
+        ).body
+
+        if response.is_a?(Array) && response.empty?
+          # DMC refreshes DB at 5am every morning
+          Rails.cache.write(cache_key, response, expires_in: time_until_5am_utc)
+          StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.empty_response_cached")
+        end
+
+        DebtManagementCenter::DebtsResponse.new(response).debts
       end
     end
 
@@ -74,6 +110,13 @@ module DebtManagementCenter
 
     def sort_by_date(debt_history)
       debt_history.sort_by { |d| Date.strptime(d['date'], '%m/%d/%Y') }.reverse
+    end
+
+    def time_until_5am_utc
+      now = Time.now.utc
+      five_am_utc = Time.utc(now.year, now.month, now.day, 5)
+      five_am_utc += 1.day if now >= five_am_utc
+      five_am_utc - now
     end
   end
 end

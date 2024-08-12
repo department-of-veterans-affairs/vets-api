@@ -7,8 +7,8 @@ module ClaimsApi
         include ActiveModel::Validations
 
         validate :must_be_original
-        validate :power_of_attorney_request_must_not_be_obsolete
-        validate :declined_reason_must_be_relevant
+        validate :poa_request_must_not_be_obsolete
+        validate :declining_reason_can_only_accompany_a_declination
 
         class << self
           def perform!(...)
@@ -16,30 +16,30 @@ module ClaimsApi
           end
         end
 
-        def initialize(metadata, decision)
-          @metadata = metadata
+        def initialize(poa_request, decision)
+          @poa_request = poa_request
           @decision = decision
         end
 
         private
 
         def must_be_original
-          return if @metadata.decision_status.blank?
+          return if @poa_request.decision_status.blank?
 
           errors.add :base, 'must be original'
         end
 
-        def power_of_attorney_request_must_not_be_obsolete
-          return unless @metadata.obsolete
+        def poa_request_must_not_be_obsolete
+          return unless @poa_request.obsolete
 
           errors.add :power_of_attorney_request, 'must not be obsolete'
         end
 
-        def declined_reason_must_be_relevant
-          return if @decision.declined?
-          return if @decision.declined_reason.blank?
+        def declining_reason_can_only_accompany_a_declination
+          return if @decision.declining?
+          return if @decision.declining_reason.blank?
 
-          errors.add :declined_reason, 'can only accompany a declination'
+          errors.add :declining_reason, 'can only accompany a declination'
         end
 
         def raise_validation_error
