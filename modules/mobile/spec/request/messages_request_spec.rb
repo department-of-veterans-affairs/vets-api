@@ -54,7 +54,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
       end
 
       it 'responds to GET #show' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_with_id_and_attachment') do
+        VCR.use_cassette('mobile/messages/gets_a_message_with_id_and_attachment') do
           VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
             get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
           end
