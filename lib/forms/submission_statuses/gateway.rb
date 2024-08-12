@@ -2,6 +2,7 @@
 
 require 'lighthouse/benefits_intake/service'
 require_relative 'dataset'
+require_relative 'error_handler'
 
 module Forms
   module SubmissionStatuses
@@ -11,11 +12,13 @@ module Forms
       def initialize(user_account)
         @user_account = user_account
         @dataset = Forms::SubmissionStatuses::Dataset.new
+        @error_handler = Forms::SubmissionStatuses::ErrorHandler.new
       end
 
       def data
         @dataset.submissions = submissions
-        @dataset.statuses = statuses(@dataset.submissions) if @dataset.submissions?
+        @dataset.intake_statuses, @dataset.errors = intake_statuses(@dataset.submissions) if @dataset.submissions?
+
         @dataset
       end
 
@@ -23,18 +26,18 @@ module Forms
         FormSubmission.where(user_account: @user_account).to_a
       end
 
-      def statuses(submissions)
+      def intake_statuses(submissions)
         uuids = submissions.map(&:benefits_intake_uuid)
 
-        response = benefits_intake_service.bulk_status(uuids:)
-        raise response.body unless response.success?
-
-        response.body['data']
+        response = intake_service.bulk_status(uuids:)
+        [response.body['data'], nil]
+      rescue => e
+        [nil, @error_handler.handle_error(e)]
       end
 
       private
 
-      def benefits_intake_service
+      def intake_service
         @service ||= BenefitsIntake::Service.new
       end
     end

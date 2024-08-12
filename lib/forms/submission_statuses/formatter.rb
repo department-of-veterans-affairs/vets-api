@@ -6,7 +6,7 @@ module Forms
       def format_data(dataset)
         return [] unless dataset.submissions?
 
-        results = merge_records(dataset.submissions, dataset.statuses)
+        results = merge_records(dataset.submissions, dataset.intake_statuses)
         results&.sort_by { |record| [record.updated_at ? 1 : 0, record.updated_at] }
       end
 
