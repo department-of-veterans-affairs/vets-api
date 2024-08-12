@@ -67,11 +67,10 @@ module ClaimFastTracking
     def self.eligible_for_request?(rated_disability)
       return false if %i[infectious_disease missing_diagnostic_code].include?(diagnostic_code_type(rated_disability))
 
-      return false if EXCLUDED_DIGESTIVE_CODES.include?(rated_disability.diagnostic_code)
+      dc = rated_disability.diagnostic_code
+      return false if EXCLUDED_DIGESTIVE_CODES.include?(dc)
 
-      return true if Flipper.enabled?(:disability_526_maximum_rating_api_all_conditions)
-
-      SELECT_DISABILITIES.include?(rated_disability.diagnostic_code)
+      Flipper.enabled?(:disability_526_maximum_rating_api_all_conditions) || SELECT_DISABILITIES.include?(dc)
     end
 
     private_class_method :get_ratings
