@@ -334,7 +334,6 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
   #     end
   #   end
   # end
->>>>>>> 2cdbd424fbf6ad3388cee0e8722670b79bd3e876
 
   describe '#post_email' do
     let(:email) { build(:email, vet360_id: user.vet360_id, source_system_user: user.icn) }
