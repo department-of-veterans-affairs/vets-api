@@ -95,7 +95,7 @@ module Pensions
     #
     def kms_encryption_context
       {
-        model_name: 'SavedClaim::Pensions',
+        model_name: 'SavedClaim::Pension',
         model_id: id
       }
     end
