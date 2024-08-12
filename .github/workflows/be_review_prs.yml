@@ -88,14 +88,14 @@ jobs:
 
       - name: Comment PR - Approval Required
         if: failure() && steps.verify_approval.outputs.approval_status == 'required'
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "This PR requires approval from backend-review-group. Please add backend-review-group as reviewers (if they're not already listed)."
 
       - name: Comment PR - Approval Confirmed
         if: success() && steps.verify_approval.outputs.approval_status == 'confirmed'
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "Backend-review-group approval confirmed."

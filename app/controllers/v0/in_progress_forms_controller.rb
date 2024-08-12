@@ -28,8 +28,8 @@ module V0
 
       veteran_icn = @current_user.icn
       if Flipper.enabled?(:intent_to_file_lighthouse_enabled, @current_user) && form.id_previously_changed? &&
-         Lighthouse::CreateIntentToFileJob::ITF_FORMS.include?(form.form_id)
-        if veteran_icn.present? && @current_user.participant_id.blank?
+         Lighthouse::CreateIntentToFileJob::ITF_FORMS.include?(form.form_id) && veteran_icn.present?
+        if @current_user.participant_id.blank?
           track_missing_user_pids(form)
         else
           Lighthouse::CreateIntentToFileJob.perform_async(form.form_id, form.created_at, veteran_icn)
