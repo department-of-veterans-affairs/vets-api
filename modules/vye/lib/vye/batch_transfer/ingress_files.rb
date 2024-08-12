@@ -8,6 +8,8 @@ module Vye
 
       private_constant :BDN_FEED_FILENAME, :TIMS_FEED_FILENAME
 
+      include Vye::CloudTransfer
+
       extend self
 
       private
@@ -15,27 +17,6 @@ module Vye
       def bdn_feed_filename = BDN_FEED_FILENAME
 
       def tims_feed_filename = TIMS_FEED_FILENAME
-
-      def credentials = Vye.settings.s3.to_h.slice(:region, :access_key_id, :secret_access_key)
-
-      def bucket = Vye.settings.s3.bucket
-
-      def external_bucket = Vye.settings.s3.external_bucket
-
-      def s3_client = Aws::S3::Client.new(**credentials)
-
-      def download(filename)
-        date = Time.zone.today.strftime('%Y-%m-%d')
-        response_target = Rails.root / "tmp/vye/downloads/#{date}/#{filename}"
-        key = "scanned/#{filename}"
-
-        response_target.dirname.mkpath
-        s3_client.get_object(response_target:, bucket:, key:)
-
-        yield response_target
-      ensure
-        response_target.delete
-      end
 
       def bdn_import(path)
         counts = { success: 0, failure: 0 }
@@ -76,21 +57,7 @@ module Vye
 
       public
 
-      def upload_fixtures
-        [
-          Vye::Engine.root / "spec/fixtures/bdn_sample/#{bdn_feed_filename}",
-          Vye::Engine.root / "spec/fixtures/tims_sample/#{tims_feed_filename}"
-        ].each do |file|
-          key = "scanned/#{file.basename}"
-          body = file.read
-
-          s3_client.put_object(bucket:, key:, body:)
-        end
-      end
-
-      def clear_fixtures
-        EgressFiles.clear_from(bucket: :internal, path: 'scanned')
-      end
+      def clear_fixtures = clear_from(bucket: :internal, path: 'scanned')
 
       def bdn_load = download(bdn_feed_filename, &method(:bdn_import))
 

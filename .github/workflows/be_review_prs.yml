@@ -33,6 +33,17 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
+      - name: Github event
+        run: echo "${{ github.event_name }}"
+
+      - name: PR Requested reviewers
+        if: github.event_name == 'pull_request'
+        run: echo "${{ toJSON(github.event.pull_request.requested_teams.*.name) }}"
+
+      - name: PR Requested reviewers Submitted
+        if: github.event_name == 'pull_request_review'
+        run: echo "${{ toJSON(github.event.pull_request_review.requested_teams.*.name) }}"
+
       - name: Check required reviewers
         id: check_reviewers
         run: |
@@ -77,14 +88,14 @@ jobs:
 
       - name: Comment PR - Approval Required
         if: failure() && steps.verify_approval.outputs.approval_status == 'required'
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "This PR requires approval from backend-review-group. Please add backend-review-group as reviewers (if they're not already listed)."
 
       - name: Comment PR - Approval Confirmed
         if: success() && steps.verify_approval.outputs.approval_status == 'confirmed'
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "Backend-review-group approval confirmed."
