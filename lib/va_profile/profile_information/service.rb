@@ -35,7 +35,6 @@ module VAProfile
         with_monitoring do
           vet360_id_present!
           raw_response = perform(:get, @user.vet360_id)
-
           PersonResponse.from(raw_response)
         end
       rescue Common::Client::Errors::ClientError => e

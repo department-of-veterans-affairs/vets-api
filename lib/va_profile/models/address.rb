@@ -115,9 +115,9 @@ module VAProfile
       end
 
       def self.contact_info_attr(record)
-        return 'residential' if record.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
+        return 'residential_address' if record.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
 
-        'mailing'
+        'mailing_address'
       end
     end
   end

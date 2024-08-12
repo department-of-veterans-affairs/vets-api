@@ -22,7 +22,9 @@ module Vet360
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
       record = build_record(type, params)
       validate!(record)
-      http_verb = build_http_verb(record) if http_verb == 'update'
+      if Flipper.enabled?(:va_profile_information_v3_service, @current_user) && http_verb == ('update')
+        http_verb = build_http_verb(record)
+      end
 
       response = write_valid_record!(http_verb, type, record)
       render_new_transaction!(type, response)
@@ -68,8 +70,12 @@ module Vet360
     end
 
     def build_http_verb(record)
-      contact_info = VAProfileRedis::ContactInformation.for_user(@user)
-      attr = record.contact_info_attr
+      contact_info = VAProfileRedis::ContactInformation.for_user(@current_user)
+      attr = if record.contact_info_attr == ('telephone' || 'address')
+               record.class.contact_info_attr(record)
+             else
+               record.contact_info_attr
+             end
       raise "invalid #{record.model} VAProfile::ProfileInformation" if attr.nil?
 
       record.id = contact_info.public_send(attr)&.id

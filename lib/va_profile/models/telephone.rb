@@ -164,7 +164,7 @@ module VAProfile
       end
 
       def self.contact_info_attr(record)
-        case record
+        case record.phone_type
         when VAProfile::Models::Telephone::MOBILE
           'mobile_phone'
         when VAProfile::Models::Telephone::HOME
