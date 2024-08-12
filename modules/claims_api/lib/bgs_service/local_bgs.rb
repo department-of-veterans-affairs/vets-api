@@ -14,7 +14,9 @@ require 'bgs_service/local_bgs_refactored'
 
 module ClaimsApi
   class LocalBGS
-    CACHED_SERVICES = %w[ClaimantServiceBean/ClaimantWebService].freeze
+    CACHED_SERVICES = %w[ClaimantServiceBean/ClaimantWebService VdcBean/ReadPoaRequest
+                         VdcBean/ReadPoaRequestByParticipantId VdcBean/UpdatePoaRequest
+                         VdcBean/UpdatePoaRelationship].freeze
 
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
