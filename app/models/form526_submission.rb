@@ -123,8 +123,9 @@ class Form526Submission < ApplicationRecord
   FLASHES = 'flashes'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
-  # MAX_PENDING_TIME aligns with the farthest out expectation given in the LH BI docs
-  MAX_PENDING_TIME = 2.weeks
+  # MAX_PENDING_TIME aligns with the farthest out expectation given in the LH BI docs,
+  # plus 1 week to accomodate for edge cases and our sidekiq jobs
+  MAX_PENDING_TIME = 3.weeks
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
   # submission process. Currently this passes directly to the retryable EVSS workflow, but if any
@@ -362,7 +363,7 @@ class Form526Submission < ApplicationRecord
     )
     workflow_batch.jobs do
       submit_uploads if form[FORM_526_UPLOADS].present?
-      submit_form_4142 if form[FORM_4142].present?
+      conditionally_submit_form_4142
       submit_form_0781 if form[FORM_0781].present?
       submit_form_8940 if form[FORM_8940].present?
       upload_bdd_instructions if bdd?
@@ -487,6 +488,14 @@ class Form526Submission < ApplicationRecord
   end
 
   private
+
+  def conditionally_submit_form_4142
+    if Flipper.enabled?(:disability_compensation_production_tester, User.find(user_uuid))
+      Rails.logger.info("submit_form_4142 call skipped for submission #{submission.id}")
+    elsif form[FORM_4142].present?
+      submit_form_4142
+    end
+  end
 
   attr_accessor :lighthouse_validation_response
 

@@ -12,7 +12,6 @@ module ClaimsApi
                              'Docker container service started')
 
         auto_claim = get_claim(claim_id)
-
         update_auth_headers(auto_claim) if auto_claim.transaction_id.present?
 
         evss_data = get_evss_data(auto_claim)

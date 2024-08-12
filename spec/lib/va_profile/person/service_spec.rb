@@ -43,7 +43,6 @@ describe VAProfile::Person::Service, :skip_vet360 do
       it 'returns a status of 200', :aggregate_failures do
         VCR.use_cassette('va_profile/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           response = subject.init_vet360_id(icn)
-
           expect(response).to be_ok
           if Flipper.enabled?(:va_profile_information_v3_service, user)
             expect(response).to be_a(VAProfile::ProfileInformation::PersonTransactionResponse)

@@ -3,11 +3,7 @@
 module SerializerSpecHelper
   def serialize(obj, opts = {})
     serializer_class = opts.delete(:serializer_class) || "#{obj.class.name}Serializer".constantize
-    if serializer_class.ancestors.include?(ActiveModel::Serializer)
-      serializer_with_ams(serializer_class, obj, opts)
-    else
-      serializer_with_jsonapi(serializer_class, obj, opts)
-    end
+    serializer_with_jsonapi(serializer_class, obj, opts)
   end
 
   def expect_time_eq(serialized_time, time)
@@ -50,12 +46,6 @@ module SerializerSpecHelper
     when :symbol
       hash.deep_symbolize_keys
     end
-  end
-
-  def serializer_with_ams(serializer_class, obj, opts = {})
-    serializer = serializer_class.send(:new, obj, opts)
-    adapter = ActiveModelSerializers::Adapter.create(serializer, opts)
-    adapter.to_json
   end
 
   def serializer_with_jsonapi(serializer_class, obj, opts = {})

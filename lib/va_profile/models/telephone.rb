@@ -155,16 +155,14 @@ module VAProfile
         "#{user.vet360_id}/telephones/status/#{transaction_id}"
       end
 
-      def self.send_change_notifcations?
+      def self.send_change_notifications?
         true
       end
 
-      def contact_info_attr
-        'telephone'
-      end
+      def contact_info_attr(contact_info: false)
+        return 'telephone' if contact_info == false
 
-      def self.contact_info_attr(record)
-        case record
+        case phone_type
         when VAProfile::Models::Telephone::MOBILE
           'mobile_phone'
         when VAProfile::Models::Telephone::HOME

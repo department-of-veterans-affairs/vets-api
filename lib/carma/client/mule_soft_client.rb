@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'carma/client/mule_soft_configuration'
+require 'carma/client/mule_soft_auth_token_client'
 
 module CARMA
   module Client
@@ -15,7 +16,12 @@ module CARMA
 
       def create_submission_v2(payload)
         with_monitoring do
-          res = do_post('v2/application/1010CG/submit', payload, config.settings.async_timeout)
+          res = if Flipper.enabled?(:cg1010_oauth_2_enabled)
+                  perform_post(payload)
+                else
+                  do_post('v2/application/1010CG/submit', payload, config.settings.async_timeout)
+                end
+
           raise RecordParseError if res.dig('record', 'hasErrors')
 
           res
@@ -51,6 +57,46 @@ module CARMA
         return if [200, 201, 202].include? status
 
         raise Common::Exceptions::SchemaValidationErrors, ["Expecting 200 status but received #{status}"]
+      end
+
+      # New Authentication strategy
+      # Call Mulesoft with bearer token
+      def perform_post(payload)
+        resource = 'v2/application/1010CG/submit'
+        with_monitoring do
+          Rails.logger.info "[Form 10-10CG] Submitting to '#{resource}' using bearer token"
+
+          response = perform(
+            :post,
+            resource,
+            get_body(payload),
+            headers,
+            { timeout: config.settings.async_timeout }
+          )
+
+          handle_response(resource, response)
+        end
+      end
+
+      def bearer_token
+        @bearer_token ||= CARMA::Client::MuleSoftAuthTokenClient.new.new_bearer_token
+      end
+
+      def headers
+        {
+          'Authorization' => "Bearer #{bearer_token}",
+          'Content-Type' => 'application/json'
+        }
+      end
+
+      def get_body(payload)
+        payload.is_a?(String) ? payload : payload.to_json
+      end
+
+      def handle_response(resource, response)
+        Sentry.set_extras(response_body: response.body)
+        raise_error_unless_success(resource, response.status)
+        JSON.parse(response.body)
       end
     end
   end

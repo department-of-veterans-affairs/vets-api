@@ -26,6 +26,7 @@ module IvcChampva
         'businessLine' => 'CMP',
         'ssn_or_tin' => @data['applicant_member_number'],
         'member_number' => @data['applicant_member_number'],
+        'fileNumber' => @data['applicant_member_number'],
         'country' => @data.dig('applicant_address', 'country') || 'USA',
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info']
@@ -36,6 +37,12 @@ module IvcChampva
       identity = data['certifier_role']
       StatsD.increment("#{STATS_KEY}.#{identity}")
       Rails.logger.info('IVC ChampVA Forms - 10-7959A Submission User Identity', identity:)
+    end
+
+    def track_email_usage
+      email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
+      StatsD.increment("#{STATS_KEY}.#{email_used}")
+      Rails.logger.info('IVC ChampVA Forms - 10-7959A Email Used', email_used:)
     end
 
     # rubocop:disable Naming/BlockForwarding,Style/HashSyntax

@@ -84,11 +84,11 @@ module VAProfile
         "#{user.vet360_id}/permissions/status/#{transaction_id}"
       end
 
-      def self.send_change_notifcations?
+      def self.send_change_notifications?
         false
       end
 
-      def contact_info_attr
+      def contact_info_attr(*)
         'text_permission'
       end
     end
