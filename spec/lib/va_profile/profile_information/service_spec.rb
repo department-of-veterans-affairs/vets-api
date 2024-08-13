@@ -174,8 +174,6 @@ describe VAProfile::ProfileInformation::Service, :skip_vet360 do
       end
     end
   end
-=======
-  end
 
   # describe '#get_person' do
   # context 'when successful' do
