@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
+    uri: <LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
     body:
       encoding: US-ASCII
       string: '{"paymentAccount":{"accountType":"CHECKING","accountNumber":"1234567890","financialInstitutionRoutingNumber":"031000503"}}'
@@ -13,8 +13,6 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
-      Host:
-      - sandbox-api.va.gov
       Authorization:
       - Bearer abcdefghijklmnop
       Content-Type:
