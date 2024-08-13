@@ -33,6 +33,21 @@ module IvcChampva
       }
     end
 
+    def desired_stamps
+      [{ coords: [250, 105], text: data['statement_of_truth_signature'], page: 0 }]
+    end
+
+    def submission_date_stamps
+      [
+        {
+          coords: [300, 105],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 1,
+          font_size: 12
+        }
+      ]
+    end
+
     def track_user_identity
       identity = data['certifier_role']
       StatsD.increment("#{STATS_KEY}.#{identity}")

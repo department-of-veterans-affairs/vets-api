@@ -36,7 +36,7 @@ RSpec.describe IvcChampva::VHA107959a do
         'source' => 'VA Platform Digital Forms',
         'docType' => '10-7959A',
         'ssn_or_tin' => '123456789',
-        'member_number' => '123456789',
+        'fileNumber' => '123456789',
         'businessLine' => 'CMP',
         'primaryContactInfo' => {
           'name' => {
