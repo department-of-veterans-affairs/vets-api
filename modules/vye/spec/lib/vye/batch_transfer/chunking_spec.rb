@@ -18,7 +18,6 @@ RSpec.describe Vye::BatchTransfer::Chunking do
       expect(chunking.send(:ext)).to eq 'txt'
       expect(chunking.send(:chunks)).to be_empty
       expect(chunking.send(:split?)).to be false
-      expect(chunking.send(:uploaded?)).to be false
     end
   end
 
@@ -31,8 +30,8 @@ RSpec.describe Vye::BatchTransfer::Chunking do
         end
       end.new(total_lines:)
     end
-    let(:io_list) { 6.times.to_h { |i| ["test-#{i * 10}.txt", StringIO.new] } }
-    let(:file_list) { 6.times.to_h { |i| ["test-#{i * 10}.txt", instance_double(Pathname)] } }
+    let(:io_list) { 6.times.to_h { |i| ["test_#{i * 10}.txt", StringIO.new] } }
+    let(:file_list) { 6.times.to_h { |i| ["test_#{i * 10}.txt", instance_double(Pathname)] } }
     let(:lines_in_last_file) { total_lines % block_size }
     let(:lines_in_file) { block_size }
 
@@ -43,7 +42,7 @@ RSpec.describe Vye::BatchTransfer::Chunking do
       end
 
       io_list.each do |file, io|
-        if file == 'test-50.txt'
+        if file == 'test_50.txt'
           expect(io).to receive(:puts).exactly(lines_in_last_file).times
         else
           expect(io).to receive(:puts).exactly(lines_in_file).times
@@ -64,32 +63,6 @@ RSpec.describe Vye::BatchTransfer::Chunking do
       expect(chunking.send(:split?)).to be(true)
 
       expect(chunking.split).to all(be_a(Vye::BatchTransfer::Chunk))
-    end
-  end
-
-  describe '#upload' do
-    let(:chunks) do
-      3.times.map { instance_double(Vye::BatchTransfer::Chunk) }
-    end
-
-    it 'returns chunks if already uploaded' do
-      allow(chunking).to receive(:uploaded?).and_return(true)
-      expect(chunking).to receive(:chunks).and_return(chunks)
-      expect(chunking.upload).to eq(chunks)
-    end
-
-    it 'raises an error if not split' do
-      expect { chunking.upload }.to raise_error(described_class::NotReadyForUploading)
-    end
-
-    it 'uploads the chunks' do
-      expect(chunking).to receive(:split?).and_return(true)
-      allow(chunking).to receive(:chunks).and_return(chunks)
-      expect(chunks).to all(receive(:upload))
-
-      expect(chunking.send(:uploaded?)).to be false
-      expect(chunking.upload.length).to eq(3)
-      expect(chunking.send(:uploaded?)).to be true
     end
   end
 
@@ -142,7 +115,7 @@ RSpec.describe Vye::BatchTransfer::Chunking do
       expect(chunking).to receive(:stem).and_return(stem)
       expect(chunking).to receive(:ext).and_return(ext)
       expect(chunking).to receive(:dirname).and_return(dirname)
-      expect(dirname).to receive(:/).with("#{stem}-0.#{ext}").and_return(file)
+      expect(dirname).to receive(:/).with("#{stem}_0.#{ext}").and_return(file)
 
       expect do
         expect(chunking.send(:current_file)).to eq file
