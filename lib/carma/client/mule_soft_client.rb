@@ -70,7 +70,7 @@ module CARMA
             :post,
             resource,
             get_body(payload),
-            { Authorization: "Bearer #{bearer_token}" },
+            headers,
             { timeout: config.settings.async_timeout }
           )
 
@@ -80,6 +80,13 @@ module CARMA
 
       def bearer_token
         @bearer_token ||= CARMA::Client::MuleSoftAuthTokenClient.new.new_bearer_token
+      end
+
+      def headers
+        {
+          'Authorization' => "Bearer #{bearer_token}",
+          'Content-Type' => 'application/json'
+        }
       end
 
       def get_body(payload)
