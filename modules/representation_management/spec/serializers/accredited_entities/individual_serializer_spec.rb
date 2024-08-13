@@ -25,9 +25,7 @@ describe RepresentationManagement::AccreditedEntities::IndividualSerializer, typ
            zip_code: '12345',
            zip_suffix: '6789',
            phone: '222-222-2222',
-           email: 'email@example.com',
-           lat: '39',
-           long: '-75')
+           email: 'email@example.com')
   end
 
   let(:individual) do

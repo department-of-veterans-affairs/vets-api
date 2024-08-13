@@ -11,8 +11,7 @@ module RepresentationManagement
                  :city, :country_name, :country_code_iso3, :province,
                  :international_postal_code, :state_code, :zip_code, :zip_suffix,
                  :phone, :email,
-                 # Do we need these two for this serializer?
-                 :individual_type, :registration_number
+                 :individual_type
 
       attribute :accredited_organizations do |object|
         RepresentationManagement::AccreditedIndividuals::OrganizationSerializer.new(object.accredited_organizations)

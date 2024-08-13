@@ -14,8 +14,6 @@ module RepresentationManagement
             RepresentationManagement::AccreditedEntities::IndividualSerializer.new(record).serializable_hash
           elsif record.is_a?(AccreditedOrganization)
             RepresentationManagement::AccreditedIndividuals::OrganizationSerializer.new(record).serializable_hash
-          else
-            raise "Unknown object type: #{record.class}"
           end
         end
         render json: json_response
