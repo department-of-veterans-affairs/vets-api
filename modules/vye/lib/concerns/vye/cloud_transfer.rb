@@ -28,9 +28,9 @@ module Vye
 
     def tmp_path(filename) = tmp_dir / filename
 
-    def download(filename)
+    def download(filename, prefix: 'scanned')
       response_target = tmp_path filename
-      key = "scanned/#{filename}"
+      key = "#{prefix}/#{filename}"
 
       s3_client.get_object(response_target:, bucket:, key:)
 
