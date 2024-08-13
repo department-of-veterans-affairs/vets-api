@@ -114,6 +114,85 @@ jobs:
           path: log/*.xml
           if-no-files-found: ignore
 
+  assign-lint-failure-label:
+    if: github.event_name == 'pull_request' && failure()
+    needs: [linting_and_security]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add Lint Failure label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          fail_on_error: true
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            lint-failure
+
+  remove-lint-failure-label:
+    if: github.event_name == 'pull_request' && success()
+    needs: [linting_and_security]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove Lint Failure label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            lint-failure
+
+  assign-test-failure-label:
+    if: github.event_name == 'pull_request' && failure()
+    needs: [tests]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add Test Failure label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          fail_on_error: true
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            test-failure
+
+      - name: Remove Test Passing label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            test-passing
+
+
+  remove-test-failure-label:
+    if: github.event_name == 'pull_request' && success()
+    needs: [tests]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove Test Failure label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            test-failure
+
+      - name: Add Test Passing label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          fail_on_error: true
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            test-passing
+
+
   publish_results:
     name: Publish Test Results and Coverage
     if: always()
