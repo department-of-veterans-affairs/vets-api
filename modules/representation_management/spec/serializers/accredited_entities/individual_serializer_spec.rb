@@ -9,7 +9,6 @@ describe RepresentationManagement::AccreditedEntities::IndividualSerializer, typ
     create(:accredited_individual,
            :with_organizations,
            individual_type: 'representative',
-           registration_number: '123abc',
            first_name: 'Bob',
            last_name: 'Law',
            address_line1: '123 East Main St',
@@ -31,7 +30,6 @@ describe RepresentationManagement::AccreditedEntities::IndividualSerializer, typ
   let(:individual) do
     AccreditedIndividual
       .includes(:accredited_organizations)
-      .where(registration_number: '123abc')
       .first
   end
   let(:data) { subject.serializable_hash.with_indifferent_access['data'] }
@@ -43,10 +41,6 @@ describe RepresentationManagement::AccreditedEntities::IndividualSerializer, typ
 
   it 'includes individual_type' do
     expect(attributes['individual_type']).to eq('representative')
-  end
-
-  it 'includes registration_number' do
-    expect(attributes['registration_number']).to eq('123abc')
   end
 
   it 'includes first_name' do
