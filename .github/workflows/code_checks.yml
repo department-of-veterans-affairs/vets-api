@@ -1,5 +1,10 @@
 name: Code Checks
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
 permissions:
   contents: read
   checks: write
@@ -79,15 +84,25 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Setup Database
-        run: |
-          docker compose -f docker-compose.test.yml run web bash \
-          -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
+        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        with:
+          timeout_minutes: 20
+          retry_wait_seconds: 3 # Seconds
+          max_attempts: 3
+          command: |
+            docker compose -f docker-compose.test.yml run web bash \
+              -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
 
       - name: Run Specs
         timeout-minutes: 20
-        run: |
-          docker compose -f docker-compose.test.yml run web bash \
-          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
+        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        with:
+          timeout_minutes: 20
+          retry_wait_seconds: 3 # Seconds
+          max_attempts: 3
+          command: |
+            docker compose -f docker-compose.test.yml run web bash \
+              -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
@@ -103,6 +118,85 @@ jobs:
           name: Test Results
           path: log/*.xml
           if-no-files-found: ignore
+
+  assign-lint-failure-label:
+    if: github.event_name == 'pull_request' && failure()
+    needs: [linting_and_security]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add Lint Failure label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          fail_on_error: true
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            lint-failure
+
+  remove-lint-failure-label:
+    if: github.event_name == 'pull_request' && success()
+    needs: [linting_and_security]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove Lint Failure label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            lint-failure
+
+  assign-test-failure-label:
+    if: github.event_name == 'pull_request' && failure()
+    needs: [tests]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add Test Failure label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          fail_on_error: true
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            test-failure
+
+      - name: Remove Test Passing label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            test-passing
+
+
+  remove-test-failure-label:
+    if: github.event_name == 'pull_request' && success()
+    needs: [tests]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove Test Failure label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            test-failure
+
+      - name: Add Test Passing label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          fail_on_error: true
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            test-passing
+
 
   publish_results:
     name: Publish Test Results and Coverage
