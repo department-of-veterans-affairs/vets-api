@@ -110,4 +110,16 @@ describe RepresentationManagement::AccreditedEntities::IndividualSerializer, typ
   it 'includes accredited_organizations' do
     expect(attributes['accredited_organizations']).not_to be_nil
   end
+
+  it 'includes all three individual types' do
+    attorney = create(:accredited_individual, :attorney, full_name: 'Bob Attorney')
+    claims_agent = create(:accredited_individual, :claims_agent, full_name: 'Bob Claims Agent')
+
+    attorney_data = described_class.new(attorney).serializable_hash.with_indifferent_access['data']
+    claims_agent_data = described_class.new(claims_agent).serializable_hash.with_indifferent_access['data']
+
+    expect(attributes['individual_type']).to eq('representative')
+    expect(attorney_data['attributes']['individual_type']).to eq('attorney')
+    expect(claims_agent_data['attributes']['individual_type']).to eq('claims_agent')
+  end
 end
