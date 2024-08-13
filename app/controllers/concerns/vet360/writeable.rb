@@ -34,14 +34,14 @@ module Vet360
       VAProfileRedis::Cache.invalidate(@current_user)
     end
 
+    private
+
     def build_record(type, params)
       "VAProfile::Models::#{type.capitalize}"
         .constantize
         .new(params)
         .set_defaults(@current_user)
     end
-
-    private
 
     def validate!(record)
       return if record.valid?

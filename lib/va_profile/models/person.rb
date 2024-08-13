@@ -21,6 +21,7 @@ module VAProfile
       attribute :vet360_id, String
 
       CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
+
       EMAIL_PERSONALISATIONS = {
         address: 'Address',
         residence_address: 'Home address',
