@@ -709,10 +709,6 @@ features:
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
-  fsr_confirmation_email:
-    actor_type: user
-    description: Enables notifications to be sent via email upon FSR submission
-    enable_in_development: false
   get_help_ask_form:
     actor_type: user
     description: Enables inquiry form for users to submit questions, suggestions, and complaints.
