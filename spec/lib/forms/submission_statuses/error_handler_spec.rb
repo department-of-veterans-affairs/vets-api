@@ -12,30 +12,40 @@ describe Forms::SubmissionStatuses::ErrorHandler do
   end
 
   it 'parses an error with a detail key' do
-    response = build_response(500, {
-      'title' => 'Internal server error',
-      'detail' => 'Internal server error',
-      'code' => '500',
-      'status' => '500'
-    })
+    response = build_response(
+      500,
+      {
+        'title' => 'Internal server error',
+        'detail' => 'Internal server error',
+        'code' => '500',
+        'status' => '500'
+      }
+    )
     expect_error_handling(response, 500, 'Internal Server Error', 'Internal server error')
   end
 
   it 'parses an error collection' do
-    response = build_response(422, {
-      'errors' => [
-        {
-          'status' => 422,
-          'detail' => 'DOC104 - Upload rejected by upstream system. Processing failed and upload must be resubmitted'
-        }
-      ]
-    })
-    expect_error_handling(response, 422, 'Unprocessable Content', 
-      'DOC104 - Upload rejected by upstream system. Processing failed and upload must be resubmitted')
+    response = build_response(
+      422,
+      {
+        'errors' => [
+          {
+            'status' => 422,
+            'detail' => 'DOC104 - Upload rejected by upstream system. Processing failed and upload must be resubmitted'
+          }
+        ]
+      }
+    )
+    expect_error_handling(
+      response,
+      422,
+      'Unprocessable Content',
+      'DOC104 - Upload rejected by upstream system. Processing failed and upload must be resubmitted'
+    )
   end
 
   def build_response(status, body)
-    OpenStruct.new(status: status, body: body)
+    OpenStruct.new(status:, body:)
   end
 
   def expect_error_handling(response, expected_status, expected_title, expected_detail)

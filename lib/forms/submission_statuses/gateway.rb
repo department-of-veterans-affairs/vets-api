@@ -27,16 +27,31 @@ module Forms
       end
 
       def intake_statuses(submissions)
-        uuids = submissions.map(&:benefits_intake_uuid)
-
-        response = intake_service.bulk_status(uuids:)
-        [response.body['data'], nil]
+        uuids = extract_uuids(submissions)
+        response = fetch_bulk_status(uuids)
+        process_response(response)
       rescue => e
-        errors = @error_handler.handle_error(status: e.status, body: e.body)
-        [nil, errors]
+        handle_intake_error(e)
       end
 
       private
+
+      def extract_uuids(submissions)
+        submissions.map(&:benefits_intake_uuid)
+      end
+
+      def fetch_bulk_status(uuids)
+        intake_service.bulk_status(uuids:)
+      end
+
+      def process_response(response)
+        [response.body['data'], nil]
+      end
+
+      def handle_intake_error(error)
+        errors = @error_handler.handle_error(status: error.status, body: error.body)
+        [nil, errors]
+      end
 
       def intake_service
         @service ||= BenefitsIntake::Service.new

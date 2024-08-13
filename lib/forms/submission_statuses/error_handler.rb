@@ -13,8 +13,8 @@ module Forms
 
       def parse_error(status, body)
         error_msg = body.transform_keys(&:to_sym)
-        title = title_from(status)
-      
+        title = self.class.title_from(status)
+
         case error_msg
         in { message: message }
           normalize(status:, title:, detail: message)
@@ -24,9 +24,9 @@ module Forms
           # recursive call to normalize a collection of errors
           errors.map { |e| parse_error(status, e) }
         else
-          normalize(status:, title:, detail: detail_from(status))
+          normalize(status:, title:, detail: self.class.detail_from(status))
         end
-      end      
+      end
 
       def normalize(status:, title:, detail:)
         {
@@ -37,22 +37,24 @@ module Forms
         }
       end
 
-      def title_from(status)
-        status_titles = {
-          401 => 'Unauthorized',
-          403 => 'Forbidden',
-          413 => 'Request Entity Too Large',
-          422 => 'Unprocessable Content',
-          429 => 'Too Many Requests',
-          500 => 'Internal Server Error',
-          502 => 'Bad Gateway',
-          504 => 'Gateway Timeout'
-        }
-      
-        status_titles.fetch(status, 'Unknown Error')
-      end
+      class << self
+        def title_from(status)
+          status_titles = {
+            401 => 'Unauthorized',
+            403 => 'Forbidden',
+            413 => 'Request Entity Too Large',
+            422 => 'Unprocessable Content',
+            429 => 'Too Many Requests',
+            500 => 'Internal Server Error',
+            502 => 'Bad Gateway',
+            504 => 'Gateway Timeout'
+          }
 
-      alias detail_from title_from
+          status_titles.fetch(status, 'Unknown Error')
+        end
+
+        alias detail_from title_from
+      end
     end
   end
 end
