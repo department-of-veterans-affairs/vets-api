@@ -7,14 +7,17 @@ RSpec.describe 'Forms uploader', type: :request do
   form_numbers_and_classes = {
     '10-10D' => IvcChampva::VHA1010d,
     '10-7959C' => IvcChampva::VHA107959c,
-    '10-7959F-2' => IvcChampva::VHA107959f2
+    '10-7959F-2' => IvcChampva::VHA107959f2,
+    '10-7959F-1' => IvcChampva::VHA107959f1,
+    '10-7959A' => IvcChampva::VHA107959a
   }
 
   forms = [
     'vha_10_10d.json',
     'vha_10_7959f_1.json',
     'vha_10_7959f_2.json',
-    'vha_10_7959c.json'
+    'vha_10_7959c.json',
+    'vha_10_7959a.json'
   ]
 
   before do
