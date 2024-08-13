@@ -13,11 +13,13 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
   let(:guid3) { SecureRandom.uuid }
 
   let(:response_complete) do
-    JSON.parse('{"data":{"attributes":{"status":"complete"}}}')
+    response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('HLR-SHOW-RESPONSE-200_V2').to_json) # deep copy
+    response['data']['attributes']['status'] = 'complete'
+    response
   end
 
   let(:response_pending) do
-    JSON.parse('{"data":{"attributes":{"status":"pending"}}}')
+    VetsJsonSchema::EXAMPLES.fetch 'HLR-SHOW-RESPONSE-200_V2'
   end
 
   before do
