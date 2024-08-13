@@ -1,10 +1,5 @@
 name: Code Checks
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
+on: [push]
 permissions:
   contents: read
   checks: write

@@ -1,11 +1,6 @@
 name: Build And Publish Preview Environment
 run-name: Build And Publish Preview Environment
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
+on: [push]
 permissions: write-all
 jobs:
   build-and-publish:
