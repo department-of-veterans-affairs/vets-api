@@ -478,9 +478,6 @@ features:
     actor_type: user
     description: Enables access to the Enrollment Verification app
     enable_in_development: true
-  ezr_async:
-    actor_type: user
-    description: Submit form 10-10EZR with a background job
   discharge_wizard_features:
     actor_type: user
     description: Iteration of new features for discharge wizard
