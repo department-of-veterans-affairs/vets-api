@@ -4391,7 +4391,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "3ad59dc3-48c4-47ac-bb25-f022d2931568",
+                        "id": "27535935-1c25-4043-bc74-06cec934f051",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4576,7 +4576,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-08-01"
+                              "anticipatedSeparationDate": "2024-08-15"
                             },
                             "confinements": [
                               {
@@ -4622,7 +4622,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "972d7390-9605-4876-b52a-810c9d43410c",
+                        "id": "d6acecf1-d38b-472b-94df-d40642c6c8b8",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -9813,7 +9813,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6b25ba76-758a-4b22-961d-6124f50f9607",
+                    "id": "ab831e1e-ed68-4952-8c0b-74a702300923",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10963,8 +10963,6 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
@@ -10999,7 +10997,7 @@
                                     "type": "string",
                                     "example": "OR",
                                     "maxLength": 1000,
-                                    "minLength": 0
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -11011,7 +11009,8 @@
                                     "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "example": "12345",
-                                    "maxLength": 500
+                                    "maxLength": 500,
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
@@ -11019,6 +11018,12 @@
                                     "example": "6789",
                                     "nullable": true,
                                     "maxLength": 500
+                                  },
+                                  "internationalPostalCode": {
+                                    "description": "International postal code for the Veteran's current mailing address.",
+                                    "type": "string",
+                                    "maxLength": 1000,
+                                    "nullable": true
                                   }
                                 }
                               },
@@ -11094,19 +11099,22 @@
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
                                 "example": "OR",
-                                "maxLength": 1000
+                                "maxLength": 1000,
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                 "type": "string",
                                 "example": "USA",
-                                "maxLength": 1000
+                                "maxLength": 1000,
+                                "nullable": true
                               },
                               "zipFirstFive": {
                                 "description": "Zip code (First 5 digits) for the Veteran's new address.",
                                 "type": "string",
                                 "example": "12345",
-                                "maxLength": 500
+                                "maxLength": 500,
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -11114,6 +11122,12 @@
                                 "nullable": true,
                                 "example": "6789",
                                 "maxLength": 500
+                              },
+                              "internationalPostalCode": {
+                                "description": "International postal code for the Veteran's new address.",
+                                "type": "string",
+                                "maxLength": 1000,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
@@ -12740,8 +12754,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-30",
-                      "expirationDate": "2025-07-30",
+                      "creationDate": "2024-08-13",
+                      "expirationDate": "2025-08-13",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13637,7 +13651,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "da86094c-b09a-4e1b-b42c-1f209571a86e",
+                    "id": "86010d76-2b10-4ccf-a453-5db6a517bebe",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14330,7 +14344,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "29e9f827-464d-4323-8d34-fd5388be3623",
+                    "id": "7feb411c-38a8-4b0a-88d5-5d3f7cd09665",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16281,10 +16295,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d7613834-ac35-435c-9334-2d477ab85dbc",
+                    "id": "e3a5c67c-be41-4d4d-b6d6-e82980c48cc8",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-30",
+                      "dateRequestAccepted": "2024-08-13",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

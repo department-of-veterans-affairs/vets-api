@@ -33,6 +33,13 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
+      - name: Find Approval Required Comment
+        uses: peter-evans/find-comment@v3
+        id: find-required-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: This PR requires approval from backend-review-group.
+
       - name: Github event
         run: echo "${{ github.event_name }}"
 
@@ -99,7 +106,7 @@ jobs:
           fi
 
       - name: Comment PR - Approval Required
-        if: failure() && steps.verify_approval.outputs.approval_status == 'required'
+        if: failure() && steps.verify_approval.outputs.approval_status == 'required' && steps.find-required-comment.outputs.comment-id == ''
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
