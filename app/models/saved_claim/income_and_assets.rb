@@ -26,7 +26,7 @@ class SavedClaim::IncomeAndAssets < SavedClaim
   # @param current_user [User] the current user submitting the form
   #
   def upload_to_lighthouse(current_user = nil)
-    return unless Flipper.enabled?(:pension_income_and_assets_clarification)
+    return unless Flipper.enabled?(:pension_income_and_assets_clarification, current_user)
 
     Lighthouse::IncomeAndAssetsIntakeJob.perform_async(id, current_user&.user_account_uuid)
   end
