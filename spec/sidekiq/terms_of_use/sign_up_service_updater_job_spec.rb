@@ -38,8 +38,8 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       allow(MPI::Service).to receive(:new).and_return(mpi_service)
     end
 
-    it 'retries for 47 hours after failure' do
-      expect(described_class.get_sidekiq_options['retry_for']).to eq(48.hours)
+    it 'retries for 1 minute after failure' do
+      expect(described_class.get_sidekiq_options['retry_for']).to eq(5.minutes)
     end
 
     context 'when retries have been exhausted' do
@@ -50,7 +50,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
       before do
         allow(Rails.logger).to receive(:warn)
-        Timecop.travel(47.hours.from_now)
+        Timecop.travel(241.seconds.from_now)
       end
 
       context 'when the attr_package is found' do

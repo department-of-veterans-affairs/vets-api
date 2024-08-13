@@ -9,7 +9,7 @@ module TermsOfUse
 
     LOG_TITLE = '[TermsOfUse][SignUpServiceUpdaterJob]'
 
-    sidekiq_options retry_for: 48.hours
+    sidekiq_options(unique_for: 4.minutes, retry_for: 5.minutes)
 
     sidekiq_retries_exhausted do |job, exception|
       user_account = UserAccount.find_by(id: job['args'].first)
