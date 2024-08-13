@@ -16,7 +16,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
       end
 
-      context 'OrgWebServiceBean' do
+      context 'VdcBean' do
         let(:endpoint) { 'VDC/ManageRepresentativeService' }
         let(:action) { 'readPOARequest' }
         let(:key) { 'POARequestRespondReturnVO' }
@@ -38,7 +38,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
       end
 
-      context 'OrgWebService' do
+      context 'VdcBean' do
         let(:endpoint) { 'VDC/ManageRepresentativeService' }
 
         it 'response with the correct namespace' do
