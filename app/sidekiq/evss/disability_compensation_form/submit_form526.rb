@@ -197,7 +197,6 @@ module EVSS
 
       def non_retryable_error_handler(submission, error)
         # update JobStatus, log and metrics in JobStatus#non_retryable_error_handler
-        debugger
         super(error)
         unless Flipper.enabled?(:disability_compensation_production_tester,
                                 OpenStruct.new({ flipper_id: submission.user_uuid })) ||
