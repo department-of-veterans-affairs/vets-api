@@ -83,15 +83,15 @@ module EVSS
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
 
-        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
-          if Flipper.enabled?(:disability_compensation_fail_submission,
-                              OpenStruct.new({ flipper_id: submission.user_uuid }))
+        if Flipper.enabled?(:disability_compensation_fail_submission,
+                            OpenStruct.new({ flipper_id: submission.user_uuid }))
+          with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
             Rails.logger.info("disability_compensation_fail_submission enabled for submission #{submission.id}")
             throw StandardError
+          rescue => e
+            handle_errors(submission, e)
+            return
           end
-        rescue => e
-          handle_errors(submission, e)
-          return
         end
 
         # This instantiates the service as defined by the inheriting object
