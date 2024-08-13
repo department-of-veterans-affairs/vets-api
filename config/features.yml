@@ -75,9 +75,16 @@ features:
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
+  hca_reg_only_enabled:
+    actor_type: user
+    description: Enables the registration-only path for the Health Care Application
+    enable_in_development: true
   hca_sigi_enabled:
     actor_type: user
     description: Enables Self-Identifying Gender Identity question for health care applicants.
+  hca_tera_branching_enabled:
+    actor_type: user
+    description: Enables branching logic for the Toxic Exposure questionset in the Health Care Application
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
@@ -87,10 +94,6 @@ features:
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
-    enable_in_development: true
-  ezr_tera_enabled:
-    actor_type: user
-    description: Enables Toxic Exposure questions for 10-10EZR applicants.
     enable_in_development: true
   ezr_upload_enabled:
     actor_type: user
@@ -377,6 +380,10 @@ features:
     actor_type: user
     description: Enable job to set delete_date for completed SavedClaim::SupplementalClaims
     enable_in_development: true
+  decision_review_delete_saved_claims_job_enabled:
+    actor_type: user
+    description: Enable job to delete SavedClaim records when the record has a delete_date and the date is in the past
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -451,6 +458,14 @@ features:
     actor_type: user
     description: enables sending notifications to vets if their 526 claim submission fails with PIF in Use Error
     enable_in_development: true
+  disability_compensation_production_tester:
+    actor_type: user
+    description: disable certain functionality for production testing of the 526 submission workflow. DO NOT TOGGLE THIS FLAG UNLESS YOU ARE A MEMBER OF DISABILITY BENEFITS EXPERIENCE TEAM.
+    enable_in_development: true
+  disability_compensation_fail_submission:
+    actor_type: user
+    description: enable to test the backup submission path. DO NOT TOGGLE THIS FLAG UNLESS YOU ARE A MEMBER OF DISABILITY BENEFITS EXPERIENCE TEAM.
+    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -459,9 +474,6 @@ features:
     actor_type: user
     description: Enables access to the Enrollment Verification app
     enable_in_development: true
-  ezr_async:
-    actor_type: user
-    description: Submit form 10-10EZR with a background job
   discharge_wizard_features:
     actor_type: user
     description: Iteration of new features for discharge wizard
@@ -782,6 +794,9 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  mhv_va_health_chat_enabled:
+    actor_type: user
+    description: Enables the VA Health Chat link at /my-health
   mhv_landing_page_show_priority_group:
     actor_type: user
     description: Shows Veterans their Priority Group on the MHV Landing Page
@@ -793,10 +808,6 @@ features:
   mhv_transitional_medical_records_landing_page:
     actor_type: user
     description: Enables the transitional Medical Records page at /my-health/records
-  mhv_secure_messaging_to_va_gov_release:
-    actor_type: user
-    description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
-    enable_in_development: true
   mhv_secure_messaging_to_phase_1:
     actor_type: user
     description: Enables/disables Secure Messaging Phase 1 on VA.gov
@@ -1254,10 +1265,6 @@ features:
     actor_type: user
     description: Toggle for new mobile facility service v2 endpoints
     enable_in_development: true
-  va_online_scheduling_status_improvement_canceled:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to display canceled booked appointments
   va_online_scheduling_vaos_v2_next:
     actor_type: user
     enable_in_development: true
@@ -1506,6 +1513,9 @@ features:
   disability_compensation_lighthouse_generate_pdf:
     actor_type: user
     description: If enabled uses the lighthouse Benefits Claims service to generate a 526 pdf
+  disability_compensation_lighthouse_upload_supplemental_document:
+    actor_type: user
+    description: If enabled uses the Lighthouse Benefits Documents API to submit Form 526 documents
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
@@ -1587,6 +1597,9 @@ features:
   pension_supporting_documents_update:
    actor_type: user
    description: Show updated supporting documents page
+  pension_document_upload_update:
+   actor_type: user
+   description: Show updated document upload page
   pension_confirmation_update:
     actor_type: user
     description: Show updated confirmation page

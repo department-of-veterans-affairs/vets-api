@@ -38,6 +38,7 @@ module ClaimsApi
                                "526EZ PDF generator Uploaded 526EZ PDF #{file_name} to S3")
 
           auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
+          auto_claim.save!
 
           ::Common::FileHelpers.delete_file_if_exists(path)
         end

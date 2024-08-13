@@ -56,7 +56,7 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
             }
           },
           representative: {
-            type: 'Attorney',
+            type: 'ATTORNEY',
             phone: '5555555555',
             email: 'rep@rep.com',
             name: {
@@ -78,29 +78,56 @@ RSpec.describe 'PdfGenerator2122aController', type: :request do
       }
     end
 
-    context 'when submitting all required data' do
-      it 'responds with a created status' do
+    context 'When submitting all fields with valid data' do
+      before do
         post(base_path, params:)
-        expect(response).to have_http_status(:created)
+      end
+
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
       end
 
       it 'responds with a PDF' do
-        post(base_path, params:)
         expect(response.content_type).to eq('application/pdf')
       end
     end
 
-    context 'when submitting incomplete data' do
-      it 'responds with an unprocessable entity status' do
-        params[:pdf_generator2122a][:representative][:type] = nil
-        post(base_path, params:)
-        expect(response).to have_http_status(:unprocessable_entity)
+    context 'when triggering validation errors' do
+      context 'when submitting without the representative first name for a single validation error' do
+        before do
+          params[:pdf_generator2122a][:representative][:name][:first] = nil
+          post(base_path, params:)
+        end
+
+        it 'responds with an unprocessable entity status' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'responds with the expected body' do
+          expect(response.body).to eq({ errors: ["Representative first name can't be blank"] }.to_json)
+        end
       end
 
-      it 'responds with the expected body' do
-        params[:pdf_generator2122a][:representative][:type] = nil
-        post(base_path, params:)
-        expect(response.body).to eq({ errors: ['Representative type can\'t be blank'] }.to_json)
+      context 'when submitting without multiple required attributes' do
+        before do
+          params[:pdf_generator2122a][:veteran][:name][:first] = nil
+          params[:pdf_generator2122a][:veteran][:ssn] = nil
+          params[:pdf_generator2122a][:veteran][:name][:last] = nil
+          params[:pdf_generator2122a][:veteran][:date_of_birth] = nil
+          post(base_path, params:)
+        end
+
+        it 'responds with an unprocessable entity status' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'responds with the expected body' do
+          expect(response.body).to include("Veteran first name can't be blank")
+          expect(response.body).to include("Veteran social security number can't be blank")
+          expect(response.body).to include('Veteran social security number is invalid')
+          expect(response.body).to include("Veteran last name can't be blank")
+          expect(response.body).to include("Veteran date of birth can't be blank")
+        end
       end
     end
   end
