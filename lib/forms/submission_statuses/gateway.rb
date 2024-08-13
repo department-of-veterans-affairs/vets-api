@@ -32,7 +32,8 @@ module Forms
         response = intake_service.bulk_status(uuids:)
         [response.body['data'], nil]
       rescue => e
-        [nil, @error_handler.handle_error(e)]
+        errors = @error_handler.handle_error(status: e.status, body: e.body)
+        [nil, errors]
       end
 
       private

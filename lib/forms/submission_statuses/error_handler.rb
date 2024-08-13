@@ -6,28 +6,27 @@ module Forms
       SOURCE = 'Lighthouse - Benefits Intake API'
       TITLE_PREFIX = 'Form Submission Status'
 
-      def handle_error(response)
-        errors = parse_error(response.status, response.body)
-        return errors if errors.is_a?(Array)
-
-        [errors]
+      def handle_error(status:, body:)
+        errors = parse_error(status, body)
+        errors.is_a?(Array) ? errors : [errors]
       end
 
       def parse_error(status, body)
         error_msg = body.transform_keys(&:to_sym)
-
+        title = title_from(status)
+      
         case error_msg
         in { message: message }
-          normalize(status:, title: title_from(status), detail: message)
+          normalize(status:, title:, detail: message)
         in { detail: detail }
-          normalize(status:, title: title_from(status), detail:)
-        in { errors: errors}
+          normalize(status:, title:, detail:)
+        in { errors: errors }
           # recursive call to normalize a collection of errors
           errors.map { |e| parse_error(status, e) }
         else
-          normalize(status:, title: title_from(status), detail: detail_from(status))
+          normalize(status:, title:, detail: detail_from(status))
         end
-      end
+      end      
 
       def normalize(status:, title:, detail:)
         {
@@ -39,26 +38,18 @@ module Forms
       end
 
       def title_from(status)
-        case status
-        when 401
-          'Unauthorized'
-        when 403
-          'Forbidden'
-        when 413
-          'Request Entity Too Large'
-        when 422
-          'Unprocessable Content'
-        when 429
-          'Too Many Requests'
-        when 500
-          'Internal Server Error'
-        when 502
-          'Bad Gateway'
-        when 504
-          'Gateway Timeout'
-        else
-          'Unknown Error'
-        end
+        status_titles = {
+          401 => 'Unauthorized',
+          403 => 'Forbidden',
+          413 => 'Request Entity Too Large',
+          422 => 'Unprocessable Content',
+          429 => 'Too Many Requests',
+          500 => 'Internal Server Error',
+          502 => 'Bad Gateway',
+          504 => 'Gateway Timeout'
+        }
+      
+        status_titles.fetch(status, 'Unknown Error')
       end
 
       alias detail_from title_from
