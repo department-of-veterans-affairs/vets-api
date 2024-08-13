@@ -223,6 +223,37 @@ module ClaimsApi
             )
         end
       end
+
+      #
+      ## VnpPersonService
+      #
+      module VnpPersonWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpPersonWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://personService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpPersonService
+        DEFINITION =
+          Service.new(
+            bean: VnpPersonWebServiceBean::DEFINITION,
+            path: 'VnpPersonService'
+          )
+
+        module FindPoaByParticipantId
+          DEFINITION =
+            Action.new(
+              service: VnpPersonService::DEFINITION,
+              name: 'vnpPersonCreate',
+              key: 'return'
+            )
+        end
+      end
     end
   end
 end
