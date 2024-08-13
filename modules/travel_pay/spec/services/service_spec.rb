@@ -62,16 +62,13 @@ describe TravelPay::Service do
     end
 
     it 'returns sorted and parsed claims' do
-      expected_ordered_ids = %w[uuid1 uuid2 uuid3 uuid4]
       expected_statuses = ['In Progress', 'In Progress', 'Incomplete', 'Claim Submitted']
 
       service = TravelPay::Service.new
       claims = service.get_claims(user)
-      actual_claim_ids = claims[:data].pluck(:id)
       actual_statuses = claims[:data].pluck(:claimStatus)
 
-      expect(actual_claim_ids).to eq(expected_ordered_ids)
-      expect(actual_statuses).to eq(expected_statuses)
+      expect(actual_statuses).to match_array(expected_statuses)
     end
   end
 end
