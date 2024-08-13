@@ -974,8 +974,6 @@ GEM
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
-    shoulda-matchers (6.3.0)
-      activesupport (>= 5.2.0)
     shrine (3.6.0)
       content_disposition (~> 1.0)
       down (~> 5.1)
@@ -1261,7 +1259,6 @@ DEPENDENCIES
   savon
   seedbank
   sentry-ruby
-  shoulda-matchers
   shrine
   sidekiq (~> 7.2.0)
   sidekiq-ent!
