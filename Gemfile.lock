@@ -73,10 +73,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 271a09c5f6a1c89105e1ae130ffac641c30f162b
+  revision: 7bbee674bfeef84f4ebd9d9e75490c09ee18f438
   branch: master
   specs:
-    vets_json_schema (24.1.1)
+    vets_json_schema (24.2.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -270,7 +270,7 @@ GEM
     bigdecimal (3.1.8-java)
     bindex (0.8.1)
     blueprinter (1.0.2)
-    bootsnap (1.18.3)
+    bootsnap (1.18.4)
       msgpack (~> 1.2)
     brakeman (6.1.2)
       racc
@@ -307,7 +307,7 @@ GEM
     combine_pdf (1.0.26)
       matrix
       ruby-rc4 (>= 0.1.5)
-    concurrent-ruby (1.3.3)
+    concurrent-ruby (1.3.4)
     config (5.5.1)
       deep_merge (~> 1.2, >= 1.2.1)
     connection_pool (2.4.1)
@@ -545,7 +545,7 @@ GEM
     hashdiff (1.1.0)
     hashery (2.1.2)
     hashie (5.0.0)
-    hexapdf (0.45.0)
+    hexapdf (0.46.0)
       cmdparse (~> 3.0, >= 3.0.3)
       geom2d (~> 0.4, >= 0.4.1)
       openssl (>= 2.2.1)
@@ -692,8 +692,9 @@ GEM
     octokit (9.1.0)
       faraday (>= 1, < 3)
       sawyer (~> 0.9)
-    oj (3.16.4)
+    oj (3.16.5)
       bigdecimal (>= 3.0)
+      ostruct (>= 0.2)
     okcomputer (1.18.5)
     olive_branch (4.0.1)
       multi_json
@@ -705,8 +706,9 @@ GEM
     operating_hours (0.1.0)
     optimist (3.1.0)
     os (1.1.4)
+    ostruct (0.6.0)
     ox (2.14.18)
-    parallel (1.25.1)
+    parallel (1.26.2)
     parallel_tests (4.7.1)
       parallel
     parser (3.3.4.0)
@@ -919,7 +921,7 @@ GEM
       rubocop-ast (>= 1.31.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.31.3)
+    rubocop-ast (1.32.0)
       parser (>= 3.3.1.0)
     rubocop-capybara (2.21.0)
       rubocop (~> 1.41)
@@ -931,7 +933,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (3.0.3)
+    rubocop-rspec (3.0.4)
       rubocop (~> 1.61)
     rubocop-rspec_rails (2.30.0)
       rubocop (~> 1.61)
@@ -972,7 +974,7 @@ GEM
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
-    shoulda-matchers (6.2.0)
+    shoulda-matchers (6.3.0)
       activesupport (>= 5.2.0)
     shrine (3.6.0)
       content_disposition (~> 1.0)
