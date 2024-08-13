@@ -9,42 +9,97 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppointContro
     Flipper.enable(:appoint_a_representative_enable_pdf)
   end
 
-  context 'when the query parameter is an empty string' do
-    it 'returns an empty list' do
-      get path, params: { query: '' }
-
-      parsed_response = JSON.parse(response.body)
-      expect(parsed_response).to eq('data' => [])
+  context 'the response should be an empty array' do
+    before do
+      create(:accredited_individual, full_name: 'Bob Law')
+      create(:accredited_individual, full_name: 'Bob Smith')
+      create(:accredited_organization, name: 'Bob Law Firm')
+      create(:accredited_organization, name: 'Bob Smith Firm')
     end
-  end
 
-  context 'when the query parameter is not present' do
-    it 'returns an empty list' do
-      get path
+    context 'when the query parameter is an empty string' do
+      it 'returns an empty list' do
+        get path, params: { query: '' }
 
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to eq('data' => [])
+      end
+    end
+
+    context 'when the query parameter is not present' do
+      it 'returns an empty list' do
+        get path
+
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to eq('data' => [])
+      end
+    end
+
+    it 'when there are no matching results' do
+      get path, params: { query: 'Zach' }
       parsed_response = JSON.parse(response.body)
       expect(parsed_response).to eq('data' => [])
     end
   end
 
   context 'when the search is valid' do
-    let!(:individual) { create(:accredited_individual, full_name: 'Bob Law') }
-    let!(:organization) { create(:accredited_organization, name: 'Bob Law Firm') }
-
     it 'returns a list of individuals and organizations' do
+      create(:accredited_individual, full_name: 'Bob Law')
+      create(:accredited_individual, full_name: 'Bob Smith')
+      create(:accredited_organization, name: 'Bob Law Firm')
+      create(:accredited_organization, name: 'Bob Smith Firm')
       get path, params: { query: 'Bob' }
 
       parsed_response = JSON.parse(response.body)
-      p "parsed_response: #{parsed_response}", "parsed_response.class.name: #{parsed_response.class.name}"
-      p "parsed_response.size: #{parsed_response.size}"
-      p "parsed_response.first.class: #{parsed_response.first.class.name}"
-      expect(parsed_response.size).to eq(2)
+      expect(parsed_response.size).to eq(4)
+      expect(parsed_response[0]['data']['attributes']['full_name']).to eq('Bob Law')
+      expect(parsed_response[1]['data']['attributes']['full_name']).to eq('Bob Smith')
+      expect(parsed_response[2]['data']['attributes']['name']).to eq('Bob Law Firm')
+      expect(parsed_response[3]['data']['attributes']['name']).to eq('Bob Smith Firm')
+    end
 
-      expect(parsed_response.first['attributes']['type']).to eq('accredited_individuals')
-      expect(parsed_response.first['attributes']['full_name']).to eq('Bob Law')
+    it 'returns a mixed list of individuals and organizations in Levenshtein order' do
+      create(:accredited_individual, full_name: 'a')
+      create(:accredited_individual, full_name: 'ab')
+      create(:accredited_individual, full_name: 'abc')
+      create(:accredited_individual, full_name: 'abcd')
+      create(:accredited_individual, full_name: 'abcde')
+      create(:accredited_organization, name: 'a')
+      create(:accredited_organization, name: 'ab')
+      create(:accredited_organization, name: 'abc')
+      create(:accredited_organization, name: 'abcd')
+      create(:accredited_organization, name: 'abcde')
 
-      expect(parsed_response[1]['type']).to eq('accredited_organizations')
-      expect(parsed_response[1]['attributes']['name']).to eq('Bob Law Firm')
+      get path, params: { query: 'a' }
+
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response.size).to eq(10)
+      expect(parsed_response[0]['data']['attributes']['full_name']).to eq('a')
+      expect(parsed_response[1]['data']['attributes']['name']).to eq('a')
+      expect(parsed_response[2]['data']['attributes']['full_name']).to eq('ab')
+      expect(parsed_response[3]['data']['attributes']['name']).to eq('ab')
+      expect(parsed_response[4]['data']['attributes']['full_name']).to eq('abc')
+      expect(parsed_response[5]['data']['attributes']['name']).to eq('abc')
+      expect(parsed_response[6]['data']['attributes']['full_name']).to eq('abcd')
+      expect(parsed_response[7]['data']['attributes']['name']).to eq('abcd')
+      expect(parsed_response[8]['data']['attributes']['full_name']).to eq('abcde')
+      expect(parsed_response[9]['data']['attributes']['name']).to eq('abcde')
+    end
+  end
+
+  context "when the feature flag 'appoint_a_representative_enable_pdf' is disabled" do
+    before do
+      Flipper.disable(:appoint_a_representative_enable_pdf)
+    end
+
+    after do
+      Flipper.enable(:appoint_a_representative_enable_pdf)
+    end
+
+    it 'returns a 404' do
+      get path
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

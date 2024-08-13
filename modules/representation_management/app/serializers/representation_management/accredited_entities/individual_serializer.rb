@@ -5,7 +5,7 @@ module RepresentationManagement
     class IndividualSerializer
       include JSONAPI::Serializer
 
-      attributes :first_name, :last_name,
+      attributes :first_name, :last_name, :full_name,
                  :address_line1,
                  :address_line2, :address_line3, :address_type,
                  :city, :country_name, :country_code_iso3, :province,
