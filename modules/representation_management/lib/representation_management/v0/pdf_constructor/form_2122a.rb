@@ -90,9 +90,9 @@ module RepresentationManagement
             "#{PAGE1_KEY}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.veteran_zip_code,
             "#{PAGE1_KEY}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.veteran_zip_code_suffix,
             # Veteran Phone Number
-            "#{PAGE1_KEY}.Telephone_Number_Area_Code[1]": data.veteran_phone[0..2],
-            "#{PAGE1_KEY}.Telephone_Middle_Three_Numbers[0]": data.veteran_phone[3..5],
-            "#{PAGE1_KEY}.Telephone_Last_Four_Numbers[1]": data.veteran_phone[6..9],
+            "#{PAGE1_KEY}.Telephone_Number_Area_Code[1]": data.veteran_phone ? data.veteran_phone[0..2] : '',
+            "#{PAGE1_KEY}.Telephone_Middle_Three_Numbers[0]": data.veteran_phone ? data.veteran_phone[3..5] : '',
+            "#{PAGE1_KEY}.Telephone_Last_Four_Numbers[1]": data.veteran_phone ? data.veteran_phone[6..9] : '',
             # Veteran Email
             "#{PAGE1_KEY}.E_Mail_Address_Optional[1]": data.veteran_email
           }
