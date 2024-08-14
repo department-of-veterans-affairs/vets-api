@@ -49,7 +49,8 @@ jobs:
           body-includes: Omit backend approval
 
       - name: Re-label require-backend-approval
-        if: steps.find_backend_comment.outputs.comment-id != '' && !contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
+        if: |
+          steps.find_backend_comment.outputs.comment-id != '' && !contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         uses: actions-ecosystem/action-add-labels@v1
           with:
             number: ${{ github.event.pull_request.number }}

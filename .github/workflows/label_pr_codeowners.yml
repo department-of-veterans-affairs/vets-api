@@ -61,7 +61,10 @@ jobs:
       - name: Backend Team Label
         if: |
           !contains(github.event.pull_request.labels.*.name, 'require-backend-approval') &&
-          ( steps.check_teams.outputs.be_approval_required == 'true' || steps.find_backend_comment.outputs.comment-id != '')
+          (
+            steps.check_teams.outputs.be_approval_required == 'true' ||
+            steps.find_backend_comment.outputs.comment-id != ''
+          )
         uses: actions-ecosystem/action-add-labels@v1
           with:
             number: ${{ github.event.pull_request.number }}
@@ -91,7 +94,9 @@ jobs:
           echo "ommitted_team=true" << GITHUB_OUTPUT
 
       - name: Ommitted Team Comment
-        if: steps.check_ommited_teams.output.ommitted_team == 'true' && steps.find_omit_comment.outputs.comment-id == ''
+        if: |
+          steps.check_ommited_teams.output.ommitted_team == 'true' &&
+          steps.find_omit_comment.outputs.comment-id == ''
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -100,7 +105,10 @@ jobs:
       - name: Ommitted Team Label
         if: |
           !contains(github.event.pull_request.labels.*.name, 'omit-backend-approval') &&
-          ( steps.check_ommited_teams.output.ommitted_team == 'true' || steps.find_omit_comment.outputs.comment-id != '' )
+          (
+            steps.check_ommited_teams.output.ommitted_team == 'true' ||
+            steps.find_omit_comment.outputs.comment-id != ''
+          )
         uses: actions-ecosystem/action-add-labels@v1
           with:
             number: ${{ github.event.pull_request.number }}
