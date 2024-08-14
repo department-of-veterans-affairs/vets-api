@@ -9,10 +9,10 @@ permissions:
   checks: write
 jobs:
   linting_and_security:
-    permissions: write-all
     name: Linting and Security
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+    permissions: write-all
     runs-on: ubuntu-16-cores-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,6 +54,7 @@ jobs:
       TERM: xterm-256color
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
+    permissions: write-all
     runs-on: ubuntu-16-cores-latest
     steps:
       - uses: actions/checkout@v4
