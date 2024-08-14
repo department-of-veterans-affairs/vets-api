@@ -40,9 +40,13 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body-includes: This PR requires approval from backend-review-group.
 
-      - run: echo "EVENT: ${{ github.event_name }}"
+      - name: Github Event
+        run: |
+          echo "EVENT: ${{ github.event_name }}"
 
-      - run: echo "TYPE: ${{ github.event_name }}"
+      - name: Github Event type
+        run: |
+          echo "TYPE: ${{ github.event_name }}"
 
       - name: Pull Request Review Teams
         id: review_teams
