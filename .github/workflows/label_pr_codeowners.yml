@@ -11,14 +11,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get PR details
-        id: pr_details
-        uses: octokit/request-action@v2.x
-        with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}/requested_reviewers
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
@@ -52,7 +44,9 @@ jobs:
           echo "be_approval_required=true" << GITHUB_OUTPUT
 
       - name: Comment PR - Approval Required
-        if: steps.check_teams.outputs.be_approval_required == 'true' && steps.find_backend_comment.outputs.comment-id == ''
+        if: |
+          steps.check_teams.outputs.be_approval_required == 'true' &&
+          steps.find_backend_comment.outputs.comment-id == ''
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}

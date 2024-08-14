@@ -50,7 +50,8 @@ jobs:
 
       - name: Re-label require-backend-approval
         if: |
-          steps.find_backend_comment.outputs.comment-id != '' && !contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
+          steps.find_backend_comment.outputs.comment-id != '' &&
+          !contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         uses: actions-ecosystem/action-add-labels@v1
           with:
             number: ${{ github.event.pull_request.number }}
@@ -104,7 +105,9 @@ jobs:
           fi
 
       - name: Comment PR - Approval Confirmed
-        if: success() && steps.verify_approval.outputs.approval_status == 'confirmed' && steps.find_backend_approval_comment.outputs.comment-id != ''
+        if: |
+          success() && steps.verify_approval.outputs.approval_status == 'confirmed' &&
+          steps.find_backend_approval_comment.outputs.comment-id != ''
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
