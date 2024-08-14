@@ -60,10 +60,10 @@ jobs:
       - name: Verify Comments and Labels
         if: |
           ( !contains(github.event.pull_request.labels.*.name, 'require-backend-approval') || !contains(github.event.pull_request.labels.*.name, 'omit-backend-approval') ) ||
-          ( steps.find_backend_approval_comment.outputs.comment-id == '' && contains(github.event.pull_request.labels.*.name, 'require-backend-approval') ) ||
-          ( steps.find_backend_approval_comment.outputs.comment-id != '' && !contains(github.event.pull_request.labels.*.name, 'require-backend-approval') ) ||
-          ( steps.find_omit_comment.outputs.comment-id == '' && contains(github.event.pull_request.labels.*.name, 'omit-backend-approval') ) ||
-          ( steps.find_omit_comment.outputs.comment-id != '' && !contains(github.event.pull_request.labels.*.name, 'omit-backend-approval') )
+          ( !contains(github.event.pull_request.labels.*.name, 'omit-backend-approval') && steps.find_backend_approval_comment.outputs.comment-id == '' && contains(github.event.pull_request.labels.*.name, 'require-backend-approval') ) ||
+          ( !contains(github.event.pull_request.labels.*.name, 'omit-backend-approval') && steps.find_backend_approval_comment.outputs.comment-id != '' && !contains(github.event.pull_request.labels.*.name, 'require-backend-approval') ) ||
+          ( !contains(github.event.pull_request.labels.*.name, 'require-backend-approval') && steps.find_omit_comment.outputs.comment-id == '' && contains(github.event.pull_request.labels.*.name, 'omit-backend-approval') ) ||
+          ( !contains(github.event.pull_request.labels.*.name, 'require-backend-approval') && steps.find_omit_comment.outputs.comment-id != '' && !contains(github.event.pull_request.labels.*.name, 'omit-backend-approval') )
         run: exit 1
 
       - name: Check for require-backend-approval label
