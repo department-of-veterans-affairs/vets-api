@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'disability_compensation/providers/document_upload/lighthouse_supplemental_document_upload_provider'
+require 'disability_compensation/providers/document_upload/evss_supplemental_document_upload_provider'
 
 RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :job do
   subject { described_class }
 
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:disability_compensation_lighthouse_document_service_provider)
+    Flipper.disable(:disability_compensation_use_api_provider_for_bdd_instructions)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -57,6 +59,40 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
           subject.perform_async(submission.id)
           expect(Form526JobStatus).to receive(:upsert).twice
           expect { described_class.drain }.to raise_error(EVSS::ErrorMiddleware::EVSSBackendServiceError)
+        end
+      end
+    end
+
+    # When this feature flag is disabled, this job uploads directly via the EVSS::DocumentsService.
+    # When the flag is enabled, the ApiProviderFactory selects the upload service that is used
+    context 'when the use api provider for upload feature flag is enabled' do
+      before do
+        Flipper.enable(:disability_compensation_use_api_provider_for_bdd_instructions)
+      end
+
+      context 'when the ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS flipper is disabled' do
+        before do
+          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS)
+        end
+
+        it 'submits the document via the EVSSSupplementalDocumentUploadProvider' do
+          expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:submit_upload_document)
+
+          subject.perform_async(submission.id)
+          described_class.drain
+        end
+      end
+
+      context 'when the ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS flipper is enabled' do
+        before do
+          Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS)
+        end
+
+        it 'submits the document via the LighthouseSupplementalDocumentProvider' do
+          expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:submit_upload_document)
+
+          subject.perform_async(submission.id)
+          described_class.drain
         end
       end
     end
