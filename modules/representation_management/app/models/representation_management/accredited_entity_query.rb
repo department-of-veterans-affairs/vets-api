@@ -25,7 +25,7 @@ module RepresentationManagement
     end
 
     def threshold
-      AccreditedRepresentation::Constants::FUZZY_SEARCH_THRESHOLD
+      0.7
     end
 
     def levenshtein_distance(query, record)
