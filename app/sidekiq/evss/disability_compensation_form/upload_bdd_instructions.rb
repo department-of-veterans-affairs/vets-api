@@ -9,7 +9,7 @@ module EVSS
 
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_bdd_instructions'
 
-      # 'Other Correspondence' document type in the VA system:
+      # 'Other Correspondence' document type in the VA
       BDD_INSTRUCTIONS_DOCUMENT_TYPE = 'L023'
       BDD_INSTRUCTIONS_FILE_NAME = 'BDD_Instructions.pdf'
 
