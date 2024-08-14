@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://sandbox-api.va.gov/oauth2/benefits-documents/system/v1/token
+    uri: <LIGHTHOUSE_BASE_URL>/oauth2/benefits-documents/system/v1/token
     body:
       encoding: US-ASCII
       string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FwMThxb2Z1Y2NhV1FVUjJwNyIsInN1YiI6IjBvYXAxOHFvZnVjY2FXUVVSMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzaTN1aTgzZkxhNjhJSnYycDcvdjEvdG9rZW4iLCJpYXQiOjE3MjMyMTQ3NjMsImV4cCI6MTcyMzIxNTA2M30.aXxczac5I8irX8dTyqBZEkw_y4JxomJygXr78cKFrri9FVbv3FcRy0uCyINYZ-yoJtZGAIZkHoX3TMUd-saaA5ySsJJi7hj6dH3RfVErmQLe1iQqJ0kQRAJNZ5JW5mcXFv_XE7DYnUiGzQrzeojhfG59zeyIDUl0fNzI1mxHd83aQrVybVtKVJ5ofe9UgGvCYmLMvZJoi0m81kHfe_xcNiXzj-5RIJ3-dt1pzH6Jz8pRGnWCP8ncFYdxAzdHl-AuVIj7ATEDiRH1F-QVf-TtI7cP1L8RnG3ShpA85llUN4yglKqB4yX-7VH9OR_IOVON70YkJUXW5eDyBBnM7rEsoA&scope=documents.read+documents.write
@@ -55,7 +55,7 @@ http_interactions:
   recorded_at: Fri, 09 Aug 2024 14:46:04 GMT
 - request:
     method: post
-    uri: https://sandbox-api.va.gov/services/benefits-documents/v1/documents
+    uri: <LIGHTHOUSE_BASE_URL>/services/benefits-documents/v1/documents
     body:
       encoding: ASCII-8BIT
       string: !binary |-
