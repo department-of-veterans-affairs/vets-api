@@ -1,5 +1,9 @@
 name: Code Checks
-on: [push]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, reopened, synchronize]
 permissions:
   contents: read
   checks: write
@@ -25,6 +29,23 @@ jobs:
       - name: Run Brakeman
         run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
+      - name: Add Lint Failure label
+        if: failure()
+        permissions: write-all
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            lint-failure
+
+      - name: Remove Lint Failure label
+        if: success()
+        permissions: write-all
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            lint-failure
   tests:
     name: Test
     env:
@@ -114,70 +135,19 @@ jobs:
           path: log/*.xml
           if-no-files-found: ignore
 
-  assign-lint-failure-label:
-    if: failure()
-    needs: [linting_and_security]
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Add Lint Failure label
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          fail_on_error: true
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            lint-failure
-
-  remove-lint-failure-label:
-    if: success()
-    needs: [linting_and_security]
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Remove Lint Failure label
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            lint-failure
-
-  assign-test-failure-label:
-    if: failure()
-    needs: [tests]
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - uses: actions/checkout@v4
-
       - name: Add Test Failure label
+        permissions: write-all
+        if: failure()
         uses: actions-ecosystem/action-add-labels@v1
         with:
-          fail_on_error: true
           number: ${{ github.event.pull_request.number }}
           labels: |
             test-failure
 
-      - name: Remove Test Passing label
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            test-passing
-
-
-  remove-test-failure-label:
-    if: success()
-    needs: [tests]
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - uses: actions/checkout@v4
 
       - name: Remove Test Failure label
+        permissions: write-all
+        if: success()
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -185,9 +155,19 @@ jobs:
             test-failure
 
       - name: Add Test Passing label
+        permissions: write-all
+        if: success()
         uses: actions-ecosystem/action-add-labels@v1
         with:
-          fail_on_error: true
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            test-passing
+
+      - name: Remove Test Passing label
+        if: failure()
+        permissions: write-all
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
           number: ${{ github.event.pull_request.number }}
           labels: |
             test-passing
