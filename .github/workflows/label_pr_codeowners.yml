@@ -45,7 +45,7 @@ jobs:
       - name: Comment PR - Approval Required
         if: |
           steps.check_teams.outputs.be_approval_required == 'true' &&
-          steps.find_backend_comment.outputs.comment-id != ''
+          steps.find_backend_comment.outputs.comment-id == ''
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -72,7 +72,6 @@ jobs:
       - name: Ommitted Teams Check
         id: check_ommited_teams
         if: |
-          steps.find_omit_comment.outputs.comment-id == '' &&
           !contains(toJSON(github.event.pull_request.requested_teams.*.name), '[]') &&
           (
             contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
