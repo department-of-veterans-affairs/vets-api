@@ -11,21 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
-        with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
-          aws-region: "us-gov-west-1"
-
-      - name: Get bot token from Parameter Store
-        uses: marvinpinto/action-inject-ssm-secrets@latest
-        with:
-          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
-          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
-
-# Add backend comment and label if PR does need backend approval
-
+# Add backend comment and label if PR needs backend approval
       - name: Find Backend Team Comment
         uses: peter-evans/find-comment@v3
         id: find_backend_comment
@@ -52,13 +38,13 @@ jobs:
           body: "This PR requires approval from backend-review-group. Please add backend-review-group as reviewers (if they're not already listed)."
 
       - name: Backend Team Label
-        if: |
-          steps.check_teams.outputs.be_approval_required == 'true'
         uses: actions-ecosystem/action-add-labels@v1
-          with:
-            number: ${{ github.event.pull_request.number }}
-            labels: |
-              require-backend-approval
+        if: |
+          steps.check_teams.outputs.be_approval_required == 'true' || steps.find_backend_comment.outputs.comment-id != ''
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            require-backend-approval
 
 # Add OMIT comment and label if PR does not need backend approval
 
