@@ -27,7 +27,8 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
       end
 
       it 'transitions to pdf_not_found status if submission is older than 2 days' do
-        allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim).and_return({"data" => { "attributes" => { "supportingDocuments" => [] } } })
+        allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
+          .and_return({ 'data' => { 'attributes' => { 'supportingDocuments' => [] } } })
         form526_submission.update(created_at: 3.days.ago)
         subject.perform_sync(form526_submission.id)
         form526_submission.reload
