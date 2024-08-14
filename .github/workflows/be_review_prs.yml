@@ -58,7 +58,7 @@ jobs:
             require-backend-approval
 
       - name: Verify require-backend-approval label
-        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval') && steps.find_backend_approval_comment.outputs.comment-id == ''
+        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval') && steps.find_backend_comment.outputs.comment-id == ''
         run: exit 1
 
       - name: Verity omit-backend-approval label
