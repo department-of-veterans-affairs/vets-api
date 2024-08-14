@@ -46,7 +46,7 @@ jobs:
       - name: Comment PR - Approval Required
         if: |
           steps.check_teams.outputs.be_approval_required == 'true' &&
-          steps.find_backend_comment.outputs.comment-id == ''
+          steps.find_backend_comment.outputs.comment-id != ''
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
