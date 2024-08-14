@@ -46,7 +46,7 @@ jobs:
 
       - name: Github Event type
         run: |
-          echo "TYPE: ${{ github.event_name }}"
+          echo "TYPE: ${{ github.event_type }}"
 
       - name: Pull Request Review Teams
         id: review_teams
