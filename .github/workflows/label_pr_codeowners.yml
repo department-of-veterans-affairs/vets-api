@@ -53,7 +53,7 @@ jobs:
 
       - name: Backend Team Label
         if: |
-          steps.check_teams.outputs.be_approval_required == 'true' || steps.find_backend_comment.outputs.comment-id != ''
+          steps.check_teams.outputs.be_approval_required == 'true'
         uses: actions-ecosystem/action-add-labels@v1
           with:
             number: ${{ github.event.pull_request.number }}
