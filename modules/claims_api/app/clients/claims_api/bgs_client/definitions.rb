@@ -168,6 +168,37 @@ module ClaimsApi
       end
 
       ##
+      # VnpPtcpntAddrsWebServiceBean
+      #
+      module VnpPtcpntAddrsWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpPtcpntAddrsWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://ptcpntAddrsService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpPtcpntAddrsService
+        DEFINITION =
+          Service.new(
+            bean: VnpPtcpntAddrsWebServiceBean::DEFINITION,
+            path: 'VnpPtcpntAddrsService'
+          )
+
+        module VnpPtcpntAddrsCreate
+          DEFINITION =
+            Action.new(
+              service: VnpPtcpntAddrsService::DEFINITION,
+              name: 'vnpPtcpntAddrsCreate',
+              key: 'return'
+            )
+        end
+      end
+
+      ##
       # PersonWebServiceBean
       #
       module PersonWebServiceBean
