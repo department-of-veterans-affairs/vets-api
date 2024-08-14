@@ -213,7 +213,6 @@ module SimpleFormsApi
     end
     # rubocop:enable Metrics/MethodLength
 
-    # rubocop:disable Metrics/MethodLength
     def handle_attachments(file_path)
       attachments = get_attachments
       absolute_path_attachments = attachments.map do |attachment|
@@ -238,7 +237,6 @@ module SimpleFormsApi
 
       FileUtils.rm_f(attachment_page_path)
     end
-    # rubocop:enable Metrics/MethodLength
 
     def track_user_identity(confirmation_number)
       identity = get_relationship_to_vet(@data.dig('application', 'claimant', 'relationship_to_vet'))
