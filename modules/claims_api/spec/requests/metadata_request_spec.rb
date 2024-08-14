@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'bgs/services'
 require 'mpi/service'
 
-RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
+RSpec.describe ClaimsApi::MetadataController, type: :request do
   describe '#get /metadata' do
     it 'returns metadata JSON' do
       get '/services/claims/metadata'

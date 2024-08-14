@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'payment information', type: :request do
+RSpec.describe Mobile::V0::PaymentInformationController, type: :request do
   include JsonSchemaMatchers
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
   let(:get_payment_info_body) do

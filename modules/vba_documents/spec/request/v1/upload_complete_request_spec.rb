@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VBA Document SNS upload complete notification', type: :request do
+RSpec.describe VBADocuments::Internal::V1::UploadCompleteController, type: :request do
   context 'with a subscriptionconfirmation message type' do
     # rubocop:disable Layout/LineLength
     let(:headers) do

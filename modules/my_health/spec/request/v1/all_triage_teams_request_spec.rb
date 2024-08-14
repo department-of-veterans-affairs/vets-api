@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/sm_client_helpers'
 require 'support/shared_examples_for_mhv'
 
-RSpec.describe 'All Triage Teams Integration', type: :request do
+RSpec.describe MyHealth::V1::AllTriageTeamsController, type: :request do
   include SM::ClientHelpers
   include SchemaMatchers
 

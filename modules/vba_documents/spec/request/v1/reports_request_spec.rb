@@ -5,7 +5,7 @@ require_relative '../../support/vba_document_fixtures'
 require 'vba_documents/pdf_inspector'
 require_relative '../../../app/serializers/vba_documents/upload_serializer'
 
-RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
+RSpec.describe VBADocuments::V1::ReportsController, type: :request do
   describe '#create /v1/uploads/report' do
     let(:upload) { FactoryBot.create(:upload_submission) }
     let(:pdf_info) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'AskVAApi::V0::StaticDataAuth', type: :request do
+RSpec.describe AskVAApi::V0::StaticDataAuthController, type: :request do
   describe 'index' do
     let(:user228) { build(:user, :loa3, { email: 'vets.gov.user+228@gmail.com' }) }
     let(:user056) { build(:user, :loa3, { email: 'vets.gov.user+56@gmail.com' }) }

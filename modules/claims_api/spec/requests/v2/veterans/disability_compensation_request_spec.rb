@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../../rails_helper'
 
-RSpec.describe 'Disability Claims', type: :request do
+RSpec.describe ClaimsApi::V2::Veterans::DisabilityCompensationController, type: :request do
   let(:scopes) { %w[claim.write claim.read] }
   let(:claim_date) { Time.find_zone!('Central Time (US & Canada)').today }
   let(:no_first_name_target_veteran) do

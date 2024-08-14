@@ -5,7 +5,7 @@ require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 
-RSpec.describe 'Claims', type: :request do
+RSpec.describe ClaimsApi::V2::Veterans::ClaimsController, type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:claimant_on_behalf_of_veteran_id) { '8675309' }
   let(:claim_id) { '600131328' }

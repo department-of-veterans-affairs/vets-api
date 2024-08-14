@@ -3,7 +3,7 @@
 require 'rails_helper'
 require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
 
-RSpec.describe 'covid research volunteer submissions', type: :request do
+RSpec.describe CovidResearch::Volunteer::SubmissionsController, type: :request do
   describe 'POST /covid-research/volunteer/create' do
     let(:valid)   { read_fixture('valid-intake-submission.json') }
     let(:invalid) { read_fixture('no-name-submission.json') }

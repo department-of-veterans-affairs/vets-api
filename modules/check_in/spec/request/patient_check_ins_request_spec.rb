@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'PatientCheckIns', type: :request do
+RSpec.describe CheckIn::V2::PatientCheckInsController, type: :request do
   describe 'GET `show`' do
     it 'returns not implemented' do
       get '/check_in/v0/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d'

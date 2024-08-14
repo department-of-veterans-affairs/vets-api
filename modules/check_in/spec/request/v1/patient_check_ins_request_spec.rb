@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V1::PatientCheckIns', type: :request do
+RSpec.describe CheckIn::V1::PatientCheckInsController, type: :request do
   describe 'POST `create`' do
     it 'returns not implemented' do
       post '/check_in/v1/patient_check_ins'

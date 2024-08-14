@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../support/helpers/rails_helper'
-RSpec.describe 'Mobile Message Drafts Integration', type: :request do
+RSpec.describe Mobile::V0::MessageDraftsController, type: :request do
   include SchemaMatchers
 
   let!(:user) { sis_user(:mhv, mhv_account_type: 'Premium') }

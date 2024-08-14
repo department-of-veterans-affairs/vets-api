@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
+RSpec.describe CovidVaccine::V0::ExpandedRegistrationController, type: :request do
   include SchemaMatchers
 
   let(:registration_attributes) do

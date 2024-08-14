@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Lighthouse organizations', type: :request do
+RSpec.describe HealthQuest::V0::OrganizationsController, type: :request do
   let(:access_denied_message) { 'You do not have access to the health quest service' }
 
   describe 'GET organizations `index`' do

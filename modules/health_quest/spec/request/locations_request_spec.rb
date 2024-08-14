@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Lighthouse locations', type: :request do
+RSpec.describe HealthQuest::V0::LocationsController, type: :request do
   let(:access_denied_message) { 'You do not have access to the health quest service' }
 
   describe 'GET locations `index`' do

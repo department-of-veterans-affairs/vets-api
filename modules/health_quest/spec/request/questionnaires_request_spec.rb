@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'health_quest questionnaires', type: :request do
+RSpec.describe HealthQuest::V0::QuestionnairesController, type: :request do
   let(:access_denied_message) { 'You do not have access to the health quest service' }
   let(:questionnaires_id) { '32' }
 

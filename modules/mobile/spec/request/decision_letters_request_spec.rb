@@ -4,7 +4,7 @@ require_relative '../support/helpers/rails_helper'
 
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
 
-RSpec.describe 'decision letters', type: :request do
+RSpec.describe Mobile::V0::DecisionLettersController, type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '24811694708759028') }

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VAOS::V1::Patient', type: :request do
+RSpec.describe VAOS::V1::PatientsController, type: :request do
   include SchemaMatchers
 
   before do

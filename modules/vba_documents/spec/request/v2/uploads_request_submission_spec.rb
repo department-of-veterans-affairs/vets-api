@@ -5,7 +5,7 @@ require './lib/central_mail/utilities'
 require_relative '../../support/vba_document_fixtures'
 
 # rubocop:disable Style/OptionalBooleanParameter
-RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
+RSpec.describe 'VBADocuments::V2::UploadsController#submit', type: :request, retry: 3 do
   include VBADocuments::Fixtures
 
   load('./modules/vba_documents/config/routes.rb')

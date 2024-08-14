@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'push send', type: :request do
+RSpec.describe 'Mobile::V0::PushNotificationsController#set_pref', type: :request do
   include JsonSchemaMatchers
   let!(:user) { sis_user }
 

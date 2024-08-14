@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'health_quest patients', type: :request do
+RSpec.describe HealthQuest::V0::PatientsController, type: :request do
   let(:access_denied_message) { 'You do not have access to the health quest service' }
 
   describe 'GET signed_in_patient response' do

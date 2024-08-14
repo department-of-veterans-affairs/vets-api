@@ -4,7 +4,7 @@ require_relative '../support/helpers/rails_helper'
 require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
 
-RSpec.describe 'health/rx/prescriptions', type: :request do
+RSpec.describe Mobile::V0::PrescriptionsController, type: :request do
   include JsonSchemaMatchers
   include Rx::ClientHelpers
 

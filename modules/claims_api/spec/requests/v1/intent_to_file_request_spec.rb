@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../../rails_helper'
 require 'bgs_service/local_bgs'
 
-RSpec.describe 'Intent to file', type: :request do
+RSpec.describe ClaimsApi::V1::Forms::IntentToFileController, type: :request do
   let(:headers) do
     { 'X-VA-SSN': '796-10-4437',
       'X-VA-First-Name': 'WESLEY',

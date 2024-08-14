@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../../rails_helper'
 require 'bgs_service/local_bgs'
 
-RSpec.describe 'Power of Attorney ', type: :request do
+RSpec.describe ClaimsApi::V1::Forms::PowerOfAttorneyController, type: :request do
   let(:headers) do
     { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',

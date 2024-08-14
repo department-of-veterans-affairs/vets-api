@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Covid Vaccine Registration', type: :request do
+RSpec.describe CovidVaccine::V0::RegistrationController, type: :request do
   include SchemaMatchers
 
   let(:loa1_user) { build(:user, :vaos, :loa1) }

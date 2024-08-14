@@ -4,7 +4,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'IncomeLimits::V1::IncomeLimitsController', type: :request do
+RSpec.describe IncomeLimits::V1::IncomeLimitsController, type: :request do
   describe 'GET #index' do
     def parse_response(response)
       JSON.parse(response.body)['data']

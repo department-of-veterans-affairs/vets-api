@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'vba_documents/health_checker'
 
-RSpec.describe 'VBA Documents Metadata Endpoint', type: :request do
+RSpec.describe VBADocuments::MetadataController, type: :request do
   describe '#get /metadata' do
     it 'returns metadata JSON' do
       get '/services/vba_documents/metadata'

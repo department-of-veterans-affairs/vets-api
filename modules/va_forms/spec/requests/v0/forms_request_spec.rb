@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VA Forms', type: :request do
+RSpec.describe VAForms::V0::FormsController, type: :request do
   include SchemaMatchers
 
   let!(:form) do

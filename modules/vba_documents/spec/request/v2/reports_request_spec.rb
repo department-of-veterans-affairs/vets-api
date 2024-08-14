@@ -5,7 +5,7 @@ require_relative '../../support/vba_document_fixtures'
 require 'vba_documents/pdf_inspector'
 require_relative '../../../app/serializers/vba_documents/upload_serializer'
 
-RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
+RSpec.describe VBADocuments::V2::ReportsController, type: :request do
   include VBADocuments::Fixtures
   load('./modules/vba_documents/config/routes.rb')
 

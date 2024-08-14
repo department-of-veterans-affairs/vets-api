@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../../support/authentication'
 
-RSpec.describe '/accredited_representative_portal/v0/representative_user', type: :request do
+RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeUsersController, type: :request do
   describe '#show' do
     context 'when authenticated' do
       let(:arp_client_id) { 'arp' }

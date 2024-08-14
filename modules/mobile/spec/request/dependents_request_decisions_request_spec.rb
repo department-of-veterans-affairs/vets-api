@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'dependents request decisions', type: :request do
+RSpec.describe Mobile::V0::DependentsRequestDecisionsController, type: :request do
   include JsonSchemaMatchers
 
   describe 'GET /dependents/request-decisions' do
