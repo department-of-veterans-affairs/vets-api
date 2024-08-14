@@ -2,6 +2,7 @@
 
 require 'claims_api/bgs_claim_status_mapper'
 require 'claims_api/v2/mock_documents_service'
+require 'claims_api/v2/claims/claim_validator'
 
 module ClaimsApi
   module V2
@@ -28,7 +29,7 @@ module ClaimsApi
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 
-          validate_id_with_icn(bgs_claim, lighthouse_claim, params[:veteranId])
+          validate_id_with_icn!(bgs_claim, lighthouse_claim, params[:veteranId])
 
           output = generate_show_output(bgs_claim:, lighthouse_claim:)
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :show, root: :data }
@@ -46,28 +47,8 @@ module ClaimsApi
           ClaimsApi::BGSClaimStatusMapper.new
         end
 
-        def validate_id_with_icn(bgs_claim, lighthouse_claim, request_icn)
-          if bgs_claim&.dig(:benefit_claim_details_dto).present?
-            clm_prtcpnt_vet_id = bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_vet_id)
-            clm_prtcpnt_clmnt_id = bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_clmant_id)
-          end
-
-          veteran_icn = if lighthouse_claim.present? && lighthouse_claim['veteran_icn'].present?
-                          lighthouse_claim['veteran_icn']
-                        end
-
-          if clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id) && veteran_icn != request_icn
-            raise ::Common::Exceptions::ResourceNotFound.new(
-              detail: 'Invalid claim ID for the veteran identified.'
-            )
-          end
-        end
-
-        def clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id)
-          return true if clm_prtcpnt_vet_id.nil? || clm_prtcpnt_clmnt_id.nil?
-
-          # if either of these is false then we have a match and can show the record
-          clm_prtcpnt_vet_id != target_veteran.participant_id && clm_prtcpnt_clmnt_id != target_veteran.participant_id
+        def validate_id_with_icn!(bgs_claim, lighthouse_claim, veteran_id)
+          ClaimValidator.new(bgs_claim, lighthouse_claim, veteran_id, target_veteran).validate!
         end
 
         def generate_show_output(bgs_claim:, lighthouse_claim:) # rubocop:disable Metrics/MethodLength
