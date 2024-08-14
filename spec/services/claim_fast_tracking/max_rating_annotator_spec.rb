@@ -214,4 +214,28 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       it { is_expected.to eq(:primary_max_rating) }
     end
   end
+
+  describe 'eligible_for_request?' do
+    subject { described_class.eligible_for_request?(rated_disability) }
+
+    let(:rated_disability) { DisabilityCompensation::ApiProvider::RatedDisability.new(**rd_hash) }
+
+    context 'when rated disability is for an infectious disease' do
+      let(:rd_hash) { { diagnostic_code: 6354 } }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when rated disability is for an excluded digestive condition' do
+      let(:rd_hash) { { diagnostic_code: 7346 } }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when rated disability is for a non-excluded digestive condition' do
+      let(:rd_hash) { { diagnostic_code: 7347 } }
+
+      it { is_expected.to be_truthy }
+    end
+  end
 end
