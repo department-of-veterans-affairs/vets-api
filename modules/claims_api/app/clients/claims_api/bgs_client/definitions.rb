@@ -223,6 +223,37 @@ module ClaimsApi
             )
         end
       end
+
+      ##
+      # VnpPtcpntWebServiceBean
+      #
+      module VnpPtcpntWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpPtcpntWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://ptcpntService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpPtcpntService
+        DEFINITION =
+          Service.new(
+            bean: VnpPtcpntWebServiceBean::DEFINITION,
+            path: 'VnpPtcpntService'
+          )
+
+        module VnpPtcpntCreate
+          DEFINITION =
+            Action.new(
+              service: VnpPtcpntService::DEFINITION,
+              name: 'vnpPtcpntCreate',
+              key: 'return'
+            )
+        end
+      end
     end
   end
 end
