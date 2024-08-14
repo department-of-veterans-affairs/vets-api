@@ -23,10 +23,11 @@ module DecisionReview
         status = response.dig('data', 'attributes', 'status')
         attributes = response.dig('data', 'attributes')
 
-        params = { metadata: attributes.to_json, metadata_updated_at: DateTime.now }
+        timestamp = DateTime.now
+        params = { metadata: attributes.to_json, metadata_updated_at: timestamp }
 
         if SUCCESSFUL_STATUS.include? status
-          params[:delete_date] = DateTime.now + RETENTION_PERIOD
+          params[:delete_date] = timestamp + RETENTION_PERIOD
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
         end
 
