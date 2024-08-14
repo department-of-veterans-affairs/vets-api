@@ -4,8 +4,6 @@ on:
      types: [labeled, unlabeled, synchronize, ready_for_review]
   workflow_run:
     workflows: ["Code Checks"]
-    branches:
-      - '!master'
     types: [completed]
 jobs:
   ready_for_review:
