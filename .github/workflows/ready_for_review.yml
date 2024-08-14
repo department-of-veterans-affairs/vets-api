@@ -3,7 +3,7 @@ on:
   pull_request:
      types: [labeled, unlabeled, synchronize, ready_for_review]
   workflow_run:
-    workflows: ["Code Checks"]
+    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Code Health Report"]
     types: [completed]
 jobs:
   ready_for_review:
