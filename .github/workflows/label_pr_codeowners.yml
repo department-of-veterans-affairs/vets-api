@@ -75,7 +75,7 @@ jobs:
 
       - name: Ommitted Team Comment
         if: |
-          steps.check_ommited_teams.output.ommitted_team == 'true' &&
+          steps.check_ommited_teams.outputs.ommitted_team == 'true' &&
           steps.find_omit_comment.outputs.comment-id == ''
         uses: peter-evans/create-or-update-comment@v4
         with:
