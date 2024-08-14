@@ -642,7 +642,7 @@ GEM
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     mini_portile2 (2.8.7)
-    minitest (5.24.1)
+    minitest (5.25.0)
     mock_redis (0.44.0)
     msgpack (1.7.2)
     msgpack (1.7.2-java)
@@ -974,7 +974,7 @@ GEM
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
-    shoulda-matchers (6.3.0)
+    shoulda-matchers (6.3.1)
       activesupport (>= 5.2.0)
     shrine (3.6.0)
       content_disposition (~> 1.0)
