@@ -115,7 +115,7 @@ jobs:
           if-no-files-found: ignore
 
   assign-lint-failure-label:
-    if: github.event_name == 'pull_request' && failure()
+    if: failure()
     needs: [linting_and_security]
     runs-on: ubuntu-latest
     permissions: write-all
@@ -131,7 +131,7 @@ jobs:
             lint-failure
 
   remove-lint-failure-label:
-    if: github.event_name == 'pull_request' && success()
+    if: success()
     needs: [linting_and_security]
     runs-on: ubuntu-latest
     permissions: write-all
@@ -146,7 +146,7 @@ jobs:
             lint-failure
 
   assign-test-failure-label:
-    if: github.event_name == 'pull_request' && failure()
+    if: failure()
     needs: [tests]
     runs-on: ubuntu-latest
     permissions: write-all
@@ -170,7 +170,7 @@ jobs:
 
 
   remove-test-failure-label:
-    if: github.event_name == 'pull_request' && success()
+    if: success()
     needs: [tests]
     runs-on: ubuntu-latest
     permissions: write-all
