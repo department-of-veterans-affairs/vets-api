@@ -87,6 +87,7 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
 
             temp
           end
+          let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
           before do |example|
             allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
@@ -98,6 +99,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
               .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
             allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
               .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+            allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+            allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(nil)
 
             mock_acg(scopes) do
               submit_request(example.metadata)
@@ -674,7 +677,7 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
             mock_acg(scopes) do
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
               allow(::Veteran::Service::Representative).to receive(:for_user).and_return(true)
-              expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
+              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').exactly(3).times
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
               expect_any_instance_of(
                 ClaimsApi::V1::Forms::PowerOfAttorneyController
@@ -742,7 +745,7 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
             mock_acg(scopes) do
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
               allow(::Veteran::Service::Representative).to receive(:for_user).and_return(true)
-              expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new(nil))
+              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return(nil)
               submit_request(example.metadata)
             end
           end

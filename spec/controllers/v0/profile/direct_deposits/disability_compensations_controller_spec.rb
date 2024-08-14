@@ -388,7 +388,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
       end
 
       it 'returns a potential fraud error' do
-        VCR.use_cassette('lighthouse/direct_deposit/update/400_potential_fraud') do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_potential_fraud_GUIE50041') do
           expect { put(:update, params:) }
             .to trigger_statsd_increment('cnp.payment.potential.fraud')
         end

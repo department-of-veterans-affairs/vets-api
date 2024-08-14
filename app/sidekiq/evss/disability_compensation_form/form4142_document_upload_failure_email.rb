@@ -13,6 +13,7 @@ module EVSS
       sidekiq_retries_exhausted do |msg, _ex|
         job_id = msg['jid']
         error_class = msg['error_class']
+        error_message = msg['error_message']
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
 
@@ -34,7 +35,13 @@ module EVSS
 
         Rails.logger.warn(
           'Form4142DocumentUploadFailureEmail retries exhausted',
-          { job_id:, timestamp:, form526_submission_id:, error_class: }
+          {
+            job_id:,
+            timestamp:,
+            form526_submission_id:,
+            error_class:,
+            error_message:
+          }
         )
 
         StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
@@ -43,9 +50,11 @@ module EVSS
           'Failure in Form4142DocumentUploadFailureEmail#sidekiq_retries_exhausted',
           {
             job_id:,
+            messaged_content: e.message,
             submission_id: form526_submission_id,
             pre_exhaustion_failure: {
-              error_class:
+              error_class:,
+              error_message:
             }
           }
         )

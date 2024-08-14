@@ -14,9 +14,9 @@ module IvcChampva
         attachments.each_with_index do |attachment, index|
           new_file_name =
             if attachment.include?('_additional_')
-              "#{uuid}_#{File.basename(attachment, '.*')}#{index + 1}.pdf"
+              "#{uuid}_#{File.basename(attachment, '.*')}.pdf"
             else
-              "#{uuid}_#{form_id}-tmp#{index + 1}.pdf"
+              "#{uuid}_#{form_id}_supporting_doc-#{index + 1}.pdf"
             end
 
           new_file_path = File.join(File.dirname(attachment), new_file_name)

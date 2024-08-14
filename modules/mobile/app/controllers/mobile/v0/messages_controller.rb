@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
-require_relative '../concerns/json_api_pagination_links'
-
 module Mobile
   module V0
     class MessagesController < MessagingController
       include Filterable
-      include Mobile::Concerns::JsonApiPaginationLinks
 
       def index
         resource = client.get_folder_messages(@current_user.uuid, params[:folder_id].to_s, use_cache?)
@@ -33,7 +30,9 @@ module Mobile
         user_in_triage_team = user_triage_teams.data.any? { |team| team.name == response.triage_group_name }
 
         meta = response.metadata.merge(user_in_triage_team?: user_in_triage_team)
-        render json: Mobile::V0::MessageSerializer.new(response, { meta: })
+        options = { meta: }
+        options[:include] = [:attachments] if response.attachment
+        render json: Mobile::V0::MessageSerializer.new(response, options)
       end
 
       def create
