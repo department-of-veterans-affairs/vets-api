@@ -215,9 +215,12 @@ module SimpleFormsApi
     # rubocop:enable Metrics/MethodLength
     def handle_attachments(file_path)
       attachments = get_attachments
+      absolute_path_attachments = attachments.map do |attachments|
+        File.expand_path(attachments, Rails.root)
+      end
+
       combined_pdf = CombinePDF.new
       combined_pdf << CombinePDF.load(file_path)
-
       attachment_page_path = 'attachment_page.pdf'
       create_attachment_page(attachment_page_path)
       combined_pdf << CombinePDF.load(attachment_page_path)
