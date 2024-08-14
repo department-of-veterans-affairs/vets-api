@@ -1,0 +1,108 @@
+name: Label Pull Request Reviewers
+on:
+  pull_request:
+    types: [opened, reopened, review_requested, synchronize, ready_for_review]
+
+jobs:
+  label-pr-codeowners:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get PR details
+        id: pr_details
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}/requested_reviewers
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get bot token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+# Add backend comment and label if PR does need backend approval
+
+      - name: Find Backend Team Comment
+        uses: peter-evans/find-comment@v3
+        id: find_backend_comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: "This PR requires approval from backend-review-group. Please add backend-review-group as reviewers (if they're not already listed)."
+
+      - name: Requested Team Check
+        id: check_teams
+        if: |
+            toJSON(github.event.pull_request.requested_teams.*.name)
+            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
+            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
+            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
+        run: |
+          echo "be_approval_required=true" << GITHUB_OUTPUT
+
+      - name: Comment PR - Approval Required
+        if: steps.check_teams.outputs.be_approval_required == 'true' && steps.find_backend_comment.outputs.comment-id == ''
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: "This PR requires approval from backend-review-group. Please add backend-review-group as reviewers (if they're not already listed)."
+
+      - name: Backend Team Label
+        if: |
+          !contains(github.event.pull_request.labels.*.name, 'require-backend-approval') &&
+          ( steps.check_teams.outputs.be_approval_required == 'true' || steps.find_backend_comment.outputs.comment-id != '')
+        uses: actions-ecosystem/action-add-labels@v1
+          with:
+            number: ${{ github.event.pull_request.number }}
+            labels: |
+              require-backend-approval
+
+# Add OMIT comment and label if PR does not need backend approval
+
+      - name: Find Ommitted Team Comment
+        uses: peter-evans/find-comment@v3
+        id: find_omit_comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: Omit backend approval
+
+      - name: Ommitted Teams Check
+        id: check_ommited_teams
+        if: |
+          steps.find_omit_comment.outputs.comment-id == '' &&
+          !contains(toJSON(github.event.pull_request.requested_teams.*.name), '[]') &&
+          (
+            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
+            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
+            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
+          )
+        run: |
+          echo "ommitted_team=true" << GITHUB_OUTPUT
+
+      - name: Ommitted Team Comment
+        if: steps.check_ommited_teams.output.ommitted_team == 'true' && steps.find_omit_comment.outputs.comment-id == ''
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: "Omit backend approval."
+
+      - name: Ommitted Team Label
+        if: |
+          !contains(github.event.pull_request.labels.*.name, 'omit-backend-approval') &&
+          ( steps.check_ommited_teams.output.ommitted_team == 'true' || steps.find_omit_comment.outputs.comment-id != '' )
+        uses: actions-ecosystem/action-add-labels@v1
+          with:
+            number: ${{ github.event.pull_request.number }}
+            labels: |
+              omit-backend-approval
