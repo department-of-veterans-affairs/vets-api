@@ -51,14 +51,6 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: "This PR requires approval from backend-review-group. Please add backend-review-group as reviewers (if they're not already listed)."
 
-      - name: Backend Team Label
-        if: |
-          !contains(github.event.pull_request.labels.*.name, 'require-backend-approval') && steps.check_teams.outputs.be_approval_required == 'true'
-        uses: actions-ecosystem/action-add-labels@v1
-          with:
-            number: ${{ github.event.pull_request.number }}
-            labels: |
-              require-backend-approval
 
 # Add OMIT comment and label if PR does not need backend approval
 
