@@ -36,7 +36,6 @@ jobs:
       - name: Requested Team Check
         id: check_teams
         if: |
-            toJSON(github.event.pull_request.requested_teams.*.name)
             !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
             !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
             !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
