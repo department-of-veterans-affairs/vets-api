@@ -131,7 +131,7 @@ module ClaimsApi
             path: 'TrackedItemService'
           )
 
-        module FindBenefitClaimsStatusByParticipantId
+        module FindTrackedItems
           DEFINITION =
             Action.new(
               service: TrackedItemService::DEFINITION,
