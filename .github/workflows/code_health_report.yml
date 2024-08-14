@@ -9,6 +9,7 @@ on:
       - reopened
 jobs:
   pronto:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -28,7 +29,6 @@ jobs:
 
       - name: Add Failure label
         uses: actions-ecosystem/action-add-labels@v1
-        permissions: write-all
         if:  ${{ failure() }}
         with:
           number: ${{ github.event.pull_request.number }}
@@ -37,7 +37,6 @@ jobs:
 
       - name: Remove Failure label
         uses: actions-ecosystem/action-remove-labels@v1
-        permissions: write-all
         if: ${{ success() }}
         with:
           number: ${{ github.event.pull_request.number }}
