@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-RSpec.describe VAOS::V2::CcEligibilityController, type: :request do
+RSpec.describe VAOS::V2::CCEligibilityController, type: :request do
   include SchemaMatchers
 
   before do
