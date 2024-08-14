@@ -3,7 +3,7 @@
 module Vye
   module BatchTransfer
     class Chunk
-      BLOCK_SIZE = 1_000
+      BLOCK_SIZE = 25_000
 
       include Vye::CloudTransfer
 
