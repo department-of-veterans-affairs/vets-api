@@ -36,8 +36,5 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
         expect(job_status.status).to eq 'pdf_not_found'
       end
     end
-
-
-
   end
 end
