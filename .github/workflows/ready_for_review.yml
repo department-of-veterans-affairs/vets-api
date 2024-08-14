@@ -29,7 +29,8 @@ jobs:
 
       - name: Audit Test Passing Label
         id: audit_passing_labels
-        if: contains(github.event.pull_request.labels.*.name, 'test-passing')
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'test-passing')
         run: |
           echo "ready_for_review=true" >> $GITHUB_OUTPUT
 
