@@ -18,6 +18,14 @@ jobs:
           fetch-depth: 0
       - name: Setup Ruby
         uses: ruby/setup-ruby@1d0e911f615a112e322369596f10ee0b95b010ae
+
+      - name: Add Failure label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            code-health-failure
+
       - name: Setup pronto
         run: gem install pronto pronto-reek faraday-retry
       - name: Run Pronto
@@ -26,14 +34,6 @@ jobs:
           PRONTO_GITHUB_ACCESS_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           OCTOKIT_SILENT: true
         run: pronto run -f github_status github_pr_review -c origin/${{ github.base_ref }}
-
-      - name: Add Failure label
-        uses: actions-ecosystem/action-add-labels@v1
-        if:  ${{ failure() }}
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            code-health-failure
 
       - name: Remove Failure label
         uses: actions-ecosystem/action-remove-labels@v1
