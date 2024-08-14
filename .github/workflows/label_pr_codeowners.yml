@@ -81,16 +81,3 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "Omit backend approval."
-
-      - name: Ommitted Team Label
-        if: |
-          !contains(github.event.pull_request.labels.*.name, 'omit-backend-approval') &&
-          (
-            steps.check_ommited_teams.output.ommitted_team == 'true' ||
-            steps.find_omit_comment.outputs.comment-id != ''
-          )
-        uses: actions-ecosystem/action-add-labels@v1
-          with:
-            number: ${{ github.event.pull_request.number }}
-            labels: |
-              omit-backend-approval
