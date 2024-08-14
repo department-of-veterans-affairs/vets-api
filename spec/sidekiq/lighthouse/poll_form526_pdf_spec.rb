@@ -25,6 +25,19 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
         form526_job_status.reload
         expect(form526_job_status.status).to eq 'pdf_not_found'
       end
+
+      it 'transitions to pdf_not_found status if submission is older than 2 days' do
+        allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim).and_return({"data" => { "attributes" => { "supportingDocuments" => [] } } })
+        form526_submission.update(created_at: 3.days.ago)
+        subject.perform_sync(form526_submission.id)
+        form526_submission.reload
+        job_status = form526_submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')
+        job_status.reload
+        expect(job_status.status).to eq 'pdf_not_found'
+      end
     end
+
+
+
   end
 end

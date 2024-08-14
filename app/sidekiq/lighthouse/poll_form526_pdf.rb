@@ -28,18 +28,10 @@ module Lighthouse
 
     sidekiq_options retry_for: 48.hours
 
-    # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
-    # :nocov:
-    sidekiq_retries_exhausted do |msg, _ex|
-      # log, mark Form526JobStatus for submission as "pdf_not_found"
-
-      job_id = msg['jid']
-      error_class = msg['error_class']
-      error_message = msg['error_message']
+    def update_job_status(form_job_status:, message:, error_class: nil, error_message: nil)
       timestamp = Time.now.utc
-      form526_submission_id = msg['args'].first
-
-      form_job_status = Form526JobStatus.find_by(job_id:)
+      form526_submission_id = form_job_status.form526_submission_id
+      job_id = form_job_status.job_id
       bgjob_errors = form_job_status.bgjob_errors || {}
       new_error = {
         "#{timestamp.to_i}": {
@@ -57,9 +49,23 @@ module Lighthouse
       )
 
       ::Rails.logger.warn(
-        'Poll for Form 526 PDF: Retries exhausted',
+        message,
         { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
       )
+    end
+
+    # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
+    # :nocov:
+    sidekiq_retries_exhausted do |msg, _ex|
+      # log, mark Form526JobStatus for submission as "pdf_not_found"
+
+      job_id = msg['jid']
+      error_class = msg['error_class']
+      error_message = msg['error_message']
+      form_job_status = Form526JobStatus.find_by(job_id:)
+
+      update_job_status(message: 'Poll for Form 526 PDF: Retries exhausted', form_job_status:, error_class:, error_message:)
+
     rescue => e
       log_exception_to_sentry(e)
     end
@@ -98,14 +104,11 @@ module Lighthouse
         else
           # Check the submission.created_at date, if it's more than 2 days old
           # update the job status to pdf_not_found immediately and exit the job
-          unless submission.created_at.between?(Date.current - 2, Date.current)
-            form_job_status.update(
-              status: Form526JobStatus::STATUS[:pdf_not_found],
-              bgjob_errors: bgjob_errors.merge(new_error)
-            )
-            ::Rails.logger.warn(
-              'Poll for form 526 PDF: Submission creation date is over 2 days old. Exiting...'
-            )
+          unless submission.created_at.between?(DateTime.now - 2.days, DateTime.now)
+            form_job_status = submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')
+
+            update_job_status(form_job_status:, message: 'Poll for form 526 PDF: Submission creation date is over 2 days old. Exiting...')
+
             return
           end
           raise StandardError('Poll for form 526 PDF: Keep on retrying!')

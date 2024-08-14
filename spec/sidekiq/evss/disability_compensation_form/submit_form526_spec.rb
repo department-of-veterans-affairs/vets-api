@@ -7,6 +7,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
 
   before do
     Sidekiq::Job.clear_all
+    Flipper.disable(:disability_compensation_production_tester)
     Flipper.disable(:disability_compensation_fail_submission)
   end
 
@@ -30,6 +31,20 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         allow_any_instance_of(Form526Submission).to receive(:prepare_for_evss!).and_return(nil)
         expect { subject.new.perform(submission.id) }.to raise_error NotImplementedError
       end
+    end
+
+    context 'when flag disability_compensation_production_tester or disability_compensation_fail_submission is enabled/disabled' do
+      it 'has no flag set' do
+        allow_any_instance_of(Form526Submission).to receive(:birls_ids_that_havent_been_tried_yet).and_return([])
+        expect_any_instance_of(Form526Submission).to receive(:submit_with_birls_id_that_hasnt_been_tried_yet!)
+        debugger
+        subject.send(:non_retryable_error_handler, submission, StandardError)
+      end
+
+      # it 'has just the disability_compensation_fail_submission flag set' do
+      #   Flipper.enable(:disability_compensation_fail_submission)
+      #   expect { submission.submit_with_birls_id_that_hasnt_been_tried_yet! }.to be_nil
+      # end
     end
 
     context 'when all retries are exhausted' do
