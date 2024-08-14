@@ -31,13 +31,13 @@ module BGS
       send_confirmation_email
       Rails.logger.info('BGS::SubmitForm674Job succeeded!', { user_uuid:, saved_claim_id:, icn: })
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
-    rescue => e
-      handle_filtered_errors!(e:, encrypted_user_struct_hash:, encrypted_vet_info:)
+    # rescue => e
+    #   handle_filtered_errors!(e:, encrypted_user_struct_hash:, encrypted_vet_info:)
 
-      Rails.logger.warn('BGS::SubmitForm674Job received error, retrying...',
-                        { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
-      log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
-      raise
+    #   Rails.logger.warn('BGS::SubmitForm674Job received error, retrying...',
+    #                     { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
+    #   log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
+    #   raise
     end
 
     def handle_filtered_errors!(e:, encrypted_user_struct_hash:, encrypted_vet_info:)
