@@ -219,17 +219,12 @@ module SimpleFormsApi
       absolute_path_attachments = attachments.map do |attachment|
         File.expand_path(attachment, Rails.root)
       end
-      puts 'Absolute path'
-      puts absolute_path_attachments
       combined_pdf = CombinePDF.new
       combined_pdf << CombinePDF.load(file_path)
       attachment_page_path = 'attachment_page.pdf'
       create_attachment_page(attachment_page_path)
       combined_pdf << CombinePDF.load(attachment_page_path)
-
       absolute_path_attachments.each do |attachment|
-        puts 'in loop'
-        puts attachment
         combined_pdf << CombinePDF.load(attachment)
       rescue => e
         Rails.logger.error(
