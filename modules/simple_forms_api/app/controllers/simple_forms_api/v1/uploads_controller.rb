@@ -24,6 +24,7 @@ module SimpleFormsApi
         '40-0247' => 'vba_40_0247',
         '20-10206' => 'vba_20_10206',
         '40-10007' => 'vba_40_10007',
+        '40-10007-integration' => 'vba_40_10007_integration',
         '20-10207' => 'vba_20_10207'
       }.freeze
 
@@ -48,7 +49,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if %w[40-0247 20-10207 40-10007].include?(params[:form_id])
+        if %w[40-0247 20-10207 40-10007 40-10007-integration].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?

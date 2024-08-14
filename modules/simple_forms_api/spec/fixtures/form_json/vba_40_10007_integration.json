@@ -1,0 +1,86 @@
+{
+  "application": {
+    "claimant": {
+      "address": {
+        "street": "321 Street",
+        "city": "Place",
+        "country": "USA",
+        "state": "AL",
+        "postalCode": "22222"
+      },
+      "phoneNumber": "2223334444",
+      "email": "test2@gmail.com",
+      "name": {
+        "first": "Bruce",
+        "last": "Wayne"
+      },
+      "ssn": "111-22-2333",
+      "dateOfBirth": "1990-01-01",
+      "relationshipToVet": "husband"
+    },
+    "currentlyBuriedPersons": [
+      {
+        "name": {
+          "first": "Jane",
+          "last": "Doe"
+        }
+      }
+    ],
+    "hasCurrentlyBuried": "1",
+    "veteran": {
+      "serviceName": {
+        "first": "Test",
+        "middle": "Data",
+        "last": "Person"
+      },
+      "serviceRecords": [
+        {
+          "dateRange": {
+            "from": "1990-01-01"
+          },
+          "serviceBranch": "AR",
+          "highestRank": "GA",
+          "highestRankDescription": "GENERAL OF THE ARMY"
+        }
+      ],
+      "militaryStatus": "S",
+      "ethnicity": "isSpanishHispanicLatino",
+      "race": {
+        "isAmericanIndianOrAlaskanNative": true
+      },
+      "maritalStatus": "Single",
+      "gender": "Female",
+      "currentName": {
+        "first": "John",
+        "last": "Doe"
+      },
+      "ssn": "222-33-2222",
+      "address": {
+        "street": "123 Street",
+        "city": "Place",
+        "country": "USA",
+        "state": "NE",
+        "postalCode": "22222"
+      },
+      "phoneNumber": "1112223333",
+      "email": "test@gmail.com"
+    },
+    "applicant": {
+      "isSponsor": "yes",
+      "mailingAddress": {
+        "street": "123 Street",
+        "city": "Place",
+        "country": "USA",
+        "state": "NE",
+        "postalCode": "22222"
+      },
+      "applicantPhoneNumber": "2223334444",
+      "applicantEmail": "test2@gmail.com",
+      "name": {
+        "first": "John",
+        "last": "Doe"
+      },
+      "applicantRelationshipToClaimant": "Authorized Agent/Rep"
+    }
+  }
+}

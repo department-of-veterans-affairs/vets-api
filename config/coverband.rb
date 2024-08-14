@@ -3,7 +3,7 @@
 # config/coverband.rb NOT in the initializers
 Coverband.configure do |config|
   # Do not use the $redis global variable
-  config.store = Coverband::Adapters::RedisStore.new(Redis.new(url: Settings.redis.app_data.url))
+  config.store = Coverband::Adapters::RedisStore.new(Redis.new(url: 'redis://localhost:6379'))
   config.logger = Rails.logger
 
   # config options false, true. (defaults to false)

@@ -1,0 +1,86 @@
+{
+  "application": {
+    "preneedAttachments": [
+      {
+        "name": "123.jpeg",
+        "confirmation_code": "a-random-uuid",
+        "size": 80364,
+        "isEncrypted": false,
+        "attachmentId": "1"
+      }
+    ],
+    "hasCurrentlyBuried": "2",
+    "veteran": {
+      "serviceRecords": [
+        {
+          "serviceBranch": "AR"
+        }
+      ],
+      "militaryStatus": "A",
+      "ethnicity": "isSpanishHispanicLatino",
+      "race": {
+        "isAmericanIndianOrAlaskanNative": true
+      },
+      "maritalStatus": "Single",
+      "gender": "Female",
+      "cityOfBirth": "Place",
+      "stateOfBirth": "State",
+      "currentName": {
+        "first": "Bruce",
+        "middle": "Batman",
+        "last": "Wayne"
+      },
+      "ssn": "111-22-1111",
+      "dateOfBirth": "1990-01-01",
+      "isDeceased": "no",
+      "address": {
+        "street": "123 Test Street",
+        "city": "Charlotte",
+        "country": "USA",
+        "state": "NC",
+        "postalCode": "28226"
+      },
+      "serviceName": {
+        "first": "Bruce",
+        "middle": "Batman",
+        "last": "Wayne"
+      }
+    },
+    "claimant": {
+      "address": {
+        "street": "123 Test Street",
+        "city": "Charlotte",
+        "country": "USA",
+        "state": "NC",
+        "postalCode": "28226"
+      },
+      "phoneNumber": "1112223333",
+      "email": "Test@gmail.com",
+      "name": {
+        "first": "Bruce",
+        "middle": "Batman",
+        "last": "Wayne"
+      },
+      "ssn": "111-22-1111",
+      "dateOfBirth": "1990-01-01",
+      "relationshipToVet": "veteran"
+    },
+    "applicant": {
+      "applicantRelationshipToClaimant": "Self",
+      "name": {
+        "first": "Bruce",
+        "middle": "Batman",
+        "last": "Wayne"
+      },
+      "mailingAddress": {
+        "street": "123 Test Street",
+        "city": "Charlotte",
+        "country": "USA",
+        "state": "NC",
+        "postalCode": "28226"
+      },
+      "applicantPhoneNumber": "1112223333",
+      "applicantEmail": "Test@gmail.com"
+    }
+  }
+}

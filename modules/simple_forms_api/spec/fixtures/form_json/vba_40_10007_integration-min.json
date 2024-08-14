@@ -1,0 +1,73 @@
+{
+  "application": {
+    "hasCurrentlyBuried": "2",
+    "veteran": {
+      "serviceRecords": [
+        {
+          "serviceBranch": "AR"
+        }
+      ],
+      "militaryStatus": "A",
+      "ethnicity": "isSpanishHispanicLatino",
+      "race": {
+        "isAmericanIndianOrAlaskanNative": true
+      },
+      "maritalStatus": "Single",
+      "gender": "Female",
+      "cityOfBirth": "Charlotte",
+      "stateOfBirth": "NC",
+      "currentName": {
+        "first": "Connor",
+        "last": "Fewin"
+      },
+      "ssn": "999-99-9998",
+      "dateOfBirth": "1990-01-02",
+      "isDeceased": "no",
+      "address": {
+        "street": "123 Street",
+        "city": "Charlotte",
+        "country": "USA",
+        "state": "NE",
+        "postalCode": "28226"
+      },
+      "serviceName": {
+        "first": "Connor",
+        "last": "Fewin"
+      }
+    },
+    "claimant": {
+      "address": {
+        "street": "123 Street",
+        "city": "Charlotte",
+        "country": "USA",
+        "state": "NE",
+        "postalCode": "28226"
+      },
+      "phoneNumber": "1112223333",
+      "email": "test@gmail.com",
+      "name": {
+        "first": "Connor",
+        "last": "Fewin"
+      },
+      "ssn": "999-99-9998",
+      "dateOfBirth": "1990-01-02",
+      "relationshipToVet": "veteran"
+    },
+    "applicant": {
+      "applicantRelationshipToClaimant": "Self",
+      "name": {
+        "first": "Connor",
+        "last": "Fewin"
+      },
+      "mailingAddress": {
+        "street": "123 Street",
+        "city": "Charlotte",
+        "country": "USA",
+        "state": "NE",
+        "postalCode": "28226"
+      },
+      "applicantPhoneNumber": "1112223333",
+      "applicantEmail": "test@gmail.com"
+    }
+  }
+}
