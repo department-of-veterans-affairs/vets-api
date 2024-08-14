@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VBADocuments::Docs:V1::ApiController, type: :request do
+RSpec.describe VBADocuments::Docs::V1::ApiController, type: :request do
   describe '#get /docs/v1/api' do
     it 'returns swagger JSON' do
       get '/services/vba_documents/docs/v1/api'
