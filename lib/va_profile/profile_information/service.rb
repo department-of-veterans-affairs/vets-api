@@ -31,7 +31,6 @@ module VAProfile
         work_phone: 'Work phone number'
       }.freeze
 
-
       def get_person
         with_monitoring do
           vet360_id_present!
@@ -94,7 +93,7 @@ module VAProfile
           raw_response = perform(:get, model.transaction_status_path(@user, transaction_id))
           VAProfile::Stats.increment_transaction_results(raw_response)
           transaction_status = model.transaction_response_class.from(raw_response, @user)
-          return transaction_status unless model.send_change_notifcations?
+          return transaction_status unless model.send_change_notifications?
 
           send_change_notifications(transaction_status)
           return response
@@ -141,6 +140,7 @@ module VAProfile
         transaction = transaction_status.transaction
         transaction_id = transaction.id
         return if !transaction.completed_success? || TransactionNotification.find(transaction_id).present?
+
         email_transaction = transaction_status.try(:new_email).present?
         notify_email = email_transaction ? old_email(transaction_id) : old_email
         return if notify_email.nil?

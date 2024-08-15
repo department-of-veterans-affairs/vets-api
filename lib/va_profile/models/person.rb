@@ -72,7 +72,7 @@ module VAProfile
         "status/#{transaction_id}"
       end
 
-      def self.send_change_notifcations?
+      def self.send_change_notifications?
         false
       end
 

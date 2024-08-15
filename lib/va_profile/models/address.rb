@@ -106,18 +106,8 @@ module VAProfile
         "#{user.vet360_id}/addresses/status/#{transaction_id}"
       end
 
-      def self.send_change_notifcations?
+      def self.send_change_notifications?
         true
-      end
-
-      def contact_info_attr
-        'address'
-      end
-
-      def self.contact_info_attr(record)
-        return 'residential' if record.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
-
-        'mailing'
       end
 
       def contact_info_attr(contact_info: false)
