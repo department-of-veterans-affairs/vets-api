@@ -26,12 +26,13 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_21_0966.json',
     'vba_20_10206.json',
     'vba_40_10007.json',
+    'vba_40_10007_integration.json',
     'vba_20_10207-veteran.json',
     'vba_20_10207-non-veteran.json'
   ]
 
   authenticated_forms = forms - %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
-                                   vba_40_10007.json]
+                                   vba_40_10007.json vba_40_10007_integration.json]
 
   describe '#submit' do
     context 'going to Lighthouse Benefits Intake API' do
@@ -248,6 +249,18 @@ RSpec.describe 'Forms uploader', type: :request do
         it 'appends the attachments to the 40-10007 PDF' do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                          'vba_40_10007_with_supporting_document.json')
+          pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
+          data = JSON.parse(fixture_path.read)
+          attachment = double
+          allow(attachment).to receive(:to_pdf).and_return(pdf_path)
+          expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
+          post '/simple_forms_api/v1/simple_forms', params: data
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'appends the attachments to the 40-10007-integration PDF' do
+          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                         'vba_40_10007_integration_with_supporting_document.json')
           pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
           data = JSON.parse(fixture_path.read)
           attachment = double
