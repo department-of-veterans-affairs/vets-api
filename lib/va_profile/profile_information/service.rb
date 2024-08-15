@@ -82,6 +82,7 @@ module VAProfile
 
           # Create OldEmail to send notification to user's previous email
           OldEmail.create(transaction_id: transaction.id, email: old_email)
+
         end
       rescue => e
         handle_error(e)
@@ -129,6 +130,7 @@ module VAProfile
         OldEmail.find(transaction_id).try(:email)
       end
 
+
       # create_or_update cannot determine if record exists
       # Reassign :update to either :put or :post
 
@@ -158,6 +160,9 @@ module VAProfile
       def notify_email_job(notify_email, personalisation)
         VANotifyEmailJob.perform_async(notify_email, CONTACT_INFO_CHANGE_TEMPLATE,
                                        get_email_personalisation(personalisation))
+      end
+      def get_email_personalisation(type)
+        { 'contact_info' => EMAIL_PERSONALISATIONS[type] }
       end
     end
   end
