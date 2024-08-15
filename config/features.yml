@@ -812,6 +812,10 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
     enable_in_development: true
+  mhv_secure_messaging_filter_accordion:
+    actor_type: user
+    description: Enables/disables Secure Messaging Filter Accordion re-design updates on VA.gov
+    enable_in_development: true
   mhv_secure_messaging_remove_lefthand_nav:
     actor_type: user
     description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
