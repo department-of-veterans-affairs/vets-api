@@ -97,6 +97,8 @@ module ClaimsApi
           sponsor = build_target_veteran(veteran_id: icn, loa: { current: 3, highest: 3 })
           @file_number = sponsor&.birls_id || sponsor&.mpi&.birls_id
           if @file_number.nil?
+            claims_v2_logging('missing_file_number',
+                              message: 'missing_file_number on request in v2 application controller.')
             raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
