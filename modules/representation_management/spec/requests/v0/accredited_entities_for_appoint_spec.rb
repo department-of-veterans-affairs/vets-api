@@ -18,7 +18,7 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppointContro
     end
 
     context 'when the query parameter is an empty string' do
-      it 'returns an empty list' do
+      it 'returns an empty array' do
         get path, params: { query: '' }
 
         parsed_response = JSON.parse(response.body)
@@ -27,7 +27,7 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppointContro
     end
 
     context 'when the query parameter is not present' do
-      it 'returns an empty list' do
+      it 'returns an empty array' do
         get path
 
         parsed_response = JSON.parse(response.body)
@@ -43,7 +43,7 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppointContro
   end
 
   context 'when the search is valid' do
-    it 'returns a list of individuals and organizations' do
+    it 'returns a array of individuals and organizations' do
       create(:accredited_individual, full_name: 'Bob Law')
       create(:accredited_individual, full_name: 'Bob Smith')
       create(:accredited_organization, name: 'Bob Law Firm')
@@ -58,7 +58,7 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppointContro
       expect(parsed_response[3]['data']['attributes']['name']).to eq('Bob Smith Firm')
     end
 
-    it 'returns a mixed list of individuals and organizations in Levenshtein order' do
+    it 'returns a mixed array of individuals and organizations in Levenshtein order' do
       create(:accredited_individual, full_name: 'aaaa')
       create(:accredited_individual, full_name: 'aaaab')
       create(:accredited_individual, full_name: 'aaaabc')
