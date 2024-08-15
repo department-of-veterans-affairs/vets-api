@@ -33,10 +33,10 @@ module Lighthouse
     #
     # @return [UUID] benefits intake upload uuid
     #
-    def perform(saved_claim_id, user_account_id = nil)
+    def perform(saved_claim_id, user_account_uuid = nil)
       return unless Flipper.enabled?(:pension_income_and_assets_clarification)
 
-      init(saved_claim_id, user_account_id)
+      init(saved_claim_id, user_account_uuid)
 
       # generate and validate claim pdf documents
       @form_path = process_document(@claim.to_pdf)
@@ -64,10 +64,10 @@ module Lighthouse
     ##
     # Instantiate instance variables for _this_ job
     #
-    def init(saved_claim_id, user_account_id)
+    def init(saved_claim_id, user_account_uuid)
       @ia_monitor = IncomeAndAssets::Submissions::Monitor.new
 
-      @user_account_uuid = user_account_id
+      @user_account_uuid = user_account_uuid
       @user_account = UserAccount.find(@user_account_uuid) if @user_account_uuid.present?
       @claim = SavedClaim::IncomeAndAssets.find(saved_claim_id)
       raise IncomeAndAssetsIntakeError, "Unable to find SavedClaim::IncomeAndAssets #{saved_claim_id}" unless @claim

@@ -17,7 +17,7 @@ module V0
       SavedClaim::IncomeAndAssets
     end
 
-    # GET serialized pension form data
+    # GET serialized 0969 income and assets form data
     def show
       claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
       render json: SavedClaimSerializer.new(claim)
@@ -71,7 +71,7 @@ module V0
     # `noop` if in_progress_form is `blank?`
     #
     # @param in_progress_form [InProgressForm]
-    # @param claim [Pensions::SavedClaim]
+    # @param claim [SavedClaim::IncomeAndAssets]
     #
     def log_validation_error_to_metadata(in_progress_form, claim)
       return if in_progress_form.blank?
@@ -84,7 +84,7 @@ module V0
     ##
     # retreive a monitor for tracking
     #
-    # @return [IncomeAndAssets::Monitor]
+    # @return [IncomeAndAssets::Claims::Monitor]
     #
     def ia_monitor
       @monitor ||= IncomeAndAssets::Claims::Monitor.new
