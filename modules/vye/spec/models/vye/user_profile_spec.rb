@@ -133,8 +133,12 @@ RSpec.describe Vye::UserProfile, type: :model do
     context 'when the user_profile is not found by ssn' do
       let!(:user) { create(:evss_user, :loa3) }
 
-      it 'increments ssn_miss stat' do
+      it 'increments ssn_miss stat and logs a warning' do
         expect(StatsD).to receive(:increment).with('vye.user_profile.ssn_miss')
+
+        expect(Rails.logger)
+          .to receive(:warn)
+          .with(/could not find by ICN or SSN/)
 
         u = described_class.find_and_update_icn(user:)
 

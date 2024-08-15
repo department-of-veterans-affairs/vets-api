@@ -8,6 +8,7 @@ class Vye::UserProfile < ApplicationRecord
       icn_miss: "#{STATSD_PREFIX}.icn_miss",
       ssn_hit: "#{STATSD_PREFIX}.ssn_hit",
       ssn_miss: "#{STATSD_PREFIX}.ssn_miss",
+      icn_and_ssn_miss: "#{STATSD_PREFIX}.icn_and_ssn_miss",
       active_user_info_hit: "#{STATSD_PREFIX}.active_user_info_hit",
       active_user_info_miss: "#{STATSD_PREFIX}.active_user_info_miss"
     }.freeze
@@ -94,6 +95,7 @@ class Vye::UserProfile < ApplicationRecord
     end
 
     user_profile = with_assos.find_from_digested_ssn(user.ssn)
+    byebug
     if user_profile
       user_profile.update!(icn: user.icn)
       StatsD.increment(STATSD_NAMES[:ssn_hit])
@@ -104,6 +106,8 @@ class Vye::UserProfile < ApplicationRecord
     else
       StatsD.increment(STATSD_NAMES[:ssn_miss])
     end
+
+    Rails.logger.warn "#{name}: The user(#{user&.user_account&.id}) in session could not find by ICN or SSN."
 
     nil
   end
