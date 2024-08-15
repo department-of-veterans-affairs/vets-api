@@ -19,10 +19,19 @@ module SimpleFormsApi
 
     def generate(current_loa = nil)
       template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
-      generated_form_path = "tmp/#{name}-tmp.pdf"
-      stamped_template_path = "tmp/#{name}-stamped.pdf"
+      generated_form_path = Rails.root.join("tmp/#{name}-tmp.pdf").to_s
+      stamped_template_path = Rails.root.join("tmp/#{name}-stamped.pdf").to_s
       pdftk = PdfForms.new(Settings.binaries.pdftk)
-      FileUtils.copy(template_form_path, stamped_template_path)
+
+      # Tempfile workaround inspired by this:
+      #   https://github.com/actions/runner-images/issues/4443#issuecomment-965391736
+      tempfile = Tempfile.new(['', '.pdf'], Rails.root.join('tmp')).tap do |tmpfile|
+        IO.copy_stream(template_form_path, tmpfile)
+        tmpfile.close
+      end
+      FileUtils.touch(tempfile)
+      FileUtils.copy_file(tempfile.path, stamped_template_path)
+
       if File.exist? stamped_template_path
         PdfStamper.stamp_pdf(stamped_template_path, form, current_loa)
         pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)

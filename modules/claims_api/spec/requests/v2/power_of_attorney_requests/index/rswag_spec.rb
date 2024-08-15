@@ -44,14 +44,15 @@ describe 'PowerOfAttorney', metadata do
           ],
           'decision' => {
             'statuses' => %w[
-              Accepted
-              Declined
+              none
+              accepting
+              declining
             ]
           }
         },
         'page' => {
           'number' => 2,
-          'size' => 5
+          'size' => 3
         },
         'sort' => {
           'field' => 'createdAt',
@@ -71,7 +72,7 @@ describe 'PowerOfAttorney', metadata do
       response '200', 'Search results' do
         schema JSON.load_file(File.expand_path('rswag/200.json', __dir__))
 
-        let(:query) { query_schema[:example] }
+        let(:query) { query_example }
 
         before do |example|
           mock_ccg(scopes) do

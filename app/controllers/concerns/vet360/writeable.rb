@@ -22,6 +22,10 @@ module Vet360
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
       record = build_record(type, params)
       validate!(record)
+      if Flipper.enabled?(:va_profile_information_v3_service, @current_user) && http_verb == ('update')
+        http_verb = build_http_verb(record)
+      end
+
       response = write_valid_record!(http_verb, type, record)
       render_new_transaction!(type, response)
     end
@@ -65,12 +69,20 @@ module Vet360
       end
     end
 
+    def build_http_verb(record)
+      contact_info = VAProfileRedis::ContactInformation.for_user(@current_user)
+      attr = record.contact_info_attr(contact_info: true)
+      raise "invalid #{record.model} VAProfile::ProfileInformation" if attr.nil?
+
+      record.id = contact_info.public_send(attr)&.id
+      record.id.present? ? :put : :post
+    end
+
     def render_new_transaction!(type, response)
       transaction = "AsyncTransaction::VAProfile::#{type.capitalize}Transaction".constantize.start(
         @current_user, response
       )
-
-      render json: transaction, serializer: AsyncTransaction::BaseSerializer
+      render json: AsyncTransaction::BaseSerializer.new(transaction).serializable_hash
     end
 
     def add_effective_end_date(params)

@@ -98,7 +98,7 @@ module VAProfile
         @address_pou == VAProfile::Models::Address::CORRESPONDENCE
       end
 
-      def self.transaction_response_class
+      def transaction_response_class
         VAProfile::ProfileInformation::AddressTransactionResponse
       end
 
@@ -118,6 +118,13 @@ module VAProfile
         return 'residential' if record.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
 
         'mailing'
+      end
+
+      def contact_info_attr(contact_info: false)
+        return 'address' if contact_info == false
+        return 'residential_address' if address_pou == VAProfile::Models::BaseAddress::RESIDENCE
+
+        'mailing_address'
       end
     end
   end

@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'support/mr_client_helpers'
 require 'medical_records/client'
+require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
 
 RSpec.describe 'Medical Records Integration', type: :request do
@@ -15,6 +16,7 @@ RSpec.describe 'Medical Records Integration', type: :request do
 
   before do
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
+    allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
   end
 

@@ -31,53 +31,51 @@ module VAProfile
         work_phone: 'Work phone number'
       }.freeze
 
-      # def get_response(type)
-      #   with_monitoring do
-      #     icn_with_aaid_present!
-      #     model = "VAProfile::Models::#{type.capitalize}".constantize
-      #     raw_response = perform(:post, path, { bios: [{ bioPath: 'bio' }] })
-      #     response = model.response_class(raw_response)
-      #     Sentry.set_extras(response.debug_data) unless response.ok?
-      #     response
-      #   end
-      # rescue Common::Client::Errors::ClientError => e
-      #   if e.status == 404
-      #     log_exception_to_sentry(
-      #       e,
-      #       { vet360_id: @user.vet360_id },
-      #       { va_profile: :person_not_found },
-      #       :warning
-      #     )
-      #     return PersonResponse.new(404, person: nil)
 
-      #   elsif e.status >= 400 && e.status < 500
-      #     return PersonResponse.new(e.status, person: nil)
-      #   end
-      #   handle_error(e)
-      # rescue => e
-      #   handle_error(e)
-      # end
+      def get_person
+        with_monitoring do
+          vet360_id_present!
+          raw_response = perform(:get, @user.vet360_id)
+          PersonResponse.from(raw_response)
+        end
+      rescue Common::Client::Errors::ClientError => e
+        if e.status == 404
+          log_exception_to_sentry(
+            e,
+            { vet360_id: @user.vet360_id },
+            { va_profile: :person_not_found },
+            :warning
+          )
 
-      # def self.get_person(vet360_id)
-      #   stub_user = OpenStruct.new(vet360_id:)
-      #   new(stub_user).get_response('person')
-      # end
+          return PersonResponse.new(404, person: nil)
+        elsif e.status >= 400 && e.status < 500
+          return PersonResponse.new(e.status, person: nil)
+        end
 
-      # def submit(params)
-      #   config.submit(path(@user.edipi), params)
-      # end
+        handle_error(e)
+      rescue => e
+        handle_error(e)
+      end
 
-      # Record is not defined when requesting an #update
-      # Determine if the record needs to be created or updated with reassign_http_verb
+      def self.get_person(vet360_id)
+        stub_user = OpenStruct.new(vet360_id:)
+        new(stub_user).get_person
+      end
+
+      def submit(params)
+        config.submit(path(@user.edipi), params)
+      end
+
       # Ensure http_verb is a symbol for the response request
       def create_or_update_info(http_verb, record)
         with_monitoring do
           icn_with_aaid_present!
-          model = record.class
-          http_verb = http_verb.to_sym == :update ? reassign_http_verb(record) : http_verb.to_sym
+          http_verb = http_verb.to_sym
           update_path = record.try(:permission_type).present? ? 'permissions' : record.contact_info_attr.pluralize
           raw_response = perform(http_verb, update_path, record.in_json)
-          response = model.transaction_response_class.from(raw_response)
+
+          response = record.transaction_response_class.from(raw_response)
+
           return response unless http_verb == :put && record.contact_info_attr == 'email' && old_email.present?
 
           transaction = response.transaction
@@ -99,7 +97,7 @@ module VAProfile
           return transaction_status unless model.send_change_notifcations?
 
           send_change_notifications(transaction_status)
-          transaction_status
+          return response
         end
       rescue => e
         handle_error(e)
@@ -118,6 +116,10 @@ module VAProfile
         raise 'User does not have a icn' if icn_with_aaid.blank?
       end
 
+      def vet360_id_present!
+        raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
+      end
+
       def path
         "#{OID}/#{ERB::Util.url_encode(icn_with_aaid)}"
       end
@@ -130,14 +132,6 @@ module VAProfile
 
       # create_or_update cannot determine if record exists
       # Reassign :update to either :put or :post
-      def reassign_http_verb(record)
-        contact_info = VAProfileRedis::ContactInformation.for_user(@user)
-        attr = record.contact_info_attr
-        raise "invalid #{record.model} VAProfile::ProfileInformation" if attr.nil?
-
-        record.id = contact_info.public_send(attr)&.id
-        record.id.present? ? :put : :post
-      end
 
       def get_email_personalisation(type)
         { 'contact_info' => EMAIL_PERSONALISATIONS[type] }

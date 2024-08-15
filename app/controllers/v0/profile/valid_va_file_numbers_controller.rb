@@ -9,10 +9,8 @@ module V0
       def show
         response = BGS::People::Request.new.find_person_by_participant_id(user: current_user)
 
-        render(
-          json: valid_va_file_number_data(response),
-          serializer: ValidVAFileNumberSerializer
-        )
+        valid_file_number = valid_va_file_number_data(response)
+        render json: ValidVAFileNumberSerializer.new(valid_file_number)
       end
 
       private

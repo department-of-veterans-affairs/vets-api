@@ -59,7 +59,6 @@ module EVSS
 
         # if no more unused birls to attempt submit with, give up, let vet know
         begin
-          submission.fail_primary_delivery!
           notify_enabled = Flipper.enabled?(:disability_compensation_pif_fail_notification)
           if submission && next_birls_jid.nil? && msg['error_message'] == 'PIF in use' && notify_enabled
             first_name = submission.get_first_name&.capitalize || 'Sir or Madam'
@@ -83,6 +82,17 @@ module EVSS
 
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
+
+        if Flipper.enabled?(:disability_compensation_fail_submission,
+                            OpenStruct.new({ flipper_id: submission.user_uuid }))
+          with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
+            Rails.logger.info("disability_compensation_fail_submission enabled for submission #{submission.id}")
+            throw StandardError
+          rescue => e
+            handle_errors(submission, e)
+            return
+          end
+        end
 
         # This instantiates the service as defined by the inheriting object
         # TODO: this meaningless variable assignment is required for the specs to pass, which
@@ -139,7 +149,12 @@ module EVSS
             handle_errors(submission, e)
           end
 
-          send_post_evss_notifications(submission) if send_notifications
+          if Flipper.enabled?(:disability_compensation_production_tester,
+                              OpenStruct.new({ flipper_id: submission.user_uuid }))
+            Rails.logger.info("send_post_evss_notifications call skipped for submission #{submission.id}")
+          elsif send_notifications
+            send_post_evss_notifications(submission)
+          end
         end
       end
 
@@ -151,7 +166,6 @@ module EVSS
 
       def response_handler(response)
         submission.submitted_claim_id = response.claim_id
-        submission.deliver_to_primary!
         submission.save
       end
 
@@ -172,7 +186,6 @@ module EVSS
         # retry submitting the form for specific upstream errors
         retry_form526_error_handler!(submission, e)
       rescue => e
-        submission.fail_primary_delivery!
         non_retryable_error_handler(submission, e)
       end
 
@@ -185,10 +198,15 @@ module EVSS
       def non_retryable_error_handler(submission, error)
         # update JobStatus, log and metrics in JobStatus#non_retryable_error_handler
         super(error)
-        submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
-          silence_errors_and_log_to_sentry: true,
-          extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }
-        )
+        unless Flipper.enabled?(:disability_compensation_production_tester,
+                                OpenStruct.new({ flipper_id: submission.user_uuid })) ||
+               Flipper.enabled?(:disability_compensation_fail_submission,
+                                OpenStruct.new({ flipper_id: submission.user_uuid }))
+          submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
+            silence_errors_and_log_to_sentry: true,
+            extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }
+          )
+        end
       end
 
       def send_rrd_alert(submission, error, subtitle)

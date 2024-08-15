@@ -5,35 +5,39 @@ module Vye
     module EgressFiles
       BDN_TIMEZONE = 'Central Time (US & Canada)'
 
+      private_constant :BDN_TIMEZONE
+
+      include Vye::CloudTransfer
+
       extend self
 
       private
 
-      def now_in_bdn_timezone
-        Time.current.in_time_zone(BDN_TIMEZONE)
-      end
+      def now_in_bdn_timezone = Time.current.in_time_zone(BDN_TIMEZONE)
 
-      def prefixed_dated(prefix)
-        "#{prefix}#{now_in_bdn_timezone.strftime('%Y%m%d%H%M%S')}.txt"
-      end
+      def prefixed_dated(prefix) = "#{prefix}#{now_in_bdn_timezone.strftime('%Y%m%d%H%M%S')}.txt"
+
+      # Change of addresses send to Newman everyday.
+      def address_changes_filename = prefixed_dated('CHGADD')
+
+      # Change of direct deposit send to Newman everyday.
+      def direct_deposit_filename = prefixed_dated('DirDep')
+
+      # enrollment verification sent to BDN everyday.
+      def verification_filename = "vawave#{now_in_bdn_timezone.yday}"
 
       public
 
-      # Change of addresses send to Newman every night.
-      def address_changes_filename
-        prefixed_dated 'CHGADD'
+      def address_changes_upload
+        upload_report(address_changes_filename, &AddressChange.method(:write_report))
       end
 
-      # Change of direct deposit send to Newman every night.
-      def direct_deposit_filename
-        prefixed_dated 'DirDep'
+      def direct_deposit_upload
+        upload_report(direct_deposit_filename, &DirectDepositChange.method(:write_report))
       end
 
-      # Verification of no change in enrollment sent to BDN every night.
-      # Some mainframes work with Julian dates. The BDN services expects this file
-      # to have Julian dates as part of the filename.
-      def no_change_enrollment_filename
-        "vawave#{now_in_bdn_timezone.yday}"
+      def verification_upload
+        upload_report(verification_filename, &Verification.method(:write_report))
       end
     end
   end

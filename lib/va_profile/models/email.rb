@@ -65,7 +65,7 @@ module VAProfile
         )
       end
 
-      def self.transaction_response_class
+      def transaction_response_class
         VAProfile::ProfileInformation::EmailTransactionResponse
       end
 
@@ -76,8 +76,7 @@ module VAProfile
       def self.send_change_notifcations?
         true
       end
-
-      def contact_info_attr
+      def contact_info_attr(*)
         'email'
       end
     end

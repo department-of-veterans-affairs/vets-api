@@ -83,4 +83,35 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       get :show
     end
   end
+
+  context 'when Breakers::OutageException is raised' do
+    let(:mock_service) do
+      instance_double(
+        Breakers::Service,
+        name: 'Test Service'
+      )
+    end
+    let(:mock_outage) do
+      instance_double(
+        Breakers::Outage,
+        start_time: Time.zone.now,
+        end_time: nil,
+        service: mock_service
+      )
+    end
+
+    let(:mock_exception) { Breakers::OutageException.new(mock_outage, mock_service) }
+
+    before do
+      allow_any_instance_of(BenefitsEducation::Configuration).to receive(:get).and_raise(mock_exception)
+    end
+
+    it 'returns a 503 status code' do
+      get :show
+      expect(response).to have_http_status(:service_unavailable)
+
+      json = JSON.parse(response.body)
+      expect(json['errors'][0]['status']).to eq('503')
+    end
+  end
 end

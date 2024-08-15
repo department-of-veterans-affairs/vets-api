@@ -80,6 +80,12 @@ RSpec.describe 'clinics', type: :request do
                                                                          headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('clinic_slot')
+          slot = JSON.parse(response.body)['data'][1]
+          expect(slot['id']).to eq('3230323131303236323133303A323032313130323632323030')
+          expect(slot['type']).to eq('clinic_slot')
+          expect(slot['attributes']['locationId']).not_to be_nil
+          expect(slot['attributes']['practitionerName']).not_to be_nil
+          expect(slot['attributes']['clinicIen']).not_to be_nil
         end
       end
     end
@@ -124,6 +130,7 @@ RSpec.describe 'clinics', type: :request do
               headers: sis_headers
 
           expect(response).to have_http_status(:ok)
+
           expect(response.body).to match_json_schema('clinic_slot')
 
           parsed_response = response.parsed_body['data']
@@ -193,6 +200,12 @@ RSpec.describe 'clinics', type: :request do
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to match_json_schema('clinic_slot')
+            slot = JSON.parse(response.body)['data'][1]
+            expect(slot['id']).to eq('3230323131303236323133303A323032313130323632323030')
+            expect(slot['type']).to eq('clinic_slot')
+            expect(slot['attributes']['locationId']).to be_nil
+            expect(slot['attributes']['practitionerName']).to be_nil
+            expect(slot['attributes']['clinicIen']).to be_nil
           end
         end
       end
@@ -209,6 +222,13 @@ RSpec.describe 'clinics', type: :request do
                                                                                                 headers: sis_headers
             expect(response).to have_http_status(:ok)
             expect(response.body).to match_json_schema('clinic_slot')
+
+            slot = JSON.parse(response.body)['data'][1]
+            expect(slot['id']).to eq('3230323131303236323133303A323032313130323632323030')
+            expect(slot['type']).to eq('clinic_slot')
+            expect(slot['attributes']['locationId']).not_to be_nil
+            expect(slot['attributes']['practitionerName']).not_to be_nil
+            expect(slot['attributes']['clinicIen']).not_to be_nil
           end
         end
       end

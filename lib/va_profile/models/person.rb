@@ -21,6 +21,7 @@ module VAProfile
       attribute :vet360_id, String
 
       CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
+
       EMAIL_PERSONALISATIONS = {
         address: 'Address',
         residence_address: 'Home address',
@@ -63,7 +64,7 @@ module VAProfile
         VAProfile::ProfileInformation::PersonResponse
       end
 
-      def self.transaction_response_class
+      def transaction_response_class
         VAProfile::ProfileInformation::PersonTransactionResponse
       end
 
@@ -75,7 +76,7 @@ module VAProfile
         false
       end
 
-      def contact_info_attr
+      def contact_info_attr(*)
         nil
       end
     end

@@ -379,6 +379,15 @@ paths:
       summary: /v1/messaging/folders
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - name: requires_oh_messages
+          in: query
+          description: Count of folder messages includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
   /v1/messaging/folders/{id}:
     get:
       description: Get a secure messaging folder
@@ -405,6 +414,15 @@ paths:
       summary: /v1/messaging/folders/{id}
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - name: requires_oh_messages
+          in: query
+          description: Count of folder messages includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
     put:
       description: Rename an existing folder
       operationId: post_rename_folder
@@ -510,6 +528,15 @@ paths:
             enum:
               - ASC
               - DESC
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health threads if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
@@ -556,6 +583,15 @@ paths:
           schema:
             type: integer
             default: 250
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health messages in search results if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
@@ -1121,6 +1157,15 @@ paths:
           required: false
           schema:
             type: boolean
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
         - $ref: '#/components/parameters/InflectionHeader'
   /v1/messaging/recipients:
     get:
@@ -1208,6 +1253,36 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
       summary: /v1/messaging/threads/{id}/move
+  /v1/messaging/preferences/recipients:
+    post:
+      description: Update recipients `preferredTeam` value
+      operationId: update_triage_team_preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureMessagingUpdateTriageTeamRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              type: string
+              example: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/recipients
   /v1/prescriptions:
     get:
       description: List medications.
@@ -1429,6 +1504,15 @@ components:
           - camel
           - snake
       description: Instructs the API to return camelCase keys rather than snake_case
+    RequiresOHMessages:
+      name: requires_oh_messages
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - '0'
+          - '1'
   schemas:
     Error:
       type: object
@@ -2535,6 +2619,23 @@ components:
             associatedBlockedTriageGroups:
               type: integer
               example: 1
+    SecureMessagingUpdateTriageTeamRequest:
+      type: object
+      properties:
+        updated_triage_teams:
+          type: array
+          items:
+            type: object
+            required:
+              - triage_team_id
+              - preferred_team
+            properties:
+              triage_team_id:
+                type: string
+                description: The ID of the triage team
+              preferred_team:
+                type: boolean
+                description: Indicates if the team is preferred (displayed in contact list if `true`)
     PrescriptionTrackingItem:
       type: object
       properties:

@@ -4,6 +4,8 @@ module Vye
   class DateAttributeSerializer
     def self.load(v)
       Date.parse(v) if v.present?
+    rescue
+      nil
     end
 
     def self.dump(v)

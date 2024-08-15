@@ -16,7 +16,6 @@ logingov:
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://idp.int.identitysandbox.gov
   oauth_public_key: spec/fixtures/logingov/logingov_oauth_pub.pem
-  inherited_proofing_redirect_uri: http://localhost:3000/inherited_proofing/callback
 
 idme:
   client_id: ef7f1237ed3c396e4b4a2b04b608a7b1
@@ -175,6 +174,12 @@ form_10_10cg:
       client_secret: ~
       timeout: 30
       async_timeout: 600
+      auth:
+        mock: false
+        timeout: ~
+        token_url: ~
+        client_id: ~
+        client_secret: ~
   poa:
     s3:
       aws_access_key_id: my-aws-key-id
@@ -225,6 +230,8 @@ edu:
       - vishnhav.ashok@va.gov
       - donna.saunders@va.gov
       - ariana.adili@govcio.com
+      - marelby.hernandez@va.gov
+      - nawar.hussein@va.gov
 
 dependents:
   prefill: true
@@ -275,7 +282,6 @@ vet360:
   health_benefit:
     mock: true
   profile_information:
-    cache_enabled: true
     enabled: true
     timeout: 30
     use_mocks: false
@@ -432,6 +438,10 @@ argocd:
   slack:
     api_key: ~
 
+# Settings for Accredited Rep Management
+acc_rep_management:
+  prefill: true
+
 # Settings for EVSS
 evss:
   prefill: true
@@ -544,10 +554,6 @@ mhv:
     collection_caching_enabled: true
   account:
     mock: false
-  inherited_proofing:
-    base_path: https://mhv-api.example.com
-    app_token: fake-app-token
-    mock: true
   medical_records:
     host: fake-host
     app_token: fake-app-token
@@ -625,6 +631,7 @@ vba_documents:
 
 #Settings for Ask VA Api Module
 ask_va_api:
+  prefill: true
   crm_api:
     auth_url: https://login.microsoftonline.us
     base_url: https://dev.integration.d365.va.gov
@@ -918,7 +925,7 @@ va_mobile:
   ppms_base_url: "https://staff.apps.va.gov"
   mock: false
   key_path: /fake/client/key/path
-  timeout: 55
+  timeout: 25
 
 vetext:
   url: "https://something.fake.va.gov"
@@ -1251,6 +1258,7 @@ virtual_agent:
   webchat_secret_msft: fake_secret
   webchat_secret_nlu: fake_secret
   webchat_pva2_secret: fake_secret
+  webchat_root_bot_secret: fake_secret
   lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
   lighthouse_api_key: fake_api_key
   cxdw_client_secret: fake_secret
@@ -1339,7 +1347,11 @@ vanotify:
     ivc_champva:
       api_key: fake_secret
       template_id:
-        pega_status_update_email_template_id: pega_status_update_email_template_id
+        form_10_10d_email: form_10_10d_email
+        form_10_7959f_1_email: form_10_7959f_1_email
+        form_10_7959f_2_email: form_10_7959f_2_email
+        form_10_7959c_email: form_10_7959c_email
+        form_10_7959a_email: form_10_7959a_email
     health_apps_1010:
       api_key: fake_secret
       template_id:
@@ -1629,6 +1641,12 @@ lgy:
   api_key: ~
   mock_coe: true
 
+lgy_sahsha:
+  base_url: http://www.example.com
+  app_id: ~
+  api_key: ~
+  mock_coe: false
+
 form526_backup:
   enabled: true
   # Can be single or multi, to send 1 payload or many, to central mail
@@ -1754,7 +1772,15 @@ vye:
     r: 8
     p: 1
     length: 16
+  s3:
+    access_key_id: ~
+    secret_access_key: ~
+    region: ~
+    bucket: ~
 
 schema_contract:
   appointments_index: 'modules/vaos/app/schemas/appointments_index.json'
   test_index: 'spec/fixtures/schema_contract/test_schema.json'
+
+form_mock_ae_design_patterns:
+  prefill: true

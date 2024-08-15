@@ -121,9 +121,11 @@ module Form526ClaimFastTrackingConcern
   end
 
   def eligible_for_ep_merge?
+    user = User.find(user_uuid)
+    return true if Flipper.enabled?(:disability_526_ep_merge_multi_contention, user)
     return false unless disabilities.count == 1
 
-    Flipper.enabled?(:disability_526_ep_merge_new_claims, User.find(user_uuid)) ? increase_or_new? : increase_only?
+    Flipper.enabled?(:disability_526_ep_merge_new_claims, user) ? increase_or_new? : increase_only?
   end
 
   def prepare_for_evss!
@@ -400,6 +402,7 @@ module Form526ClaimFastTrackingConcern
     end
   rescue => e
     Rails.logger.error('EP Merge failed open claim review check', backtrace: e.backtrace)
+    Rails.logger.error(e.backtrace.join('\n'))
     true
   end
 

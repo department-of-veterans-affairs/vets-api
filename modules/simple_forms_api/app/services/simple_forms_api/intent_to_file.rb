@@ -4,11 +4,16 @@ require 'lighthouse/benefits_claims/service'
 
 module SimpleFormsApi
   class IntentToFile
-    attr_reader :icn, :params
+    attr_reader :user, :icn, :params
 
-    def initialize(icn, params = {})
-      @icn = icn
+    def initialize(user, params = {})
+      @user = user
+      @icn = user&.icn
       @params = params
+    end
+
+    def use_intent_api?
+      params[:form_number] == '21-0966' && participant_id && icn && params[:preparer_identification] == 'VETERAN'
     end
 
     def submit
@@ -26,18 +31,31 @@ module SimpleFormsApi
         expiration_date = response.dig('data', 'attributes', 'expirationDate')
       end
 
+      user_account_uuid = user.user_account_uuid
+      Rails.logger.info(
+        'Simple forms api - sent to benefits claims api, intent to file create endpoint',
+        { benefit_selections:, confirmation_number:, user_account_uuid: }
+      )
       [confirmation_number, expiration_date]
     end
 
     def existing_intents
-      @existing_intents ||= {
-        'compensation' => existing_compensation_intent,
-        'pension' => existing_pension_intent,
-        'survivor' => existing_survivor_intent
-      }
+      @existing_intents ||= if icn && participant_id
+                              {
+                                'compensation' => existing_compensation_intent,
+                                'pension' => existing_pension_intent,
+                                'survivor' => existing_survivor_intent
+                              }
+                            else
+                              {}
+                            end
     end
 
     private
+
+    def participant_id
+      user&.participant_id
+    end
 
     def benefits_claims_lighthouse_service
       @benefits_claims_lighthouse_service ||= BenefitsClaims::Service.new(icn)

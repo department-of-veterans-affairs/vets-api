@@ -1203,7 +1203,9 @@ describe VAOS::V2::AppointmentsService do
             system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
             value: '500:9876543'
           }
-        ]
+        ],
+        ien: '9876543',
+        station: '500'
       }
     end
 
@@ -1239,7 +1241,10 @@ describe VAOS::V2::AppointmentsService do
   describe '#fetch_avs_and_update_appt_body' do
     let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
     let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
-    let(:appt) { { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] } }
+    let(:appt) do
+      { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }], ien: '12345678',
+        station: '983' }
+    end
     let(:avs_error_message) { 'Error retrieving AVS link' }
 
     context 'when AVS successfully retrieved the AVS link' do
@@ -1342,9 +1347,6 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#add_timezone_offset' do
-    let(:va_booked_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_booked).attributes
-    end
     let(:desired_date) { '2022-09-21T00:00:00+00:00'.to_datetime }
 
     context 'with a date and timezone' do

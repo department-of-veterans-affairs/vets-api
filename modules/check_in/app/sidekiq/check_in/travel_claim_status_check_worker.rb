@@ -2,6 +2,11 @@
 
 module CheckIn
   class TravelClaimStatusCheckWorker < TravelClaimBaseWorker
+    SUCCESSFUL_CLAIM_STATUSES = %w[ApprovedForPayment ClaimPaid ClaimSubmitted
+                                   InManualReview In-Process Saved SubmittedForPayment].freeze
+    FAILED_CLAIM_STATUSES = %w[Appeal ClosedWithNoPayment Denied FiscalRescinded Incomplete OnHold
+                               PartialPayment PaymentCanceled].freeze
+
     def perform(uuid, appointment_date)
       redis_client = TravelClaim::RedisClient.build
       mobile_phone = redis_client.patient_cell_phone(uuid:)
@@ -24,17 +29,18 @@ module CheckIn
     end
 
     def claim_status(opts = {})
-      check_in_session = CheckIn::V2::Session.build(data: { uuid: opts[:uuid] })
+      uuid, appointment_date, facility_type = opts.values_at(:uuid, :appointment_date, :facility_type)
+      check_in_session = CheckIn::V2::Session.build(data: { uuid: })
 
       claim_status_resp = TravelClaim::Service.build(
         check_in: check_in_session,
-        params: { appointment_date: opts[:appointment_date] }
+        params: { appointment_date: }
       ).claim_status
 
-      handle_response(claim_status_resp:, facility_type: opts[:facility_type])
+      handle_response(claim_status_resp:, facility_type:, uuid:)
     rescue => e
       logger.error({ message: "Error calling BTSSS Service: #{e.message}", method: 'claim_status' }.merge(opts))
-      if 'oh'.casecmp?(opts[:facility_type])
+      if 'oh'.casecmp?(facility_type)
         StatsD.increment(Constants::OH_STATSD_BTSSS_ERROR)
         template_id = Constants::OH_ERROR_TEMPLATE_ID
       else
@@ -44,38 +50,48 @@ module CheckIn
       [nil, template_id]
     end
 
-    # rubocop:disable Metrics/MethodLength
     def handle_response(opts = {})
-      # claim_response_body = opts[:claim_status_resp].body || []
-      claim_response_status = opts[:claim_status_resp].status
+      response_body = opts[:claim_status_resp]&.dig(:data, :body)
+      status = opts[:claim_status_resp]&.dig(:status)
       facility_type = opts[:facility_type] || ''
-      claim_number = nil
 
-      statsd_metric, template_id = case claim_response_status
-                                   when 200
-                                   # Log if more than one claim status
-                                   # Use the first claim status for processing
-                                   # Check for empty response
-                                   # Check if claim is successful
-                                   # Check if claim is failed
-                                   when 408
-                                     case facility_type
-                                     when 'oh'
-                                       [Constants::OH_STATSD_BTSSS_TIMEOUT, Constants::OH_TIMEOUT_TEMPLATE_ID]
-                                     else
-                                       [Constants::CIE_STATSD_BTSSS_TIMEOUT, Constants::CIE_TIMEOUT_TEMPLATE_ID]
-                                     end
-                                   else
-                                     case facility_type
-                                     when 'oh'
-                                       [Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]
-                                     else
-                                       [Constants::CIE_STATSD_BTSSS_ERROR, Constants::CIE_ERROR_TEMPLATE_ID]
-                                     end
-                                   end
+      code = if status == 200
+               get_code_for_200_response(opts[:claim_status_resp], opts[:uuid])
+             else
+               opts[:claim_status_resp]&.dig(:data, :code)
+             end
+
+      statsd_metric, template_id = facility_type.downcase == 'oh' ? OH_RESPONSES[code] : CIE_RESPONSES[code]
+
+      claim_number = response_body&.first&.with_indifferent_access&.[](:claimNum)&.last(4)
+
       StatsD.increment(statsd_metric)
       [claim_number, template_id]
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def get_code_for_200_response(claim_status_resp, uuid)
+      response_code = claim_status_resp&.dig(:data, :code)
+
+      case response_code
+      when TravelClaim::Response::CODE_EMPTY_STATUS
+        logger.info({ message: 'Received empty claim status response', uuid: })
+        TravelClaim::Response::CODE_EMPTY_STATUS
+      else
+        if response_code == TravelClaim::Response::CODE_MULTIPLE_STATUSES
+          logger.info({ message: 'Received multiple claim status response', uuid: })
+        end
+
+        response_body = claim_status_resp.dig(:data, :body)
+        claim_status = response_body.first.with_indifferent_access[:claimStatus]
+        if SUCCESSFUL_CLAIM_STATUSES.include?(claim_status)
+          TravelClaim::Response::CODE_CLAIM_APPROVED
+        elsif FAILED_CLAIM_STATUSES.include?(claim_status)
+          TravelClaim::Response::CODE_CLAIM_NOT_APPROVED
+        else
+          logger.info({ message: 'Received non-matching claim status', claim_status:, uuid: })
+          TravelClaim::Response::CODE_UNKNOWN_ERROR
+        end
+      end
+    end
   end
 end

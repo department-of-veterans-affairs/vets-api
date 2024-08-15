@@ -38,6 +38,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   context 'when authorized' do
     before do
+      allow(SM::Client).to receive(:new).and_return(authenticated_client)
       VCR.insert_cassette('sm_client/session')
     end
 
@@ -81,13 +82,20 @@ RSpec.describe 'Messages Integration', type: :request do
         get "/my_health/v1/messaging/messages/#{message_id}"
       end
 
+      expected_body_content =
+        "Einstein once said: “Profound quote contents here”. \n\n" \
+        "That was supposed to show a regular quote but it didn’t display like it did in the compose form.\n\n" \
+        "Let’s try out more symbols here:\n\n" \
+        "Single quote: ‘ contents’\nQuestion mark: ?\nColon: :\nDash: -\nLess than: <\nGreat then: >\nEquals: =\n" \
+        "Asterisk: *\nAnd symbol: &\nDollar symbol: $\nDivide symbol: %\nAt symbol: @\nParentheses: ( contents )\n" \
+        "Brackets: [ contents ]\nCurly braces: { contents }\nSemicolon: ;\nSlash: /\nPlus: +\nUp symbol: ^\n" \
+        "Pound key: #\nExclamation: !"
+
       expect(response).to be_successful
       expect(response.body).to be_a(String)
       # It should decode html entities
       expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('Quote test: “test”')
-      # rubocop:disable Layout/LineLength
-      expect(JSON.parse(response.body)['data']['attributes']['body']).to eq("Einstein once said: “Profound quote contents here”. \n\nThat was supposed to show a regular quote but it didn’t display like it did in the compose form.\n\nLet’s try out more symbols here:\n\nSingle quote: ‘ contents’\nQuestion mark: ?\nColon: :\nDash: -\nLess than: <\nGreat then: >\nEquals: =\nAsterisk: *\nAnd symbol: &\nDollar symbol: $\nDivide symbol: %\nAt symbol: @\nParentheses: ( contents )\nBrackets: [ contents ]\nCurly braces: { contents }\nSemicolon: ;\nSlash: /\nPlus: +\nUp symbol: ^\nPound key: #\nExclamation: !")
-      # rubocop:enable Layout/LineLength
+      expect(JSON.parse(response.body)['data']['attributes']['body']).to eq(expected_body_content)
       expect(response).to match_response_schema('message')
     end
 
@@ -297,6 +305,14 @@ RSpec.describe 'Messages Integration', type: :request do
         expect(first_message['messageId']).to eq(3_207_476)
         expect(first_message['threadId']).to eq(3_188_781)
         expect(first_message['senderId']).to eq(251_391)
+      end
+
+      it 'responds to GET #thread when requires_oh_messages param is provided' do
+        VCR.use_cassette('sm_client/messages/gets_a_message_thread_oh_messages') do
+          get "/my_health/v1/messaging/messages/#{thread_id}/thread?requires_oh_messages=1"
+        end
+
+        expect(response).to be_successful
       end
     end
 

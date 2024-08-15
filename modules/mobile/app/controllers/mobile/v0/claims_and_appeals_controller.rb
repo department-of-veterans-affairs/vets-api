@@ -53,7 +53,8 @@ module Mobile
         claim_detail = if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
                          lighthouse_claims_adapter.parse(lighthouse_claims_proxy.get_claim(params[:id]))
                        else
-                         evss_claims_proxy.get_claim(params[:id])
+                         evss_claim_serializer = evss_claims_proxy.get_claim(params[:id])
+                         OpenStruct.new(evss_claim_serializer.serializable_hash[:data])
                        end
         render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end

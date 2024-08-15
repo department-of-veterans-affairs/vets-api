@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/common/exceptions/lighthouse/backend_service_exception'
+require 'claims_api/common/exceptions/lighthouse/timeout'
 require 'claims_api/v2/error/lighthouse_error_mapper'
 module ClaimsApi
   class CustomError
@@ -15,6 +16,13 @@ module ClaimsApi
       case @error
       when Faraday::ParsingError
         raise_backend_exception
+      when ::Common::Exceptions::GatewayTimeout,
+        Timeout::Error,
+        Faraday::TimeoutError,
+        Breakers::OutageException,
+        Net::HTTPGatewayTimeout
+        raise_timeout_exception
+
       when ::Common::Exceptions::BackendServiceException
         raise ::Common::Exceptions::Forbidden if @original_status == 403
 
@@ -32,6 +40,11 @@ module ClaimsApi
     def raise_backend_exception
       error_details = get_error_info
       raise ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException, error_details
+    end
+
+    def raise_timeout_exception
+      error_details = get_error_info if @original_body.present?
+      raise ::ClaimsApi::Common::Exceptions::Lighthouse::Timeout, error_details
     end
 
     def get_error_info

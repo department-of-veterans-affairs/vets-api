@@ -26,13 +26,10 @@ Rails.application.routes.draw do
 
   unless Settings.vsp_environment == 'production'
     namespace :sign_in do
-      resources :client_configs
+      resources :client_configs, param: :client_id
+      resources :service_account_configs, param: :service_account_id
     end
   end
-
-  get '/inherited_proofing/auth', to: 'inherited_proofing#auth'
-  get '/inherited_proofing/user_attributes', to: 'inherited_proofing#user_attributes'
-  get '/inherited_proofing/callback', to: 'inherited_proofing#callback'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
@@ -288,6 +285,10 @@ Rails.application.routes.draw do
 
     resources :gi_bill_feedbacks, only: %i[create show]
 
+    namespace :my_va do
+      resource :submission_statuses, only: :show
+    end
+
     namespace :profile do
       resource :full_name, only: :show
       resource :personal_information, only: :show
@@ -337,10 +338,6 @@ Rails.application.routes.draw do
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
     end
-
-    get '/account_controls/credential_index', to: 'account_controls#credential_index'
-    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
-    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
 
     resources :search, only: :index
     resources :search_typeahead, only: :index
