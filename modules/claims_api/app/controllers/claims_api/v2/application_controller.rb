@@ -96,6 +96,11 @@ module ClaimsApi
         if icn.present?
           sponsor = build_target_veteran(veteran_id: icn, loa: { current: 3, highest: 3 })
           @file_number = sponsor&.birls_id || sponsor&.mpi&.birls_id
+          if @file_number.nil?
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+            "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
+            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+          end
         elsif target_veteran&.mpi&.birls_id.present?
           @file_number = target_veteran&.birls_id || target_veteran&.mpi&.birls_id
         else
