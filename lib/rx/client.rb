@@ -201,7 +201,7 @@ module Rx
 
     def increment_refill(count = 1)
       tags = []
-      tags.append("source_app:#{@upstream_request.dig('env', 'SOURCE_APP')}") if @upstream_request
+      tags.append("source_app:#{@upstream_request.env['SOURCE_APP']}") if @upstream_request
       StatsD.increment("#{STATSD_KEY_PREFIX}.refills.requested", count, tags:)
       nil
     end
