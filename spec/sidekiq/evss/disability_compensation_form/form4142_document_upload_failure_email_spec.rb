@@ -57,6 +57,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEm
         subject.drain
       end.to change(Form526JobStatus, :count).by(1)
     end
+
+    context 'when an error throws when sending an email' do
+      before do
+        allow_any_instance_of(VaNotify::Service).to receive(:send_email).and_raise(Common::Client::Errors::ClientError)
+      end
+
+      it 'passes the error to the included JobTracker retryable_error_handler and re-raises the error' do
+        # Sidekiq::Form526JobStatusTracker::JobTracker is included in this job's inheritance hierarchy
+        expect_any_instance_of(
+          Sidekiq::Form526JobStatusTracker::JobTracker
+        ).to receive(:retryable_error_handler).with(an_instance_of(Common::Client::Errors::ClientError))
+
+        expect do
+          subject.perform_async(form526_submission.id)
+          subject.drain
+        end.to raise_error(Common::Client::Errors::ClientError)
+      end
+    end
   end
 
   context 'when retries are exhausted' do
@@ -65,6 +83,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEm
       {
         'jid' => 123,
         'error_class' => 'JennyNotFound',
+        'error_message' => 'I tried to call you before but I lost my nerve',
         'args' => [form526_submission.id]
       }
     end
@@ -83,6 +102,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEm
             {
               job_id: 123,
               error_class: 'JennyNotFound',
+              error_message: 'I tried to call you before but I lost my nerve',
               timestamp: exhaustion_time,
               form526_submission_id: form526_submission.id
             }

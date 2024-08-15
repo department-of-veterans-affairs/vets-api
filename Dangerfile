@@ -51,9 +51,9 @@ module VSPDanger
 
   class ChangeLimiter
     EXCLUSIONS = %w[
-      *.csv *.json *.tsv *.txt Gemfile.lock app/swagger modules/mobile/docs spec/fixtures/ spec/support/vcr_cassettes/
+      *.csv *.json *.tsv *.txt *.md Gemfile.lock app/swagger modules/mobile/docs spec/fixtures/ spec/support/vcr_cassettes/
       modules/mobile/spec/support/vcr_cassettes/ db/seeds modules/vaos/app/docs modules/meb_api/app/docs
-      modules/appeals_api/app/swagger/ *.bru
+      modules/appeals_api/app/swagger/ *.bru *.pdf
     ].freeze
     PR_SIZE = { recommended: 200, maximum: 500 }.freeze
 
@@ -119,13 +119,34 @@ module VSPDanger
     end
 
     def changes
-      @changes ||= `#{files_command}`.split("\n").map do |line|
-        insertions, deletions, file_name = line.split "\t"
+      @changes ||= `#{files_command}`.split("\n").map do |file_changes|
+        insertions, deletions, file_name = file_changes.split "\t"
         insertions = insertions.to_i
         deletions = deletions.to_i
 
         next if insertions.zero? && deletions.zero?   # Skip unchanged files
-        next if insertions == '-' && deletions == '-' # Skip Binary files
+        next if insertions == '-' && deletions == '-' # Skip Binary files (should be caught by `to_i` and `zero?`)
+
+        # rename or copy - use the reported changes from earlier instead - `file_name` will not exist
+        # eg: {lib => modules/pensions/lib}/pdf_fill/forms/va21p527ez.rb
+        unless file_name.include?(' => ')
+          lines = file_git_diff(file_name).split("\n")
+          changed = { '+' => 0, '-' => 0 }
+          lines.each do |line|
+            next if (line =~ /^(\+[^\+]|-[^\-])/).nil? # Only changed lines, exclude metadata
+
+            action = line[0].to_s
+            clean_line = line[1..].strip # Remove leading '+' or '-'
+
+            # Skip comments and empty lines
+            next if clean_line.start_with?('#') || clean_line.empty?
+
+            changed[action] += 1
+          end
+
+          # the actual count of changed lines
+          insertions, deletions = changed.values
+        end
 
         OpenStruct.new(
           total_changes: insertions + deletions,
@@ -142,6 +163,10 @@ module VSPDanger
 
     def exclusions
       EXCLUSIONS.map { |exclusion| "':!#{exclusion}'" }.join ' '
+    end
+
+    def file_git_diff(file_name)
+      `git diff #{BASE_SHA}...#{HEAD_SHA} -- #{file_name}`
     end
   end
 

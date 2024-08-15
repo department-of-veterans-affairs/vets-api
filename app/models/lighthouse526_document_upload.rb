@@ -3,6 +3,7 @@
 class Lighthouse526DocumentUpload < ApplicationRecord
   include AASM
 
+  POLLING_WINDOW = 1.hour
   VETERAN_UPLOAD_DOCUMENT_TYPE = 'Veteran Upload'
   BDD_INSTRUCTIONS_DOCUMENT_TYPE = 'BDD Instructions'
   FORM_0781_DOCUMENT_TYPE = 'Form 0781'
@@ -24,6 +25,12 @@ class Lighthouse526DocumentUpload < ApplicationRecord
   # Veteran Uploads must reference a FormAttachment record, where a Veteran-submitted file is stored
   validates :form_attachment, presence: true, if: :veteran_upload?
 
+  # Window for polling Lighthouse for the status of an upload
+  scope :status_update_required, lambda {
+                                   where(arel_table[:status_last_polled_at].lt(POLLING_WINDOW.ago.utc))
+                                     .or(where(status_last_polled_at: nil))
+                                 }
+
   aasm do
     state :pending, initial: true
     state :completed, :failed
@@ -35,6 +42,10 @@ class Lighthouse526DocumentUpload < ApplicationRecord
     event :fail do
       transitions from: :pending, to: :failed, guard: %i[end_time_saved? error_message_saved?]
     end
+  end
+
+  def form0781_types?
+    [FORM_0781_DOCUMENT_TYPE, FORM_0781A_DOCUMENT_TYPE].include?(document_type)
   end
 
   private

@@ -9,15 +9,11 @@ module SimpleFormsApi
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
     def self.stamp_pdf(stamped_template_path, form, current_loa)
-      if File.exist? stamped_template_path
-        stamp_signature(stamped_template_path, form)
+      stamp_signature(stamped_template_path, form)
 
-        stamp_auth_text(stamped_template_path, current_loa)
+      stamp_auth_text(stamped_template_path, current_loa)
 
-        stamp_submission_date(stamped_template_path, form.submission_date_stamps)
-      else
-        raise "stamped template file does not exist: #{stamped_template_path}"
-      end
+      stamp_submission_date(stamped_template_path, form.submission_date_stamps)
     end
 
     def self.stamp_signature(stamped_template_path, form)
@@ -59,7 +55,7 @@ module SimpleFormsApi
     end
 
     def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
-      stamp_path = Common::FileHelpers.random_file_path
+      stamp_path = Rails.root.join(Common::FileHelpers.random_file_path)
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         page_configuration.each do |config|
           case config[:type]
@@ -91,21 +87,25 @@ module SimpleFormsApi
         page_configuration = get_page_configuration(page, coords)
         verified_multistamp(stamped_template_path, text, page_configuration, font_size)
       else
+        Rails.logger.info('Calling CentralMail::DatestampPdf', current_file_path:, stamped_template_path:)
         datestamp_instance = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:)
         current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
         File.rename(current_file_path, stamped_template_path)
       end
+    rescue => e
+      raise StandardError, "An error occurred while stamping the PDF: #{e}"
     end
 
     def self.perform_multistamp(stamped_template_path, stamp_path)
-      out_path = "#{Common::FileHelpers.random_file_path}.pdf"
+      out_path = Rails.root.join("#{Common::FileHelpers.random_file_path}.pdf")
       pdftk = PdfFill::Filler::PDF_FORMS
       pdftk.multistamp(stamped_template_path, stamp_path, out_path)
-      File.delete(stamped_template_path)
+      Common::FileHelpers.delete_file_if_exists(stamped_template_path)
       File.rename(out_path, stamped_template_path)
-    rescue
+    rescue => e
+      Rails.logger.error 'Simple forms api - Failed to perform multistamp', message: e.message
       Common::FileHelpers.delete_file_if_exists(out_path)
-      raise
+      raise e
     end
 
     def self.stamp_submission_date(stamped_template_path, desired_stamps)

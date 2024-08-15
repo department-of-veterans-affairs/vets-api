@@ -13,6 +13,19 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
   let(:veteran_mpi_data) { MPIData.new }
   let(:veteran) { ClaimsApi::Veteran.new }
 
+  # Build the dropdown for examples
+  def append_example_metadata(example, response)
+    example.metadata[:response][:content] = {
+      'application/json' => {
+        examples: {
+          example.metadata[:example_group][:description] => {
+            value: JSON.parse(response.body, symbolize_names: true)
+          }
+        }
+      }
+    }
+  end
+
   path '/veterans/{veteranId}/526', vcr: 'claims_api/disability_comp' do
     post 'Asynchronously establishes disability compensation claim' do
       tags 'Disability Compensation Claims'
@@ -196,18 +209,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         response '422', 'Unprocessable entity' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                             'disability_compensation', 'default_with_source.json').read)
-          # Build the dropdown for examples
-          def append_example_metadata(example, response)
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                examples: {
-                  example.metadata[:example_group][:description] => {
-                    value: JSON.parse(response.body, symbolize_names: true)
-                  }
-                }
-              }
-            }
-          end
 
           def make_request(example)
             mock_ccg(scopes) do
@@ -309,6 +310,12 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       parameter name: :disability_comp_request, in: :body,
                 schema: SwaggerSharedComponents::V2.body_examples[:disability_compensation][:schema]
 
+      merged_values = {}
+      merged_values[:meta] = { transactionId: '00000000-0000-0000-0000-000000000000' }
+      parsed_json = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                               'disability_compensation', 'form_526_json_api.json').read)
+      merged_values[:data] = parsed_json['data']
+
       parameter in: :body, examples: {
         'Minimum Required Attributes' => {
           value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -318,6 +325,9 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                             'disability_compensation', 'form_526_json_api.json').read)
 
+        },
+        'Transaction ID' => {
+          value: merged_values
         }
       }
 
@@ -337,13 +347,9 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             temp
           end
 
-          let(:disability_comp_request) do
-            data
-          end
-
           schema SwaggerSharedComponents::V2.schemas[:sync_disability_compensation]
 
-          before do |example|
+          def make_request(example)
             Flipper.disable :claims_load_testing
 
             with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
@@ -357,16 +363,40 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             end
           end
 
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
+          context '202 without a transactionId' do
+            let(:disability_comp_request) do
+              data
+            end
+
+            before do |example|
+              make_request(example)
+            end
+
+            after do |example|
+              append_example_metadata(example, response)
+            end
+
+            it 'returns a valid 202 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
           end
 
-          it 'returns a valid 202 response' do |example|
-            assert_response_matches_metadata(example.metadata)
+          context '202 with a transactionId' do
+            let(:disability_comp_request) do
+              merged_values
+            end
+
+            before do |example|
+              make_request(example)
+            end
+
+            after do |example|
+              append_example_metadata(example, response)
+            end
+
+            it 'returns a valid 202 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
           end
         end
       end
@@ -457,18 +487,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         response '422', 'Unprocessable entity' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                             'disability_compensation', 'default_with_source.json').read)
-          # Build the dropdown for examples
-          def append_example_metadata(example, response)
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                examples: {
-                  example.metadata[:example_group][:description] => {
-                    value: JSON.parse(response.body, symbolize_names: true)
-                  }
-                }
-              }
-            }
-          end
 
           def make_request(example)
             mock_ccg(scopes) do

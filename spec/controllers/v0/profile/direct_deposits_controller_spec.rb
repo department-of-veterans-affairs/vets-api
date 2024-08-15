@@ -373,8 +373,24 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
 
-      it 'returns a potential fraud error' do
-        VCR.use_cassette('lighthouse/direct_deposit/update/400_potential_fraud') do
+      it 'returns a potential fraud error from code GUIE50041' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_potential_fraud_GUIE50041') do
+          put(:update, params:)
+        end
+
+        expect(response).to have_http_status(:bad_request)
+
+        json = JSON.parse(response.body)
+        e = json['errors'].first
+
+        expect(e).not_to be_nil
+        expect(e['title']).to eq('Bad Request')
+        expect(e['code']).to eq('cnp.payment.potential.fraud')
+        expect(e['source']).to eq('Lighthouse Direct Deposit')
+      end
+
+      it 'returns a potential fraud error from code GUIE50022' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_potential_fraud_GUIE50022') do
           put(:update, params:)
         end
 

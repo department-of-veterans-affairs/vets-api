@@ -90,7 +90,7 @@ module Mobile
           adapted_appointment = {
             id: appointment[:id],
             appointment_type:,
-            appointment_ien: extract_station_and_ien(appointment),
+            appointment_ien: appointment[:ien],
             cancel_id:,
             comment:,
             facility_id:,
@@ -151,19 +151,10 @@ module Mobile
           end
         end
 
-        def extract_station_and_ien(appointment)
-          return nil if appointment[:identifier].nil?
-
-          regex = %r{VistADefinedTerms/409_(84|85)}
-          identifier = appointment[:identifier].find { |id| id[:system]&.match? regex }
-
-          return if identifier.nil?
-
-          identifier[:value]&.split(':', 2)&.second
-        end
-
+        # this does not match the way friendly name is set for web.
+        # our mocks do not match the web mocks 1:1 so different data is needed
         def friendly_location_name
-          return location[:name] if va_appointment?
+          return appointment.dig(:location, :name) if va_appointment? || appointment_request?
 
           appointment.dig(:extension, :cc_location, :practice_name)
         end

@@ -88,6 +88,14 @@ RSpec.describe Form526Submission do
       end
     end
 
+    context 'when backup_submitted_claim_status is paranoid_success' do
+      let(:backup_submitted_claim_status) { 'paranoid_success' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
     context 'when backup_submitted_claim_status is neither accepted, rejected nor nil' do
       it 'is invalid' do
         expect do
@@ -98,72 +106,112 @@ RSpec.describe Form526Submission do
   end
 
   describe 'scopes' do
-    describe 'pending_backup_submissions' do
-      let!(:new_submission) { create(:form526_submission) }
-      let!(:rejected_backup_submission) do
-        create(:form526_submission, :backup_path, backup_submitted_claim_status: 'rejected')
+    let!(:in_process) { create(:form526_submission) }
+    let!(:expired) { create(:form526_submission, :created_more_than_3_weeks_ago) }
+    let!(:happy_path_success) { create(:form526_submission, :with_submitted_claim_id) }
+    let!(:pending_backup) { create(:form526_submission, :backup_path) }
+    let!(:accepted_backup) { create(:form526_submission, :backup_path, :backup_accepted) }
+    let!(:rejected_backup) { create(:form526_submission, :backup_path, :backup_rejected) }
+    let!(:remediated) { create(:form526_submission, :remediated) }
+    let!(:remediated_and_expired) { create(:form526_submission, :remediated, :created_more_than_3_weeks_ago) }
+    let!(:remediated_and_rejected) { create(:form526_submission, :remediated, :backup_path, :backup_rejected) }
+    let!(:no_longer_remediated) { create(:form526_submission, :no_longer_remediated) }
+    let!(:paranoid_success) { create(:form526_submission, :backup_path, :paranoid_success) }
+    let!(:success_by_age) do
+      Timecop.freeze((1.year + 1.day).ago) do
+        create(:form526_submission, :backup_path, :paranoid_success)
       end
-      let!(:accepted_backup_submission) do
-        create(:form526_submission, :backup_path, backup_submitted_claim_status: 'accepted')
-      end
-      let!(:backup_submission_a) { create(:form526_submission, :backup_path) }
-      let!(:backup_submission_b) { create(:form526_submission, :backup_path) }
+    end
 
+    describe 'paranoid_success_type' do
+      it 'returns records less than a year old with paranoid_success backup status' do
+        expect(Form526Submission.paranoid_success_type).to contain_exactly(
+          paranoid_success
+        )
+      end
+    end
+
+    describe 'success_by_age_type' do
+      it 'returns records more than a year old with paranoid_success backup status' do
+        expect(Form526Submission.success_by_age_type).to contain_exactly(
+          success_by_age
+        )
+      end
+    end
+
+    describe 'pending_backup_submissions' do
       it 'returns records submitted to the backup path but lacking a decisive state' do
         expect(Form526Submission.pending_backup_submissions).to contain_exactly(
-          backup_submission_a,
-          backup_submission_b
+          pending_backup
         )
       end
     end
 
     describe 'in_process' do
-      let!(:in_process_submission1) { create(:form526_submission) }
-      let!(:in_process_submission2) { create(:form526_submission, :backup_path) }
-      let!(:expired_submission) { create(:form526_submission, :backup_path, :created_more_than_3_days_ago) }
-      let!(:backup_accepted_submission) { create(:form526_submission, :backup_path, :with_accepted_backup_status) }
-      let!(:successful_submission) { create(:form526_submission, :with_submitted_claim_id) }
+      it 'only returns submissions that are still in process' do
+        expect(Form526Submission.in_process).to contain_exactly(
+          in_process,
+          pending_backup
+        )
+      end
+    end
 
-      it 'only returns submissions that are in process' do
-        result = Form526Submission.in_process
+    describe 'accepted_to_primary_path' do
+      it 'returns submissions with a submitted_claim_id' do
+        expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
+          happy_path_success
+        )
+      end
+    end
 
-        expect(result).to include(in_process_submission1, in_process_submission2)
-        expect(result).not_to include(expired_submission, backup_accepted_submission, successful_submission)
+    describe 'accepted_to_backup_path' do
+      it 'returns submissions with a backup_submitted_claim_id that have been explicitly accepted' do
+        expect(Form526Submission.accepted_to_backup_path).to contain_exactly(
+          accepted_backup
+        )
+      end
+    end
+
+    describe 'rejected_from_backup_path' do
+      it 'returns submissions with a backup_submitted_claim_id that have been explicitly rejected' do
+        expect(Form526Submission.rejected_from_backup_path).to contain_exactly(
+          rejected_backup,
+          remediated_and_rejected
+        )
+      end
+    end
+
+    describe 'remediated' do
+      it 'returns everything with a successful remediation' do
+        expect(Form526Submission.remediated).to contain_exactly(
+          remediated,
+          remediated_and_expired,
+          remediated_and_rejected
+        )
       end
     end
 
     describe 'success_type' do
-      let!(:successful_submission) { create(:form526_submission, :with_submitted_claim_id) }
-      let!(:backup_accepted_submission) { create(:form526_submission, :backup_path, :with_accepted_backup_status) }
-      let!(:in_process_submission) { create(:form526_submission) }
-      let!(:remediated_submission) do
-        create(:form526_submission_remediation, form526_submission: subject)
-        subject
-      end
-
-      it 'only returns submissions that are successful types' do
-        result = Form526Submission.success_type
-
-        expect(result).to include(successful_submission, backup_accepted_submission, remediated_submission)
-        expect(result).not_to include(in_process_submission)
+      it 'returns all submissions on which no further action is required' do
+        expect(Form526Submission.success_type).to contain_exactly(
+          remediated,
+          remediated_and_expired,
+          remediated_and_rejected,
+          happy_path_success,
+          accepted_backup,
+          paranoid_success,
+          success_by_age
+        )
       end
     end
 
     describe 'failure_type' do
-      let!(:in_process_submission) { create(:form526_submission) }
-      let!(:successful_submission) { create(:form526_submission, :with_submitted_claim_id) }
-      let!(:rejected_submission) { create(:form526_submission, :backup_path, backup_submitted_claim_status: :rejected) }
-      let!(:expired_submission) { create(:form526_submission, :backup_path, :created_more_than_3_days_ago) }
-      let!(:remediated_submission) do
-        create(:form526_submission_remediation, form526_submission: subject)
-        subject
-      end
-
-      it 'only returns submissions that are failure types' do
-        result = Form526Submission.failure_type
-
-        expect(result).to include(rejected_submission, expired_submission)
-        expect(result).not_to include(successful_submission, in_process_submission, remediated_submission)
+      it 'returns anything not explicitly successful or still in process' do
+        expect(Form526Submission.failure_type).to contain_exactly(
+          rejected_backup,
+          no_longer_remediated,
+          expired
+        )
       end
     end
   end
@@ -902,6 +950,32 @@ RSpec.describe Form526Submission do
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
       end
     end
+
+    context 'with Lighthouse document upload polling' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
+      end
+
+      context 'when feature enabled' do
+        before { Flipper.enable(:disability_526_toxic_exposure_document_upload_polling) }
+
+        it 'queues polling job' do
+          expect do
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
+        end
+      end
+
+      context 'when feature disabled' do
+        before { Flipper.disable(:disability_526_toxic_exposure_document_upload_polling) }
+
+        it 'does not queue polling job' do
+          expect do
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(0)
+        end
+      end
+    end
   end
 
   describe '#get_first_name' do
@@ -1371,7 +1445,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'when backup_submitted_claim_id is present and backup_submitted_claim_status is accepted' do
-      subject { create(:form526_submission, :backup_path, :with_accepted_backup_status) }
+      subject { create(:form526_submission, :backup_path, :backup_accepted) }
 
       it 'returns true' do
         expect(subject).to be_success_type
@@ -1401,8 +1475,8 @@ RSpec.describe Form526Submission do
         end
       end
 
-      context 'and the record was created more than 3 days ago' do
-        subject { create(:form526_submission, :created_more_than_3_days_ago) }
+      context 'and the record was created more than 3 weeks ago' do
+        subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
 
         it 'returns false' do
           expect(subject).not_to be_in_process
@@ -1419,7 +1493,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'when backup_submitted_claim_status is not nil' do
-      subject { create(:form526_submission, :backup_path, :with_accepted_backup_status) }
+      subject { create(:form526_submission, :backup_path, :backup_accepted) }
 
       it 'returns false' do
         expect(subject).not_to be_in_process
@@ -1443,7 +1517,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'when the submission is neither a success type nor in process' do
-      subject { create(:form526_submission, :created_more_than_3_days_ago) }
+      subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
 
       it 'returns true' do
         expect(subject).to be_failure_type

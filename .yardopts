@@ -1,8 +1,10 @@
 --title "Vets API"
 --protected
---no-private
-app/**/*.rb
-lib/**/*.rb
-rakelib/**/*.rb
-CONTRIBUTING.md
-LICENSE.md
+--private
+--verbose
+--no-cache
+--output-dir .yardoc/output
+--exclude /spec/
+--exclude /swagger/
+--readme README.md
+--files CONTRIBUTING.md,LICENSE.md,SECURITY.md

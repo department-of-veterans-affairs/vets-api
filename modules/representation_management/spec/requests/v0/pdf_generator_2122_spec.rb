@@ -65,9 +65,9 @@ RSpec.describe 'PdfGenerator2122Controller', type: :request do
         expect(response).to have_http_status(:created)
       end
 
-      it 'responds with the expected body' do
+      it 'responds with a PDF' do
         post(base_path, params:)
-        expect(response.body).to eq({ message: 'Form is valid' }.to_json)
+        expect(response.content_type).to eq('application/pdf')
       end
     end
 

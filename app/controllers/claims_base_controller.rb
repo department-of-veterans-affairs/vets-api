@@ -36,11 +36,12 @@ class ClaimsBaseController < ApplicationController
     Rails.logger.info "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} UserID=#{user_uuid}"
 
     clear_saved_form(claim.form_id)
-    render(json: claim)
+    render json: SavedClaimSerializer.new(claim)
   end
 
   def show
-    render(json: CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] }))
+    submission = CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
+    render json: CentralMailSubmissionSerializer.new(submission)
   end
 
   private

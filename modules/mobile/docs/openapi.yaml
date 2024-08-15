@@ -843,6 +843,7 @@ paths:
                     properties:
                       id:
                         type: string
+                        description: Upstream identifier. Appointment id.
                       type:
                         type: string
                       attributes:
@@ -1280,6 +1281,13 @@ paths:
         '200':
           content:
             application/json:
+              examples:
+                Appeal:
+                  value:
+                    $ref: ./schemas/ClaimsAndAppealsOverviewAppeal.yml
+                Claim:
+                  value:
+                    $ref: ./schemas/ClaimsAndAppealsOverviewClaim.yml
               schema:
                 $ref: ./schemas/ClaimsAndAppealsOverview.yml
           description: OK
@@ -1716,6 +1724,39 @@ paths:
       security:
         - Bearer: []
       summary: /v0/disability-rating
+  /v0/enrollment-status:
+    get:
+      description: Returns the user's VA enrollment status.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/EnrollmentStatus.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/enrollment-status
   /v0/facilities-info:
     get:
       description: Retrieves facilities info for a user's va treatment facilities

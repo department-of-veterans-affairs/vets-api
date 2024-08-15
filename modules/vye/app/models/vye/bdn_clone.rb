@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module Vye
+  class BndCloneNotFound < StandardError; end
+
   class Vye::BdnClone < ApplicationRecord
     has_many :user_infos, dependent: :destroy
 
@@ -17,16 +19,17 @@ module Vye
 
     validates :is_active, :export_ready, uniqueness: true, allow_nil: true
 
-    def self.injested
-      find_by(is_active: false)
-    end
-
-    def self.injested?
-      injested.present?
-    end
+    validates :transact_date, presence: true
 
     def self.activate_injested!
-      injested.activate!
+      injested = where(is_active: false).first
+
+      if injested.present?
+        injested.activate!
+      else
+        Rails.logger.error "#{self.class.name}: nothing found to activate"
+        raise BndCloneNotFound
+      end
     end
 
     def self.clear_export_ready!
@@ -34,6 +37,8 @@ module Vye
     end
 
     def activate!
+      user_info_count = 0
+      Rails.logger.info "#{self.class.name}: proceeding with activation"
       transaction do
         old = self.class.find_by(is_active: true)
 
@@ -46,9 +51,14 @@ module Vye
 
         update!(is_active: true)
         # rubocop:disable Rails/SkipsModelValidations
-        UserInfo.where(bdn_clone_id: id).update_all(bdn_clone_active: true)
+        user_info_count = UserInfo.where(bdn_clone_id: id).update_all(bdn_clone_active: true)
         # rubocop:enable Rails/SkipsModelValidations
       end
+      Rails.logger.info "#{self.class.name}: activation complete with #{user_info_count} user_info records"
+      user_info_count
+    rescue
+      Rails.logger.error "#{self.class.name}: there was a problem during activation"
+      raise
     end
   end
 end
