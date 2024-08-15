@@ -162,10 +162,6 @@ features:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
     enable_in_development: true
-  check_in_experience_45_minute_reminder:
-    actor_type: user
-    description: Enables the 45 minute reminder
-    enable_in_development: true
   check_in_experience_check_claim_status_on_timeout:
     actor_type: user
     description: Uses a background worker to check travel claim status when the submission times out
@@ -709,10 +705,6 @@ features:
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
-  fsr_confirmation_email:
-    actor_type: user
-    description: Enables notifications to be sent via email upon FSR submission
-    enable_in_development: false
   get_help_ask_form:
     actor_type: user
     description: Enables inquiry form for users to submit questions, suggestions, and complaints.
