@@ -45,7 +45,6 @@ jobs:
 
       - name: Pull Request Review Teams
         id: review_teams
-        if: github.event_name == 'pull_request'
         run: |
           REQUESTED_TEAMS=$(echo '${{ steps.pr_details.outputs.data }}' | jq -r '.teams[].slug')
           echo "REQUESTED_TEAMS=$REQUESTED_TEAMS" >> $GITHUB_ENV

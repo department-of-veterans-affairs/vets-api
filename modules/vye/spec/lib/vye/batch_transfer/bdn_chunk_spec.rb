@@ -44,6 +44,8 @@ RSpec.describe Vye::BatchTransfer::BdnChunk do
           )
         )
       )
+
+      expect(Vye::Award.first.monthly_rate).to eq(35)
     end
   end
 end
