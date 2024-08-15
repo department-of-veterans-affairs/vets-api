@@ -29,7 +29,7 @@ module ClaimsApi
           resp
         rescue => e
           detail = e.respond_to?(:original_body) ? e.original_body : e
-          log_outcome_for_claims_api('validate', 'error', detail, claim)
+          log_outcome_for_claims_api('submit', 'error', detail, claim)
 
           error_handler(e, async)
         end

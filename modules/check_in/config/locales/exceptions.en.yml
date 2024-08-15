@@ -27,6 +27,13 @@ en:
         detail: 'Authentication Error'
         status: 401
         sentry_type: none
+      LOROTA-API_403:
+        <<: *external_defaults
+        title: Data has expired
+        code: 'LOROTA-API_403'
+        detail: 'Data has expired'
+        status: 403
+        sentry_type: none
       CIE-VETS-API_404:
         <<: *external_defaults
         title: Data Not Found

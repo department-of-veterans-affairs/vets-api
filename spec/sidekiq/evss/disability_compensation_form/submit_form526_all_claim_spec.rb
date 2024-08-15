@@ -15,6 +15,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Flipper.disable(:disability_526_classifier_new_claims)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_526_classifier_multi_contention)
+    Flipper.disable(:disability_compensation_production_tester)
+    Flipper.disable(:disability_compensation_fail_submission)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }

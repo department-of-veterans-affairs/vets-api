@@ -57,25 +57,24 @@ module Vye
           city: record.city,
           state: record.state,
           zip_code: record.zip_code
-        }
+        }.transform_values { |v| v.presence || ' ' }
       end
     end
 
     REPORT_TEMPLATE =
-      YAML.load(<<-END_OF_TEMPLATE).gsub(/\n/, '')
-      |-
-        %3<rpo>s,
-        %1<benefit_type>s,
-        %9<ssn>s,
-        %9<file_number>s,
-        %20<veteran_name>s,
+      <<~END_OF_TEMPLATE.gsub(/\n/, '')
+        %-3<rpo>s,
+        %-1<benefit_type>s,
+        %-9<ssn>s,
+        %-9<file_number>s,
+        %-20<veteran_name>s,
         %<address1>s,
         %<address2>s,
         %<address3>s,
         %<address4>s,
         %<city>s,
-        %6<state>s,
-        %5<zip_code>s
+        %-6<state>s,
+        %-5<zip_code>s
       END_OF_TEMPLATE
 
     private_constant :REPORT_TEMPLATE
