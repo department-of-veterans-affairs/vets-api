@@ -28,40 +28,51 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
     end
 
     it 'sorts individuals by levenshtein distance' do
-      create(:accredited_individual, full_name: 'abc')
-      create(:accredited_individual, full_name: 'ab')
-      create(:accredited_individual, full_name: 'abcde')
-      create(:accredited_individual, full_name: 'a')
-      create(:accredited_individual, full_name: 'abcd')
+      create(:accredited_individual, full_name: 'aaaabc')
+      create(:accredited_individual, full_name: 'aaaab')
+      create(:accredited_individual, full_name: 'aaaabcde')
+      create(:accredited_individual, full_name: 'aaaa')
+      create(:accredited_individual, full_name: 'aaaabcd')
 
-      results = described_class.new('a').results
+      results = described_class.new('aaaa').results
 
-      expect(results.map(&:full_name)).to eq(%w[a ab abc abcd abcde])
+      expect(results.map(&:full_name)).to eq(%w[aaaa aaaab aaaabc aaaabcd aaaabcde])
     end
 
     it 'sorts organizations by levenshtein distance' do
-      create(:accredited_organization, name: 'abc')
-      create(:accredited_organization, name: 'ab')
-      create(:accredited_organization, name: 'abcde')
-      create(:accredited_organization, name: 'a')
-      create(:accredited_organization, name: 'abcd')
+      create(:accredited_organization, name: 'aaaabc')
+      create(:accredited_organization, name: 'aaaab')
+      create(:accredited_organization, name: 'aaaabcde')
+      create(:accredited_organization, name: 'aaaa')
+      create(:accredited_organization, name: 'aaaabcd')
 
-      results = described_class.new('a').results
+      results = described_class.new('aaaa').results
 
-      expect(results.map(&:name)).to eq(%w[a ab abc abcd abcde])
+      expect(results.map(&:name)).to eq(%w[aaaa aaaab aaaabc aaaabcd aaaabcde])
     end
 
     it 'sorts individuals and organizations together by levenshtein distance' do
-      create(:accredited_individual, full_name: 'abc')
-      create(:accredited_individual, full_name: 'ab')
-      create(:accredited_organization, name: 'abcde')
-      create(:accredited_organization, name: 'a')
-      create(:accredited_individual, full_name: 'abcd')
+      create(:accredited_individual, full_name: 'aaaabc')
+      create(:accredited_individual, full_name: 'aaaab')
+      create(:accredited_organization, name: 'aaaabcde')
+      create(:accredited_organization, name: 'aaaa')
+      create(:accredited_individual, full_name: 'aaaabcd')
 
-      results = described_class.new('a').results
+      results = described_class.new('aaaa').results
 
       expect(results.map { |r| r.is_a?(AccreditedIndividual) ? r.full_name : r.name })
-        .to eq(%w[a ab abc abcd abcde])
+        .to eq(%w[aaaa aaaab aaaabc aaaabcd aaaabcde])
+    end
+
+    it 'can return organizations as the first result' do
+      create(:accredited_individual, full_name: 'Bob Billy Bill Bo')
+      create(:accredited_organization, name: 'Bob Law Firm')
+
+      results = described_class.new('Bob').results
+
+      expect(results.size).to eq(2)
+      expect(results.first).to be_a(AccreditedOrganization)
+      expect(results.first.name).to eq('Bob Law Firm')
     end
 
     it 'returns at most 10 results' do

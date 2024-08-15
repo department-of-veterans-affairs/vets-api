@@ -22,7 +22,7 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppointContro
         get path, params: { query: '' }
 
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response).to eq('data' => [])
+        expect(parsed_response).to eq([])
       end
     end
 
@@ -31,14 +31,14 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppointContro
         get path
 
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response).to eq('data' => [])
+        expect(parsed_response).to eq([])
       end
     end
 
     it 'when there are no matching results' do
       get path, params: { query: 'Zach' }
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response).to eq('data' => [])
+      expect(parsed_response).to eq([])
     end
   end
 
@@ -59,31 +59,31 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppointContro
     end
 
     it 'returns a mixed list of individuals and organizations in Levenshtein order' do
-      create(:accredited_individual, full_name: 'a')
-      create(:accredited_individual, full_name: 'ab')
-      create(:accredited_individual, full_name: 'abc')
-      create(:accredited_individual, full_name: 'abcd')
-      create(:accredited_individual, full_name: 'abcde')
-      create(:accredited_organization, name: 'a')
-      create(:accredited_organization, name: 'ab')
-      create(:accredited_organization, name: 'abc')
-      create(:accredited_organization, name: 'abcd')
-      create(:accredited_organization, name: 'abcde')
+      create(:accredited_individual, full_name: 'aaaa')
+      create(:accredited_individual, full_name: 'aaaab')
+      create(:accredited_individual, full_name: 'aaaabc')
+      create(:accredited_individual, full_name: 'aaaabcd')
+      create(:accredited_individual, full_name: 'aaaabcde')
+      create(:accredited_organization, name: 'aaaa')
+      create(:accredited_organization, name: 'aaaab')
+      create(:accredited_organization, name: 'aaaabc')
+      create(:accredited_organization, name: 'aaaabcd')
+      create(:accredited_organization, name: 'aaaabcde')
 
-      get path, params: { query: 'a' }
+      get path, params: { query: 'aaaa' }
 
       parsed_response = JSON.parse(response.body)
       expect(parsed_response.size).to eq(10)
-      expect(parsed_response[0]['data']['attributes']['full_name']).to eq('a')
-      expect(parsed_response[1]['data']['attributes']['name']).to eq('a')
-      expect(parsed_response[2]['data']['attributes']['full_name']).to eq('ab')
-      expect(parsed_response[3]['data']['attributes']['name']).to eq('ab')
-      expect(parsed_response[4]['data']['attributes']['full_name']).to eq('abc')
-      expect(parsed_response[5]['data']['attributes']['name']).to eq('abc')
-      expect(parsed_response[6]['data']['attributes']['full_name']).to eq('abcd')
-      expect(parsed_response[7]['data']['attributes']['name']).to eq('abcd')
-      expect(parsed_response[8]['data']['attributes']['full_name']).to eq('abcde')
-      expect(parsed_response[9]['data']['attributes']['name']).to eq('abcde')
+      expect(parsed_response[0]['data']['attributes']['full_name']).to eq('aaaa')
+      expect(parsed_response[1]['data']['attributes']['name']).to eq('aaaa')
+      expect(parsed_response[2]['data']['attributes']['full_name']).to eq('aaaab')
+      expect(parsed_response[3]['data']['attributes']['name']).to eq('aaaab')
+      expect(parsed_response[4]['data']['attributes']['full_name']).to eq('aaaabc')
+      expect(parsed_response[5]['data']['attributes']['name']).to eq('aaaabc')
+      expect(parsed_response[6]['data']['attributes']['full_name']).to eq('aaaabcd')
+      expect(parsed_response[7]['data']['attributes']['name']).to eq('aaaabcd')
+      expect(parsed_response[8]['data']['attributes']['full_name']).to eq('aaaabcde')
+      expect(parsed_response[9]['data']['attributes']['name']).to eq('aaaabcde')
     end
   end
 
