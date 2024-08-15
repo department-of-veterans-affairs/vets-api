@@ -934,7 +934,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         json.to_json
       end
       let(:user) do
-        build(
+        create(
           :evss_user,
           :loa3,
           icn: '1013032368V065534',
@@ -1003,10 +1003,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       context 'submitting a 1010EZR form' do
-        before do
-          Flipper.disable('ezr_async')
-        end
-
         context 'unauthenticated user' do
           it 'returns unauthorized status code' do
             expect(subject).to validate(:post, '/v0/form1010_ezrs', 401)

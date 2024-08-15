@@ -137,7 +137,6 @@ Layout/LineContinuationSpacing:
     - 'spec/sidekiq/cypress_viewport_updater/viewport_preset_js_file_spec.rb'
     - 'spec/support/saml/response_builder.rb'
 
-
 # Offense count: 40
 # This cop supports safe autocorrection (--autocorrect).
 Lint/AmbiguousOperatorPrecedence:
