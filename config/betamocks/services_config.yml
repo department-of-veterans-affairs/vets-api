@@ -138,6 +138,13 @@
       :cache_multiple_responses:
         :uid_location: header
         :uid_locator: 'Token'
+    # MHV rx medications
+    - :method: :get
+      :path: "/mhv-api/patient/v1/prescription/medications"
+      :file_path: "mhv/prescription/medications"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'Token'
     # MHV rx history
     - :method: :get
       :path: "/mhv-api/patient/v1/prescription/gethistoryrx"
