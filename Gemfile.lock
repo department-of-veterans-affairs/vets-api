@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/adhocteam/connect_vbms
-  revision: e88844bb8fd55346f3022b7fe4426117a38d80d8
-  tag: v2.1.0
+  revision: 2284b8e9a68d2b44dda52a098ffc83f8fa283211
+  tag: v2.1.1
   specs:
-    connect_vbms (2.1.0)
+    connect_vbms (2.1.1)
       httpclient (~> 2.8.0)
       httpi (~> 4.0)
       mail
@@ -514,6 +514,11 @@ GEM
     google-protobuf (4.27.3)
       bigdecimal
       rake (>= 13)
+    google-protobuf (4.27.3-java)
+      bigdecimal
+      ffi (~> 1)
+      ffi-compiler (~> 1)
+      rake (>= 13)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
@@ -672,7 +677,6 @@ GEM
     nio4r (2.7.3-java)
     nkf (0.2.0)
     nkf (0.2.0-java)
-    no_proxy_fix (0.1.2)
     nokogiri (1.16.7)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
