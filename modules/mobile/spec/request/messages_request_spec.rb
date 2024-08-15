@@ -54,20 +54,27 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
       end
 
       it 'responds to GET #show' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
+        VCR.use_cassette('mobile/messages/gets_a_message_with_id_and_attachment') do
           VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
             get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
           end
         end
-
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         response_hash = JSON.parse(response.body)
         response_hash.delete('meta')
         response.body = response_hash.to_json
-        expect(response).to match_camelized_response_schema('message')
+        expect(response).to match_camelized_response_schema('message', strict: false)
         link = response.parsed_body.dig('data', 'links', 'self')
         expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/messages/573059')
+        included = response.parsed_body.dig('included', 0)
+        expect(included).to eq({ 'id' => '674847',
+                                 'type' => 'attachments',
+                                 'attributes' => { 'name' => 'sm_file1.jpg',
+                                                   'messageId' => 573_059,
+                                                   'attachmentSize' => 210_000 },
+                                 'links' => { 'download' => 'http://www.example.com/mobile/v0/messaging' \
+                                                            '/health/messages/573059/attachments/674847' } })
       end
 
       it 'generates mobile-specific metadata links' do
@@ -131,6 +138,8 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
             expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
             expect(response).to match_camelized_response_schema('message')
+            included = response.parsed_body.dig('included', 0)
+            expect(included).to eq(nil)
           end
 
           it 'with attachments' do
