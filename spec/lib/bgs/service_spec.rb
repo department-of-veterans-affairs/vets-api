@@ -21,18 +21,6 @@ RSpec.describe BGS::Service do
     end
   end
 
-  context 'direct deposit methods' do
-    let(:user_object) { build(:ch33_dd_user, first_name:) }
-
-    before { allow_any_instance_of(User).to receive(:common_name).and_return(first_name) }
-
-    context 'with a user that has no icn' do
-      before do
-        allow(user_object).to receive_messages(icn: nil, uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef')
-      end
-    end
-  end
-
   describe '#create_proc' do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_proc') do
