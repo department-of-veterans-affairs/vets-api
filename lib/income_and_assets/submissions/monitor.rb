@@ -7,7 +7,7 @@ module IncomeAndAssets
   module Submissions
     class Monitor
       # statsd key for sidekiq
-      SUBMISSION_STATS_KEY = 'worker.income_and_assets_intake_job'
+      SUBMISSION_STATS_KEY = 'worker.lighthouse.income_and_assets_intake_job'
 
       ##
       # log Sidkiq job started

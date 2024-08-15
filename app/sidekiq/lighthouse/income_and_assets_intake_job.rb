@@ -2,7 +2,7 @@
 
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
-require 'income_and_assets/monitor'
+require 'income_and_assets/submissions/monitor'
 require 'central_mail/datestamp_pdf'
 
 module Lighthouse
@@ -11,8 +11,19 @@ module Lighthouse
 
     class IncomeAndAssetsIntakeError < StandardError; end
 
-    STATSD_KEY_PREFIX = 'worker.lighthouse.income_and_assets_intake_job'
     INCOME_AND_ASSETS_SOURCE = 'app/sidekiq/lighthouse/income_and_assets_intake_job.rb'
+
+    # retry for one day
+    sidekiq_options retry: 14, queue: 'low'
+    sidekiq_retries_exhausted do |msg|
+      ia_monitor = IncomeAndAssets::Submissions::Monitor.new
+      begin
+        claim = SavedClaim::IncomeAndAssets.find(msg['args'].first)
+      rescue
+        claim = nil
+      end
+      ia_monitor.track_submission_exhaustion(msg, claim)
+    end
 
     ##
     # Process income and assets pdfs and upload to Benefits Intake API
@@ -54,9 +65,10 @@ module Lighthouse
     # Instantiate instance variables for _this_ job
     #
     def init(saved_claim_id, user_account_id)
-      @ia_monitor = IncomeAndAssets::Monitor.new
+      @ia_monitor = IncomeAndAssets::Submissions::Monitor.new
 
-      @user_account_id = user_account_id
+      @user_account_uuid = user_account_id
+      @user_account = UserAccount.find(@user_account_uuid) if @user_account_uuid.present?
       @claim = SavedClaim::IncomeAndAssets.find(saved_claim_id)
       raise IncomeAndAssetsIntakeError, "Unable to find SavedClaim::IncomeAndAssets #{saved_claim_id}" unless @claim
 
@@ -93,14 +105,12 @@ module Lighthouse
     #
     def generate_metadata
       form = @claim.parsed_form
-      address = form['claimantAddress'] || form['veteranAddress']
 
       # also validates/maniuplates the metadata
       BenefitsIntake::Metadata.generate(
         form['veteranFullName']['first'],
         form['veteranFullName']['last'],
         form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        address['postalCode'],
         INCOME_AND_ASSETS_SOURCE,
         @claim.form_id,
         @claim.business_line
@@ -131,14 +141,17 @@ module Lighthouse
     # Insert submission polling entries
     #
     def form_submission_polling
-      form_submission = FormSubmission.create(
+      form_submission = {
         form_type: @claim.form_id,
         form_data: @claim.to_json,
         benefits_intake_uuid: @intake_service.uuid,
         saved_claim: @claim,
         saved_claim_id: @claim.id
-      )
-      @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
+      }
+      form_submission[:user_account] = @user_account unless @user_account_uuid.nil?
+      
+      @form_submission = FormSubmission.create(**form_submission)
+      @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission)
 
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
     end

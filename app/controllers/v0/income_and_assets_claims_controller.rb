@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'income_and_assets/monitor'
+require 'income_and_assets/claims/monitor'
 
 module V0
   class IncomeAndAssetsClaimsController < ClaimsBaseController
@@ -87,7 +87,7 @@ module V0
     # @return [IncomeAndAssets::Monitor]
     #
     def ia_monitor
-      @monitor ||= IncomeAndAssets::Monitor.new
+      @monitor ||= IncomeAndAssets::Claims::Monitor.new
     end
   end
 end

@@ -4,12 +4,12 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::IncomeAndAssetsClaimsController, type: :controller do
-  let(:monitor) { double('IncomeAndAssets::Monitor') }
+  let(:monitor) { double('IncomeAndAssets::Claims::Monitor') }
   let(:user) { create(:user) }
 
   before do
     sign_in_as(user)
-    allow(IncomeAndAssets::Monitor).to receive(:new).and_return(monitor)
+    allow(IncomeAndAssets::Claims::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
                                        track_create_error: nil, track_create_success: nil)
   end
