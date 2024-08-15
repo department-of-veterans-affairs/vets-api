@@ -1011,6 +1011,7 @@ GEM
     snaky_hash (2.0.1)
       hashie
       version_gem (~> 1.1, >= 1.1.1)
+    socksify (1.7.1)
     spoon (0.0.6)
       ffi
     ssrf_filter (1.1.2)
@@ -1277,6 +1278,7 @@ DEPENDENCIES
   simple_forms_api!
   simplecov
   slack-notify
+  socksify
   staccato
   statsd-instrument
   strong_migrations
