@@ -36,7 +36,7 @@ module Crm
         response
       else
         error = JSON.parse(response.body, symbolize_names: true)
-        raise(StandardError, error[:Message])
+        raise(StandardError, error[:Message] || error[:message])
       end
     end
   end

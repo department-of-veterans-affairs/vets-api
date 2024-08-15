@@ -65,7 +65,7 @@ module AskVAApi
           response[:Data]
         else
           error = JSON.parse(response.body, symbolize_names: true)
-          raise(InvalidProfileError, error[:Message])
+          raise(InvalidProfileError, error[:Message] || error[:message])
         end
       end
 

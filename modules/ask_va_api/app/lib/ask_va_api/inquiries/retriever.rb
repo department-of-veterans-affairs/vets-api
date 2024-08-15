@@ -69,7 +69,7 @@ module AskVAApi
           response[:Data]
         else
           error = JSON.parse(response.body, symbolize_names: true)
-          raise(InquiriesRetrieverError, error[:Message])
+          raise(InquiriesRetrieverError, error[:Message] || error[:message])
         end
       end
     end
