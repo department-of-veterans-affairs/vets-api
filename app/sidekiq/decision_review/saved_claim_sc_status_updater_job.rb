@@ -19,7 +19,7 @@ module DecisionReview
 
       supplemental_claims.each do |sc|
         guid = sc.guid
-        response = decision_review_service.get_supplemental_claim(guid)
+        response = decision_review_service.get_supplemental_claim(guid).body
         status = response.dig('data', 'attributes', 'status')
         attributes = response.dig('data', 'attributes')
 
