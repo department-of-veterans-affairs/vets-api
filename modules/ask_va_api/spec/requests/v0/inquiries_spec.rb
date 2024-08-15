@@ -208,9 +208,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
       context 'when the id is invalid' do
         let(:body) do
-          '{"Data":null,"Message":"Data Validation: No Inquiries found by ID A-20240423-30709"' \
-            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
-            'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
+          '{"Data":null,"Message":"Data Validation: No Contact found by ICN"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Contact found by ICN ' \
+            '","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
         end
         let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
         let(:service) { instance_double(Crm::Service) }
@@ -227,7 +227,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                         'AskVAApi::Inquiries::InquiriesRetrieverError: ' \
-                        'Data Validation: No Inquiries found by ID A-20240423-30709'
+                        'Data Validation: No Contact found by ICN'
       end
     end
   end
@@ -286,9 +286,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       subject(:retriever) { described_class.new(icn: '123') }
 
       let(:body) do
-        '{"Data":null,"Message":"Data Validation: No Profile found by ID 123"' \
-          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Profile found by ' \
-          'ID 123","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
+        '{"Data":null,"Message":"Data Validation: No Contact found"' \
+          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Contact found ' \
+          '","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
       end
       let(:service) { instance_double(Crm::Service) }
       let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
@@ -307,7 +307,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'AskVAApi::Profile::InvalidProfileError: Data Validation: No Profile found by ID 123'
+                      'AskVAApi::Profile::InvalidProfileError: Data Validation: No Contact found'
     end
   end
 
