@@ -3,6 +3,7 @@
 require 'common/file_helpers'
 require 'pdf_fill/filler'
 
+# Utility classes and functions for working with VA PDFs
 module PDFUtilities
   class DatestampPdf
     def initialize(file_path, append_to_stamp: nil)

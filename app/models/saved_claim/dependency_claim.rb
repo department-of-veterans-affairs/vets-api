@@ -4,7 +4,6 @@ require 'claims_api/vbms_uploader'
 require 'pdf_utilities/datestamp_pdf'
 
 class SavedClaim::DependencyClaim < CentralMailClaim
-
   FORM = '686C-674'
   STUDENT_ATTENDING_COLLEGE_KEYS = %w[
     student_name_and_ssn

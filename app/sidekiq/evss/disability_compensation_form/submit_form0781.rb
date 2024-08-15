@@ -162,7 +162,7 @@ module EVSS
         form_content = form_content.merge({ 'signatureDate' => submission_date })
         pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, evss_claim_id, form_id)
         stamped_path = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5,
-                                                                   timestamp: submission_date)
+                                                                    timestamp: submission_date)
         PDFUtilities::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
