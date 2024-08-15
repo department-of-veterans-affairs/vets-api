@@ -94,7 +94,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
     it 'returns a datestamp pdf path' do
       run_count = 0
-      allow_any_instance_of(CentralMail::DatestampPdf).to receive(:run) {
+      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) {
                                                             run_count += 1
                                                             pdf_path
                                                           }

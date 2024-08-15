@@ -3,7 +3,7 @@
 require 'common/file_helpers'
 require 'pdf_fill/filler'
 
-module CentralMail
+module PDFUtilities
   class DatestampPdf
     def initialize(file_path, append_to_stamp: nil)
       @file_path = file_path

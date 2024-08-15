@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 
-RSpec.describe CentralMail::DatestampPdf do
+RSpec.describe PDFUtilities::DatestampPdf do
   describe '#run' do
     before do
       @file_path = Common::FileHelpers.random_file_path
