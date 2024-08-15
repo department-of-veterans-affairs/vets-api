@@ -3,9 +3,7 @@ on:
   pull_request:
      types: [labeled, unlabeled, synchronize, ready_for_review]
   workflow_run:
-    workflows: ["Code Checks"]
-    branches:
-      - '!master'
+    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Code Health Report"]
     types: [completed]
 jobs:
   ready_for_review:
@@ -29,7 +27,8 @@ jobs:
 
       - name: Audit Test Passing Label
         id: audit_passing_labels
-        if: contains(github.event.pull_request.labels.*.name, 'test-passing')
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'test-passing')
         run: |
           echo "ready_for_review=true" >> $GITHUB_OUTPUT
 
