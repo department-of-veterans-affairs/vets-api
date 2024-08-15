@@ -152,7 +152,8 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
         Lighthouse::IncomeAndAssetsIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
           expect(Rails.logger).to receive(:error).exactly(:once).with(
             'Lighthouse::IncomeAndAssetsIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: claim.confirmation_number, user_account_uuid: 2, claim_id: claim.id)
+            hash_including(:message, confirmation_number: claim.confirmation_number, user_account_uuid: 2,
+                                     claim_id: claim.id)
           )
           expect(StatsD).to receive(:increment).with('worker.lighthouse.income_and_assets_intake_job.exhausted')
         end
