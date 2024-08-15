@@ -74,7 +74,7 @@ module AsyncTransaction
       # @return [VAProfile::Models::Transaction]
       def self.fetch_transaction(transaction_record, service, user)
         if Flipper.enabled?(:va_profile_information_v3_transactions, user)
-          service.get_transaction_status(transaction_record.transaction_id, transaction_record.model_class)
+          service.get_transaction_status(transaction_record.transaction_id, transaction_record)
         else
           case transaction_record
           when AsyncTransaction::Vet360::AddressTransaction, AsyncTransaction::VAProfile::AddressTransaction

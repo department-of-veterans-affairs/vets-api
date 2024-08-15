@@ -87,13 +87,13 @@ module VAProfile
         handle_error(e)
       end
 
-      def get_transaction_status(transaction_id, model)
+      def get_transaction_status(transaction_id, record)
         with_monitoring do
           icn_with_aaid_present!
-          raw_response = perform(:get, model.transaction_status_path(@user, transaction_id))
+          raw_response = perform(:get, record.transaction_status_path(@user, transaction_id))
           VAProfile::Stats.increment_transaction_results(raw_response)
-          transaction_status = model.transaction_response_class.from(raw_response, @user)
-          return transaction_status unless model.send_change_notifications?
+          transaction_status = record.transaction_response_class.from(raw_response, @user)
+          return transaction_status unless record.send_change_notifications?
 
           send_change_notifications(transaction_status)
           return response

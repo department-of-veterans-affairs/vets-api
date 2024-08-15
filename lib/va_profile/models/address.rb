@@ -102,11 +102,11 @@ module VAProfile
         VAProfile::ProfileInformation::AddressTransactionResponse
       end
 
-      def self.transaction_status_path(user, transaction_id)
+      def transaction_status_path(user, transaction_id)
         "#{user.vet360_id}/addresses/status/#{transaction_id}"
       end
 
-      def self.send_change_notifications?
+      def send_change_notifications?
         true
       end
 
