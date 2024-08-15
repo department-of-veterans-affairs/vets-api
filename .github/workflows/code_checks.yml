@@ -93,7 +93,7 @@ jobs:
             ready-for-backend-review
 
       - name: Remove Test Passing label
-        if: contains(github.event.pull_request.labels.*.name, 'test-passing')
+        if: contains(github.event.pull_request.labels.*.name, 'test-passing') && github.event_name == 'pull_request'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
