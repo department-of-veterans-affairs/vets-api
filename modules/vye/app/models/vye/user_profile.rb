@@ -95,7 +95,6 @@ class Vye::UserProfile < ApplicationRecord
     end
 
     user_profile = with_assos.find_from_digested_ssn(user.ssn)
-    byebug
     if user_profile
       user_profile.update!(icn: user.icn)
       StatsD.increment(STATSD_NAMES[:ssn_hit])
