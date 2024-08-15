@@ -168,7 +168,7 @@ jobs:
             test-failure
 
       - name: Add Test Passing label
-        if: success() && !contains(github.event.pull_request.labels.*.name, 'test-passing')
+        if: success() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'test-passing')
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
