@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 module SupplementalDocumentUploadProvider
+  STATSD_SUCCESS_METRIC = 'success'
+  STATSD_RETRIED_METRIC = 'retried'
+  STATSD_FAILED_METRIC = 'failed'
+
   def self.raise_not_implemented_error
     raise NotImplementedError, 'Do not use base module methods. Override this method in implementation class.'
   end

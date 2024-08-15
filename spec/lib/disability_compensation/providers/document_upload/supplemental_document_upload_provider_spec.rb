@@ -30,7 +30,7 @@ RSpec.describe SupplementalDocumentUploadProvider do
 
   it 'raises an error if the log_upload_error_retry method is not implemented' do
     expect do
-      subject.log_upload_error_retry('my_upload_job_prefix', StandardError.new)
+      subject.log_upload_error_retry('my_upload_job_prefix')
     end.to raise_error NotImplementedError
   end
 
