@@ -5,7 +5,7 @@ require 'caseflow/responses/caseflow'
 
 module Caseflow
   ##
-  # Proxy Service for appeals in Caseflow.
+  # Proxy Service for appeals in Caseflow. hey
   #
   # @example Create a service and fetching caseflow for a user
   #   caseflow_response = Caseflow::Service.new.get_appeals(user)
