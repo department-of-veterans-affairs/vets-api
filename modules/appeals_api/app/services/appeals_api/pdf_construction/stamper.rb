@@ -11,7 +11,10 @@ module AppealsApi
       end
 
       def call
-        PDFUtilities::DatestampPdf.new(nil).stamp(date_and_consumer_stamp_path, veteran_stamp_path)
+        out_path = "#{Common::FileHelpers.random_file_path}.pdf"
+        PDFUtilities::PDFTK.stamp(date_and_consumer_stamp_path, veteran_stamp_path, out_path)
+
+        out_path
       end
 
       private

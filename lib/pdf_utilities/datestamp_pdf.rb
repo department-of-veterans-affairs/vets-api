@@ -1,49 +1,26 @@
 # frozen_string_literal: true
 
 require 'common/file_helpers'
-require 'pdf_fill/filler'
 
-# Utility classes and functions for working with VA PDFs
 module PDFUtilities
+  PDFTK = PdfForms.new(Settings.binaries.pdftk)
+
   class DatestampPdf
+
+    attr_reader :file_path
+
     def initialize(file_path, append_to_stamp: nil)
       @file_path = file_path
       @append_to_stamp = append_to_stamp
     end
 
     def run(settings)
-      stamp_path = Common::FileHelpers.random_file_path
-      generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y], settings[:text_only], settings[:size],
-                     settings[:timestamp], settings[:page_number], settings[:template], @file_path)
-      stamp(@file_path, stamp_path, multistamp: settings[:multistamp])
-    ensure
-      Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
-    end
-
-    def formatted_date
-      Time.zone.now.strftime('%m/%d/%Y')
-    end
-
-    def date_object
-      Date.strptime(formatted_date, '%m/%d/%Y')
-    end
-
-    # rubocop:disable Metrics/ParameterLists
-    # rubocop:disable Metrics/MethodLength
-    def generate_stamp(stamp_path, text, x, y, text_only, size = 10, timestamp = nil, page_number = nil,
-                       template = nil, file_path = nil)
-      timestamp ||= Time.zone.now
-
-      timestamp4010007 = date_object
-
-      unless text_only
-        text += if File.basename(file_path) == 'vba_40_10007-stamped.pdf'
-                  " #{I18n.l(timestamp4010007, format: :pdf_stamp4010007)}"
-                else
-                  " #{I18n.l(timestamp, format: :pdf_stamp_utc)}"
-                end
-        text += ". #{@append_to_stamp}" if @append_to_stamp
+      settings = default_settings.merge(settings)
+      settings.each do |key, value|
+        instance_variable_set("@#{key}", value)
       end
+
+      stamp_path = Common::FileHelpers.random_file_path
 
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         if page_number.present? && template.present?
@@ -51,34 +28,68 @@ module PDFUtilities
           page_number.times do
             pdf.start_new_page
           end
-          (pdf.draw_text text, at: [x, y], size:)
+          (pdf.draw_text stamp_text, at: [x, y], size:)
           (pdf.draw_text timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12], size:)
           (reader.page_count - page_number).times do
             pdf.start_new_page
           end
         else
-          pdf.draw_text text, at: [x, y], size:
+          pdf.draw_text stamp_text, at: [x, y], size:
         end
       end
-    rescue => e
-      Rails.logger.error "Failed to generate datestamp file: #{e.message}"
-      raise
-    end
-    # rubocop:enable Metrics/ParameterLists
-    # rubocop:enable Metrics/MethodLength
 
-    def stamp(file_path, stamp_path, multistamp: false)
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
       if multistamp
-        PdfFill::Filler::PDF_FORMS.multistamp(file_path, stamp_path, out_path)
+        PDFUtilities::PDFTK.multistamp(file_path, stamp_path, out_path)
       else
-        PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
+        PDFUtilities::PDFTK.stamp(file_path, stamp_path, out_path)
       end
-      File.delete(file_path)
+
       out_path
-    rescue
+    rescue => e
+      Rails.logger.error "Failed to generate datestamp file: #{e.message}"
       Common::FileHelpers.delete_file_if_exists(out_path)
       raise
+    ensure
+      Common::FileHelpers.delete_file_if_exists(stamp_path)
     end
+
+    private
+
+    attr_reader :text, :x, :y, :text_only, :size, :timestamp, :page_number, :template, :multistamp
+
+    def default_settings
+      {
+        text: 'VA.gov',
+        x: 5,
+        y: 5,
+        text_only: false,
+        size: 10,
+        timestamp: Time.zone.now,
+        page_number: nil,
+        template: nil,
+        multistamp: false
+      }.freeze
+    end
+
+    def timestamp4010007
+      Date.strptime(timestamp.strftime('%m/%d/%Y'), '%m/%d/%Y')
+    end
+
+    def stamp_text
+      @stamp_text ||= do
+        stamp = text
+        unless text_only
+           stamp += if File.basename(@file_path) == 'vba_40_10007-stamped.pdf'
+                    " #{I18n.l(timestamp4010007, format: :pdf_stamp4010007)}"
+                  else
+                    " #{I18n.l(timestamp, format: :pdf_stamp_utc)}"
+                  end
+          stamp += ". #{@append_to_stamp}" if @append_to_stamp
+        end
+        stamp
+      end
+    end
+
   end
 end
