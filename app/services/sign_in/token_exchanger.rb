@@ -91,7 +91,7 @@ module SignIn
     end
 
     def current_session
-      @current_session ||= OAuthSession.find_by(handle: current_access_token.session_handle)
+      @current_session ||= OauthSession.find_by(handle: current_access_token.session_handle)
     end
 
     def current_client_config

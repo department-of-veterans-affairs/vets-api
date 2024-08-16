@@ -10,7 +10,7 @@ RSpec.describe SignIn::DeleteExpiredSessionsJob do
     let(:job) { SignIn::DeleteExpiredSessionsJob.new }
 
     it 'deletes expired oauth sessions' do
-      expect { job.perform }.to change(SignIn::OAuthSession, :count).by(-1)
+      expect { job.perform }.to change(SignIn::OauthSession, :count).by(-1)
     end
 
     it 'does not delete active oauth sessions' do

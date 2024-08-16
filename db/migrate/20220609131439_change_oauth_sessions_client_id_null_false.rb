@@ -1,7 +1,7 @@
-class ChangeOAuthSessionsClientIdNullFalse < ActiveRecord::Migration[6.1]
+class ChangeOauthSessionsClientIdNullFalse < ActiveRecord::Migration[6.1]
   def up
     safety_assured do
-      SignIn::OAuthSession.delete_all
+      SignIn::OauthSession.delete_all
       change_column_null :oauth_sessions, :client_id, false
     end
   end

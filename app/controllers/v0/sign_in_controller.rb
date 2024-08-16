@@ -155,7 +155,7 @@ module V0
     end
 
     def revoke_all_sessions
-      session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
+      session = SignIn::OauthSession.find_by(handle: @access_token.session_handle)
       raise SignIn::Errors::SessionNotFoundError.new message: 'Session not found' if session.blank?
 
       SignIn::RevokeSessionsForUser.new(user_account: session.user_account).perform
@@ -182,7 +182,7 @@ module V0
         raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to authorize access token'
       end
 
-      session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
+      session = SignIn::OauthSession.find_by(handle: @access_token.session_handle)
       raise SignIn::Errors::SessionNotFoundError.new message: 'Session not found' if session.blank?
 
       credential_type = session.user_verification.credential_type

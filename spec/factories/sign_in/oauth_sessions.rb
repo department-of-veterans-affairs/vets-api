@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :oauth_session, class: 'SignIn::OAuthSession' do
+  factory :oauth_session, class: 'SignIn::OauthSession' do
     handle { SecureRandom.uuid }
     user_account { create(:user_account) }
     client_id { create(:client_config).client_id }

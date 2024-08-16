@@ -1,4 +1,4 @@
-class AddClientIdOAuthSessions < ActiveRecord::Migration[6.1]
+class AddClientIdOauthSessions < ActiveRecord::Migration[6.1]
   def up
     add_column :oauth_sessions, :client_id, :string, null: true
   end

@@ -23,15 +23,15 @@ RSpec.describe SignIn::SessionRevoker do
           end
 
           it 'destroys all other sessions with the same device_secret' do
-            expect(SignIn::OAuthSession.all).to contain_exactly(session, connected_session)
+            expect(SignIn::OauthSession.all).to contain_exactly(session, connected_session)
             session_revoker.perform
-            expect(SignIn::OAuthSession.all).to eq([])
+            expect(SignIn::OauthSession.all).to eq([])
           end
         end
 
         context 'and no other sessions exist with the same device_secret' do
           it 'does not attempt to destroy any other sessions' do
-            expect_any_instance_of(SignIn::OAuthSession).to receive(:destroy!).once.and_call_original
+            expect_any_instance_of(SignIn::OauthSession).to receive(:destroy!).once.and_call_original
             session_revoker.perform
           end
         end
@@ -41,7 +41,7 @@ RSpec.describe SignIn::SessionRevoker do
         let(:device_secret) { nil }
 
         it 'does not attempt to destroy any other sessions' do
-          expect_any_instance_of(SignIn::OAuthSession).to receive(:destroy!).once.and_call_original
+          expect_any_instance_of(SignIn::OauthSession).to receive(:destroy!).once.and_call_original
           session_revoker.perform
         end
       end
@@ -107,7 +107,7 @@ RSpec.describe SignIn::SessionRevoker do
             let(:arbitrary_client_id) { 'some-client-id' }
 
             before do
-              allow_any_instance_of(SignIn::OAuthSession).to receive(:client_id).and_return(arbitrary_client_id)
+              allow_any_instance_of(SignIn::OauthSession).to receive(:client_id).and_return(arbitrary_client_id)
             end
 
             it 'raises a record not found Error' do
@@ -139,7 +139,7 @@ RSpec.describe SignIn::SessionRevoker do
 
             it 'destroys the existing session' do
               expect { try(subject) }.to raise_error(StandardError)
-                .and change(SignIn::OAuthSession, :count).from(1).to(0)
+                .and change(SignIn::OauthSession, :count).from(1).to(0)
             end
           end
         end
@@ -224,7 +224,7 @@ RSpec.describe SignIn::SessionRevoker do
             let(:arbitrary_client_id) { 'some-client-id' }
 
             before do
-              allow_any_instance_of(SignIn::OAuthSession).to receive(:client_id).and_return(arbitrary_client_id)
+              allow_any_instance_of(SignIn::OauthSession).to receive(:client_id).and_return(arbitrary_client_id)
             end
 
             it 'raises a record not found Error' do

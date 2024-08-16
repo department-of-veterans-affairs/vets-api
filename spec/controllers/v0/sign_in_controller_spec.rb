@@ -1689,8 +1689,8 @@ RSpec.describe V0::SignInController, type: :controller do
                 end
               end
 
-              it 'creates an OAuthSession' do
-                expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
+              it 'creates an OauthSession' do
+                expect { subject }.to change(SignIn::OauthSession, :count).by(1)
               end
 
               it 'returns ok status' do
@@ -1869,8 +1869,8 @@ RSpec.describe V0::SignInController, type: :controller do
                   end
                 end
 
-                it 'creates an OAuthSession' do
-                  expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
+                it 'creates an OauthSession' do
+                  expect { subject }.to change(SignIn::OauthSession, :count).by(1)
                 end
 
                 it 'returns ok status' do
@@ -2131,8 +2131,8 @@ RSpec.describe V0::SignInController, type: :controller do
                       end
                     end
 
-                    it 'creates an OAuthSession' do
-                      expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
+                    it 'creates an OauthSession' do
+                      expect { subject }.to change(SignIn::OauthSession, :count).by(1)
                     end
 
                     it 'returns ok status' do
@@ -2406,7 +2406,7 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         it 'destroys the existing session' do
-          expect { subject }.to change(SignIn::OAuthSession, :count).from(1).to(0)
+          expect { subject }.to change(SignIn::OauthSession, :count).from(1).to(0)
         end
 
         it_behaves_like 'error response'
@@ -2769,9 +2769,9 @@ RSpec.describe V0::SignInController, type: :controller do
       end
       let(:expected_status) { :redirect }
 
-      it 'deletes the OAuthSession object matching the session_handle in the access token' do
+      it 'deletes the OauthSession object matching the session_handle in the access token' do
         expect { subject }.to change {
-          SignIn::OAuthSession.find_by(handle: access_token_object.session_handle)
+          SignIn::OauthSession.find_by(handle: access_token_object.session_handle)
         }.from(oauth_session).to(nil)
       end
 
@@ -2872,8 +2872,8 @@ RSpec.describe V0::SignInController, type: :controller do
       context 'and the access token is expired' do
         let(:expiration_time) { Time.zone.now - SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
 
-        it 'does not delete the OAuthSession object and clears cookies' do
-          expect { subject }.not_to change(SignIn::OAuthSession, :count)
+        it 'does not delete the OauthSession object and clears cookies' do
+          expect { subject }.not_to change(SignIn::OauthSession, :count)
           expect(subject.cookies).to be_empty
         end
 
@@ -3025,7 +3025,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:access_token_object) do
         create(:access_token, session_handle: oauth_session.handle, user_uuid:)
       end
-      let(:oauth_session_count) { SignIn::OAuthSession.where(user_account:).count }
+      let(:oauth_session_count) { SignIn::OauthSession.where(user_account:).count }
       let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS }
       let(:expected_log) { '[SignInService] [V0::SignInController] revoke all sessions' }
       let(:expected_log_params) do
@@ -3047,8 +3047,8 @@ RSpec.describe V0::SignInController, type: :controller do
         request.headers['Authorization'] = authorization
       end
 
-      it 'deletes all OAuthSession objects associated with current user user_account' do
-        expect { subject }.to change(SignIn::OAuthSession, :count).from(oauth_session_count).to(0)
+      it 'deletes all OauthSession objects associated with current user user_account' do
+        expect { subject }.to change(SignIn::OauthSession, :count).from(oauth_session_count).to(0)
       end
 
       it 'returns ok status' do

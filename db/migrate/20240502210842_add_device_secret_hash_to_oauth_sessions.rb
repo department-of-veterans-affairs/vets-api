@@ -1,4 +1,4 @@
-class AddDeviceSecretHashToOAuthSessions < ActiveRecord::Migration[7.1]
+class AddDeviceSecretHashToOauthSessions < ActiveRecord::Migration[7.1]
   disable_ddl_transaction!
 
   def change

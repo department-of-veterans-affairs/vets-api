@@ -114,7 +114,7 @@ RSpec.describe SignIn::SessionRefresher do
             let(:arbitrary_client_id) { 'some-client-id' }
 
             before do
-              allow_any_instance_of(SignIn::OAuthSession).to receive(:client_id).and_return(arbitrary_client_id)
+              allow_any_instance_of(SignIn::OauthSession).to receive(:client_id).and_return(arbitrary_client_id)
             end
 
             it 'raises a record not found Error' do
@@ -263,7 +263,7 @@ RSpec.describe SignIn::SessionRefresher do
 
             it 'destroys the existing session' do
               expect { try(subject) }.to raise_error(StandardError)
-                .and change(SignIn::OAuthSession, :count).from(1).to(0)
+                .and change(SignIn::OauthSession, :count).from(1).to(0)
             end
           end
         end

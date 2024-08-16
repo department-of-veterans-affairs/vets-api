@@ -1,4 +1,4 @@
-class AddUserVerificationCredentialEmailToOAuthSessions < ActiveRecord::Migration[6.1]
+class AddUserVerificationCredentialEmailToOauthSessions < ActiveRecord::Migration[6.1]
 
   def change
     safety_assured do

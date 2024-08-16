@@ -1,7 +1,7 @@
-class ChangeOAuthSessionsUserVerificationNullFalse < ActiveRecord::Migration[6.1]
+class ChangeOauthSessionsUserVerificationNullFalse < ActiveRecord::Migration[6.1]
   def up
     safety_assured do
-      SignIn::OAuthSession.delete_all
+      SignIn::OauthSession.delete_all
       change_column_null :oauth_sessions, :user_verification_id, false
     end
   end

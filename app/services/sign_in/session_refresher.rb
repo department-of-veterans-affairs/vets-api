@@ -40,7 +40,7 @@ module SignIn
     end
 
     def find_valid_oauth_session
-      @session ||= OAuthSession.find_by(handle: refresh_token.session_handle)
+      @session ||= OauthSession.find_by(handle: refresh_token.session_handle)
       raise Errors::SessionNotAuthorizedError.new message: 'No valid Session found' unless session&.active?
     end
 

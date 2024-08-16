@@ -84,7 +84,7 @@ module SignIn
     end
 
     def session
-      @session ||= OAuthSession.find_by(handle: access_token.session_handle)
+      @session ||= OauthSession.find_by(handle: access_token.session_handle)
     end
 
     def user_verification

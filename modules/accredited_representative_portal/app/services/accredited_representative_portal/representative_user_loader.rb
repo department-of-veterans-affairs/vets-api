@@ -54,7 +54,7 @@ module AccreditedRepresentativePortal
     end
 
     def session
-      @session ||= SignIn::OAuthSession.find_by(handle: access_token.session_handle)
+      @session ||= SignIn::OauthSession.find_by(handle: access_token.session_handle)
     end
 
     def user_verification

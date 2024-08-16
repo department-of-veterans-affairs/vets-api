@@ -21,7 +21,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'MHV' # My HealtheVet
   inflect.acronym 'MPI' # Master Persons Index (formerly MVI for Veteran instead of Persons)
   inflect.acronym 'NCA' # National Cemetery Administration
-  inflect.acronym 'OAuth'
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PPIU'
   inflect.acronym 'PPMS'

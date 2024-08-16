@@ -82,7 +82,7 @@ module SignIn
     end
 
     def create_new_session
-      OAuthSession.create!(user_account: user_verification.user_account,
+      OauthSession.create!(user_account: user_verification.user_account,
                            user_verification:,
                            client_id: client_config.client_id,
                            credential_email: validated_credential.credential_email,

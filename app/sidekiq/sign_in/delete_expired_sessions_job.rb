@@ -15,7 +15,7 @@ module SignIn
     end
 
     def expired_oauth_sessions
-      OAuthSession.where(refresh_expiration: time_in_past)
+      OauthSession.where(refresh_expiration: time_in_past)
     end
   end
 end

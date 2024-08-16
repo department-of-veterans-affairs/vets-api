@@ -50,7 +50,7 @@ module Mobile::Concerns::SSOLogging
     def sign_in_service_session
       return unless @access_token
 
-      @sign_in_service_session ||= SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
+      @sign_in_service_session ||= SignIn::OauthSession.find_by(handle: @access_token.session_handle)
     end
   end
 end

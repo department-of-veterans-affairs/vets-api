@@ -29,7 +29,7 @@ module SignIn
     end
 
     def find_valid_oauth_session
-      @session ||= OAuthSession.find_by(handle: revoking_token.session_handle)
+      @session ||= OauthSession.find_by(handle: revoking_token.session_handle)
       raise Errors::SessionNotAuthorizedError.new message: 'No valid Session found' unless session&.active?
     end
 
@@ -83,7 +83,7 @@ module SignIn
 
     def delete_device_sessions
       hashed_device_secret = get_hash(device_secret)
-      OAuthSession.where(hashed_device_secret:).destroy_all
+      OauthSession.where(hashed_device_secret:).destroy_all
     end
   end
 end

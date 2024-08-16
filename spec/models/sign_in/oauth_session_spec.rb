@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::OAuthSession, type: :model do
+RSpec.describe SignIn::OauthSession, type: :model do
   let(:oauth_session) do
     create(:oauth_session,
            user_verification:,

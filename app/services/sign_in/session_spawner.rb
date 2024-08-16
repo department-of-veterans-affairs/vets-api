@@ -91,7 +91,7 @@ module SignIn
     end
 
     def create_new_session
-      OAuthSession.create!(
+      OauthSession.create!(
         user_account: user_verification.user_account,
         user_verification:,
         client_id: client_config.client_id,

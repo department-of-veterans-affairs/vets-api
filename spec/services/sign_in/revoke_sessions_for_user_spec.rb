@@ -9,10 +9,10 @@ RSpec.describe SignIn::RevokeSessionsForUser do
     let(:user_account) { create(:user_account) }
     let!(:oauth_session_1) { create(:oauth_session, user_account:) }
     let!(:oauth_session_2) { create(:oauth_session, user_account:) }
-    let(:oauth_session_count) { SignIn::OAuthSession.where(user_account:).count }
+    let(:oauth_session_count) { SignIn::OauthSession.where(user_account:).count }
 
     it 'deletes all sessions associated with given user account' do
-      expect { subject }.to change(SignIn::OAuthSession, :count).from(oauth_session_count).to(0)
+      expect { subject }.to change(SignIn::OauthSession, :count).from(oauth_session_count).to(0)
     end
   end
 end
