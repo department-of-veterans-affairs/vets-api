@@ -112,7 +112,7 @@ module Lighthouse
             )
             return
           end
-          raise Lighthouse::PollForm526PdfError.new('Poll for form 526 PDF: Keep on retrying!')
+          raise Lighthouse::PollForm526PdfError, 'Poll for form 526 PDF: Keep on retrying!'
         end
       end
     end
