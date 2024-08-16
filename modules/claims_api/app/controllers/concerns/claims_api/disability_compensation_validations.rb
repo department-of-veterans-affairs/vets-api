@@ -23,8 +23,6 @@ module ClaimsApi
       validate_form_526_veteran_homelessness!
       # ensure 'militaryRetiredPay.receiving' and 'militaryRetiredPay.willReceiveInFuture' are not same non-null values
       validate_form_526_service_pay!
-      # checks unit phone
-      validate_form_526_reserves_unit_phone!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
       # ensure 'title10Activation.anticipatedSeparationDate' is in the future
@@ -84,11 +82,6 @@ module ClaimsApi
       return if valid_countries.include?(change_of_address['country'])
 
       raise ::Common::Exceptions::InvalidFieldValue.new('country', change_of_address['country'])
-    end
-
-    def validate_form_526_reserves_unit_phone!
-      unit_phone = form_attributes&.dig('serviceInformation', 'reservesNationalGuardService', 'unitPhone')
-      unit_phone['phoneNumber'].delete!('-') if unit_phone.present? && unit_phone['phoneNumber'].include?('-')
     end
 
     def validate_form_526_title10_activation_date!
