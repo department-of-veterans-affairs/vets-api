@@ -4,32 +4,32 @@ module RepresentationManagement
   class AccreditedEntityQuery
     include ActiveModel::Model
 
-    WORD_SIMILARITY_THRESHOLD = 0.7
     MAXIMUM_RESULT_COUNT = 10
+    WORD_SIMILARITY_THRESHOLD = 0.3
 
     def initialize(query_string)
       @query_string = query_string
     end
 
     def results
-      (individuals + organizations).sort_by do |record|
-        levenshtein_distance(@query_string, record)
-      end.take(MAXIMUM_RESULT_COUNT)
+      combined_results = individuals + organizations
+      combined_results.sort_by { |entity| entity['distance'] }.take(MAXIMUM_RESULT_COUNT)
     end
 
     private
 
     def individuals
-      AccreditedIndividual.where('word_similarity(?, full_name) >= ?', @query_string, WORD_SIMILARITY_THRESHOLD)
+      sanitized_query = ActiveRecord::Base.sanitize_sql(['levenshtein(full_name, ?)', @query_string])
+      AccreditedIndividual.where('word_similarity(full_name, ?) > ?', @query_string, WORD_SIMILARITY_THRESHOLD)
+                          .order(Arel.sql(sanitized_query))
+                          .limit(MAXIMUM_RESULT_COUNT)
     end
 
     def organizations
-      AccreditedOrganization.where('word_similarity(?, name) >= ?', @query_string, WORD_SIMILARITY_THRESHOLD)
-    end
-
-    def levenshtein_distance(query, record)
-      text = record.is_a?(AccreditedIndividual) ? record.full_name : record.name
-      StringHelpers.levenshtein_distance(query, text)
+      sanitized_query = ActiveRecord::Base.sanitize_sql(['levenshtein(name, ?)', @query_string])
+      AccreditedOrganization.where('word_similarity(name, ?) > ?', @query_string, WORD_SIMILARITY_THRESHOLD)
+                            .order(Arel.sql(sanitized_query))
+                            .limit(MAXIMUM_RESULT_COUNT)
     end
   end
 end
