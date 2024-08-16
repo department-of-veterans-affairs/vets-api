@@ -392,6 +392,12 @@ class User < Common::RedisStore
     vet360_contact_info&.email&.email_address
   end
 
+  def old_email(transaction_id: nil)
+    return va_profile_email if transaction_id.nil?
+
+    OldEmail.find(transaction_id).try(:email)
+  end
+
   def all_emails
     the_va_profile_email =
       begin

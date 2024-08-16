@@ -12,6 +12,19 @@ module AsyncTransaction
       REQUESTED = 'requested'
       COMPLETED = 'completed'
 
+      CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
+
+      EMAIL_PERSONALISATIONS = {
+        address: 'Address',
+        residence_address: 'Home address',
+        correspondence_address: 'Mailing address',
+        email: 'Email address',
+        phone: 'Phone number',
+        home_phone: 'Home phone number',
+        mobile_phone: 'Mobile phone number',
+        work_phone: 'Work phone number'
+      }.freeze
+
       validates :source_id, presence: true, unless: :initialize_person?
 
       # Get most recent requested transaction for a user
@@ -74,7 +87,14 @@ module AsyncTransaction
       # @return [VAProfile::Models::Transaction]
       def self.fetch_transaction(transaction_record, service, user)
         if Flipper.enabled?(:va_profile_information_v3_transactions, user)
-          service.get_transaction_status(transaction_record.transaction_id, transaction_record)
+          raw_response = service.perform(:get, transaction_record.transaction_path(user))
+          # raw_response = service.perform(:get, "#{user.vet360_id}/addresses/status/#{transaction_id}")
+          VAProfile::Stats.increment_transaction_results(raw_response)
+          transaction_status = transaction_record.transaction_response(raw_response, user)
+
+          # transaction_status = VAProfile::ProfileInformation::AddressTransactionResponse.from(raw_response, user)
+          send_change_notifications(user, transaction_status) if transaction_record.send_change_notifications?
+          return transaction_status
         else
           case transaction_record
           when AsyncTransaction::Vet360::AddressTransaction, AsyncTransaction::VAProfile::AddressTransaction
@@ -158,6 +178,39 @@ module AsyncTransaction
 
       def initialize_person?
         type&.constantize == AsyncTransaction::VAProfile::InitializePersonTransaction
+      end
+
+      def send_change_notifications?
+        false
+      end
+
+      def send_change_notifications(user, transaction_status)
+        transaction = transaction_status.transaction
+        transaction_id = transaction.id
+        return if !transaction.completed_success? || TransactionNotification.find(transaction_id).present?
+
+        email_transaction = transaction_status.try(:new_email).present?
+        notify_email = email_transaction ? user.old_email(transaction_id) : user.old_email
+        return if notify_email.nil?
+
+        personalisation = transaction_status.changed_field
+
+        notify_email_job(notify_email, personalisation)
+        TransactionNotification.create(transaction_id:)
+        return unless email_transaction
+
+        # Send notification to new email
+        notify_email_job(transaction_status.new_email, personalisation)
+        OldEmail.find(transaction_id).destroy
+      end
+
+      def self.get_email_personalisation(type)
+        { 'contact_info' => EMAIL_PERSONALISATIONS[type] }
+      end
+
+      def self.notify_email_job(notify_email, personalisation)
+        VANotifyEmailJob.perform_async(notify_email, CONTACT_INFO_CHANGE_TEMPLATE,
+                                       get_email_personalisation(personalisation))
       end
     end
   end

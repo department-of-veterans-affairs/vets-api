@@ -69,7 +69,7 @@ module VAProfile
         VAProfile::ProfileInformation::EmailTransactionResponse
       end
 
-      def transaction_status_path(user, transaction_id)
+      def self.transaction_status_path(user, transaction_id)
         "#{user.vet360_id}/emails/status/#{transaction_id}"
       end
 

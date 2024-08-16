@@ -2,6 +2,10 @@
 
 module AsyncTransaction
   module VAProfile
-    class AddressTransaction < AsyncTransaction::VAProfile::Base; end
+    class AddressTransaction < AsyncTransaction::VAProfile::Base
+      def send_notifications?
+        true
+      end
+    end
   end
 end

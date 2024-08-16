@@ -102,12 +102,14 @@ module VAProfile
         VAProfile::ProfileInformation::AddressTransactionResponse
       end
 
-      def transaction_status_path(user, transaction_id)
-        "#{user.vet360_id}/addresses/status/#{transaction_id}"
-      end
-
-      def send_change_notifications?
-        true
+      def self.get_transaction_status(service, transaction_id, user)
+        raw_response = service.perform(:get, "#{user.vet360_id}/addresses/status/#{transaction_id}")
+        VAProfile::Stats.increment_transaction_results(raw_response)
+        transaction_status = VAProfile::ProfileInformation::AddressTransactionResponse.from(raw_response, user)
+        send_change_notifications(user, transaction_status)
+        return transaction_status
+      rescue => e
+        Rails.logger.error("The transaction status could not be found. #{e.message}")
       end
 
       def contact_info_attr(contact_info: false)

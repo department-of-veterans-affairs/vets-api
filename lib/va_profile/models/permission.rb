@@ -80,7 +80,7 @@ module VAProfile
         VAProfile::ProfileInformation::PermissionTransactionResponse
       end
 
-      def transaction_status_path(user, transaction_id)
+      def self.transaction_status_path(user, transaction_id)
         "#{user.vet360_id}/permissions/status/#{transaction_id}"
       end
 
