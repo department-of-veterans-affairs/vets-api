@@ -162,10 +162,6 @@ features:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
     enable_in_development: true
-  check_in_experience_45_minute_reminder:
-    actor_type: user
-    description: Enables the 45 minute reminder
-    enable_in_development: true
   check_in_experience_check_claim_status_on_timeout:
     actor_type: user
     description: Uses a background worker to check travel claim status when the submission times out
@@ -811,6 +807,10 @@ features:
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
+    enable_in_development: true
+  mhv_secure_messaging_filter_accordion:
+    actor_type: user
+    description: Enables/disables Secure Messaging Filter Accordion re-design updates on VA.gov
     enable_in_development: true
   mhv_secure_messaging_remove_lefthand_nav:
     actor_type: user
