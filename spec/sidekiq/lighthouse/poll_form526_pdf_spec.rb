@@ -46,7 +46,7 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
       end.not_to raise_error
     end
 
-    it 'calls polling only for startedFormVersion present' do
+    it 'calls polling only for startedFormVersion present and retries' do
       allow(Lighthouse::PollForm526Pdf).to receive(:perform_async).with(form526_submission.id).and_call_original
 
       expect(Lighthouse::PollForm526Pdf).to receive(:perform_async).with(form526_submission.id)
@@ -59,6 +59,16 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
         job_status.reload
         expect(job_status.status).to eq 'try'
       end.to raise_error(Lighthouse::PollForm526PdfError)
+    end
+
+    it 'does not call polling if startedFormVersion blank' do
+      form = form526_submission.saved_claim.parsed_form
+      form['startedFormVersion'] = nil
+      form526_submission.saved_claim.update(form: form.to_json)
+
+      expect(Lighthouse::PollForm526Pdf).not_to receive(:perform_async)
+
+      form526_submission.send(:poll_form526_pdf)
     end
 
     context 'when all retries are exhausted' do
