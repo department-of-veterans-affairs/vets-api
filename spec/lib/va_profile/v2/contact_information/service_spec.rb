@@ -408,7 +408,8 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
 
       it 'returns a status of 404' do
-        VCR.use_cassette('va_profile/v2/contact_information/telephone_transaction_status_error', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/v2/contact_information/telephone_transaction_status_error',
+                         VCR::MATCH_EVERYTHING) do
           expect { subject.get_telephone_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
@@ -700,7 +701,8 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
 
       it 'returns a status of 400' do
-        VCR.use_cassette('va_profile/v2/contact_information/permission_transaction_status_error', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/v2/contact_information/permission_transaction_status_error',
+                         VCR::MATCH_EVERYTHING) do
           expect { subject.get_permission_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
