@@ -88,7 +88,7 @@ module V0
     def station_number(facility)
       # remove the Health prefix from the ID: vha_402GA -> 402GA. see Facility ID formats in
       #   https://developer.va.gov/explore/api/va-facilities/docs?version=current
-      facility.id[4..]
+      facility.id.split('_').last
     end
 
     def health_care_application
