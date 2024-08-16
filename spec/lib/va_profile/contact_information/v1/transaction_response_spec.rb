@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_profile/contact_information/transaction_response'
+require 'va_profile/contact_information/v1/transaction_response'
 
-describe VAProfile::ContactInformation::TransactionResponse do
+describe VAProfile::ContactInformation::V1::TransactionResponse do
   describe '.from' do
     subject { described_class.from(raw_response) }
 
     let(:raw_response) { OpenStruct.new(body:) }
 
-    describe VAProfile::ContactInformation::AddressTransactionResponse do
+    describe VAProfile::ContactInformation::V1::AddressTransactionResponse do
       let(:body) do
         {
           'tx_audit_id' => 'a2af8cd1-472c-4e6f-bd5a-f95e31e351b7',
@@ -44,7 +44,7 @@ describe VAProfile::ContactInformation::TransactionResponse do
       end
     end
 
-    describe VAProfile::ContactInformation::TelephoneTransactionResponse do
+    describe VAProfile::ContactInformation::V1::TelephoneTransactionResponse do
       let(:body) do
         {
           'tx_audit_id' => 'a2af8cd1-472c-4e6f-bd5a-f95e31e351b7',
@@ -89,7 +89,7 @@ describe VAProfile::ContactInformation::TransactionResponse do
       end
     end
 
-    describe VAProfile::ContactInformation::EmailTransactionResponse do
+    describe VAProfile::ContactInformation::V1::EmailTransactionResponse do
       let(:body) do
         { 'tx_audit_id' => 'cb99a754-9fa9-4f3c-be93-ede12c14b68e',
           'status' => 'COMPLETED_SUCCESS',
@@ -134,7 +134,7 @@ describe VAProfile::ContactInformation::TransactionResponse do
       end
     end
 
-    describe VAProfile::ContactInformation::PersonTransactionResponse do
+    describe VAProfile::ContactInformation::V1::PersonTransactionResponse do
       context 'with a MVI201 response error' do
         let(:body) do
           {

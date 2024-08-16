@@ -18,7 +18,7 @@ RSpec.describe CopayNotifications::McpNotificationEmailJob, :skip_vet360, type: 
 
   describe '#perform' do
     it 'sends an email using the template id' do
-      VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+      VCR.use_cassette('va_profile/contact_information/v1/person_full', VCR::MATCH_EVERYTHING) do
         client = double
         expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.dmc.api_key).and_return(client)
 
@@ -35,7 +35,7 @@ RSpec.describe CopayNotifications::McpNotificationEmailJob, :skip_vet360, type: 
       let(:vet_id) { '6767671' }
 
       it 'uses backup email' do
-        VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/v1/person_error', VCR::MATCH_EVERYTHING) do
           job = described_class.new
           client = double
           expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.dmc.api_key).and_return(client)
@@ -49,7 +49,7 @@ RSpec.describe CopayNotifications::McpNotificationEmailJob, :skip_vet360, type: 
       end
 
       it 'logs an error' do
-        VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/v1/person_error', VCR::MATCH_EVERYTHING) do
           job = described_class.new
           expect(job).to receive(:log_exception_to_sentry).with(
             instance_of(CopayNotifications::ProfileMissingEmail), {}, { error: :mcp_notification_email_job }, 'info'
@@ -61,7 +61,7 @@ RSpec.describe CopayNotifications::McpNotificationEmailJob, :skip_vet360, type: 
 
     context 'when vanotify returns a 400 error' do
       it 'rescues and logs the error' do
-        VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/v1/person_full', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('va_notify/bad_request') do
             job = described_class.new
             expect(job).to receive(:log_exception_to_sentry).with(

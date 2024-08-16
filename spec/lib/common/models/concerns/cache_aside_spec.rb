@@ -13,7 +13,7 @@ describe Common::CacheAside do
 
   describe '#do_cached_with' do
     let(:person_response) do
-      VAProfile::ContactInformation::PersonResponse.from(
+      VAProfile::ContactInformation::V1::PersonResponse.from(
         OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
       )
     end

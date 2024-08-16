@@ -21,8 +21,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person)
-      VCR.use_cassette('va_profile/contact_information/person', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:get_person)
+      VCR.use_cassette('va_profile/contact_information/v1/person', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -39,14 +39,14 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_email_transaction_status)
-      VCR.use_cassette('va_profile/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:get_email_transaction_status)
+      VCR.use_cassette('va_profile/contact_information/v1/email_transaction_status', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
 
     it 'aborts' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).not_to receive(:get_email_transaction_status)
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).not_to receive(:get_email_transaction_status)
     end
   end
 
@@ -57,8 +57,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_address_transaction_status)
-      VCR.use_cassette('va_profile/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:get_address_transaction_status)
+      VCR.use_cassette('va_profile/contact_information/v1/address_transaction_status', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -71,8 +71,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_telephone_transaction_status)
-      VCR.use_cassette('va_profile/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:get_telephone_transaction_status)
+      VCR.use_cassette('va_profile/contact_information/v1/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -85,8 +85,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_permission_transaction_status)
-      VCR.use_cassette('va_profile/contact_information/permission_transaction_status', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:get_permission_transaction_status)
+      VCR.use_cassette('va_profile/contact_information/v1/permission_transaction_status', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -102,8 +102,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:put_email)
-      VCR.use_cassette('va_profile/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:put_email)
+      VCR.use_cassette('va_profile/contact_information/v1/put_email_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -121,8 +121,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:put_telephone)
-      VCR.use_cassette('va_profile/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:put_telephone)
+      VCR.use_cassette('va_profile/contact_information/v1/put_telephone_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -142,8 +142,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:put_address)
-      VCR.use_cassette('va_profile/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:put_address)
+      VCR.use_cassette('va_profile/contact_information/v1/put_address_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -160,8 +160,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:put_permission)
-      VCR.use_cassette('va_profile/contact_information/put_permission_success', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:put_permission)
+      VCR.use_cassette('va_profile/contact_information/v1/put_permission_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -177,8 +177,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:post_email)
-      VCR.use_cassette('va_profile/contact_information/post_email_success', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:post_email)
+      VCR.use_cassette('va_profile/contact_information/v1/post_email_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -196,8 +196,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:post_telephone)
-      VCR.use_cassette('va_profile/contact_information/post_telephone_success', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:post_telephone)
+      VCR.use_cassette('va_profile/contact_information/v1/post_telephone_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -217,8 +217,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:post_address)
-      VCR.use_cassette('va_profile/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:post_address)
+      VCR.use_cassette('va_profile/contact_information/v1/post_address_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end
@@ -235,8 +235,8 @@ describe 'vet360 rake tasks' do
     end
 
     it 'runs without errors' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:post_permission)
-      VCR.use_cassette('va_profile/contact_information/post_permission_success', VCR::MATCH_EVERYTHING) do
+      expect_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:post_permission)
+      VCR.use_cassette('va_profile/contact_information/v1/post_permission_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
     end

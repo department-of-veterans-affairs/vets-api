@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'va_profile/contact_information/person_response'
-require 'va_profile/contact_information/service'
+require 'va_profile/contact_information/v1/person_response'
+require 'va_profile/contact_information/v1/service'
 require 'va_profile/models/address'
 require 'va_profile/models/telephone'
 require 'va_profile/models/permission'
@@ -10,11 +10,11 @@ require 'common/models/concerns/cache_aside'
 require 'va_profile/configuration'
 
 module VAProfileRedis
-  # Facade for VAProfile::ContactInformation::Service. The user_serializer delegates
+  # Facade for VAProfile::ContactInformation::V1::Service. The user_serializer delegates
   # to this class through the User model.
   #
   # When a person is requested from the serializer, it returns either a cached
-  # response in Redis or from the VAProfile::ContactInformation::Service.
+  # response in Redis or from the VAProfile::ContactInformation::V1::Service.
   #
   class ContactInformation < Common::RedisStore
     include Common::CacheAside
@@ -134,20 +134,20 @@ module VAProfileRedis
       dig_out('permissions', 'permission_type', VAProfile::Models::Permission::TEXT)
     end
 
-    # The status of the last VAProfile::ContactInformation::Service response,
+    # The status of the last VAProfile::ContactInformation::V1::Service response,
     # or not authorized for for users < LOA 3
     #
-    # @return [Integer <> String] the status of the last VAProfile::ContactInformation::Service response
+    # @return [Integer <> String] the status of the last VAProfile::ContactInformation::V1::Service response
     #
     def status
-      return VAProfile::ContactInformation::PersonResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
+      return VAProfile::ContactInformation::V1::PersonResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
 
       response.status
     end
 
-    # @return [VAProfile::ContactInformation::PersonResponse] the response returned from
+    # @return [VAProfile::ContactInformation::V1::PersonResponse] the response returned from
     # the redis cache.  If that is unavailable, it calls the
-    # VAProfile::ContactInformation::Service#get_person endpoint.
+    # VAProfile::ContactInformation::V1::Service#get_person endpoint.
     #
     def response
       @response ||= response_from_redis_or_service
@@ -187,7 +187,7 @@ module VAProfileRedis
     end
 
     def contact_info_service
-      @service ||= VAProfile::ContactInformation::Service.new(@user)
+      @service ||= VAProfile::ContactInformation::V1::Service.new(@user)
     end
   end
 end

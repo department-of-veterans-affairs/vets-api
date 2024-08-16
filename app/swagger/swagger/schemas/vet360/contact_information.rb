@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'va_profile/contact_information/person_response'
-require 'va_profile/contact_information/service'
+require 'va_profile/contact_information/v1/person_response'
+require 'va_profile/contact_information/v1/service'
 require 'va_profile/models/address'
 require 'va_profile/models/telephone'
 require 'va_profile/models/permission'

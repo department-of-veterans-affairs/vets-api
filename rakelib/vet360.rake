@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_profile/contact_information/service'
+require 'va_profile/contact_information/v1/service'
 require 'va_profile/exceptions/builder'
 require 'va_profile/models/email'
 require 'va_profile/models/telephone'
@@ -18,7 +18,7 @@ namespace :vet360 do
   desc 'Request Vet360 person contact information'
   task :get_person, [:vet360_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
-    trx = VAProfile::ContactInformation::Service.new(user_struct(args[:vet360_id])).get_person
+    trx = VAProfile::ContactInformation::V1::Service.new(user_struct(args[:vet360_id])).get_person
     # rubocop:disable Lint/Debugger
     pp trx.to_h
     # rubocop:enable Lint/Debugger
@@ -28,7 +28,7 @@ namespace :vet360 do
   task :get_email_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(args[:vet360_id]))
           .get_email_transaction_status(args[:tx_audit_id])
     # rubocop:disable Lint/Debugger
@@ -40,7 +40,7 @@ namespace :vet360 do
   task :get_address_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(args[:vet360_id]))
           .get_address_transaction_status(args[:tx_audit_id])
     # rubocop:disable Lint/Debugger
@@ -52,7 +52,7 @@ namespace :vet360 do
   task :get_telephone_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(args[:vet360_id]))
           .get_telephone_transaction_status(args[:tx_audit_id])
     # rubocop:disable Lint/Debugger
@@ -64,7 +64,7 @@ namespace :vet360 do
   task :get_permission_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(args[:vet360_id]))
           .get_permission_transaction_status(args[:tx_audit_id])
     # rubocop:disable Lint/Debugger
@@ -93,7 +93,7 @@ namespace :vet360 do
     ensure_var('vet360_id', vet360_id)
 
     email = VAProfile::Models::Email.build_from(data)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(vet360_id))
           .put_email(email)
     # rubocop:disable Lint/Debugger
@@ -119,7 +119,7 @@ namespace :vet360 do
     ensure_var('vet360_id', vet360_id)
 
     telephone = VAProfile::Models::Telephone.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(vet360_id))
           .put_telephone(telephone)
     # rubocop:disable Lint/Debugger
@@ -147,7 +147,7 @@ namespace :vet360 do
     ensure_var('vet360_id', vet360_id)
 
     address = VAProfile::Models::Address.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(vet360_id))
           .put_address(address)
     # rubocop:disable Lint/Debugger
@@ -172,7 +172,7 @@ namespace :vet360 do
     ensure_var('vet360_id', vet360_id)
 
     permission = VAProfile::Models::Permission.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(vet360_id))
           .put_permission(permission)
     # rubocop:disable Lint/Debugger
@@ -200,7 +200,7 @@ namespace :vet360 do
     ensure_var('vet360_id', vet360_id)
 
     email = VAProfile::Models::Email.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(vet360_id))
           .post_email(email)
     # rubocop:disable Lint/Debugger
@@ -228,7 +228,7 @@ namespace :vet360 do
     ensure_var('vet360_id', vet360_id)
 
     telephone = VAProfile::Models::Telephone.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(vet360_id))
           .post_telephone(telephone)
     # rubocop:disable Lint/Debugger
@@ -254,7 +254,7 @@ namespace :vet360 do
     ensure_var('vet360_id', vet360_id)
 
     address = VAProfile::Models::Address.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(vet360_id))
           .post_address(address)
     # rubocop:disable Lint/Debugger
@@ -279,7 +279,7 @@ namespace :vet360 do
     ensure_var('vet360_id', vet360_id)
 
     permission = VAProfile::Models::Permission.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::ContactInformation::V1::Service
           .new(user_struct(vet360_id))
           .post_permission(permission)
     # rubocop:disable Lint/Debugger

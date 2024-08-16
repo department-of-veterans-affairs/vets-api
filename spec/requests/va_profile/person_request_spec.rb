@@ -98,7 +98,7 @@ RSpec.describe 'person' do
       end
 
       it 'responds with a serialized transaction', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/person_transaction_status') do
+        VCR.use_cassette('va_profile/contact_information/v1/person_transaction_status') do
           get("/v0/profile/person/status/#{transaction.transaction_id}", params: nil, headers:)
 
           expect(response).to have_http_status(:ok)
@@ -107,7 +107,7 @@ RSpec.describe 'person' do
       end
 
       it 'responds with a serialized transaction when camel-inflected', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/person_transaction_status') do
+        VCR.use_cassette('va_profile/contact_information/v1/person_transaction_status') do
           get("/v0/profile/person/status/#{transaction.transaction_id}", params: nil, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
@@ -125,7 +125,7 @@ RSpec.describe 'person' do
       end
 
       it 'matches the errors response schema', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/v1/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
           get("/v0/profile/person/status/#{transaction.transaction_id}", params: nil, headers:)
 
           expect(response).to have_http_status(:bad_request)
@@ -134,7 +134,7 @@ RSpec.describe 'person' do
       end
 
       it 'matches the errors response camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/v1/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
           get("/v0/profile/person/status/#{transaction.transaction_id}", params: nil, headers: headers_with_camel)
 
           expect(response).to have_http_status(:bad_request)

@@ -158,7 +158,7 @@ RSpec.describe 'Fetching user data' do
       end
     end
 
-    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', :skip_vet360 do
+    context 'with an error from a 503 raised by VAProfile::ContactInformation::V1::Service#get_person', :skip_vet360 do
       before do
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }

@@ -251,7 +251,7 @@ RSpec.describe 'user', type: :request do
 
     context 'when the upstream va profile service returns a 502' do
       before do
-        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:get_person).and_raise(
           Common::Exceptions::BackendServiceException.new('VET360_502')
         )
       end
@@ -268,7 +268,7 @@ RSpec.describe 'user', type: :request do
 
     context 'when the upstream va profile service returns a 404' do
       before do
-        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:get_person).and_raise(
           Common::Exceptions::RecordNotFound.new(user.uuid)
         )
       end
@@ -299,7 +299,7 @@ RSpec.describe 'user', type: :request do
 
     context 'when the va profile service throws an argument error' do
       before do
-        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:get_person).and_raise(
           ArgumentError.new
         )
       end
@@ -314,7 +314,7 @@ RSpec.describe 'user', type: :request do
 
     context 'when the va profile service throws an client error' do
       before do
-        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::V1::Service).to receive(:get_person).and_raise(
           Common::Exceptions::BackendServiceException.new('VET360_502')
         )
       end

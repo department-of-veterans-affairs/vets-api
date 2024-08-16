@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/validation_errors'
-require 'va_profile/contact_information/service'
+require 'va_profile/contact_information/v1/service'
 
 module Vet360
   module Writeable
@@ -49,7 +49,7 @@ module Vet360
     end
 
     def service
-      VAProfile::ContactInformation::Service.new @current_user
+      VAProfile::ContactInformation::V1::Service.new @current_user
     end
 
     def write_valid_record!(http_verb, type, record)

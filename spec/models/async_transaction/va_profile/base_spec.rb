@@ -48,7 +48,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED')
     end
-    let(:service) { VAProfile::ContactInformation::Service.new(user) }
+    let(:service) { VAProfile::ContactInformation::V1::Service.new(user) }
 
     before do
       # vet360_id appears in the API request URI so we need it to match the cassette
@@ -58,7 +58,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     end
 
     it 'updates the transaction_status' do
-      VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
+      VCR.use_cassette('va_profile/contact_information/v1/address_transaction_status') do
         updated_transaction = AsyncTransaction::VAProfile::Base.refresh_transaction_status(
           user,
           service,
@@ -69,7 +69,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     end
 
     it 'updates the status' do
-      VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
+      VCR.use_cassette('va_profile/contact_information/v1/address_transaction_status') do
         updated_transaction = AsyncTransaction::VAProfile::Base.refresh_transaction_status(
           user,
           service,
@@ -80,7 +80,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     end
 
     it 'persists the messages from va_profile' do
-      VCR.use_cassette('va_profile/contact_information/email_transaction_status') do
+      VCR.use_cassette('va_profile/contact_information/v1/email_transaction_status') do
         updated_transaction = AsyncTransaction::VAProfile::Base.refresh_transaction_status(
           user,
           service,
@@ -101,7 +101,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
 
     it 'does not make an API request if the tx is finished' do
       transaction1.status = AsyncTransaction::VAProfile::Base::COMPLETED
-      VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
+      VCR.use_cassette('va_profile/contact_information/v1/address_transaction_status') do
         AsyncTransaction::VAProfile::Base.refresh_transaction_status(
           user,
           service,
@@ -122,8 +122,8 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     let(:address) { build(:va_profile_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
 
     it 'returns an instance with the user uuid', :aggregate_failures do
-      VCR.use_cassette('va_profile/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
-        service = VAProfile::ContactInformation::Service.new(user)
+      VCR.use_cassette('va_profile/contact_information/v1/post_address_success', VCR::MATCH_EVERYTHING) do
+        service = VAProfile::ContactInformation::V1::Service.new(user)
         address.address_line1 = '1493 Martin Luther King Rd'
         address.city = 'Fulton'
         address.state_code = 'MS'
@@ -245,7 +245,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
              user_uuid: user.uuid,
              status: AsyncTransaction::VAProfile::Base::COMPLETED)
     end
-    let(:service) { VAProfile::ContactInformation::Service.new(user) }
+    let(:service) { VAProfile::ContactInformation::V1::Service.new(user) }
 
     before do
       # vet360_id appears in the API request URI so we need it to match the cassette
@@ -271,7 +271,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
                            user_uuid: user.uuid,
                            transaction_status: 'RECEIVED',
                            status: AsyncTransaction::VAProfile::Base::REQUESTED)
-      VCR.use_cassette('va_profile/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
+      VCR.use_cassette('va_profile/contact_information/v1/email_transaction_status', VCR::MATCH_EVERYTHING) do
         transactions = AsyncTransaction::VAProfile::Base.refresh_transaction_statuses(user, service)
         expect(transactions.size).to eq(1)
         expect(transactions.first.transaction_id).to eq(transaction.transaction_id)
