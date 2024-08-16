@@ -1,0 +1,16 @@
+{
+  "privacyAgreementAccepted": true,
+  "veteranSocialSecurityNumber": "111223333",
+  "claimantAddress": {
+    "city": "Baltimore",
+    "country": "US",
+    "postalCode": "21231",
+    "state": "MD",
+    "street": "111 Uni Drive"
+  },
+  "veteranFullName": {
+    "first": "Mark",
+    "last": "Olson"
+  },
+  "toursOfDuty": [{}]
+}
