@@ -242,6 +242,21 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           expect(disability_name).to eq(stripped_name)
         end
       end
+
+      context 'When the secondary disability name has brackets' do
+        it 'strips the brackets from the name' do
+          secondary_disability[:name] = 'osteoarthritis, right knee with chondromalacia' \
+                                        ' [previously rated as bilateral chondromalacia, diagnostic code 5010]'
+          form_data['data']['attributes']['disabilities'][0]['secondaryDisabilities'][0] = secondary_disability
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number).map_claim[:form526]
+          secondary_disability_name = evss_data[:disabilities][0][:secondaryDisabilities][0][:name]
+          stripped_name = 'osteoarthritis, right knee with chondromalacia' \
+                          ' previously rated as bilateral chondromalacia, diagnostic code 5010'
+
+          expect(secondary_disability_name).to eq(stripped_name)
+        end
+      end
     end
 
     context '526 section 6, service information: service periods' do

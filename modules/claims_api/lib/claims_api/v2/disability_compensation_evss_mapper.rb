@@ -71,6 +71,8 @@ module ClaimsApi
           disability[:secondaryDisabilities] = disability[:secondaryDisabilities]&.map do |secondary|
             secondary.delete(:classificationCode) if secondary&.dig(:classificationCode).nil? # blank is ok
 
+            secondary[:name] = secondary[:name].gsub(/\[|\]/, '') if secondary[:name].present?
+
             secondary.except(:exposureOrEventOrInjury, :approximateDate)
           end
         end
