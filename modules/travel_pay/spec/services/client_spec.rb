@@ -54,6 +54,23 @@ describe TravelPay::Client do
       expect(token).to eq('fake_btsss_token')
       @stubs.verify_stubbed_calls
     end
+
+    it 'uses both subscription key headers if prod' do
+      original_env = Settings.vsp_environment
+      Settings.vsp_environment = 'production'
+
+      @stubs.post('/api/v1/Auth/access-token', json_request_body) do
+        [
+          200,
+          { 'Content-Type': 'application/json' },
+          '{"data": {"accessToken": "fake_btsss_token"}}'
+        ]
+      end
+
+      client = TravelPay::Client.new
+      token = client.request_btsss_token('fake_veis_token', vagov_token)
+
+    end
   end
 
   context 'ping' do

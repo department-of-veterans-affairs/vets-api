@@ -33,9 +33,9 @@ module TravelPay
 
       response = connection(server_url: btsss_url).post('api/v1/Auth/access-token') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['Ocp-Apim-Subscription-Key'] = api_key
         req.headers['BTSSS-API-Client-Number'] = client_number.to_s
         req.headers['X-Correlation-ID'] = SecureRandom.uuid
+        req.headers.merge(claim_headers)
         req.body = { authJwt: sts_token }
       end
 
@@ -100,6 +100,21 @@ module TravelPay
     end
 
     private
+
+    def claim_headers
+      if Settings.vsp_environment == 'production'
+        {
+          'Content-Type' => 'application/json',
+          'Ocp-Apim-Subscription-Key-E' => Settings.travel_pay.subscription_key_e,
+          'Ocp-Apim-Subscription-Key-S' => Settings.travel_pay.subscription_key_s
+        }
+      else
+        {
+          'Content-Type' => 'application/json',
+          'Ocp-Apim-Subscription-Key' => Settings.travel_pay.subscription_key
+        }
+      end
+    end
 
     def build_sts_assertion(user)
       service_account_id = Settings.travel_pay.sts.service_account_id
@@ -178,8 +193,8 @@ module TravelPay
       connection(server_url: btsss_url).get('api/v1/claims') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['BTSSS-Access-Token'] = btsss_token
-        req.headers['Ocp-Apim-Subscription-Key'] = api_key
         req.headers['X-Correlation-ID'] = SecureRandom.uuid
+        req.headers.merge(claim_headers)
       end
     end
 
