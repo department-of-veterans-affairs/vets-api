@@ -34,7 +34,11 @@ class FormProfiles::VA686c674 < FormProfile
   private
 
   def prefill_form_address
-    mailing_address = VAProfileRedis::ContactInformation.for_user(user).mailing_address if user.vet360_id.present?
+    mailing_address ||= if Flipper.enabled?(:va_profile_information_v3_redis, self)
+                          VAProfileRedis::ProfileInformation.for_user(user).mailing_address if user.vet360_id.present?
+                        else
+                          VAProfileRedis::ContactInformation.for_user(user).mailing_address if user.vet360_id.present?
+                        end
     return if mailing_address.blank?
 
     @form_address = FormAddress.new(

@@ -74,7 +74,6 @@ module VAProfile
           raw_response = perform(http_verb, update_path, record.in_json)
 
           response = record.transaction_response_class.from(raw_response)
-
           return response unless http_verb == :put && record.contact_info_attr == 'email' && old_email.present?
 
           transaction = response.transaction
@@ -97,7 +96,7 @@ module VAProfile
           return transaction_status unless record.send_change_notifications?
 
           send_change_notifications(transaction_status)
-          return response
+          return transaction_status
         end
       rescue => e
         handle_error(e)

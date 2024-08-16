@@ -4,7 +4,11 @@ require 'rails_helper'
 
 describe VAProfileRedis::Cache, :skip_vet360 do
   let(:user) { build :user, :loa3 }
-  let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
+  if Flipper.enabled?(:va_profile_information_v3_redis, user)
+    let(:contact_info) { VAProfileRedis::ProfileInformation.for_user(user) }
+  else
+    let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
+  end
 
   before do
     allow(user).to receive(:vet360_id).and_return('1')
@@ -17,11 +21,17 @@ describe VAProfileRedis::Cache, :skip_vet360 do
         VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
           contact_info
         end
-        expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(true)
+        if Flipper.enabled?(:va_profile_information_v3_redis, user)
+          expect(VAProfileRedis::ProfileInformation.exists?(user.uuid)).to eq(true)
+          VAProfileRedis::Cache.invalidate(user)
 
-        VAProfileRedis::Cache.invalidate(user)
+          expect(VAProfileRedis::ProfileInformation.exists?(user.uuid)).to eq(false)
+        else
+          expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(true)
+          VAProfileRedis::Cache.invalidate(user)
 
-        expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(false)
+          expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(false)
+        end
       end
     end
 
