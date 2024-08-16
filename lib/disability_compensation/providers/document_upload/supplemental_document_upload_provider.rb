@@ -25,7 +25,7 @@ module SupplementalDocumentUploadProvider
     raise_not_implemented_error
   end
 
-  def self.log_upload_error_retry(uploading_class_prefix, error)
+  def self.log_upload_error_retry(uploading_class_prefix)
     raise_not_implemented_error
   end
 
