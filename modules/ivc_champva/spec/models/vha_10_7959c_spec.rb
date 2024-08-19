@@ -82,6 +82,7 @@ RSpec.describe IvcChampva::VHA107959c do
   describe '#track_email_usage' do
     let(:statsd_key) { 'api.ivc_champva_form.10_7959c' }
     let(:vha_10_7959c) { described_class.new(data) }
+
     context 'when email is used' do
       let(:data) { { 'primary_contact_info' => { 'email' => 'test@example.com' } } }
 
