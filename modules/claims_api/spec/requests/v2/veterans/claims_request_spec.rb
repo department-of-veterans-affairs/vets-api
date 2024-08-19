@@ -548,7 +548,7 @@ RSpec.describe 'Claims', type: :request do
       end
     end
 
-    context 'show with validate_id_with_icn when there is a claimant ID in place of the verteran ID' do
+    context 'show with validate_id_with_icn when there is a claimant ID in place of the veteran ID' do
       describe ' BGS attributes (w/ Claimant ID replacing vet ID)' do
         it 'are listed' do
           bgs_claim_response = build(:bgs_response_claim_with_unmatched_ptcpnt_vet_id).to_h
