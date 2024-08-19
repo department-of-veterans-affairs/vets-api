@@ -1358,6 +1358,10 @@ features:
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
+  va_v3_contact_information_service:
+    actor_type: user
+    description: When enabled, the VAProfile::V3::ContactInformation will be enabled
+    enable_in_development: true
   va_profile_information_v3_service:
     actor_type: user
     description: When enabled, the VAProfile::V3::Service will be enabled for VaProfile::ProfileInformation
