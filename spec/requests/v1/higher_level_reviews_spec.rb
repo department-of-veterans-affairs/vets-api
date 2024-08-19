@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V1::HigherLevelReviewsController do
+RSpec.describe 'V1::HigherLevelReviews', type: :request do
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:success_log_args) do

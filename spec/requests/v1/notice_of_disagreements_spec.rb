@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V1::NoticeOfDisagreementsController do
+RSpec.describe 'V1::NoticeOfDisagreements', type: :request do
   let(:user) do
     build(:user,
           :loa3,
