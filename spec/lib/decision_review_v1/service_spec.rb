@@ -695,4 +695,29 @@ describe DecisionReviewV1::Service do
       expect(subject).to eq 'Andres  Gudni Th Johannesson Lofven aaaaaaaaaaaaaa'
     end
   end
+
+
+  describe '#construct_tmpfile_name' do
+    subject do
+      described_class.new
+    end
+
+    it 'returns name with appeal submission upload id when present' do
+      result = subject.construct_tmpfile_name(12345, 'original_filename.pdf')
+      expect(result).to eq 'appeal_submission_upload_12345_'
+    end
+
+    it 'returns original filename when appeal submission upload id not present' do
+      result = subject.construct_tmpfile_name(nil, 'original_filename.pdf')
+      expect(result).to eq 'original_filename'
+    end
+
+    it 'returns first 240 characters of very long filename as the basename' do
+      long_filename = 'Lorem_ipsum_dolor_sit_amet,_consectetur_adipiscing_elit,_sed_do_eiusmod_tempor_incididunt_ut_labore_et_dolore_magna_aliqua_Ut_enim_ad_minim_veniam_quis_nostrud_exercitation_ullamco_laboris_nisi_ut_aliquip_ex_ea_commodo_consequat_Duis_aute_irure_blah.pdf'
+      result = subject.construct_tmpfile_name(nil, long_filename)
+      expect(result).to eq long_filename.first(240)
+    end
+  end
 end
+
+
