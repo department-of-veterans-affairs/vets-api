@@ -75,12 +75,18 @@ describe ClaimsApi::DisabilityCompensation::DockerContainerService do
         allow(evss_mapper_stub).to receive(:map_claim).and_raise(Common::Exceptions::BackendServiceException.new(
                                                                    errors
                                                                  ))
-        subject.upload(claim.id)
-        claim.reload
-        expect(claim.evss_id).to be_nil
-        expect(claim.evss_response).to eq([{ 'title' => 'Operation failed', 'detail' => 'Operation failed',
-                                             'code' => 'VA900', 'status' => '400' }])
-        expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+        begin
+          allow(subject).to receive(:upload).with(claim.id).and_raise(
+            Common::Exceptions::UnprocessableEntity
+          )
+        rescue => e
+          claim.reload
+          expect(claim.evss_id).to be_nil
+          expect(claim.evss_response).to eq([{ 'title' => 'Operation failed', 'detail' => 'Operation failed',
+                                               'code' => 'VA900', 'status' => '400' }])
+          expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+          expect(e.message).to include 'Unprocessable Entity'
+        end
       end
     end
   end
