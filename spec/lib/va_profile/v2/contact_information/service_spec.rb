@@ -12,6 +12,11 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   before do
     allow(user).to receive_messages(vet360_id:, icn: '1234')
     Flipper.enable(:contact_info_change_email)
+    Flipper.enable(:va_v3_contact_information_service)
+  end
+
+  after do
+    Flipper.disable(:va_v3_contact_information_service)
   end
 
   describe '#get_person' do
@@ -277,7 +282,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
       it 'overrides the address error', run_at: '2020-02-14T00:19:15.000Z' do
         VCR.use_cassette(
-          'va_profile/contact_information/put_address_override',
+          'va_profile/v2/contact_information/put_address_override',
           VCR::MATCH_EVERYTHING
         ) do
           response = subject.put_address(address)
@@ -488,7 +493,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   context 'update model methods' do
     before do
-      VCR.insert_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING)
+      VCR.insert_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
     end
 
@@ -650,7 +655,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         allow(user).to receive(:vet360_id).and_return('1133902')
 
         VCR.use_cassette(
-          'va_profile/contact_information/address_transaction_addr_not_found',
+          'va_profile/v2/contact_information/address_transaction_addr_not_found',
           VCR::MATCH_EVERYTHING
         ) do
           subject.get_address_transaction_status('d8cd4a73-6241-46fe-95a4-e0776f8f6f64')
@@ -658,7 +663,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
           personal_information_log = PersonalInformationLog.last
 
           expect(personal_information_log.error_class).to eq(
-            'VAProfile::ContactInformation::AddressTransactionResponseError'
+            'VAProfile::V2::ContactInformation::AddressTransactionResponseError'
           )
           expect(personal_information_log.data).to eq(
             'errors' => [
