@@ -51,6 +51,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.toxic_exposure.herbicide_hazard_service.class).to eq(Requests::HerbicideHazardService)
       expect(result.toxic_exposure.additional_hazard_exposures.class).to eq(Requests::AdditionalHazardExposures)
       expect(result.toxic_exposure.multiple_exposures.class).to eq(Array)
+      expect(result.claim_notes).to eq('some overflow text')
     end
   end
 

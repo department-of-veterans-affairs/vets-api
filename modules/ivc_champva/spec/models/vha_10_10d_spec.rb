@@ -64,4 +64,29 @@ RSpec.describe IvcChampva::VHA1010d do
       )
     end
   end
+
+  describe '#track_email_usage' do
+    let(:statsd_key) { 'api.ivc_champva_form.10_10d' }
+    let(:vha_10_10d) { described_class.new(data) }
+
+    context 'when email is used' do
+      let(:data) { { 'primary_contact_info' => { 'email' => 'test@example.com' } } }
+
+      it 'increments the StatsD for email used and logs the info' do
+        expect(StatsD).to receive(:increment).with("#{statsd_key}.yes")
+        expect(Rails.logger).to receive(:info).with('IVC ChampVA Forms - 10-10D Email Used', email_used: 'yes')
+        vha_10_10d.track_email_usage
+      end
+    end
+
+    context 'when email is not used' do
+      let(:data) { { 'primary_contact_info' => {} } }
+
+      it 'increments the StatsD for email not used and logs the info' do
+        expect(StatsD).to receive(:increment).with("#{statsd_key}.no")
+        expect(Rails.logger).to receive(:info).with('IVC ChampVA Forms - 10-10D Email Used', email_used: 'no')
+        vha_10_10d.track_email_usage
+      end
+    end
+  end
 end
