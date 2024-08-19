@@ -58,7 +58,7 @@ FactoryBot.define do
       community_cares_base
       status { 'proposed' }
       reason_code do
-        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+        { 'text': 'test request' }
       end
     end
 
@@ -226,6 +226,14 @@ FactoryBot.define do
       end
     end
 
+    trait :va_proposed_valid_and_invalid_reason_code_text do
+      va_proposed_base
+      kind { 'clinic' }
+      reason_code do
+        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code|comments:|test:gwef:fwege' } # rubocop:disable Layout/LineLength
+      end
+    end
+
     trait :va_proposed_invalid_reason_code_text do
       va_proposed_base
       reason_code do
@@ -287,7 +295,7 @@ FactoryBot.define do
       with_direct_scheduling_base
 
       reason_code do
-        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+        { 'text': 'test booked' }
       end
     end
 

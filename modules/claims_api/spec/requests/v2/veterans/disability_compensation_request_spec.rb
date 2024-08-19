@@ -842,6 +842,21 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
         end
+
+        context "when only 'isCurrentlyHomeless' and 'isAtRiskOfBecomingHomeless' are provided" do
+          it 'responds with a 200' do
+            mock_ccg(scopes) do |auth_header|
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['homeless'] = {
+                isCurrentlyHomeless: false,
+                isAtRiskOfBecomingHomeless: false
+              }
+              post submit_path, params: params.to_json, headers: auth_header
+              expect(response).to have_http_status(:success)
+            end
+          end
+        end
       end
 
       context "when neither 'currentlyHomeless' nor 'riskOfBecomingHomeless' is provided" do
@@ -4656,6 +4671,43 @@ RSpec.describe 'Disability Claims', type: :request do
               post generate_pdf_path, params: data, headers: auth_header
               expect(response).to have_http_status(:ok)
             end
+          end
+        end
+      end
+
+      def set_international_address(json, address_type)
+        address_hash = address_type.reduce(json['data']['attributes']) { |acc, key| acc[key] }
+        address_hash.merge!(
+          'addressLine1' => '1-1',
+          'addressLine2' => 'Yoyogi Kamizono-cho',
+          'addressLine3' => 'Shibuya-ku',
+          'city' => 'Tokyo',
+          'internationalPostalCode' => '151-8557',
+          'country' => 'Japan'
+        )
+        address_hash.delete('state')
+      end
+
+      context 'when the mailing address is international' do
+        it 'returns a 200 response' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            json = JSON.parse(data)
+            set_international_address(json, %w[veteranIdentification mailingAddress])
+            data = json.to_json
+            post(generate_pdf_path, params: data, headers: auth_header)
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'when the change of address is international' do
+        it 'returns a 200 response' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            json = JSON.parse(data)
+            set_international_address(json, ['changeOfAddress'])
+            data = json.to_json
+            post(generate_pdf_path, params: data, headers: auth_header)
+            expect(response).to have_http_status(:ok)
           end
         end
       end

@@ -209,7 +209,9 @@ module CentralMail
         file_number: form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
         zip: address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
         doc_type: claim.form_id,
-        claim_date: claim.created_at
+        claim_date: claim.created_at,
+        source: 'va.gov backup dependent claim submission',
+        business_line: 'CMP'
       }
     end
 

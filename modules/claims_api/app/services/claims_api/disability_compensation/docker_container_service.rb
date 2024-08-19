@@ -12,7 +12,6 @@ module ClaimsApi
                              'Docker container service started')
 
         auto_claim = get_claim(claim_id)
-
         update_auth_headers(auto_claim) if auto_claim.transaction_id.present?
 
         evss_data = get_evss_data(auto_claim)
@@ -26,6 +25,10 @@ module ClaimsApi
                              "Successfully submitted to Docker container with response: #{evss_res}")
         # update with the evss_id returned
         auto_claim.update!(evss_id: evss_res[:claimId])
+      rescue => e
+        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+        auto_claim.evss_response = e.errors if e.methods.include?(:errors)
+        auto_claim.save
       end
 
       private

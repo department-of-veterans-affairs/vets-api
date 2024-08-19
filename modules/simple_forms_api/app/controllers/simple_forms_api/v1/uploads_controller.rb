@@ -8,8 +8,8 @@ require 'lighthouse/benefits_intake/service'
 module SimpleFormsApi
   module V1
     class UploadsController < ApplicationController
-      skip_before_action :authenticate
-      before_action :load_user
+      skip_before_action :authenticate, if: -> { UNAUTHENTICATED_FORMS.include?(params[:form_number]) }
+      before_action :load_user, if: -> { UNAUTHENTICATED_FORMS.include?(params[:form_number]) }
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -26,6 +26,8 @@ module SimpleFormsApi
         '40-10007' => 'vba_40_10007',
         '20-10207' => 'vba_20_10207'
       }.freeze
+
+      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
@@ -54,7 +56,7 @@ module SimpleFormsApi
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
-          render json: attachment
+          render json: PersistentAttachmentSerializer.new(attachment)
         end
       end
 
@@ -87,9 +89,10 @@ module SimpleFormsApi
         end
 
         json_for210966(confirmation_number, expiration_date, existing_intents)
-      rescue Common::Exceptions::UnprocessableEntity => e
-        # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
-        # through the Benefits Intake API
+      rescue Common::Exceptions::UnprocessableEntity, Net::ReadTimeout => e
+        # Common::Exceptions::UnprocessableEntity: There is an authentication issue with the Intent to File API
+        # Faraday::TimeoutError: The Intent to File API is down or timed out
+        # In either case, we revert to sending a PDF to Central Mail through the Benefits Intake API
         prepare_params_for_benefits_intake_and_log_error(e)
         submit_form_to_benefits_intake
       end
@@ -138,7 +141,8 @@ module SimpleFormsApi
       def get_file_paths_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN'
+        # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
+        if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && @current_user
           form = form.populate_veteran_data(@current_user)
         end
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
