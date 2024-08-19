@@ -67,7 +67,7 @@ jobs:
 
       - name: Add Failure label
         uses: actions-ecosystem/action-add-labels@v1
-        if: ${{ github.event_name == 'pull_request' && failure() }}
+        if: ${{ github.event_name == 'pull_request' && failure() && !contains(github.event.pull_request.labels.*.name, 'pe-failure') }}
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
@@ -75,7 +75,7 @@ jobs:
 
       - name: Remove Failure label
         uses: actions-ecosystem/action-remove-labels@v1
-        if: ${{ github.event_name == 'pull_request' && success() }}
+        if: ${{ github.event_name == 'pull_request' && success() && contains(github.event.pull_request.labels.*.name, 'pe-failure') }}
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |

@@ -9,6 +9,7 @@ on:
       - reopened
 jobs:
   pronto:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -17,6 +18,7 @@ jobs:
           fetch-depth: 0
       - name: Setup Ruby
         uses: ruby/setup-ruby@1d0e911f615a112e322369596f10ee0b95b010ae
+
       - name: Setup pronto
         run: gem install pronto pronto-reek faraday-retry
       - name: Run Pronto
@@ -27,8 +29,8 @@ jobs:
         run: pronto run -f github_status github_pr_review -c origin/${{ github.base_ref }}
 
       - name: Add Failure label
+        if: failure() && !contains(github.event.pull_request.labels.*.name, 'code-health-failure')
         uses: actions-ecosystem/action-add-labels@v1
-        if:  ${{ failure() }}
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
@@ -36,7 +38,7 @@ jobs:
 
       - name: Remove Failure label
         uses: actions-ecosystem/action-remove-labels@v1
-        if: ${{ success() }}
+        if: success() && contains(github.event.pull_request.labels.*.name, 'code-health-failure')
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
