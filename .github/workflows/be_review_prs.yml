@@ -1,7 +1,7 @@
 name: Require backend-review-group approval
 on:
   pull_request:
-    types: [opened, reopened, review_requested, synchronize, ready_for_review, labeled, unlabeled]
+    types: [opened, reopened, review_requested, synchronize, ready_for_review]
   pull_request_review:
     types: [submitted]
 
@@ -47,20 +47,6 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body-includes: Omit backend approval
-
-      - name: Re-label require-backend-approval
-        if: |
-          steps.find_backend_comment.outputs.comment-id != '' &&
-          !contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            require-backend-approval
-
-      - name: check label
-        if:  github.event.action == 'unlabeled'
-        run: echo "${{ github.event.label.name  }}"
 
       - name: Request another backend approval
         if: contains(github.event.action, 'review_requested') && contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
