@@ -39,7 +39,7 @@ module PdfFill
     #
     # @param form_id [String] The form ID to register.
     # @param form_class [Class] The class associated with the form ID.
-    # 
+    #
     def register_form(form_id, form_class)
       FORM_CLASSES[form_id] = form_class
     end
@@ -70,9 +70,9 @@ module PdfFill
     #
     # @param old_file_path [String] The path to the original PDF file.
     # @param extras_generator [ExtrasGenerator] The generator for extra pages.
-    # 
+    #
     # @return [String] The path to the final combined PDF.
-    # 
+    #
     def combine_extras(old_file_path, extras_generator)
       if extras_generator.text?
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
@@ -103,7 +103,7 @@ module PdfFill
       form_id = saved_claim.form_id
       form_class = FORM_CLASSES[form_id]
 
-      raise PdfFillerException, "Form #{form_id} was not found." if form_class.nil?
+      raise PdfFillerException, "Form #{form_id} was not found." unless form_class
 
       process_form(form_id, saved_claim.parsed_form, form_class, file_name_extension || saved_claim.id, fill_options)
     end
