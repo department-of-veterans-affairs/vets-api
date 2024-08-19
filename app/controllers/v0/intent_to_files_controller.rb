@@ -56,7 +56,7 @@ module V0
       )
       type = params['itf_type'] || 'compensation'
       if Flipper.enabled?(:disability_compensation_production_tester, @current_user)
-        Rails.logger.info("ITF submit call skipped for user #{@current_user.account_uuid}")
+        Rails.logger.info("ITF submit call skipped for user #{@current_user.uuid}")
         response = set_success_response
       else
         response = intent_to_file_provider.create_intent_to_file(type, nil, nil)

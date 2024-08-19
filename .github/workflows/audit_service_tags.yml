@@ -8,6 +8,7 @@ permissions:
   checks: write
 jobs:
   audit_service_tags:
+    permissions: write-all
     name: Audit Service Tags
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
@@ -87,3 +88,20 @@ jobs:
           command: |
             docker compose -f docker-compose.test.yml run -e CHANGED_FILES=${{ env.CHANGED_FILES }} web bash \
               -c "CI=true DISABLE_BOOTSNAP=true bundle exec rake service_tags:audit_controllers_ci"
+
+      - name: Add Failure label
+        if: failure() && !contains(github.event.pull_request.labels.*.name, 'audit-serviceest-failure')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          fail_on_error: true
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            audit-service-failure
+
+      - name: Remove Failure label
+        if: success() && contains(github.event.pull_request.labels.*.name, 'audit-serviceest-failure')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            audit-service-failure
