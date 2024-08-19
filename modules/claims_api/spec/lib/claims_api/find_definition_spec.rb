@@ -25,11 +25,12 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           result = subject.for_action(endpoint, action)
           parsed_result = JSON.parse(result.to_json)
 
-        expect(parsed_result['service']['bean']['path']).to eq 'ClaimantServiceBean'
-        expect(parsed_result['service']['path']).to eq 'ClaimantWebService'
-        expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://services.share.benefits.vba.va.gov/'
+          expect(parsed_result['service']['bean']['path']).to eq 'ClaimantServiceBean'
+          expect(parsed_result['service']['path']).to eq 'ClaimantWebService'
+          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://services.share.benefits.vba.va.gov/'
+        end
       end
-    end
+
       context 'OrgWebServiceBean' do
         let(:endpoint) { 'OrgWebServiceBean/OrgWebService' }
         let(:action) { 'findPoaHistoryByPtcpntId' }
@@ -67,6 +68,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
 
       context 'OrgWebService' do
         let(:endpoint) { 'OrgWebServiceBean/OrgWebService' }
+
         it 'response with the correct namespace' do
           result = subject.for_service(endpoint)
           parsed_result = JSON.parse(result.to_json)
