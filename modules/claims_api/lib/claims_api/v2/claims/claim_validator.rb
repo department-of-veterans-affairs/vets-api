@@ -38,7 +38,7 @@ module ClaimsApi
       end
 
       def clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id)
-        return true unless clm_prtcpnt_vet_id && clm_prtcpnt_clmnt_id
+        return true if clm_prtcpnt_vet_id.nil? || clm_prtcpnt_clmnt_id.nil?
 
         # if either of these is false then we have a match, return that false and can show the record
         clm_prtcpnt_vet_id != @target_vet_participant_id && clm_prtcpnt_clmnt_id != @target_vet_participant_id
