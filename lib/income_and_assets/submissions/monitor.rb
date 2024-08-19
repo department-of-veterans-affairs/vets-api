@@ -7,7 +7,7 @@ module IncomeAndAssets
   module Submissions
     class Monitor
       # statsd key for sidekiq
-      SUBMISSION_STATS_KEY = 'worker.income_and_assets_intake_job'
+      SUBMISSION_STATS_KEY = 'worker.lighthouse.income_and_assets_intake_job'
 
       ##
       # log Sidkiq job started
@@ -15,7 +15,7 @@ module IncomeAndAssets
       #
       # @param claim [SavedClaim::IncomeAndAssets]
       # @param lighthouse_service [BenefitsIntake::Service]
-      # @param user_uuid [UUID]
+      # @param user_account_uuid [UUID]
       #
       def track_submission_begun(claim, lighthouse_service, user_account_uuid)
         StatsD.increment("#{SUBMISSION_STATS_KEY}.begun")
@@ -34,8 +34,8 @@ module IncomeAndAssets
       #
       # @param claim [SavedClaim::IncomeAndAssets]
       # @param lighthouse_service [BenefitsIntake::Service]
-      # @param user_uuid [UUID]
-      # @param upload [Hash] lighthouse upload data
+      # @param user_account_uuid [UUID]
+      # @param payload [Hash] lighthouse upload data
       #
       def track_submission_attempted(claim, lighthouse_service, user_account_uuid, payload)
         StatsD.increment("#{SUBMISSION_STATS_KEY}.attempt")
@@ -55,7 +55,7 @@ module IncomeAndAssets
       #
       # @param claim [SavedClaim::IncomeAndAssets]
       # @param lighthouse_service [BenefitsIntake::Service]
-      # @param user_uuid [UUID]
+      # @param user_account_uuid [UUID]
       #
       def track_submission_success(claim, lighthouse_service, user_account_uuid)
         StatsD.increment("#{SUBMISSION_STATS_KEY}.success")
@@ -73,7 +73,7 @@ module IncomeAndAssets
       #
       # @param claim [SavedClaim::IncomeAndAssets]
       # @param lighthouse_service [BenefitsIntake::Service]
-      # @param user_uuid [UUID]
+      # @param user_account_uuid [UUID]
       # @param e [Error]
       #
       def track_submission_retry(claim, lighthouse_service, user_account_uuid, e)
@@ -110,7 +110,7 @@ module IncomeAndAssets
       #
       # @param claim [SavedClaim::IncomeAndAssets]
       # @param lighthouse_service [BenefitsIntake::Service]
-      # @param user_uuid [UUID]
+      # @param user_account_uuid [UUID]
       # @param e [Error]
       #
       def track_file_cleanup_error(claim, lighthouse_service, user_account_uuid, e)
