@@ -121,9 +121,8 @@ jobs:
           labels: |
             ready-for-backend-review
 
-
       - name: Request another backend approval
-        if: contains(fromJson('["review_requested"]'), github.event.action) && contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
+        if: contains(github.event.action, 'review_requested') && contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
