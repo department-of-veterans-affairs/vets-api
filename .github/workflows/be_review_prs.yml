@@ -58,7 +58,9 @@ jobs:
           labels: |
             require-backend-approval
 
-      - run: echo "${{ github.event.action }}"
+      - name: check label
+        if:  github.event.action == 'unlabeled'
+        run: echo "${{ github.event.label.name  }}"
 
       - name: Request another backend approval
         if: contains(github.event.action, 'review_requested') && contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
