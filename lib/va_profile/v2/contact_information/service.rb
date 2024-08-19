@@ -6,6 +6,7 @@ require 'va_profile/service'
 require 'va_profile/stats'
 require_relative 'configuration'
 require_relative 'transaction_response'
+require_relative 'person_response'
 
 module VAProfile
   module V2
