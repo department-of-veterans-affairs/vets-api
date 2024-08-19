@@ -29,7 +29,7 @@ module ClaimsApi
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 
-          validate_id_with_icn!(bgs_claim, lighthouse_claim, params[:veteranId])
+          validate_id_with_icn(bgs_claim, lighthouse_claim, params[:veteranId])
 
           output = generate_show_output(bgs_claim:, lighthouse_claim:)
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :show, root: :data }
@@ -47,8 +47,8 @@ module ClaimsApi
           ClaimsApi::BGSClaimStatusMapper.new
         end
 
-        def validate_id_with_icn!(bgs_claim, lighthouse_claim, veteran_id)
-          ClaimValidator.new(bgs_claim, lighthouse_claim, veteran_id, target_veteran).validate!
+        def validate_id_with_icn(bgs_claim, lighthouse_claim, veteran_id)
+          ClaimValidator.new(bgs_claim, lighthouse_claim, veteran_id, target_veteran).validate
         end
 
         def generate_show_output(bgs_claim:, lighthouse_claim:) # rubocop:disable Metrics/MethodLength

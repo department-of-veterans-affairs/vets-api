@@ -10,7 +10,7 @@ module ClaimsApi
         @target_veteran = target_veteran
       end
 
-      def validate!
+      def validate
         if not_valid_claim_with_id_with_icn?
           raise ::Common::Exceptions::ResourceNotFound.new(
             detail: 'Invalid claim ID for the veteran identified.'

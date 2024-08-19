@@ -583,7 +583,7 @@ RSpec.describe 'Claims', type: :request do
 
       before do
         allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-          .to receive(:validate_id_with_icn!).and_return(nil)
+          .to receive(:validate_id_with_icn).and_return(nil)
       end
 
       describe 'BGS attributes' do

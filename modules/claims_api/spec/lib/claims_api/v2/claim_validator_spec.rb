@@ -57,7 +57,7 @@ describe ClaimsApi::V2::ClaimValidator do
       let(:lighthouse_claim) { { 'veteran_icn' => target_veteran.icn } }
 
       it 'does not raise an error' do
-        expect { subject.validate! }.not_to raise_error
+        expect { subject.validate }.not_to raise_error
       end
     end
 
@@ -67,7 +67,7 @@ describe ClaimsApi::V2::ClaimValidator do
       let(:bgs_claim) { bgs_claim_for_dependent }
 
       it 'does not raise an error' do
-        expect { subject.validate! }.not_to raise_error
+        expect { subject.validate }.not_to raise_error
       end
     end
 
@@ -79,7 +79,7 @@ describe ClaimsApi::V2::ClaimValidator do
       # rubocop:disable Style/MultilineBlockChain
       it 'raises a ResourceNotFound error' do
         expect do
-          subject.validate!
+          subject.validate
         end.to raise_error(Common::Exceptions::ResourceNotFound) do |error|
           expect(error.errors[0].detail).to eq('Invalid claim ID for the veteran identified.')
         end
