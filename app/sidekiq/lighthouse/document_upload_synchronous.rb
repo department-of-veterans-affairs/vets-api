@@ -5,7 +5,6 @@ require 'timeout'
 require 'lighthouse/benefits_documents/worker_service'
 
 class Lighthouse::DocumentUploadSynchronous
-
   def self.upload(user_icn, document_hash)
     client = BenefitsDocuments::WorkerService.new
     document, file_body, uploader = nil

@@ -59,18 +59,19 @@ module BenefitsDocuments
     private
 
     def submit_document(file, file_params, lighthouse_client_id = nil)
+      user_icn = @user.icn
       document_data = build_lh_doc(file, file_params)
 
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
-      uploader = LighthouseDocumentUploader.new(@user.icn, document_data.uploader_ids)
+      uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
       uploader.store!(document_data.file_obj)
       # the uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
       if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
-        Lighthouse::DocumentUploadSynchronous.upload(@user.icn, document_data.to_serializable_hash)
+        Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_data.to_serializable_hash)
       else
-        Lighthouse::DocumentUpload.perform_async(@user.icn, document_data.to_serializable_hash)
+        Lighthouse::DocumentUpload.perform_async(user_icn, document_data.to_serializable_hash)
       end
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)
@@ -85,13 +86,13 @@ module BenefitsDocuments
 
       LighthouseDocument.new(
         participant_id: @user.participant_id,
-        claim_id:,
+        claim_id: claim_id,
         file_obj: file,
         uuid: SecureRandom.uuid,
         file_name: file.original_filename,
         tracked_item_id: tracked_item_ids,
-        document_type:,
-        password:
+        document_type: document_type,
+        password: password
       )
     end
 

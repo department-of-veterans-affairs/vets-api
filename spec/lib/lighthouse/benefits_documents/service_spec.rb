@@ -55,7 +55,7 @@ RSpec.describe BenefitsDocuments::Service do
           c.debug_logger = $stderr
         end
         VCR.use_cassette(
-          'spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf',
+          'lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf',
           match_requests_on: [:uri],
           record: :none
         ) do
