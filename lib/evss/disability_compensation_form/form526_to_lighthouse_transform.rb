@@ -606,8 +606,8 @@ module EVSS
           direct_deposit.financial_institution_name = direct_deposit_source['bankName']
         end
         direct_deposit.account_type = direct_deposit_source['accountType'] if direct_deposit_source['accountType']
-        direct_deposit.account_number = direct_deposit_source['accountNumber'] if direct_deposit_source['accountNumber']
-        direct_deposit.routing_number = direct_deposit_source['routingNumber'] if direct_deposit_source['routingNumber']
+        direct_deposit.account_number = direct_deposit_source['accountNumber'].strip if direct_deposit_source['accountNumber']
+        direct_deposit.routing_number = direct_deposit_source['routingNumber'].strip if direct_deposit_source['routingNumber']
 
         direct_deposit
       end
