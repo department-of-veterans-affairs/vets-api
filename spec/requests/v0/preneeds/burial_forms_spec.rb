@@ -110,7 +110,7 @@ RSpec.describe 'V0::Preneeds::BurialForm', type: :request do
   end
 
   describe 'tracking burial form submissions' do
-    let(:submission_record) { ::Preneeds::PreneedSubmission.first }
+    let(:submission_record) { Preneeds::PreneedSubmission.first }
     let(:response_json) { JSON.parse(response.body)['data']['attributes'] }
 
     context 'with successful submission' do
@@ -118,7 +118,7 @@ RSpec.describe 'V0::Preneeds::BurialForm', type: :request do
         VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
           expect do
             post_burial_forms
-          end.to change(::Preneeds::PreneedSubmission, :count).by(1)
+          end.to change(Preneeds::PreneedSubmission, :count).by(1)
         end
 
         expect(response_json['tracking_number']).to eq(submission_record.tracking_number)
@@ -134,18 +134,18 @@ RSpec.describe 'V0::Preneeds::BurialForm', type: :request do
 
     let(:submission_record) { OpenStruct.new(application_uuid: 'UUID') }
     let(:form) do
-      ::Preneeds::BurialForm.new(params).tap do |f|
-        f.claimant = ::Preneeds::Claimant.new(
+      Preneeds::BurialForm.new(params).tap do |f|
+        f.claimant = Preneeds::Claimant.new(
           email: 'foo@foo.com',
-          name: ::Preneeds::FullName.new(
+          name: Preneeds::FullName.new(
             first: 'Derrick',
             last: 'Last'
           )
         )
-        f.applicant = ::Preneeds::Applicant.new(
+        f.applicant = Preneeds::Applicant.new(
           applicant_relationship_to_claimant: 'Self',
           applicant_email: 'bar@bar.com',
-          name: ::Preneeds::FullName.new(
+          name: Preneeds::FullName.new(
             first: 'Applicant',
             last: 'Last'
           )

@@ -29,7 +29,7 @@ RSpec.describe 'V0::DecisionReviewEvidence', type: :request do
     end
 
     context 'with invalid pdf size' do
-      it 'returns a 422 and an error message stating the file dimensions are too big ' do
+      it 'returns a 422 and an error message stating the file dimensions are too big' do
         VCR.use_cassette('decision_review/422_page_dimensions_pdf_validation') do
           post '/v0/decision_review_evidence',
                params: { decision_review_evidence_attachment:
@@ -45,7 +45,7 @@ RSpec.describe 'V0::DecisionReviewEvidence', type: :request do
     end
 
     context 'with valid encrypted parameters' do
-      it 'returns a 422  for a file that not an allowed type' do
+      it 'returns a 422 for a file that not an allowed type' do
         post '/v0/decision_review_evidence',
              params: { decision_review_evidence_attachment:
                        { file_data: fixture_file_upload('saml_responses/loa1.xml',

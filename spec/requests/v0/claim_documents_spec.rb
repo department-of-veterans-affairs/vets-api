@@ -20,7 +20,7 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
       expect do
         post('/v0/claim_documents', params:)
       end.to change(PersistentAttachment, :count).by(1)
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
       resp = JSON.parse(response.body)
       expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
       expect(PersistentAttachment.last).to be_a(PersistentAttachments::PensionBurial)
@@ -31,7 +31,7 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
       expect do
         post('/v0/claim_attachments', params:)
       end.to change(PersistentAttachment, :count).by(1)
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
       resp = JSON.parse(response.body)
       expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
       expect(PersistentAttachment.last).to be_a(PersistentAttachments::PensionBurial)
@@ -63,7 +63,7 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
       expect do
         post('/v0/claim_attachments', params:)
       end.not_to change(PersistentAttachment, :count)
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
       resp = JSON.parse(response.body)
       expect(resp['errors'][0]['title']).to eq('File size must not be less than 1.0 KB')
     end
@@ -90,13 +90,13 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
     it 'does not raise an error when password is correct' do
       params = { file:, form_id: '26-1880', password: 'test' }
       post('/v0/claim_attachments', params:)
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
     end
 
     it 'raises an error when password is incorrect' do
       params = { file:, form_id: '26-1880', password: 'bad_password' }
       post('/v0/claim_attachments', params:)
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 end

@@ -82,7 +82,7 @@ Rspec.describe 'V0::Coe', type: :request do
             }
 
             post('/v0/coe/document_upload', params: attachments)
-            expect(response.status).to eq 200
+            expect(response).to have_http_status :ok
           end
         end
       end
@@ -107,7 +107,7 @@ Rspec.describe 'V0::Coe', type: :request do
         expect_any_instance_of(LGY::Service).to receive(:post_document).with(payload: expected_payload)
                                                                        .and_return(expected_response)
         post('/v0/coe/document_upload', params: attachments)
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
       end
     end
 

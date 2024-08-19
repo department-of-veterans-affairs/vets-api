@@ -20,7 +20,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
     let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
 
     after do
-      File.delete(response_pdf) if File.exist?(response_pdf)
+      FileUtils.rm_f(response_pdf)
     end
 
     it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do

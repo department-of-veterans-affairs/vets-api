@@ -17,8 +17,8 @@ RSpec.describe 'V0::NoticeOfDisagreements', type: :request do
     subject { post '/v0/notice_of_disagreements', params: body.to_json, headers: }
 
     let(:body) do
-      JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements',
-                                           'valid_NOD_create_request.json'
+      JSON.parse Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
+                                 'valid_NOD_create_request.json').read
     end
 
     it 'creates an NOD' do

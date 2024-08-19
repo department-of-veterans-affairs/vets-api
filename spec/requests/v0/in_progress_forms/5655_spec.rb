@@ -41,7 +41,7 @@ RSpec.describe 'V0::InProgressForms::5655' do
       it 'returns a pre-filled form' do
         with_vcr do
           get endpoint
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['formData']['income']).to eq(expected_payments)
         end
       end
