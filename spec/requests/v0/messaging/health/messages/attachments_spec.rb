@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/sm_client_helpers'
 require 'support/shared_examples_for_mhv'
 
-RSpec.describe 'V0::Messaging::Health::Attachments', type: :request do
+RSpec.describe 'V0::Messaging::Health::Messages::Attachments', type: :request do
   include SM::ClientHelpers
 
   let(:va_patient) { true }
