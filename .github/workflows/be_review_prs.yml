@@ -123,6 +123,7 @@ jobs:
 
       - name: Request another backend approval
         if: contains(github.event.action, 'review_requested') && contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
+        uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
