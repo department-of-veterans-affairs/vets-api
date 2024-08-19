@@ -23,7 +23,6 @@ module FacilitiesApi
         def facility_service_locator(params)
           qparams = facility_service_locator_params(params)
           response = perform(:get, facility_service_locator_url, qparams)
-          Rails.logger.error('API PARAMS XXX', { PARAMS: qparams })
 
           return [] if response.body.nil? || response.body['value'].nil?
 
@@ -34,7 +33,6 @@ module FacilitiesApi
         def provider_locator(params)
           qparams = provider_locator_params(params)
           response = perform(:get, provider_locator_url, qparams)
-          Rails.logger.error('API PARAMS PROVIDER LOCATOR XXX', { PARAMS: qparams })
 
           return [] if response.body.nil? || response.body['value'].nil?
 
