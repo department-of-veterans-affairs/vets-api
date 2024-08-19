@@ -16,6 +16,7 @@ module ClaimsApi
   class LocalBGS
     CACHED_SERVICES = %w[
       ClaimantServiceBean/ClaimantWebService
+      OrgWebServiceBean/OrgWebService
       VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
     ].freeze
 
