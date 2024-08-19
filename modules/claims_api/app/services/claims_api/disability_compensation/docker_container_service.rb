@@ -25,6 +25,11 @@ module ClaimsApi
                              "Successfully submitted to Docker container with response: #{evss_res}")
         # update with the evss_id returned
         auto_claim.update!(evss_id: evss_res[:claimId])
+      rescue => e
+        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+        auto_claim.evss_response = e.errors if e.methods.include?(:errors)
+        auto_claim.save
+        raise e
       end
 
       private

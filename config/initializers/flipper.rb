@@ -12,6 +12,7 @@ FLIPPER_FEATURE_CONFIG = YAML.safe_load(File.read(Rails.root.join('config', 'fea
 
 Rails.application.configure do
   config.flipper.test_help = false
+  config.flipper.log = false
 end
 
 Rails.application.reloader.to_prepare do

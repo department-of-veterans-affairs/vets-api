@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-reg_office = 'REGIONAL_OFFICE TBD'
+reg_office = 'Department of Veteran Affairs, Pension Intake Center, P.O. Box 5365, Janesville, Wisconsin 53547-5365'
 
 RSpec.describe 'Income and Assets Claim Integration', type: %i[request serializer] do
   before do
