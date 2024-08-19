@@ -75,9 +75,16 @@ features:
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
+  hca_reg_only_enabled:
+    actor_type: user
+    description: Enables the registration-only path for the Health Care Application
+    enable_in_development: true
   hca_sigi_enabled:
     actor_type: user
     description: Enables Self-Identifying Gender Identity question for health care applicants.
+  hca_tera_branching_enabled:
+    actor_type: user
+    description: Enables branching logic for the Toxic Exposure questionset in the Health Care Application
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
@@ -87,10 +94,6 @@ features:
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
-    enable_in_development: true
-  ezr_tera_enabled:
-    actor_type: user
-    description: Enables Toxic Exposure questions for 10-10EZR applicants.
     enable_in_development: true
   ezr_upload_enabled:
     actor_type: user
@@ -139,10 +142,6 @@ features:
     actor_type: user
     description: Enables disclaimer for possible untranslated content on tagalog pages
     enable_in_development: true
-  check_in_experience_lorota_security_updates_enabled:
-    actor_type: cookie_id
-    description: Enables DOB instead of last 4 of SSN.
-    enable_in_development: false
   check_in_experience_mock_enabled:
     actor_type: user
     description: Enables downstream responses to be returned via betamocks
@@ -162,10 +161,6 @@ features:
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
-    enable_in_development: true
-  check_in_experience_45_minute_reminder:
-    actor_type: user
-    description: Enables the 45 minute reminder
     enable_in_development: true
   check_in_experience_check_claim_status_on_timeout:
     actor_type: user
@@ -190,6 +185,10 @@ features:
   claims_api_local_bgs_refactor:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
+    enable_in_development: true
+  confirmation_page_new:
+    actor_type: user
+    description: Enables the 2024 version of the confirmation page view in simple forms
     enable_in_development: true
   lighthouse_claims_api_hardcode_wsdl:
     actor_type: user
@@ -459,6 +458,14 @@ features:
     actor_type: user
     description: enables sending notifications to vets if their 526 claim submission fails with PIF in Use Error
     enable_in_development: true
+  disability_compensation_production_tester:
+    actor_type: user
+    description: disable certain functionality for production testing of the 526 submission workflow. DO NOT TOGGLE THIS FLAG UNLESS YOU ARE A MEMBER OF DISABILITY BENEFITS EXPERIENCE TEAM.
+    enable_in_development: true
+  disability_compensation_fail_submission:
+    actor_type: user
+    description: enable to test the backup submission path. DO NOT TOGGLE THIS FLAG UNLESS YOU ARE A MEMBER OF DISABILITY BENEFITS EXPERIENCE TEAM.
+    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -467,9 +474,6 @@ features:
     actor_type: user
     description: Enables access to the Enrollment Verification app
     enable_in_development: true
-  ezr_async:
-    actor_type: user
-    description: Submit form 10-10EZR with a background job
   discharge_wizard_features:
     actor_type: user
     description: Iteration of new features for discharge wizard
@@ -705,10 +709,6 @@ features:
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
-  fsr_confirmation_email:
-    actor_type: user
-    description: Enables notifications to be sent via email upon FSR submission
-    enable_in_development: false
   get_help_ask_form:
     actor_type: user
     description: Enables inquiry form for users to submit questions, suggestions, and complaints.
@@ -767,6 +767,10 @@ features:
     actor_type: user
     description: Lighthouse Benefits Claims API uses Lighthouse Benefits Documents API to upload POA forms instead of VBMS
     enable_in_development: true
+  lighthouse_claims_api_use_birls_id:
+    actor_type: user
+    description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
@@ -790,6 +794,9 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  mhv_va_health_chat_enabled:
+    actor_type: user
+    description: Enables the VA Health Chat link at /my-health
   mhv_landing_page_show_priority_group:
     actor_type: user
     description: Shows Veterans their Priority Group on the MHV Landing Page
@@ -808,6 +815,10 @@ features:
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
+    enable_in_development: true
+  mhv_secure_messaging_filter_accordion:
+    actor_type: user
+    description: Enables/disables Secure Messaging Filter Accordion re-design updates on VA.gov
     enable_in_development: true
   mhv_secure_messaging_remove_lefthand_nav:
     actor_type: user
@@ -925,16 +936,16 @@ features:
     actor_type: user
     enable_in_development: true
   pension_income_and_assets_clarification:
-   actor_type: user
-   description: >
-     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
+    actor_type: user
+    description: >
+      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
   pension_medical_evidence_clarification:
-   actor_type: user
-   description: >
-     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
+    actor_type: user
+    description: >
+      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pension_military_prefill:
     actor_type: user
-    description: 'When enabled, 21P-527EZ will prefill military information.'
+    description: "When enabled, 21P-527EZ will prefill military information."
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1258,10 +1269,6 @@ features:
     actor_type: user
     description: Toggle for new mobile facility service v2 endpoints
     enable_in_development: true
-  va_online_scheduling_status_improvement_canceled:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to display canceled booked appointments
   va_online_scheduling_vaos_v2_next:
     actor_type: user
     enable_in_development: true
@@ -1510,6 +1517,9 @@ features:
   disability_compensation_lighthouse_generate_pdf:
     actor_type: user
     description: If enabled uses the lighthouse Benefits Claims service to generate a 526 pdf
+  disability_compensation_lighthouse_upload_supplemental_document:
+    actor_type: user
+    description: If enabled uses the Lighthouse Benefits Documents API to submit Form 526 documents
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
@@ -1589,11 +1599,11 @@ features:
     actor_type: user
     description: Show updated introduction page
   pension_supporting_documents_update:
-   actor_type: user
-   description: Show updated supporting documents page
+    actor_type: user
+    description: Show updated supporting documents page
   pension_document_upload_update:
-   actor_type: user
-   description: Show updated document upload page
+    actor_type: user
+    description: Show updated document upload page
   pension_confirmation_update:
     actor_type: user
     description: Show updated confirmation page

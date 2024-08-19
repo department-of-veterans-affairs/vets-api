@@ -17,6 +17,7 @@ module ClaimsApi
     CACHED_SERVICES = %w[
       ClaimantServiceBean/ClaimantWebService
       EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
+      OrgWebServiceBean/OrgWebService
     ].freeze
 
     # rubocop:disable Metrics/MethodLength
