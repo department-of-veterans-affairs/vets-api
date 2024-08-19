@@ -4,7 +4,7 @@ on:
     types: [review_requested, synchronize]
 
 jobs:
-  check-approval-requirements:
+  request-backend-approval:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
@@ -56,9 +56,11 @@ jobs:
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
 
-      - run: echo "${{ github.event.pull_request.requested_reviewers.*.login }}"
+      - run: |
+          BACKEND_REVIEWERS=$(echo '${{ steps.get_team_members.outputs.data }}' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//')
+          echo "${{ contains(github.event.pull_request.requested_reviewers.*.login, BACKEND_REVIEWERS) }}"
 
-      - name: Remove ready-for-review label
+      - name: Add ready-for-review label
         if: |
           contains(github.event.pull_request.labels.*.name, 'require-backend-approval') && !contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
         uses: actions-ecosystem/action-remove-labels@v1
