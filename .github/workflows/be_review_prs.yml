@@ -32,7 +32,7 @@ jobs:
         id: find_backend_comment
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-includes: This PR requires approval from backend-review-group.
+          body-includes: Backend Approval Required
 
       - name: Find Approval  Comment
         uses: peter-evans/find-comment@v3
@@ -57,6 +57,16 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: |
             require-backend-approval
+
+      - run: echo "${{ github.event.action }}"
+
+      - name: Request another backend approval
+        if: contains(github.event.action, 'review_requested') && contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            ready-for-backend-review
 
       - name: Verify require-backend-approval label
         if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval') && steps.find_backend_comment.outputs.comment-id == ''

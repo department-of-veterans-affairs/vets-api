@@ -17,7 +17,7 @@ jobs:
         id: find_backend_comment
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-includes: "This PR requires approval from backend-review-group. Please add backend-review-group as reviewers (if they're not already listed)."
+          body-includes: "Backend Approval Required."
 
       - name: Requested Review Team Check
         id: check_teams
@@ -35,7 +35,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: "This PR requires approval from backend-review-group. Please add backend-review-group as reviewers (if they're not already listed)."
+          body: "Backend Approval Required."
 
       - name: Backend Team Label
         uses: actions-ecosystem/action-add-labels@v1
