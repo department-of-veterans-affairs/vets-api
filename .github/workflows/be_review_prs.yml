@@ -120,3 +120,16 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: |
             ready-for-backend-review
+
+      - run: echo "${{ github.event.pull_request.requested_reviewers.json }}" | jq '.login[]'
+
+      # - run: |
+      #     BACKEND_REVIEWERS=$(echo '${{ steps.get_team_members.outputs.data }}' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//')
+
+
+      - name: Request another backend approval
+        if: contains(fromJson('["review_requested"]'), github.event.action) && contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            ready-for-backend-review

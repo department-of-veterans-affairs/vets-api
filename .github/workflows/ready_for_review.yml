@@ -48,9 +48,3 @@ jobs:
           labels: |
             ready-for-backend-review
 
-      - name: Request another backend approval
-        if: contains(fromJson('["review_requested"]'), github.event.action)
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            ready-for-backend-review
