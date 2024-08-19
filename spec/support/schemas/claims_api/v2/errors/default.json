@@ -15,6 +15,10 @@
             "type": "string",
             "description": "HTTP error detail"
           },
+          "status": {
+            "type": "string",
+            "description": "HTTP error status code"
+          },
           "source": {
             "type": "object",
             "additionalProperties": false,

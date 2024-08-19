@@ -2,6 +2,7 @@
 
 require 'claims_api/vbms_uploader'
 require 'claims_api/poa_vbms_sidekiq'
+require 'bd/bd'
 
 module ClaimsApi
   class PoaVBMSUploadJob < ClaimsApi::ServiceBase
@@ -16,7 +17,13 @@ module ClaimsApi
       uploader = ClaimsApi::PowerOfAttorneyUploader.new(power_of_attorney_id)
       uploader.retrieve_from_store!(power_of_attorney.file_data['filename'])
       file_path = fetch_file_path(uploader)
-      upload_to_vbms(power_of_attorney, file_path)
+
+      if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
+        benefits_doc_api.upload(claim: power_of_attorney, pdf_path: file_path, doc_type: 'L075')
+      else
+        upload_to_vbms(power_of_attorney, file_path)
+      end
+
       ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
     rescue VBMS::Unknown
       rescue_vbms_error(power_of_attorney)
@@ -45,6 +52,12 @@ module ClaimsApi
       file.flush
       file.close
       stream.close if close_stream
+    end
+
+    private
+
+    def benefits_doc_api
+      ClaimsApi::BD.new
     end
   end
 end

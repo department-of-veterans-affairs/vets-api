@@ -4,14 +4,13 @@ module Crm
   class Service
     extend Forwardable
 
-    attr_reader :icn, :logger, :settings, :base_uri, :token
+    attr_reader :icn, :logger, :settings, :token
 
-    BASE_URI = 'https://dev.integration.d365.va.gov'
     VEIS_API_PATH = 'eis/vagov.lob.ava/api'
     CRM_ENV = {
       'test' => 'iris-dev',
       'development' => 'iris-dev',
-      'staging' => 'iris-dev',
+      'staging' => 'veft-qa',
       'production' => 'iris-PROD'
     }.freeze
 
@@ -21,21 +20,20 @@ module Crm
                    :ocp_apim_subscription_key,
                    :service_name
 
-    def initialize(icn:, base_uri: BASE_URI, logger: LogService.new)
+    def initialize(icn:, logger: LogService.new)
       @settings = Settings.ask_va_api.crm_api
-      @base_uri = base_uri
       @icn = icn
       @token = CrmToken.new.call
       @logger = logger
     end
 
     def call(endpoint:, method: :get, payload: {})
-      endpoint = "#{VEIS_API_PATH}/#{endpoint}" if base_uri == BASE_URI
-      organization = CRM_ENV[Settings.vsp_environment]
+      endpoint = "#{VEIS_API_PATH}/#{endpoint}"
+      organization = CRM_ENV[vsp_environment]
 
       params = { icn:, organizationName: organization }
 
-      response = conn.public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
+      response = conn(url: base_url).public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
         req.headers = default_header.merge('Authorization' => "Bearer #{token}")
       end
       parse_response(response.body)
@@ -46,7 +44,7 @@ module Crm
 
     private
 
-    def conn(url: base_uri)
+    def conn(url:)
       Faraday.new(url:) do |f|
         f.use :breakers
         f.response :raise_custom_error, error_prefix: service_name
@@ -82,6 +80,10 @@ module Crm
         'Content-Type' => 'application/json',
         'OCP-APIM-Subscription-Key' => ocp_apim_subscription_key
       }
+    end
+
+    def vsp_environment
+      Settings.vsp_environment
     end
   end
 end

@@ -106,19 +106,16 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
   describe 'GET #categories' do
     let(:categories_path) { '/ask_va_api/v0/categories' }
     let(:expected_hash) do
-      {
-        'id' => '5a524deb-d864-eb11-bb24-000d3a579c45',
+      { 'id' => '75524deb-d864-eb11-bb24-000d3a579c45',
         'type' => 'categories',
-        'attributes' => {
-          'name' => 'VA Center for Minority Veterans',
-          'allow_attachments' => false,
-          'description' => nil,
-          'display_name' => nil,
-          'parent_id' => nil,
-          'rank_order' => 18,
-          'requires_authentication' => false
-        }
-      }
+        'attributes' =>
+         { 'name' => 'Education (Ch.30, 33, 35, 1606, etc. & Work Study)',
+           'allow_attachments' => true,
+           'description' => nil,
+           'display_name' => 'Education (Ch.30, 33, 35, 1606, etc. & Work Study)',
+           'parent_id' => nil,
+           'rank_order' => 1,
+           'requires_authentication' => true } }
     end
 
     context 'when successful' do
@@ -152,19 +149,10 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       AskVAApi::Categories::Entity.new({ Id: '60524deb-d864-eb11-bb24-000d3a579c45' })
     end
     let(:expected_response) do
-      {
-        'id' => 'a52a8586-e764-eb11-bb23-000d3a579c3f',
-        'type' => 'topics',
-        'attributes' => {
-          'name' => 'Supplemental Claim',
-          'allow_attachments' => false,
-          'description' => nil,
-          'display_name' => nil,
-          'parent_id' => '60524deb-d864-eb11-bb24-000d3a579c45',
-          'rank_order' => 0,
-          'requires_authentication' => false
-        }
-      }
+      { 'id' => 'a72a8586-e764-eb11-bb23-000d3a579c3f', 'type' => 'topics',
+        'attributes' => { 'name' => 'Board Appeals', 'allow_attachments' => false, 'description' => nil,
+                          'display_name' => 'Board Appeals', 'parent_id' => '60524deb-d864-eb11-bb24-000d3a579c45',
+                          'rank_order' => 0, 'requires_authentication' => false } }
     end
     let(:topics_path) { "/ask_va_api/v0/categories/#{category.id}/topics" }
 
@@ -197,19 +185,11 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       AskVAApi::Topics::Entity.new({ Id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
     end
     let(:expected_response) do
-      {
-        'id' => '7d2dbcee-eb64-eb11-bb23-000d3a579b83',
-        'type' => 'sub_topics',
-        'attributes' => {
-          'name' => 'Can I get a link on VA site to my site',
-          'allow_attachments' => false,
-          'description' => nil,
-          'display_name' => nil,
-          'parent_id' => 'f0ba9562-e864-eb11-bb23-000d3a579c44',
-          'rank_order' => 0,
-          'requires_authentication' => false
-        }
-      }
+      { 'id' => '7b2dbcee-eb64-eb11-bb23-000d3a579b83', 'type' => 'sub_topics',
+        'attributes' => { 'name' => 'Accessing a webpage on VA.gov', 'allow_attachments' => false,
+                          'description' => nil, 'display_name' => 'Accessing a webpage on VA.gov',
+                          'parent_id' => 'f0ba9562-e864-eb11-bb23-000d3a579c44', 'rank_order' => 0,
+                          'requires_authentication' => false } }
     end
     let(:subtopics_path) { "/ask_va_api/v0/topics/#{topic.id}/subtopics" }
 

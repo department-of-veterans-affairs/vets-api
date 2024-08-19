@@ -61,7 +61,9 @@ class Form526Submission < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
-  enum backup_submitted_claim_status: { accepted: 0, rejected: 1 }
+  # Documentation describing the purpose of 'paranoid success'
+  # https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/disability/526ez/engineering_research/paranoid_success_submissions.md
+  enum backup_submitted_claim_status: { accepted: 0, rejected: 1, paranoid_success: 2 }
   enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
 
   # Documentation describing the purpose of these scopes:
@@ -95,10 +97,22 @@ class Form526Submission < ApplicationRecord
     where(id: accepted_to_primary_path.select(:id))
       .or(where(id: accepted_to_backup_path.select(:id)))
       .or(where(id: remediated.select(:id)))
+      .or(where(id: paranoid_success_type.select(:id)))
+      .or(where(id: success_by_age_type.select(:id)))
   }
   scope :failure_type, lambda {
     where.not(id: in_process.select(:id))
          .where.not(id: success_type.select(:id))
+  }
+  # after 1 year as paranoid success, we consider it fully successful
+  scope :success_by_age_type, lambda {
+    where(backup_submitted_claim_status: backup_submitted_claim_statuses[:paranoid_success])
+      .where(arel_table[:created_at].lt(1.year.ago))
+  }
+  # addresses a Benefits Intake API edge case where 'success' can revert to failure
+  scope :paranoid_success_type, lambda {
+    where(backup_submitted_claim_status: backup_submitted_claim_statuses[:paranoid_success])
+      .where(arel_table[:created_at].gt(1.year.ago))
   }
 
   FORM_526 = 'form526'
@@ -109,7 +123,9 @@ class Form526Submission < ApplicationRecord
   FLASHES = 'flashes'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
-  MAX_PENDING_TIME = 3.days
+  # MAX_PENDING_TIME aligns with the farthest out expectation given in the LH BI docs,
+  # plus 1 week to accomodate for edge cases and our sidekiq jobs
+  MAX_PENDING_TIME = 3.weeks
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
   # submission process. Currently this passes directly to the retryable EVSS workflow, but if any
@@ -347,12 +363,13 @@ class Form526Submission < ApplicationRecord
     )
     workflow_batch.jobs do
       submit_uploads if form[FORM_526_UPLOADS].present?
-      submit_form_4142 if form[FORM_4142].present?
+      conditionally_submit_form_4142
       submit_form_0781 if form[FORM_0781].present?
       submit_form_8940 if form[FORM_8940].present?
       upload_bdd_instructions if bdd?
       submit_flashes if form[FLASHES].present?
-      poll_form526_pdf if Flipper.enabled?(:disability_526_toxic_exposure_document_upload_polling, User.find(user_uuid))
+      poll_form526_pdf if Flipper.enabled?(:disability_526_toxic_exposure_document_upload_polling,
+                                           OpenStruct.new({ flipper_id: user_uuid }))
       cleanup
     end
   end
@@ -467,7 +484,19 @@ class Form526Submission < ApplicationRecord
     self.class.in_process.exists?(id:)
   end
 
+  def last_remediation
+    form526_submission_remediations&.order(:created_at)&.last
+  end
+
   private
+
+  def conditionally_submit_form_4142
+    if Flipper.enabled?(:disability_compensation_production_tester, OpenStruct.new({ flipper_id: user_uuid }))
+      Rails.logger.info("submit_form_4142 call skipped for submission #{id}")
+    elsif form[FORM_4142].present?
+      submit_form_4142
+    end
+  end
 
   attr_accessor :lighthouse_validation_response
 
@@ -569,14 +598,12 @@ class Form526Submission < ApplicationRecord
   def poll_form526_pdf
     # In order to track the status of the 526 PDF upload via Lighthouse,
     # call poll_form526_pdf, provided we received a valid claim_id from Lighthouse
-    Lighthouse::PollForm526Pdf.perform_async(id) if id
+    if saved_claim.parsed_form['startedFormVersion'].present? && submitted_claim_id
+      Lighthouse::PollForm526Pdf.perform_async(id)
+    end
   end
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
-  end
-
-  def last_remediation
-    form526_submission_remediations&.order(:created_at)&.last
   end
 end
