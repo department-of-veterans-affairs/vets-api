@@ -47,4 +47,3 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: |
             ready-for-backend-review
-
