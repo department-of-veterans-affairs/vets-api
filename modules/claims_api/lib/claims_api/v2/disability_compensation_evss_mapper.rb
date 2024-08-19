@@ -65,9 +65,13 @@ module ClaimsApi
         disability.delete(:serviceRelevance) if disability&.dig(:serviceRelevance).blank?
         disability.delete(:classificationCode) if disability&.dig(:classificationCode).nil? # blank is ok
 
+        disability[:name] = disability[:name].gsub(/\[|\]/, '') if disability[:name].present?
+
         if disability&.dig(:secondaryDisabilities).present?
           disability[:secondaryDisabilities] = disability[:secondaryDisabilities]&.map do |secondary|
             secondary.delete(:classificationCode) if secondary&.dig(:classificationCode).nil? # blank is ok
+
+            secondary[:name] = secondary[:name].gsub(/\[|\]/, '') if secondary[:name].present?
 
             secondary.except(:exposureOrEventOrInjury, :approximateDate)
           end
