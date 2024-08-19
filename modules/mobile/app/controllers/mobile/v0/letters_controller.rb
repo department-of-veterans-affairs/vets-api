@@ -57,7 +57,7 @@ module Mobile
                    else
                      evss_service.get_letter_beneficiary
                    end
-        render json: Mobile::V0::LettersBeneficiarySerializer.new(response)
+        render json: Mobile::V0::LettersBeneficiarySerializer.new(@current_user, response)
       end
 
       # returns a pdf or json representation of the requested letter type given the user has that letter type available
