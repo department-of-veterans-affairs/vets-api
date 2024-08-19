@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-
-reg_office = 'REGIONAL_OFFICE TBD'
+reg_office = 'Department of Veteran Affairs, Pension Intake Center, P.O. Box 5365, Janesville, Wisconsin 53547-5365'
 
 # Income and Assets Claim Integration
 RSpec.describe 'V0::Form0969', type: %i[request serializer] do
