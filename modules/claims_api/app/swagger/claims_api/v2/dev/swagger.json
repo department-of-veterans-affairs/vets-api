@@ -3004,11 +3004,6 @@
                                   "nullable": true,
                                   "description": "Is the Veteran currently homeless?"
                                 },
-                                "isAtRiskOfBecomingHomeless": {
-                                  "type": "boolean",
-                                  "nullable": true,
-                                  "description": "Is the Veteran currently at risk of becoming homeless?"
-                                },
                                 "currentlyHomeless": {
                                   "type": "object",
                                   "nullable": true,
@@ -3036,6 +3031,11 @@
                                       "example": "other living situation"
                                     }
                                   }
+                                },
+                                "isAtRiskOfBecomingHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently at risk of becoming homeless?"
                                 },
                                 "riskOfBecomingHomeless": {
                                   "type": "object",
@@ -4379,11 +4379,6 @@
                                 "nullable": true,
                                 "description": "Is the Veteran currently homeless?"
                               },
-                              "isAtRiskOfBecomingHomeless": {
-                                "type": "boolean",
-                                "nullable": true,
-                                "description": "Is the Veteran currently at risk of becoming homeless?"
-                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -4411,6 +4406,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",
@@ -5547,10 +5547,12 @@
                           }
                         },
                         "homeless": {
+                          "isCurrentlyHomeless": true,
                           "currentlyHomeless": {
                             "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                             "otherDescription": "ABCDEFGHIJKLM"
                           },
+                          "isAtRiskOfBecomingHomeless": false,
                           "pointOfContact": "john stewart",
                           "pointOfContactNumber": {
                             "telephone": "5555555555",
@@ -5776,7 +5778,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "afcad79e-bcce-4f3d-9643-56408b4aa8bf",
+                        "id": "07693157-4674-4f0f-a081-da59f81f3025",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5820,10 +5822,12 @@
                             }
                           },
                           "homeless": {
+                            "isCurrentlyHomeless": true,
                             "currentlyHomeless": {
                               "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                               "otherDescription": "ABCDEFGHIJKLM"
                             },
+                            "isAtRiskOfBecomingHomeless": false,
                             "pointOfContact": "john stewart",
                             "pointOfContactNumber": {
                               "telephone": "5555555555",
@@ -5959,7 +5963,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-08-01"
+                              "anticipatedSeparationDate": "2024-08-15"
                             },
                             "confinements": [
                               {
@@ -6005,7 +6009,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "edb28482-636a-4933-9e7d-ff5670f5b268",
+                        "id": "b1798b64-05e7-4f7d-96b7-33b8c5bca581",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -6049,10 +6053,12 @@
                             }
                           },
                           "homeless": {
+                            "isCurrentlyHomeless": true,
                             "currentlyHomeless": {
                               "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                               "otherDescription": "ABCDEFGHIJKLM"
                             },
+                            "isAtRiskOfBecomingHomeless": false,
                             "pointOfContact": "john stewart",
                             "pointOfContactNumber": {
                               "telephone": "5555555555",
@@ -6523,11 +6529,6 @@
                                   "nullable": true,
                                   "description": "Is the Veteran currently homeless?"
                                 },
-                                "isAtRiskOfBecomingHomeless": {
-                                  "type": "boolean",
-                                  "nullable": true,
-                                  "description": "Is the Veteran currently at risk of becoming homeless?"
-                                },
                                 "currentlyHomeless": {
                                   "type": "object",
                                   "nullable": true,
@@ -6555,6 +6556,11 @@
                                       "example": "other living situation"
                                     }
                                   }
+                                },
+                                "isAtRiskOfBecomingHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently at risk of becoming homeless?"
                                 },
                                 "riskOfBecomingHomeless": {
                                   "type": "object",
@@ -7898,11 +7904,6 @@
                                 "nullable": true,
                                 "description": "Is the Veteran currently homeless?"
                               },
-                              "isAtRiskOfBecomingHomeless": {
-                                "type": "boolean",
-                                "nullable": true,
-                                "description": "Is the Veteran currently at risk of becoming homeless?"
-                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -7930,6 +7931,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",
@@ -9066,10 +9072,12 @@
                           }
                         },
                         "homeless": {
+                          "isCurrentlyHomeless": true,
                           "currentlyHomeless": {
                             "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                             "otherDescription": "ABCDEFGHIJKLM"
                           },
+                          "isAtRiskOfBecomingHomeless": false,
                           "pointOfContact": "john stewart",
                           "pointOfContactNumber": {
                             "telephone": "5555555555",
@@ -9296,10 +9304,12 @@
                           }
                         },
                         "homeless": {
+                          "isCurrentlyHomeless": true,
                           "currentlyHomeless": {
                             "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                             "otherDescription": "ABCDEFGHIJKLM"
                           },
+                          "isAtRiskOfBecomingHomeless": false,
                           "pointOfContact": "john stewart",
                           "pointOfContactNumber": {
                             "telephone": "5555555555",
@@ -10046,11 +10056,6 @@
                                 "nullable": true,
                                 "description": "Is the Veteran currently homeless?"
                               },
-                              "isAtRiskOfBecomingHomeless": {
-                                "type": "boolean",
-                                "nullable": true,
-                                "description": "Is the Veteran currently at risk of becoming homeless?"
-                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -10078,6 +10083,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",
@@ -11190,7 +11200,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3b9bd54b-0559-4383-923c-1a758f39c639",
+                    "id": "6a539485-440d-48b5-b608-26bd4ab0adef",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -11233,10 +11243,12 @@
                         }
                       },
                       "homeless": {
+                        "isCurrentlyHomeless": true,
                         "currentlyHomeless": {
                           "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                           "otherDescription": "ABCDEFGHIJKLM"
                         },
+                        "isAtRiskOfBecomingHomeless": false,
                         "pointOfContact": "john stewart",
                         "pointOfContactNumber": {
                           "telephone": "5555555555",
@@ -12338,8 +12350,6 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
@@ -12374,7 +12384,7 @@
                                     "type": "string",
                                     "example": "OR",
                                     "maxLength": 1000,
-                                    "minLength": 0
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -12386,7 +12396,8 @@
                                     "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "example": "12345",
-                                    "maxLength": 500
+                                    "maxLength": 500,
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
@@ -12394,6 +12405,12 @@
                                     "example": "6789",
                                     "nullable": true,
                                     "maxLength": 500
+                                  },
+                                  "internationalPostalCode": {
+                                    "description": "International postal code for the Veteran's current mailing address.",
+                                    "type": "string",
+                                    "maxLength": 1000,
+                                    "nullable": true
                                   }
                                 }
                               },
@@ -12469,19 +12486,22 @@
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
                                 "example": "OR",
-                                "maxLength": 1000
+                                "maxLength": 1000,
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                 "type": "string",
                                 "example": "USA",
-                                "maxLength": 1000
+                                "maxLength": 1000,
+                                "nullable": true
                               },
                               "zipFirstFive": {
                                 "description": "Zip code (First 5 digits) for the Veteran's new address.",
                                 "type": "string",
                                 "example": "12345",
-                                "maxLength": 500
+                                "maxLength": 500,
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -12489,6 +12509,12 @@
                                 "nullable": true,
                                 "example": "6789",
                                 "maxLength": 500
+                              },
+                              "internationalPostalCode": {
+                                "description": "International postal code for the Veteran's new address.",
+                                "type": "string",
+                                "maxLength": 1000,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
@@ -12515,6 +12541,11 @@
                             "nullable": true,
                             "additionalProperties": false,
                             "properties": {
+                              "isCurrentlyHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently homeless?"
+                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -12542,6 +12573,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",
@@ -14105,8 +14141,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-30",
-                      "expirationDate": "2025-07-30",
+                      "creationDate": "2024-08-13",
+                      "expirationDate": "2025-08-13",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -15002,7 +15038,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "46fedb7e-9141-4080-9c19-6247fe86e77f",
+                    "id": "6e5a243a-739c-496f-bc8f-00a4d0903e71",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15695,7 +15731,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a48f35ac-d472-48e0-a19d-b60e0b26e72d",
+                    "id": "7f4a4d2a-95fa-4f3e-818c-b1a6b4c63be0",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17646,10 +17682,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "25fcda8b-a9e5-48b8-ac33-4a6ba64d55d0",
+                    "id": "ed0c4a18-f208-40c2-b7f9-85f38f88bc2f",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-30",
+                      "dateRequestAccepted": "2024-08-13",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

@@ -14,6 +14,7 @@ RSpec.describe 'Intent to file' do
 
   before do
     sign_in
+    Flipper.disable(:disability_compensation_production_tester)
   end
 
   describe 'GET /v0/intent_to_file' do

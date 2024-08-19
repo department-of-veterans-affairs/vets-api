@@ -10,6 +10,14 @@ describe PrescriptionSerializer do
   let(:attributes) { data['attributes'] }
   let(:links) { data['links'] }
 
+  it 'includes :id' do
+    expect(data['id']).to eq(prescription.prescription_id.to_s)
+  end
+
+  it 'includes :type' do
+    expect(data['type']).to eq('prescriptions')
+  end
+
   it 'includes :prescription_id' do
     expect(attributes['prescription_id']).to eq(prescription.prescription_id)
   end
@@ -91,7 +99,7 @@ describe PrescriptionSerializer do
 
   context 'when prescription is not trackable?' do
     it 'includes :tracking link' do
-      expect(links['tracking']).to be_nil
+      expect(links['tracking']).to be_blank
     end
   end
 end
