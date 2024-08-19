@@ -56,7 +56,7 @@ jobs:
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
 
-      - run: echo "${{ github.event.pull_request.requested_reviewers.*.login }"
+      - run: echo "${{ github.event.pull_request.requested_reviewers.*.login }}"
 
       - name: Remove ready-for-review label
         if: |
