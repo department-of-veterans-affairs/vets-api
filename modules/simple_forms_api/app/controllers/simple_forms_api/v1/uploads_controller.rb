@@ -156,7 +156,9 @@ module SimpleFormsApi
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
                                                                         zip_code_is_us_based: form.zip_code_is_us_based)
 
-        form.handle_attachments(file_path) if %w[vba_40_0247 vba_20_10207 vba_40_10007 vba_40_10007_integration].include? form_id
+        form.handle_attachments(file_path) if %w[
+          vba_40_0247 vba_20_10207 vba_40_10007 vba_40_10007_integration
+        ].include? form_id
 
         [file_path, metadata, form]
       end
@@ -164,7 +166,9 @@ module SimpleFormsApi
       def upload_pdf(file_path, metadata, form_id)
         lighthouse_service = BenefitsIntake::Service.new
         location, uuid = lighthouse_service.request_upload
-        SimpleFormsApi::PdfStamper.stamp4010007_uuid(uuid) if (form_id == 'vba_40_10007' || form_id == 'vba_40_10007_integration')
+        SimpleFormsApi::PdfStamper.stamp4010007_uuid(uuid) if %w[
+          vba_40_10007 vba_40_10007_integration
+        ].include?(form_id)
         form_submission = FormSubmission.create(
           form_type: params[:form_number],
           benefits_intake_uuid: uuid,
