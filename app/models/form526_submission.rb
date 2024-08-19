@@ -368,7 +368,8 @@ class Form526Submission < ApplicationRecord
       submit_form_8940 if form[FORM_8940].present?
       upload_bdd_instructions if bdd?
       submit_flashes if form[FLASHES].present?
-      poll_form526_pdf if Flipper.enabled?(:disability_526_toxic_exposure_document_upload_polling, User.find(user_uuid))
+      poll_form526_pdf if Flipper.enabled?(:disability_526_toxic_exposure_document_upload_polling,
+                                           OpenStruct.new({ flipper_id: user_uuid }))
       cleanup
     end
   end
@@ -490,8 +491,8 @@ class Form526Submission < ApplicationRecord
   private
 
   def conditionally_submit_form_4142
-    if Flipper.enabled?(:disability_compensation_production_tester, User.find(user_uuid))
-      Rails.logger.info("submit_form_4142 call skipped for submission #{submission.id}")
+    if Flipper.enabled?(:disability_compensation_production_tester, OpenStruct.new({ flipper_id: user_uuid }))
+      Rails.logger.info("submit_form_4142 call skipped for submission #{id}")
     elsif form[FORM_4142].present?
       submit_form_4142
     end
@@ -597,7 +598,9 @@ class Form526Submission < ApplicationRecord
   def poll_form526_pdf
     # In order to track the status of the 526 PDF upload via Lighthouse,
     # call poll_form526_pdf, provided we received a valid claim_id from Lighthouse
-    Lighthouse::PollForm526Pdf.perform_async(id) if id
+    if saved_claim.parsed_form['startedFormVersion'].present? && submitted_claim_id
+      Lighthouse::PollForm526Pdf.perform_async(id)
+    end
   end
 
   def cleanup

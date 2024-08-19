@@ -5,13 +5,15 @@ RSpec.shared_examples 'Flipper debts_cache_dmc_empty_response behavior' do |flip
     allow(Flipper).to receive(:enabled?).with(:debts_cache_dmc_empty_response).and_return(flipper_enabled)
   end
 
-  describe '#get_letters' do
+  describe '#get_debts' do
     context 'with a valid file number' do
       it 'fetches the veterans debt data' do
         VCR.use_cassette('bgs/people_service/person_data') do
           VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
             res = described_class.new(user).get_debts
-            expect(JSON.parse(res.to_json)['debts'][0]['fileNumber']).to eq('796043735')
+            parsed_response = JSON.parse(res.to_json)['debts'][0]
+            expect(parsed_response['fileNumber']).to eq('796043735')
+            expect(parsed_response['compositeDebtId']).to eq('301177')
           end
         end
       end
