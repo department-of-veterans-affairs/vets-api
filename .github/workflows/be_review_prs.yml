@@ -7,6 +7,7 @@ on:
 
 jobs:
   check-approval-requirements:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -111,3 +112,11 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "Backend-review-group approval confirmed."
+
+      - name: Remove ready-for-review label
+        if: success() && steps.verify_approval.outputs.approval_status == 'confirmed' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            ready-for-backend-review
