@@ -1,7 +1,7 @@
 name: Mark pull request label as ready for review
 on:
   pull_request:
-    types: [review_requested]
+    types: [review_requested, synchronize]
 
 jobs:
   check-approval-requirements:
