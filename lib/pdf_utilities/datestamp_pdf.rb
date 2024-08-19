@@ -6,7 +6,6 @@ module PDFUtilities
   PDFTK = PdfForms.new(Settings.binaries.pdftk)
 
   class DatestampPdf
-
     def initialize(file_path, append_to_stamp: nil)
       @file_path = file_path
       @append_to_stamp = append_to_stamp
@@ -30,7 +29,8 @@ module PDFUtilities
 
     private
 
-    attr_reader :text, :x, :y, :text_only, :size, :timestamp, :page_number, :template, :multistamp, :file_path, :append_to_stamp, :stamp_path, :stamped_pdf
+    attr_reader :text, :x, :y, :text_only, :size, :timestamp, :page_number, :template, :multistamp, :file_path,
+                :append_to_stamp, :stamp_path, :stamped_pdf
 
     def default_settings
       {
@@ -74,11 +74,11 @@ module PDFUtilities
     def stamp_text
       stamp = text
       unless text_only
-         stamp += if File.basename(file_path) == 'vba_40_10007-stamped.pdf'
-                  " #{I18n.l(timestamp4010007, format: :pdf_stamp4010007)}"
-                else
-                  " #{I18n.l(timestamp, format: :pdf_stamp_utc)}"
-                end
+        stamp += if File.basename(file_path) == 'vba_40_10007-stamped.pdf'
+                   " #{I18n.l(timestamp4010007, format: :pdf_stamp4010007)}"
+                 else
+                   " #{I18n.l(timestamp, format: :pdf_stamp_utc)}"
+                 end
         stamp += ". #{append_to_stamp}" if append_to_stamp
       end
       stamp
