@@ -3,7 +3,6 @@
 module Mobile
   module V0
     module Adapters
-      # rubocop:disable Metrics/ClassLength
       class VAOSV2Appointment
         APPOINTMENT_TYPES = {
           va: 'VA',
@@ -503,7 +502,6 @@ module Mobile
           time.is_a?(DateTime) ? time : DateTime.parse(time)
         end
       end
-      # rubocop:enable Metrics/ClassLength
     end
   end
 end
