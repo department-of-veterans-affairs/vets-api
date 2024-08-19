@@ -720,9 +720,6 @@ features:
   ha_cpap_supplies_cta:
     actor_type: user
     description: Toggle CTA for reordering Hearing Aid and CPAP supplies form within static pages.
-  injected_header_web_components:
-    actor_type: user
-    description: Enable/disable import of web components to the injected header
   in_progress_form_custom_expiration:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
@@ -1016,10 +1013,6 @@ features:
     description: Use VA Forms System Core for forms instead of schema based forms
     actor_type: user
     enable_in_development: true
-  pw_ehr_cta_drupal_source_of_truth:
-    actor_type: user
-    description: Enabling Public Websites-managed EHR CTAs to use Drupal EHR data, including for Cerner cutovers
-    enable_in_development: true
   pw_ehr_cta_use_slo:
     actor_type: user
     description: Use single-logout (SLO) paths for Public Websites-managed EHR CTAs
@@ -1112,9 +1105,6 @@ features:
   show_edu_benefits_5495_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 5495 introduction page
-  show_events_v2:
-    actor_type: user
-    description: Enables the events v2 page
   show_financial_status_report:
     actor_type: user
     description: Enables VA Form 5655 (Financial Status Report)
