@@ -7,7 +7,9 @@ RSpec.describe PDFUtilities::DatestampPdf do
   describe '#run' do
     before do
       @file_path = Common::FileHelpers.random_file_path
-      Prawn::Document.new.render_file @file_path
+      Prawn::Document.generate(@file_path, margin: [0, 0]) do |pdf|
+        5.times { pdf.start_new_page }
+      end
     end
 
     let(:opt) do
@@ -42,6 +44,15 @@ RSpec.describe PDFUtilities::DatestampPdf do
                                 template: './lib/pdf_fill/forms/pdfs/686C-674.pdf', multistamp: true)
         pdf_reader = PDF::Reader.new(out_path)
         expect(pdf_reader.pages[0].text).to eq('Received via vets.gov')
+        File.delete(out_path)
+      end
+
+      it 'takes a timestamp, page number greater than 0, and template' do
+        out_path = instance.run(text: 'Received via vets.gov', x: 10, y: 10, timestamp: Time.zone.now,
+                                text_only: true, page_number: 5,
+                                template: './lib/pdf_fill/forms/pdfs/686C-674.pdf', multistamp: true)
+        pdf_reader = PDF::Reader.new(out_path)
+        expect(pdf_reader.pages[5].text).to eq('Received via vets.gov')
         File.delete(out_path)
       end
 

@@ -29,8 +29,7 @@ module PDFUtilities
 
     private
 
-    attr_reader :text, :x, :y, :text_only, :size, :timestamp, :page_number, :template, :multistamp, :file_path,
-                :append_to_stamp, :stamp_path, :stamped_pdf
+    attr_reader :text, :x, :y, :text_only, :size, :page_number, :template, :multistamp, :file_path, :append_to_stamp, :stamp_path, :stamped_pdf
 
     def default_settings
       {
@@ -44,6 +43,10 @@ module PDFUtilities
         template: nil,
         multistamp: false
       }.freeze
+    end
+
+    def timestamp
+      @timestamp ||= Time.zone.now
     end
 
     def timestamp4010007
