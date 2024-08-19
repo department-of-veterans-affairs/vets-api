@@ -8,9 +8,6 @@ module AccreditedRepresentation
                                     poa_code:,
                                     individual_type:,
                                     email:)
-
-      pilot_rep = AccreditedRepresentativePortal::PilotRepresentative.find_or_initialize_by(email:)
-      pilot_rep.update!(ogc_registration_number: ogc_number)
     end
   end
 end
