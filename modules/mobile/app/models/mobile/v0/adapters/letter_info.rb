@@ -4,7 +4,7 @@ module Mobile
   module V0
     module Adapters
       class LetterInfo
-        def parse(user_uuid ,letter_info)
+        def parse(user_uuid, letter_info)
           Mobile::V0::LetterInfo.new(
             id: user_uuid,
             benefit_information: benefit_information(letter_info[:benefitInformation]),

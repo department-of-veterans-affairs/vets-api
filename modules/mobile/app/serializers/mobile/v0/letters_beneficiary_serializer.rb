@@ -8,7 +8,6 @@ module Mobile
 
       set_type :LettersBeneficiaryResponses
       attributes :benefit_information, :military_service
-
-      end
+    end
   end
 end
