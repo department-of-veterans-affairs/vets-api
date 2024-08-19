@@ -77,6 +77,7 @@ FactoryBot.define do
     birls_ids { birls }
     vet360_id { '123456789' }
     sec_id { '0001234567' }
+    sec_ids { [sec_id] }
     search_token { 'WSDOC2002071538432741110027956' }
 
     factory :mpi_profile_response do
@@ -127,6 +128,7 @@ FactoryBot.define do
       birls_ids { birls }
       vet360_id { '123456789' }
       sec_id { '0001234567' }
+      sec_ids { [sec_id] }
       search_token { 'WSDOC2002071538432741110027956' }
       person_types { ['PAT'] }
 
@@ -166,6 +168,7 @@ FactoryBot.define do
         home_phone { '1112223333 p1' }
         icn { '12345678901234567' }
         sec_id { '0001234567' }
+        sec_ids { [sec_id] }
         mhv_ids { %w[12345678901 12345678902] }
         active_mhv_ids { %w[12345678901] }
         vha_facility_ids { %w[200MH 200MH] }

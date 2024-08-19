@@ -174,7 +174,7 @@ form_10_10cg:
       client_secret: ~
       timeout: 30
       async_timeout: 600
-      auth: 
+      auth:
         mock: false
         timeout: ~
         token_url: ~
@@ -281,6 +281,10 @@ vet360:
     api_key: "<AV_KEY>"
   health_benefit:
     mock: true
+  profile_information:
+    enabled: true
+    timeout: 30
+    use_mocks: false
 
 # Settings for IHub
 ihub:
@@ -433,6 +437,10 @@ expiry_scanner:
 argocd:
   slack:
     api_key: ~
+
+# Settings for Accredited Rep Management
+acc_rep_management:
+  prefill: true
 
 # Settings for EVSS
 evss:
@@ -1773,3 +1781,6 @@ vye:
 schema_contract:
   appointments_index: 'modules/vaos/app/schemas/appointments_index.json'
   test_index: 'spec/fixtures/schema_contract/test_schema.json'
+
+form_mock_ae_design_patterns:
+  prefill: true

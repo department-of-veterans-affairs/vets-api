@@ -26,6 +26,8 @@ module ClaimStatusTool
       format_letter_data(res)
     rescue VBMS::FilenumberDoesNotExist
       []
+    rescue NoMethodError
+      raise Common::Exceptions::BackendServiceException
     end
 
     def get_letter(document_id)

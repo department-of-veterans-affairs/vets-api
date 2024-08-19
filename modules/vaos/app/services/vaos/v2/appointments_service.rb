@@ -22,10 +22,9 @@ module VAOS
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {})
-        params = date_params(start_date, end_date)
-                 .merge(page_params(pagination_params))
-                 .merge(status_params(statuses))
-                 .compact
+        params = date_params(start_date, end_date).merge(page_params(pagination_params))
+                                                  .merge(status_params(statuses))
+                                                  .compact
 
         cnp_count = 0
 
@@ -105,7 +104,6 @@ module VAOS
       end
 
       # rubocop:enable Metrics/MethodLength
-
       def update_appointment(appt_id, status)
         with_monitoring do
           if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
@@ -217,6 +215,8 @@ module VAOS
         convert_appointment_time(appointment)
 
         appointment[:station], appointment[:ien] = extract_station_and_ien(appointment)
+
+        appointment[:minutes_duration] ||= 60 if appointment[:appointment_type] == 'COMMUNITY_CARE'
 
         if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)

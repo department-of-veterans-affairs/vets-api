@@ -875,6 +875,39 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vform_mock_ae_design_patterns_expected) do
+    {
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'firstName' => user.first_name&.capitalize,
+            'middleName' => user.middle_name&.capitalize,
+            'lastName' => user.last_name&.capitalize,
+            'suffix' => user.suffix,
+            'dateOfBirth' => user.birth_date,
+            'ssn' => user.ssn.last(4),
+            'gender' => user.gender,
+            'address' => {
+              'addressLine1' => street_check[:street],
+              'addressLine2' => street_check[:street2],
+              'city' => user.address[:city],
+              'stateCode' => user.address[:state],
+              'countryName' => user.address[:country],
+              'zipCode5' => user.address[:postal_code][0..4]
+            },
+            'phone' => {
+              'areaCode' => us_phone[0..2],
+              'phoneNumber' => us_phone[3..9]
+            },
+            'homePhone' => '14445551212',
+            'emailAddressText' => user.pciu_email,
+            'lastServiceBranch' => 'Army'
+          }
+        }
+      }
+    }
+  end
+
   let(:v28_1900_expected) do
     {
       'veteranInformation' => {
@@ -896,6 +929,80 @@ RSpec.describe FormProfile, type: :model do
       },
       'mainPhone' => us_phone,
       'email' => user.pciu_email
+    }
+  end
+
+  let(:v21_22_expected) do
+    {
+      'personalInformation' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12'
+      },
+      'contactInformation' => {
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        },
+        'primaryPhone' => '4445551212'
+      },
+      'militaryInformation' => {
+        'serviceBranch' => 'Army',
+        'serviceDateRange' => {
+          'from' => '2002-07-02',
+          'to' => '2014-08-31'
+        }
+      },
+      'identityValidation' => {
+        'hasICN' => true,
+        'hasParticipantId' => true
+      }
+    }
+  end
+
+  let(:v21_22_a_expected) do
+    {
+      'personalInformation' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12'
+      },
+      'contactInformation' => {
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        },
+        'primaryPhone' => '4445551212'
+      },
+      'militaryInformation' => {
+        'serviceBranch' => 'Army',
+        'serviceDateRange' => {
+          'from' => '2002-07-02',
+          'to' => '2014-08-31'
+        }
+      },
+      'identityValidation' => {
+        'hasICN' => true,
+        'hasParticipantId' => true
+      }
     }
   end
 
@@ -1154,7 +1261,7 @@ RSpec.describe FormProfile, type: :model do
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
-      when '1010ez'
+      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS'
         '10-10EZ'
       when '21-526EZ'
         '21-526EZ-ALLCLAIMS'
@@ -1652,6 +1759,9 @@ RSpec.describe FormProfile, type: :model do
           28-1900
           26-1880
           26-4555
+          21-22
+          21-22A
+          FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             Flipper.disable(:pension_military_prefill)
@@ -1925,22 +2035,6 @@ RSpec.describe FormProfile, type: :model do
         )
         instance1.prefill
         instance2.prefill
-      end
-    end
-
-    context '10-7959F-1 form profile instances' do
-      let(:instance) { FormProfile.new(form_id: '10-7959F-1', user:) }
-
-      it 'loads the yaml file only once' do
-        expect(YAML).to receive(:load_file).once.and_return(
-          'veteranFullName' => %w[identity_information full_name],
-          'veteranAddress' => %w[contact_information address],
-          'veteranSocialSecurityNumber' => %w[identity_information ssn],
-          'veteranPhoneNumber' => %w[contact_information us_phone],
-          'veteranEmailAddress' => %w[contact_information email],
-          'veteranPhysicalAddress' => %w[residential_address]
-        )
-        instance.prefill
       end
     end
   end
