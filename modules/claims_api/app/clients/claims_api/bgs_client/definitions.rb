@@ -109,6 +109,9 @@ module ClaimsApi
         end
       end
 
+      ##
+      # IntentToFileWebServiceBean
+      #
       module IntentToFileWebServiceBean
         DEFINITION =
           Bean.new(
