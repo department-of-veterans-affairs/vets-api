@@ -12,24 +12,25 @@ module RepresentationManagement
     end
 
     def results
-      combined_results = individuals + organizations
-      combined_results.sort_by { |entity| entity['distance'] }.take(MAXIMUM_RESULT_COUNT)
+      (individuals + organizations).sort_by(&:distance).take(MAXIMUM_RESULT_COUNT)
     end
 
     private
 
     def individuals
-      sanitized_query = ActiveRecord::Base.sanitize_sql(['levenshtein(full_name, ?)', @query_string])
-      AccreditedIndividual.where('word_similarity(full_name, ?) > ?', @query_string, WORD_SIMILARITY_THRESHOLD)
-                          .order(Arel.sql(sanitized_query))
-                          .limit(MAXIMUM_RESULT_COUNT)
+      query = ActiveRecord::Base.connection.quote(@query_string) # Safely quote the query string
+      AccreditedIndividual
+        .select("accredited_individuals.*, levenshtein(accredited_individuals.full_name, #{query}) AS distance")
+        .order('distance ASC')
+        .limit(MAXIMUM_RESULT_COUNT)
     end
 
     def organizations
-      sanitized_query = ActiveRecord::Base.sanitize_sql(['levenshtein(name, ?)', @query_string])
-      AccreditedOrganization.where('word_similarity(name, ?) > ?', @query_string, WORD_SIMILARITY_THRESHOLD)
-                            .order(Arel.sql(sanitized_query))
-                            .limit(MAXIMUM_RESULT_COUNT)
+      query = ActiveRecord::Base.connection.quote(@query_string) # Safely quote the query string
+      AccreditedOrganization
+        .select("accredited_organizations.*, levenshtein(accredited_organizations.name, #{query}) AS distance")
+        .order('distance ASC')
+        .limit(MAXIMUM_RESULT_COUNT)
     end
   end
 end
