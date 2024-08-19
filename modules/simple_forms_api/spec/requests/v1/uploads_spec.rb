@@ -31,7 +31,7 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_20_10207-non-veteran.json'
   ]
   unauthenticated_forms = %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
-                             vba_40_10007.json]
+                             vba_40_10007.json vba_40_10007_integration.json]
 
   authenticated_forms = forms - unauthenticated_forms
 
