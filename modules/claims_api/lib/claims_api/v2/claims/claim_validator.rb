@@ -7,7 +7,7 @@ module ClaimsApi
         @bgs_claim = bgs_claim
         @lighthouse_claim = lighthouse_claim
         @request_icn = request_icn
-        @target_veteran = target_veteran
+        @target_vet_participant_id = target_veteran.participant_id
       end
 
       def validate
@@ -38,10 +38,10 @@ module ClaimsApi
       end
 
       def clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id)
-        return true if clm_prtcpnt_vet_id.nil? || clm_prtcpnt_clmnt_id.nil?
+        return true unless clm_prtcpnt_vet_id && clm_prtcpnt_clmnt_id
 
-        # if either of these is false then we have a match, return false and can show the record
-        clm_prtcpnt_vet_id != @target_veteran.participant_id && clm_prtcpnt_clmnt_id != @target_veteran.participant_id
+        # if either of these is false then we have a match, return that false and can show the record
+        clm_prtcpnt_vet_id != @target_vet_participant_id && clm_prtcpnt_clmnt_id != @target_vet_participant_id
       end
     end
   end
