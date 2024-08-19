@@ -37,9 +37,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: d1037714cb9e9c257343bfc128b70cb79e52c59c
+  revision: 350e45ae699407948d254d6fadd4f1b249e996f5
   specs:
-    bgs_ext (0.23.1)
+    bgs_ext (0.23.2)
       httpclient
       nokogiri (>= 1.13.6)
       savon (~> 2.15.1)
@@ -662,11 +662,10 @@ GEM
     nenv (0.3.0)
     net-http (0.4.1)
       uri
-    net-imap (0.4.12)
+    net-imap (0.4.14)
       date
       net-protocol
     net-pop (0.1.2)
-      net-protocol
     net-protocol (0.2.2)
       timeout
     net-sftp (4.0.0)
