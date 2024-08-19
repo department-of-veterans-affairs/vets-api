@@ -921,16 +921,16 @@ features:
     actor_type: user
     enable_in_development: true
   pension_income_and_assets_clarification:
-   actor_type: user
-   description: >
-     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
+    actor_type: user
+    description: >
+      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
   pension_medical_evidence_clarification:
-   actor_type: user
-   description: >
-     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
+    actor_type: user
+    description: >
+      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pension_military_prefill:
     actor_type: user
-    description: 'When enabled, 21P-527EZ will prefill military information.'
+    description: "When enabled, 21P-527EZ will prefill military information."
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1582,8 +1582,8 @@ features:
     actor_type: user
     description: Show updated introduction page
   pension_supporting_documents_update:
-   actor_type: user
-   description: Show updated supporting documents page
+    actor_type: user
+    description: Show updated supporting documents page
   pension_confirmation_update:
     actor_type: user
     description: Show updated confirmation page
@@ -1644,10 +1644,6 @@ features:
   toggle_vye_address_direct_deposit_forms_in_profile:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE in profile page
-  use_facilities_api_v2_for_cerner_cta:
-    actor_type: user
-    description: Use the new facilities API v2 for the Cerner CTA. Estimated time of removal June 18, 2024 after testing of deployment on staging of authenticated user.
-    enable_in_development: true
   toggle_vye_application:
     actor_type: user
     description: Enable VYE
@@ -1657,6 +1653,6 @@ features:
   merge_1995_and_5490:
     actore_type: user
     description: Activating the combined 1995 and 5490 form
-  mgib_verifications_maintenance: 
+  mgib_verifications_maintenance:
     actor_type: user
     description: Used to show  maintenance alert for MGIB Verifications

@@ -23,7 +23,6 @@ module FacilitiesApi
                     else
                       api.provider_locator(ppms_provider_params)
                     end
-
       render_json(V2::PPMS::ProviderSerializer, ppms_action_params, api_results)
     end
 
