@@ -67,5 +67,17 @@ RSpec.describe Vye::AddressChange, type: :model do
 
       expect(io.string.scan("\n").count).to be(7)
     end
+
+    it 'writes out a report where all field are left aligned and have at least a length of one' do
+      io = StringIO.new
+
+      expect do
+        described_class.write_report(io)
+      end.not_to raise_error
+
+      fields_across_all_lines = io.string.split(/[\n]/).map { |x| x.split(/[,]/) }.flatten
+
+      expect(fields_across_all_lines.all? { |x| x == ' ' || x.start_with?(/\S/) }).to be(true)
+    end
   end
 end
