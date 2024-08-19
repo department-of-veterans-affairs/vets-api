@@ -1,0 +1,89 @@
+{
+  "application": {
+      "currently_buried_persons": [
+          {
+              "name": {
+                  "first": "Greg",
+                  "last": "Doe"
+              }
+          }
+      ],
+      "has_currently_buried": "1",
+      "veteran": {
+          "service_records": [
+              {
+                  "service_branch": "NA"
+              }
+          ],
+          "military_status": "A",
+          "va_claim_number": "99999993",
+          "ethnicity": "isSpanishHispanicLatino",
+          "race": {
+              "is_american_indian_or_alaskan_native": true
+          },
+          "marital_status": "Single",
+          "gender": "Female",
+          "date_of_death": "2010-01-01",
+          "is_deceased": "yes",
+          "current_name": {
+              "first": "Greg",
+              "middle": "George",
+              "last": "Doe",
+              "suffix": "Sr.",
+              "maiden": "Hippo"
+          },
+          "ssn": "333-44-3333",
+          "city_of_birth": "City",
+          "state_of_birth": "State",
+          "service_name": {
+              "first": "Greg",
+              "middle": "George",
+              "last": "Doe",
+              "suffix": "Sr.",
+              "maiden": "Hippo"
+          }
+      },
+      "applicant": {
+          "is_sponsor": "no",
+          "mailing_address": {
+              "street": "123 Street",
+              "street2": "2nd line",
+              "city": "City",
+              "country": "USA",
+              "state": "SC",
+              "postal_code": "29412"
+          },
+          "applicant_phone_number": "1112211111",
+          "applicant_email": "Test2@gmail.com",
+          "name": {
+              "first": "C",
+              "last": "Fewin"
+          },
+          "applicant_relationship_to_claimant": "Authorized Agent\/Rep"
+      },
+      "claimant": {
+          "address": {
+              "street": "321 Test Street",
+              "street2": "Second Line",
+              "city": "City",
+              "country": "USA",
+              "state": "SC",
+              "postal_code": "29412"
+          },
+          "phone_number": "1112211111",
+          "email": "Test2@gmail.com",
+          "name": {
+              "first": "Jane",
+              "middle": "John",
+              "last": "Doe",
+              "suffix": "Jr.",
+              "maiden": "Hippo"
+          },
+          "ssn": "222-33-2222",
+          "date_of_birth": "1990-01-01",
+          "relationship_to_vet": "husband"
+      }
+  },
+  "privacy_agreement_accepted": true,
+  "form_number": "40-10007"
+}

@@ -1,0 +1,83 @@
+{
+  "application": {
+      "preneed_attachments": [
+          {
+              "name": "21x21.pdf",
+              "confirmation_code": "a-random-uuid",
+              "is_encrypted": false,
+              "attachment_id": "1"
+          }
+      ],
+      "has_currently_buried": "2",
+      "veteran": {
+          "service_records": [
+              {
+                  "service_branch": "AR"
+              }
+          ],
+          "military_status": "V",
+          "ethnicity": "isSpanishHispanicLatino",
+          "race": {
+              "is_american_indian_or_alaskan_native": true
+          },
+          "marital_status": "Single",
+          "gender": "Female",
+          "city_of_birth": "City",
+          "state_of_birth": "State",
+          "current_name": {
+              "first": "John",
+              "last": "Doe"
+          },
+          "ssn": "222-33-2222",
+          "date_of_birth": "1990-01-01",
+          "is_deceased": "no",
+          "address": {
+              "street": "123 Street",
+              "city": "City",
+              "country": "USA",
+              "state": "SC",
+              "postal_code": "29412"
+          },
+          "service_name": {
+              "first": "John",
+              "last": "Doe"
+          }
+      },
+      "claimant": {
+          "address": {
+              "street": "123 Street",
+              "city": "City",
+              "country": "USA",
+              "state": "SC",
+              "postal_code": "29412"
+          },
+          "phone_number": "1112221111",
+          "email": "Test@gmail.com",
+          "name": {
+              "first": "John",
+              "last": "Doe"
+          },
+          "ssn": "222-33-2222",
+          "date_of_birth": "1990-01-01",
+          "relationship_to_vet": "veteran"
+      },
+      "applicant": {
+          "applicant_relationship_to_claimant": "Self",
+          "name": {
+              "first": "John",
+              "last": "Doe"
+          },
+          "mailing_address": {
+              "street": "123 Street",
+              "city": "City",
+              "country": "USA",
+              "state": "SC",
+              "postal_code": "29412"
+          },
+          "applicant_phone_number": "1112221111",
+          "applicant_email": "Test@gmail.com"
+      }
+  },
+  "privacy_agreement_accepted": true,
+  "form_number": "40-10007"
+}

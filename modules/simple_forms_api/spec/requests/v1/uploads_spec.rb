@@ -282,6 +282,19 @@ RSpec.describe 'Forms uploader', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
           expect(response).to have_http_status(:ok)
         end
+
+        it 'appends the attachments to the 40-10007-integration PDF' do
+          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                         'vba_40_10007_integration_with_supporting_document.json')        
+          pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')        
+          data = JSON.parse(fixture_path.read)        
+          attachment = double
+          allow(attachment).to receive(:to_pdf).and_return(pdf_path)        
+          expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])      
+          post '/simple_forms_api/v1/simple_forms', params: data
+          expect(response).to have_http_status(:ok)
+        end
+        
       end
 
       context 'LOA3 authenticated' do
