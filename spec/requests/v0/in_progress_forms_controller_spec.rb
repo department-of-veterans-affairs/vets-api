@@ -471,7 +471,7 @@ RSpec.describe V0::InProgressFormsController do
 
         it 'returns a 404' do
           subject
-          expect(response.code).to eq('404')
+          expect(response).to have_http_status(:not_found)
         end
       end
 

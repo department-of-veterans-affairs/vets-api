@@ -67,7 +67,7 @@ RSpec.describe 'V0::MVIUsers', type: :request do
               # expect success to be achieved by calling MPI's add_person_proxy
               expect_any_instance_of(MPIData).to receive(:add_person_proxy).once.and_call_original
               post "/v0/mvi_users/#{valid_form_id}"
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end

@@ -9,7 +9,7 @@ RSpec.describe 'V0::IdCard::Attributes', type: :request do
 
   before do
     allow(Settings.vic).to receive(:signing_key_path)
-      .and_return(::Rails.root.join(*'/spec/support/certificates/vic-signing-key.pem'.split('/')).to_s)
+      .and_return(Rails.root.join(*'/spec/support/certificates/vic-signing-key.pem'.split('/')).to_s)
 
     sign_in_as(current_user)
   end

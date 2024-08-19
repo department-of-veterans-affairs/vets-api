@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/sm_client_helpers'
 
-RSpec.describe 'V0::User' do
+RSpec.describe 'V0::User', type: :request do
   include SchemaMatchers
   include SM::ClientHelpers
 
@@ -171,7 +171,7 @@ RSpec.describe 'V0::User' do
       let(:body) { JSON.parse(response.body) }
 
       it 'returns a status of 296' do
-        expect(response.status).to eq(296)
+        expect(response).to have_http_status(296)
       end
 
       it 'sets the vet360_contact_information to nil' do
@@ -210,7 +210,7 @@ RSpec.describe 'V0::User' do
       body  = JSON.parse(response.body)
       error = body.dig('meta', 'errors').first
 
-      expect(response.status).to eq 296
+      expect(response).to have_http_status 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
       expect(error['status']).to eq 401
@@ -271,7 +271,7 @@ RSpec.describe 'V0::User' do
       error = body.dig('meta', 'errors').first
 
       expect(body['data']['attributes']['va_profile']).to be_nil
-      expect(response.status).to eq 296
+      expect(response).to have_http_status 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
       expect(error['status']).to eq 500
@@ -287,7 +287,7 @@ RSpec.describe 'V0::User' do
       error = body.dig('meta', 'errors').first
 
       expect(body['data']['attributes']['va_profile']).to be_nil
-      expect(response.status).to eq 296
+      expect(response).to have_http_status 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
       expect(error['status']).to eq 404
@@ -304,7 +304,7 @@ RSpec.describe 'V0::User' do
       error = body.dig('meta', 'errors').first
 
       expect(body['data']['attributes']['va_profile']).to be_nil
-      expect(response.status).to eq 296
+      expect(response).to have_http_status 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
       expect(error['status']).to eq 404
@@ -368,7 +368,7 @@ RSpec.describe 'V0::User' do
             .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
             .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
             .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
           Timecop.return
         end

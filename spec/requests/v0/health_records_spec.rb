@@ -6,21 +6,11 @@ require 'bb/client' # required to stub responses
 RSpec.describe 'V0::HealthRecords', type: :request do
   include SchemaMatchers
 
-  TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='
-
-  def authenticated_client
-    BB::Client.new(session: { user_id: 123,
-                              expires_at: Time.current + 60 * 60,
-                              token: TOKEN })
+  let(:authenticated_client) do
+    BB::Client.new(session: { user_id: 123, expires_at: Time.current + (60 * 60), token: })
   end
-
+  let(:token) { 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88=' }
   let(:current_user) { build(:user, :mhv, va_patient: false, mhv_account_type: 'Basic') }
-
-  before do
-    allow(BB::Client).to receive(:new).and_return(authenticated_client)
-    sign_in_as(current_user)
-  end
-
   let(:params) do
     {
       from_date: 10.years.ago.iso8601,
@@ -28,8 +18,12 @@ RSpec.describe 'V0::HealthRecords', type: :request do
       data_classes: BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
     }
   end
-
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+
+  before do
+    allow(BB::Client).to receive(:new).and_return(authenticated_client)
+    sign_in_as(current_user)
+  end
 
   context 'forbidden user' do
     let(:current_user) { build(:user) }

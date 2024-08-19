@@ -306,7 +306,7 @@ RSpec.describe 'V0::Letters' do
 
         it 'does not log the user edipi' do
           VCR.use_cassette('evss/letters/letters_invalid_address') do
-            expect { get '/v0/letters' }.to change(InvalidLetterAddressEdipi, :count).by(0)
+            expect { get '/v0/letters' }.not_to change(InvalidLetterAddressEdipi, :count)
             expect(response).to have_http_status(:unprocessable_entity)
           end
         end
@@ -316,7 +316,7 @@ RSpec.describe 'V0::Letters' do
         it 'stills return unprocessable_entity' do
           VCR.use_cassette('evss/letters/letters_invalid_address') do
             allow(InvalidLetterAddressEdipi).to receive(:find_or_create_by).and_raise(ActiveRecord::ActiveRecordError)
-            expect { get '/v0/letters' }.to change(InvalidLetterAddressEdipi, :count).by(0)
+            expect { get '/v0/letters' }.not_to change(InvalidLetterAddressEdipi, :count)
             expect(response).to have_http_status(:unprocessable_entity)
           end
         end

@@ -37,7 +37,7 @@ RSpec.describe 'V0::PensionClaims', type: %i[request serializer] do
 
       it 'shows the validation errors' do
         subject
-        expect(response.code).to eq('422')
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             "The property '#/bankAccount' of type string"

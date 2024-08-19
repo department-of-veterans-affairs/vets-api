@@ -7,9 +7,7 @@ require 'bgs/service'
 RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
   let(:test_veteran) do
     JSON.parse(
-      File.read(
-        Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
-      )
+      Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json').read
     )
   end
 
@@ -41,7 +39,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
         errors = JSON.parse(response.body)['errors']
         expect(errors.first['title']).to eq('Record not found')
-        expect(response.code).to eq('404')
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -126,7 +124,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           ).and_raise(RateLimitedSearch::RateLimitedError)
 
           get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
-          expect(response.status).to eq(429)
+          expect(response).to have_http_status(:too_many_requests)
         end
       end
     end
@@ -146,7 +144,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         it 'returns 404' do
           get(enrollment_status_v0_health_care_applications_path,
               params: { userAttributes: build(:health_care_application).parsed_form })
-          expect(response.status).to eq(404)
+          expect(response).to have_http_status(:not_found)
         end
       end
 
@@ -276,7 +274,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       it 'shows the validation errors' do
         subject
 
-        expect(response.code).to eq('422')
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
@@ -355,16 +353,15 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
       context 'while authenticated', :skip_mvi do
         let(:current_user) { build(:user, :mhv) }
-
-        before do
-          sign_in_as(current_user)
-          test_veteran.delete('email')
-        end
-
         let(:body) do
           { 'formSubmissionId' => 40_125_311_094,
             'timestamp' => '2017-02-08T13:50:32.020-06:00',
             'success' => true }
+        end
+
+        before do
+          sign_in_as(current_user)
+          test_veteran.delete('email')
         end
 
         it 'renders success and delete the saved form', run_at: '2017-01-31' do
@@ -423,7 +420,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           it 'renders error message' do
             subject
 
-            expect(response.code).to eq('422')
+            expect(response).to have_http_status(:unprocessable_entity)
             expect(JSON.parse(response.body)).to eq(
               'errors' => [
                 { 'title' => 'Operation failed', 'detail' => 'Validation error', 'code' => 'HCA422', 'status' => '422' }
@@ -444,7 +441,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
             subject
 
-            expect(response.code).to eq('400')
+            expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)).to eq(
               'errors' => [
                 { 'title' => 'Operation failed', 'detail' => 'error message', 'code' => 'VA900', 'status' => '400' }
@@ -456,26 +453,24 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
       context 'with hca_use_facilities_API enabled' do
         let(:current_user) { create(:user) }
-
-        before do
-          sign_in_as(current_user)
-          Flipper.disable(:hca_use_facilities_API)
-          Flipper.enable(:hca_use_facilities_API, current_user)
-        end
-
         let(:params) do
           test_veteran['vaMedicalFacility'] = '000'
           {
             form: test_veteran.to_json
           }
         end
-
         let(:body) do
           {
             'formSubmissionId' => nil,
             'timestamp' => nil,
             'state' => 'pending'
           }
+        end
+
+        before do
+          sign_in_as(current_user)
+          Flipper.disable(:hca_use_facilities_API)
+          Flipper.enable(:hca_use_facilities_API, current_user)
         end
 
         it 'does not error on vaMedicalFacility validation' do
@@ -488,17 +483,16 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
       context 'with hca_use_facilities_API disabled' do
         let(:current_user) { create(:user) }
-
-        before do
-          sign_in_as(current_user)
-          Flipper.disable(:hca_use_facilities_API)
-        end
-
         let(:params) do
           test_veteran['vaMedicalFacility'] = '000'
           {
             form: test_veteran.to_json
           }
+        end
+
+        before do
+          sign_in_as(current_user)
+          Flipper.disable(:hca_use_facilities_API)
         end
 
         it 'errors on vaMedicalFacility validation' do

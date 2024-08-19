@@ -46,7 +46,7 @@ RSpec.describe 'V0::EVSSClaims', type: :request do
       expect do
         post '/v0/evss_claims/600118851/request_decision'
       end.to change(EVSS::RequestDecision.jobs, :size).by(1)
-      expect(response.status).to eq(202)
+      expect(response).to have_http_status(:accepted)
       expect(JSON.parse(response.body)['job_id']).to eq(EVSS::RequestDecision.jobs.first['jid'])
     end
 

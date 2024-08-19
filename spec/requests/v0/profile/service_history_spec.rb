@@ -10,7 +10,7 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   describe 'GET /v0/profile/service_history' do
-    let(:user) { build :user, :loa3 }
+    let(:user) { build(:user, :loa3) }
 
     before do
       sign_in(user)
@@ -128,7 +128,7 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
           VCR.use_cassette('va_profile/military_personnel/post_read_service_history_400') do
             get '/v0/profile/service_history'
 
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -138,7 +138,7 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
           VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500') do
             get '/v0/profile/service_history'
 
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
