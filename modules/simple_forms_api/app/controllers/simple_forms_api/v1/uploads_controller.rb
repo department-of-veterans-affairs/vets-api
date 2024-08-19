@@ -166,9 +166,8 @@ module SimpleFormsApi
       def upload_pdf(file_path, metadata, form_id)
         lighthouse_service = BenefitsIntake::Service.new
         location, uuid = lighthouse_service.request_upload
-        SimpleFormsApi::PdfStamper.stamp4010007_uuid(uuid) if %w[
-          vba_40_10007 vba_40_10007_integration
-        ].include?(form_id)
+        SimpleFormsApi::PdfStamper.stamp4010007_uuid(uuid) if form_id == 'vba_40_10007'
+        SimpleFormsApi::PdfStamper.stamp4010007_integration_uuid(uuid) if form_id == 'vba_40_10007_integration'
         form_submission = FormSubmission.create(
           form_type: params[:form_number],
           benefits_intake_uuid: uuid,

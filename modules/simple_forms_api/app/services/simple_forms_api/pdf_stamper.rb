@@ -54,6 +54,17 @@ module SimpleFormsApi
       verified_multistamp(stamped_template_path, uuid, page_configuration, 9)
     end
 
+    def self.stamp4010007_integration_uuid(uuid)
+      uuid = "UUID: #{uuid}"
+      stamped_template_path = 'tmp/vba_40_10007_integration-tmp.pdf'
+      desired_stamps = [[390, 18]]
+      page_configuration = [
+        { type: :text, position: desired_stamps[0] }
+      ]
+
+      verified_multistamp(stamped_template_path, uuid, page_configuration, 9)
+    end
+
     def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
       stamp_path = Rails.root.join(Common::FileHelpers.random_file_path)
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
