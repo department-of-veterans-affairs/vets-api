@@ -70,7 +70,7 @@ RSpec.describe IvcChampva::VHA1010d do
     let(:vha_10_10d) { described_class.new(data) }
 
     context 'when email is used' do
-    let(:data) { { 'primary_contact_info' => { 'email' => 'test@example.com' } } }
+      let(:data) { { 'primary_contact_info' => { 'email' => 'test@example.com' } } }
 
       it 'increments the StatsD for email used and logs the info' do
         expect(StatsD).to receive(:increment).with("#{statsd_key}.yes")
@@ -80,7 +80,7 @@ RSpec.describe IvcChampva::VHA1010d do
     end
 
     context 'when email is not used' do
-    let(:data) { { 'primary_contact_info' => {} } }
+      let(:data) { { 'primary_contact_info' => {} } }
 
       it 'increments the StatsD for email not used and logs the info' do
         expect(StatsD).to receive(:increment).with("#{statsd_key}.no")
