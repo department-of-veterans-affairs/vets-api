@@ -106,6 +106,7 @@ module EVSS
         toxic_exposure = form526['toxicExposure']
         lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
 
+        lh_request_body.claim_notes = form526['overflowText']
         lh_request_body
       end
 
