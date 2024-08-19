@@ -19,13 +19,24 @@ module DecisionReview
 
       notice_of_disagreements.each do |nod|
         guid = nod.guid
-        status = decision_review_service.get_notice_of_disagreement(guid).dig('data', 'attributes', 'status')
+        response = decision_review_service.get_notice_of_disagreement(guid)
+        status = response.dig('data', 'attributes', 'status')
+        attributes = response.dig('data', 'attributes')
+
+        timestamp = DateTime.now
+        params = { metadata: attributes.to_json, metadata_updated_at: timestamp }
 
         if SUCCESSFUL_STATUS.include? status
-          nod.update(delete_date: DateTime.now + RETENTION_PERIOD)
+          params[:delete_date] = timestamp + RETENTION_PERIOD
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
         end
+
+        nod.update(params)
+      rescue => e
+        Rails.logger.error('DecisionReview::SavedClaimNodStatusUpdaterJob error', { guid:, message: e.message })
       end
+
+      nil
     end
 
     private
