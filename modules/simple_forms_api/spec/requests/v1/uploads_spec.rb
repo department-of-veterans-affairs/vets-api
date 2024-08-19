@@ -35,7 +35,6 @@ RSpec.describe 'Forms uploader', type: :request do
 
   authenticated_forms = forms - unauthenticated_forms
 
-
   describe '#submit' do
     context 'going to Lighthouse Benefits Intake API' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
