@@ -720,9 +720,6 @@ features:
   ha_cpap_supplies_cta:
     actor_type: user
     description: Toggle CTA for reordering Hearing Aid and CPAP supplies form within static pages.
-  injected_header_web_components:
-    actor_type: user
-    description: Enable/disable import of web components to the injected header
   in_progress_form_custom_expiration:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
@@ -766,6 +763,10 @@ features:
   lighthouse_claims_api_poa_use_bd:
     actor_type: user
     description: Lighthouse Benefits Claims API uses Lighthouse Benefits Documents API to upload POA forms instead of VBMS
+    enable_in_development: true
+  lighthouse_claims_api_use_birls_id:
+    actor_type: user
+    description: Lighthouse Benefits Claims API uses MPI birls_id as filenumber parameter to BDS search
     enable_in_development: true
   loop_pages:
     actor_type: user
@@ -934,7 +935,7 @@ features:
   pension_income_and_assets_clarification:
     actor_type: user
     description: >
-      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
+      When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
   pension_medical_evidence_clarification:
     actor_type: user
     description: >
@@ -1011,10 +1012,6 @@ features:
   profile_use_vafsc:
     description: Use VA Forms System Core for forms instead of schema based forms
     actor_type: user
-    enable_in_development: true
-  pw_ehr_cta_drupal_source_of_truth:
-    actor_type: user
-    description: Enabling Public Websites-managed EHR CTAs to use Drupal EHR data, including for Cerner cutovers
     enable_in_development: true
   pw_ehr_cta_use_slo:
     actor_type: user
@@ -1108,9 +1105,6 @@ features:
   show_edu_benefits_5495_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 5495 introduction page
-  show_events_v2:
-    actor_type: user
-    description: Enables the events v2 page
   show_financial_status_report:
     actor_type: user
     description: Enables VA Form 5655 (Financial Status Report)
@@ -1354,6 +1348,10 @@ features:
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
+  va_v3_contact_information_service:
+    actor_type: user
+    description: When enabled, the VAProfile::V3::ContactInformation will be enabled
+    enable_in_development: true
   va_profile_information_v3_service:
     actor_type: user
     description: When enabled, the VAProfile::V3::Service will be enabled for VaProfile::ProfileInformation
