@@ -211,19 +211,18 @@ module SimpleFormsApi
         pdf.text "Highest Rank Attained: #{highest_rank_c}", size: 10
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
+    # rubocop:enable Metrics/MethodLength
     def handle_attachments(file_path)
       attachments = get_attachments
-      absolute_path_attachments = attachments.map do |attachment|
-        File.expand_path(attachment, Rails.root)
-      end
       combined_pdf = CombinePDF.new
       combined_pdf << CombinePDF.load(file_path)
+
       attachment_page_path = 'attachment_page.pdf'
       create_attachment_page(attachment_page_path)
       combined_pdf << CombinePDF.load(attachment_page_path)
-      absolute_path_attachments.each do |attachment|
+
+      attachments.each do |attachment|
         combined_pdf << CombinePDF.load(attachment)
       rescue => e
         Rails.logger.error(
