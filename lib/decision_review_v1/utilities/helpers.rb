@@ -67,6 +67,12 @@ module DecisionReviewV1
 
         headers
       end
+
+      def construct_tmpfile_name(appeal_submission_upload_id, original_filename)
+        return "appeal_submission_upload_#{appeal_submission_upload_id}_" if appeal_submission_upload_id.present?
+
+        [original_filename.first(240), '.pdf']
+      end
     end
   end
 end
