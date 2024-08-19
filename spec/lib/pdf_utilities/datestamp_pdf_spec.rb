@@ -83,7 +83,7 @@ RSpec.describe PDFUtilities::DatestampPdf do
         it 'logs and reraise the error and not call stamp' do
           allow(Prawn::Document).to receive(:generate).and_raise(error_message)
           expect(Rails.logger).to receive(:error).once.with("Failed to generate datestamp file: #{error_message}")
-          expect(instance).not_to receive(:stamp)
+          expect(instance).not_to receive(:stamp_pdf!)
           expect do
             instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
           end.to raise_error(StandardError, error_message)
@@ -92,7 +92,7 @@ RSpec.describe PDFUtilities::DatestampPdf do
 
       context 'when an error occurs in #stamp' do
         it 'logs and reraise the error and clean up after itself' do
-          allow(PdfFill::Filler::PDF_FORMS).to receive(:stamp).and_raise(error_message)
+          allow(PDFUtilities::PDFTK).to receive(:stamp).and_raise(error_message)
           expect(File).to receive(:delete).twice.and_call_original
           expect do
             instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
