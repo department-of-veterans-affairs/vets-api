@@ -8,9 +8,9 @@ RSpec.describe 'user', type: :request do
 
   let(:contact_information_service) do
     if Flipper.enabled?(:va_v3_contact_information_service)
-      VAProfile::V2::ContactInformation::Service.new user
+      VAProfile::V2::ContactInformation::Service
     else
-      VAProfile::ContactInformation::Service.new user
+      VAProfile::ContactInformation::Service
     end
   end
 

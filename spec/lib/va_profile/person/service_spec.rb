@@ -12,6 +12,7 @@ describe VAProfile::Person::Service, :skip_vet360 do
     subject { described_class.new(user) }
 
     let(:user) { build(:user, :loa3) }
+    Flipper.disable(:va_v3_contact_information_service)
     let(:person_response) do
       if Flipper.enabled?(:va_v3_contact_information_service)
         VAProfile::V2::ContactInformation::PersonTransactionResponse
