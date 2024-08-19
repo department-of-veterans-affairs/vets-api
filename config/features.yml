@@ -860,9 +860,9 @@ features:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
-  mhv_medical_records_phase_1_launch:
+  mhv_integration_medical_records_to_phase_1:
     actor_type: user
-    description: Enables user navigation to the Medical Records application on VA.gov
+    description: Enables MHV integration to point the Medical Records application on VA.gov
     enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
