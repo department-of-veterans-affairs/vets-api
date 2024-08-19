@@ -9,10 +9,10 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
     end
 
     it 'returns individuals and organizations in the sorted order' do
-      create(:accredited_individual, full_name: 'Bob Law')
-      create(:accredited_organization, name: 'Bob Law Firm')
-      create(:accredited_individual, full_name: 'Bob Smith')
-      create(:accredited_organization, name: 'Bob Smith Firm')
+      create(:accredited_individual, :with_location, full_name: 'Bob Law')
+      create(:accredited_organization, :with_location, name: 'Bob Law Firm')
+      create(:accredited_individual, :with_location, full_name: 'Bob Smith')
+      create(:accredited_organization, :with_location, name: 'Bob Smith Firm')
 
       results = described_class.new('Bob').results
 
@@ -28,11 +28,11 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
     end
 
     it 'sorts individuals by levenshtein distance' do
-      create(:accredited_individual, full_name: 'aaaabc')
-      create(:accredited_individual, full_name: 'aaaab')
-      create(:accredited_individual, full_name: 'aaaabcde')
-      create(:accredited_individual, full_name: 'aaaa')
-      create(:accredited_individual, full_name: 'aaaabcd')
+      create(:accredited_individual, :with_location, full_name: 'aaaabc')
+      create(:accredited_individual, :with_location, full_name: 'aaaab')
+      create(:accredited_individual, :with_location, full_name: 'aaaabcde')
+      create(:accredited_individual, :with_location, full_name: 'aaaa')
+      create(:accredited_individual, :with_location, full_name: 'aaaabcd')
 
       results = described_class.new('aaaa').results
 
@@ -40,11 +40,11 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
     end
 
     it 'sorts organizations by levenshtein distance' do
-      create(:accredited_organization, name: 'aaaabc')
-      create(:accredited_organization, name: 'aaaab')
-      create(:accredited_organization, name: 'aaaabcde')
-      create(:accredited_organization, name: 'aaaa')
-      create(:accredited_organization, name: 'aaaabcd')
+      create(:accredited_organization, :with_location, name: 'aaaabc')
+      create(:accredited_organization, :with_location, name: 'aaaab')
+      create(:accredited_organization, :with_location, name: 'aaaabcde')
+      create(:accredited_organization, :with_location, name: 'aaaa')
+      create(:accredited_organization, :with_location, name: 'aaaabcd')
 
       results = described_class.new('aaaa').results
 
@@ -52,11 +52,11 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
     end
 
     it 'sorts individuals and organizations together by levenshtein distance' do
-      create(:accredited_individual, full_name: 'aaaabc')
-      create(:accredited_individual, full_name: 'aaaab')
-      create(:accredited_organization, name: 'aaaabcde')
-      create(:accredited_organization, name: 'aaaa')
-      create(:accredited_individual, full_name: 'aaaabcd')
+      create(:accredited_individual, :with_location, full_name: 'aaaabc')
+      create(:accredited_individual, :with_location, full_name: 'aaaab')
+      create(:accredited_organization, :with_location, name: 'aaaabcde')
+      create(:accredited_organization, :with_location, name: 'aaaa')
+      create(:accredited_individual, :with_location, full_name: 'aaaabcd')
 
       results = described_class.new('aaaa').results
 
@@ -65,8 +65,8 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
     end
 
     it 'can return organizations as the first result' do
-      create(:accredited_individual, full_name: 'Bob Billy Bill Bo')
-      create(:accredited_organization, name: 'Bob Law Firm')
+      create(:accredited_individual, :with_location, full_name: 'Bob Billy Bill Bo')
+      create(:accredited_organization, :with_location, name: 'Bob Law Firm')
 
       results = described_class.new('Bob').results
 
@@ -76,7 +76,7 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
     end
 
     it 'returns at most 10 results' do
-      create_list(:accredited_individual, 20, full_name: 'Bob')
+      create_list(:accredited_individual, 20, :with_location, full_name: 'Bob')
 
       results = described_class.new('Bob').results
 
