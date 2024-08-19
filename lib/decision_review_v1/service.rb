@@ -247,7 +247,8 @@ module DecisionReviewV1
     #
     # rubocop:disable Metrics/MethodLength
     def put_notice_of_disagreement_upload(upload_url:, file_upload:, metadata_string:, user_uuid: nil, appeal_submission_upload_id: nil) # rubocop:disable Layout/LineLength
-      content_tmpfile = Tempfile.new(file_upload.filename, encoding: file_upload.read.encoding)
+      tmpfile_name = construct_tmpfile_name(appeal_submission_upload_id, file_upload.filename)
+      content_tmpfile = Tempfile.new(tmpfile_name, encoding: file_upload.read.encoding)
       content_tmpfile.write(file_upload.read)
       content_tmpfile.rewind
 
