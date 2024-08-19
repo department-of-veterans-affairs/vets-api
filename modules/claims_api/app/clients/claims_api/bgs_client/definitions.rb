@@ -255,6 +255,37 @@ module ClaimsApi
             )
         end
       end
+
+      ##
+      # OrgWebServiceBean
+      #
+      module OrgWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'OrgWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://org.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module OrgWebService
+        DEFINITION =
+          Service.new(
+            bean: OrgWebServiceBean::DEFINITION,
+            path: 'OrgWebService'
+          )
+
+        module FindOrgBySSN
+          DEFINITION =
+            Action.new(
+              service: OrgWebService::DEFINITION,
+              name: 'findPoaHistoryByPtcpntId',
+              key: 'PoaHistory'
+            )
+        end
+      end
     end
   end
 end
