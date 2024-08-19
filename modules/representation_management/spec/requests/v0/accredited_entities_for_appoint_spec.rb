@@ -36,6 +36,8 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppointContro
     end
 
     it 'when there are no matching results' do
+      AccreditedIndividual.destroy_all
+      AccreditedOrganization.destroy_all
       get path, params: { query: 'Zach' }
       parsed_response = JSON.parse(response.body)
       expect(parsed_response).to eq([])

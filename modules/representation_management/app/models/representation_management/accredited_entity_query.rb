@@ -12,6 +12,8 @@ module RepresentationManagement
     end
 
     def results
+      return [] if @query_string.blank?
+
       (individuals + organizations).sort_by(&:distance).take(MAXIMUM_RESULT_COUNT)
     end
 
