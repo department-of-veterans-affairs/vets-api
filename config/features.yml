@@ -703,6 +703,9 @@ features:
   form107959c:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
+  form107959a:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-7959a (IVC CHAMPVA claim form)
   form107959f1:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program)
@@ -805,6 +808,10 @@ features:
   mhv_transitional_medical_records_landing_page:
     actor_type: user
     description: Enables the transitional Medical Records page at /my-health/records
+  mhv_integration_medical_records_to_phase_1:
+    actor_type: user
+    description: Enables MHV integration to point the Medical Records application on VA.gov
+    enable_in_development: true
   mhv_secure_messaging_to_phase_1:
     actor_type: user
     description: Enables/disables Secure Messaging Phase 1 on VA.gov
