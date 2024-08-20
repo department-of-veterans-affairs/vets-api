@@ -173,9 +173,9 @@ RSpec.describe Form526Submission do
       end
     end
 
-    describe 'paranoid_success' do
+    describe 'paranoid_success_type' do
       it 'returns records less than a year old with paranoid_success backup status' do
-        expect(Form526Submission.paranoid_success).to contain_exactly(
+        expect(Form526Submission.paranoid_success_type).to contain_exactly(
           paranoid_success
         )
       end
