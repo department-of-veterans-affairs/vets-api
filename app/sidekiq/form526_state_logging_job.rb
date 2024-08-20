@@ -60,7 +60,11 @@ class Form526StateLoggingJob
 
   def timeboxed_submissions
     @timeboxed_submissions ||= Form526Submission
-                               .where(sub_arel[:created_at].gt(start_date))
-                               .where(sub_arel[:created_at].lt(end_date))
+                               .where(sub_arel_created_at.gt(start_date))
+                               .where(sub_arel_created_at.lt(end_date))
+  end
+
+  def sub_arel_created_at
+    sub_arel[:created_at]
   end
 end
