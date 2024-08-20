@@ -174,7 +174,7 @@ form_10_10cg:
       client_secret: ~
       timeout: 30
       async_timeout: 600
-      auth: 
+      auth:
         mock: false
         timeout: ~
         token_url: ~
@@ -281,6 +281,10 @@ vet360:
     api_key: "<AV_KEY>"
   health_benefit:
     mock: true
+  profile_information:
+    enabled: true
+    timeout: 30
+    use_mocks: false
 
 # Settings for IHub
 ihub:
@@ -433,6 +437,10 @@ expiry_scanner:
 argocd:
   slack:
     api_key: ~
+
+# Settings for Accredited Rep Management
+acc_rep_management:
+  prefill: true
 
 # Settings for EVSS
 evss:
@@ -857,6 +865,7 @@ maintenance:
     logingov: P2SHMM9
     mvi: PCIPVGJ
     mhv: PP2ZZ2V
+    pega: P3ZJCBK
     search: PRG8HJI
     tims: PUL8OQ4
     vet360: PHVOGQ1
@@ -917,7 +926,7 @@ va_mobile:
   ppms_base_url: "https://staff.apps.va.gov"
   mock: false
   key_path: /fake/client/key/path
-  timeout: 55
+  timeout: 25
 
 vetext:
   url: "https://something.fake.va.gov"
@@ -1339,7 +1348,11 @@ vanotify:
     ivc_champva:
       api_key: fake_secret
       template_id:
-        pega_status_update_email_template_id: pega_status_update_email_template_id
+        form_10_10d_email: form_10_10d_email
+        form_10_7959f_1_email: form_10_7959f_1_email
+        form_10_7959f_2_email: form_10_7959f_2_email
+        form_10_7959c_email: form_10_7959c_email
+        form_10_7959a_email: form_10_7959a_email
     health_apps_1010:
       api_key: fake_secret
       template_id:
@@ -1769,3 +1782,6 @@ vye:
 schema_contract:
   appointments_index: 'modules/vaos/app/schemas/appointments_index.json'
   test_index: 'spec/fixtures/schema_contract/test_schema.json'
+
+form_mock_ae_design_patterns:
+  prefill: true

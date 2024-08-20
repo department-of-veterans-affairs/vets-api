@@ -928,7 +928,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         json.to_json
       end
       let(:user) do
-        build(
+        create(
           :evss_user,
           :loa3,
           icn: '1013032368V065534',
@@ -997,10 +997,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       context 'submitting a 1010EZR form' do
-        before do
-          Flipper.disable('ezr_async')
-        end
-
         context 'unauthenticated user' do
           it 'returns unauthorized status code' do
             expect(subject).to validate(:post, '/v0/form1010_ezrs', 401)
@@ -1159,6 +1155,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
         Flipper.disable('disability_compensation_prevent_submission_job')
         Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
+        Flipper.disable('disability_compensation_production_tester')
       end
 
       let(:form526v2) do
@@ -1306,6 +1303,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       before do
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
         Flipper.disable('disability_compensation_lighthouse_intent_to_file_provider')
+        Flipper.disable('disability_compensation_production_tester')
       end
 
       it 'supports getting all intent to file' do

@@ -99,16 +99,27 @@ module ClaimsApi
         elsif target_veteran&.mpi&.birls_id.present?
           @file_number = target_veteran&.birls_id || target_veteran&.mpi&.birls_id
         else
-          claims_v2_logging('missing_file_number', message: 'missing_file_number on request in application controller.')
+          claims_v2_logging('missing_file_number',
+                            message: 'missing_file_number on request in v2 application controller.')
 
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-            "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
-            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+          "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
+          'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+        end
+        if @file_number.nil?
+          claims_v2_logging('missing_file_number',
+                            message: 'missing_file_number on request in v2 application controller.')
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+          "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
+          'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
       end
 
       def edipi_check
         if target_veteran.edipi.blank?
+          claims_v2_logging('unable_to_locate_edipi',
+                            message: 'unable_to_locate_edipi on request in v2 application controller.')
+
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
