@@ -2127,13 +2127,13 @@ en:
         <<: *defaults
         title: Service Unavailable
         code: DR_503
-        detail: The upstream server is currently unavailable
+        detail: The downstream server is currently unavailable
         status: 503
       DR_504:
         <<: *defaults
         title: Gateway Timeout
         code: DR_504
-        detail: Did not receive a timely response from the upstream server
+        detail: Did not receive a timely response from the downstream server
         status: 504
       DR_401:
         <<: *defaults
