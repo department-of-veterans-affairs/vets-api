@@ -122,12 +122,22 @@ module PdfFill
                 question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > TELEPHONE NUMBER'
               }
             },
+            'international_phone_number' => {
+              key: 'form1[0].#subform[17].TelephoneNumber_International[0]',
+              limit: 13,
+              question_num: 8,
+              question_suffix: 'C',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > Enter International Phone Number'
+            },
             'email_address' => {
               key: 'form1[0].#subform[17].Email_Address[0]',
               limit: 30,
               question_num: 9,
               question_suffix: 'A',
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > E-MAIL ADDRESS'
+            },
+            'electronic_correspondence' => {
+              key: 'form1[0].#subform[17].EmailAddressConsent[0]'
             },
             'veteran_address' => {
               'address_line1' => {
@@ -261,27 +271,11 @@ module PdfFill
               'is_veteran_no' => { key: 'form1[0].#subform[17].NO[0]' }
             },
             'va_file_number' => { # XXX this group needs three parts like SSN, name looks v. sim
-              'va_file_number_first_three' => {
-                key: 'form1[0].#subform[17].SpouseSocialSecurityNumber_FirstThreeNumbers[1]',
-                limit: 3,
-                question_num: 12,
-                question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > SPOUSE VA FILE NUMBER > FIRST THREE'
-              },
-              'va_file_number_second_two' => {
-                key: 'form1[0].#subform[17].SpouseSocialSecurityNumber_SecondTwoNumbers[1]',
-                limit: 2,
-                question_num: 12,
-                question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > SPOUSE VA FILE NUMBER > SECOND TWO'
-              },
-              'va_file_number_last_four' => {
-                key: 'form1[0].#subform[17].SpouseSocialSecurityNumber_LastFourNumbers[1]',
-                limit: 4,
-                question_num: 12,
-                question_suffix: 'C',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > SPOUSE VA FILE NUMBER > LAST FOUR'
-              }
+              key: 'form1[0].#subform[17].SpouseVAFileNumber[0]',
+              limit: 9,
+              question_num: 12,
+              question_suffix: 'B',
+              question_text: 'Spouse\'s VA File Number (If Applicable)'
             }, # end of spouse va file number
             'service_number' => {
               key: 'form1[0].#subform[17].SPOUSEServiceNumber[0]',
@@ -339,6 +333,9 @@ module PdfFill
               }
             }, # end location
             'type' => {
+              'civil_ceremony' => {
+                key: 'form1[0].#subform[17].CivilCeremony[0]'
+              },
               'religious_ceremony' => {
                 key: 'form1[0].#subform[17].ReligiousCeremony[0]'
               },
@@ -441,14 +438,14 @@ module PdfFill
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE FIRST NAME'
               },
               'middleInitial' => {
-                key: 'form1[0].#subform[18].CHILDMiddleInitial1[%iterator%]',
+                key: 'veteran.previousSpouse.middleInitial[%iterator%]',
                 limit: 1,
                 question_num: 14,
                 question_suffix: 'B',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MIDDLE INITIAL'
               },
               'last' => {
-                key: 'form1[0].#subform[18].CHILDLastName[%iterator%]',
+                key: 'veteran.previousSpouse.lastName[%iterator%]',
                 limit: 18,
                 question_num: 14,
                 question_suffix: 'C',
@@ -884,50 +881,50 @@ module PdfFill
               },
               'biological_stepchild_0' => { # there can only be up to 6 stepchildren filled out including the addendum.
                 'biological_stepchild_0_true' => {
-                  key: 'form1[0].#subform[21].#subform[22].RadioButtonList[41]'
+                  key: 'children_to_add.child_status.biological_stepchild.yes[0]'
                 },
                 'biological_stepchild_0_false' => {
-                  key: 'form1[0].#subform[21].#subform[22].RadioButtonList[42]'
+                  key: 'children_to_add.child_status.biological_stepchild.no[0]'
                 }
               },
               'biological_stepchild_1' => {
                 'biological_stepchild_1_true' => {
-                  key: 'form1[0].#subform[21].#subform[22].RadioButtonList[52]'
+                  key: 'children_to_add.child_status.biological_stepchild.yes[1]'
                 },
                 'biological_stepchild_1_false' => {
-                  key: 'form1[0].#subform[21].#subform[22].RadioButtonList[53]'
+                  key: 'children_to_add.child_status.biological_stepchild.no[1]'
                 }
               },
               'biological_stepchild_2' => {
                 'biological_stepchild_2_true' => {
-                  key: 'form1[0].#subform[23].#subform[24].RadioButtonList[74]'
+                  key: 'children_to_add.child_status.biological_stepchild.yes[2]'
                 },
                 'biological_stepchild_2_false' => {
-                  key: 'form1[0].#subform[23].#subform[24].RadioButtonList[75]'
+                  key: 'children_to_add.child_status.biological_stepchild.no[2]'
                 }
               },
               'biological_stepchild_3' => {
                 'biological_stepchild_3_true' => {
-                  key: 'form1[0].#subform[23].#subform[24].RadioButtonList[63]'
+                  key: 'children_to_add.child_status.biological_stepchild.yes[3]'
                 },
                 'biological_stepchild_3_false' => {
-                  key: 'form1[0].#subform[23].#subform[24].RadioButtonList[64]'
+                  key: 'children_to_add.child_status.biological_stepchild.no[3]'
                 }
               },
               'biological_stepchild_4' => {
                 'biological_stepchild_4_true' => {
-                  key: 'form1[0].#subform[34].#subform[35].RadioButtonList[109]'
+                  key: 'children_to_add.child_status.biological_stepchild.yes[4]'
                 },
                 'biological_stepchild_4_false' => {
-                  key: 'form1[0].#subform[34].#subform[35].RadioButtonList[110]'
+                  key: 'children_to_add.child_status.biological_stepchild.no[4]'
                 }
               },
               'biological_stepchild_5' => {
                 'biological_stepchild_5_true' => {
-                  key: 'form1[0].#subform[34].#subform[35].RadioButtonList[120]'
+                  key: 'children_to_add.child_status.biological_stepchild.yes[5]'
                 },
                 'biological_stepchild_5_false' => {
-                  key: 'form1[0].#subform[34].#subform[35].RadioButtonList[121]'
+                  key: 'children_to_add.child_status.biological_stepchild.no[5]'
                 }
               } # end of biological stepchild
             }, # end of child status
@@ -1584,10 +1581,13 @@ module PdfFill
         expand_phone_number(veteran_contact_information)
 
         # extract postal code and country
-        veteran_contact_information['veteran_address']['zip_code'] =
-          split_postal_code(veteran_contact_information['veteran_address'])
-        veteran_contact_information['veteran_address']['country_name'] =
-          extract_country(veteran_contact_information['veteran_address'])
+        zip_code = split_postal_code(veteran_contact_information['veteran_address'])
+        veteran_country = extract_country(veteran_contact_information['veteran_address'])
+        electronic_correspondence = select_checkbox(veteran_contact_information['electronic_correspondence'])
+
+        veteran_contact_information['veteran_address']['zip_code'] = zip_code
+        veteran_contact_information['veteran_address']['country_name'] = veteran_country
+        veteran_contact_information['electronic_correspondence'] = electronic_correspondence
       end
 
       def merge_spouse_helpers
@@ -1614,11 +1614,10 @@ module PdfFill
         # expand is_veteran
         is_veteran = @form_data.dig('dependents_application', 'spouse_information', 'is_veteran')
         @form_data['dependents_application']['spouse_information']['is_veteran'] = {
-          'is_veteran_yes' => select_checkbox(is_veteran),
-          'is_veteran_no' => select_checkbox(!is_veteran)
+          'is_veteran_yes' => select_radio_button(is_veteran),
+          'is_veteran_no' => select_radio_button(!is_veteran)
         }
 
-        expand_va_file_number(spouse)
         expand_marriage_info
         expand_does_live_with_spouse
       end
@@ -1878,17 +1877,6 @@ module PdfFill
         end
       end
 
-      def expand_va_file_number(spouse)
-        if spouse['va_file_number'].present?
-          va_file_number = spouse['va_file_number'].delete('-')
-          spouse['va_file_number'] = {
-            'va_file_number_first_three' => va_file_number[0..2],
-            'va_file_number_second_two' => va_file_number[3..4],
-            'va_file_number_last_four' => va_file_number[5..8]
-          }
-        end
-      end
-
       def expand_marriage_info
         # extract marriage date
         @form_data['dependents_application']['current_marriage_information']['date'] =
@@ -1896,11 +1884,12 @@ module PdfFill
 
         marriage_type = @form_data.dig('dependents_application', 'current_marriage_information', 'type')
         @form_data['dependents_application']['current_marriage_information']['type'] = {
-          'religious_ceremony' => select_checkbox(marriage_type == 'CEREMONIAL'),
-          'common_law' => select_checkbox(marriage_type == 'COMMON-LAW'),
-          'tribal' => select_checkbox(marriage_type == 'TRIBAL'),
-          'proxy' => select_checkbox(marriage_type == 'PROXY'),
-          'other' => select_checkbox(marriage_type == 'OTHER')
+          'civil_ceremony' => select_radio_button(marriage_type == 'CIVIL'),
+          'religious_ceremony' => select_radio_button(marriage_type == 'CEREMONIAL'),
+          'common_law' => select_radio_button(marriage_type == 'COMMON-LAW'),
+          'tribal' => select_radio_button(marriage_type == 'TRIBAL'),
+          'proxy' => select_radio_button(marriage_type == 'PROXY'),
+          'other' => select_radio_button(marriage_type == 'OTHER')
         }
 
         @form_data['dependents_application']['current_marriage_information']['location']['country'] =
@@ -1911,8 +1900,8 @@ module PdfFill
         does_live_with_spouse =
           @form_data.dig('dependents_application', 'does_live_with_spouse', 'spouse_does_live_with_veteran')
         @form_data['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran'] = {
-          'spouse_does_live_with_veteran_yes' => select_checkbox(does_live_with_spouse),
-          'spouse_does_live_with_veteran_no' => select_checkbox(!does_live_with_spouse)
+          'spouse_does_live_with_veteran_yes' => select_radio_button(does_live_with_spouse),
+          'spouse_does_live_with_veteran_no' => select_radio_button(!does_live_with_spouse)
         }
       end
 

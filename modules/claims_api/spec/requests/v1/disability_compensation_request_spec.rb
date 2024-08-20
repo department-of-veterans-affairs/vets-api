@@ -579,6 +579,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
+      # lines 89-92 in disability_compensation_validations.rb checks phone number for dash
       context 'when reservesNationalGuardService information is submitted' do
         let(:json_data) { JSON.parse data }
         let(:title10_activation_date) { (Time.zone.now - 1.day).to_date.to_s }
