@@ -36,6 +36,8 @@ module V0
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
         Sentry.set_tags(team: 'benefits-memorial-1') # tag sentry logs with team name
+        Rails.logger.error('Burial claim was not saved', {  error_messages: claim.errors,
+                                                            user_uuid: current_user&.uuid })
         raise Common::Exceptions::ValidationErrors, claim
       end
       # this method also calls claim.process_attachments!
