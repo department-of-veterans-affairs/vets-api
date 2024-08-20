@@ -17,8 +17,8 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
 
   describe '#facilities' do
     let(:lighthouse_service) { instance_double(Lighthouse::Facilities::V1::Client) }
-    let(:unrelated_facility) { OpenStruct.new(id: 'vha_123') }
-    let(:target_facility) { OpenStruct.new(id: 'vha_456ab') }
+    let(:unrelated_facility) { Lighthouse::Facilities::Facility.new('id' => 'vha_123', 'attributes' => {}) }
+    let(:target_facility) { Lighthouse::Facilities::Facility.new('id' => 'vha_456ab', 'attributes' => {}) }
     let(:facilities) { [unrelated_facility, target_facility] }
 
     before do
@@ -29,7 +29,7 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
     it 'only returns facilities in VES' do
       params = { state: 'AK' }
 
-      StdInstitutionFacility.create(station_number: '456ab')
+      StdInstitutionFacility.create(station_number: target_facility.unique_id)
 
       get(:facilities, params:)
 
@@ -39,7 +39,7 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
     it 'filters out deactivated facilities' do
       params = { state: 'AK' }
 
-      StdInstitutionFacility.create(station_number: '456ab', deactivation_date: Time.current)
+      StdInstitutionFacility.create(station_number: target_facility.unique_id, deactivation_date: Time.current)
 
       get(:facilities, params:)
 
