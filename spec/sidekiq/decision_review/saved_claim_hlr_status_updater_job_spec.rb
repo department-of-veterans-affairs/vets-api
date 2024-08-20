@@ -13,11 +13,13 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
   let(:guid3) { SecureRandom.uuid }
 
   let(:response_complete) do
-    JSON.parse('{"data":{"attributes":{"status":"complete"}}}')
+    response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('HLR-SHOW-RESPONSE-200_V2').to_json) # deep copy
+    response['data']['attributes']['status'] = 'complete'
+    instance_double(Faraday::Response, body: response)
   end
 
   let(:response_pending) do
-    JSON.parse('{"data":{"attributes":{"status":"pending"}}}')
+    instance_double(Faraday::Response, body: VetsJsonSchema::EXAMPLES.fetch('HLR-SHOW-RESPONSE-200_V2'))
   end
 
   before do
@@ -54,9 +56,13 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
 
             claim1 = SavedClaim::HigherLevelReview.find_by(guid: guid1)
             expect(claim1.delete_date).to eq frozen_time + 59.days
+            expect(claim1.metadata).to include 'complete'
+            expect(claim1.metadata_updated_at).to eq frozen_time
 
             claim2 = SavedClaim::HigherLevelReview.find_by(guid: guid2)
             expect(claim2.delete_date).to be_nil
+            expect(claim2.metadata).to include 'pending'
+            expect(claim2.metadata_updated_at).to eq frozen_time
           end
         end
       end

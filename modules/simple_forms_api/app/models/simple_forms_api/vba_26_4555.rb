@@ -122,8 +122,8 @@ module SimpleFormsApi
           last: full_name['last']&.[](0..29),
           suffix: full_name['suffix']
         },
-        homePhone: data.dig('veteran', 'home_phone'),
-        mobilePhone: data.dig('veteran', 'mobile_phone'),
+        homePhone: data.dig('veteran', 'home_phone')&.tr('-', ''),
+        mobilePhone: data.dig('veteran', 'mobile_phone')&.tr('-', ''),
         email: data.dig('veteran', 'email'),
         dateOfBirth: data.dig('veteran', 'date_of_birth')
       }

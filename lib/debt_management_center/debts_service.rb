@@ -57,10 +57,16 @@ module DebtManagementCenter
     def debts_with_sorted_histories
       @debts.select do |debt|
         debt['debtHistory'] = sort_by_date(debt['debtHistory'])
+        debt['compositeDebtId'] = build_composite_debt_id(debt)
         debt['payeeNumber'] == '00'
       end
     end
 
+    def build_composite_debt_id(debt)
+      "#{debt['deductionCode']}#{debt['originalAR'].to_i}"
+    end
+
+    # Provided the cached version of this continues to work as intended, this method is not needed 8/5/24
     def init_debts
       with_monitoring_and_error_handling do
         Rails.logger.info('DebtManagement - DebtService#init_debts')
@@ -74,21 +80,29 @@ module DebtManagementCenter
     end
 
     def init_cached_debts
+      StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.fired")
+
       with_monitoring_and_error_handling do
-        # DMC refreshes DB at 5am every morning
-        Rails.cache.fetch("debts_data_#{@user.uuid}", expires_in: time_until_5am_utc) do
-          options = { timeout: 30 }
-          response = perform(
-            :post, Settings.dmc.debts_endpoint, { fileNumber: @file_number }, nil, options
-          ).body
+        cache_key = "debts_data_#{@user.uuid}"
+        cached_response = Rails.cache.read(cache_key)
 
-          if response.is_a?(Array) && response.empty?
-            Rails.logger.info('DebtManagement - DebtService#init_cached_debts: Writing empty response to cache')
-            Rails.cache.write("debts_data_#{@user.uuid}", response, expires_in: time_until_5am_utc)
-          end
-
-          DebtManagementCenter::DebtsResponse.new(response).debts
+        if cached_response
+          StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.cached_response_returned")
+          return DebtManagementCenter::DebtsResponse.new(cached_response).debts
         end
+
+        options = { timeout: 30 }
+        response = perform(
+          :post, Settings.dmc.debts_endpoint, { fileNumber: @file_number }, nil, options
+        ).body
+
+        if response.is_a?(Array) && response.empty?
+          # DMC refreshes DB at 5am every morning
+          Rails.cache.write(cache_key, response, expires_in: time_until_5am_utc)
+          StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.empty_response_cached")
+        end
+
+        DebtManagementCenter::DebtsResponse.new(response).debts
       end
     end
 

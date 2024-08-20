@@ -20,7 +20,7 @@ module ClaimsApi
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
         rep_or_org = form_number == '2122A' ? 'representative' : 'serviceOrganization'
         poa_code = power_of_attorney.form_data&.dig(rep_or_org, 'poaCode')
-        doc_type = form_number == '2122A' ? 'L075' : 'L190'
+        doc_type = form_number == '2122' ? 'L190' : 'L075'
 
         output_path = pdf_constructor(poa_code).construct(data(power_of_attorney), id: power_of_attorney.id)
 
@@ -38,6 +38,7 @@ module ClaimsApi
       rescue ClaimsApi::StampSignatureError => e
         signature_errors = (power_of_attorney.signature_errors || []).push(e.detail)
         power_of_attorney.update(status: ClaimsApi::PowerOfAttorney::ERRORED, signature_errors:)
+        ClaimsApi::Logger.log('poa', poa_id: power_of_attorney_id, detail: 'Prawn Signature Error')
       end
 
       private

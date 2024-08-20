@@ -244,4 +244,43 @@ RSpec.describe ApiProviderFactory do
       end.to raise_error NotImplementedError
     end
   end
+
+  context 'upload supplemental document' do
+    let(:submission) { create(:form526_submission) }
+
+    def provider(api_provider = nil)
+      ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
+        provider: api_provider,
+        options: {
+          form526_submission: submission,
+          file_body: ''
+        },
+        current_user:,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT
+      )
+    end
+
+    it 'provides an EVSS upload_supplemental_document provider' do
+      expect(provider(:evss).class).to equal(EVSSSupplementalDocumentUploadProvider)
+    end
+
+    it 'provides a Lighthouse upload_supplemental_document provider' do
+      expect(provider(:lighthouse).class).to equal(LighthouseSupplementalDocumentUploadProvider)
+    end
+
+    it 'provides upload_supplemental_document provider based on Flipper' do
+      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT)
+      expect(provider.class).to equal(LighthouseSupplementalDocumentUploadProvider)
+
+      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT)
+      expect(provider.class).to equal(EVSSSupplementalDocumentUploadProvider)
+    end
+
+    it 'throw error if provider unknown' do
+      expect do
+        provider(:random)
+      end.to raise_error NotImplementedError
+    end
+  end
 end
