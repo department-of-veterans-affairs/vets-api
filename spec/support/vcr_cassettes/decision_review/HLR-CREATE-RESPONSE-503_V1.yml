@@ -98,12 +98,6 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"data":{"id":"a75cb17f-4aea-4bae-bb6e-bab642a5c70c","type":"higherLevelReview","attributes":{"status":"pending","updatedAt":"2021-08-22T23:38:52.512Z","createdAt":"2021-08-22T23:38:52.512Z","formData":{"data":{"type":"higherLevelReview","attributes":{"informalConference":true,"benefitType":"compensation","veteran":{"homeless":false,"address":{"addressLine1":"1044
-        Frog Valley Drive","city":"Cataula","zipCode5":"66002","countryCodeISO2":"US"},"phone":{"countryCode":"34","areaCode":"555","phoneNumber":"8001111","phoneNumberExt":"2"},"email":"josie@example.com","timezone":"America/Chicago"},"informalConferenceContact":"veteran","informalConferenceTime":"800-1200
-        ET","socOptIn":true,"informalConferenceRep":{"firstName":"Helen","lastName":"Holly","phone":{"countryCode":"6","areaCode":"555","phoneNumber":"8001111","phoneNumberExt":"2"}}}},"included":[{"type":"contestableIssue","attributes":{"issue":"tinnitus","decisionDate":"1900-01-01","decisionIssueId":1,"ratingIssueReferenceId":"2","ratingDecisionReferenceId":"3"}},{"type":"contestableIssue","attributes":{"issue":"left
-        knee","decisionDate":"1900-01-02","decisionIssueId":4,"ratingIssueReferenceId":"5"}},{"type":"contestableIssue","attributes":{"issue":"right
-        knee","decisionDate":"1900-01-03","ratingIssueReferenceId":"6","ratingDecisionReferenceId":"7"}},{"type":"contestableIssue","attributes":{"issue":"PTSD","decisionDate":"1900-01-04","decisionIssueId":8,"ratingDecisionReferenceId":"9"}},{"type":"contestableIssue","attributes":{"issue":"Traumatic
-        Brain Injury","decisionDate":"1900-01-05","decisionIssueId":10}},{"type":"contestableIssue","attributes":{"issue":"right
-        shoulder","decisionDate":"1900-01-06","disagreementArea":"Rating Low"}}]}}}}'
+      string: '{}'
   recorded_at: Sun, 22 Aug 2021 23:38:52 GMT
 recorded_with: VCR 6.0.0
