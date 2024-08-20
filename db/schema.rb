@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_08_215701) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -348,6 +348,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
     t.text "bgs_special_issue_responses_ciphertext"
     t.text "encrypted_kms_key"
     t.string "cid"
+    t.string "transaction_id"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
@@ -375,6 +376,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
     t.integer "vbms_upload_failure_count", default: 0
     t.integer "bgs_upload_failure_count", default: 0
     t.string "claim_id"
+    t.integer "tracked_items", default: [], array: true
   end
 
   create_table "claims_api_intent_to_files", force: :cascade do |t|
@@ -425,7 +427,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
     t.datetime "updated_at", null: false
     t.text "logout_redirect_uri"
     t.boolean "pkce"
-    t.string "certificates", array: true
+    t.string "certificates", default: [], array: true
     t.text "description"
     t.string "access_token_attributes", default: [], array: true
     t.text "terms_of_use_url"
@@ -836,13 +838,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
   end
 
-  create_table "inherited_proof_verified_user_accounts", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
-  end
-
   create_table "intent_to_file_queue_exhaustions", force: :cascade do |t|
     t.string "veteran_icn", null: false
     t.string "form_type"
@@ -1039,6 +1034,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
     t.datetime "itf_datetime"
     t.datetime "form_start_date"
     t.datetime "delete_date"
+    t.text "metadata"
+    t.datetime "metadata_updated_at"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
@@ -1057,10 +1054,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
   create_table "service_account_configs", force: :cascade do |t|
     t.string "service_account_id", null: false
     t.text "description", null: false
-    t.text "scopes", null: false, array: true
+    t.text "scopes", default: [], null: false, array: true
     t.string "access_token_audience", null: false
     t.interval "access_token_duration", null: false
-    t.string "certificates", array: true
+    t.string "certificates", default: [], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "access_token_user_attributes", default: [], array: true
@@ -1120,6 +1117,44 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
     t.datetime "updated"
     t.string "created_by"
     t.string "updated_by"
+  end
+
+  create_table "std_institution_facilities", force: :cascade do |t|
+    t.date "activation_date"
+    t.date "deactivation_date"
+    t.string "name"
+    t.string "station_number"
+    t.string "vista_name"
+    t.integer "agency_id"
+    t.integer "street_country_id"
+    t.string "street_address_line1"
+    t.string "street_address_line2"
+    t.string "street_address_line3"
+    t.string "street_city"
+    t.integer "street_state_id"
+    t.integer "street_county_id"
+    t.string "street_postal_code"
+    t.integer "mailing_country_id"
+    t.string "mailing_address_line1"
+    t.string "mailing_address_line2"
+    t.string "mailing_address_line3"
+    t.string "mailing_city"
+    t.integer "mailing_state_id"
+    t.integer "mailing_county_id"
+    t.string "mailing_postal_code"
+    t.integer "facility_type_id"
+    t.integer "mfn_zeg_recipient"
+    t.integer "parent_id"
+    t.integer "realigned_from_id"
+    t.integer "realigned_to_id"
+    t.integer "visn_id"
+    t.integer "version"
+    t.datetime "created"
+    t.datetime "updated"
+    t.string "created_by"
+    t.string "updated_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "std_states", force: :cascade do |t|
@@ -1599,7 +1634,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_195104) do
   add_foreign_key "form_submissions", "user_accounts"
   add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
-  add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
   add_foreign_key "lighthouse526_document_uploads", "form526_submissions"
   add_foreign_key "lighthouse526_document_uploads", "form_attachments"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"

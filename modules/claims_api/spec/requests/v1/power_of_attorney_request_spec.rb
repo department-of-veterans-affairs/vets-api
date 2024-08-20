@@ -40,6 +40,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     describe 'submit_form_2122' do
+      let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
+
       context 'when poa code is valid' do
         before do
           Veteran::Service::Representative.new(representative_id: '01234', poa_codes: ['074']).save!
@@ -58,6 +60,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                   .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
                 post path, params: data, headers: headers.merge(auth_header)
                 token = JSON.parse(response.body)['data']['id']
                 poa = ClaimsApi::PowerOfAttorney.find(token)
@@ -73,6 +77,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                   .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
                 post path, params: data, headers: headers.merge(auth_header)
                 parsed = JSON.parse(response.body)
                 expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
@@ -86,8 +92,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                   .to receive(:check_request_ssn_matches_mpi).and_return(nil)
-                allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
-                  .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
                 post path, params: data, headers: headers.merge(auth_header)
                 token = JSON.parse(response.body)['data']['id']
                 poa = ClaimsApi::PowerOfAttorney.find(token)
@@ -143,6 +149,9 @@ RSpec.describe 'Power of Attorney ', type: :request do
                       .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                     allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                       .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+                    allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                    allow(bgs_poa_verifier).to receive(:current_poa_code)
+                      .and_return(Struct.new(:code).new('HelloWorld'))
                     post path, params: data, headers: headers.merge(auth_header)
                     expect(response.status).to eq(200)
                   end
@@ -158,6 +167,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                   .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
                 params = JSON.parse data
                 base64_signature = File.read(::Rails.root.join(
                   *'/modules/claims_api/spec/fixtures/signature_b64.txt'.split('/')
@@ -591,7 +602,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         it 'returns a 404' do
           mock_acg(scopes) do |auth_header|
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-            expect(bgs_poa_verifier).to receive(:current_poa).and_return(nil)
+            expect(bgs_poa_verifier).to receive(:current_poa_code).and_return(nil).once
             get("#{path}/active", params: nil, headers: headers.merge(auth_header))
             expect(response.status).to eq(404)
           end
@@ -614,7 +625,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         it 'returns a 200' do
           mock_acg(scopes) do |auth_header|
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-            expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
+            expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').exactly(3).times
             expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
             expect_any_instance_of(
               ClaimsApi::V1::Forms::PowerOfAttorneyController
@@ -651,7 +662,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 ClaimsApi::V1::Forms::PowerOfAttorneyController
               ).to receive(:validate_user_is_accredited!).and_return(nil)
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
+              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').exactly(3).times
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
               expect(::Veteran::Service::Organization).to receive(:find_by).and_return(
                 OpenStruct.new(name: 'Some Great Organization', phone: '555-555-5555')
@@ -681,7 +692,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 ClaimsApi::V1::Forms::PowerOfAttorneyController
               ).to receive(:validate_user_is_accredited!).and_return(nil)
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
+              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').exactly(3).times
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
               allow(::Veteran::Service::Representative).to receive(:where).and_return(
                 [
@@ -717,7 +728,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 ClaimsApi::V1::Forms::PowerOfAttorneyController
               ).to receive(:validate_user_is_accredited!).and_return(nil)
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
+              expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').twice
               allow(::Veteran::Service::Organization).to receive(:find_by).and_return(nil)
               allow(::Veteran::Service::Representative).to receive(:where).and_return([])
 

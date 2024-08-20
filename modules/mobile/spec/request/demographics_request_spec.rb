@@ -22,7 +22,7 @@ RSpec.describe 'demographics', type: :request do
 
         it 'returns gender identity and preferred name' do
           expect(response.parsed_body).to eq({ 'data' =>
-                                                { 'id' => '1008596379V859838',
+                                                { 'id' => user.uuid,
                                                   'type' => 'demographics',
                                                   'attributes' =>
                                                    { 'gender_identity' => 'F', 'preferred_name' => 'SAM' } } })
@@ -46,7 +46,7 @@ RSpec.describe 'demographics', type: :request do
 
         it 'returns gender identity and preferred name' do
           expect(response.parsed_body).to eq({ 'data' =>
-                                                { 'id' => '1008596379V859838',
+                                                { 'id' => user.uuid,
                                                   'type' => 'demographics',
                                                   'attributes' =>
                                                    { 'gender_identity' => 'F', 'preferred_name' => 'SAM' } } })
@@ -81,7 +81,7 @@ RSpec.describe 'demographics', type: :request do
         it 'endpoint returns as 404 error' do
           expect(response.parsed_body).to eq({ 'errors' =>
                                                 [{ 'title' => 'Record not found',
-                                                   'detail' => 'The record identified by 1008596379V859838' \
+                                                   'detail' => "The record identified by #{user.uuid}" \
                                                                ' could not be found',
                                                    'code' => '404',
                                                    'status' => '404' }] })

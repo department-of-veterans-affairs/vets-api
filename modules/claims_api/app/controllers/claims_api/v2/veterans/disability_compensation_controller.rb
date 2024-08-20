@@ -110,8 +110,8 @@ module ClaimsApi
             auto_claim.reload
           end
 
-          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
-            auto_claim, root: :data, async: false
+          render json: ClaimsApi::V2::Blueprints::MetaBlueprint.render(
+            auto_claim, async: false
           ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
         end
 
@@ -119,6 +119,7 @@ module ClaimsApi
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:, form_data: form_attributes,
+            transaction_id: claim_transaction_id,
             flashes:,
             cid: token&.payload&.[]('cid'), veteran_icn: target_veteran&.mpi&.icn,
             validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD

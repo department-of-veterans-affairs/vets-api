@@ -22,10 +22,9 @@ module VAOS
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {})
-        params = date_params(start_date, end_date)
-                 .merge(page_params(pagination_params))
-                 .merge(status_params(statuses))
-                 .compact
+        params = date_params(start_date, end_date).merge(page_params(pagination_params))
+                                                  .merge(status_params(statuses))
+                                                  .compact
 
         cnp_count = 0
 
@@ -105,7 +104,6 @@ module VAOS
       end
 
       # rubocop:enable Metrics/MethodLength
-
       def update_appointment(appt_id, status)
         with_monitoring do
           if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
@@ -215,6 +213,11 @@ module VAOS
         appointment[:requested_periods] = nil if booked?(appointment) && VAOS::AppointmentsHelper.cerner?(appointment)
 
         convert_appointment_time(appointment)
+
+        appointment[:station], appointment[:ien] = extract_station_and_ien(appointment)
+
+        appointment[:minutes_duration] ||= 60 if appointment[:appointment_type] == 'COMMUNITY_CARE'
+
         if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)
         end
@@ -330,11 +333,9 @@ module VAOS
       # @return [String, nil] The AVS link associated with the appointment,
       # or nil if no link could be found or if there was a mismatch in Integration Control Numbers (ICNs).
       def get_avs_link(appt)
-        station_no, appt_ien = extract_station_and_ien(appt)
+        return nil if appt[:station].nil? || appt[:ien].nil?
 
-        return nil if station_no.nil? || appt_ien.nil?
-
-        avs_resp = avs_service.get_avs_by_appointment(station_no, appt_ien)
+        avs_resp = avs_service.get_avs_by_appointment(appt[:station], appt[:ien])
 
         return nil if avs_resp.body.empty? || !(avs_resp.body.is_a?(Array) && avs_resp.body.first.is_a?(Hash))
 
