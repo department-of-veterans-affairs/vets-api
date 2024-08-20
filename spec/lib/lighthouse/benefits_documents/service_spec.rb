@@ -51,14 +51,7 @@ RSpec.describe BenefitsDocuments::Service do
       end
 
       it 'does not enqueue a job when cst_synchronous_evidence_uploads is true' do
-        VCR.configure do |c|
-          c.debug_logger = $stderr
-        end
-        VCR.use_cassette(
-          'lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf',
-          match_requests_on: [:uri],
-          record: :none
-        ) do
+        VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf') do
           Flipper.enable(:cst_synchronous_evidence_uploads)
           expect do
             service.queue_document_upload(params)
