@@ -79,6 +79,7 @@ module ClaimsApi
       resolve_special_issue_mappings!
       resolve_homelessness_situation_type_mappings!
       resolve_homelessness_risk_situation_type_mappings!
+      transform_homelessness_point_of_contact_primary_phone!
       transform_address_lines_length!
 
       {
@@ -211,6 +212,13 @@ module ClaimsApi
         # Transform to meet EVSS requirements of minLength 1
         form_data['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'] = ' '
       end
+    end
+
+    def transform_homelessness_point_of_contact_primary_phone!
+      return if form_data['veteran']['homelessness'].blank?
+
+      phone_number = form_data&.dig('veteran', 'homelessness', 'pointOfContact', 'primaryPhone', 'phoneNumber')
+      phone_number.delete!('-') if phone_number.present? && phone_number.include?('-')
     end
 
     def cast_claim_date!
