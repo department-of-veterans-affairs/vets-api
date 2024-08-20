@@ -50,7 +50,7 @@ module Vet360
     end
 
     def service
-      if Flipper.enabled?(:va_v3_contact_information_service)
+      if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
         VAProfile::V2::ContactInformation::Service.new @current_user
       else
         VAProfile::ContactInformation::Service.new @current_user

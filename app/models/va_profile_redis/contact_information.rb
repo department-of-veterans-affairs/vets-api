@@ -189,7 +189,7 @@ module VAProfileRedis
     end
 
     def contact_info_service
-      @service ||= if Flipper.enabled?(:va_v3_contact_information_service)
+      @service ||= if Flipper.enabled?(:va_v3_contact_information_service, @user)
                      VAProfile::V2::ContactInformation::Service.new @user
                    else
                      VAProfile::ContactInformation::Service.new @user

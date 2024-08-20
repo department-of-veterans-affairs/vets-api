@@ -122,7 +122,7 @@ module Mobile
         end
 
         def contact_information_service
-          if Flipper.enabled?(:va_v3_contact_information_service)
+          if Flipper.enabled?(:va_v3_contact_information_service, @user)
             VAProfile::V2::ContactInformation::Service.new @user
           else
             VAProfile::ContactInformation::Service.new @user

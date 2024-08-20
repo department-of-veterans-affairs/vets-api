@@ -17,7 +17,8 @@ module VAProfile
       include ERB::Util
 
       STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.person".freeze
-      if Flipper.enabled?(:va_v3_contact_information_service)
+
+      if Flipper.enabled?(:va_v3_contact_information_service, @user)
         configuration VAProfile::V2::ContactInformation::Configuration
       else
         configuration VAProfile::ContactInformation::Configuration
@@ -32,7 +33,7 @@ module VAProfile
       def init_vet360_id(icn = nil)
         with_monitoring do
           raw_response = perform(:post, encode_url!(icn), empty_body)
-          if Flipper.enabled?(:va_v3_contact_information_service)
+          if Flipper.enabled?(:va_v3_contact_information_service, @user)
             VAProfile::V2::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
           else
             VAProfile::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
