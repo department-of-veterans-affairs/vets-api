@@ -154,24 +154,6 @@ RSpec.describe Form526Submission do
       end
     end
 
-    describe 'with_exhausted_primary_jobs' do
-      it 'returns submissions associated to failed or exhausted primary jobs' do
-        expect(Form526Submission.with_exhausted_primary_jobs).to contain_exactly(
-          failed_primary,
-          exhausted_primary
-        )
-      end
-    end
-
-    describe 'with_exhausted_backup_jobs' do
-      it 'returns submissions associated to failed or exhausted backup jobs' do
-        expect(Form526Submission.with_exhausted_backup_jobs).to contain_exactly(
-          failed_backup,
-          exhausted_backup
-        )
-      end
-    end
-
     describe 'paranoid_success_type' do
       it 'returns records less than a year old with paranoid_success backup status' do
         expect(Form526Submission.paranoid_success_type).to contain_exactly(
