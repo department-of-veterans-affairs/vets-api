@@ -965,6 +965,10 @@ RSpec.describe Form526Submission do
 
         it 'queues polling job' do
           expect do
+            form = subject.saved_claim.parsed_form
+            form['startedFormVersion'] = '2022'
+            subject.update(submitted_claim_id: 1)
+            subject.saved_claim.update(form: form.to_json)
             subject.perform_ancillary_jobs(first_name)
           end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
         end

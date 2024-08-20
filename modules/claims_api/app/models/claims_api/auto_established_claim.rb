@@ -68,9 +68,9 @@ module ClaimsApi
       form_data['servicePay']['separationPay']['receivedDate'] = transform_separation_pay_received_date if separation_pay_received_date? # rubocop:disable Layout/LineLength
       form_data['veteran']['changeOfAddress'] = transform_change_of_address_type_case if change_of_address_provided?
       form_data['veteran']['changeOfAddress'] = transform_change_of_address_ending_date if invalid_change_of_address_ending_date? # rubocop:disable Layout/LineLength
-      form_data['disabilites'] = transform_disability_approximate_begin_dates
-      form_data['disabilites'] = massage_invalid_disability_names
-      form_data['disabilites'] = remove_special_issues_from_secondary_disabilities
+      form_data['disabilities'] = transform_disability_approximate_begin_dates
+      form_data['disabilities'] = massage_invalid_disability_names
+      form_data['disabilities'] = remove_special_issues_from_secondary_disabilities
       form_data['treatments'] = transform_treatment_dates if treatments?
       form_data['treatments'] = transform_treatment_center_names if treatments?
       form_data['serviceInformation'] = transform_service_branch
@@ -165,6 +165,7 @@ module ClaimsApi
 
         disability
       end
+      disabilities
     end
 
     def resolve_special_issue_mappings!
@@ -341,6 +342,7 @@ module ClaimsApi
 
         disability
       end
+      disabilities
     end
 
     def truncate_disability_name(name:)
@@ -421,7 +423,13 @@ module ClaimsApi
       end
 
       form_data['serviceInformation']['servicePeriods'] = transformed_service_periods
+      transformed_reserves_national_guard_service
       form_data['serviceInformation']
+    end
+
+    def transformed_reserves_national_guard_service
+      unit_phone = form_data&.dig('serviceInformation', 'reservesNationalGuardService', 'unitPhone')
+      unit_phone['phoneNumber'].delete!('-') if unit_phone.present? && unit_phone['phoneNumber'].include?('-')
     end
 
     # Legacy claimsApi code previously allowed servicePay-related service branch
@@ -447,7 +455,7 @@ module ClaimsApi
     # Rather than break the API by removing 'specialIssues' from the 'secondaryDisabilities' schema,
     # just detect the invalid case and remove the 'specialIssues' before sending to EVSS.
     def remove_special_issues_from_secondary_disabilities
-      disabilities = form_data['disabilites']
+      disabilities = form_data['disabilities']
 
       disabilities.map do |disability|
         next if disability['secondaryDisabilities'].blank?
@@ -458,6 +466,7 @@ module ClaimsApi
           secondary
         end
       end
+      disabilities
     end
 
     def change_of_address_provided?
