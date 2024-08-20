@@ -11,34 +11,51 @@ module RepresentationManagement
       @query_string = query_string
     end
 
-    # rubocop:disable Metrics/MethodLength
     def results
       return [] if @query_string.blank?
 
-      sql = <<-SQL.squish
+      array_results = ActiveRecord::Base.connection.exec_query(
+        ActiveRecord::Base.send(:sanitize_sql_array, [
+                                  sql_query,
+                                  {
+                                    query_string: @query_string,
+                                    threshold: WORD_SIMILARITY_THRESHOLD,
+                                    max_results: MAXIMUM_RESULT_COUNT
+                                  }
+                                ])
+      )
+
+      transform_results_to_objects(array_results)
+    end
+
+    private
+
+    # rubocop:disable Metrics/MethodLength
+    def sql_query
+      <<-SQL.squish
         WITH combined AS (
           SELECT
             id,
-            'AccreditedIndividual' AS model_type,
             full_name AS name,
-            levenshtein(full_name, ?) AS distance
+            'AccreditedIndividual' AS model_type,
+            levenshtein(full_name, :query_string) AS distance
           FROM
             accredited_individuals
           WHERE
-            word_similarity(?, full_name) >= ?
+            word_similarity(:query_string, full_name) >= :threshold
             AND location IS NOT NULL
 
           UNION ALL
 
           SELECT
             id,
-            'AccreditedOrganization' AS model_type,
             name AS name,
-            levenshtein(name, ?) AS distance
+            'AccreditedOrganization' AS model_type,
+            levenshtein(name, :query_string) AS distance
           FROM
             accredited_organizations
           WHERE
-            word_similarity(?, name) >= ?
+            word_similarity(:query_string, name) >= :threshold
             AND location IS NOT NULL
         )
         SELECT
@@ -50,25 +67,10 @@ module RepresentationManagement
         ORDER BY
           distance ASC
         LIMIT
-          ?;
+          :max_results;
       SQL
-
-      array_results = ActiveRecord::Base.connection.exec_query(
-        ActiveRecord::Base.send(:sanitize_sql_array, [
-                                  sql,
-                                  @query_string, @query_string,
-                                  WORD_SIMILARITY_THRESHOLD,
-                                  @query_string, @query_string,
-                                  WORD_SIMILARITY_THRESHOLD,
-                                  MAXIMUM_RESULT_COUNT
-                                ])
-      )
-
-      transform_results_to_objects(array_results)
     end
     # rubocop:enable Metrics/MethodLength
-
-    private
 
     def transform_results_to_objects(array_results)
       grouped_results = array_results.group_by { |result| result['model_type'] }
