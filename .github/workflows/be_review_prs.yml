@@ -7,6 +7,7 @@ on:
 
 jobs:
   check-approval-requirements:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -26,12 +27,6 @@ jobs:
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
 # Find Backend Labels, Approvals and Comments
-      - name: Find Approval Required Comment
-        uses: peter-evans/find-comment@v3
-        id: find_backend_comment
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body-includes: This PR requires approval from backend-review-group.
 
       - name: Find Approval  Comment
         uses: peter-evans/find-comment@v3
@@ -40,39 +35,8 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body-includes: Backend-review-group approval confirmed.
 
-      - name: Find Ommitted Team Comment
-        uses: peter-evans/find-comment@v3
-        id: find_omit_comment
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body-includes: Omit backend approval
-
-      - name: Re-label require-backend-approval
-        if: |
-          steps.find_backend_comment.outputs.comment-id != '' &&
-          !contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            require-backend-approval
-
-      - name: Verify require-backend-approval label
-        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval') && steps.find_backend_comment.outputs.comment-id == ''
-        run: exit 1
-
-      - name: Verity omit-backend-approval label
-        if: contains(github.event.pull_request.labels.*.name, 'omit-backend-approval') && steps.find_omit_comment.outputs.comment-id == ''
-        run: exit 1
-
-      - name: Check for require-backend-approval label
-        id: check_backend_review_teams
-        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
-        run: |
-          echo "skip_backend_review=false" >> $GITHUB_OUTPUT
-
       - name: Get backend-review-group members
-        if: steps.check_backend_review_teams.outputs.skip_backend_review == 'false'
+        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: get_team_members
         uses: octokit/request-action@v2.x
         with:
@@ -81,7 +45,7 @@ jobs:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Check backend-review-group approval status
-        if: steps.check_backend_review_teams.outputs.skip_backend_review == 'false'
+        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: check_backend_review_group_approval_status
         uses: octokit/request-action@v2.x
         with:
@@ -90,7 +54,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify backend-review-group approval
-        if: steps.check_backend_review_teams.outputs.skip_backend_review == 'false'
+        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: verify_approval
         run: |
           BACKEND_REVIEWERS=$(echo '${{ steps.get_team_members.outputs.data }}' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//')
@@ -104,10 +68,16 @@ jobs:
           fi
 
       - name: Comment PR - Approval Confirmed
-        if: |
-          success() && steps.verify_approval.outputs.approval_status == 'confirmed' &&
-          steps.find_backend_approval_comment.outputs.comment-id != ''
+        if: success() && steps.verify_approval.outputs.approval_status == 'confirmed' && steps.find_backend_approval_comment.outputs.comment-id == ''
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: "Backend-review-group approval confirmed."
+
+      - name: Remove ready-for-review label
+        if: success() && steps.verify_approval.outputs.approval_status == 'confirmed' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            ready-for-backend-review

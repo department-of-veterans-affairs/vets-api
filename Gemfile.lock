@@ -642,7 +642,7 @@ GEM
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     mini_portile2 (2.8.7)
-    minitest (5.25.0)
+    minitest (5.25.1)
     mock_redis (0.44.0)
     msgpack (1.7.2)
     msgpack (1.7.2-java)
@@ -708,7 +708,7 @@ GEM
     os (1.1.4)
     ostruct (0.6.0)
     ox (2.14.18)
-    parallel (1.26.2)
+    parallel (1.26.3)
     parallel_tests (4.7.1)
       parallel
     parser (3.3.4.0)
@@ -974,7 +974,7 @@ GEM
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
-    shoulda-matchers (6.3.1)
+    shoulda-matchers (6.4.0)
       activesupport (>= 5.2.0)
     shrine (3.6.0)
       content_disposition (~> 1.0)
@@ -1039,7 +1039,8 @@ GEM
     uri (0.13.0)
     utf8-cleaner (1.0.0)
       activesupport
-    vcr (6.2.0)
+    vcr (6.3.0)
+      base64
     version_gem (1.1.3)
     virtus (2.0.0)
       axiom-types (~> 0.1)

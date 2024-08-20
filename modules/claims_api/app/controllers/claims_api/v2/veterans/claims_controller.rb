@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'claims_api/bgs_claim_status_mapper'
-require 'claims_api/v2/mock_documents_service'
 
 module ClaimsApi
   module V2
@@ -522,7 +521,11 @@ module ClaimsApi
           @supporting_documents = []
 
           docs = if benefits_documents_enabled?
-                   file_number = local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
+                   file_number = if use_birls_id_file_number?
+                                   target_veteran.birls_id
+                                 else
+                                   local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
+                                 end
 
                    if file_number.nil?
                      claims_v2_logging('benefits_documents',
@@ -540,8 +543,6 @@ module ClaimsApi
                    # add with_indifferent_access so ['documents'] works below
                    # we can remove when EVSS is gone and access it via it's symbol
                    supporting_docs_list.with_indifferent_access if supporting_docs_list.present?
-                 elsif sandbox?
-                   { documents: ClaimsApi::V2::MockDocumentsService.new.generate_documents }.with_indifferent_access
                  else
                    get_evss_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id])
                  end
@@ -593,12 +594,12 @@ module ClaimsApi
           end
         end
 
-        def sandbox?
-          Settings.claims_api.claims_error_reporting.environment_name&.downcase.eql? 'sandbox'
-        end
-
         def benefits_documents_enabled?
           Flipper.enabled? :claims_status_v2_lh_benefits_docs_service_enabled
+        end
+
+        def use_birls_id_file_number?
+          Flipper.enabled? :lighthouse_claims_api_use_birls_id
         end
       end
     end
