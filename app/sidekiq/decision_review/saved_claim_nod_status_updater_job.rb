@@ -19,7 +19,7 @@ module DecisionReview
 
       notice_of_disagreements.each do |nod|
         guid = nod.guid
-        response = decision_review_service.get_notice_of_disagreement(guid)
+        response = decision_review_service.get_notice_of_disagreement(guid).body
         status = response.dig('data', 'attributes', 'status')
         attributes = response.dig('data', 'attributes')
 

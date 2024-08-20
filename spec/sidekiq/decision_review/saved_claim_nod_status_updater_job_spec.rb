@@ -15,11 +15,11 @@ RSpec.describe DecisionReview::SavedClaimNodStatusUpdaterJob, type: :job do
   let(:response_complete) do
     response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('NOD-SHOW-RESPONSE-200_V2').to_json) # deep copy
     response['data']['attributes']['status'] = 'complete'
-    response
+    instance_double(Faraday::Response, body: response)
   end
 
   let(:response_pending) do
-    VetsJsonSchema::EXAMPLES.fetch 'NOD-SHOW-RESPONSE-200_V2'
+    instance_double(Faraday::Response, body: VetsJsonSchema::EXAMPLES.fetch('NOD-SHOW-RESPONSE-200_V2'))
   end
 
   before do
