@@ -7,7 +7,16 @@ module RepresentationManagement
         form = RepresentationManagement::Form2122Data.new(flatten_form_params)
 
         if form.valid?
-          render json: { message: 'Form is valid' }, status: :created
+          Tempfile.create do |tempfile|
+            tempfile.binmode
+            RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form)
+            send_data tempfile.read,
+                      filename: '21-22.pdf',
+                      type: 'application/pdf',
+                      disposition: 'attachment',
+                      status: :ok
+          end
+          # The Tempfile is automatically deleted after the block ends
         else
           render json: { errors: form.errors.full_messages }, status: :unprocessable_entity
         end

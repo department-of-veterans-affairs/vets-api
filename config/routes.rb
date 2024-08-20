@@ -26,8 +26,8 @@ Rails.application.routes.draw do
 
   unless Settings.vsp_environment == 'production'
     namespace :sign_in do
-      resources :client_configs
-      resources :service_account_configs
+      resources :client_configs, param: :client_id
+      resources :service_account_configs, param: :service_account_id
     end
   end
 
@@ -337,10 +337,6 @@ Rails.application.routes.draw do
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
     end
-
-    get '/account_controls/credential_index', to: 'account_controls#credential_index'
-    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
-    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
 
     resources :search, only: :index
     resources :search_typeahead, only: :index
