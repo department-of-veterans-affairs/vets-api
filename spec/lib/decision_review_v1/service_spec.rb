@@ -184,7 +184,8 @@ describe DecisionReviewV1::Service do
         VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-503_V1') do
           expect { subject }.to raise_error(
             an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_503')),
-            "BackendServiceException: {:source=>\"Common::Client::Errors::ClientError raised in DecisionReviewV1::Service\", :code=>\"DR_503\"}"
+            'BackendServiceException: {:source=>"Common::Client::Errors::ClientError ' \
+            'raised in DecisionReviewV1::Service", :code=>"DR_503"}'
           )
         end
       end
