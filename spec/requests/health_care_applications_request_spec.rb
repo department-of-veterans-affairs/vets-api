@@ -64,7 +64,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
     let(:body) do
       { 'formSubmissionId' => 377_609_264,
-        'timestamp' => '2016-12-12T08:06:08.423-06:00' }
+        'timestamp' => '2024-08-20T11:38:44.535-05:00' }
     end
     let(:es_stub) { double(health_check: { up: true }) }
 
@@ -308,8 +308,8 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
       context 'anonymously' do
         let(:body) do
-          { 'formSubmissionId' => 40_124_668_140,
-            'timestamp' => '2016-05-25T04:59:39.345-05:00',
+          { 'formSubmissionId' => 436_426_165,
+            'timestamp' => '2024-08-20T12:08:06.729-05:00',
             'success' => true }
         end
 
@@ -362,8 +362,8 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
 
         let(:body) do
-          { 'formSubmissionId' => 40_125_311_094,
-            'timestamp' => '2017-02-08T13:50:32.020-06:00',
+          { 'formSubmissionId' => 436_426_340,
+            'timestamp' => '2024-08-20T12:26:48.275-05:00',
             'success' => true }
         end
 
