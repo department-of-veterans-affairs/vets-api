@@ -6,6 +6,7 @@ RSpec.describe Form526StateLoggingJob, type: :worker do
   before do
     Sidekiq::Job.clear_all
   end
+
   let!(:olden_times) { (Form526Submission::MAX_PENDING_TIME + 1.day).ago }
   let!(:modern_times) { 2.days.ago }
 
@@ -193,79 +194,79 @@ RSpec.describe Form526StateLoggingJob, type: :worker do
 
     it 'logs 526 state metrics correctly' do
       expected_log = {
-          timeboxed: [
-            still_running_with_retryable_errors.id,
-            new_unprocessed.id,
-            new_primary_success.id,
-            new_backup_pending.id,
-            new_backup_success.id,
-            new_backup_vbms.id,
-            new_backup_rejected.id,
-            new_double_job_failure.id,
-            new_double_job_failure_remediated.id,
-            new_double_job_failure_de_remediated.id,
-            new_no_job_remediated.id,
-            new_no_job_de_remediated.id,
-            new_backup_paranoid.id,
-            new_double_success.id,
-            new_triple_success.id,
-            new_double_success_de_remediated.id,
-            new_remediated_and_de_remediated.id
-          ].sort,
-          timeboxed_primary_successes: [
-            new_primary_success.id,
-            new_triple_success.id,
-            new_double_success_de_remediated.id,
-            new_double_success.id
-          ].sort,
-          timeboxed_exhausted_primary_job: [
-            new_backup_pending.id,
-            new_backup_success.id,
-            new_backup_vbms.id,
-            new_backup_rejected.id,
-            new_backup_paranoid.id,
-            new_double_job_failure.id,
-            new_double_job_failure_remediated.id,
-            new_double_job_failure_de_remediated.id
-          ].sort,
-          timeboxed_exhausted_backup_job: [
-            new_double_job_failure_remediated.id,
-            new_double_job_failure_de_remediated.id,
-            new_double_job_failure.id
-          ].sort,
-          timeboxed_incomplete_type: [
-            still_running_with_retryable_errors.id,
-            new_unprocessed.id,
-            new_backup_pending.id,
-            new_remediated_and_de_remediated.id,
-            new_no_job_de_remediated.id
-          ].sort,
-          total_awaiting_backup_status: [
-            new_backup_pending.id
-          ].sort,
-          total_incomplete_type: [
-            still_running_with_retryable_errors.id,
-            new_unprocessed.id,
-            new_backup_pending.id,
-            new_no_job_de_remediated.id,
-            new_remediated_and_de_remediated.id
-          ].sort,
-          total_failure_type: [
-            old_unprocessed.id,
-            old_backup_pending.id,
-            new_backup_rejected.id,
-            old_backup_rejected.id,
-            old_double_job_failure.id,
-            old_double_job_failure_de_remediated.id,
-            old_no_job_de_remediated.id,
-            old_remediated_and_de_remediated.id,
-            new_double_job_failure.id,
-            new_double_job_failure_de_remediated.id
-          ].sort
-        }
+        timeboxed: [
+          still_running_with_retryable_errors.id,
+          new_unprocessed.id,
+          new_primary_success.id,
+          new_backup_pending.id,
+          new_backup_success.id,
+          new_backup_vbms.id,
+          new_backup_rejected.id,
+          new_double_job_failure.id,
+          new_double_job_failure_remediated.id,
+          new_double_job_failure_de_remediated.id,
+          new_no_job_remediated.id,
+          new_no_job_de_remediated.id,
+          new_backup_paranoid.id,
+          new_double_success.id,
+          new_triple_success.id,
+          new_double_success_de_remediated.id,
+          new_remediated_and_de_remediated.id
+        ].sort,
+        timeboxed_primary_successes: [
+          new_primary_success.id,
+          new_triple_success.id,
+          new_double_success_de_remediated.id,
+          new_double_success.id
+        ].sort,
+        timeboxed_exhausted_primary_job: [
+          new_backup_pending.id,
+          new_backup_success.id,
+          new_backup_vbms.id,
+          new_backup_rejected.id,
+          new_backup_paranoid.id,
+          new_double_job_failure.id,
+          new_double_job_failure_remediated.id,
+          new_double_job_failure_de_remediated.id
+        ].sort,
+        timeboxed_exhausted_backup_job: [
+          new_double_job_failure_remediated.id,
+          new_double_job_failure_de_remediated.id,
+          new_double_job_failure.id
+        ].sort,
+        timeboxed_incomplete_type: [
+          still_running_with_retryable_errors.id,
+          new_unprocessed.id,
+          new_backup_pending.id,
+          new_remediated_and_de_remediated.id,
+          new_no_job_de_remediated.id
+        ].sort,
+        total_awaiting_backup_status: [
+          new_backup_pending.id
+        ].sort,
+        total_incomplete_type: [
+          still_running_with_retryable_errors.id,
+          new_unprocessed.id,
+          new_backup_pending.id,
+          new_no_job_de_remediated.id,
+          new_remediated_and_de_remediated.id
+        ].sort,
+        total_failure_type: [
+          old_unprocessed.id,
+          old_backup_pending.id,
+          new_backup_rejected.id,
+          old_backup_rejected.id,
+          old_double_job_failure.id,
+          old_double_job_failure_de_remediated.id,
+          old_no_job_de_remediated.id,
+          old_remediated_and_de_remediated.id,
+          new_double_job_failure.id,
+          new_double_job_failure_de_remediated.id
+        ].sort
+      }
 
       expect(Rails.logger).to receive(:info) do |label, log|
-        expect(label).to eq("Form 526 State Data")
+        expect(label).to eq('Form 526 State Data')
         expect(log).to eq(expected_log)
       end
       described_class.new.perform

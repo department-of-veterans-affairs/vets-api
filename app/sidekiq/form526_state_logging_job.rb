@@ -54,13 +54,13 @@ class Form526StateLoggingJob
 
   def backup_submissions
     @backup_submissions ||= timeboxed_submissions
-      .joins(:form526_job_statuses)
-      .where(form526_job_statuses: { job_class: 'BackupSubmission', status: 'success' })
+                            .joins(:form526_job_statuses)
+                            .where(form526_job_statuses: { job_class: 'BackupSubmission', status: 'success' })
   end
 
   def timeboxed_submissions
     @timeboxed_submissions ||= Form526Submission
-      .where(sub_arel[:created_at].gt(start_date))
-      .where(sub_arel[:created_at].lt(end_date))
+                               .where(sub_arel[:created_at].gt(start_date))
+                               .where(sub_arel[:created_at].lt(end_date))
   end
 end

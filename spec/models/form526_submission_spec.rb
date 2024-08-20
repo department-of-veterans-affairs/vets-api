@@ -110,7 +110,6 @@ RSpec.describe Form526Submission do
   end
 
   describe 'scopes' do
-
     let!(:in_process) { create(:form526_submission) }
     let!(:expired) { create(:form526_submission, :created_more_than_3_weeks_ago) }
     let!(:happy_path_success) { create(:form526_submission, :with_submitted_claim_id) }
