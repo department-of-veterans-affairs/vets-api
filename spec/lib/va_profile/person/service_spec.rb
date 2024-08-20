@@ -12,7 +12,6 @@ describe VAProfile::Person::Service, :skip_vet360 do
     subject { described_class.new(user) }
 
     let(:user) { build(:user, :loa3) }
-    Flipper.disable(:va_v3_contact_information_service)
     let(:person_response) do
       if Flipper.enabled?(:va_v3_contact_information_service)
         VAProfile::V2::ContactInformation::PersonTransactionResponse
@@ -20,6 +19,8 @@ describe VAProfile::Person::Service, :skip_vet360 do
         VAProfile::ContactInformation::PersonTransactionResponse
       end
     end
+
+    Flipper.disable(:va_v3_contact_information_service)
 
     context 'with a user present, that has a icn_with_aaid, and no passed in ICN' do
       it 'returns a status of 200', :aggregate_failures do
