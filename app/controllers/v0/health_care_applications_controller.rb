@@ -82,13 +82,7 @@ module V0
     def active_facilities(lighthouse_facilities)
       active_ids = StdInstitutionFacility.active.pluck(:station_number).compact
 
-      lighthouse_facilities.select { |facility| active_ids.include?(station_number(facility)) }
-    end
-
-    def station_number(facility)
-      # remove the Health prefix from the ID: vha_402GA -> 402GA. see Facility ID formats in
-      #   https://developer.va.gov/explore/api/va-facilities/docs?version=current
-      facility.id.split('_').last
+      lighthouse_facilities.select { |facility| active_ids.include?(facility.unique_id) }
     end
 
     def health_care_application
