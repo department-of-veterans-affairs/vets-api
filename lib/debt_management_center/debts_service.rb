@@ -57,8 +57,13 @@ module DebtManagementCenter
     def debts_with_sorted_histories
       @debts.select do |debt|
         debt['debtHistory'] = sort_by_date(debt['debtHistory'])
+        debt['compositeDebtId'] = build_composite_debt_id(debt)
         debt['payeeNumber'] == '00'
       end
+    end
+
+    def build_composite_debt_id(debt)
+      "#{debt['deductionCode']}#{debt['originalAR'].to_i}"
     end
 
     # Provided the cached version of this continues to work as intended, this method is not needed 8/5/24
