@@ -41,7 +41,7 @@ module PDFUtilities
       end
 
       generate_stamp
-      stamp_pdf!
+      stamp_pdf
     rescue => e
       Rails.logger.error "Failed to generate datestamp file: #{e.message}"
       Common::FileHelpers.delete_file_if_exists(stamped_pdf)
@@ -120,7 +120,7 @@ module PDFUtilities
 
     # combine the input and background pdfs into the stamped_pdf
     # @see https://www.pdflabs.com/docs/pdftk-man-page/#dest-op-stamp
-    def stamp_pdf!
+    def stamp_pdf
       @stamped_pdf = "#{Common::FileHelpers.random_file_path}.pdf"
       if multistamp
         PDFUtilities::PDFTK.multistamp(file_path, stamp_path, stamped_pdf)
