@@ -30,11 +30,7 @@ module ClaimsApi
                         @lighthouse_claim['veteran_icn']
                       end
 
-        if clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id) && veteran_icn != @request_icn
-          return true
-        end
-
-        false
+        clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id) && veteran_icn != @request_icn
       end
 
       def clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id)
