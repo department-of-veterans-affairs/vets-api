@@ -78,8 +78,8 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppointContro
       names_and_full_names_in_order = parsed_response.map do |r|
         r['data']['attributes']['full_name'] || r['data']['attributes']['name']
       end
-      all_full_names = parsed_response.map { |r| r['data']['attributes']['full_name'] }
-      all_names = parsed_response.map { |r| r['data']['attributes']['name'] }
+      all_full_names = parsed_response.map { |r| r['data']['attributes']['full_name'] }.compact
+      all_names = parsed_response.map { |r| r['data']['attributes']['name'] }.compact
 
       expect(parsed_response.size).to eq(10)
       expect(all_full_names).to eq(%w[aaaa aaaab aaaabc aaaabcd aaaabcde])

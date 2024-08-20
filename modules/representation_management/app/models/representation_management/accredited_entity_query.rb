@@ -5,26 +5,27 @@ module RepresentationManagement
     include ActiveModel::Model
 
     MAXIMUM_RESULT_COUNT = 10
-    WORD_SIMILARITY_THRESHOLD = 0.5
+    WORD_SIMILARITY_THRESHOLD = 0.7
 
     def initialize(query_string)
       @query_string = query_string
     end
 
+    # rubocop:disable Metrics/MethodLength
     def results
-      sanitized_query_string = ActiveRecord::Base.connection.quote(@query_string)
-      sql = <<-SQL
+      return [] if @query_string.blank?
+
+      sql = <<-SQL.squish
         WITH combined AS (
           SELECT
             id,
             'AccreditedIndividual' AS model_type,
             full_name AS name,
-            word_similarity(full_name, #{sanitized_query_string}) AS word_similarity_score,
-            levenshtein(full_name, #{sanitized_query_string}) AS distance
+            levenshtein(full_name, ?) AS distance
           FROM
             accredited_individuals
           WHERE
-            word_similarity(full_name, #{sanitized_query_string}) > #{WORD_SIMILARITY_THRESHOLD}
+            word_similarity(?, full_name) >= ?
             AND location IS NOT NULL
 
           UNION ALL
@@ -33,12 +34,11 @@ module RepresentationManagement
             id,
             'AccreditedOrganization' AS model_type,
             name AS name,
-            word_similarity(name, #{sanitized_query_string}) AS word_similarity_score,
-            levenshtein(name, #{sanitized_query_string}) AS distance
+            levenshtein(name, ?) AS distance
           FROM
             accredited_organizations
           WHERE
-            word_similarity(name, #{sanitized_query_string}) > #{WORD_SIMILARITY_THRESHOLD}
+            word_similarity(?, name) >= ?
             AND location IS NOT NULL
         )
         SELECT
@@ -50,22 +50,31 @@ module RepresentationManagement
         ORDER BY
           distance ASC
         LIMIT
-          #{MAXIMUM_RESULT_COUNT};
+          ?;
       SQL
 
-      array_results = ActiveRecord::Base.connection.exec_query(sql)
+      array_results = ActiveRecord::Base.connection.exec_query(
+        ActiveRecord::Base.send(:sanitize_sql_array, [
+                                  sql,
+                                  @query_string, @query_string,
+                                  WORD_SIMILARITY_THRESHOLD,
+                                  @query_string, @query_string,
+                                  WORD_SIMILARITY_THRESHOLD,
+                                  MAXIMUM_RESULT_COUNT
+                                ])
+      )
+
       transform_results_to_objects(array_results)
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
     def transform_results_to_objects(array_results)
-      individual_ids = array_results.select do |result|
-        result['model_type'] == 'AccreditedIndividual'
-      end.pluck('id')
-      organization_ids = array_results.select do |result|
-        result['model_type'] == 'AccreditedOrganization'
-      end.pluck('id')
+      grouped_results = array_results.group_by { |result| result['model_type'] }
+
+      individual_ids = grouped_results['AccreditedIndividual']&.pluck('id') || []
+      organization_ids = grouped_results['AccreditedOrganization']&.pluck('id') || []
 
       individuals = AccreditedIndividual.where(id: individual_ids).index_by(&:id)
       organizations = AccreditedOrganization.where(id: organization_ids).index_by(&:id)
