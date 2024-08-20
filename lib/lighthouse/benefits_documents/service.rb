@@ -86,13 +86,13 @@ module BenefitsDocuments
 
       LighthouseDocument.new(
         participant_id: @user.participant_id,
-        claim_id: claim_id,
-        file_obj: file,
+        claim_id:,
+        file_obj:,
         uuid: SecureRandom.uuid,
         file_name: file.original_filename,
         tracked_item_id: tracked_item_ids,
-        document_type: document_type,
-        password: password
+        document_type:,
+        password:
       )
     end
 
