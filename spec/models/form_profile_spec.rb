@@ -961,6 +961,10 @@ RSpec.describe FormProfile, type: :model do
           'from' => '2002-07-02',
           'to' => '2014-08-31'
         }
+      },
+      'identityValidation' => {
+        'hasICN' => true,
+        'hasParticipantId' => true
       }
     }
   end
@@ -994,6 +998,10 @@ RSpec.describe FormProfile, type: :model do
           'from' => '2002-07-02',
           'to' => '2014-08-31'
         }
+      },
+      'identityValidation' => {
+        'hasICN' => true,
+        'hasParticipantId' => true
       }
     }
   end

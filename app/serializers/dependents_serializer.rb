@@ -60,7 +60,7 @@ module DependentsHelper
   end
 
   def dependency_decisions(diaries)
-    decisions = diaries && diaries[:dependency_decs]
+    decisions = diaries.is_a?(Hash) && diaries[:dependency_decs]
     return if decisions.nil?
 
     decisions.is_a?(Hash) ? [decisions] : decisions

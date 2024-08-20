@@ -19,7 +19,7 @@ module DecisionReview
 
       higher_level_reviews.each do |hlr|
         guid = hlr.guid
-        response = decision_review_service.get_higher_level_review(guid)
+        response = decision_review_service.get_higher_level_review(guid).body
         status = response.dig('data', 'attributes', 'status')
         attributes = response.dig('data', 'attributes')
 
