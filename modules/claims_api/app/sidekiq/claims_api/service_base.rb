@@ -36,6 +36,30 @@ module ClaimsApi
 
     protected
 
+    def deep_dup_and_freeze_form_data(form_data_object, visited = {})
+      # base case
+      return visited[form_data_object] if visited.key?(form_data_object)
+
+      # Store the original object in the visited hash
+      visited[form_data_object] = nil # Mark it temporarily
+
+      case form_data_object
+      when Array
+        duplicated_array = form_data_object.map { |elem| deep_dup_and_freeze_form_data(elem, visited) }
+        visited[form_data_object] = duplicated_array.freeze
+      when Hash
+        duplicated_hash = form_data_object.each_with_object({}) do |(key, value), hash|
+          hash[deep_dup_and_freeze_form_data(key, visited)] = deep_dup_and_freeze_form_data(value, visited)
+        end
+        visited[form_data_object] = duplicated_hash.freeze
+      else
+        # For other types, just dup and freeze
+        visited[form_data_object] = form_data_object.dup.freeze
+      end
+
+      visited[form_data_object]
+    end
+
     def set_errored_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
     end
