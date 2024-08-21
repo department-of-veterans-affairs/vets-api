@@ -13,6 +13,7 @@ RSpec.describe 'address', type: :request do
     address.province = 'null'
     address
   end
+
   Flipper.disable(:va_v3_contact_information_service)
 
   describe 'update endpoints' do
