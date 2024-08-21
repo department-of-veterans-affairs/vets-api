@@ -95,6 +95,7 @@ module Lighthouse
       with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
         form526_pdf = get_form526_pdf(submission)
         if form526_pdf.present?
+          job_success
           Rails.logger.info('Poll for form 526 PDF: PDF found')
           return
         else
@@ -111,7 +112,7 @@ module Lighthouse
             )
             return
           end
-          raise PollForm526PdfError('Poll for form 526 PDF: Keep on retrying!')
+          raise Lighthouse::PollForm526PdfError, 'Poll for form 526 PDF: Keep on retrying!'
         end
       end
     end
