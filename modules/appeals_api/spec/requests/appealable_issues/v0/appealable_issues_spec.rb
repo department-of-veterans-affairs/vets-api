@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::AppealableIssues::V0::AppealableIssuesController, type: :request do
+Rspec.describe 'AppealsApi::AppealableIssues::V0::AppealableIssues', type: :request do
   describe '#schema' do
     let(:path) { '/services/appeals/appealable-issues/v0/schemas/params' }
 

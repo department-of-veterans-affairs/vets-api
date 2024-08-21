@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController, type: :request do
+Rspec.describe 'AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::Forms::10182', type: :request do
   def base_path(path)
     "/services/appeals/notice-of-disagreements/v0/#{path}"
   end
@@ -23,7 +23,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
         get(path, headers: auth_header)
       end
 
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
       expect(parsed_response['description']).to eq('JSON Schema for VA Form 10182')
       expect(response.body).to include('{"$ref":"address.json"}')
       expect(response.body).to include('{"$ref":"phone.json"}')

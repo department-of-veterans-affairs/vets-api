@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::Schemas::SharedSchemasController, type: :request do
+Rspec.describe AppealsApi::Schemas::SharedSchemasController, type: :request do
   include FixtureHelpers
 
   def base_path(appeal_type_segment, schema_type)

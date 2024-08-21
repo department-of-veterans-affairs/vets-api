@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_contestable_issues.rb')
 
-describe AppealsApi::V2::DecisionReviews::ContestableIssuesController, type: :request do
+Rspec.describe 'AppealsApi::V2::DecisionReviews::ContestableIssues', type: :request do
   include_examples 'Appealable Issues API v0 and Decision Reviews v1 & v2 shared request examples',
                    base_path: '/services/appeals/v2/decision_reviews/contestable_issues'
 

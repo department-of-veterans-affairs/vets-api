@@ -3,12 +3,13 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmissionsController, type: :request do
+Rspec.describe 'AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmissions', type: :request do
   include FixtureHelpers
-  let(:notice_of_disagreement) { create(:notice_of_disagreement_v2, :board_review_hearing) }
-  let(:headers) { fixture_as_json 'decision_reviews/v2/valid_10182_headers.json' }
+  let(:notice_of_disagreement) { create(:notice_of_disagreement, :board_review_hearing) }
+  let(:headers) { fixture_as_json 'decision_reviews/v1/valid_10182_headers.json' }
   let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: notice_of_disagreement) }
-  let(:path) { '/services/appeals/v2/decision_reviews/notice_of_disagreements/evidence_submissions/' }
+  let(:path) { '/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/' }
+
   let(:parsed) { JSON.parse(response.body) }
 
   def stub_upload_location(expected_location = 'http://some.fakesite.com/path/uuid')
@@ -21,8 +22,8 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         stub_upload_location
         post(path, params: { nod_uuid: 1979 }, headers:)
 
-        expect(response.status).to eq 404
-        expect(response.body).to include 'NoticeOfDisagreement with uuid 1979 not found'
+        expect(response).to have_http_status :not_found
+        expect(response.body).to include 'not found'
       end
     end
 
@@ -31,7 +32,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         stub_upload_location
         post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
 
-        expect(response.status).to eq 422
+        expect(response).to have_http_status :unprocessable_entity
         expect(response.body).to include "'boardReviewOption' must be 'evidence_submission'"
       end
 
@@ -41,23 +42,23 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           notice_of_disagreement.update(board_review_option: 'evidence_submission')
           post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
 
-          expect(response.status).to eq 202
+          expect(response).to have_http_status :accepted
           expect(response.body).to include notice_of_disagreement.id
         end
 
-        it "returns an error if request 'headers['X-VA-File-Number'] and NOD record File Number does not match" do
+        it "returns an error if request 'headers['X-VA-SSN'] and NOD record SSNs do not match" do
           stub_upload_location
           notice_of_disagreement.update(board_review_option: 'evidence_submission')
-          headers['X-VA-File-Number'] = '1111111111'
+          headers['X-VA-SSN'] = '1111111111'
           post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
 
-          expect(response.status).to eq 422
-          expect(response.body).to include "'X-VA-File-Number' does not match"
+          expect(response).to have_http_status :unprocessable_entity
+          expect(response.body).to include "'X-VA-SSN' does not match"
         end
       end
 
       context "when nod record 'auth_headers' are not present" do
-        # if PII expunged not validating for matching file numbers
+        # if PII expunged not validating for matching SSNs
         it 'creates the evidence submission and returns upload location' do
           stub_upload_location 'http://another.fakesite.com/rewrittenpath/uuid'
           notice_of_disagreement.update(board_review_option: 'evidence_submission', auth_headers: nil)
@@ -80,7 +81,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         notice_of_disagreement.update(board_review_option: 'evidence_submission', auth_headers: nil)
         post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
 
-        expect(response.status).to eq 500
+        expect(response).to have_http_status :internal_server_error
         expect(response.body).to include('Unable to provide document upload location')
       end
     end
@@ -89,7 +90,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       stub_upload_location
       post(path, headers:)
 
-      expect(response.status).to eq 400
+      expect(response).to have_http_status :bad_request
       expect(response.body).to include 'Must supply a corresponding NOD'
     end
 
@@ -136,7 +137,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
 
     it 'returns an error if record is not found' do
       get "#{path}/bueller"
-      expect(response.status).to eq 404
+      expect(response).to have_http_status :not_found
       expect(response.body).to include 'Record not found'
     end
   end

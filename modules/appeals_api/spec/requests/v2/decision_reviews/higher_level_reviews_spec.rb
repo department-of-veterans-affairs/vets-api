@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :request do
+describe 'AppealsApi::V2::DecisionReviews::HigherLevelReviews', type: :request do
   include FixtureHelpers
 
   def base_path(path)
@@ -56,7 +56,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       it 'returns a 422 error' do
         get(path, headers: headers_extra.except('X-VA-ICN'))
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['detail']).to include('X-VA-ICN is required')
       end
@@ -66,7 +66,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       it 'returns a 422 error' do
         get(path, headers: { 'X-VA-ICN' => '1393231' })
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['detail']).to include('X-VA-ICN has an invalid format')
       end
@@ -153,7 +153,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     context 'when header is missing' do
       it 'responds with status :unprocessable_entity' do
         post(path, params: data_default, headers: headers_minimum.except('X-VA-SSN'))
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
       end
     end
@@ -163,14 +163,14 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         { 'status' => 422, 'detail' => 'Phone number will not fit on form (20 char limit): 9991234567890x1234567890' }
       end
 
-      it 'responds with status :unprocessable_entity ' do
+      it 'responds with status :unprocessable_entity' do
         data = JSON.parse(data_default)
         data['data']['attributes']['veteran'].merge!(
           { 'phone' => { 'areaCode' => '999', 'phoneNumber' => '1234567890', 'phoneNumberExt' => '1234567890' } }
         )
 
         post(path, params: data.to_json, headers: headers_minimum)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to include(error_content)
       end
 
@@ -180,7 +180,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         data['data']['attributes']['veteran'].delete('address')
 
         post(path, params: data.to_json, headers: headers_minimum)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
 
         error = parsed['errors'][0]
         expect(error['title']).to eq 'Missing required fields'
@@ -190,12 +190,12 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     end
 
     context 'returns 422 when birth date is not a date' do
-      it 'when given a string for the birth date ' do
+      it 'when given a string for the birth date' do
         headers = headers_minimum
         headers['X-VA-Birth-Date'] = 'apricot'
 
         post(path, params: data_default.to_json, headers:)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
       end
     end
@@ -207,7 +207,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
         post(path, params: data.to_json, headers: headers_minimum)
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['title']).to include('Invalid format')
         expect(parsed['errors'][0]['detail']).to include(' did not match the defined format')
@@ -215,8 +215,8 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     end
 
     it 'updates the appeal status once submitted to central mail' do
-      client_stub = instance_double('CentralMail::Service')
-      faraday_response = instance_double('Faraday::Response')
+      client_stub = instance_double(CentralMail::Service)
+      faraday_response = instance_double(Faraday::Response)
 
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(client_stub).to receive(:upload).and_return(faraday_response)
@@ -241,7 +241,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     context 'when invalid headers supplied' do
       it 'returns an error' do
         post(path, params: data_default, headers: headers_invalid)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors'][0]['detail']).to eq 'Date must be in the past: 3000-12-31'
       end
     end
@@ -258,7 +258,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
           receive(:body).and_return(fake_puma_null_io_object)
         )
         post(path, params: data_default, headers: headers_default)
-        expect(response.status).to eq 422
+        expect(response).to have_http_status :unprocessable_entity
         expect(JSON.parse(response.body)['errors']).to be_an Array
       end
     end
@@ -275,7 +275,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         it 'responds with a properly formed error object' do
           post(path, params: data_default, headers: headers_default)
           body = JSON.parse(response.body)
-          expect(response.status).to eq 422
+          expect(response).to have_http_status :unprocessable_entity
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
@@ -287,7 +287,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         it 'responds with a properly formed error object' do
           post(path, params: data_default, headers: headers_default)
           body = JSON.parse(response.body)
-          expect(response.status).to eq 422
+          expect(response).to have_http_status :unprocessable_entity
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
@@ -317,7 +317,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       end
 
       it 'returns an error response' do
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).not_to be_empty
       end
 
@@ -351,7 +351,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         it 'responds with a properly formed error object' do
           post(path, params: data_default, headers: headers_default)
           body = JSON.parse(response.body)
-          expect(response.status).to eq 422
+          expect(response).to have_http_status :unprocessable_entity
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
@@ -363,7 +363,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         it 'responds with a properly formed error object' do
           post(path, params: data_default, headers: headers_default)
           body = JSON.parse(response.body)
-          expect(response.status).to eq 422
+          expect(response).to have_http_status :unprocessable_entity
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
@@ -400,7 +400,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     it 'renders the json schema' do
       get path
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -410,7 +410,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     it 'returns a higher_level_review with all of its data' do
       uuid = create(:higher_level_review_v2).id
       get("#{path}#{uuid}")
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
       expect(parsed['data']['attributes'].key?('form_data')).to be false
     end
 
@@ -429,7 +429,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     it 'returns an error when given a bad uuid' do
       uuid = 0
       get("#{path}#{uuid}")
-      expect(response.status).to eq(404)
+      expect(response).to have_http_status(:not_found)
       expect(parsed['errors']).to be_an Array
       expect(parsed['errors']).not_to be_empty
     end

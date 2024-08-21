@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :request do
+Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims', type: :request do
   include FixtureHelpers
 
   def base_path(path)
@@ -53,7 +53,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       it 'returns a 422 error' do
         get(path, headers: max_headers.except('X-VA-ICN'))
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['detail']).to include('X-VA-ICN is required')
       end
@@ -63,7 +63,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       it 'returns a 422 error' do
         get(path, headers: { 'X-VA-ICN' => '1393231' })
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['detail']).to include('X-VA-ICN has an invalid format')
       end
@@ -146,7 +146,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     context 'when ssn header is missing' do
       it 'responds with status :unprocessable_entity' do
         post(path, params: data, headers: headers.except('X-VA-SSN'))
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
         expect(response.body).to include('Missing required fields')
         expect(response.body).to include('X-VA-SSN')
@@ -154,7 +154,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     end
 
     context 'when phone number is too long' do
-      it 'responds with status :unprocessable_entity ' do
+      it 'responds with status :unprocessable_entity' do
         mod_data = JSON.parse(data)
         mod_data['data']['attributes']['veteran'].merge!(
           { 'phone' => { 'areaCode' => '999', 'phoneNumber' => '12345678901234567890',
@@ -162,21 +162,21 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         )
 
         post(path, params: mod_data.to_json, headers:)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(response.body).to include('Invalid pattern')
         expect(response.body).to include('/data/attributes/veteran/phone/phoneNumber')
       end
     end
 
     context 'when contestable issue text is too long' do
-      it 'responds with status :unprocessable_entity ' do
+      it 'responds with status :unprocessable_entity' do
         mod_data = JSON.parse(data)
         mod_data['included'][0]['attributes']['issue'] =
-          'Powder chocolate bar shortbread jelly beans brownie. Jujubes gummies sweet tart dragée halvah fruitcake. '\
+          'Powder chocolate bar shortbread jelly beans brownie. Jujubes gummies sweet tart dragée halvah fruitcake. ' \
           'Cake tart I love apple pie candy canes tiramisu. Lemon drops muffin marzipan apple pie.'
 
         post(path, params: mod_data.to_json, headers:)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(response.body).to include('Invalid length')
         expect(response.body).to include('attributes/issue')
       end
@@ -190,29 +190,29 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
 
         post(path, params: data, headers: invalid_headers)
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors'][0]['source']).to eq({ 'header' => 'X-VA-Birth-Date' })
         expect(parsed['errors'][0]['detail']).to eq 'Date must be in the past: 3000-12-31'
       end
     end
 
     context 'returns 422 when birth date is not a date' do
-      it 'when given a string for the birth date ' do
+      it 'when given a string for the birth date' do
         headers.merge!({ 'X-VA-Birth-Date' => 'apricot' })
 
         post(path, params: data.to_json, headers:)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
       end
     end
 
     context 'returns 422 when decision date is not a date' do
-      it 'errors when given a string for the contestable issues decision date ' do
+      it 'errors when given a string for the contestable issues decision date' do
         sc_data = JSON.parse(data)
         sc_data['included'][0]['attributes'].merge!('decisionDate' => 'banana')
 
         post(path, params: sc_data.to_json, headers:)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['title']).to include('Invalid format')
         expect(parsed['errors'][0]['detail']).to include("'banana' did not match the defined format")
@@ -223,7 +223,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc_data['included'][0]['attributes'].merge!('decisionDate' => '3000-01-02')
 
         post(path, params: sc_data.to_json, headers:)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['source']['pointer']).to eq '/data/included[0]/attributes/decisionDate'
         expect(parsed['errors'][0]['title']).to eq 'Value outside range'
@@ -238,7 +238,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
           mod_data['data']['attributes']['form5103Acknowledged'] = false
 
           post(path, params: mod_data.to_json, headers:)
-          expect(response.status).to eq(422)
+          expect(response).to have_http_status(:unprocessable_entity)
           expect(parsed['errors']).to be_an Array
           expect(response.body).to include('/data/attributes/form5103Acknowledged')
           expect(response.body).to include('https://www.va.gov/disability/how-to-file-claim/evidence-needed')
@@ -249,7 +249,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
           mod_data['data']['attributes'].delete('form5103Acknowledged')
 
           post(path, params: mod_data.to_json, headers:)
-          expect(response.status).to eq(422)
+          expect(response).to have_http_status(:unprocessable_entity)
           expect(parsed['errors']).to be_an Array
           expect(response.body).to include('Missing required fields')
           expect(response.body).to include('form5103Acknowledged')
@@ -259,7 +259,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       context 'when benefitType is not compensation' do
         it 'does not fail when form5103Acknowledged is missing' do
           post(path, params: minimum_data, headers:)
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
         end
       end
     end
@@ -290,7 +290,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         mod_data['data']['attributes']['evidenceSubmission']['evidenceType'] = %w[none retrieval]
         post(path, params: mod_data.to_json, headers:)
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).not_to be_empty
         expect(parsed['errors'][1]['title']).to eq('Invalid array')
       end
@@ -301,7 +301,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
 
         post(path, params: mod_data.to_json, headers:)
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors'][0]['title']).to eq('Missing required fields')
         expect(parsed['errors'][0]['meta']['missing_fields'][0]).to eq('retrieveFrom')
       end
@@ -345,7 +345,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
           receive(:body).and_return(fake_puma_null_io_object)
         )
         post(path, params: data, headers:)
-        expect(response.status).to eq 422
+        expect(response).to have_http_status :unprocessable_entity
         expect(JSON.parse(response.body)['errors']).to be_an Array
       end
     end
@@ -362,7 +362,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         it 'responds with a properly formed error object' do
           post(path, params: data, headers:)
           body = JSON.parse(response.body)
-          expect(response.status).to eq 422
+          expect(response).to have_http_status :unprocessable_entity
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
@@ -374,7 +374,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         it 'responds with a properly formed error object' do
           post(path, params: data, headers:)
           body = JSON.parse(response.body)
-          expect(response.status).to eq 422
+          expect(response).to have_http_status :unprocessable_entity
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
@@ -382,8 +382,8 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     end
 
     it 'updates the appeal status once submitted to central mail' do
-      client_stub = instance_double('CentralMail::Service')
-      faraday_response = instance_double('Faraday::Response')
+      client_stub = instance_double(CentralMail::Service)
+      faraday_response = instance_double(Faraday::Response)
 
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(client_stub).to receive(:upload).and_return(faraday_response)
@@ -426,7 +426,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
 
       it 'returns an error response' do
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).not_to be_empty
       end
 
@@ -450,7 +450,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         it 'responds with a properly formed error object' do
           post(path, params: data, headers:)
           body = JSON.parse(response.body)
-          expect(response.status).to eq 422
+          expect(response).to have_http_status :unprocessable_entity
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
@@ -462,7 +462,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         it 'responds with a properly formed error object' do
           post(path, params: data, headers:)
           body = JSON.parse(response.body)
-          expect(response.status).to eq 422
+          expect(response).to have_http_status :unprocessable_entity
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
@@ -501,7 +501,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
 
     it 'renders the json schema' do
       get path
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -511,7 +511,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     it 'returns a supplemental_claims with all of its data' do
       uuid = create(:supplemental_claim).id
       get("#{path}#{uuid}")
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
       expect(parsed['data']['attributes'].key?('form_data')).to be false
     end
 
@@ -530,7 +530,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     it 'returns an error when given a bad uuid' do
       uuid = 0
       get("#{path}#{uuid}")
-      expect(response.status).to eq(404)
+      expect(response).to have_http_status(:not_found)
       expect(parsed['errors']).to be_an Array
       expect(parsed['errors']).not_to be_empty
     end

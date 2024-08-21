@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type: :request do
+Rspec.describe 'AppealsApi::V2::DecisionReviews::NoticeOfDisagreements', type: :request do
   include FixtureHelpers
 
   def base_path(path)
@@ -51,7 +51,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       it 'returns a 422 error' do
         get(path, headers: max_headers.except('X-VA-ICN'))
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['detail']).to include('X-VA-ICN is required')
       end
@@ -61,7 +61,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       it 'returns a 422 error' do
         get(path, headers: { 'X-VA-ICN' => '1393231' })
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['detail']).to include('X-VA-ICN has an invalid format')
       end
@@ -97,7 +97,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
     context 'when a required headers is missing' do
       it 'returns an error' do
         post(path, params: minimum_data, headers: headers.except('X-VA-File-Number'))
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
       end
     end
@@ -131,10 +131,10 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         { 'status' => 422, 'detail' => "'apricot' did not match the defined pattern" }
       end
 
-      it 'when given a string for the birth date ' do
+      it 'when given a string for the birth date' do
         headers.merge!('X-VA-Birth-Date' => 'apricot')
         post(path, params: minimum_data.to_json, headers:)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
       end
     end
@@ -144,12 +144,12 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         { 'status' => 422, 'detail' => "'banana' did not fit within the defined length limits" }
       end
 
-      it 'when given a string for the contestable issues decision date ' do
+      it 'when given a string for the contestable issues decision date' do
         data = JSON.parse(max_data)
         data['included'][0]['attributes'].merge!('decisionDate' => 'banana')
 
         post(path, params: data.to_json, headers:)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['title']).to include('Invalid format')
         expect(parsed['errors'][0]['detail']).to include("'banana' did not match the defined format")
@@ -160,14 +160,14 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       mod_data = fixture_as_json 'decision_reviews/v2/valid_10182.json'
       mod_data['included'][0]['attributes']['issue'] = Faker::Lorem.characters(number: 500)
       post(path, params: JSON.dump(mod_data), headers:)
-      expect(response.status).to eq 422
+      expect(response).to have_http_status :unprocessable_entity
       expect(parsed['errors'][0]['title']).to eq 'Invalid length'
       expect(parsed['errors'][0]['source']['pointer']).to eq '/included/0/attributes/issue'
     end
 
     it 'create the job to build the PDF' do
-      client_stub = instance_double('CentralMail::Service')
-      faraday_response = instance_double('Faraday::Response')
+      client_stub = instance_double(CentralMail::Service)
+      faraday_response = instance_double(Faraday::Response)
 
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(client_stub).to receive(:upload).and_return(faraday_response)
@@ -214,7 +214,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
     it 'returns a notice_of_disagreement with all of its data' do
       uuid = create(:notice_of_disagreement_v2).id
       get("#{path}#{uuid}")
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
       expect(parsed['data']['attributes'].key?('form_data')).to be false
     end
 
@@ -233,7 +233,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
     it 'returns an error when given a bad uuid' do
       uuid = 0
       get("#{path}#{uuid}")
-      expect(response.status).to eq(404)
+      expect(response).to have_http_status(:not_found)
       expect(parsed['errors']).to be_an Array
       expect(parsed['errors']).not_to be_empty
     end
@@ -256,7 +256,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       end
 
       it 'returns an error response' do
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).not_to be_empty
       end
 
@@ -280,7 +280,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         it 'responds with a properly formed error object' do
           post(path, params: minimum_data, headers:)
           body = JSON.parse(response.body)
-          expect(response.status).to eq 422
+          expect(response).to have_http_status :unprocessable_entity
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
@@ -292,7 +292,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         it 'responds with a properly formed error object' do
           post(path, params: minimum_data, headers:)
           body = JSON.parse(response.body)
-          expect(response.status).to eq 422
+          expect(response).to have_http_status :unprocessable_entity
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
@@ -329,7 +329,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
 
     it 'renders the json schema' do
       get path
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -351,7 +351,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
 
       post(path, params: data.to_json, headers:)
 
-      expect(response.status).to eq 422
+      expect(response).to have_http_status :unprocessable_entity
       expect(parsed['errors'].count).to eq 3
       birth_date_error, hearing_error, missing_claimant_error = parsed['errors']
 

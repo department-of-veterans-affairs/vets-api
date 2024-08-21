@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::V0::AppealsController, type: :request do
+Rspec.describe 'AppealsApi::V0::Appeals', type: :request do
   describe '#index' do
     include SchemaMatchers
 

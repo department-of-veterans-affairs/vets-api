@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmissionsController, type: :request do
+Rspec.describe 'AppealsApi::SupplementalClaims::V0::EvidenceSubmissions', type: :request do
   include FixtureHelpers
 
   def stub_upload_location(expected_location = 'http://some.fakesite.com/path/uuid')

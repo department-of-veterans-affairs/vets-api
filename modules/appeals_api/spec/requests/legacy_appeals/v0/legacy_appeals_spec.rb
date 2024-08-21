@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::LegacyAppeals::V0::LegacyAppealsController, type: :request do
+Rspec.describe 'AppealsApi::LegacyAppeals::V0::LegacyAppeals', type: :request do
   describe('#schema') do
     let(:path) { '/services/appeals/legacy-appeals/v0/schemas/params' }
 
@@ -12,7 +12,7 @@ describe AppealsApi::LegacyAppeals::V0::LegacyAppealsController, type: :request 
         get(path, headers: auth_header)
       end
 
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)['description']).to eq(
         'JSON Schema for Legacy Appeals endpoint parameters'
       )

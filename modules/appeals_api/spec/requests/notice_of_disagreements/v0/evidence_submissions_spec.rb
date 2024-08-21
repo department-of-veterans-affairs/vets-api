@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceSubmissionsController, type: :request do
+Rspec.describe 'AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceSubmissions', type: :request do
   include FixtureHelpers
   let(:notice_of_disagreement) { create(:notice_of_disagreement_v0, :board_review_evidence_submission) }
 

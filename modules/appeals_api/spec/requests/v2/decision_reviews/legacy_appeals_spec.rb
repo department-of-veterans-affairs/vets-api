@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :request do
+Rspec.describe 'AppealsApi::V2::DecisionReviews::LegacyAppeals', type: :request do
   let(:headers) { {} }
   let(:ssn) { nil }
   let(:file_number) { nil }
@@ -18,7 +18,7 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
           get_legacy_appeals
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
-          expect(json['data']).not_to be nil
+          expect(json['data']).not_to be_nil
           expect(json['data'][0]['attributes']).to include 'latestSocSsocDate'
         end
       end
@@ -99,7 +99,7 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
           get_legacy_appeals
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
-          expect(json['data']).not_to be nil
+          expect(json['data']).not_to be_nil
           expect(json['data'][0]['attributes']).to include 'latestSocSsocDate'
         end
       end
