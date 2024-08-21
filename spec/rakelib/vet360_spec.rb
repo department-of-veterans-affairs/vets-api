@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'rake'
 
 describe 'vet360 rake tasks' do
+  Flipper.disable(:va_v3_contact_information_service)
   service = if Flipper.enabled?(:va_v3_contact_information_service)
               VAProfile::V2::ContactInformation::Service
             else
