@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../../support/authentication'
 
-RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
+RSpec.describe 'AccreditedRepresentativePortal::V0::PowerOfAttorneyRequests', type: :request do
   let(:representative_user) { create(:representative_user) }
 
   before do
