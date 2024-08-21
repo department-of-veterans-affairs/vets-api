@@ -6,6 +6,15 @@ require 'debt_management_center/statement_identifier_service'
 RSpec.describe DebtManagementCenter::StatementIdentifierService, :skip_vet360,
                type: :service do
   describe '#get_mpi_data' do
+
+    let(:cassette_path) do
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        'va_profile/v2/contact_information'
+      else
+        'va_profile/contact_information'
+      end
+    end
+
     context 'given edipi statement' do
       edipi = '492031291'
       let(:verification) { build(:dslogon_user_verification) }
@@ -40,14 +49,6 @@ RSpec.describe DebtManagementCenter::StatementIdentifierService, :skip_vet360,
         let(:current_time) { Time.zone.now }
         let(:expected_error) { Breakers::OutageException }
         let(:expected_error_message) { "Outage detected on MVI beginning at #{current_time.to_i}" }
-
-        let(:cassette_path) do
-          if Flipper.enabled?(:va_v3_contact_information_service)
-            'va_profile/v2/contact_information'
-          else
-            'va_profile/contact_information'
-          end
-        end
 
         before do
           Timecop.freeze
