@@ -45,6 +45,21 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://org.services.vetsnet.vba.va.gov/'
         end
       end
+
+      context 'PersonWebServiceBean' do
+        let(:endpoint) { 'PersonWebServiceBean/PersonWebService' }
+        let(:action) { 'findPersonBySSN' }
+        let(:key) { 'PersonDTO' }
+
+        it 'response with the correct attributes for PersonWebServiceBean' do
+          result = subject.for_action(endpoint, action)
+          parsed_result = JSON.parse(result.to_json)
+
+          expect(parsed_result['service']['bean']['path']).to eq 'PersonWebServiceBean'
+          expect(parsed_result['service']['path']).to eq 'PersonWebService'
+          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://person.services.vetsnet.vba.va.gov/'
+        end
+      end
     end
   end
 
@@ -75,6 +90,18 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           expect(parsed_result['bean']['path']).to eq 'OrgWebServiceBean'
           expect(parsed_result['path']).to eq 'OrgWebService'
           expect(parsed_result['bean']['namespaces']['target']).to eq 'http://org.services.vetsnet.vba.va.gov/'
+        end
+      end
+
+      context 'PersonWebService' do
+        let(:endpoint) { 'PersonWebServiceBean/PersonWebService' }
+
+        it 'response with the correct namespace' do
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'PersonWebServiceBean'
+          expect(parsed_result['path']).to eq 'PersonWebService'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://person.services.vetsnet.vba.va.gov/'
         end
       end
     end
