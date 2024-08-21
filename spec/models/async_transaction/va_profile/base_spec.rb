@@ -27,7 +27,6 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
       create(:address_transaction)
     end
 
-
     it 'works with a va profile transaction' do
       id = va_profile_transaction.id
       expect(
@@ -65,7 +64,6 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED')
     end
-
 
     before do
       # vet360_id appears in the API request URI so we need it to match the cassette
