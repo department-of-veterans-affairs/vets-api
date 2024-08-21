@@ -105,13 +105,14 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     end
 
     describe 'log_upload_failure' do
-      let(:error) { StandardError.new }
+      let(:error_class) { 'StandardError' }
+      let(:error_message) { 'Something broke' }
 
       it 'increments a StatsD failure metric' do
         expect(StatsD).to receive(:increment).with(
           'my_upload_job_prefix.lighthouse_supplemental_document_upload_provider.failed'
         )
-        provider.log_upload_failure('my_upload_job_prefix', error)
+        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
       end
 
       it 'logs to the Rails logger' do
@@ -119,12 +120,12 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
           'LighthouseSupplementalDocumentUploadProvider upload failure',
           {
             class: 'LighthouseSupplementalDocumentUploadProvider',
-            error_class: error.class,
-            error_message: error.message
+            error_class:,
+            error_message:
           }
         )
 
-        provider.log_upload_failure('my_upload_job_prefix', error)
+        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
       end
     end
   end

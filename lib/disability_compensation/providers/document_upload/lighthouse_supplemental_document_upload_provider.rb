@@ -60,15 +60,15 @@ class LighthouseSupplementalDocumentUploadProvider
     StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_RETRIED_METRIC}")
   end
 
-  def log_upload_failure(uploading_class_prefix, error)
+  def log_upload_failure(uploading_class_prefix, error_class, error_message)
     StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
 
     Rails.logger.error(
       'LighthouseSupplementalDocumentUploadProvider upload failure',
       {
         class: 'LighthouseSupplementalDocumentUploadProvider',
-        error_class: error.class,
-        error_message: error.message
+        error_class: error_class,
+        error_message: error_message
       }
     )
   end

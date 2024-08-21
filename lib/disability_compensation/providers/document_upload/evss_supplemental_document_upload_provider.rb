@@ -59,15 +59,15 @@ class EVSSSupplementalDocumentUploadProvider
     StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_RETRIED_METRIC}")
   end
 
-  def log_upload_failure(uploading_class_prefix, error)
+  def log_upload_failure(uploading_class_prefix, error_class, error_message)
     StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
 
     Rails.logger.error(
       'EVSSSupplementalDocumentUploadProvider upload failure',
       {
         class: 'EVSSSupplementalDocumentUploadProvider',
-        error_class: error.class,
-        error_message: error.message
+        error_class:,
+        error_message:
       }
     )
   end

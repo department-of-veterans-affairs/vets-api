@@ -36,7 +36,7 @@ RSpec.describe SupplementalDocumentUploadProvider do
 
   it 'raises an error if the log_upload_failure method is not implemented' do
     expect do
-      subject.log_upload_failure('my_upload_job_prefix', StandardError.new)
+      subject.log_upload_failure('my_upload_job_prefix', 'StandardError', 'Something broke')
     end.to raise_error NotImplementedError
   end
 end
