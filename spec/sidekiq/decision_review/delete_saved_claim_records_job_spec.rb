@@ -15,6 +15,7 @@ RSpec.describe DecisionReview::DeleteSavedClaimRecordsJob, type: :job do
     context 'when feature flag is enabled' do
       before do
         Flipper.enable :decision_review_delete_saved_claims_job_enabled
+        allow(StatsD).to receive(:increment)
       end
 
       context 'when SavedClaim records have a delete_date set' do
@@ -36,6 +37,9 @@ RSpec.describe DecisionReview::DeleteSavedClaimRecordsJob, type: :job do
 
             expect(SavedClaim.pluck(:guid)).to contain_exactly(guid3, guid4)
           end
+
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.delete_saved_claim_records.count', 2).exactly(1).time
         end
       end
 
@@ -55,6 +59,9 @@ RSpec.describe DecisionReview::DeleteSavedClaimRecordsJob, type: :job do
             subject.new.perform
 
             expect(SavedClaim.pluck(:guid)).to contain_exactly(guid1, guid2, guid3)
+
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.delete_saved_claim_records.count', 0).exactly(1).time
           end
         end
       end
@@ -71,6 +78,9 @@ RSpec.describe DecisionReview::DeleteSavedClaimRecordsJob, type: :job do
                                                        error_message)
 
           expect { subject.new.perform }.not_to raise_error
+
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.delete_saved_claim_records.error').exactly(1).time
         end
       end
     end
@@ -81,6 +91,7 @@ RSpec.describe DecisionReview::DeleteSavedClaimRecordsJob, type: :job do
 
       before do
         Flipper.disable :decision_review_delete_saved_claims_job_enabled
+        allow(StatsD).to receive(:increment)
 
         SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', delete_date: delete_date1)
         SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}')
@@ -91,6 +102,9 @@ RSpec.describe DecisionReview::DeleteSavedClaimRecordsJob, type: :job do
           subject.new.perform
 
           expect(SavedClaim.pluck(:guid)).to contain_exactly(guid1, guid2)
+
+          expect(StatsD).not_to have_received(:increment)
+            .with('worker.decision_review.delete_saved_claim_records.count')
         end
       end
     end

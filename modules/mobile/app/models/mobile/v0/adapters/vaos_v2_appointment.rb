@@ -99,7 +99,7 @@ module Mobile
             healthcare_service: nil, # set to nil until we decide what the purpose of this field was meant to be
             location:,
             physical_location: appointment[:physical_location],
-            minutes_duration: minutes_duration(appointment[:minutes_duration]),
+            minutes_duration: appointment[:minutes_duration],
             phone_only: appointment[:kind] == PHONE_KIND,
             start_date_local:,
             start_date_utc:,
@@ -448,13 +448,6 @@ module Mobile
           else
             appointment.dig(:extension, :cc_location, :practice_name)
           end
-        end
-
-        def minutes_duration(minutes_duration)
-          # not in raw data, matches va.gov default for cc appointments
-          return 60 if appointment_type == APPOINTMENT_TYPES[:cc] && minutes_duration.nil?
-
-          minutes_duration
         end
 
         def va_appointment?
