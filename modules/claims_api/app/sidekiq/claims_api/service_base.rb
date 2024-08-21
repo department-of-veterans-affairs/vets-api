@@ -41,7 +41,7 @@ module ClaimsApi
       return visited[form_data_object] if visited.key?(form_data_object)
 
       # Store the original object in the visited hash
-      visited[form_data_object] = nil # Mark it temporarily
+      visited[form_data_object] = nil # been visited
 
       case form_data_object
       when Array
