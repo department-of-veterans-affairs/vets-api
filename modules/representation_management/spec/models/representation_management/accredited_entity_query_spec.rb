@@ -13,11 +13,11 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
 
   let!(:organization1) { create(:accredited_organization, :with_location, name: 'Bob Law Firm') }
   let!(:organization2) { create(:accredited_organization, :with_location, name: 'Bob Smith Firm') }
-  let!(:organization3) { create(:accredited_organization, :with_location, name: 'aaaabc') }
-  let!(:organization4) { create(:accredited_organization, :with_location, name: 'aaaab') }
-  let!(:organization5) { create(:accredited_organization, :with_location, name: 'aaaabcde') }
-  let!(:organization6) { create(:accredited_organization, :with_location, name: 'aaaa') }
-  let!(:organization7) { create(:accredited_organization, :with_location, name: 'aaaabcd') }
+  let!(:organization3) { create(:accredited_organization, :with_location, name: 'aaaabcdefgh') }
+  let!(:organization4) { create(:accredited_organization, :with_location, name: 'aaaabcdefg') }
+  let!(:organization5) { create(:accredited_organization, :with_location, name: 'aaaabcdefghij') }
+  let!(:organization6) { create(:accredited_organization, :with_location, name: 'aaaabcdef') }
+  let!(:organization7) { create(:accredited_organization, :with_location, name: 'aaaabcdefghi') }
 
   describe '#results' do
     it 'returns nothing for a blank query string' do
@@ -49,23 +49,23 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
       results = described_class.new('aaaa').results
       organization_results = results.select { |result| result.is_a?(AccreditedOrganization) }
 
-      expect(organization_results.map(&:name)).to eq(%w[aaaa aaaab aaaabc aaaabcd aaaabcde])
+      expect(organization_results.map(&:name)).to eq(%w[aaaabcdef aaaabcdefg aaaabcdefgh aaaabcdefghi aaaabcdefghij])
     end
 
     it 'sorts individuals and organizations together by levenshtein distance' do
       results = described_class.new('aaaa').results
 
       expect(results.size).to eq(10)
-      expect(results.map(&:id)).to eq([organization6.id,
-                                       individual6.id,
-                                       organization4.id,
+      expect(results.map(&:id)).to eq([individual6.id,
                                        individual4.id,
                                        individual3.id,
-                                       organization3.id,
                                        individual7.id,
+                                       individual5.id,
+                                       organization6.id,
+                                       organization4.id,
+                                       organization3.id,
                                        organization7.id,
-                                       organization5.id,
-                                       individual5.id])
+                                       organization5.id])
     end
 
     it 'can return organizations as the first result' do
@@ -83,24 +83,24 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
       expect(results.size).to eq(10)
     end
 
-    it "returns 8 results with a query of 'aaaab' and the standard threshold" do
+    it "returns 9 results with a query of 'aaaab' and the standard threshold" do
       results = described_class.new('aaaab').results
 
-      expect(results.size).to eq(8)
+      expect(results.size).to eq(9)
     end
 
-    it "returns more than 8 results with a query of 'aaaab' and a threshold of 0.3" do
+    it "returns more than 9 results with a query of 'aaaab' and a threshold of 0.3" do
       stub_const('RepresentationManagement::AccreditedEntityQuery::WORD_SIMILARITY_THRESHOLD', 0.3)
       results = described_class.new('aaaab').results
 
-      expect(results.size).to be > 8
+      expect(results.size).to be > 9
     end
 
-    it "returns less than 8 results with a query of 'aaaab' and a threshold of 0.9" do
+    it "returns less than 9 results with a query of 'aaaab' and a threshold of 0.9" do
       stub_const('RepresentationManagement::AccreditedEntityQuery::WORD_SIMILARITY_THRESHOLD', 0.9)
       results = described_class.new('aaaab').results
 
-      expect(results.size).to be < 8
+      expect(results.size).to be < 9
     end
   end
 end
