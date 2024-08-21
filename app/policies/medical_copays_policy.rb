@@ -7,7 +7,7 @@ MedicalCopaysPolicy = Struct.new(:user, :medical_copays) do
   #
   # @return [Boolean]
   #
-  def access? # do we need this? check for edipi and icn?
+  def access?
     user.edipi.present? && user.icn.present?
   end
 
