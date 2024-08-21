@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ClaimsApi
   module V2
     module ClaimsRequests
