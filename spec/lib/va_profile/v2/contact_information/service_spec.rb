@@ -11,7 +11,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   before do
     allow(user).to receive_messages(vet360_id:, icn: '1234')
-    Flipper.enable(:contact_info_change_email)
     Flipper.enable(:va_v3_contact_information_service)
   end
 

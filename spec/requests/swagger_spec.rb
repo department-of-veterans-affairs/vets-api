@@ -1293,7 +1293,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       context 'when calling EVSS' do
         before do
           # TODO: remove Flipper feature toggle when lighthouse provider is implemented
-          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, anything)
+          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, instance_of(User))
                                               .and_return(false)
         end
 
@@ -1380,6 +1380,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:mhv_user) { create(:user, :loa3) }
 
       before do
+        allow(Flipper).to receive(:enabled?).and_call_original
         allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
                                             .and_return(false)
       end
@@ -2740,11 +2741,11 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
       context 'ch33 bank accounts methods' do
         before do
+          allow(Flipper).to receive(:enabled?).and_call_original
           allow_any_instance_of(User).to receive(:common_name).and_return('abraham.lincoln@vets.gov')
-
           allow(Flipper).to receive(:enabled?).with(
             :profile_show_direct_deposit_single_form_edu_downtime,
-            instance_of(User)
+            anything
           ).and_return(false)
         end
 
@@ -2788,7 +2789,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
         it 'supports the update ch33 bank account api' do
           expect(subject).to validate(:put, '/v0/profile/ch33_bank_accounts', 401)
-
           VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
             VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
               VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
@@ -2967,8 +2967,12 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
       it 'supports posting to initialize a vet360_id' do
         expect(subject).to validate(:post, '/v0/profile/initialize_vet360_id', 401)
-
-        VCR.use_cassette('va_profile/person/init_vet360_id_success') do
+        person_cassette_path = if Flipper.enabled?(:va_v3_contact_information_service)
+                                 'va_profile/v2/person/init_vet360_id_success'
+                               else
+                                 'va_profile/person/init_vet360_id_success'
+                               end
+        VCR.use_cassette(person_cassette_path.to_s) do
           expect(subject).to validate(
             :post,
             '/v0/profile/initialize_vet360_id',

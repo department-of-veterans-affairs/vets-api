@@ -22,7 +22,6 @@ describe VAProfileRedis::ContactInformation do
   end
   let(:person_response) do
     raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
-
     contact_person_response.from(raw_response)
   end
   let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
@@ -52,10 +51,9 @@ describe VAProfileRedis::ContactInformation do
 
       before do
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-
-        service = double
-        allow(service).to receive(:new).with(user).and_return(service)
-        expect(service).to receive(:get_person).public_send(
+        double_service = double
+        allow(service).to receive(:new).with(user).and_return(double_service)
+        expect(double_service).to receive(:get_person).public_send(
           get_person_calls
         ).and_return(
           contact_person_response.new(status, person: nil)
@@ -185,7 +183,6 @@ describe VAProfileRedis::ContactInformation do
       describe '#fax_number' do
         it 'returns the users FAX object', :aggregate_failures do
           phone = phone_for VAProfile::Models::Telephone::FAX
-
           expect(contact_info.fax_number).to eq phone
           expect(contact_info.fax_number.class).to eq VAProfile::Models::Telephone
         end

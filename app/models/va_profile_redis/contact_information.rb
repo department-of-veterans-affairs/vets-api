@@ -142,7 +142,11 @@ module VAProfileRedis
     # @return [Integer <> String] the status of the last VAProfile::ContactInformation::Service response
     #
     def status
-      return VAProfile::ContactInformation::PersonResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        return VAProfile::V2::ContactInformation::PersonResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
+      else
+        return VAProfile::ContactInformation::PersonResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
+      end
 
       response.status
     end
