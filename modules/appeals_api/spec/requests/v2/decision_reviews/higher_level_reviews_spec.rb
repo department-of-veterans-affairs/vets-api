@@ -26,16 +26,16 @@ describe 'AppealsApi::V2::DecisionReviews::HigherLevelReviews', type: :request d
 
     context 'with minimum required headers' do
       it 'returns all HLRs for the given Veteran' do
-        uuid_1 = create(:higher_level_review_v2, veteran_icn: '1013062086V794840', form_data: {}).id
-        uuid_2 = create(:higher_level_review_v2, veteran_icn: '1013062086V794840').id
+        uuid1 = create(:higher_level_review_v2, veteran_icn: '1013062086V794840', form_data: {}).id
+        uuid2 = create(:higher_level_review_v2, veteran_icn: '1013062086V794840').id
         create(:higher_level_review_v2, veteran_icn: 'something_else')
 
         get(path, headers: { 'X-VA-ICN' => '1013062086V794840' })
 
         expect(parsed['data'].length).to eq(2)
         # Returns HLRs in desc creation date, so expect 2 before 1
-        expect(parsed['data'][0]['id']).to eq(uuid_2)
-        expect(parsed['data'][1]['id']).to eq(uuid_1)
+        expect(parsed['data'][0]['id']).to eq(uuid2)
+        expect(parsed['data'][1]['id']).to eq(uuid1)
         # Strips out form_data
         expect(parsed['data'][1]['attributes'].key?('form_data')).to be false
       end
