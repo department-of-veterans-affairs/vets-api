@@ -786,6 +786,20 @@ RSpec.describe 'Disability Claims ', type: :request do
           end
         end
 
+        it 'removes the dash in homelessness primary phone' do
+          mock_acg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
+              VCR.use_cassette('claims_api/brd/countries') do
+                par = json_data
+                par['data']['attributes']['veteran']['homelessness']['pointOfContact']['primaryPhone']['phoneNumber'] =
+                  '555-5555'
+                post path, params: par.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+
         it 'requires homelessness currentlyHomeless subfields' do
           mock_acg(scopes) do |auth_header|
             par = json_data

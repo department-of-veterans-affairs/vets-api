@@ -40,7 +40,7 @@ class Form526StatusPollingJob
     @submissions ||= if paranoid
                        Form526Submission.paranoid_success_type
                      else
-                       Form526Submission.pending_backup_submissions
+                       Form526Submission.pending_backup
                      end
   end
 

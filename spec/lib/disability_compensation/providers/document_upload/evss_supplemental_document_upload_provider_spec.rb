@@ -72,4 +72,60 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
       end
     end
   end
+
+  describe 'logging methods' do
+    # We don't want to generate an actual submission for these tests,
+    # since submissions have callbacks that log to StatsD and we need to test
+    # only the metrics in this class
+    let(:submission) { instance_double(Form526Submission) }
+
+    let(:provider) do
+      EVSSSupplementalDocumentUploadProvider.new(
+        submission,
+        file_body
+      )
+    end
+
+    describe 'log_upload_success' do
+      it 'increments a StatsD success metric' do
+        expect(StatsD).to receive(:increment).with(
+          'my_upload_job_prefix.evss_supplemental_document_upload_provider.success'
+        )
+        provider.log_upload_success('my_upload_job_prefix')
+      end
+    end
+
+    describe 'log_upload_error_retry' do
+      it 'increments a StatsD retry metric and re-raises the error' do
+        expect(StatsD).to receive(:increment).with(
+          'my_upload_job_prefix.evss_supplemental_document_upload_provider.retried'
+        )
+        provider.log_upload_error_retry('my_upload_job_prefix')
+      end
+    end
+
+    describe 'log_upload_failure' do
+      let(:error) { StandardError.new }
+
+      it 'increments a StatsD failure metric' do
+        expect(StatsD).to receive(:increment).with(
+          'my_upload_job_prefix.evss_supplemental_document_upload_provider.failed'
+        )
+        provider.log_upload_failure('my_upload_job_prefix', error)
+      end
+
+      it 'logs to the Rails logger' do
+        expect(Rails.logger).to receive(:error).with(
+          'EVSSSupplementalDocumentUploadProvider upload failure',
+          {
+            class: 'EVSSSupplementalDocumentUploadProvider',
+            error_class: error.class,
+            error_message: error.message
+          }
+        )
+
+        provider.log_upload_failure('my_upload_job_prefix', error)
+      end
+    end
+  end
 end
