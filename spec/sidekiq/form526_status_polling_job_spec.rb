@@ -109,7 +109,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
     context 'polling on pending submissions' do
       describe 'submission to the bulk status report endpoint' do
         it 'submits only pending form submissions' do
-          pending_claim_ids = Form526Submission.pending_backup_submissions.pluck(:backup_submitted_claim_id)
+          pending_claim_ids = Form526Submission.pending_backup.pluck(:backup_submitted_claim_id)
           response = double
           allow(response).to receive(:body).and_return({ 'data' => [] })
 
@@ -203,7 +203,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
         end
 
         it 'updates local state to reflect the returned statuses' do
-          pending_claim_ids = Form526Submission.pending_backup_submissions
+          pending_claim_ids = Form526Submission.pending_backup
                                                .pluck(:backup_submitted_claim_id)
           response = double
 
