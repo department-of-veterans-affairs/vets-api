@@ -52,43 +52,11 @@ RSpec.describe ClaimsApi::ServiceBase do
     end
   end
 
-  describe '#deep_dup_and_freeze_form_data' do
+  describe '#preserve_original_form_data' do
     it 'preserves the form data as expected' do
-      preserved_form_data = @service.send(:deep_dup_and_freeze_form_data, claim.form_data)
+      preserved_form_data = @service.send(:preserve_original_form_data, claim.form_data)
       claim.reload
       expect(claim.form_data).to eq(preserved_form_data)
-    end
-
-    # We should never see these kinds of things, but
-    # given the method is recursive but I think it is worth guarding against
-    it 'handles any odd values sent to it like {}' do
-      expect { @service.send(:deep_dup_and_freeze_form_data, {}) }.not_to raise_error
-    end
-
-    it 'handles any odd values sent to it like {data: {}}' do
-      expect { @service.send(:deep_dup_and_freeze_form_data, { data: {} }) }.not_to raise_error
-    end
-
-    it 'handles any odd values sent to it like [[]]' do
-      expect { @service.send(:deep_dup_and_freeze_form_data, [[]]) }.not_to raise_error
-    end
-
-    it 'handles any odd values sent to it like ""' do
-      expect { @service.send(:deep_dup_and_freeze_form_data, '') }.not_to raise_error
-    end
-
-    it 'handles any odd values sent to it like a circular nested array' do
-      nested_circular_array = []
-      nested_circular_array << [nested_circular_array]
-
-      expect { @service.send(:deep_dup_and_freeze_form_data, nested_circular_array) }.not_to raise_error
-    end
-
-    it 'handles any odd values sent to it like circular hash' do
-      circular_hash = {}
-      circular_hash[:self] = circular_hash
-
-      expect { @service.send(:deep_dup_and_freeze_form_data, circular_hash) }.not_to raise_error
     end
   end
 
