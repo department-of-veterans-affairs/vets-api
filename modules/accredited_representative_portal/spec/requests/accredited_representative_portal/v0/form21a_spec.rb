@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../../support/authentication'
 
-RSpec.describe AccreditedRepresentativePortal::V0::Form21aController, type: :request do
+RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
   let(:valid_json) { { field: 'value' }.to_json }
   let(:invalid_json) { 'invalid json' }
   let(:representative_user) { create(:representative_user) }
