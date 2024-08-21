@@ -3,6 +3,22 @@
 require 'rails_helper'
 
 RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
+  let(:service) do
+    if Flipper.enabled?(:va_v3_contact_information_service)
+      VAProfile::V2::ContactInformation::Service.new user
+    else
+      VAProfile::ContactInformation::Service.new user
+    end
+  end
+
+  let(:cassette_path) do
+    if Flipper.enabled?(:va_v3_contact_information_service)
+      'va_profile/v2/contact_information'
+    else
+      'va_profile/contact_information'
+    end
+  end
+
   describe '.find_transaction!' do
     let(:va_profile_transaction) do
       create(:va_profile_address_transaction)
@@ -10,6 +26,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     let(:vet360_transaction) do
       create(:address_transaction)
     end
+
 
     it 'works with a va profile transaction' do
       id = va_profile_transaction.id
@@ -49,20 +66,6 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
              transaction_status: 'RECEIVED')
     end
 
-    let(:service) do
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        VAProfile::V2::ContactInformation::Service.new user
-      else
-        VAProfile::ContactInformation::Service.new user
-      end
-    end
-    let(:cassette_path) do
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        'va_profile/v2/contact_information'
-      else
-        'va_profile/contact_information'
-      end
-    end
 
     before do
       # vet360_id appears in the API request URI so we need it to match the cassette
