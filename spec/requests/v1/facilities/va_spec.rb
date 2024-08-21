@@ -13,7 +13,7 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
     it { expect(response).to be_successful }
 
     it "is expected to contain ids: #{ids}" do
-      expect(parsed_body['data'].collect { |x| x['id'] }).to match(ids)
+      expect(parsed_body['data'].pluck('id')).to match(ids)
     end
 
     unless mobile.nil?
@@ -29,8 +29,8 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
       expect(parsed_body[:meta][:pagination]).to include({
                                                            current_page:,
                                                            prev_page:,
-                                                           next_page: be_kind_of(Integer).or(be_nil),
-                                                           total_pages: be_kind_of(Integer)
+                                                           next_page: be_a(Integer).or(be_nil),
+                                                           total_pages: be_a(Integer)
                                                          })
     end
 
@@ -64,7 +64,7 @@ vcr_options = {
   record: :new_episodes
 }
 
-RSpec.describe 'V1::Facilities::Va', team: :facilities, vcr: vcr_options do
+RSpec.describe 'V1::Facilities::Va', team: :facilities, type: :request, vcr: vcr_options do
   include SchemaMatchers
 
   subject(:parsed_body) { JSON.parse(response.body).with_indifferent_access }

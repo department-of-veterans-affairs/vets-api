@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V1::SupplementalClaims::ContestableIssuesController do
+RSpec.describe 'V1::SupplementalClaims::ContestableIssues', type: :request do
   let(:user) { build(:user, :loa3) }
   let(:success_log_args) do
     {

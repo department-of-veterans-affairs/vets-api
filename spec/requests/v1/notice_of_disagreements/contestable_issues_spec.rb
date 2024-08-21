@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V1::NoticeOfDisagreements::ContestableIssuesController do
+RSpec.describe 'V1::NoticeOfDisagreements::ContestableIssues', type: :request do
   let(:user) { build(:user, :loa3) }
 
   before { sign_in_as(user) }
