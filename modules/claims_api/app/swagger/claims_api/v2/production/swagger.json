@@ -1911,7 +1911,7 @@
                                   "name": {
                                     "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                     "type": "string",
-                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                     "example": "PTSD (post traumatic stress disorder)",
                                     "maxLength": 255
                                   },
@@ -1999,7 +1999,7 @@
                                         "name": {
                                           "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                           "type": "string",
-                                          "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                          "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                           "example": "PTSD (post traumatic stress disorder)",
                                           "maxLength": 255
                                         },
@@ -3286,7 +3286,7 @@
                                 "name": {
                                   "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                   "type": "string",
-                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                   "example": "PTSD (post traumatic stress disorder)",
                                   "maxLength": 255
                                 },
@@ -3374,7 +3374,7 @@
                                       "name": {
                                         "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                         "type": "string",
-                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                         "example": "PTSD (post traumatic stress disorder)",
                                         "maxLength": 255
                                       },
@@ -4391,7 +4391,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "27535935-1c25-4043-bc74-06cec934f051",
+                        "id": "15080f63-cba1-4a6a-8613-de0d00ddda1f",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4576,7 +4576,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-08-15"
+                              "anticipatedSeparationDate": "2024-08-18"
                             },
                             "confinements": [
                               {
@@ -4622,7 +4622,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "d6acecf1-d38b-472b-94df-d40642c6c8b8",
+                        "id": "6b300dbe-b50f-4a5d-930e-a8d2a9bf9e5e",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5436,7 +5436,7 @@
                                   "name": {
                                     "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                     "type": "string",
-                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                     "example": "PTSD (post traumatic stress disorder)",
                                     "maxLength": 255
                                   },
@@ -5524,7 +5524,7 @@
                                         "name": {
                                           "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                           "type": "string",
-                                          "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                          "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                           "example": "PTSD (post traumatic stress disorder)",
                                           "maxLength": 255
                                         },
@@ -6811,7 +6811,7 @@
                                 "name": {
                                   "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                   "type": "string",
-                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                   "example": "PTSD (post traumatic stress disorder)",
                                   "maxLength": 255
                                 },
@@ -6899,7 +6899,7 @@
                                       "name": {
                                         "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                         "type": "string",
-                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                         "example": "PTSD (post traumatic stress disorder)",
                                         "maxLength": 255
                                       },
@@ -8963,7 +8963,7 @@
                                 "name": {
                                   "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                   "type": "string",
-                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                   "example": "PTSD (post traumatic stress disorder)",
                                   "maxLength": 255
                                 },
@@ -9051,7 +9051,7 @@
                                       "name": {
                                         "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                         "type": "string",
-                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                         "example": "PTSD (post traumatic stress disorder)",
                                         "maxLength": 255
                                       },
@@ -9813,7 +9813,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ab831e1e-ed68-4952-8c0b-74a702300923",
+                    "id": "b0f8da77-cf6f-4ca4-ab4d-172ded7e59c9",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12754,8 +12754,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-08-13",
-                      "expirationDate": "2025-08-13",
+                      "creationDate": "2024-08-16",
+                      "expirationDate": "2025-08-16",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13651,7 +13651,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "86010d76-2b10-4ccf-a453-5db6a517bebe",
+                    "id": "eb376617-11cf-409a-b22a-969e0b102d9c",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14344,7 +14344,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7feb411c-38a8-4b0a-88d5-5d3f7cd09665",
+                    "id": "bfdb7fe4-5c91-4afb-a7b2-15fb4e15f073",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16295,10 +16295,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e3a5c67c-be41-4d4d-b6d6-e82980c48cc8",
+                    "id": "3f75c799-07ba-4b21-9819-9c11b562efd6",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-08-13",
+                      "dateRequestAccepted": "2024-08-16",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

@@ -8,10 +8,10 @@ module ClaimsApi
     def perform
       return unless allow_processing?
 
-      @search_to = Time.zone.now
-      @search_from = 1.hour.ago
-      @reporting_to = Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
-      @reporting_from = 1.hour.ago.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
+      @search_to = 30.minutes.ago
+      @search_from = @search_to - 1.hour
+      @reporting_to = @search_to.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
+      @reporting_from = @search_from.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
       @errored_claims = ClaimsApi::AutoEstablishedClaim.where(created_at: @search_from..@search_to,
                                                               status: 'errored').pluck(:id).uniq
       @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @search_from..@search_to,
