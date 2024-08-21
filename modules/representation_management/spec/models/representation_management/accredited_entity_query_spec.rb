@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
   let!(:individual1) { create(:accredited_individual, :with_location, full_name: 'Bob Law') }
   let!(:individual2) { create(:accredited_individual, :with_location, full_name: 'Bob Smith') }
-  let!(:individual3) { create(:accredited_individual, :with_location, full_name: 'aaaabc') }
-  let!(:individual4) { create(:accredited_individual, :with_location, full_name: 'aaaab') }
+  let!(:individual3) { create(:accredited_individual, :with_location, :attorney, full_name: 'aaaabc') }
+  let!(:individual4) { create(:accredited_individual, :with_location, :claims_agent, full_name: 'aaaab') }
   let!(:individual5) { create(:accredited_individual, :with_location, full_name: 'aaaabcde') }
   let!(:individual6) { create(:accredited_individual, :with_location, full_name: 'aaaa') }
   let!(:individual7) { create(:accredited_individual, :with_location, full_name: 'aaaabcd') }
@@ -43,6 +43,13 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
       individual_results = results.select { |result| result.is_a?(AccreditedIndividual) }
 
       expect(individual_results.map(&:full_name)).to eq(%w[aaaa aaaab aaaabc aaaabcd aaaabcde])
+    end
+
+    it 'returns all three types of accredited individuals' do
+      results = described_class.new('aaaa').results
+      individual_results = results.select { |result| result.is_a?(AccreditedIndividual) }
+      individual_types = individual_results.map(&:individual_type).uniq
+      expect(individual_types).to match_array(AccreditedIndividual.individual_types.keys.map(&:to_s))
     end
 
     it 'sorts organizations by levenshtein distance' do
