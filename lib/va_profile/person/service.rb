@@ -17,11 +17,8 @@ module VAProfile
       include ERB::Util
 
       STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.person".freeze
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        configuration VAProfile::V2::ContactInformation::Configuration
-      else
-        configuration VAProfile::ContactInformation::Configuration
-      end
+      configuration VAProfile::ContactInformation::Configuration
+
       # Initializes a vet360_id for a user that does not have one. Can be used when a current user
       # is present, or through a rake task when no user is present (through passing in their ICN).
       # This is an asynchronous process for VAProfile, so it returns VAProfile transaction information.
@@ -32,11 +29,7 @@ module VAProfile
       def init_vet360_id(icn = nil)
         with_monitoring do
           raw_response = perform(:post, encode_url!(icn), empty_body)
-          if Flipper.enabled?(:va_v3_contact_information_service, @user)
-            VAProfile::V2::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
-          else
-            VAProfile::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
-          end
+          VAProfile::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
         end
       rescue => e
         handle_error(e)

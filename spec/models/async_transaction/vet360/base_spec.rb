@@ -96,6 +96,22 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
   end
 
   describe '.start' do
+    let(:service) do
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        VAProfile::V2::ContactInformation::Service.new user
+      else
+        VAProfile::ContactInformation::Service.new user
+      end
+    end
+
+    let(:cassette_path) do
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        'va_profile/v2/contact_information'
+      else
+        'va_profile/contact_information'
+      end
+    end
+
     before do
       allow(user).to receive_messages(vet360_id: '1', icn: '1234')
     end
@@ -106,13 +122,6 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
 
     it 'returns an instance with the user uuid', :aggregate_failures do
       VCR.use_cassette("#{cassette_path}/post_address_success", VCR::MATCH_EVERYTHING) do
-        let(:service) do
-          if Flipper.enabled?(:va_v3_contact_information_service)
-            VAProfile::V2::ContactInformation::Service.new user
-          else
-            VAProfile::ContactInformation::Service.new user
-          end
-        end
         address.address_line1 = '1493 Martin Luther King Rd'
         address.city = 'Fulton'
         address.state_code = 'MS'
@@ -146,6 +155,22 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
              transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
              user_uuid: user.uuid,
              status: AsyncTransaction::Vet360::Base::COMPLETED)
+    end
+
+    let(:service) do
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        VAProfile::V2::ContactInformation::Service.new user
+      else
+        VAProfile::ContactInformation::Service.new user
+      end
+    end
+
+    let(:cassette_path) do
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        'va_profile/v2/contact_information'
+      else
+        'va_profile/contact_information'
+      end
     end
 
     before do
