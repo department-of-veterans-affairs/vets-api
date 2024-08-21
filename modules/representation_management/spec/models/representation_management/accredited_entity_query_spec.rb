@@ -3,17 +3,28 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
+  let!(:individual1) { create(:accredited_individual, :with_location, full_name: 'Bob Law') }
+  let!(:individual2) { create(:accredited_individual, :with_location, full_name: 'Bob Smith') }
+  let!(:individual3) { create(:accredited_individual, :with_location, full_name: 'aaaabc') }
+  let!(:individual4) { create(:accredited_individual, :with_location, full_name: 'aaaab') }
+  let!(:individual5) { create(:accredited_individual, :with_location, full_name: 'aaaabcde') }
+  let!(:individual6) { create(:accredited_individual, :with_location, full_name: 'aaaa') }
+  let!(:individual7) { create(:accredited_individual, :with_location, full_name: 'aaaabcd') }
+
+  let!(:organization1) { create(:accredited_organization, :with_location, name: 'Bob Law Firm') }
+  let!(:organization2) { create(:accredited_organization, :with_location, name: 'Bob Smith Firm') }
+  let!(:organization3) { create(:accredited_organization, :with_location, name: 'aaaabc') }
+  let!(:organization4) { create(:accredited_organization, :with_location, name: 'aaaab') }
+  let!(:organization5) { create(:accredited_organization, :with_location, name: 'aaaabcde') }
+  let!(:organization6) { create(:accredited_organization, :with_location, name: 'aaaa') }
+  let!(:organization7) { create(:accredited_organization, :with_location, name: 'aaaabcd') }
+
   describe '#results' do
     it 'returns nothing for a blank query string' do
       expect(described_class.new('').results).to be_empty
     end
 
     it 'returns individuals and organizations in the sorted order' do
-      create(:accredited_individual, :with_location, full_name: 'Bob Law')
-      create(:accredited_organization, :with_location, name: 'Bob Law Firm')
-      create(:accredited_individual, :with_location, full_name: 'Bob Smith')
-      create(:accredited_organization, :with_location, name: 'Bob Smith Firm')
-
       results = described_class.new('Bob').results
 
       expect(results.size).to eq(4)
@@ -28,49 +39,38 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
     end
 
     it 'sorts individuals by levenshtein distance' do
-      create(:accredited_individual, :with_location, full_name: 'aaaabc')
-      create(:accredited_individual, :with_location, full_name: 'aaaab')
-      create(:accredited_individual, :with_location, full_name: 'aaaabcde')
-      create(:accredited_individual, :with_location, full_name: 'aaaa')
-      create(:accredited_individual, :with_location, full_name: 'aaaabcd')
-
       results = described_class.new('aaaa').results
+      individual_results = results.select { |result| result.is_a?(AccreditedIndividual) }
 
-      expect(results.map(&:full_name)).to eq(%w[aaaa aaaab aaaabc aaaabcd aaaabcde])
+      expect(individual_results.map(&:full_name)).to eq(%w[aaaa aaaab aaaabc aaaabcd aaaabcde])
     end
 
     it 'sorts organizations by levenshtein distance' do
-      create(:accredited_organization, :with_location, name: 'aaaabc')
-      create(:accredited_organization, :with_location, name: 'aaaab')
-      create(:accredited_organization, :with_location, name: 'aaaabcde')
-      create(:accredited_organization, :with_location, name: 'aaaa')
-      create(:accredited_organization, :with_location, name: 'aaaabcd')
-
       results = described_class.new('aaaa').results
+      organization_results = results.select { |result| result.is_a?(AccreditedOrganization) }
 
-      expect(results.map(&:name)).to eq(%w[aaaa aaaab aaaabc aaaabcd aaaabcde])
+      expect(organization_results.map(&:name)).to eq(%w[aaaa aaaab aaaabc aaaabcd aaaabcde])
     end
 
     it 'sorts individuals and organizations together by levenshtein distance' do
-      create(:accredited_individual, :with_location, full_name: 'aaaabc')
-      create(:accredited_individual, :with_location, full_name: 'aaaab')
-      create(:accredited_organization, :with_location, name: 'aaaabcde')
-      create(:accredited_organization, :with_location, name: 'aaaa')
-      create(:accredited_individual, :with_location, full_name: 'aaaabcd')
-
       results = described_class.new('aaaa').results
 
-      expect(results.map { |r| r.is_a?(AccreditedIndividual) ? r.full_name : r.name })
-        .to eq(%w[aaaa aaaab aaaabc aaaabcd aaaabcde])
+      expect(results.size).to eq(10)
+      expect(results.map(&:id)).to eq([organization6.id,
+                                       individual6.id,
+                                       organization4.id,
+                                       individual4.id,
+                                       individual3.id,
+                                       organization3.id,
+                                       individual7.id,
+                                       organization7.id,
+                                       organization5.id,
+                                       individual5.id])
     end
 
     it 'can return organizations as the first result' do
-      create(:accredited_individual, :with_location, full_name: 'Bob Billy Bill Bo')
-      create(:accredited_organization, :with_location, name: 'Bob Law Firm')
+      results = described_class.new('Bob Law Firm').results
 
-      results = described_class.new('Bob').results
-
-      expect(results.size).to eq(2)
       expect(results.first).to be_a(AccreditedOrganization)
       expect(results.first.name).to eq('Bob Law Firm')
     end
@@ -81,6 +81,26 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
       results = described_class.new('Bob').results
 
       expect(results.size).to eq(10)
+    end
+
+    it "returns 8 results with a query of 'aaaab' and the standard threshold" do
+      results = described_class.new('aaaab').results
+
+      expect(results.size).to eq(8)
+    end
+
+    it "returns more than 8 results with a query of 'aaaab' and a threshold of 0.3" do
+      stub_const('RepresentationManagement::AccreditedEntityQuery::WORD_SIMILARITY_THRESHOLD', 0.3)
+      results = described_class.new('aaaab').results
+
+      expect(results.size).to be > 8
+    end
+
+    it "returns less than 8 results with a query of 'aaaab' and a threshold of 0.9" do
+      stub_const('RepresentationManagement::AccreditedEntityQuery::WORD_SIMILARITY_THRESHOLD', 0.9)
+      results = described_class.new('aaaab').results
+
+      expect(results.size).to be < 8
     end
   end
 end
