@@ -103,6 +103,9 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
         VAProfile::ContactInformation::Service.new user
       end
     end
+    let(:user) { build(:user, :loa3) }
+    let!(:user_verification) { create(:user_verification, idme_uuid: user.idme_uuid) }
+    let(:address) { build(:va_profile_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
 
     let(:cassette_path) do
       if Flipper.enabled?(:va_v3_contact_information_service)
@@ -115,10 +118,6 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     before do
       allow(user).to receive_messages(vet360_id: '1', icn: '1234')
     end
-
-    let(:user) { build(:user, :loa3) }
-    let!(:user_verification) { create(:user_verification, idme_uuid: user.idme_uuid) }
-    let(:address) { build(:va_profile_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
 
     it 'returns an instance with the user uuid', :aggregate_failures do
       VCR.use_cassette("#{cassette_path}/post_address_success", VCR::MATCH_EVERYTHING) do
