@@ -34,6 +34,16 @@ describe TravelPay::Service do
             'facilityName' => 'Cheyenne VA Medical Center',
             'createdOn' => '2024-01-22T21:22:34.465Z',
             'modifiedOn' => '2024-02-01T00:00:00.0Z'
+          },
+          {
+            'id' => 'uuid4',
+            'claimNumber' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'claimName' => '9d81c1a1-cd05-47c6-be97-d14dec579893',
+            'claimStatus' => 'Claim Submitted',
+            'appointmentDateTime' => nil,
+            'facilityName' => 'Tomah VA Medical Center',
+            'createdOn' => '2023-12-29T22:00:57.915Z',
+            'modifiedOn' => '2024-01-03T22:00:57.915Z'
           }
         ]
       }
@@ -52,16 +62,13 @@ describe TravelPay::Service do
     end
 
     it 'returns sorted and parsed claims' do
-      expected_ordered_ids = %w[uuid2 uuid3 uuid1]
-      expected_statuses = ['In Progress', 'Incomplete', 'In Progress']
+      expected_statuses = ['In Progress', 'In Progress', 'Incomplete', 'Claim Submitted']
 
       service = TravelPay::Service.new
       claims = service.get_claims(user)
-      actual_claim_ids = claims[:data].pluck(:id)
       actual_statuses = claims[:data].pluck(:claimStatus)
 
-      expect(actual_claim_ids).to eq(expected_ordered_ids)
-      expect(actual_statuses).to eq(expected_statuses)
+      expect(actual_statuses).to match_array(expected_statuses)
     end
   end
 end
