@@ -39,12 +39,12 @@ module Vye
     REPORT_TEMPLATE =
       YAML.load(<<-END_OF_TEMPLATE).gsub(/\n/, '')
       |-
-        %7<stub_nm>s
-        %9<ssn>s
-        %8<transact_date>s
-        %3<rpo_code>s
-        %1<indicator>s
-        %1<source_ind>s
+        %-7<stub_nm>s
+        %-9<ssn>s
+        %-8<transact_date>s
+        %-3<rpo_code>s
+        %-1<indicator>s
+        %-1<source_ind>s
       END_OF_TEMPLATE
 
     private_constant :REPORT_TEMPLATE
