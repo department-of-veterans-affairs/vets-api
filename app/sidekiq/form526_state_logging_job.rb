@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # Log information about Form526Submission state to populate an admin facing Datadog dashboard
+# [wipn8923] run this to hydrate logs
 class Form526StateLoggingJob
   include Sidekiq::Job
   sidekiq_options retry: false

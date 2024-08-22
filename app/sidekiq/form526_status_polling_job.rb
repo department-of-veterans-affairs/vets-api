@@ -2,6 +2,7 @@
 
 require 'benefits_intake_service/service'
 
+# [wipn8923] make sure this is working for paranoid and non paranoid
 class Form526StatusPollingJob
   include Sidekiq::Job
   sidekiq_options retry: false
@@ -75,9 +76,10 @@ class Form526StatusPollingJob
       form_submission.update!(backup_submitted_claim_status: nil)
     else
       Rails.logger.info(
-        'Unknown or incomplete status returned from Benefits Intake API for 526 submission',
+        'Unused status returned from Benefits Intake API for 526 submission',
         status:,
-        submission_id: form_submission.id
+        submission_id: form_submission.id,
+        paranoid: paranoid
       )
     end
   end
