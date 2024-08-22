@@ -6,6 +6,8 @@ module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
+        include ClaimsApi::V2::ClaimsRequests::SupportingDocuments
+
         def index
           bgs_claims = find_bgs_claims!
 
@@ -36,10 +38,6 @@ module ClaimsApi
         end
 
         private
-
-        def evss_docs_service
-          EVSS::DocumentsService.new(auth_headers)
-        end
 
         def bgs_phase_status_mapper
           ClaimsApi::BGSClaimStatusMapper.new
@@ -592,14 +590,6 @@ module ClaimsApi
               phase_type: bgs_phase_status_mapper.get_phase_type_from_dictionary(bgs_claim[:phase_type].downcase)
             }
           end
-        end
-
-        def benefits_documents_enabled?
-          Flipper.enabled? :claims_status_v2_lh_benefits_docs_service_enabled
-        end
-
-        def use_birls_id_file_number?
-          Flipper.enabled? :lighthouse_claims_api_use_birls_id
         end
       end
     end
