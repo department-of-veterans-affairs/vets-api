@@ -2,7 +2,6 @@
 
 module RepresentationManagement
   class AccreditedEntityQuery
-
     MAXIMUM_RESULT_COUNT = 10
     WORD_SIMILARITY_THRESHOLD = 0.7
 
