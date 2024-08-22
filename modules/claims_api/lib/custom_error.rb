@@ -53,24 +53,19 @@ module ClaimsApi
     def get_error_info
       all_errors = []
 
-      @original_body&.[](:messages)&.each do |err|
+      @original_body&.fetch(:messages)&.each do |err|
         symbolized_error = err.deep_symbolize_keys
-        all_errors << collect_errors(symbolized_error)
+        all_errors << munge_error(symbolized_error) unless symbolized_error[:severity] == 'WARN'
       end
       all_errors
     end
 
-    def collect_errors(symbolized_error)
-      details = get_details(symbolized_error)
-      severity = symbolized_error[:severity] || nil
-      detail = details || nil
-      text = symbolized_error[:text] || nil
-      key = symbolized_error[:key] || nil
+    def munge_error(symbolized_error)
       {
-        key:,
-        severity:,
-        detail:,
-        text:
+        key: symbolized_error[:key],
+        severity: symbolized_error[:severity],
+        detail: get_details(symbolized_error),
+        text: symbolized_error[:text]
       }
     end
 
