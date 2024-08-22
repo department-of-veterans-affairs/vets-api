@@ -37,7 +37,7 @@ module ClaimsApi
     protected
 
     def preserve_original_form_data(form_data)
-      Marshal.load(Marshal.dump(form_data))
+      form_data.deep_dup.freeze
     end
 
     def set_errored_state_on_claim(auto_claim)
