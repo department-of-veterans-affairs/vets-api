@@ -178,6 +178,19 @@ describe DecisionReviewV1::Service do
       end
     end
 
+    # test that additional error code mapping in exceptions.en.yml works
+    context '503 response' do
+      it 'properly raises a 503 when the error is returned from the service' do
+        VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-503_V1') do
+          expect { subject }.to raise_error(
+            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_503')),
+            'BackendServiceException: {:source=>"Common::Client::Errors::ClientError ' \
+            'raised in DecisionReviewV1::Service", :code=>"DR_503"}'
+          )
+        end
+      end
+    end
+
     context 'user is missing data' do
       before do
         allow_any_instance_of(User).to receive(:ssn).and_return(nil)
