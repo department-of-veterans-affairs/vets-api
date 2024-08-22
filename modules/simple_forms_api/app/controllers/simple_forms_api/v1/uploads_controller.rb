@@ -152,7 +152,7 @@ module SimpleFormsApi
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
         file_path = if @current_user
-                      filler.generate(@current_user.loa[:current])
+                      filler.generate(current_loa: @current_user.loa[:current])
                     else
                       filler.generate
                     end

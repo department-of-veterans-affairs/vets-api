@@ -7,6 +7,7 @@ describe SimpleFormsApi::PdfStamper do
   let(:data) { JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{test_payload}.json")) }
   let(:form) { "SimpleFormsApi::#{test_payload.titleize.gsub(' ', '')}".constantize.new(data) }
   let(:path) { 'tmp/stuff.json' }
+  let(:loa) { 3 }
 
   describe '.stamp_signature' do
     subject(:stamp_signature) { described_class.stamp_signature(path, form) }
@@ -49,6 +50,46 @@ describe SimpleFormsApi::PdfStamper do
 
       it 'calls multistamp correctly' do
         expect(described_class).to have_received(:multistamp).with(path, signature, page_config, nil)
+      end
+    end
+  end
+
+  describe '.stamp_auth_text' do
+    before do
+      allow(File).to receive(:size).and_return(1, 2)
+      allow(described_class).to receive(:stamp).and_return(true)
+    end
+
+    context 'when override_timestamp is passed in' do
+      let(:override_timestamp) { '01-20-2001' }
+
+      it 'calls .stamp with text that includes the timestamp' do
+        allow(described_class).to receive(:get_text).with(override_timestamp)
+
+        described_class.stamp_auth_text(path, nil, override_timestamp)
+
+        expect(described_class).to have_received(:get_text).with(override_timestamp)
+      end
+    end
+  end
+
+  describe '.get_text' do
+    context 'when override_timestamp is nil' do
+      it 'uses the current time' do
+        timestamp = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')
+        expect(described_class.get_text).to eq(
+          "Signed electronically and submitted via VA.gov at #{timestamp} "
+        )
+      end
+    end
+
+    context 'when override_timestamp is not nil' do
+      it 'uses the provided timestamp' do
+        override_timestamp = 1.hour.ago
+
+        expect(described_class.get_text(override_timestamp)).to eq(
+          "Signed electronically and submitted via VA.gov at #{override_timestamp.strftime('%H:%M:%S')}"
+        )
       end
     end
   end

@@ -5,13 +5,12 @@ require 'pdf_utilities/datestamp_pdf'
 module SimpleFormsApi
   class PdfStamper
     FORM_REQUIRES_STAMP = %w[20-10207 21-0845 21-0966 21-0972 21-4138 21-10210 21-4142 21P-0847 26-4555].freeze
-    SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
-    def self.stamp_pdf(stamped_template_path, form, current_loa)
+    def self.stamp_pdf(stamped_template_path, form, current_loa, override_timestamp)
       stamp_signature(stamped_template_path, form)
 
-      stamp_auth_text(stamped_template_path, current_loa)
+      stamp_auth_text(stamped_template_path, current_loa, override_timestamp)
 
       stamp_submission_date(stamped_template_path, form.submission_date_stamps)
     end
@@ -25,8 +24,7 @@ module SimpleFormsApi
       end
     end
 
-    def self.stamp_auth_text(stamped_template_path, current_loa)
-      current_time = "#{Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')} "
+    def self.stamp_auth_text(stamped_template_path, current_loa, override_timestamp)
       auth_text = case current_loa
                   when 3
                     'Signee signed with an identity-verified account.'
@@ -35,9 +33,7 @@ module SimpleFormsApi
                   else
                     'Signee not signed in.'
                   end
-      coords = [10, 10]
-      text = SUBMISSION_TEXT + current_time
-      desired_stamp = { coords:, text: }
+      desired_stamp = { coords: [10, 10], text: get_text(override_timestamp) }
       verify(stamped_template_path) do
         stamp(desired_stamp, stamped_template_path, append_to_stamp: auth_text, text_only: false)
       end
@@ -87,9 +83,10 @@ module SimpleFormsApi
         page_configuration = get_page_configuration(page, coords)
         verified_multistamp(stamped_template_path, text, page_configuration, font_size)
       else
+        timestamp = Time.zone.now
         Rails.logger.info('Calling PDFUtilities::DatestampPdf', current_file_path:, stamped_template_path:)
         datestamp_instance = PDFUtilities::DatestampPdf.new(current_file_path, append_to_stamp:)
-        current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
+        current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9, timestamp:)
         File.rename(current_file_path, stamped_template_path)
       end
     rescue => e
@@ -142,6 +139,12 @@ module SimpleFormsApi
       ].tap do |config|
         config[page] = { type: :text, position: }
       end
+    end
+
+    def self.get_text(override_timestamp = nil)
+      timestamp = override_timestamp&.strftime('%H:%M:%S') ||
+                  "#{Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')} "
+      "Signed electronically and submitted via VA.gov at #{timestamp}"
     end
   end
 end
