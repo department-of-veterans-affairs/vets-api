@@ -7,22 +7,7 @@ require 'logging/third_party_transaction'
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm0781 < Job
-      extend Logging::ThirdPartyTransaction::MethodWrapper
-
       attr_reader :submission_id, :evss_claim_id, :uuid
-
-      wrap_with_logging(
-        :upload_to_vbms,
-        :perform_client_upload,
-        additional_class_logs: {
-          action: 'upload form 21-0781 to EVSS'
-        },
-        additional_instance_logs: {
-          submission_id: [:submission_id],
-          evss_claim_id: [:evss_claim_id],
-          uuid: [:uuid]
-        }
-      )
 
       FORM_ID_0781 = '21-0781' # form id for PTSD
       FORM_ID_0781A = '21-0781a' # form id for PTSD Secondary to Personal Assault

@@ -57,16 +57,6 @@ module EVSS
         raise e
       end
 
-      wrap_with_logging(
-        :upload_bdd_instructions,
-        additional_class_logs: {
-          action: 'Upload BDD Instructions to EVSS'
-        },
-        additional_instance_logs: {
-          submission_id: %i[submission_id]
-        }
-      )
-
       # Submits a BDD instruction PDF in to EVSS
       #
       # @param submission_id [Integer] The {Form526Submission} id

@@ -25,17 +25,6 @@ module Sidekiq
                   :submission_id
       attr_accessor :docs
 
-      wrap_with_logging(
-        :get_form_from_external_api,
-        :instantiate_upload_info_from_lighthouse,
-        :get_from_non_breakered_service,
-        additional_instance_logs: [
-          submission_id: %i[submission_id],
-          initial_upload_uuid: %i[initial_upload_uuid],
-          initial_upload_location: %i[initial_upload_location]
-        ]
-      )
-
       FORM_526 = 'form526'
       FORM_526_DOC_TYPE = '21-526EZ'
       FORM_526_UPLOADS = 'form526_uploads'

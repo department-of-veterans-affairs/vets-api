@@ -60,23 +60,6 @@ class ApiProviderFactory
 
   attr_reader :type
 
-  wrap_with_logging(
-    :rated_disabilities_service_provider,
-    :intent_to_file_service_provider,
-    :ppiu_service_provider,
-    :claims_service_provider,
-    :brd_service_provider,
-    :generate_pdf_service_provider,
-    :supplemental_document_upload_service_provider,
-    additional_class_logs: {
-      action: 'disability compensation factory choosing API Provider'
-    },
-    additional_instance_logs: {
-      provider: %i[api_provider],
-      factory: %i[type]
-    }
-  )
-
   def self.call(**)
     new(**).call
   end

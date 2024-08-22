@@ -7,8 +7,6 @@ module BGS
     include Sidekiq::Job
     include SentryLogging
 
-    extend Logging::ThirdPartyTransaction::MethodWrapper
-
     attr_accessor :submission_id
 
     # Sidekiq has built in exponential back-off functionality for retries
@@ -16,16 +14,6 @@ module BGS
     # This job is invoked from 526 background job
     sidekiq_options retry: 10
     STATSD_KEY_PREFIX = 'worker.bgs.flash_updater'
-
-    wrap_with_logging(
-      :add_flashes,
-      additional_class_logs: {
-        action: 'Begin Flash addition job'
-      },
-      additional_instance_logs: {
-        submission_id: %i[submission_id]
-      }
-    )
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']

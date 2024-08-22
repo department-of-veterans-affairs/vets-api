@@ -7,22 +7,10 @@ require 'logging/third_party_transaction'
 
 module V0
   class IntentToFilesController < ApplicationController
-    extend Logging::ThirdPartyTransaction::MethodWrapper
     service_tag 'intent-to-file'
 
     before_action :authorize_service
     before_action :validate_type_param, only: %i[active submit]
-
-    wrap_with_logging(
-      :index,
-      :submit,
-      additional_class_logs: {
-        action: 'load Intent To File for 526 form flow'
-      },
-      additional_instance_logs: {
-        user_uuid: %i[current_user account_uuid]
-      }
-    )
 
     # currently, only `compensation` is supported. This will be expanded to
     # include `pension` and `survivor` in the future.

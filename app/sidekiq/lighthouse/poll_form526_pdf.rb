@@ -51,15 +51,6 @@ module Lighthouse
 
     STATSD_KEY_PREFIX = 'worker.lighthouse.poll_form526_pdf'
 
-    wrap_with_logging(
-      additional_class_logs: {
-        action: 'Begin check for 526 supporting docs'
-      },
-      additional_instance_logs: {
-        submission_id: %i[submission_id]
-      }
-    )
-
     sidekiq_options retry_for: 48.hours
 
     # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`

@@ -5,8 +5,6 @@ require 'logging/third_party_transaction'
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm8940 < Job
-      extend Logging::ThirdPartyTransaction::MethodWrapper
-
       STATSD_KEY_PREFIX = 'worker.evss.submit_form8940'
 
       # Sidekiq has built in exponential back-off functionality for retries
@@ -62,16 +60,6 @@ module EVSS
       end
 
       attr_accessor :submission_id
-
-      wrap_with_logging(
-        :upload_to_vbms,
-        additional_class_logs: {
-          action: 'upload form 8940 to EVSS'
-        },
-        additional_instance_logs: {
-          submission_id: %i[submission_id]
-        }
-      )
 
       def get_docs(submission_id)
         @submission_id = submission_id
