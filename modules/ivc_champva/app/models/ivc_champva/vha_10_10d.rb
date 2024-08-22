@@ -38,7 +38,7 @@ module IvcChampva
       }
     end
 
-    # rubocop:disable Layout/LineLength, Style/IdenticalConditionalBranches
+    # rubocop:disable Style/IdenticalConditionalBranches, Metrics/MethodLength
     def desired_stamps
       return [] unless @data
 
@@ -49,16 +49,15 @@ module IvcChampva
       sponsor_is_deceased = @data.dig('veteran', 'sponsor_is_deceased')
       veteran_country = @data.dig('veteran', 'address', 'country')
       applicants = @data.fetch('applicants', [])
-      first_applicant_country = applicants.is_a?(Array) ? applicants.first&.dig('applicant_address', 'country') : nil
+      first_applicant_country = applicants.is_a?(Array) && !applicants.empty? ? applicants.first&.dig('applicant_address', 'country') : nil
 
-      if sponsor_is_deceased
-        stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
-      else
+      stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
+
+      unless sponsor_is_deceased
         stamps << { coords: [520, 590], text: veteran_country, page: 0 }
-        stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
       end
 
-      @data.fetch('applicants', []).each_with_index do |applicant, index|
+      applicants.each_with_index do |applicant, index|
         next if index.zero?
 
         coords_y = 470 - (116 * index)
@@ -68,7 +67,7 @@ module IvcChampva
 
       stamps
     end
-    # rubocop:enable Layout/LineLength, Style/IdenticalConditionalBranches
+    # rubocop:enable Style/IdenticalConditionalBranches, Metrics/MethodLength
 
     def submission_date_stamps
       [
