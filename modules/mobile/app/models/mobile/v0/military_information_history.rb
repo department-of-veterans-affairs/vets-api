@@ -6,7 +6,7 @@ module Mobile
   module V0
     class MilitaryInformationHistory < Common::Resource
       attribute :id, Types::String
-      attribute :service_history, Types::Array
+      attribute :service_history, Types::Array.of(MilitaryInformation)
     end
   end
 end
