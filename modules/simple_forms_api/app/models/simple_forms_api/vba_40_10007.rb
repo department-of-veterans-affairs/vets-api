@@ -171,6 +171,12 @@ module SimpleFormsApi
       'D' => 'Died on active duty'
     }.freeze
 
+    GENDER = {
+      'Male' => 'Male',
+      'Female' => 'Female',
+      'na' => 'Prefer not to answer'
+    }.freeze
+
     def get_relationship_to_vet(key)
       RELATIONSHIP_TO_VETS[key]
     end
@@ -183,9 +189,13 @@ module SimpleFormsApi
       MILITARY_STATUS[key]
     end
 
+    def get_gender(key)
+      GENDER[key]
+    end
+
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def create_attachment_page(file_path)
-      veteran_sex = @data.dig('application', 'veteran', 'gender')
+      veteran_sex = get_gender(@data.dig('application', 'veteran', 'gender'))
 
       race_comment = @data.dig('application', 'veteran', 'race_comment')
 
@@ -223,14 +233,14 @@ module SimpleFormsApi
 
       race_data = @data.dig('application', 'veteran', 'race')
       race = ''
-      race += 'American Indian or Alaskan Native ' if race_data['is_american_indian_or_alaskan_native']
-      race += 'Asian ' if race_data['is_asian']
-      race += 'Black or African American ' if race_data['is_black_or_african_american']
-      race += 'Native Hawaiian or other Pacific Islander ' if race_data['is_native_hawaiian_or_other_pacific_islander']
-      race += 'White ' if race_data['is_white']
-      race += 'Prefer not to answer ' if race_data['na']
-      race += 'Other ' if race_data['is_other']
-      race.strip!
+      race += 'American Indian or Alaskan Native, ' if race_data['is_american_indian_or_alaskan_native']
+      race += 'Asian, ' if race_data['is_asian']
+      race += 'Black or African American, ' if race_data['is_black_or_african_american']
+      race += 'Native Hawaiian or other Pacific Islander, ' if race_data['is_native_hawaiian_or_other_pacific_islander']
+      race += 'White, ' if race_data['is_white']
+      race += 'Prefer not to answer, ' if race_data['na']
+      race += 'Other, ' if race_data['is_other']
+      race.chomp!(', ')
 
       Prawn::Document.generate(file_path) do |pdf|
         pdf.text '40-10007 Overflow Data', align: :center, size: 20
@@ -251,7 +261,7 @@ module SimpleFormsApi
           pdf.move_down 10
           pdf.text "Question 10 Veteran/Servicemember Place of Birth (State or Territory): #{state_of_birth}", size: 8
           pdf.move_down 10
-          pdf.text "Question 14 Military Status Used to Apply for Eligibility): #{military_status_label}", size: 8
+          pdf.text "Question 14 Military Status Used to Apply for Eligibility: #{military_status_label}", size: 8
         else
           pdf.text 'Question 10 Place of Birth'
           pdf.text "Place of Birth: #{place_of_birth}", size: 8
@@ -262,11 +272,11 @@ module SimpleFormsApi
             service_branch = binding.local_variable_get("service_branch_value_#{letter}")
             discharge_type = binding.local_variable_get("discharge_type_#{letter}")
             highest_rank = binding.local_variable_get("highest_rank_int_#{letter}")
-            pdf.text "Question 15 Branch of Service Line #{letter.upcase}: #{service_branch}", size: 8
+            pdf.text "Question 15 Branch of Service #{letter.upcase}: #{service_branch}", size: 8
             pdf.move_down 10
-            pdf.text "Question 18 Discharge - Character of Service Line #{letter.upcase}: #{discharge_type}", size: 8
+            pdf.text "Question 18 Discharge - Character of Service #{letter.upcase}: #{discharge_type}", size: 8
             pdf.move_down 10
-            pdf.text "Question 19 Highest Rank Attained Line #{letter.upcase}: #{highest_rank}", size: 8
+            pdf.text "Question 19 Highest Rank Attained #{letter.upcase}: #{highest_rank}", size: 8
             pdf.move_down 10
           end
         else
