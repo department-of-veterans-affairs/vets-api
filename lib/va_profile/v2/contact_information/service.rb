@@ -34,7 +34,8 @@ module VAProfile
         def get_person
           with_monitoring do
             vet360_id_present!
-            raw_response = perform(:get, @user.vet360_id)
+            @vet360_id = @user.vet360_id
+            raw_response = perform(:get, @vet360_id)
 
             PersonResponse.from(raw_response)
           end
@@ -42,7 +43,7 @@ module VAProfile
           if e.status == 404
             log_exception_to_sentry(
               e,
-              { vet360_id: @user.vet360_id },
+              { vet360_id: @vet360_id },
               { va_profile: :person_not_found },
               :warning
             )
