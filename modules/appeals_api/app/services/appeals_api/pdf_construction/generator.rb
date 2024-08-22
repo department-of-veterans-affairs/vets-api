@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'central_mail/datestamp_pdf'
+
 module AppealsApi
   module PdfConstruction
     class Generator

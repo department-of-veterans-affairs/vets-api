@@ -43,7 +43,9 @@ module MPI
 
       def validate_required_fields
         missing_values = []
+        missing_values << :first_name if first_name.blank?
         missing_values << :last_name if last_name.blank?
+        missing_values << :ssn if ssn.blank?
         missing_values << :birth_date if birth_date.blank?
         missing_values << :credential_identifier if idme_uuid.blank? && logingov_uuid.blank?
         raise Errors::ArgumentError, "Required values missing: #{missing_values}" if missing_values.present?
@@ -98,9 +100,7 @@ module MPI
                                                                 country: address[:country])
         end
         element << RequestHelper.build_identifier(identifier:, root: identifier_root)
-        if ssn.present?
-          element << RequestHelper.build_patient_identifier(identifier: ssn, root: ssn_root, class_code: ssn_class_code)
-        end
+        element << RequestHelper.build_patient_identifier(identifier: ssn, root: ssn_root, class_code: ssn_class_code)
         element << RequestHelper.build_patient_identifier(identifier:,
                                                           root: identifier_root,
                                                           class_code: identifier_class_code)

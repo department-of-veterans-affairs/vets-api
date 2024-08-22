@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pdf_utilities/datestamp_pdf'
+require 'central_mail/datestamp_pdf'
 
 module SimpleFormsApi
   class PdfStamper
@@ -87,8 +87,8 @@ module SimpleFormsApi
         page_configuration = get_page_configuration(page, coords)
         verified_multistamp(stamped_template_path, text, page_configuration, font_size)
       else
-        Rails.logger.info('Calling PDFUtilities::DatestampPdf', current_file_path:, stamped_template_path:)
-        datestamp_instance = PDFUtilities::DatestampPdf.new(current_file_path, append_to_stamp:)
+        Rails.logger.info('Calling CentralMail::DatestampPdf', current_file_path:, stamped_template_path:)
+        datestamp_instance = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:)
         current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
         File.rename(current_file_path, stamped_template_path)
       end
