@@ -105,7 +105,6 @@ module ClaimsApi
         @evss_claim[:veteran][:currentlyVAEmployee] = @data.dig(:veteranIdentification, :currentVaEmployee)
         email_address = @data.dig(:veteranIdentification, :emailAddress, :email)
         @evss_claim[:veteran][:emailAddress] = email_address unless email_address.nil?
-        @evss_claim[:veteran][:fileNumber] = @file_number
       end
 
       # Convert 12-05-1984 to 1984-12-05 for Docker container
