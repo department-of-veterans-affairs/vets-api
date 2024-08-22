@@ -1107,7 +1107,7 @@ features:
     actor_type: cookie_id
     description: Enables the ability to use OAuth authentication via the Sign in Service (Identity)
     enable_in_development: true
-  sign_in_page_new_design:
+  sign_in_modal_v2:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
     enable_in_development: false
