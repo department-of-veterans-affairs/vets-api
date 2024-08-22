@@ -5,7 +5,8 @@ require 'claims_api/bgs_claim_status_mapper'
 module ClaimsApi
   module V2
     module Veterans
-      class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
+      class ClaimsController < ClaimsApi::V2::ApplicationController
+        include ClaimsApi::V2::ClaimsRequests::TrackedItems
         include ClaimsApi::V2::ClaimsRequests::SupportingDocuments
 
         def index
@@ -163,12 +164,6 @@ module ClaimsApi
           local_bgs_service.find_benefit_claims_status_by_ptcpnt_id(
             target_veteran.participant_id
           )
-        end
-
-        def find_tracked_items!(claim_id)
-          return if claim_id.blank?
-
-          local_bgs_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
         end
 
         def looking_for_lighthouse_claim?(claim_id:)
