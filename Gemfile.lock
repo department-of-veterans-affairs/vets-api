@@ -38,6 +38,7 @@ GIT
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
   revision: dc1b6938a385f6ef2cf55b030ae94f06e08ccc9a
+  ref: dc1b6938a3
   specs:
     bgs_ext (0.21.3)
       httpclient
@@ -1007,7 +1008,7 @@ GEM
       ffi
     ssrf_filter (1.1.2)
     staccato (0.5.3)
-    statsd-instrument (3.8.0)
+    statsd-instrument (3.9.0)
     stringio (3.1.1)
     strong_migrations (2.0.0)
       activerecord (>= 6.1)
@@ -1039,7 +1040,7 @@ GEM
     uri (0.13.0)
     utf8-cleaner (1.0.0)
       activesupport
-    vcr (6.3.0)
+    vcr (6.3.1)
       base64
     version_gem (1.1.3)
     virtus (2.0.0)
