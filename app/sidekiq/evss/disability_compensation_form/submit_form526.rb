@@ -4,13 +4,11 @@ require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/gateway_timeout'
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 require 'sentry_logging'
-require 'logging/third_party_transaction'
 require 'sidekiq/form526_job_status_tracker/job_tracker'
 
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm526 < Job
-      extend Logging::ThirdPartyTransaction::MethodWrapper
 
       attr_accessor :submission_id
 
@@ -20,16 +18,6 @@ module EVSS
       # This change reduces the run-time from ~36 hours to ~24 hours
       RETRY = 14
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
-
-      wrap_with_logging(
-        :submit_complete_form,
-        additional_class_logs: {
-          action: 'Begin overall 526 submission'
-        },
-        additional_instance_logs: {
-          submission_id: %i[submission_id]
-        }
-      )
 
       sidekiq_options retry: RETRY, queue: 'low'
 
@@ -161,7 +149,27 @@ module EVSS
       private
 
       def submit_complete_form
+        start_time = Time.now
+        start_log = {
+          action: 'Begin overall 526 submission',
+          start_time: start_time.to_s,
+          wrapped_method: "#{self.class}##{method_name}",
+          passed_args: args.to_s,
+          submission_id: submission_id
+        }
+        Rails.logger.info(start_log)
+
         service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+
+        end_log = {
+          action: 'Begin overall 526 submission',
+          upload_duration: (Time.now - start_time).to_f,
+          wrapped_method: "#{self.class}##{method_name}",
+          end_time: now.to_s,
+          passed_args: args.to_s,
+          submission_id: submission_id
+        }
+        Rails.logger.info(end_log)
       end
 
       def response_handler(response)
