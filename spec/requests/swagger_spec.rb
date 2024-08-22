@@ -2487,6 +2487,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     describe 'profiles' do
+      Flipper.disable(:va_v3_contact_information_service)
       let(:mhv_user) { create(:user, :loa3) }
 
       it 'supports getting service history data' do
@@ -2967,12 +2968,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
       it 'supports posting to initialize a vet360_id' do
         expect(subject).to validate(:post, '/v0/profile/initialize_vet360_id', 401)
-        person_cassette_path = if Flipper.enabled?(:va_v3_contact_information_service)
-                                 'va_profile/v2/person/init_vet360_id_success'
-                               else
-                                 'va_profile/person/init_vet360_id_success'
-                               end
-        VCR.use_cassette(person_cassette_path.to_s) do
+        VCR.use_cassette('va_profile/person/init_vet360_id_success') do
           expect(subject).to validate(
             :post,
             '/v0/profile/initialize_vet360_id',
