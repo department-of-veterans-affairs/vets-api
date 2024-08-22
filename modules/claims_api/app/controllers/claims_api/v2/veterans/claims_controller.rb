@@ -169,12 +169,6 @@ module ClaimsApi
           )
         end
 
-        def find_tracked_items!(claim_id)
-          return if claim_id.blank?
-
-          local_bgs_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
-        end
-
         def looking_for_lighthouse_claim?(claim_id:)
           claim_id.to_s.include?('-')
         end
