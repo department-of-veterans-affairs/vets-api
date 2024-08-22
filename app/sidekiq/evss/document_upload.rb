@@ -2,7 +2,6 @@
 
 require 'ddtrace'
 require 'timeout'
-require 'logging/third_party_transaction'
 
 class EVSS::DocumentUpload
   include Sidekiq::Job

@@ -20,10 +20,8 @@ require 'disability_compensation/providers/generate_pdf/evss_generate_pdf_provid
 require 'disability_compensation/providers/generate_pdf/lighthouse_generate_pdf_provider'
 require 'disability_compensation/providers/document_upload/lighthouse_supplemental_document_upload_provider'
 require 'disability_compensation/providers/document_upload/evss_supplemental_document_upload_provider'
-require 'logging/third_party_transaction'
 
 class ApiProviderFactory
-  extend Logging::ThirdPartyTransaction::MethodWrapper
   class UndefinedFactoryTypeError < StandardError; end
 
   API_PROVIDER = {

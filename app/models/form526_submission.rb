@@ -3,7 +3,6 @@
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 require 'sentry_logging'
 require 'sidekiq/form526_backup_submission_process/submit'
-require 'logging/third_party_transaction'
 require 'lighthouse/poll_form526_pdf'
 require 'scopes/form526_submission_state'
 

@@ -4,7 +4,6 @@ require 'central_mail/service'
 require 'common/exceptions'
 require 'evss/disability_compensation_form/metrics'
 require 'evss/disability_compensation_form/form4142_processor'
-require 'logging/third_party_transaction'
 
 # TODO: Update Namespace once we are 100% done with CentralMail here
 module CentralMail

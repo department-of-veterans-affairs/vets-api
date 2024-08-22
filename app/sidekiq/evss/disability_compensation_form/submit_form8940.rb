@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'logging/third_party_transaction'
-
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm8940 < Job

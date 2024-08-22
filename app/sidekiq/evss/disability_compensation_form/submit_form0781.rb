@@ -2,7 +2,6 @@
 
 require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/filler'
-require 'logging/third_party_transaction'
 
 module EVSS
   module DisabilityCompensationForm

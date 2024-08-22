@@ -4,7 +4,6 @@ require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/gateway_timeout'
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 require 'sentry_logging'
-require 'logging/third_party_transaction'
 require 'sidekiq/form526_job_status_tracker/job_tracker'
 
 module EVSS

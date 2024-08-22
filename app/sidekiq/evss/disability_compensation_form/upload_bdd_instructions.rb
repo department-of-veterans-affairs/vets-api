@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
-require 'logging/third_party_transaction'
-
 module EVSS
   module DisabilityCompensationForm
     class UploadBddInstructions < Job
-      extend Logging::ThirdPartyTransaction::MethodWrapper
-
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_bdd_instructions'
 
       # retry for one day

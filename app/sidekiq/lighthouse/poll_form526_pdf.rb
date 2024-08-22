@@ -2,7 +2,6 @@
 
 require 'lighthouse/benefits_claims/service'
 require 'sentry_logging'
-require 'logging/third_party_transaction'
 require 'sidekiq/form526_job_status_tracker/job_tracker'
 require 'sidekiq/form526_job_status_tracker/metrics'
 
@@ -45,7 +44,6 @@ module Lighthouse
     include Sidekiq::Form526JobStatusTracker::JobTracker
     extend ActiveSupport::Concern
     extend SentryLogging
-    extend Logging::ThirdPartyTransaction::MethodWrapper
 
     attr_accessor :submission_id
 

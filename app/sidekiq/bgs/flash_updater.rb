@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'logging/third_party_transaction'
-
 module BGS
   class FlashUpdater
     include Sidekiq::Job

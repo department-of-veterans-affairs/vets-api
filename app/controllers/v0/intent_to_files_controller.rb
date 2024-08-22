@@ -3,7 +3,6 @@
 require 'evss/intent_to_file/service'
 require 'evss/intent_to_file/response_strategy'
 require 'disability_compensation/factories/api_provider_factory'
-require 'logging/third_party_transaction'
 
 module V0
   class IntentToFilesController < ApplicationController
