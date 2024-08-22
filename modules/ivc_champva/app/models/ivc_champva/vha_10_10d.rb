@@ -38,6 +38,7 @@ module IvcChampva
       }
     end
 
+    #rubocop:disable Layout/LineLength, Style/IdenticalConditionalBranches
     def desired_stamps
       return [] unless @data
 
@@ -58,6 +59,7 @@ module IvcChampva
 
       @data.fetch('applicants', []).each_with_index do |applicant, index|
         next if index.zero?
+
         coords_y = 470 - (116 * index)
         applicant_country = applicant.dig('applicant_address', 'country')
         stamps << { coords: [520, coords_y], text: applicant_country, page: 0 } if applicant_country
@@ -65,6 +67,7 @@ module IvcChampva
 
       stamps
     end
+    #rubocop:enable Layout/LineLength, Style/IdenticalConditionalBranches
 
     def submission_date_stamps
       [

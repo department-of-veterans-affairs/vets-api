@@ -94,7 +94,7 @@ RSpec.describe IvcChampva::VHA1010d do
     context 'when sponsor is deceased' do
       let(:data_with_deceased_sponsor) do
         data.merge('veteran' => data['veteran'].merge('sponsor_is_deceased' => true),
-                 'applicants' => [{'applicant_address' => {'country' => 'Canada'}}])
+        'applicants' => [{ 'applicant_address' => { 'country' => 'Canada' } }])
       end
       let(:vha1010d_with_deceased_sponsor) { described_class.new(data_with_deceased_sponsor) }
 
