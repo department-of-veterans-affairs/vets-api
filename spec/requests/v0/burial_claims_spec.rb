@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'V0::BurialClaims', type: :request do
   let(:full_claim) do
-    build(:burial_claim).parsed_form
+    build(:burial_claim_v2).parsed_form
   end
 
   describe 'POST create' do
