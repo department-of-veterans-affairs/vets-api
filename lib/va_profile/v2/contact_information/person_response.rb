@@ -2,7 +2,7 @@
 
 require 'va_profile/response'
 require 'va_profile/models/person'
-# rubocop:disable ThreadSafety/InstanceVariableInClassMethod
+
 module VAProfile
   module V2
     module ContactInformation
@@ -12,11 +12,11 @@ module VAProfile
         attr_reader :response_body
 
         def self.from(raw_response = nil)
-          @response_body = raw_response&.body
+          response_body = raw_response&.body
 
           new(
             raw_response&.status,
-            person: VAProfile::Models::Person.build_from(@response_body&.dig('bio'))
+            person: VAProfile::Models::Person.build_from(response_body&.dig('bio'))
           )
         end
 
@@ -27,4 +27,3 @@ module VAProfile
     end
   end
 end
-# rubocop:enable ThreadSafety/InstanceVariableInClassMethod
