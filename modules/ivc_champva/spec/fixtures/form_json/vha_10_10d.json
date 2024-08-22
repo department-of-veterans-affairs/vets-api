@@ -17,6 +17,7 @@
     "address": {
       "country": "USA",
       "street": "1 First Ln",
+      "street_combined": "1 First Ln",
       "city": "Place",
       "state": "AL",
       "postal_code": "12345"
@@ -35,6 +36,7 @@
       "address": {
         "country": "USA",
         "street": "2 Second St",
+        "street_combined": "2 Second St",
         "city": "Town",
         "state": "LA",
         "postal_code": "16542"
@@ -57,6 +59,7 @@
       "address": {
         "country": "USA",
         "street": "3 Third Ave",
+        "street_combined": "3 Second St",
         "city": "Ville",
         "state": "AR",
         "postal_code": "65478"
@@ -79,6 +82,7 @@
       "address": {
         "country": "USA",
         "street": "4 Third Ave",
+        "street_combined": "4 Second St",
         "city": "Mark",
         "state": "AR",
         "postal_code": "65478"
@@ -101,6 +105,7 @@
       "address": {
         "country": "USA",
         "street": "426 Ave C",
+        "street_combined": "426 Ave C",
         "city": "Philadelphia",
         "state": "PA",
         "postal_code": "65478"
@@ -123,6 +128,7 @@
       "address": {
         "country": "USA",
         "street": "12345 Play Place",
+        "street_combined": "12345 Play Place",
         "city": "Camden",
         "state": "NJ",
         "postal_code": "65478"
