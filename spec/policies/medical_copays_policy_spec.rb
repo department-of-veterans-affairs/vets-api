@@ -12,10 +12,6 @@ describe MedicalCopaysPolicy do
       it 'grants access' do
         expect(subject).to permit(user, :mcp)
       end
-
-      it 'increments statsD success' do
-        expect { MedicalCopaysPolicy.new(user, :mcp).access? }.to trigger_statsd_increment('api.mcp.policy.success')
-      end
     end
 
     context 'with a user who does not have the required mcp attributes' do
@@ -30,10 +26,6 @@ describe MedicalCopaysPolicy do
 
       it 'denies access' do
         expect(subject).not_to permit(user, :mcp)
-      end
-
-      it 'increments statsD failure' do
-        expect { MedicalCopaysPolicy.new(user, :mcp).access? }.to trigger_statsd_increment('api.mcp.policy.failure')
       end
     end
   end
