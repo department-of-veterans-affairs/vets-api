@@ -85,7 +85,7 @@
               "type": "string",
               "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
               "minLength": 1,
-              "maxLength": 1000,
+              "maxLength": 30,
               "example": "Portland"
             },
             "state": {
