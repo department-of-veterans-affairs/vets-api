@@ -8,7 +8,13 @@ MedicalCopaysPolicy = Struct.new(:user, :medical_copays) do
   # @return [Boolean]
   #
   def access?
-    user.edipi.present? && user.icn.present?
+    accessible = user.edipi.present? && user.icn.present?
+    if accessible
+      StatsD.increment('api.mcp.policy.success')
+    else
+      StatsD.increment('api.mcp.policy.failure')
+    end
+    accessible
   end
 
   def access_notifications?
