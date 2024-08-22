@@ -154,7 +154,7 @@ module EVSS
           action: 'Begin overall 526 submission',
           start_time: start_time.to_s,
           wrapped_method: "#{self.class}##{method_name}",
-          passed_args: args.to_s,
+          passed_args_that_we_want: something_extracted_from_the_class,
           submission_id: submission_id
         }
         Rails.logger.info(start_log)
@@ -166,7 +166,6 @@ module EVSS
           upload_duration: (Time.now - start_time).to_f,
           wrapped_method: "#{self.class}##{method_name}",
           end_time: now.to_s,
-          passed_args: args.to_s,
           submission_id: submission_id
         }
         Rails.logger.info(end_log)
