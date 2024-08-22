@@ -717,7 +717,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:v21_p_530_expected) do
+  let(:v21_p_530_v2_expected) do
     {
       'claimantFullName' => {
         'first' => user.first_name&.capitalize,
@@ -1876,11 +1876,11 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
-        expect_prefilled('21P-530')
+        expect_prefilled('21P-530V2')
       end
 
       context 'without address' do
-        let(:v21_p_530_expected) do
+        let(:v21_p_530_v2_expected) do
           {
             'claimantFullName' => {
               'first' => user.first_name&.capitalize,
@@ -1892,12 +1892,12 @@ RSpec.describe FormProfile, type: :model do
         end
 
         before do
-          allow_any_instance_of(FormProfiles::VA21p530)
+          allow_any_instance_of(FormProfiles::VA21p530v2)
             .to receive(:initialize_contact_information).and_return(FormContactInformation.new)
         end
 
         it "doesn't throw an exception" do
-          expect_prefilled('21P-530')
+          expect_prefilled('21P-530V2')
         end
       end
     end
