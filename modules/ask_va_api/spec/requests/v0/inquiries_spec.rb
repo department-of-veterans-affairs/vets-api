@@ -33,6 +33,10 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
   end
 
+  def error_message(body)
+    "AskVAApi::Inquiries::InquiriesCreatorError: #{body}"
+  end
+
   describe 'GET #index' do
     context 'when user is signed in' do
       before { sign_in(authorized_user) }
@@ -64,7 +68,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
       context 'when an error occurs' do
         context 'when a service error' do
-          let(:error_message) { 'service error' }
+          let(:error_message) do
+            'AskVAApi::Inquiries::InquiriesRetrieverError: Data Validation: No Contact found by ICN'
+          end
 
           before do
             allow_any_instance_of(Crm::Service)
@@ -74,7 +80,8 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           end
 
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          'Crm::ErrorHandler::ServiceError: service error'
+                          'Crm::ErrorHandler::ServiceError: ' \
+                          'AskVAApi::Inquiries::InquiriesRetrieverError: Data Validation: No Contact found by ICN'
         end
 
         context 'when a standard error' do
@@ -208,9 +215,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
       context 'when the id is invalid' do
         let(:body) do
-          '{"Data":null,"Message":"Data Validation: No Contact found by ICN"' \
-            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Contact found by ICN ' \
-            '","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
+          '{"Data":null,"Message":"Data Validation: No Inquiries found by ID A-20240423-30709"' \
+            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
+            'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
         end
         let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
         let(:service) { instance_double(Crm::Service) }
@@ -227,7 +234,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                         'AskVAApi::Inquiries::InquiriesRetrieverError: ' \
-                        'Data Validation: No Contact found by ICN'
+                        '{"Data":null,"Message":"Data Validation: No Inquiries found by ID A-20240423-30709"' \
+                        ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
+                        'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
       end
     end
   end
@@ -307,7 +316,10 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'AskVAApi::Profile::InvalidProfileError: Data Validation: No Contact found'
+                      'AskVAApi::Profile::InvalidProfileError: ' \
+                      '{"Data":null,"Message":"Data Validation: No Contact found"' \
+                      ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Contact found ' \
+                      '","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
     end
   end
 
@@ -360,7 +372,11 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'AskVAApi::Inquiries::Status::StatusRetrieverError: Data Validation: No Inquiries found'
+                      'AskVAApi::Inquiries::Status::StatusRetrieverError: ' \
+                      '{"Data":null,"Message":"Data Validation: No Inquiries found",' \
+                      '"ExceptionOccurred":true,' \
+                      '"ExceptionMessage":"Data Validation: No Inquiries found",' \
+                      '"MessageId":"28cda301-5977-4052-a391-9ab36d514919"}'
     end
   end
 
@@ -610,7 +626,10 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
         end
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                        'AskVAApi::Inquiries::InquiriesCreatorError: Data Validation: missing InquiryCategory'
+                        'AskVAApi::Inquiries::InquiriesCreatorError: {"Data":null,"Message":' \
+                        '"Data Validation: missing InquiryCategory"' \
+                        ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+                        'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
       end
     end
   end
@@ -662,7 +681,10 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
         end
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                        'AskVAApi::Inquiries::InquiriesCreatorError: Data Validation: missing InquiryCategory'
+                        'AskVAApi::Inquiries::InquiriesCreatorError: ' \
+                        '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+                        ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+                        'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
       end
     end
   end
@@ -745,7 +767,10 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
         end
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                        'AskVAApi::Correspondences::CorrespondencesCreatorError: Data Validation: Missing Reply'
+                        'AskVAApi::Correspondences::CorrespondencesCreatorError: ' \
+                        '{"Data":null,"Message":"Data Validation: Missing Reply"' \
+                        ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: ' \
+                        'Missing Reply","MessageId":"e2cbe041-df91-41f4-8bd2-8b6d9dbb2e38"}'
       end
     end
   end
