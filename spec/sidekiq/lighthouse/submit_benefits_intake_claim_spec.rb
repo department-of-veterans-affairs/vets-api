@@ -15,6 +15,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
     let(:location) { 'test_location' }
 
     before do
+      Flipper.enable(:va_burial_v2)
       allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
       allow(service).to receive(:uuid)
       allow(service).to receive_messages(location:, upload_doc: response)
