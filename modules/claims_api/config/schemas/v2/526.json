@@ -83,7 +83,7 @@
             "city": {
               "description": "City for the Veteran's current mailing address.",
               "type": "string",
-              "pattern": "^$|^([-a-zA-Z0-9’.' ])+$",
+              "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
               "minLength": 1,
               "maxLength": 1000,
               "example": "Portland"
@@ -701,7 +701,7 @@
                 "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                 "type": ["string", "null"],
                 "nullable": true,
-                "pattern": "^$|([a-zA-Z0-9\/&()\\-‘.,# ]([a-zA-Z0-9()\\-‘.,# ])?)+$",
+                "pattern": "([a-zA-Z0-9\"\/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                 "example": "Private Facility 2",
                 "minLength": 1,
                 "maxLength": 100
