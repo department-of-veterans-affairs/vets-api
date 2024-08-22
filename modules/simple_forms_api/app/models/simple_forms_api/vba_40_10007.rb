@@ -257,9 +257,9 @@ module SimpleFormsApi
           pdf.move_down 10
           pdf.text "Question 8 Race Comment: #{race_comment}", size: 8
           pdf.move_down 10
-          pdf.text "Question 10 Veteran/Servicemember Place of Birth (City or County): #{city_of_birth}", size: 8
+          pdf.text "Question 10 Veteran/Servicemember Place of Birth (City): #{city_of_birth}", size: 8
           pdf.move_down 10
-          pdf.text "Question 10 Veteran/Servicemember Place of Birth (State or Territory): #{state_of_birth}", size: 8
+          pdf.text "Question 10 Veteran/Servicemember Place of Birth (State): #{state_of_birth}", size: 8
           pdf.move_down 10
           pdf.text "Question 14 Military Status Used to Apply for Eligibility: #{military_status_label}", size: 8
         else
