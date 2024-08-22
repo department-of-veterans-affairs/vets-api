@@ -40,31 +40,29 @@ module IvcChampva
 
     def desired_stamps
       return [] unless @data
-    
+
       stamps = [
         { coords: [40, 105], text: @data['statement_of_truth_signature'], page: 0 }
       ]
-    
+
       sponsor_is_deceased = @data.dig('veteran', 'sponsor_is_deceased')
       veteran_country = @data.dig('veteran', 'address', 'country')
       first_applicant_country = @data.fetch('applicants', []).is_a?(Array) ? @data.fetch('applicants', []).first&.dig('applicant_address', 'country') : nil
-    
+
       if sponsor_is_deceased
         stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
       else
         stamps << { coords: [520, 590], text: veteran_country, page: 0 }
-        # Add the first applicant's address as before
         stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
       end
-    
-      # Dynamically add stamps for each applicant's address
+
       @data.fetch('applicants', []).each_with_index do |applicant, index|
-        next if index == 0 # Skip the first applicant since it's already added
-        coords_y = 470 - (116 * index) # Adjust Y coordinate for each additional applicant
+        next if index.zero?
+        coords_y = 470 - (116 * index)
         applicant_country = applicant.dig('applicant_address', 'country')
         stamps << { coords: [520, coords_y], text: applicant_country, page: 0 } if applicant_country
       end
-    
+
       stamps
     end
 
