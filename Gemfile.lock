@@ -38,6 +38,7 @@ GIT
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
   revision: 350e45ae699407948d254d6fadd4f1b249e996f5
+  ref: 350e45ae69
   specs:
     bgs_ext (0.23.2)
       httpclient
@@ -73,7 +74,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7bbee674bfeef84f4ebd9d9e75490c09ee18f438
+  revision: 58003a668fc817031cb581621358bab902d5bd75
   branch: master
   specs:
     vets_json_schema (24.2.1)
@@ -242,16 +243,16 @@ GEM
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.961.0)
-    aws-sdk-core (3.201.3)
+    aws-partitions (1.966.0)
+    aws-sdk-core (3.201.5)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
-      aws-sigv4 (~> 1.8)
+      aws-sigv4 (~> 1.9)
       jmespath (~> 1, >= 1.6.1)
     aws-sdk-kms (1.88.0)
       aws-sdk-core (~> 3, >= 3.201.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.157.0)
+    aws-sdk-s3 (1.159.0)
       aws-sdk-core (~> 3, >= 3.201.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -406,7 +407,7 @@ GEM
       zeitwerk (~> 2.6)
     einhorn (1.0.0)
     erubi (1.13.0)
-    et-orbi (1.2.7)
+    et-orbi (1.2.11)
       tzinfo
     ethon (0.16.0)
       ffi (>= 1.15.0)
@@ -477,8 +478,8 @@ GEM
       sanitize (< 7)
     foreman (0.88.1)
     formatador (1.1.0)
-    fugit (1.9.0)
-      et-orbi (~> 1, >= 1.2.7)
+    fugit (1.11.1)
+      et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
     fuubar (2.5.1)
       rspec-core (~> 3.0)
@@ -650,7 +651,7 @@ GEM
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     mini_portile2 (2.8.7)
-    minitest (5.25.0)
+    minitest (5.25.1)
     mock_redis (0.44.0)
     msgpack (1.7.2)
     msgpack (1.7.2-java)
@@ -716,7 +717,7 @@ GEM
     os (1.1.4)
     ostruct (0.6.0)
     ox (2.14.18)
-    parallel (1.26.2)
+    parallel (1.26.3)
     parallel_tests (4.7.1)
       parallel
     parser (3.3.4.0)
@@ -838,7 +839,7 @@ GEM
     rchardet (1.8.0)
     rdoc (6.7.0)
       psych (>= 4.0.0)
-    redis (5.2.0)
+    redis (5.3.0)
       redis-client (>= 0.22.0)
     redis-client (0.22.2)
       connection_pool
@@ -861,7 +862,7 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.3.5)
+    rexml (3.3.6)
       strscan
     rgeo (3.0.1)
     rgeo-activerecord (7.0.1)
@@ -891,7 +892,7 @@ GEM
     rspec-mocks (3.13.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-rails (6.1.3)
+    rspec-rails (6.1.4)
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       railties (>= 6.1)
@@ -983,7 +984,7 @@ GEM
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
-    shoulda-matchers (6.3.1)
+    shoulda-matchers (6.4.0)
       activesupport (>= 5.2.0)
     shrine (3.6.0)
       content_disposition (~> 1.0)
@@ -1016,7 +1017,7 @@ GEM
       ffi
     ssrf_filter (1.1.2)
     staccato (0.5.3)
-    statsd-instrument (3.8.0)
+    statsd-instrument (3.9.0)
     stringio (3.1.1)
     strong_migrations (2.0.0)
       activerecord (>= 6.1)
@@ -1048,7 +1049,8 @@ GEM
     uri (0.13.0)
     utf8-cleaner (1.0.0)
       activesupport
-    vcr (6.2.0)
+    vcr (6.3.1)
+      base64
     version_gem (1.1.3)
     virtus (2.0.0)
       axiom-types (~> 0.1)

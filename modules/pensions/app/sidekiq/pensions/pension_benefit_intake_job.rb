@@ -4,7 +4,7 @@ require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'pensions/tag_sentry'
 require 'pensions/monitor'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 
 module Pensions
   ##
@@ -99,8 +99,8 @@ module Pensions
     # @return [String] path to stamped PDF
     #
     def process_document(file_path)
-      document = CentralMail::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
-      document = CentralMail::DatestampPdf.new(document).run(
+      document = PDFUtilities::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
+      document = PDFUtilities::DatestampPdf.new(document).run(
         text: 'FDC Reviewed - VA.gov Submission',
         x: 429,
         y: 770,
