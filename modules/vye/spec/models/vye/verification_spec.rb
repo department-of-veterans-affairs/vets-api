@@ -40,5 +40,17 @@ RSpec.describe Vye::Verification, type: :model do
 
       expect(io.string.scan("\n").count).to be(7)
     end
+
+    it 'writes out a report where the stub_nm is left aligned' do
+      io = StringIO.new
+
+      expect do
+        described_class.write_report(io)
+      end.not_to raise_error
+
+      stub_nm_list = io.string.split(/[\n]/).map { |x| x.slice(0, 7) }.flatten
+
+      expect(stub_nm_list.all? { |x| x.start_with?(/\S/) }).to be(true)
+    end
   end
 end

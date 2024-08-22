@@ -14,8 +14,12 @@ module DecisionReview
 
     SUCCESSFUL_STATUS = %w[complete].freeze
 
+    STATSD_KEY_PREFIX = 'worker.decision_review.saved_claim_hlr_status_updater'
+
     def perform
       return unless enabled? && higher_level_reviews.present?
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.processing_records", higher_level_reviews.size)
 
       higher_level_reviews.each do |hlr|
         guid = hlr.guid
@@ -28,11 +32,13 @@ module DecisionReview
 
         if SUCCESSFUL_STATUS.include? status
           params[:delete_date] = timestamp + RETENTION_PERIOD
+          StatsD.increment("#{STATSD_KEY_PREFIX}.delete_date_update")
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
         end
 
         hlr.update(params)
       rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.error")
         Rails.logger.error('DecisionReview::SavedClaimHlrStatusUpdaterJob error', { guid:, message: e.message })
       end
 
