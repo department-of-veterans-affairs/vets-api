@@ -38,7 +38,7 @@ module IvcChampva
       }
     end
 
-    #rubocop:disable Layout/LineLength, Style/IdenticalConditionalBranches
+    # rubocop:disable Layout/LineLength, Style/IdenticalConditionalBranches
     def desired_stamps
       return [] unless @data
 
@@ -67,7 +67,7 @@ module IvcChampva
 
       stamps
     end
-    #rubocop:enable Layout/LineLength, Style/IdenticalConditionalBranches
+    # rubocop:enable Layout/LineLength, Style/IdenticalConditionalBranches
 
     def submission_date_stamps
       [

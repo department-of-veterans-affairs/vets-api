@@ -90,6 +90,7 @@ RSpec.describe IvcChampva::VHA1010d do
     end
   end
 
+  # rubocop:disable Layout/ArgumentAlignment, Layout/HashAlignment
   describe '#desired_stamps' do
     context 'when sponsor is deceased' do
       let(:data_with_deceased_sponsor) do
@@ -116,9 +117,9 @@ RSpec.describe IvcChampva::VHA1010d do
 
     context 'with multiple applicants' do
       let(:data_with_multiple_applicants) do
-        data.merge('applicants' => [
-          {'applicant_address' => {'country' => 'Canada'}},
-          {'applicant_address' => {'country' => 'Mexico'}}
+        data.merge(  'applicants' => [
+          { 'applicant_address' => { 'country' => 'Canada' } },
+          { 'applicant_address' => { 'country' => 'Mexico' } }
         ])
       end
       let(:vha1010d_with_multiple_applicants) { described_class.new(data_with_multiple_applicants) }
