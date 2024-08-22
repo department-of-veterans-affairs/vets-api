@@ -90,7 +90,7 @@ RSpec.describe IvcChampva::VHA1010d do
     end
   end
 
-  # rubocop:disable Layout/ArgumentAlignment, Layout/HashAlignment
+  # rubocop:disable Layout/ArgumentAlignment, Layout/HashAlignment, Layout/FirstArrayElementIndentation, Layout/SpaceInsideParens
   describe '#desired_stamps' do
     context 'when sponsor is deceased' do
       let(:data_with_deceased_sponsor) do
@@ -117,10 +117,10 @@ RSpec.describe IvcChampva::VHA1010d do
 
     context 'with multiple applicants' do
       let(:data_with_multiple_applicants) do
-        data.merge(  'applicants' => [
+        data.merge('applicants' => [
           { 'applicant_address' => { 'country' => 'Canada' } },
           { 'applicant_address' => { 'country' => 'Mexico' } }
-        ])
+          ] )
       end
       let(:vha1010d_with_multiple_applicants) { described_class.new(data_with_multiple_applicants) }
 
@@ -129,9 +129,10 @@ RSpec.describe IvcChampva::VHA1010d do
         expect(stamps.count { |stamp| stamp[:text] == 'Canada' || stamp[:text] == 'Mexico' }).to eq(2)
         expect(stamps).to include(
           hash_including(coords: [520, 470], text: 'Canada', page: 0),
-          hash_including(coords: [520, 354], text: 'Mexico', page: 0) # Adjusted Y coordinate for the second applicant
+          hash_including(coords: [520, 354], text: 'Mexico', page: 0)
         )
       end
     end
   end
+  # rubocop:enable Layout/ArgumentAlignment, Layout/HashAlignment, Layout/FirstArrayElementIndentation, Layout/SpaceInsideParens
 end
