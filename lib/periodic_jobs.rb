@@ -62,8 +62,8 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 0 1 */3 *', 'IncomeLimits::StdZipcodeImport')
   # Import income limit data CSVs from S3
 
-  mgr.register('0 12 * * *', 'HCA::StdInstitutionImportJob')
-  # Import facilities data CSV from S3 daily at noon
+  mgr.register('30 16 * * *', 'HCA::StdInstitutionImportJob')
+  # Import facilities data CSV from S3 daily at 4:30pmET
 
   mgr.register('0 2 * * *', 'EVSS::DeleteOldClaims')
   # Clear out EVSS disability claims that have not been updated in 24 hours
