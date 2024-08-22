@@ -6,11 +6,6 @@ require 'bd/bd'
 class FakeController
   include ClaimsApi::V2::ClaimsRequests::SupportingDocuments
 
-  # def benefits_doc_api
-  #   # Mocked behavior for the `benefits_doc_api` method
-  #   double(search: { data: { 'documents' => supporting_document_data } })
-  # end
-
   def local_bgs_service
     @local_bgs_service ||= ClaimsApi::LocalBGS.new(
       external_uid: target_veteran.participant_id,
