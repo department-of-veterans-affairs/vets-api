@@ -157,7 +157,7 @@ module SimpleFormsApi
       'notSpanishHispanicLatino' => 'Not Hispanic or Latino',
       'unknown' => 'Unknown',
       'na' => 'Prefer not to answer'
-    }
+    }.freeze
 
     MILITARY_STATUS = {
       'A' => 'Active duty',
@@ -169,7 +169,7 @@ module SimpleFormsApi
       'X' => 'Other',
       'I' => 'Death related to inactive duty training',
       'D' => 'Died on active duty'
-    }
+    }.freeze
 
     def get_relationship_to_vet(key)
       RELATIONSHIP_TO_VETS[key]
@@ -178,12 +178,12 @@ module SimpleFormsApi
     def get_ethnicity_labels(key)
       ETHNICITY_VALUES[key]
     end
-    
+
     def get_military_status(key)
       MILITARY_STATUS[key]
-    end  
+    end
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def create_attachment_page(file_path)
       veteran_sex = @data.dig('application', 'veteran', 'gender')
 
@@ -194,7 +194,7 @@ module SimpleFormsApi
       city_of_birth = @data.dig('application', 'veteran', 'city_of_birth')
 
       state_of_birth = @data.dig('application', 'veteran', 'state_of_birth')
-      
+
       service_branch_value_a = get_service_label(@data.dig('application', 'veteran', 'service_records', 0,
                                                            'service_branch')) || ''
       service_branch_value_b = get_service_label(@data.dig('application', 'veteran', 'service_records', 1,
@@ -222,7 +222,7 @@ module SimpleFormsApi
       military_status_label = get_military_status(@data.dig('application', 'veteran', 'military_status'))
 
       race_data = @data.dig('application', 'veteran', 'race')
-      race = ""
+      race = ''
       race += 'American Indian or Alaskan Native ' if race_data['is_american_indian_or_alaskan_native']
       race += 'Asian ' if race_data['is_asian']
       race += 'Black or African American ' if race_data['is_black_or_african_american']
@@ -237,8 +237,8 @@ module SimpleFormsApi
         pdf.move_down 20
         pdf.text 'The following pages contain data related to the application.', align: :center
         pdf.move_down 20
-      
-        if @data.dig('version')
+
+        if @data['version']
           pdf.text "Question 7a Veteran/Servicemember Sex: #{veteran_sex}", size: 8
           pdf.move_down 10
           pdf.text "Question 8 Ethnicity: #{ethnicity}", size: 8
@@ -252,20 +252,21 @@ module SimpleFormsApi
           pdf.text "Question 10 Veteran/Servicemember Place of Birth (State or Territory): #{state_of_birth}", size: 8
           pdf.move_down 10
           pdf.text "Question 14 Military Status Used to Apply for Eligibility): #{military_status_label}", size: 8
-          pdf.move_down 10
         else
           pdf.text 'Question 10 Place of Birth'
           pdf.text "Place of Birth: #{place_of_birth}", size: 8
-          pdf.move_down 10
         end
-      
-        if @data.dig('version')
+        pdf.move_down 10
+        if @data['version']
           %w[a b c].each do |letter|
-            pdf.text "Question 15 Branch of Service Line #{letter.upcase}: #{binding.local_variable_get("service_branch_value_#{letter}")}", size: 8
+            service_branch = binding.local_variable_get("service_branch_value_#{letter}")
+            discharge_type = binding.local_variable_get("discharge_type_#{letter}")
+            highest_rank = binding.local_variable_get("highest_rank_int_#{letter}")
+            pdf.text "Question 15 Branch of Service Line #{letter.upcase}: #{service_branch}", size: 8
             pdf.move_down 10
-            pdf.text "Question 18 Discharge - Character of Service Line #{letter.upcase}: #{binding.local_variable_get("discharge_type_#{letter}")}", size: 8
+            pdf.text "Question 18 Discharge - Character of Service Line #{letter.upcase}: #{discharge_type}", size: 8
             pdf.move_down 10
-            pdf.text "Question 19 Highest Rank Attained Line #{letter.upcase}: #{binding.local_variable_get("highest_rank_int_#{letter}")}", size: 8
+            pdf.text "Question 19 Highest Rank Attained Line #{letter.upcase}: #{highest_rank}", size: 8
             pdf.move_down 10
           end
         else
@@ -281,8 +282,8 @@ module SimpleFormsApi
             pdf.move_down 10
           end
         end
-      
-        if @data.dig('version')
+
+        if @data['version']
           pdf.text "Question 24 Claimant Relationship to Servicemember or Veteran: #{relationship_to_veteran}", size: 8
           pdf.move_down 10
           pdf.text "Sponsor Veteran/Servicemember Contact Details Email Address: #{sponsor_veteran_email}", size: 8
@@ -293,8 +294,9 @@ module SimpleFormsApi
           pdf.move_down 10
         end
       end
-    end  
-    # rubocop:enable Metrics/MethodLength
+    end
+
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     def handle_attachments(file_path)
       attachments = get_attachments
       combined_pdf = CombinePDF.new
