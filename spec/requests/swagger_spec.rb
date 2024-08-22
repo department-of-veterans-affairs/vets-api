@@ -44,6 +44,10 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
+    before do
+      Flipper.enable(:va_burial_v2)
+    end
+
     describe 'backend statuses' do
       describe '/v0/backend_statuses/{service}' do
         it 'supports getting backend service status' do
@@ -433,7 +437,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           200,
           '_data' => {
             'burial_claim' => {
-              'form' => build(:burial_claim).form
+              'form' => build(:burial_claim_v2).form
             }
           }
         )
