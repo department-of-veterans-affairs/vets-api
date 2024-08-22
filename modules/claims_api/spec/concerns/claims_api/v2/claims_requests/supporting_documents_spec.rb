@@ -58,26 +58,6 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
           originalFileName: 'Jesse_Gray_600527334_526EZ.pdf',
           documentTypeLabel: 'VA 21-526 Veterans Application for Compensation or Pension',
           uploadedDateTime: '2024-07-16T18:59:43Z'
-        }, {
-          documentId: '{3664df4a-5cba-4151-b8ac-eb6d79d4e035}',
-          originalFileName: 'Jesse_Gray_600527334_5103.pdf',
-          documentTypeLabel: '5103 Notice Acknowledgement',
-          trackedItemId: 499_226, uploadedDateTime: '2024-07-17T18:03:50Z'
-        }, {
-          documentId: '{8a2d0eb9-b181-48ba-a08a-31bb6958e170}',
-          originalFileName: 'Jesse_Gray_600527334_5103.pdf',
-          documentTypeLabel: '5103 Notice Acknowledgement',
-          trackedItemId: 499_226, uploadedDateTime: '2024-07-17T18:20:23Z'
-        }, {
-          documentId: '{cef55a7b-ccef-44f5-8fe5-9b02d7ea7efb}',
-          originalFileName: 'Jesse_Gray_600527334_5103.pdf',
-          documentTypeLabel: '5103 Notice Acknowledgement',
-          trackedItemId: 499_270, uploadedDateTime: '2024-07-17T19:35:47Z'
-        }, {
-          documentId: '{3b5b3361-9120-4c37-b842-1a0300b24fb9}',
-          originalFileName: 'jesse_gray_600527334_5103_2024-07-17T114958261CDT.pdf',
-          documentTypeLabel: '5103 Notice Acknowledgement',
-          uploadedDateTime: '2024-07-17T16:50:01Z'
         }
       ]
     } }
@@ -92,10 +72,8 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
 
       allow(controller.local_bgs_service).to receive(:find_by_ssn).with('796111863')
                                                                   .and_return({ file_nbr: '796111863' })
-      allow(controller.benefits_doc_api).to receive(:search).with(
-        '8675309',
-        '796111863'
-      ).and_return(supporting_doc_list)
+      allow(controller.benefits_doc_api).to receive(:search).with('8675309', '796111863')
+                                                            .and_return(supporting_doc_list)
     end
 
     describe '#build_supporting_docs' do
@@ -106,7 +84,6 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
 
       it 'builds the correct doc output' do
         result = controller.build_supporting_docs(bgs_claim)
-        result[0]
 
         expect(result[0][:document_id]).to eq(supporting_doc_list[:data][:documents][0][:documentId])
         expect(result[0][:document_type_label]).to eq(supporting_doc_list[:data][:documents][0][:documentTypeLabel])
@@ -119,13 +96,11 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
     describe '#bd_upload_date' do
       it 'properly formats the date when a date is sent' do
         result = controller.bd_upload_date(supporting_doc_list[:data][:documents][0][:uploadedDateTime])
-
         expect(result).to eq('2024-07-16')
       end
 
       it 'returns nil if the date is empty' do
         result = controller.bd_upload_date(nil)
-
         expect(result).to eq(nil)
       end
     end
@@ -139,7 +114,6 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
 
       it 'returns nil if the date is empty' do
         result = controller.upload_date(nil)
-
         expect(result).to eq(nil)
       end
     end
