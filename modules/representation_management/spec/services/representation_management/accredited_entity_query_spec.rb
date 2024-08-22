@@ -89,8 +89,8 @@ RSpec.describe RepresentationManagement::AccreditedEntityQuery, type: :model do
       expect(results.size).to eq(9)
     end
 
-    it "returns more than 9 results with a query of 'aaaab' and a threshold of 0.3" do
-      stub_const('RepresentationManagement::AccreditedEntityQuery::WORD_SIMILARITY_THRESHOLD', 0.3)
+    it "returns more than 9 results with a query of 'aaaab' and a threshold of 0.5" do
+      stub_const('RepresentationManagement::AccreditedEntityQuery::WORD_SIMILARITY_THRESHOLD', 0.5)
       results = described_class.new('aaaab').results
 
       expect(results.size).to be > 9
