@@ -48,7 +48,8 @@ module IvcChampva
 
       sponsor_is_deceased = @data.dig('veteran', 'sponsor_is_deceased')
       veteran_country = @data.dig('veteran', 'address', 'country')
-      first_applicant_country = @data.fetch('applicants', []).is_a?(Array) ? @data.fetch('applicants', []).first&.dig('applicant_address', 'country') : nil
+      applicants = @data.fetch('applicants', [])
+      first_applicant_country = applicants.is_a?(Array) ? applicants.first&.dig('applicant_address', 'country') : nil
 
       if sponsor_is_deceased
         stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
