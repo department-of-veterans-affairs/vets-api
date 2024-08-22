@@ -8,12 +8,11 @@ module ClaimsApi
   class ClaimEstablisher < ClaimsApi::ServiceBase
     def perform(auto_claim_id) # rubocop:disable Metrics/MethodLength
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
-byebug
+
       orig_form_data = preserve_original_form_data(auto_claim.form_data)
-      orig_orig_form_data = auto_claim.form_data
       form_data = auto_claim.to_internal
       auth_headers = auto_claim.auth_headers
-byebug
+
       if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
         begin
           response = service(auth_headers).submit(auto_claim, form_data)
