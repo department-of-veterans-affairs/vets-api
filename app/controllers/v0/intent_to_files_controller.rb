@@ -37,7 +37,12 @@ module V0
         feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE
       )
       type = params['itf_type'] || 'compensation'
-      response = intent_to_file_provider.get_intent_to_file(type, nil, nil)
+      if Flipper.enabled?(:disability_compensation_production_tester, @current_user)
+        Rails.logger.info("ITF GET call skipped for user #{@current_user.uuid}")
+        response = set_success_response
+      else
+        response = intent_to_file_provider.get_intent_to_file(type, nil, nil)
+      end
       render json: IntentToFileSerializer.new(response)
     end
 

@@ -9,7 +9,7 @@ FactoryBot.define do
 
     file_number { (1..9).map(&digit).join }
     dob { Faker::Date.birthday }
-    stub_nm { Faker::Name.name }
+    stub_nm { format("#{Faker::Name.first_name[0, 1].upcase} #{Faker::Name.last_name[0, 3].upcase}") }
     mr_status { 'A' }
     rem_ent do
       months = (36 * rand).floor
