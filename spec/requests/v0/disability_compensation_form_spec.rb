@@ -5,7 +5,7 @@ require 'lighthouse/auth/client_credentials/service'
 require 'lighthouse/service_exception'
 require 'disability_compensation/factories/api_provider_factory'
 
-RSpec.describe 'VO::DisabilityCompensationForm', type: :request do
+RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
   include SchemaMatchers
 
   let(:user) { build(:disabilities_compensation_user) }

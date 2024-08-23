@@ -15,11 +15,11 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
   let(:response_complete) do
     response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-SHOW-RESPONSE-200_V2').to_json) # deep copy
     response['data']['attributes']['status'] = 'complete'
-    response
+    instance_double(Faraday::Response, body: response)
   end
 
   let(:response_pending) do
-    VetsJsonSchema::EXAMPLES.fetch 'SC-SHOW-RESPONSE-200_V2'
+    instance_double(Faraday::Response, body: VetsJsonSchema::EXAMPLES.fetch('SC-SHOW-RESPONSE-200_V2'))
   end
 
   before do
@@ -30,6 +30,7 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
     context 'with flag enabled', :aggregate_failures do
       before do
         Flipper.enable :decision_review_saved_claim_sc_status_updater_job_enabled
+        allow(StatsD).to receive(:increment)
       end
 
       context 'SavedClaim records are present' do
@@ -64,6 +65,20 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
             expect(claim2.metadata).to include 'pending'
             expect(claim2.metadata_updated_at).to eq frozen_time
           end
+
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_sc_status_updater.processing_records', 2).exactly(1).time
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_sc_status_updater.delete_date_update').exactly(1).time
+        end
+
+        it 'handles request errors and increments the statsd metric' do
+          allow(service).to receive(:get_supplemental_claim).and_raise(DecisionReviewV1::ServiceException)
+
+          subject.new.perform
+
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_sc_status_updater.error').exactly(2).times
         end
       end
     end
