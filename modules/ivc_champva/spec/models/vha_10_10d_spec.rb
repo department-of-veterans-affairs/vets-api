@@ -65,7 +65,7 @@ RSpec.describe IvcChampva::VHA1010d do
     end
   end
 
-  # rubocop:disable Layout/ArgumentAlignment, Layout/HashAlignment, Layout/FirstArrayElementIndentation
+  # rubocop:disable Layout/ArgumentAlignment, Layout/HashAlignment, Layout/FirstArrayElementIndentation, Layout/SpaceInsideParens
   describe '#desired_stamps' do
     context 'when sponsor is deceased' do
       let(:data_with_deceased_sponsor) do
@@ -109,7 +109,7 @@ RSpec.describe IvcChampva::VHA1010d do
       end
     end
   end
-  # rubocop:enable Layout/ArgumentAlignment, Layout/HashAlignment, Layout/FirstArrayElementIndentation
+  # rubocop:enable Layout/ArgumentAlignment, Layout/HashAlignment, Layout/FirstArrayElementIndentation, Layout/SpaceInsideParens
 
   describe '#track_email_usage' do
     let(:statsd_key) { 'api.ivc_champva_form.10_10d' }
