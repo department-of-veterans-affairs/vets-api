@@ -1,5 +1,43 @@
 ---
 schema-version: v2.2
+dd-service: accredited-representative-portal
+team: benefits
+application: Accredited Representative Portal
+tier: '1'
+lifecycle: pre-production
+contacts:
+  - name: benefits-representation-engineering
+    type: slack
+    contact: https://dsva.slack.com/archives/C06ABHUNBRS
+description: "For details, visit:
+  https://github.com/department-of-veterans-affairs/va.gov-team/tree/master/pro\
+  ducts/accredited-representative-facing"
+links:
+  - name: ARF Engineering
+    type: doc
+    provider: GitHub
+    url: https://github.com/department-of-veterans-affairs/va.gov-team/tree/master/products/accredited-representative-facing/engineering
+  - name: ARP Engine in vets-api
+    type: repo
+    provider: github
+    url: https://github.com/department-of-veterans-affairs/vets-api/tree/35e2ebe672b7d2d92c16473e336b99c3a372afda/modules/accredited_representative_portal
+  - name: ARP Frontend
+    type: repo
+    provider: github
+    url: https://github.com/department-of-veterans-affairs/vets-website/tree/5224ca7500fd9292b8fe29d967bcb4ab55f93df3/src/applications/accredited-representative-portal
+  - name: ARP Layout
+    type: repo
+    provider: github
+    url: https://github.com/department-of-veterans-affairs/content-build/blob/6c82218da1661c090d2883b26f40cf18e173ff98/src/site/layouts/representative.html
+tags:
+  - accredited-representative-portal
+type: web
+languages:
+  - ruby
+  - javascript
+integrations: {}
+---
+schema-version: v2.2
 dd-service: dependent-change
 team: benefits
 application: 686c/674

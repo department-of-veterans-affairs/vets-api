@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_profile/contact_information/service'
+require 'va_profile/v2/contact_information/service'
 require 'va_profile/exceptions/builder'
 require 'va_profile/models/email'
 require 'va_profile/models/telephone'

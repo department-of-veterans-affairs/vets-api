@@ -12,6 +12,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
   before do
     Timecop.freeze('2018-04-09T17:52:03Z')
     sign_in_as(user)
+    Flipper.disable(:va_v3_contact_information_service)
   end
 
   after { Timecop.return }
