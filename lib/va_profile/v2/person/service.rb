@@ -22,8 +22,8 @@ module VAProfile
         # is present, or through a rake task when no user is present (through passing in their ICN).
         # This is an asynchronous process for VAProfile, so it returns VAProfile transaction information.
         #
-        # @param icn [String] A users ICN. Only required when current user is absent.  Intended to be used in a rake task.
-        # @return [VAProfile:V2::ContactInformation::PersonTransactionResponse] response wrapper around a transaction object
+        # @param icn A users ICN. Only required when current user is absent.  Intended to be used in a rake task.
+        # @return VAProfile:V2::ContactInformation::PersonTransactionResponse response wrapper around the transaction
         #
         def init_vet360_id(icn = nil)
           with_monitoring do

@@ -7,6 +7,7 @@ describe VAProfile::V2::Person::Service, :skip_vet360 do
   before { Timecop.freeze('2018-04-09T17:52:03Z') }
 
   after  { Timecop.return }
+
   Flipper.enable(:va_v3_contact_information_service)
 
   describe '#init_vet360_id' do
