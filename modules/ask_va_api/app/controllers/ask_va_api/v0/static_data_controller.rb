@@ -74,7 +74,7 @@ module AskVAApi
       end
 
       def mock_service
-        DynamicsMockService.new(icn: nil, logger: nil) if params[:mock]
+        DynamicsMockService.new(icn: nil, logger: nil) if params[:user_mock_data]
       end
 
       def render_result(resource)

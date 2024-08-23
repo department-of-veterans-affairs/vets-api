@@ -35,8 +35,7 @@ module AskVAApi
         when Hash
           response[:Data]
         else
-          error = JSON.parse(response.body, symbolize_names: true)
-          raise(InquiriesCreatorError, error[:Message])
+          raise(InquiriesCreatorError, response.body)
         end
       end
     end
