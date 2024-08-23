@@ -241,7 +241,7 @@ FactoryBot.define do
     phase_chngd_dt { Faker::Time.backward(days: 5, period: :morning) }
     phase_type { 'Pending Decision Approval' }
     phase_type_change_ind { '76' }
-    ptcpnt_vet_id { Faker::Number.number(digits: 9).to_s }
+    ptcpnt_vet_id { Faker::Number.number(digits: 9) }
     ptcpnt_clmant_id { '8675309' }
     claim_status_type { 'Compensation' }
     bnft_claim_lc_status { [(association :bnft_claim_lc_status_one).to_h] }

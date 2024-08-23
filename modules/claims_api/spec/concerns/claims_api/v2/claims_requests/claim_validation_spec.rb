@@ -116,32 +116,32 @@ describe ClaimsApi::V2::ClaimsRequests::ClaimValidation do
 
     context 'when either vet_id or claimant_id is nil' do
       it 'returns true' do
-        expect(controller.clm_prtcpnt_cannot_access_claim?(nil, ptcpnt_id)).to be true
-        expect(controller.clm_prtcpnt_cannot_access_claim?(ptcpnt_id, nil)).to be true
+        expect(controller.send(:clm_prtcpnt_cannot_access_claim?, nil, ptcpnt_id)).to be true
+        expect(controller.send(:clm_prtcpnt_cannot_access_claim?, ptcpnt_id, nil)).to be true
       end
     end
 
     context 'when both vet_id and claimant_id match the target veteran' do
       it 'returns false' do
-        expect(controller.clm_prtcpnt_cannot_access_claim?(ptcpnt_id, ptcpnt_id)).to be false
+        expect(controller.send(:clm_prtcpnt_cannot_access_claim?, ptcpnt_id, ptcpnt_id)).to be false
       end
     end
 
     context 'when vet_id does not match and claimant_id does not match the target veteran' do
       it 'returns true' do
-        expect(controller.clm_prtcpnt_cannot_access_claim?('vet_id', 'claimant_id')).to be true
+        expect(controller.send(:clm_prtcpnt_cannot_access_claim?, 'vet_id', 'claimant_id')).to be true
       end
     end
 
     context 'when vet_id matches and claimant_id does not match the target veteran' do
       it 'returns false' do
-        expect(controller.clm_prtcpnt_cannot_access_claim?(ptcpnt_id, 'claimant_id')).to be false
+        expect(controller.send(:clm_prtcpnt_cannot_access_claim?, ptcpnt_id, 'claimant_id')).to be false
       end
     end
 
     context 'when claimant_id matches and vet_id does not match the target veteran' do
       it 'returns false' do
-        expect(controller.clm_prtcpnt_cannot_access_claim?('vet_id', ptcpnt_id)).to be false
+        expect(controller.send(:clm_prtcpnt_cannot_access_claim?, 'vet_id', ptcpnt_id)).to be false
       end
     end
   end

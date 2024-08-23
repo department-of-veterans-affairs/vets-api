@@ -23,6 +23,8 @@ module ClaimsApi
           end
         end
 
+        private
+
         def clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id)
           return true if clm_prtcpnt_vet_id.nil? || clm_prtcpnt_clmnt_id.nil?
 
