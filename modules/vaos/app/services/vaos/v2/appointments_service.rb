@@ -7,7 +7,7 @@ require 'memoist'
 
 module VAOS
   module V2
-    class AppointmentsService < VAOS::SessionService
+    class AppointmentsService < VAOS::SessionService # rubocop:disable Metrics/ClassLength
       extend Memoist
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
@@ -116,10 +116,10 @@ module VAOS
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
-            response = update_appointment_vaos(appt_id, status)
-            convert_appointment_time(response.body)
-            extract_appointment_fields(response.body)
-            OpenStruct.new(response.body)
+            response = update_appointment_vaos(appt_id, status).body
+            convert_appointment_time(response)
+            extract_appointment_fields(response)
+            OpenStruct.new(response)
           end
         end
       end
@@ -180,19 +180,20 @@ module VAOS
       def extract_appointment_fields(appointment)
         reason_code_service.extract_reason_code_fields(appointment)
 
-        # Fallback to extracting preferred dates from requested periods
-        extract_preferred_dates(appointment)
+        # Fallback to extracting preferred dates from a request's requested periods
+        extract_request_preferred_dates(appointment)
       end
 
       # Extract preferred date from the requested periods if necessary.
       #
       # @param @param appointment [Hash] the appointment to modify
-      def extract_preferred_dates(appointment)
+      def extract_request_preferred_dates(appointment)
         # Do not overwrite preferred dates if they are already present
-        if appointment[:preferred_dates].blank? && appointment[:requested_periods].present?
+        requested_periods = appointment[:requested_periods]
+        if requested_periods.present? && appointment[:preferred_dates].blank?
           dates = []
 
-          appointment[:requested_periods].each do |period|
+          requested_periods.each do |period|
             datetime = DateTime.parse(period[:start])
             if datetime.strftime('%p') == 'AM'
               dates.push(datetime.strftime(OUTPUT_FORMAT_AM))
