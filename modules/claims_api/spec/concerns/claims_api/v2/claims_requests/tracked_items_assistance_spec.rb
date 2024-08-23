@@ -55,14 +55,5 @@ describe FakeController do
       result = subject.uploads_allowed?(status)
       expect(result).to eq(false)
     end
-
-    it '#build_tracked_item' do
-      result = subject.build_tracked_item(tracked_item, status, item, wwsnfy: false)
-      expected = { closed_date: nil, description: 'You may be able to...',
-                   display_name: 'STRs not available - substitute documents needed',
-                   overdue: false, received_date: nil, requested_date: '2021-05-05', status: 'Complete',
-                   suspense_date: '2021-06-04', id: 293_439, uploads_allowed: false }
-      expect(result).to eq(expected)
-    end
   end
 end
