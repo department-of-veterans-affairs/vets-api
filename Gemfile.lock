@@ -273,7 +273,7 @@ GEM
     blueprinter (1.1.0)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
-    brakeman (6.1.2)
+    brakeman (6.2.1)
       racc
     breakers (0.7.1)
       faraday (>= 1.2.0, < 3.0)
@@ -513,6 +513,11 @@ GEM
       faraday (>= 1.0, < 3.a)
     google-protobuf (4.27.3)
       bigdecimal
+      rake (>= 13)
+    google-protobuf (4.27.3-java)
+      bigdecimal
+      ffi (~> 1)
+      ffi-compiler (~> 1)
       rake (>= 13)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
