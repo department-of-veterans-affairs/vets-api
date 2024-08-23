@@ -29,6 +29,10 @@ class FakeController
     )
   end
 
+  def request
+    { request_id: '222222222' }
+  end
+
   def benefits_doc_api
     @benefits_doc_api ||= ClaimsApi::BD.new
   end
@@ -43,7 +47,13 @@ class FakeController
 end
 
 describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
-  let(:bgs_claim) { 'Just a simple BGS Claim' }
+  let(:bgs_claim) do
+    {
+      benefit_claim_details_dto: {
+        benefit_claim_id: '111111111'
+      }
+    }
+  end
 
   let(:supporting_doc_list) do
     { data: {
@@ -63,59 +73,100 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
     } }
   end
 
-  context 'when the claims controller calls the supporting_documents module' do
-    let(:controller) { FakeController.new }
+  let(:evss_doc_list) do
+    {
+      'messages' => nil,
+      'documents' => [
+        {
+          'content' => nil,
+          'corporate_document_id' => 107_597,
+          'tracked_item_id' => nil,
+          'document_id' => '{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}',
+          'document_size' => 0,
+          'document_type_code' => 'L478',
+          'document_type_id' => '478',
+          'document_type_label' => 'Medical'
+        }
+      ]
+    }
+  end
 
+  let(:dummy_class) { Class.new { include ClaimsApi::V2::ClaimsRequests::SupportingDocuments } }
+
+  let(:controller) { FakeController.new }
+
+  before do
+    allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return(false)
+
+    allow(controller.local_bgs_service).to receive(:find_by_ssn).with('796111863')
+                                                                .and_return({ file_nbr: '796111863' })
+    allow(controller.benefits_doc_api).to receive(:search).with('8675309', '796111863')
+                                                          .and_return(supporting_doc_list)
+  end
+
+  describe '#build_supporting_docs from Benefits Documents' do
+    it 'builds and returns the correctly number of docs' do
+      result = controller.build_supporting_docs(bgs_claim)
+      expect(result.length).to eq(supporting_doc_list[:data][:documents].length)
+    end
+
+    it 'builds the correct doc output' do
+      result = controller.build_supporting_docs(bgs_claim)
+
+      expect(result[0][:document_id]).to eq(supporting_doc_list[:data][:documents][0][:documentId])
+      expect(result[0][:document_type_label]).to eq(supporting_doc_list[:data][:documents][0][:documentTypeLabel])
+      expect(result[0][:original_file_name]).to eq(supporting_doc_list[:data][:documents][0][:originalFileName])
+      expect(result[0][:tracked_item_id]).to eq(nil)
+      expect(result[0][:upload_date]).to eq('2024-07-16')
+    end
+  end
+
+  describe '#build_supporting_docs from EVSS Docs Service' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return(false)
-
-      allow(controller.local_bgs_service).to receive(:find_by_ssn).with('796111863')
-                                                                  .and_return({ file_nbr: '796111863' })
-      allow(controller.benefits_doc_api).to receive(:search).with('8675309', '796111863')
-                                                            .and_return(supporting_doc_list)
+      allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return(false)
+      allow(controller).to receive(:get_evss_documents).and_call_original
+      allow(controller).to receive(:get_evss_documents).and_return(evss_doc_list)
     end
 
-    describe '#build_supporting_docs' do
-      it 'builds and returns the correctly number of docs' do
-        result = controller.build_supporting_docs(bgs_claim)
-        expect(result.length).to eq(supporting_doc_list[:data][:documents].length)
-      end
-
-      it 'builds the correct doc output' do
-        result = controller.build_supporting_docs(bgs_claim)
-
-        expect(result[0][:document_id]).to eq(supporting_doc_list[:data][:documents][0][:documentId])
-        expect(result[0][:document_type_label]).to eq(supporting_doc_list[:data][:documents][0][:documentTypeLabel])
-        expect(result[0][:original_file_name]).to eq(supporting_doc_list[:data][:documents][0][:originalFileName])
-        expect(result[0][:tracked_item_id]).to eq(nil)
-        expect(result[0][:upload_date]).to eq('2024-07-16')
-      end
+    it 'builds and returns the correctly number of docs' do
+      result = controller.build_supporting_docs(bgs_claim)
+      expect(result.length).to eq(evss_doc_list['documents'].length)
     end
 
-    describe '#bd_upload_date' do
-      it 'properly formats the date when a date is sent' do
-        result = controller.bd_upload_date(supporting_doc_list[:data][:documents][0][:uploadedDateTime])
-        expect(result).to eq('2024-07-16')
-      end
+    it 'builds the correct doc output' do
+      result = controller.build_supporting_docs(bgs_claim)
 
-      it 'returns nil if the date is empty' do
-        result = controller.bd_upload_date(nil)
-        expect(result).to eq(nil)
-      end
+      expect(result[0][:document_id]).to eq(evss_doc_list['documents'][0]['document_id'])
+      expect(result[0][:document_type_label]).to eq(evss_doc_list['documents'][0]['document_type_label'])
+      expect(result[0][:original_file_name]).to eq(nil)
+      expect(result[0][:tracked_item_id]).to eq(nil)
+      expect(result[0][:upload_date]).to eq(nil)
+    end
+  end
+
+  describe '#bd_upload_date' do
+    it 'properly formats the date when a date is sent' do
+      result = controller.bd_upload_date(supporting_doc_list[:data][:documents][0][:uploadedDateTime])
+      expect(result).to eq('2024-07-16')
     end
 
-    describe '#upload_date' do
-      it 'properly formats the date when a date is sent' do
-        result = controller.upload_date(1_414_781_700_000)
+    it 'returns nil if the date is empty' do
+      result = controller.bd_upload_date(nil)
+      expect(result).to eq(nil)
+    end
+  end
 
-        expect(result).to eq('2014-10-31')
-      end
+  describe '#upload_date' do
+    it 'properly formats the date when a date is sent' do
+      result = controller.upload_date(1_414_781_700_000)
 
-      it 'returns nil if the date is empty' do
-        result = controller.upload_date(nil)
-        expect(result).to eq(nil)
-      end
+      expect(result).to eq('2014-10-31')
+    end
+
+    it 'returns nil if the date is empty' do
+      result = controller.upload_date(nil)
+      expect(result).to eq(nil)
     end
   end
 end
