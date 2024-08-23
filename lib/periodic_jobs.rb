@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/BlockLength
 PERIODIC_JOBS = lambda { |mgr|
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
@@ -9,7 +8,6 @@ PERIODIC_JOBS = lambda { |mgr|
 
   mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
   mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
-  mgr.register('*/30 * * * *', 'SidekiqAlive::CleanupQueues')
 
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
   # Update HigherLevelReview statuses with their Central Mail status
@@ -39,8 +37,12 @@ PERIODIC_JOBS = lambda { |mgr|
   # Update static data cache
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
   # Update static data cache for form 526
+  mgr.register('15 * * * *', 'Form526DocumentUploadPollingJob')
+  # Update Lighthouse526DocumentUpload statuses according to Lighthouse Benefits Documents service tracking
   mgr.register('0 3 * * *', 'Form526StatusPollingJob')
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
+  mgr.register('0 2 * * 0', 'Form526StatusPollingJob', 'args' => { paranoid: true })
+  # Checks all 'success' type submissions in LH to ensure they haven't changed
 
   # mgr.register('0 0 * * *', 'VRE::CreateCh31SubmissionsReportJob')
 
@@ -169,7 +171,14 @@ PERIODIC_JOBS = lambda { |mgr|
   # Clean SchemaContact::Validation records every night at midnight
   mgr.register('0 0 * * *', 'SchemaContract::DeleteValidationRecordsJob')
 
-  # Daily 2am job that sends missing Pega statuses to DataDog
-  mgr.register('0 2 * * *', 'IvcChampva::MissingFormStatusJob')
+  # Every 15min job that sends missing Pega statuses to DataDog
+  mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
+
+  # Hourly jobs that update DR SavedClaims with delete_date
+  mgr.register('20 * * * *', 'DecisionReview::SavedClaimHlrStatusUpdaterJob')
+  mgr.register('30 * * * *', 'DecisionReview::SavedClaimNodStatusUpdaterJob')
+  mgr.register('40 * * * *', 'DecisionReview::SavedClaimScStatusUpdaterJob')
+
+  # Clean SavedClaim records that are past delete date
+  mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
 }
-# rubocop:enable Metrics/BlockLength

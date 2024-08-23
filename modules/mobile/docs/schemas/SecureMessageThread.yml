@@ -8,6 +8,7 @@ properties:
   id:
     type: string
     example: 0
+    description: Upstream identifier
   type:
     type: string
     example: "message_threads"

@@ -19,6 +19,7 @@ RSpec.describe 'claims document upload', :skip_json_api_validation, type: :reque
     allow_any_instance_of(BGS::People::Response).to receive(:file_number).and_return('12345')
     allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return(token)
     Flipper.enable_actor(:mobile_lighthouse_document_upload, user)
+    Flipper.disable(:cst_synchronous_evidence_uploads)
     FileUtils.rm_rf(Rails.root.join('tmp', 'uploads', 'cache', '*'))
   end
 
@@ -146,9 +147,8 @@ RSpec.describe 'claims document upload', :skip_json_api_validation, type: :reque
     it 'rejects files with invalid document_types' do
       params = { file:, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      expect(response.status).to eq(500)
-      expect(response.parsed_body['errors'].first['title']).to eq('Internal server error')
-      expect(response.parsed_body['errors'].first['meta']['exception']).to match(/can.t upload/)
+      expect(response.status).to eq(422)
+      expect(response.parsed_body['errors'].first['title']).to eq('File extension is not included in the list')
     end
   end
 

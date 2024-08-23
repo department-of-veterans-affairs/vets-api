@@ -48,7 +48,9 @@ MyHealth::Engine.routes.draw do
         put ':reply_id/replydraft/:draft_id', on: :collection, action: :update_reply_draft, as: :update_reply
       end
 
-      resource :preferences, only: %i[show update], controller: 'messaging_preferences'
+      resource :preferences, only: %i[show update], controller: 'messaging_preferences' do
+        post 'recipients', action: :update_triage_team_preferences
+      end
     end
 
     resources :prescriptions, only: %i[index show], defaults: { format: :json } do
@@ -57,7 +59,7 @@ MyHealth::Engine.routes.draw do
       patch :refill_prescriptions, to: 'prescriptions#refill_prescriptions', on: :collection
       get :list_refillable_prescriptions, to: 'prescriptions#list_refillable_prescriptions', on: :collection
       get 'get_prescription_image/:cmopNdcNumber', to: 'prescriptions#get_prescription_image', on: :collection
-      get :documentation, to: 'prescriptions#documentation', on: :member
+      get :documentation, to: 'prescription_documentation#index', on: :member
       resources :trackings, only: :index, controller: :trackings
       collection do
         resource :preferences, only: %i[show update], controller: 'prescription_preferences'

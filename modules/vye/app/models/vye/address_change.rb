@@ -24,22 +24,31 @@ module Vye
     # and sent to the backend, but the backend has not yet processed it.
     # So it will not have been reflected from the backend until the next pull.
     enum(
-      origin: { frontend: 'frontend', cached: 'cached', backend: 'backend', expired: 'expired' },
+      origin: { frontend: 'frontend', cached: 'cached', backend: 'backend' },
       _suffix: true
     )
 
-    scope :created_today, lambda {
-      includes(user_info: :user_profile)
-        .where('created_at >= ?', Time.zone.now.beginning_of_day)
+    scope :backend, -> { where(origin: 'backend').limit(1) }
+
+    scope :latest, -> { order(created_at: :desc).limit(1) }
+
+    scope :export_ready, lambda {
+      self
+        .select('DISTINCT ON (vye_address_changes.user_info_id) vye_address_changes.*')
+        .joins(user_info: :bdn_clone)
+        .where(origin: 'frontend', vye_bdn_clones: { export_ready: true })
+        .order('vye_address_changes.user_info_id, vye_address_changes.created_at DESC')
     }
 
-    def self.todays_records
-      created_today.each_with_object([]) do |record, result|
+    def self.report_rows
+      export_ready.each_with_object([]) do |record, result|
+        user_info = record.user_info
+
         result << {
-          rpo: record.user_info.rpo_code,
-          benefit_type: record.user_info.indicator,
-          ssn: record.user_info.ssn,
-          file_number: record.user_info.file_number,
+          rpo: user_info.rpo_code,
+          benefit_type: user_info.indicator,
+          ssn: user_info.ssn,
+          file_number: user_info.file_number,
           veteran_name: record.veteran_name,
           address1: record.address1,
           address2: record.address2,
@@ -48,32 +57,47 @@ module Vye
           city: record.city,
           state: record.state,
           zip_code: record.zip_code
-        }
+        }.transform_values { |v| v.presence || ' ' }
       end
     end
 
-    def self.todays_report
-      template = YAML.load(<<-END_OF_TEMPLATE).gsub(/\n/, '')
-      |-
-        %3<rpo>s,
-        %1<benefit_type>s,
-        %9<ssn>s,
-        %9<file_number>s,
-        %20<veteran_name>s,
+    REPORT_TEMPLATE =
+      <<~END_OF_TEMPLATE.gsub(/\n/, '')
+        %-3<rpo>s,
+        %-1<benefit_type>s,
+        %-9<ssn>s,
+        %-9<file_number>s,
+        %-20<veteran_name>s,
         %<address1>s,
         %<address2>s,
         %<address3>s,
         %<address4>s,
         %<city>s,
-        %6<state>s,
-        %5<zip_code>s
+        %-6<state>s,
+        %-5<zip_code>s
       END_OF_TEMPLATE
 
-      report = todays_records.each_with_object([]) do |record, result|
-        result << format(template, record)
-      end
+    private_constant :REPORT_TEMPLATE
 
-      report.join("\n")
+    def self.write_report(io)
+      report_rows.each do |record|
+        io.puts(format(REPORT_TEMPLATE, record))
+      end
+    end
+
+    def self.cache_new_address_changes
+      # rubocop:disable Rails/FindEach
+      export_ready
+        .includes(user_info: { user_profile: :active_user_info })
+        .each do |record|
+          user_info = record.user_info.user_profile.active_user_info
+
+          address_change = record.dup
+          address_change.user_info = user_info
+          address_change.origin = 'cached'
+          address_change.save!
+        end
+      # rubocop:enable Rails/FindEach
     end
   end
 end

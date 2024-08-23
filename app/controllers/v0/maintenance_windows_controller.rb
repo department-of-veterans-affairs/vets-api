@@ -8,8 +8,7 @@ module V0
     def index
       @maintenance_windows = MaintenanceWindow.end_after(Time.zone.now)
 
-      render json: @maintenance_windows,
-             each_serializer: MaintenanceWindowSerializer
+      render json: MaintenanceWindowSerializer.new(@maintenance_windows)
     end
   end
 end

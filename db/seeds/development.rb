@@ -74,16 +74,27 @@ sample_client_api.update!(authentication: SignIn::Constants::Auth::API,
                           logout_redirect_uri: 'http://localhost:4567',
                           refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
+# Create Config for example sts service account
+sample_sts_config = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'sample_sts_service_account')
+sample_sts_config.update!(
+  description: 'Sample STS Service Account',
+  scopes: [],
+  access_token_audience: 'http://localhost:3000',
+  access_token_user_attributes: [],
+  access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+  certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
+)
+
 # Create Config for VA Identity Dashboard using cookie auth
-vaid_dash = SignIn::ClientConfig.find_or_initialize_by(client_id: 'identity_dashboard')
+vaid_dash = SignIn::ClientConfig.find_or_initialize_by(client_id: 'identity_dashboard_rails')
 vaid_dash.update!(authentication: SignIn::Constants::Auth::COOKIE,
                   anti_csrf: true,
                   pkce: true,
-                  redirect_uri: 'http://localhost:3001/auth/login/callback',
+                  redirect_uri: 'http://localhost:4000/sessions/callback',
                   access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
-                  access_token_audience: 'sample_client',
+                  access_token_audience: 'identity dashboard',
                   access_token_attributes: %w[first_name last_name email],
-                  logout_redirect_uri: 'http://localhost:3001',
+                  logout_redirect_uri: 'http://localhost:4000/sessions/logout_callback',
                   refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Service Account Config for VA Identity Dashboard Service Account auth
@@ -94,10 +105,7 @@ identity_dashboard_service_account_config =
   SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: vaid_service_account_id)
 identity_dashboard_service_account_config.update!(service_account_id: vaid_service_account_id,
                                                   description: 'VA Identity Dashboard API',
-                                                  scopes: ['http://localhost:3000/sign_in/client_configs',
-                                                           'http://localhost:3000/v0/account_controls/credential_index',
-                                                           'http://localhost:3000/v0/account_controls/credential_lock',
-                                                           'http://localhost:3000/v0/account_controls/credential_unlock'],
+                                                  scopes: ['http://localhost:3000/sign_in/client_configs'],
                                                   access_token_audience: 'http://localhost:4000',
                                                   access_token_duration: vaid_access_token_duration,
                                                   certificates: [vaid_certificate],
@@ -149,3 +157,8 @@ btsss.update!(
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
   certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
 )
+
+# Update any exisitng ServiceAccountConfigs and ClientConfigs with default empty arrays
+SignIn::ServiceAccountConfig.where(certificates: nil).update(certificates: [])
+SignIn::ServiceAccountConfig.where(scopes: nil).update(scopes: [])
+SignIn::ClientConfig.where(certificates: nil).update(certificates: [])

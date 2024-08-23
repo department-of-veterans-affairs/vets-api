@@ -8,6 +8,7 @@ require './lib/common/exceptions/backend_service_exception'
 require 'claims_api/common/exceptions/lighthouse/unprocessable_entity'
 require 'claims_api/common/exceptions/lighthouse/resource_not_found'
 require 'claims_api/common/exceptions/lighthouse/bad_request'
+require 'claims_api/common/exceptions/lighthouse/timeout'
 
 module ClaimsApi
   module V2
@@ -26,6 +27,7 @@ module ClaimsApi
                         ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest,
                         ::Common::Exceptions::BackendServiceException,
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::Timeout,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException do |err|
                           render_non_source_error(err)
                         end

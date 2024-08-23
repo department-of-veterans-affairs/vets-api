@@ -14,6 +14,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
   before do
     sign_in_as(user)
     mock_pdf_fill
+    allow(StatsD).to receive(:increment).and_call_original
   end
 
   def mock_pdf_fill
@@ -55,6 +56,37 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
       get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform')
     end
 
+    let(:pre_transform_fsr_streamlined_form_data) do
+      get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/sw_short/streamlined_pre_transform')
+    end
+
+    let(:pre_transform_fsr_streamlined_long_form_data) do
+      get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/sw_short/streamlined_long_pre_transform')
+    end
+
+    context 'when service raises a standard error' do
+      let(:post_transform_fsr_form_data) do
+        get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/post_transform')
+      end
+
+      before do
+        allow(DebtsApi::V0::FsrFormTransform::FullTransformService).to receive(:new)
+          .and_raise(StandardError.new('Simulated error'))
+      end
+
+      it 'renders 500' do
+        expect(StatsD).to receive(:increment).once.with('api.fsr_submission.full_transform.error')
+        post(
+          '/debts_api/v0/financial_status_reports/transform_and_submit',
+          params: pre_transform_fsr_form_data.to_h,
+          as: :json
+        )
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.header['Content-Type']).to include('application/json')
+        expect(response.body).not_to eq(nil)
+      end
+    end
+
     context 'when service raises FSRNotFoundInRedis' do
       let(:post_transform_fsr_form_data) do
         get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/post_transform')
@@ -81,9 +113,38 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request
     it 'submits a financial status report' do
       VCR.use_cassette('dmc/submit_fsr') do
         VCR.use_cassette('bgs/people_service/person_data') do
+          expect(StatsD).to receive(:increment).once.with('api.fsr_submission.full_transform.run')
+          post(
+            '/debts_api/v0/financial_status_reports/transform_and_submit',
+            params: pre_transform_fsr_streamlined_form_data.to_h,
+            as: :json
+          )
+          expect(response.code).to eq('200')
+        end
+      end
+    end
+
+    it 'submits a streamlined short form' do
+      VCR.use_cassette('dmc/submit_fsr') do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          expect(StatsD).to receive(:increment).once.with('api.fsr_submission.full_transform.run')
           post(
             '/debts_api/v0/financial_status_reports/transform_and_submit',
             params: pre_transform_fsr_form_data.to_h,
+            as: :json
+          )
+          expect(response.code).to eq('200')
+        end
+      end
+    end
+
+    it 'submits a streamlined long form' do
+      VCR.use_cassette('dmc/submit_fsr') do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          expect(StatsD).to receive(:increment).once.with('api.fsr_submission.full_transform.run')
+          post(
+            '/debts_api/v0/financial_status_reports/transform_and_submit',
+            params: pre_transform_fsr_streamlined_long_form_data.to_h,
             as: :json
           )
           expect(response.code).to eq('200')

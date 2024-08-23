@@ -65,16 +65,16 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
 
       expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
       expect(claim).to receive(:to_pdf).and_return('path1')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
       expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
         y: 770,
         text_only: true
       ).and_return('path3')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
       expect(datestamp_double3).to receive(:run).with(
         text: 'Application Submitted on va.gov',
         x: 400,
@@ -112,9 +112,6 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
         allow(mailer_double).to receive(:deliver_now)
         expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
         expect(claim).to receive(:submittable_674?).and_return(false)
-        expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) {
-                                                        mailer_double
-                                                      }
         expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(CentralMail::SubmitCentralForm686cJob::CentralMailResponseError) # rubocop:disable Layout/LineLength
 
         expect(central_mail_submission.reload.state).to eq('failed')
@@ -157,16 +154,16 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
       datestamp_double2 = double
       datestamp_double3 = double
 
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
       expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
         y: 770,
         text_only: true
       ).and_return('path3')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
       expect(datestamp_double3).to receive(:run).with(
         text: 'Application Submitted on va.gov',
         x: 400,
@@ -249,6 +246,15 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
           'ahash1' => 'hash2',
           'numberPages1' => 2
         )
+      end
+    end
+
+    describe 'sidekiq_retries_exhausted block' do
+      it 'logs a distinct error when retries are exhausted' do
+        CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block do
+          expect(Rails.logger).to receive(:error).exactly(:once)
+          expect(StatsD).to receive(:increment).with('worker.submit_686c_674_backup_submission.exhausted')
+        end
       end
     end
   end

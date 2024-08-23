@@ -36,6 +36,10 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
+    before do
+      Flipper.enable(:va_burial_v2)
+    end
+
     describe 'backend statuses' do
       describe '/v0/backend_statuses/{service}' do
         it 'supports getting backend service status' do
@@ -288,6 +292,28 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       )
     end
 
+    it 'supports adding a claim document' do
+      expect(subject).to validate(
+        :post,
+        '/v0/claim_attachments',
+        200,
+        '_data' => {
+          'form_id' => '21P-530V2',
+          file: fixture_file_upload('spec/fixtures/files/doctors-note.pdf')
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/claim_attachments',
+        422,
+        '_data' => {
+          'form_id' => '21P-530V2',
+          file: fixture_file_upload('spec/fixtures/files/empty_file.txt')
+        }
+      )
+    end
+
     it 'supports checking stem_claim_status' do
       expect(subject).to validate(:get, '/v0/education_benefits_claims/stem_claim_status', 200)
     end
@@ -403,7 +429,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           200,
           '_data' => {
             'burial_claim' => {
-              'form' => build(:burial_claim).form
+              'form' => build(:burial_claim_v2).form
             }
           }
         )
@@ -906,7 +932,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         json.to_json
       end
       let(:user) do
-        build(
+        create(
           :evss_user,
           :loa3,
           icn: '1013032368V065534',
@@ -975,10 +1001,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       context 'submitting a 1010EZR form' do
-        before do
-          Flipper.disable('ezr_async')
-        end
-
         context 'unauthenticated user' do
           it 'returns unauthorized status code' do
             expect(subject).to validate(:post, '/v0/form1010_ezrs', 401)
@@ -1137,6 +1159,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
         Flipper.disable('disability_compensation_prevent_submission_job')
         Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
+        Flipper.disable('disability_compensation_production_tester')
       end
 
       let(:form526v2) do
@@ -1284,6 +1307,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       before do
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
         Flipper.disable('disability_compensation_lighthouse_intent_to_file_provider')
+        Flipper.disable('disability_compensation_production_tester')
       end
 
       it 'supports getting all intent to file' do
@@ -3216,9 +3240,16 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             inquiry: {
               form: JSON.generate(
                 {
-                  fullName: {
+                  personalInformation: {
                     first: 'Obi Wan',
                     last: 'Kenobi'
+                  },
+                  contactInformation: {
+                    email: 'obi1kenobi@gmail.com',
+                    address: {
+                      country: 'USA'
+                    },
+                    phone: '1234567890'
                   },
                   topic: {
                     levelOne: 'Caregiver Support Program',
@@ -3229,11 +3260,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
                   veteranStatus: {
                     veteranStatus: 'general'
                   },
-                  preferredContactMethod: 'email',
-                  email: 'obi1kenobi@gmail.com',
-                  address: {
-                    country: 'USA'
-                  }
+                  preferredContactMethod: 'email'
                 }
               )
             }

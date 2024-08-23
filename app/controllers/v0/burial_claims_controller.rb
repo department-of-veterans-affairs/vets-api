@@ -12,7 +12,7 @@ module V0
         state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
         render(json: { data: { attributes: { state: } } })
       elsif central_mail_submission
-        render(json: central_mail_submission)
+        render json: CentralMailSubmissionSerializer.new(central_mail_submission)
       else
         Rails.logger.error("ActiveRecord::RecordNotFound: Claim submission not found for claim_id: #{params[:id]}")
         render(json: { data: { attributes: { state: 'not found' } } }, status: :not_found)
@@ -36,6 +36,9 @@ module V0
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
         Sentry.set_tags(team: 'benefits-memorial-1') # tag sentry logs with team name
+        Rails.logger.error('Burial claim was not saved', {  error_messages: claim.errors,
+                                                            user_uuid: current_user&.uuid,
+                                                            in_progress_form_id: in_progress_form&.id })
         raise Common::Exceptions::ValidationErrors, claim
       end
       # this method also calls claim.process_attachments!
@@ -43,7 +46,7 @@ module V0
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.form_id}"
       clear_saved_form(claim.form_id)
-      render(json: claim)
+      render json: SavedClaimSerializer.new(claim)
     end
 
     def short_name
@@ -64,6 +67,10 @@ module V0
 
     def central_mail_submission
       CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
+    end
+
+    def in_progress_form
+      current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
     end
   end
 end

@@ -13,11 +13,11 @@ module BGS
 
     sidekiq_options retry: 14
 
-    sidekiq_retries_exhausted do |msg, error|
+    sidekiq_retries_exhausted do |msg, _error|
       user_uuid, icn, saved_claim_id, encrypted_vet_info = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      Rails.logger.error('BGS::SubmitForm686cJob failed, retries exhausted!',
-                         { user_uuid:, saved_claim_id:, icn:, error: })
+      Rails.logger.error("BGS::SubmitForm686cJob failed, retries exhausted! Last error: #{msg['error_message']}",
+                         { user_uuid:, saved_claim_id:, icn: })
 
       BGS::SubmitForm686cJob.send_backup_submission(vet_info, saved_claim_id, user_uuid)
     end
@@ -79,14 +79,10 @@ module BGS
     end
 
     def self.send_backup_submission(vet_info, saved_claim_id, user_uuid)
-      if Flipper.enabled?(:dependents_central_submission)
-        user = generate_user_struct(vet_info)
-        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
-                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
-                                                            KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
-      else
-        DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
-      end
+      user = generate_user_struct(vet_info)
+      CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
+                                                          KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+                                                          KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
       Rails.logger.warn('BGS::SubmitForm686cJob backup submission failed...',

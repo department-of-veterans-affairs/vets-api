@@ -48,6 +48,7 @@ RSpec.describe IvcChampva::VHA107959c do
         'veteranLastName' => 'Doe',
         'fileNumber' => '123456789',
         'zipCode' => '12345',
+        'ssn_or_tin' => '123456789',
         'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '10-7959C',
@@ -75,6 +76,31 @@ RSpec.describe IvcChampva::VHA107959c do
       allow(File).to receive(:rename)
       result = instance.handle_attachments(file_path)
       expect(result).to eq(["#{uuid}_vha_10_7959c-tmp.pdf"])
+    end
+  end
+
+  describe '#track_email_usage' do
+    let(:statsd_key) { 'api.ivc_champva_form.10_7959c' }
+    let(:vha_10_7959c) { described_class.new(data) }
+
+    context 'when email is used' do
+      let(:data) { { 'primary_contact_info' => { 'email' => 'test@example.com' } } }
+
+      it 'increments the StatsD for email used and logs the info' do
+        expect(StatsD).to receive(:increment).with("#{statsd_key}.yes")
+        expect(Rails.logger).to receive(:info).with('IVC ChampVA Forms - 10-7959C Email Used', email_used: 'yes')
+        vha_10_7959c.track_email_usage
+      end
+    end
+
+    context 'when email is not used' do
+      let(:data) { { 'primary_contact_info' => {} } }
+
+      it 'increments the StatsD for email not used and logs the info' do
+        expect(StatsD).to receive(:increment).with("#{statsd_key}.no")
+        expect(Rails.logger).to receive(:info).with('IVC ChampVA Forms - 10-7959C Email Used', email_used: 'no')
+        vha_10_7959c.track_email_usage
+      end
     end
   end
 end

@@ -9,7 +9,7 @@ FactoryBot.define do
 
     file_number { (1..9).map(&digit).join }
     dob { Faker::Date.birthday }
-    stub_nm { Faker::Name.name }
+    stub_nm { format("#{Faker::Name.first_name[0, 1].upcase} #{Faker::Name.last_name[0, 3].upcase}") }
     mr_status { 'A' }
     rem_ent do
       months = (36 * rand).floor
@@ -26,7 +26,25 @@ FactoryBot.define do
     bdn_clone_active { true }
 
     after(:create) do |user_info|
-      create_list(:vye_address_change, 3, user_info:)
+      create_list(:vye_address_backend, 1, user_info:)
+    end
+
+    trait :with_address_changes do
+      after(:create) do |user_info|
+        create_list(:vye_address_change, 2, user_info:, origin: 'frontend')
+      end
+    end
+
+    trait :with_verified_awards do
+      after(:create) do |user_info|
+        create_list(:vye_award, 4, :with_verifications, user_info:)
+      end
+    end
+
+    trait :with_direct_deposit_changes do
+      after(:create) do |user_info|
+        create_list(:vye_direct_deposit_change, 2, user_info:)
+      end
     end
   end
 end

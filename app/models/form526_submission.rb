@@ -4,11 +4,14 @@ require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 require 'sentry_logging'
 require 'sidekiq/form526_backup_submission_process/submit'
 require 'logging/third_party_transaction'
+require 'lighthouse/poll_form526_pdf'
+require 'scopes/form526_submission_state'
 
 class Form526Submission < ApplicationRecord
   extend Logging::ThirdPartyTransaction::MethodWrapper
   include SentryLogging
   include Form526ClaimFastTrackingConcern
+  include Scopes::Form526SubmissionState
 
   wrap_with_logging(:start_evss_submission_job,
                     :enqueue_backup_submission,
@@ -18,6 +21,7 @@ class Form526Submission < ApplicationRecord
                     :submit_form_8940,
                     :upload_bdd_instructions,
                     :submit_flashes,
+                    :poll_form526_pdf,
                     :cleanup,
                     additional_class_logs: {
                       action: 'Begin as anciliary 526 submission'
@@ -59,28 +63,8 @@ class Form526Submission < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
-  enum backup_submitted_claim_status: { accepted: 0, rejected: 1 }
+  enum backup_submitted_claim_status: { accepted: 0, rejected: 1, paranoid_success: 2 }
   enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
-
-  scope :pending_backup_submissions, lambda {
-    where(submitted_claim_id: nil, backup_submitted_claim_status: nil)
-      .where.not(backup_submitted_claim_id: nil)
-  }
-  scope :in_process, lambda {
-    where(submitted_claim_id: nil, backup_submitted_claim_status: nil)
-      .where('created_at >= ?', MAX_PENDING_TIME.ago)
-  }
-  scope :success_type, lambda {
-    left_joins(:form526_submission_remediations)
-      .where.not(submitted_claim_id: nil)
-      .or(where.not(backup_submitted_claim_id: nil)
-        .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:accepted]))
-      .or(where(form526_submission_remediations: { success: true }))
-  }
-  scope :failure_type, lambda {
-    where.not(id: in_process.select(:id))
-         .where.not(id: success_type.select(:id))
-  }
 
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'
@@ -90,7 +74,9 @@ class Form526Submission < ApplicationRecord
   FLASHES = 'flashes'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
-  MAX_PENDING_TIME = 3.days
+  # MAX_PENDING_TIME aligns with the farthest out expectation given in the LH BI docs,
+  # plus 1 week to accomodate for edge cases and our sidekiq jobs
+  MAX_PENDING_TIME = 3.weeks
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
   # submission process. Currently this passes directly to the retryable EVSS workflow, but if any
@@ -328,11 +314,13 @@ class Form526Submission < ApplicationRecord
     )
     workflow_batch.jobs do
       submit_uploads if form[FORM_526_UPLOADS].present?
-      submit_form_4142 if form[FORM_4142].present?
+      conditionally_submit_form_4142
       submit_form_0781 if form[FORM_0781].present?
       submit_form_8940 if form[FORM_8940].present?
       upload_bdd_instructions if bdd?
       submit_flashes if form[FLASHES].present?
+      poll_form526_pdf if Flipper.enabled?(:disability_526_toxic_exposure_document_upload_polling,
+                                           OpenStruct.new({ flipper_id: user_uuid }))
       cleanup
     end
   end
@@ -447,7 +435,19 @@ class Form526Submission < ApplicationRecord
     self.class.in_process.exists?(id:)
   end
 
+  def last_remediation
+    form526_submission_remediations&.order(:created_at)&.last
+  end
+
   private
+
+  def conditionally_submit_form_4142
+    if Flipper.enabled?(:disability_compensation_production_tester, OpenStruct.new({ flipper_id: user_uuid }))
+      Rails.logger.info("submit_form_4142 call skipped for submission #{id}")
+    elsif form[FORM_4142].present?
+      submit_form_4142
+    end
+  end
 
   attr_accessor :lighthouse_validation_response
 
@@ -546,11 +546,15 @@ class Form526Submission < ApplicationRecord
     BGS::FlashUpdater.perform_async(id) if user && Flipper.enabled?(:disability_compensation_flashes, user)
   end
 
-  def cleanup
-    EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
+  def poll_form526_pdf
+    # In order to track the status of the 526 PDF upload via Lighthouse,
+    # call poll_form526_pdf, provided we received a valid claim_id from Lighthouse
+    if saved_claim.parsed_form['startedFormVersion'].present? && submitted_claim_id
+      Lighthouse::PollForm526Pdf.perform_async(id)
+    end
   end
 
-  def last_remediation
-    form526_submission_remediations&.order(:created_at)&.last
+  def cleanup
+    EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
   end
 end

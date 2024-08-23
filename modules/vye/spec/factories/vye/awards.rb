@@ -15,5 +15,13 @@ FactoryBot.define do
     type_training { 'type' }
     number_hours { 20 }
     type_hours { 'type' }
+
+    trait :with_verifications do
+      after(:create) do |award|
+        user_profile = award.user_info.user_profile
+        user_info = award.user_info
+        create(:vye_verification, user_profile:, user_info:, award:)
+      end
+    end
   end
 end

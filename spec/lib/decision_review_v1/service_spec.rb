@@ -31,7 +31,7 @@ describe DecisionReviewV1::Service do
         HLR-GET-CONTESTABLE-ISSUES-REQUEST-BENEFIT-TYPE_V1
         HLR-CREATE-REQUEST-BODY_V1
         HLR-CREATE-RESPONSE-200_V1
-        HLR-SHOW-RESPONSE-200_V1
+        HLR-SHOW-RESPONSE-200_V2
       ].each do |schema_name|
         it("#{schema_name} schema is present") { expect(VetsJsonSchema::SCHEMAS[schema_name]).to be_a Hash }
       end
@@ -49,7 +49,7 @@ describe DecisionReviewV1::Service do
       %w[
         NOD-CREATE-REQUEST-BODY_V1
         NOD-CREATE-RESPONSE-200_V1
-        NOD-SHOW-RESPONSE-200_V1
+        NOD-SHOW-RESPONSE-200_V2
       ].each do |schema_name|
         it("#{schema_name} schema is present") { expect(VetsJsonSchema::SCHEMAS).to have_key schema_name }
       end
@@ -69,7 +69,7 @@ describe DecisionReviewV1::Service do
         SC-CREATE-REQUEST-BODY_V1
         SC-CREATE-RESPONSE-200_V1
         SC-CREATE-REQUEST-BODY-FOR-VA-GOV
-        SC-SHOW-RESPONSE-200_V1
+        SC-SHOW-RESPONSE-200_V2
       ].each do |schema_name|
         it("#{schema_name} schema is present") { expect(VetsJsonSchema::SCHEMAS).to have_key schema_name }
       end
@@ -178,6 +178,19 @@ describe DecisionReviewV1::Service do
       end
     end
 
+    # test that additional error code mapping in exceptions.en.yml works
+    context '503 response' do
+      it 'properly raises a 503 when the error is returned from the service' do
+        VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-503_V1') do
+          expect { subject }.to raise_error(
+            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_503')),
+            'BackendServiceException: {:source=>"Common::Client::Errors::ClientError ' \
+            'raised in DecisionReviewV1::Service", :code=>"DR_503"}'
+          )
+        end
+      end
+    end
+
     context 'user is missing data' do
       before do
         allow_any_instance_of(User).to receive(:ssn).and_return(nil)
@@ -196,7 +209,7 @@ describe DecisionReviewV1::Service do
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
-        VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-200_V1') do
+        VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-200_V2') do
           expect(subject).to respond_to :status
           expect(subject.status).to be 200
           expect(subject).to respond_to :body
@@ -328,7 +341,7 @@ describe DecisionReviewV1::Service do
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
-        VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-200_V1') do
+        VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-200_V2') do
           expect(subject).to respond_to :status
           expect(subject.status).to be 200
           expect(subject).to respond_to :body
@@ -531,7 +544,7 @@ describe DecisionReviewV1::Service do
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
-        VCR.use_cassette('decision_review/SC-SHOW-RESPONSE-200_V1') do
+        VCR.use_cassette('decision_review/SC-SHOW-RESPONSE-200_V2') do
           expect(subject).to respond_to :status
           expect(subject.status).to be 200
           expect(subject).to respond_to :body
@@ -693,6 +706,31 @@ describe DecisionReviewV1::Service do
 
     it 'returns a properly transiterated response' do
       expect(subject).to eq 'Andres  Gudni Th Johannesson Lofven aaaaaaaaaaaaaa'
+    end
+  end
+
+  describe '#construct_tmpfile_name' do
+    subject do
+      described_class.new
+    end
+
+    it 'returns name with appeal submission upload id when present' do
+      result = subject.construct_tmpfile_name(12_345, 'original_filename.pdf')
+      expect(result).to eq 'appeal_submission_upload_12345_'
+    end
+
+    it 'returns original filename when appeal submission upload id not present' do
+      result = subject.construct_tmpfile_name(nil, 'original_filename.pdf')
+      expect(result).to eq 'original_filename'
+    end
+
+    it 'returns first 240 characters of very long filename as the basename' do
+      long_filename = 'Lorem_ipsum_dolor_sit_amet,_consectetur_adipiscing_elit,_sed_do_eiusmod_tempor_' \
+                      'incididunt_ut_labore_et_dolore_magna_aliqua_Ut_enim_ad_minim_veniam_quis_nostrud_' \
+                      'exercitation_ullamco_laboris_nisi_ut_aliquip_ex_ea_commodo_consequat_Duis_' \
+                      'aute_irure_blah.pdf'
+      result = subject.construct_tmpfile_name(nil, long_filename)
+      expect(result).to eq long_filename.first(240)
     end
   end
 end

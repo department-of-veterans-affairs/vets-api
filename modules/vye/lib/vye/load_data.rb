@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module Vye
+  class UserProfileConflict < RuntimeError; end
+  class UserProfileNotFound < RuntimeError; end
+
   class LoadData
     SOURCES = %i[team_sensitive tims_feed bdn_feed].freeze
 
@@ -8,7 +11,7 @@ module Vye
 
     private
 
-    attr_reader :bdn_clone, :locator, :user_profile, :user_info
+    attr_reader :bdn_clone, :locator, :user_profile, :user_info, :source
 
     def initialize(source:, locator:, bdn_clone: nil, records: {})
       raise ArgumentError, format('Invalid source: %<source>s', source:) unless sources.include?(source)
@@ -17,16 +20,20 @@ module Vye
 
       @bdn_clone = bdn_clone
       @locator = locator
+      @source = source
 
       UserProfile.transaction do
         send(source, **records)
       end
 
       @valid_flag = true
-    rescue ActiveRecord::RecordInvalid => e
-      Rails.logger.error e.message
-      Rails.logger.error e.backtrace.join("\n")
-
+    rescue => e
+      @error_message =
+        format(
+          'Loading data failed: source: %<source>s, locator: %<locator>s, error message: %<message>s',
+          source:, locator:, message: e.message
+        )
+      Rails.logger.error @error_message
       @valid_flag = false
     end
 
@@ -54,7 +61,24 @@ module Vye
     end
 
     def load_profile(attributes)
-      user_profile = UserProfile.produce(attributes)
+      user_profile, conflict, attribute_name =
+        UserProfile
+        .produce(attributes)
+        .values_at(:user_profile, :conflict, :attribute_name)
+
+      if user_profile.new_record? && source == :tims_feed
+        raise UserProfileNotFound
+      elsif conflict == true && source == :tims_feed
+        raise UserProfileConflict
+      elsif conflict == true
+        message =
+          format(
+            'Updated conflict for %<attribute_name>s from BDN feed line: %<locator>s',
+            attribute_name:, locator:
+          )
+        Rails.logger.info message
+      end
+
       user_profile.save!
       @user_profile = user_profile
     end
@@ -84,6 +108,8 @@ module Vye
     end
 
     public
+
+    attr_reader :error_message
 
     def valid?
       @valid_flag

@@ -6,6 +6,10 @@ require 'pdf_fill/filler'
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
+  before do
+    Flipper.enable(:va_burial_v2)
+  end
+
   describe '#combine_extras' do
     subject do
       described_class.combine_extras(old_file_path, extras_generator)
@@ -46,8 +50,8 @@ describe PdfFill::Filler, type: :model do
   describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
     [
       {
-        form_id: '21P-530',
-        factory: :burial_claim
+        form_id: '21P-530V2',
+        factory: :burial_claim_v2
       },
       {
         form_id: '21P-527EZ',
@@ -59,26 +63,24 @@ describe PdfFill::Filler, type: :model do
         factory: :income_and_assets_claim,
         use_vets_json_schema: true
       },
-      # Removing these test cases temporarily until we can resolve the fixture issues
-      # Ticket to update these here: https://github.com/department-of-veterans-affairs/va.gov-team/issues/86927
-      # {
-      #   form_id: '10-10CG',
-      #   factory: :caregivers_assistance_claim,
-      #   input_data_fixture_dir: 'pdf_fill/10-10CG',
-      #   output_pdf_fixture_dir: 'pdf_fill/10-10CG/unsigned',
-      #   fill_options: {
-      #     sign: false
-      #   }
-      # },
-      # {
-      #   form_id: '10-10CG',
-      #   factory: :caregivers_assistance_claim,
-      #   input_data_fixture_dir: 'pdf_fill/10-10CG',
-      #   output_pdf_fixture_dir: 'pdf_fill/10-10CG/signed',
-      #   fill_options: {
-      #     sign: true
-      #   }
-      # },
+      {
+        form_id: '10-10CG',
+        factory: :caregivers_assistance_claim,
+        input_data_fixture_dir: 'pdf_fill/10-10CG',
+        output_pdf_fixture_dir: 'pdf_fill/10-10CG/signed',
+        fill_options: {
+          sign: true
+        }
+      },
+      {
+        form_id: '10-10CG',
+        factory: :caregivers_assistance_claim,
+        input_data_fixture_dir: 'pdf_fill/10-10CG',
+        output_pdf_fixture_dir: 'pdf_fill/10-10CG/signed',
+        fill_options: {
+          sign: true
+        }
+      },
       {
         form_id: '686C-674',
         factory: :dependency_claim
@@ -97,7 +99,15 @@ describe PdfFill::Filler, type: :model do
               schema = "#{form_id.upcase}-#{type.upcase}"
               VetsJsonSchema::EXAMPLES.fetch(schema)
             end
-            let(:saved_claim) { create(factory, form: form_data.to_json) }
+            let(:saved_claim) do
+              if form_id == '21P-530V2'
+                claim = create(factory)
+                claim.update(form: form_data.to_json)
+                claim
+              else
+                create(factory, form: form_data.to_json)
+              end
+            end
 
             it 'fills the form correctly' do
               if type == 'overflow'
