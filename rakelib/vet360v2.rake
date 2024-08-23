@@ -1,80 +1,70 @@
 # frozen_string_literal: true
 
-require 'va_profile/contact_information/service'
+require 'va_profile/v2/contact_information/service'
 require 'va_profile/exceptions/builder'
 require 'va_profile/models/email'
 require 'va_profile/models/telephone'
-require 'va_profile/person/service'
+require 'va_profile/v2/person/service'
 
-namespace :vet360 do
+namespace :vet360v2 do
   ###########
   ## TASKS ##
   ###########
 
-  ENV_VAR_NAME = 'VET360_RAKE_DATA'
+  env_var_name = 'VET360_RAKE_DATA'
 
   ## GETs
 
   desc 'Request Vet360 person contact information'
   task :get_person, [:vet360_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
-    trx = VAProfile::ContactInformation::Service.new(user_struct(args[:vet360_id])).get_person
-    # rubocop:disable Lint/Debugger
+    trx = VAProfile::V2::ContactInformation::Service.new(user_struct(args[:vet360_id])).get_person
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 email transaction status'
   task :get_email_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_email_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 address transaction status'
   task :get_address_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_address_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 telephone transaction status'
   task :get_telephone_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_telephone_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 permission transaction status'
   task :get_permission_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_permission_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   ## PUTs
 
-  desc "Update Vet360 email (from #{ENV_VAR_NAME})"
+  desc "Update Vet360 email (from #{env_var_name})"
   task put_email: [:environment] do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
@@ -88,20 +78,18 @@ namespace :vet360 do
 
     ensure_data_var
 
-    data = JSON.parse(ENV[ENV_VAR_NAME])
+    data = JSON.parse(ENV.fetch(env_var_name, nil))
     vet360_id = data['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     email = VAProfile::Models::Email.build_from(data)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_email(email)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
-  desc "Update Vet360 telephone (from #{ENV_VAR_NAME})"
+  desc "Update Vet360 telephone (from #{env_var_name})"
   task put_telephone: [:environment] do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
@@ -114,20 +102,18 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(env_var_name, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     telephone = VAProfile::Models::Telephone.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_telephone(telephone)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
-  desc "Update Vet360 address (from #{ENV_VAR_NAME})"
+  desc "Update Vet360 address (from #{env_var_name})"
   task put_address: [:environment] do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
@@ -142,20 +128,18 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(env_var_name, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     address = VAProfile::Models::Address.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_address(address)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
-  desc "Update Vet360 permission (from #{ENV_VAR_NAME})"
+  desc "Update Vet360 permission (from #{env_var_name})"
   task put_permission: [:environment] do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
@@ -167,22 +151,20 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(env_var_name, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     permission = VAProfile::Models::Permission.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_permission(permission)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   ## POSTs
 
-  desc "Create Vet360 email (from #{ENV_VAR_NAME})"
+  desc "Create Vet360 email (from #{env_var_name})"
   task post_email: [:environment] do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
@@ -195,20 +177,18 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(env_var_name, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     email = VAProfile::Models::Email.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_email(email)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
-  desc "Create Vet360 telephone (from #{ENV_VAR_NAME})"
+  desc "Create Vet360 telephone (from #{env_var_name})"
   task post_telephone: [:environment] do
     # EXPECTED FORMAT OF BODY:
     # {
@@ -223,20 +203,18 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(env_var_name, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     telephone = VAProfile::Models::Telephone.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_telephone(telephone)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
-  desc "Create Vet360 address (from #{ENV_VAR_NAME})"
+  desc "Create Vet360 address (from #{env_var_name})"
   task post_address: [:environment] do
     # EXPECTED FORMAT OF BODY:
     # {
@@ -249,20 +227,18 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(env_var_name, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     address = VAProfile::Models::Address.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_address(address)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
-  desc "Create Vet360 permission (from #{ENV_VAR_NAME})"
+  desc "Create Vet360 permission (from #{env_var_name})"
   task post_permission: [:environment] do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
@@ -274,17 +250,15 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(env_var_name, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     permission = VAProfile::Models::Permission.build_from(body)
-    trx = VAProfile::ContactInformation::Service
+    trx = VAProfile::V2::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_permission(permission)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc <<~DESCRIPTION
@@ -299,7 +273,7 @@ namespace :vet360 do
     Note: There *cannot* be any spaces around the commas (i.e. [123456, 1312312, 134234234, 4234234])
   DESCRIPTION
   task :init_vet360_id, [:icns] => [:environment] do |_, args|
-    service = VAProfile::Person::Service.new('rake_user')
+    service = VAProfile::V2::Person::Service.new('rake_user')
     icns    = args.extras.prepend(args[:icns])
     results = []
 
@@ -366,7 +340,7 @@ namespace :vet360 do
   end
 
   def ensure_data_var
-    abort "Env var: #{ENV_VAR_NAME} not set" if ENV[ENV_VAR_NAME].blank?
+    abort "Env var: #{env_var_name} not set" if ENV[env_var_name].blank?
   end
 
   def ensure_arg(arg_symbol, args)

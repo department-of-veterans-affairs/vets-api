@@ -4,11 +4,17 @@ require 'rails_helper'
 require 'va_profile/v2/person/service'
 
 describe VAProfile::V2::Person::Service, :skip_vet360 do
-  before { Timecop.freeze('2018-04-09T17:52:03Z') }
+  before do
+    Timecop.freeze('2018-04-09T17:52:03Z')
+    Flipper.enable(:va_v3_contact_information_service)
+    Flipper.enable(:va_v2_person_service)
+  end
 
-  after  { Timecop.return }
-
-  Flipper.enable(:va_v3_contact_information_service)
+  after do
+    Timecop.return
+    Flipper.disable(:va_v3_contact_information_service)
+    Flipper.disable(:va_v2_person_service)
+  end
 
   describe '#init_vet360_id' do
     subject { described_class.new(user) }
