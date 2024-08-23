@@ -3,7 +3,6 @@
 -->
 <definitions
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-    xmlns:tns="http://va.gov/service/esr/voa/v1"
     xmlns:ns1="http://va.gov/schema/esr/voa/v1"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://va.gov/service/esr/voa/v1" name="voaService">
