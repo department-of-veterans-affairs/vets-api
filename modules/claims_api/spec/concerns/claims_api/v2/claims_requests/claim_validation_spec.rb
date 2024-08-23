@@ -145,5 +145,4 @@ describe ClaimsApi::V2::ClaimsRequests::ClaimValidation do
       end
     end
   end
-
 end
