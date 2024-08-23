@@ -74,7 +74,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7bbee674bfeef84f4ebd9d9e75490c09ee18f438
+  revision: 58003a668fc817031cb581621358bab902d5bd75
   branch: master
   specs:
     vets_json_schema (24.2.1)
@@ -273,7 +273,7 @@ GEM
     blueprinter (1.1.0)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
-    brakeman (6.1.2)
+    brakeman (6.2.1)
       racc
     breakers (0.7.1)
       faraday (>= 1.2.0, < 3.0)
@@ -854,7 +854,7 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.3.4)
+    rexml (3.3.6)
       strscan
     rgeo (3.0.1)
     rgeo-activerecord (7.0.1)
