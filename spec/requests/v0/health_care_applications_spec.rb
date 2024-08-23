@@ -246,6 +246,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                                               'name' => "Baxter Springs City Soldiers' Lot",
                                               'operating_status' => { 'code' => 'NORMAL' },
                                               'operational_hours_special_instructions' => nil,
+                                              'parent' => nil,
                                               'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
                                               'services' => nil,
                                               'type' => 'va_facilities',
