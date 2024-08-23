@@ -10,12 +10,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
   let(:file_name) { Faker::File.file_name }
 
-  let(:provider) do
-    LighthouseSupplementalDocumentUploadProvider.new(
-      submission,
-      file_body
-    )
-  end
+  let(:provider) { LighthouseSupplementalDocumentUploadProvider.new(submission) }
 
   let(:lighthouse_document) do
     LighthouseDocument.new(
@@ -69,7 +64,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         .with(file_body, lighthouse_document)
         .and_return(faraday_response)
 
-      expect(provider.submit_upload_document(lighthouse_document)).to eq(faraday_response)
+      expect(provider.submit_upload_document(lighthouse_document, file_body)).to eq(faraday_response)
     end
   end
 
@@ -79,12 +74,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     # only the metrics in this class
     let(:submission) { instance_double(Form526Submission) }
 
-    let(:provider) do
-      LighthouseSupplementalDocumentUploadProvider.new(
-        submission,
-        file_body
-      )
-    end
+    let(:provider) { LighthouseSupplementalDocumentUploadProvider.new(submission) }
 
     describe 'log_upload_success' do
       it 'increments a StatsD success metric' do

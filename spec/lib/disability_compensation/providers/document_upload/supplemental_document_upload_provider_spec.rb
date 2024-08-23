@@ -18,7 +18,8 @@ RSpec.describe SupplementalDocumentUploadProvider do
 
   it 'raises an error if the submit_upload_document method is not implemented' do
     expect do
-      subject.submit_upload_document(LighthouseDocument.new)
+      file_body = double
+      subject.submit_upload_document(LighthouseDocument.new, file_body)
     end.to raise_error NotImplementedError
   end
 
