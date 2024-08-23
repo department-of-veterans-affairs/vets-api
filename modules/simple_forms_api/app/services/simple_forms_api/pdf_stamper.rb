@@ -17,11 +17,7 @@ module SimpleFormsApi
 
     def stamp_pdf
       all_form_stamps.each do |desired_stamp|
-        if desired_stamp[:page]
-          stamp_specified_page(desired_stamp, stamped_template_path)
-        else
-          stamp_all_pages(desired_stamp, stamped_template_path)
-        end
+        stamp_form(desired_stamp)
       end
 
       stamp_auth_text
@@ -30,14 +26,14 @@ module SimpleFormsApi
     end
 
     def self.stamp4010007_uuid(uuid)
-      uuid = "UUID: #{uuid}"
+      desired_stamp = { text: "UUID: #{uuid}", font_size: 9 }
       stamped_template_path = 'tmp/vba_40_10007-tmp.pdf'
       desired_stamps = [[390, 18]]
       page_configuration = [
         { type: :text, position: desired_stamps[0] }
       ]
 
-      verified_multistamp(stamped_template_path, uuid, page_configuration, 9)
+      verified_multistamp(stamped_template_path, desired_stamp, page_configuration)
     end
 
     private
@@ -46,23 +42,26 @@ module SimpleFormsApi
       form.desired_stamps + form.submission_date_stamps
     end
 
-    def stamp_specified_page(desired_stamp, stamped_template_path)
-      page_configuration = get_page_configuration(desired_stamp[:page], desired_stamp[:coords])
-      verified_multistamp(stamped_template_path, desired_stamp[:text], page_configuration, desired_stamp[:font_size])
+    def stamp_form(desired_stamp)
+      if desired_stamp[:page]
+        stamp_specified_page(desired_stamp)
+      else
+        stamp_all_pages(desired_stamp)
+      end
     end
 
-    def stamp_all_pages(desired_stamp, stamped_template_path, append_to_stamp: nil)
-      current_file_path = stamped_template_path
-      Rails.logger.info('Calling PDFUtilities::DatestampPdf', current_file_path:, stamped_template_path:)
-      datestamp_instance = PDFUtilities::DatestampPdf.new(current_file_path, append_to_stamp:)
-      coords = desired_stamp[:coords]
-      current_file_path = datestamp_instance.run(text: desired_stamp[:text], x: coords[0], y: coords[1],
-                                                 text_only: true, size: 9)
+    def stamp_specified_page(desired_stamp)
+      page_configuration = get_page_configuration(desired_stamp)
+      verified_multistamp(stamped_template_path, desired_stamp, page_configuration)
+    end
+
+    def stamp_all_pages(desired_stamp, append_to_stamp: nil)
+      current_file_path = call_datestamp_pdf(stamped_template_path, desired_stamp, append_to_stamp)
       File.rename(current_file_path, stamped_template_path)
     end
 
     def stamp_auth_text
-      current_time = "#{Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')} "
+      desired_stamp = get_auth_text_stamp
       auth_text = case loa
                   when 3
                     'Signee signed with an identity-verified account.'
@@ -71,32 +70,19 @@ module SimpleFormsApi
                   else
                     'Signee not signed in.'
                   end
-      coords = [10, 10]
-      text = SUBMISSION_TEXT + current_time
-      desired_stamp = { coords:, text: }
       verify(stamped_template_path) do
-        stamp_all_pages(desired_stamp, stamped_template_path, append_to_stamp: auth_text)
+        stamp_all_pages(desired_stamp, append_to_stamp: auth_text)
       end
     end
 
-    def verified_multistamp(stamped_template_path, stamp_text, page_configuration, *)
-      raise StandardError, 'The provided stamp content was empty.' if stamp_text.blank?
+    def verified_multistamp(stamped_template_path, stamp, page_configuration)
+      raise StandardError, 'The provided stamp content was empty.' if stamp[:text].blank?
 
-      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration, *) }
+      verify(stamped_template_path) { multistamp(stamped_template_path, stamp, page_configuration) }
     end
 
-    def multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
-      stamp_path = Rails.root.join(Common::FileHelpers.random_file_path)
-      Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
-        page_configuration.each do |config|
-          case config[:type]
-          when :text
-            pdf.draw_text signature_text, at: config[:position], size: font_size
-          when :new_page
-            pdf.start_new_page
-          end
-        end
-      end
+    def multistamp(stamped_template_path, stamp, page_configuration)
+      generate_prawn_document(stamp, page_configuration)
 
       perform_multistamp(stamped_template_path, stamp_path)
     rescue => e
@@ -130,7 +116,9 @@ module SimpleFormsApi
       raise StandardError, "An error occurred while verifying stamp: #{e}"
     end
 
-    def get_page_configuration(page, position)
+    def get_page_configuration(stamp)
+      page = stamp[:page]
+      position = stamp[:coords]
       [
         { type: :new_page },
         { type: :new_page },
@@ -140,6 +128,34 @@ module SimpleFormsApi
       ].tap do |config|
         config[page] = { type: :text, position: }
       end
+    end
+
+    def generate_prawn_document(stamp, page_configuration)
+      stamp_path = Rails.root.join(Common::FileHelpers.random_file_path)
+      Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
+        page_configuration.each do |config|
+          case config[:type]
+          when :text
+            pdf.draw_text stamp[:text], at: config[:position], size: stamp[:font_size] || 16
+          when :new_page
+            pdf.start_new_page
+          end
+        end
+      end
+    end
+
+    def call_datestamp_pdf(stamped_template_path, desired_stamp, append_to_stamp)
+      Rails.logger.info('Calling PDFUtilities::DatestampPdf', current_file_path:, stamped_template_path:)
+      datestamp_instance = PDFUtilities::DatestampPdf.new(stamped_template_path, append_to_stamp:)
+      coords = desired_stamp[:coords]
+      datestamp_instance.run(text: desired_stamp[:text], x: coords[0], y: coords[1], text_only: true, size: 9)
+    end
+
+    def get_auth_text_stamp
+      current_time = "#{Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')} "
+      coords = [10, 10]
+      text = SUBMISSION_TEXT + current_time
+      { coords:, text: }
     end
   end
 end
