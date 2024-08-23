@@ -65,8 +65,8 @@ RSpec.describe IvcChampva::VHA1010d do
     end
   end
 
-    # rubocop:disable Layout/ArgumentAlignment, Layout/HashAlignment, Layout/FirstArrayElementIndentation, Layout/SpaceInsideParens
-    describe '#desired_stamps' do
+  # rubocop:disable Layout/ArgumentAlignment, Layout/HashAlignment, Layout/FirstArrayElementIndentation, Layout/SpaceInsideParens
+  describe '#desired_stamps' do
     context 'when sponsor is deceased' do
       let(:data_with_deceased_sponsor) do
         data.merge('veteran' => data['veteran'].merge('sponsor_is_deceased' => true),
