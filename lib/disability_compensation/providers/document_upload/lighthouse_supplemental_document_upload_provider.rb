@@ -56,10 +56,6 @@ class LighthouseSupplementalDocumentUploadProvider
     StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_SUCCESS_METRIC}")
   end
 
-  def log_upload_error_retry(uploading_class_prefix)
-    StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_RETRIED_METRIC}")
-  end
-
   def log_upload_failure(uploading_class_prefix, error_class, error_message)
     StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
 

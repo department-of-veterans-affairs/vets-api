@@ -254,7 +254,6 @@ RSpec.describe ApiProviderFactory do
         provider: api_provider,
         options: {
           form526_submission: submission,
-          file_body: ''
         },
         current_user:,
         feature_toggle: nil
@@ -275,7 +274,6 @@ RSpec.describe ApiProviderFactory do
           type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
           options: {
             form526_submission: submission,
-            file_body: ''
           },
           current_user:,
           feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS

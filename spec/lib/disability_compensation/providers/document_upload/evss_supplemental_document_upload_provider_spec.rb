@@ -83,15 +83,6 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
       end
     end
 
-    describe 'log_upload_error_retry' do
-      it 'increments a StatsD retry metric and re-raises the error' do
-        expect(StatsD).to receive(:increment).with(
-          'my_upload_job_prefix.evss_supplemental_document_upload_provider.retried'
-        )
-        provider.log_upload_error_retry('my_upload_job_prefix')
-      end
-    end
-
     describe 'log_upload_failure' do
       let(:error_class) { 'StandardError' }
       let(:error_message) { 'Something broke' }
