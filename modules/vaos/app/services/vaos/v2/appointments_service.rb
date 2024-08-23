@@ -180,15 +180,16 @@ module VAOS
       def extract_appointment_fields(appointment)
         reason_code_service.extract_reason_code_fields(appointment)
 
-        # Fallback to extracting preferred dates from requested periods if not available from reason code fields
-        extract_preferred_dates(appointment) if appointment[:preferred_dates].blank?
+        # Fallback to extracting preferred dates from requested periods
+        extract_preferred_dates(appointment)
       end
 
-      # Extract preferred date from the requested periods if possible.
+      # Extract preferred date from the requested periods if necessary.
       #
       # @param @param appointment [Hash] the appointment to modify
       def extract_preferred_dates(appointment)
-        if appointment[:requested_periods].present?
+        # Do not overwrite preferred dates if they are already present
+        if appointment[:preferred_dates].blank? && appointment[:requested_periods].present?
           dates = []
 
           appointment[:requested_periods].each do |period|
