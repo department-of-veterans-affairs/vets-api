@@ -5,16 +5,24 @@ module RepresentationManagement
     MAXIMUM_RESULT_COUNT = 10
     WORD_SIMILARITY_THRESHOLD = 0.7
 
+    # Initializes a new instance of AccreditedEntityQuery.
+    #
+    # @param query_string [String] the string to be used for querying accredited entities.
     def initialize(query_string)
       @query_string = query_string
     end
 
+    # Executes the query and returns the results as an array of objects.
+    #
+    # @return [Array<AccreditedIndividual, AccreditedOrganization>] an array of accredited entities
+    #   that match the query string, sorted by their similarity distance. The array will be empty
+    #   if the query string is blank.
     def results
       return [] if @query_string.blank?
 
       array_results = ActiveRecord::Base.connection.exec_query(
         ActiveRecord::Base.send(:sanitize_sql_array, [
-                                  sql_query,
+                                  sql_query_to_select_and_sort_accredited_entities,
                                   {
                                     query_string: @query_string,
                                     threshold: WORD_SIMILARITY_THRESHOLD,
@@ -29,7 +37,12 @@ module RepresentationManagement
     private
 
     # rubocop:disable Metrics/MethodLength
-    def sql_query
+    # Generates the SQL query used to search for accredited entities.
+    #
+    # @return [String] the SQL query string. The query retrieves both accredited individuals and
+    #   organizations that have a name similar to the query string, using the Levenshtein distance
+    #   for sorting results.
+    def sql_query_to_select_and_sort_accredited_entities
       <<-SQL.squish
         WITH combined AS (
           SELECT
@@ -70,6 +83,13 @@ module RepresentationManagement
     end
     # rubocop:enable Metrics/MethodLength
 
+    # Transforms the raw SQL results into an array of accredited entity objects.
+    #
+    # @param array_results [Array<Hash>] an array of hashes representing the raw results from the SQL query.
+    #   Each hash contains an `id`, `model_type`, and `distance`.
+    # @return [Array<AccreditedIndividual, AccreditedOrganization>] an array of instantiated objects
+    #   corresponding to the IDs in the raw results. Each object is either an `AccreditedIndividual`
+    #   or an `AccreditedOrganization` based on the `model_type` in the result.
     def transform_results_to_objects(array_results)
       grouped_results = array_results.group_by { |result| result['model_type'] }
 
