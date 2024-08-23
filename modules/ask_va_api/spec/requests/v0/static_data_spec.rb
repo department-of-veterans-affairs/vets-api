@@ -52,17 +52,29 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
 
     context 'when an error occurs' do
-      let(:error_message) { 'service error' }
+      let(:service) { instance_double(Crm::Service) }
+      let(:body) do
+        '{"Data":null,"Message"' \
+          ':"Data Validation: No Announcements Posted with End Date Greater than 8/5/2024 5:49:23 PM"' \
+          ',"ExceptionOccurred":true,"ExceptionMessage"' \
+          ':"Data Validation: No Announcements Posted with End Date Greater than 8/5/2024 5:49:23 PM"' \
+          ',"MessageId":"b8b6e029-bbea-4451-9ce1-5bd8e2b04520"}'
+      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
       before do
-        allow_any_instance_of(Crm::Service)
-          .to receive(:call)
-          .and_raise(StandardError)
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+        allow(Crm::Service).to receive(:new).and_return(service)
+        allow(service).to receive(:call).and_return(failure)
         get announcements_path
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'StandardError: StandardError'
+                      'AskVAApi::Announcements::AnnouncementsRetrieverError: {"Data":null,"Message"' \
+                      ':"Data Validation: No Announcements Posted with End Date Greater than 8/5/2024 5:49:23 PM"' \
+                      ',"ExceptionOccurred":true,"ExceptionMessage"' \
+                      ':"Data Validation: No Announcements Posted with End Date Greater than 8/5/2024 5:49:23 PM"' \
+                      ',"MessageId":"b8b6e029-bbea-4451-9ce1-5bd8e2b04520"}'
     end
   end
 
@@ -262,12 +274,17 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'ErrorHandler::ServiceError: StandardError: Data Validation: ' \
-                      'Invalid OptionSet Name iris_branchofservic, valid values are ' \
-                      'iris_inquiryabout, iris_inquirysource, iris_inquirytype, ' \
-                      'iris_levelofauthentication, iris_suffix, iris_veteranrelationship, ' \
-                      'iris_branchofservice, iris_country, iris_province, iris_responsetype,' \
-                      ' iris_dependentrelationship, statuscode, iris_messagetype'
+                      'ErrorHandler::ServiceError: StandardError: {"Data":null,"Message":' \
+                      '"Data Validation: Invalid OptionSet Name iris_branchofservic, ' \
+                      'valid values are iris_inquiryabout, iris_inquirysource, iris_inquirytype,' \
+                      ' iris_levelofauthentication, iris_suffix, iris_veteranrelationship,' \
+                      ' iris_branchofservice, iris_country, iris_province, iris_responsetype,' \
+                      ' iris_dependentrelationship, statuscode, iris_messagetype","ExceptionOccurred"' \
+                      ':true,"ExceptionMessage":"Data Validation: Invalid OptionSet Name iris_branchofservic,' \
+                      ' valid values are iris_inquiryabout, iris_inquirysource, iris_inquirytype,' \
+                      ' iris_levelofauthentication, iris_suffix, iris_veteranrelationship, iris_branchofservice,' \
+                      ' iris_country, iris_province, iris_responsetype, iris_dependentrelationship, statuscode,' \
+                      ' iris_messagetype","MessageId":"6dfa81bd-f04a-4f39-88c5-1422d88ed3ff"}'
     end
   end
 
