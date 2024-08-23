@@ -47,6 +47,19 @@ RSpec.describe 'Disability Claims PDF Generation', type: :request do
     Timecop.return
   end
 
+  def set_international_address(json, address_type)
+    address_hash = address_type.reduce(json['data']['attributes']) { |acc, key| acc[key] }
+    address_hash.merge!(
+      'addressLine1' => '1-1',
+      'addressLine2' => 'Yoyogi Kamizono-cho',
+      'addressLine3' => 'Shibuya-ku',
+      'city' => 'Tokyo',
+      'internationalPostalCode' => '151-8557',
+      'country' => 'Japan'
+    )
+    address_hash.delete('state')
+  end
+
   describe 'POST #generatePDF/minimum-validations', vcr: 'claims_api/disability_comp' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
@@ -77,20 +90,24 @@ RSpec.describe 'Disability Claims PDF Generation', type: :request do
         end
       end
 
-      it 'returns a 200 response when specialIssues is present for a disability' do
-        json = JSON.parse data
-        json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
-        data = json.to_json
-        mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-          post generate_pdf_path, params: data, headers: auth_header
-          expect(response).to have_http_status(:ok)
+      context 'when specialIssues is not present for a disability' do
+        it 'returns a 200 response' do
+          json = JSON.parse data
+          json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
+          data = json.to_json
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:ok)
+          end
         end
       end
 
-      it 'returns a 401 unauthorized with incorrect scopes' do
-        mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
-          post generate_pdf_path, params: data, headers: auth_header
-          expect(response).to have_http_status(:unauthorized)
+      context 'invalid scopes' do
+        it 'returns a 401 unauthorized' do
+          mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unauthorized)
+          end
         end
       end
 
@@ -132,19 +149,6 @@ RSpec.describe 'Disability Claims PDF Generation', type: :request do
             end
           end
         end
-      end
-
-      def set_international_address(json, address_type)
-        address_hash = address_type.reduce(json['data']['attributes']) { |acc, key| acc[key] }
-        address_hash.merge!(
-          'addressLine1' => '1-1',
-          'addressLine2' => 'Yoyogi Kamizono-cho',
-          'addressLine3' => 'Shibuya-ku',
-          'city' => 'Tokyo',
-          'internationalPostalCode' => '151-8557',
-          'country' => 'Japan'
-        )
-        address_hash.delete('state')
       end
 
       context 'when the mailing address is international' do
@@ -191,15 +195,6 @@ RSpec.describe 'Disability Claims PDF Generation', type: :request do
           mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
             post generate_pdf_path, params: data, headers: auth_header
             expect(response).to have_http_status(:unprocessable_entity)
-          end
-        end
-      end
-
-      context 'when overflow text is provided' do
-        it 'responds with a 200' do
-          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-            post generate_pdf_path, params: data, headers: auth_header
-            expect(response).to have_http_status(:ok)
           end
         end
       end
