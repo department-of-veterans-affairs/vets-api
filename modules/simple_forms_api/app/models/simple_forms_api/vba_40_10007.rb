@@ -220,7 +220,7 @@ module SimpleFormsApi
 
       attachment_page_path = 'attachment_page.pdf'
       create_attachment_page(attachment_page_path)
-      combined_pdf << CombinePDF.load(attachment_page_path, unsafe: true, allow_optional_content: true)
+      combined_pdf << CombinePDF.load(attachment_page_path)
 
       attachments.each do |attachment|
         combined_pdf << CombinePDF.load(attachment, unsafe: true, allow_optional_content: true)
