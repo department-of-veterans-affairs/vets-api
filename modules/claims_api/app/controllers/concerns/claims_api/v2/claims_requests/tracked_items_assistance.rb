@@ -7,8 +7,8 @@ module ClaimsApi
         extend ActiveSupport::Concern
 
         def format_bgs_date(phase_change_date)
-          d = Date.parse(phase_change_date.to_s)
-          d.strftime('%Y-%m-%d')
+          parsed_date = Date.parse(phase_change_date.to_s)
+          parsed_date.strftime('%Y-%m-%d')
         end
 
         ### called from inside of format_bgs_phase_date & format_bgs_phase_chng_dates
