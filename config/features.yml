@@ -1616,6 +1616,12 @@ features:
     description: >-
       Master toggle for the VYE (Verify Your Enrollment) project.
       If enabled, requests will be allowed to reach the controllers, otherwise a 400 (Bad Request) will be returned.
+  sob_updated_design:
+    actor_type: user
+    description: >-
+      Controls how the GI Bill State of Benefits (SOB) application is presented.
+      When enabled: it use the new SOB application that works 24/7.
+      When disabled: it will use the old SOB application that only works from 0600 to 2200 hrs
   travel_pay_power_switch:
     actor_type: user
     description: >-
