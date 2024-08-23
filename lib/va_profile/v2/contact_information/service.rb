@@ -34,8 +34,7 @@ module VAProfile
         def get_person
           with_monitoring do
             vet360_id_present!
-            @vet360_id = @user.vet360_id
-            raw_response = perform(:get, @vet360_id)
+            raw_response = perform(:get, vet360_id)
 
             PersonResponse.from(raw_response)
           end
@@ -43,7 +42,7 @@ module VAProfile
           if e.status == 404
             log_exception_to_sentry(
               e,
-              { vet360_id: @vet360_id },
+              { vet360_id: },
               { va_profile: :person_not_found },
               :warning
             )
@@ -121,7 +120,7 @@ module VAProfile
         # @param transaction_id [int] the transaction_id to check
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
         def get_address_transaction_status(transaction_id)
-          route = "#{@user.vet360_id}/addresses/status/#{transaction_id}"
+          route = "#{vet360_id}/addresses/status/#{transaction_id}"
           transaction_status = get_transaction_status(route, AddressTransactionResponse)
 
           changes = transaction_status.changed_field
@@ -163,7 +162,7 @@ module VAProfile
         # @param transaction_id [int] the transaction_id to check
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
         def get_email_transaction_status(transaction_id)
-          route = "#{@user.vet360_id}/emails/status/#{transaction_id}"
+          route = "#{vet360_id}/emails/status/#{transaction_id}"
           transaction_status = get_transaction_status(route, EmailTransactionResponse)
 
           send_email_change_notification(transaction_status)
@@ -190,7 +189,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::TelephoneTransactionResponse] wrapper around
         #   a transaction object
         def get_telephone_transaction_status(transaction_id)
-          route = "#{@user.vet360_id}/telephones/status/#{transaction_id}"
+          route = "#{vet360_id}/telephones/status/#{transaction_id}"
           transaction_status = get_transaction_status(route, TelephoneTransactionResponse)
 
           changes = transaction_status.changed_field
@@ -218,7 +217,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::PermissionTransactionResponse] wrapper around
         #   a transaction object
         def get_permission_transaction_status(transaction_id)
-          route = "#{@user.vet360_id}/permissions/status/#{transaction_id}"
+          route = "#{vet360_id}/permissions/status/#{transaction_id}"
           get_transaction_status(route, PermissionTransactionResponse)
         end
 
@@ -240,6 +239,10 @@ module VAProfile
         end
 
         private
+
+        def vet360_id
+          @user.vet360_id
+        end
 
         def update_model(model, attr, method_name)
           contact_info = VAProfileRedis::ContactInformation.for_user(@user)

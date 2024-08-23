@@ -14,9 +14,7 @@ RSpec.describe 'address', type: :request do
     address
   end
 
-  before do
-    Flipper.disable(:va_v3_contact_information_service)
-  end
+  Flipper.disable(:va_v3_contact_information_service)
 
   describe 'update endpoints' do
     describe 'POST /mobile/v0/user/addresses' do
