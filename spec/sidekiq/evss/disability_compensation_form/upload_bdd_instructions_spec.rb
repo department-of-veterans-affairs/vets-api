@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'disability_compensation/providers/document_upload/lighthouse_supplemental_document_upload_provider'
-require 'disability_compensation/providers/document_upload/evss_supplemental_document_upload_provider'
+require 'lighthouse/benefits_documents/form526/upload_supplemental_document_service'
 
 RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :job do
   subject { described_class }
@@ -17,26 +16,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
   let(:saved_claim) { FactoryBot.create(:va526ez) }
-  # Change to build to avoid statsd callback
   let(:submission) do
-    # create(:form526_submission, :with_uploads,
-    #        user_uuid: user.uuid,
-    #        auth_headers_json: auth_headers.to_json,
-    #        saved_claim_id: saved_claim.id,
-    #        submitted_claim_id: '600130094')
-    build(:form526_submission, :with_uploads,
-      user_uuid: user.uuid,
-      auth_headers_json: auth_headers.to_json,
-      saved_claim_id: saved_claim.id,
-      submitted_claim_id: '600130094')
+    create(:form526_submission, :with_uploads,
+           user_uuid: user.uuid,
+           auth_headers_json: auth_headers.to_json,
+           saved_claim_id: saved_claim.id,
+           submitted_claim_id: '600130094')
   end
-  # let(:submission) do
-  #   create(:form526_submission, :with_uploads,
-  #          user_uuid: user.uuid,
-  #          auth_headers_json: auth_headers.to_json,
-  #          saved_claim_id: saved_claim.id,
-  #          submitted_claim_id: '600130094')
-  # end
 
   describe 'perform' do
     let(:client) { double(:client) }
@@ -76,91 +62,68 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
       end
     end
 
-    # 'worker.evss.submit_form526_bdd_instructions.evss_api_upload.success'
-    # 'worker.evss.submit_form526_bdd_instructions.evss_api_upload.failure'
-
-    # 'worker.evss.submit_form526_bdd_instructions.lighthouse_api_upload.success'
-    # 'worker.evss.submit_form526_bdd_instructions.lighthouse_api_upload.failure'
-
-    # When this feature flag is disabled, this job uploads directly via the EVSS::DocumentsService.
-    # When the flag is enabled, the ApiProviderFactory selects the upload service that is used
-    context 'when the use api provider for upload feature flag is enabled' do
+    context 'when the disability_compensation_use_api_provider_for_bdd_instructions flipper is enabled' do
       before do
         Flipper.enable(:disability_compensation_use_api_provider_for_bdd_instructions)
       end
 
-      context 'when the ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS flipper is disabled' do
-        before do
-          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS)
-        end
-
-        it 'submits the document via the EVSSSupplementalDocumentUploadProvider' do
-          expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:submit_upload_document)
-
-          subject.perform_async(submission.id)
-          described_class.drain
-        end
-
-        it 'increments a StatsD success metric' do
-          expect(StatsD).to receive(:increment).with(
-            'worker.evss.submit_form526_bdd_instructions.evss_document_upload.success'
-          )
-
-          subject.perform_async(submission.id)
-          described_class.drain
-        end
-
-        context 'when there is an error in uploading the document' do
-          before do
-            allow_any_instance_of(EVSSSupplementalDocumentUploadProvider)
-              .to receive(:submit_upload_document)
-              .and_raise('Error uploading document')
-          end
-
-          it 'increments a StatsD retry metric' do
-            expect(StatsD).to receive(:increment).with(
-              'worker.evss.submit_form526_bdd_instructions.evss_document_upload.retried'
-            )
-
-            subject.perform_async(submission.id)
-            described_class.drain
-          end
-
-          it 're-raises the error' do
-            expect { subject.perform_async(submission.id) }.to raise_error('Error uploading document')
-            described_class.drain
-          end
-        end
-
-        context 'when all retries are exhausted' do
-          let!(:form526_submission) { create(:form526_submission) }
-          let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
-
-          it 'increments a StatsD failure metric' do
-            subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
-              expect(StatsD).to receive(:increment).with("#{subject::STATSD_KEY_PREFIX}.exhausted")
-              expect(Rails).to receive(:logger).and_call_original
-            end
-          end
-        end
-      end
-
-      context 'when the ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS flipper is enabled' do
+      context 'when the ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS feature flag is enabled' do
         before do
           Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS)
         end
 
-        it 'submits the document via the LighthouseSupplementalDocumentProvider' do
-          expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:submit_upload_document)
+        it 'uploads the document via the LighthouseSupplementalDocumentUploadProvider' do
+          lighthouse_document = instance_double(LighthouseDocument)
+
+          allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:generate_upload_document)
+            .and_return(lighthouse_document)
+
+          expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:submit_upload_document).with(
+            lighthouse_document,
+            file_read
+          )
 
           subject.perform_async(submission.id)
           described_class.drain
         end
 
-        it 'increments the correct StatsD success metric' do
-          expect(StatsD).to receive(:increment).with(
-            'worker.evss.submit_form526_bdd_instructions.lighthouse_document_upload.success'
+        it 'logs an upload success via the upload provider' do
+          # Stub API call
+          allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+
+          expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+            .to receive(:log_upload_success).with('worker.evss.submit_form526_bdd_instructions')
+
+          subject.perform_async(submission.id)
+          described_class.drain
+        end
+      end
+
+      context 'when the ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS feature flag is disabled' do
+        before do
+          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS)
+        end
+
+        it 'uploads the document via the EVSSSupplementalDocumentUploadProvider' do
+          evss_claim_document = instance_double(EVSSClaimDocument)
+
+          allow_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document)
+            .and_return(evss_claim_document)
+
+          expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:submit_upload_document).with(
+            evss_claim_document,
+            file_read
           )
+
+          subject.perform_async(submission.id)
+          described_class.drain
+        end
+
+        it 'logs an upload success' do
+          # Stub API call
+          allow_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:submit_upload_document)
+          expect_any_instance_of(EVSSSupplementalDocumentUploadProvider)
+            .to receive(:log_upload_success).with('worker.evss.submit_form526_bdd_instructions')
 
           subject.perform_async(submission.id)
           described_class.drain
@@ -181,6 +144,58 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
         end
         form526_job_status.reload
         expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
+      end
+
+      context 'when the disability_compensation_use_api_provider_for_bdd_instructions flipper is enabled' do
+        let(:error_class) { 'FooError' }
+        let(:error_message) { 'Something broke' }
+
+        let(:retry_block_args) do
+          {
+            'jid' => form526_job_status.job_id,
+            'error_class' => error_class,
+            'error_message' => error_message,
+            'args' => [form526_submission.id]
+          }
+        end
+
+        before do
+          Flipper.enable(:disability_compensation_use_api_provider_for_bdd_instructions)
+        end
+
+        context 'when the ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS feature flag is enabled' do
+          before do
+            Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS)
+          end
+
+          it 'logs the error via the LighthouseSupplementalDocumentUploadProvider' do
+            subject.within_sidekiq_retries_exhausted_block(retry_block_args) do
+              expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+                .to receive(:log_upload_failure).with(
+                  'worker.evss.submit_form526_bdd_instructions',
+                  error_class,
+                  error_message
+                )
+            end
+          end
+        end
+
+        context 'when the ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS feature flag is disabled' do
+          before do
+            Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS)
+          end
+
+          it 'logs the error via the LighthouseSupplementalDocumentUploadProvider' do
+            subject.within_sidekiq_retries_exhausted_block(retry_block_args) do
+              expect_any_instance_of(EVSSSupplementalDocumentUploadProvider)
+                .to receive(:log_upload_failure).with(
+                  'worker.evss.submit_form526_bdd_instructions',
+                  error_class,
+                  error_message
+                )
+            end
+          end
+        end
       end
     end
   end

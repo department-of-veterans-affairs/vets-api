@@ -41,6 +41,11 @@ module EVSS
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
+        if Flipper.enabled?(:disability_compensation_use_api_provider_for_bdd_instructions)
+          submission = Form526Submission.find(form526_submission_id)
+          api_upload_provider(submission).log_upload_failure(STATSD_KEY_PREFIX, error_class, error_message)
+        end
+
         ::Rails.logger.warn(
           'Submit Form 526 Upload BDD Instructions Retries exhausted',
           { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
@@ -70,6 +75,23 @@ module EVSS
           submission_id: %i[submission_id]
         }
       )
+
+      # # Returns the correct SupplementalDocumentUploadProivder based on the state of the
+      # # ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS feature flag for the current user
+      # #
+      # @return [EVSSSupplementalDocumentUploadProvider or LighthouseSupplementalDocumentUploadProvider]
+      def self.api_upload_provider(submission)
+        user = User.find(submission.user_uuid)
+
+        ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
+          options: {
+            form526_submission: submission
+          },
+          current_user: user,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS
+        )
+      end
 
       # Submits a BDD instruction PDF in to EVSS
       #
@@ -105,6 +127,7 @@ module EVSS
         # revert back to using the EVSS::DocumentsService directly here
         if Flipper.enabled?(:disability_compensation_use_api_provider_for_bdd_instructions)
           upload_via_api_provider
+          api_upload_provider.log_upload_success(STATSD_KEY_PREFIX)
         else
           EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
         end
@@ -114,25 +137,11 @@ module EVSS
         document = api_upload_provider.generate_upload_document(
           BDD_INSTRUCTIONS_DOCUMENT_TYPE, BDD_INSTRUCTIONS_DOCUMENT_TYPE
         )
-        api_upload_provider.submit_upload_document(document)
+        api_upload_provider.submit_upload_document(document, file_body)
       end
 
-      # Returns the correct SupplementalDocumentUploadProivder based on the state of the
-      # ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS feature flag for the current user
-      #
-      # @return [EVSSSupplementalDocumentUploadProvider or LighthouseSupplementalDocumentUploadProvider]
       def api_upload_provider
-        user = User.find(submission.user_uuid)
-
-        @api_upload_provider ||= ApiProviderFactory.call(
-          type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
-          options: {
-            form526_submission: submission,
-            file_body:
-          },
-          current_user: user,
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS
-        )
+        @api_upload_provider ||= EVSS::DisabilityCompensationForm::UploadBddInstructions.api_upload_provider(submission)
       end
 
       def retryable_error_handler(error)
