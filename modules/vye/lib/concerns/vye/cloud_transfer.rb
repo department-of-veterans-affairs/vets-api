@@ -52,9 +52,9 @@ module Vye
     def upload_report(filename, &)
       path = tmp_path filename
       path.open('w', &)
-      upload(path)
-    ensure
-      path.delete
+      # upload(path)
+      # ensure
+      # path.delete
     end
 
     def clear_from(bucket_sym: :internal, path: 'processed')

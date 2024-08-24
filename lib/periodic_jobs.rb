@@ -122,8 +122,8 @@ PERIODIC_JOBS = lambda { |mgr|
 
   mgr.register('0 * * * *', 'CovidVaccine::ExpandedSubmissionStateJob')
 
-  mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
-  mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
+  # mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
+  # mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
 
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
   mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
@@ -131,7 +131,7 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
 
-  mgr.register('* * * * *', 'ExternalServicesStatusJob')
+  # mgr.register('* * * * *', 'ExternalServicesStatusJob')
   mgr.register('* * * * *', 'ExportBreakerStatus')
 
   # Disable FeatureCleanerJob. https://github.com/department-of-veterans-affairs/va.gov-team/issues/53538
