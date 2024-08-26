@@ -2,7 +2,6 @@
 
 require 'lighthouse/benefits_claims/service'
 require 'sentry_logging'
-require 'logging/third_party_transaction'
 require 'sidekiq/form526_job_status_tracker/job_tracker'
 require 'sidekiq/form526_job_status_tracker/metrics'
 
@@ -45,20 +44,10 @@ module Lighthouse
     include Sidekiq::Form526JobStatusTracker::JobTracker
     extend ActiveSupport::Concern
     extend SentryLogging
-    extend Logging::ThirdPartyTransaction::MethodWrapper
 
     attr_accessor :submission_id
 
     STATSD_KEY_PREFIX = 'worker.lighthouse.poll_form526_pdf'
-
-    wrap_with_logging(
-      additional_class_logs: {
-        action: 'Begin check for 526 supporting docs'
-      },
-      additional_instance_logs: {
-        submission_id: %i[submission_id]
-      }
-    )
 
     sidekiq_options retry_for: 48.hours
 

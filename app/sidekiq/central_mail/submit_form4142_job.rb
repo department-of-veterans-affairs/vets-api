@@ -4,24 +4,11 @@ require 'central_mail/service'
 require 'common/exceptions'
 require 'evss/disability_compensation_form/metrics'
 require 'evss/disability_compensation_form/form4142_processor'
-require 'logging/third_party_transaction'
 
 # TODO: Update Namespace once we are 100% done with CentralMail here
 module CentralMail
   class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job
-    extend Logging::ThirdPartyTransaction::MethodWrapper
-
-    # this is required to make instance variables available to logs via
-    # the wrap_with_logging method
     attr_accessor :submission_id
-
-    wrap_with_logging(
-      :upload_to_central_mail,
-      :upload_to_lighthouse,
-      additional_instance_logs: {
-        submission_id: [:submission_id]
-      }
-    )
 
     CENTRAL_MAIL_STATSD_KEY_PREFIX = 'worker.evss.submit_form4142'
     LIGHTHOUSE_STATSD_KEY_PREFIX = 'worker.lighthouse.submit_form4142'

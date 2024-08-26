@@ -11,30 +11,16 @@ require 'form526_backup_submission/service'
 require 'decision_review_v1/utilities/form_4142_processor'
 require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/filler'
-require 'logging/third_party_transaction'
 require 'simple_forms_api_submission/metadata_validator'
 require 'disability_compensation/factories/api_provider_factory'
 
 module Sidekiq
   module Form526BackupSubmissionProcess
     class Processor
-      extend Logging::ThirdPartyTransaction::MethodWrapper
-
       attr_reader :submission, :lighthouse_service, :zip, :initial_upload_location, :initial_upload_uuid,
                   :initial_upload, :docs_gathered, :initial_upload_fetched, :ignore_expiration,
                   :submission_id
       attr_accessor :docs
-
-      wrap_with_logging(
-        :get_form_from_external_api,
-        :instantiate_upload_info_from_lighthouse,
-        :get_from_non_breakered_service,
-        additional_instance_logs: [
-          submission_id: %i[submission_id],
-          initial_upload_uuid: %i[initial_upload_uuid],
-          initial_upload_location: %i[initial_upload_location]
-        ]
-      )
 
       FORM_526 = 'form526'
       FORM_526_DOC_TYPE = '21-526EZ'

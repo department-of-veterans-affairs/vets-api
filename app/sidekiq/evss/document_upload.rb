@@ -2,25 +2,11 @@
 
 require 'ddtrace'
 require 'timeout'
-require 'logging/third_party_transaction'
 
 class EVSS::DocumentUpload
   include Sidekiq::Job
-  extend Logging::ThirdPartyTransaction::MethodWrapper
 
   attr_accessor :auth_headers, :user_uuid, :document_hash
-
-  wrap_with_logging(
-    :pull_file_from_cloud!,
-    :perform_initial_file_read,
-    :perform_document_upload_to_evss,
-    :clean_up!,
-    additional_class_logs: {
-      form: '526ez Document Upload to EVSS API',
-      upstream: "S3 bucket: #{Settings.evss.s3.bucket}",
-      downstream: "EVSS API: #{EVSS::DocumentsService::BASE_URL}"
-    }
-  )
 
   # retry for one day
   sidekiq_options retry: 14, queue: 'low'

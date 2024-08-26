@@ -20,10 +20,8 @@ require 'disability_compensation/providers/generate_pdf/evss_generate_pdf_provid
 require 'disability_compensation/providers/generate_pdf/lighthouse_generate_pdf_provider'
 require 'disability_compensation/providers/document_upload/lighthouse_supplemental_document_upload_provider'
 require 'disability_compensation/providers/document_upload/evss_supplemental_document_upload_provider'
-require 'logging/third_party_transaction'
 
 class ApiProviderFactory
-  extend Logging::ThirdPartyTransaction::MethodWrapper
   class UndefinedFactoryTypeError < StandardError; end
 
   API_PROVIDER = {
@@ -59,23 +57,6 @@ class ApiProviderFactory
   FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT = 'disability_compensation_lighthouse_upload_supplemental_document'
 
   attr_reader :type
-
-  wrap_with_logging(
-    :rated_disabilities_service_provider,
-    :intent_to_file_service_provider,
-    :ppiu_service_provider,
-    :claims_service_provider,
-    :brd_service_provider,
-    :generate_pdf_service_provider,
-    :supplemental_document_upload_service_provider,
-    additional_class_logs: {
-      action: 'disability compensation factory choosing API Provider'
-    },
-    additional_instance_logs: {
-      provider: %i[api_provider],
-      factory: %i[type]
-    }
-  )
 
   def self.call(**)
     new(**).call

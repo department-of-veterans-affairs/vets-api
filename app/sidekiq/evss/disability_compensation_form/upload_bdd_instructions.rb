@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
-require 'logging/third_party_transaction'
-
 module EVSS
   module DisabilityCompensationForm
     class UploadBddInstructions < Job
-      extend Logging::ThirdPartyTransaction::MethodWrapper
-
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_bdd_instructions'
 
       # retry for one day
@@ -56,16 +52,6 @@ module EVSS
         )
         raise e
       end
-
-      wrap_with_logging(
-        :upload_bdd_instructions,
-        additional_class_logs: {
-          action: 'Upload BDD Instructions to EVSS'
-        },
-        additional_instance_logs: {
-          submission_id: %i[submission_id]
-        }
-      )
 
       # Submits a BDD instruction PDF in to EVSS
       #

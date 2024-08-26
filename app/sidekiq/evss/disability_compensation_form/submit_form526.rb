@@ -4,14 +4,11 @@ require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/gateway_timeout'
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 require 'sentry_logging'
-require 'logging/third_party_transaction'
 require 'sidekiq/form526_job_status_tracker/job_tracker'
 
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm526 < Job
-      extend Logging::ThirdPartyTransaction::MethodWrapper
-
       attr_accessor :submission_id
 
       # Sidekiq has built in exponential back-off functionality for retries
@@ -20,16 +17,6 @@ module EVSS
       # This change reduces the run-time from ~36 hours to ~24 hours
       RETRY = 14
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
-
-      wrap_with_logging(
-        :submit_complete_form,
-        additional_class_logs: {
-          action: 'Begin overall 526 submission'
-        },
-        additional_instance_logs: {
-          submission_id: %i[submission_id]
-        }
-      )
 
       sidekiq_options retry: RETRY, queue: 'low'
 
