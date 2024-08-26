@@ -20,6 +20,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
 
   before do
     Flipper.enable(:mobile_claims_log_decision_letter_sent)
+    Flipper.enable(:mobile_appeal_model)
 
     if lighthouse_flag
       token = 'abcdefghijklmnop'
