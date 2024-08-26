@@ -75,10 +75,9 @@ class Form526StatusPollingJob
       form_submission.update!(backup_submitted_claim_status: nil)
     else
       Rails.logger.info(
-        'Unused status returned from Benefits Intake API for 526 submission',
+        'Unknown or incomplete status returned from Benefits Intake API for 526 submission',
         status:,
-        submission_id: form_submission.id,
-        paranoid: paranoid
+        submission_id: form_submission.id
       )
     end
   end
