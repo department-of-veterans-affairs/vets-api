@@ -2,7 +2,6 @@
 
 require 'benefits_intake_service/service'
 
-# [wipn8923] make sure this is working for paranoid and non paranoid
 class Form526StatusPollingJob
   include Sidekiq::Job
   sidekiq_options retry: false
