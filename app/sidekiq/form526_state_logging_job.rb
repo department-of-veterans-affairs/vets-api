@@ -47,6 +47,11 @@ class Form526StateLoggingJob
     @sub_arel ||= Form526Submission.arel_table
   end
 
+  def combined_pending_types_for(submissions)
+    submissions.incomplete.pluck(:id) +
+      submissions.in_process.pluck(:id)
+  end
+
   def backup_submissions
     @backup_submissions ||= timeboxed_submissions
                             .joins(:form526_job_statuses)
