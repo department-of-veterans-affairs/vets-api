@@ -59,7 +59,7 @@
       "applicant_address": {
         "country": "USA",
         "street": "3 Third Ave",
-        "street_combined": "3 Second St",
+        "street_combined": "3 Third Ave",
         "city": "Ville",
         "state": "AR",
         "postal_code": "65478"
@@ -82,7 +82,7 @@
       "applicant_address": {
         "country": "USA",
         "street": "4 Third Ave",
-        "street_combined": "4 Second St",
+        "street_combined": "4 Third Ave",
         "city": "Mark",
         "state": "AR",
         "postal_code": "65478"
@@ -122,6 +122,8 @@
       "applicant_dob": "1999-03-10",
       "applicant_medicare_status": { "eligibility": "enrolled" },
       "applicant_has_ohi": { "has_ohi": "yes" },
+      "is_enrolled_in_medicare": true,
+      "has_other_health_insurance": true,
       "vet_relationship": "Relative - Other"
     },
     {
@@ -145,7 +147,21 @@
       "applicant_dob": "1959-03-10",
       "applicant_medicare_status": { "eligibility": "enrolled" },
       "applicant_has_ohi": { "has_ohi": "yes" },
+      "is_enrolled_in_medicare": true,
+      "has_other_health_insurance": true,
       "vet_relationship": "Relative - Other"
+    }
+  ],
+  "supporting_docs": [
+      {
+        "name": "file.png",
+        "confirmation_code": "c1f25ef2-e5e3-48b6-927b-a0049a6dcbce",
+        "attachment_id": "Birth certificate",
+        "is_encrypted": false,
+        "applicant_name": {
+            "first": "Applicant",
+            "last": "Jones"
+        }
     }
   ],
   "certification": {

@@ -6,6 +6,8 @@ module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
+        include ClaimsApi::V2::ClaimsRequests::TrackedItems
+
         def index
           bgs_claims = find_bgs_claims!
 
@@ -165,12 +167,6 @@ module ClaimsApi
           local_bgs_service.find_benefit_claims_status_by_ptcpnt_id(
             target_veteran.participant_id
           )
-        end
-
-        def find_tracked_items!(claim_id)
-          return if claim_id.blank?
-
-          local_bgs_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
         end
 
         def looking_for_lighthouse_claim?(claim_id:)
@@ -495,10 +491,6 @@ module ClaimsApi
 
         def supporting_document?(id)
           @supporting_documents.find { |doc| doc[:tracked_item_id] == id.to_i }.present?
-        end
-
-        def find_tracked_item(id)
-          [@tracked_items].flatten.compact.find { |item| item[:dvlpmt_item_id] == id }
         end
 
         def tracked_item_req_date(tracked_item, item)
