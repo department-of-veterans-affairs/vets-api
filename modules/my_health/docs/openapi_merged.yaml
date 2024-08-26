@@ -1219,6 +1219,15 @@ paths:
       summary: /v1/messaging/allrecipients
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - name: requires_oh
+          in: query
+          description: Includes Oracle Health recipients if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
   /v1/messaging/threads/{id}/move:
     patch:
       description: Moves all received messages in a secure message thread to a specified folder. Sent messages, draft messages, and deleted messages will not be moved.
