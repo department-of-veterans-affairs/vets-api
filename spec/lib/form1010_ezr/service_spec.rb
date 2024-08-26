@@ -303,8 +303,8 @@ RSpec.describe Form1010Ezr::Service do
           expect(submission_response).to eq(
             {
               success: true,
-              formSubmissionId: 432_775_981,
-              timestamp: '2023-11-21T14:42:44.858-06:00'
+              formSubmissionId: 436_462_561,
+              timestamp: '2024-08-23T13:00:11.005-05:00'
             }
           )
         end
@@ -342,8 +342,8 @@ RSpec.describe Form1010Ezr::Service do
             expect(service.submit_sync(overridden_form)).to eq(
               {
                 success: true,
-                formSubmissionId: 432_777_930,
-                timestamp: '2023-11-21T16:29:52.432-06:00'
+                formSubmissionId: 436_460_791,
+                timestamp: '2024-08-23T11:49:44.562-05:00'
               }
             )
           end
@@ -365,8 +365,8 @@ RSpec.describe Form1010Ezr::Service do
             expect(service.submit_sync(form)).to eq(
               {
                 success: true,
-                formSubmissionId: 432_861_975,
-                timestamp: '2023-11-30T09:52:37.290-06:00'
+                formSubmissionId: 436_462_887,
+                timestamp: '2024-08-23T13:22:29.157-05:00'
               }
             )
           end
@@ -386,8 +386,8 @@ RSpec.describe Form1010Ezr::Service do
             expect(service.submit_sync(form)).to eq(
               {
                 success: true,
-                formSubmissionId: 433_956_488,
-                timestamp: '2024-03-13T13:14:50.252-05:00'
+                formSubmissionId: 436_462_892,
+                timestamp: '2024-08-23T13:22:59.196-05:00'
               }
             )
           end
@@ -406,8 +406,8 @@ RSpec.describe Form1010Ezr::Service do
               expect(service.submit_sync(ezr_form_with_attachments)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 435_845_348,
-                  timestamp: '2024-07-17T13:17:32.384-05:00'
+                  formSubmissionId: 436_462_804,
+                  timestamp: '2024-08-23T13:20:06.967-05:00'
                 }
               )
               expect(Rails.logger).to have_received(:info).with(
@@ -443,8 +443,8 @@ RSpec.describe Form1010Ezr::Service do
               expect(service.submit_sync(form_with_non_pdf_attachment)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 435_845_365,
-                  timestamp: '2024-07-17T13:17:35.167-05:00'
+                  formSubmissionId: 436_462_905,
+                  timestamp: '2024-08-23T13:23:53.956-05:00'
                 }
               )
               expect(Rails.logger).to have_received(:info).with(
