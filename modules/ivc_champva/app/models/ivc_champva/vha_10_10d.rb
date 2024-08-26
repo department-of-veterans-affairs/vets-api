@@ -90,15 +90,11 @@ module IvcChampva
       stamps = [
         { coords: [40, 105], text: @data['statement_of_truth_signature'], page: 0 }
       ]
-
       sponsor_is_deceased = @data.dig('veteran', 'sponsor_is_deceased')
       veteran_country = @data.dig('veteran', 'address', 'country')
       applicants = @data.fetch('applicants', [])
-
       first_applicant_country = if applicants.is_a?(Array) && !applicants.empty?
                                   applicants.first&.dig('applicant_address', 'country')
-                                else
-                                  nil
                                 end
 
       stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
@@ -110,7 +106,6 @@ module IvcChampva
     def applicant_stamps
       stamps = []
       applicants = @data.fetch('applicants', [])
-
       applicants.each_with_index do |applicant, index|
         next if index.zero?
 
@@ -118,7 +113,6 @@ module IvcChampva
         applicant_country = applicant.dig('applicant_address', 'country')
         stamps << { coords: [520, coords_y], text: applicant_country, page: 0 } if applicant_country
       end
-
       stamps
     end
   end
