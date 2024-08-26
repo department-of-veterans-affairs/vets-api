@@ -3,7 +3,6 @@
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm8940 < Job
-
       STATSD_KEY_PREFIX = 'worker.evss.submit_form8940'
 
       # Sidekiq has built in exponential back-off functionality for retries
