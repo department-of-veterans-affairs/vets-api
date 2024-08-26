@@ -4,10 +4,25 @@ require 'rails_helper'
 
 describe VAProfileRedis::ContactInformation do
   let(:user) { build :user, :loa3 }
+
+  let(:service) do
+    if Flipper.enabled?(:va_v3_contact_information_service)
+      VAProfile::V2::ContactInformation::Service
+    else
+      VAProfile::ContactInformation::Service
+    end
+  end
+
+  let(:contact_person_response) do
+    if Flipper.enabled?(:va_v3_contact_information_service)
+      VAProfile::V2::ContactInformation::PersonResponse
+    else
+      VAProfile::ContactInformation::PersonResponse
+    end
+  end
   let(:person_response) do
     raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
-
-    VAProfile::ContactInformation::PersonResponse.from(raw_response)
+    contact_person_response.from(raw_response)
   end
   let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
   let(:person) { build :person, telephones:, permissions: }
@@ -36,13 +51,12 @@ describe VAProfileRedis::ContactInformation do
 
       before do
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-
-        service = double
-        allow(VAProfile::ContactInformation::Service).to receive(:new).with(user).and_return(service)
-        expect(service).to receive(:get_person).public_send(
+        double_service = double
+        allow(service).to receive(:new).with(user).and_return(double_service)
+        expect(double_service).to receive(:get_person).public_send(
           get_person_calls
         ).and_return(
-          VAProfile::ContactInformation::PersonResponse.new(status, person: nil)
+          contact_person_response.new(status, person: nil)
         )
       end
 
@@ -74,13 +88,13 @@ describe VAProfileRedis::ContactInformation do
     context 'when the cache is empty' do
       it 'caches and return the response', :aggregate_failures do
         allow_any_instance_of(
-          VAProfile::ContactInformation::Service
+          service
         ).to receive(:get_person).and_return(person_response)
 
         if VAProfile::Configuration::SETTINGS.contact_information.cache_enabled
           expect(contact_info.redis_namespace).to receive(:set).once
         end
-        expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).twice
+        expect_any_instance_of(service).to receive(:get_person).twice
         expect(contact_info.status).to eq 200
         expect(contact_info.response.person).to have_deep_attributes(person)
       end
@@ -90,7 +104,7 @@ describe VAProfileRedis::ContactInformation do
       it 'returns the cached data', :aggregate_failures do
         contact_info.cache(user.uuid, person_response)
 
-        expect_any_instance_of(VAProfile::ContactInformation::Service).not_to receive(:get_person)
+        expect_any_instance_of(service).not_to receive(:get_person)
         expect(contact_info.response.person).to have_deep_attributes(person)
       end
     end
@@ -101,7 +115,7 @@ describe VAProfileRedis::ContactInformation do
       before do
         allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
         allow_any_instance_of(
-          VAProfile::ContactInformation::Service
+          service
         ).to receive(:get_person).and_return(person_response)
       end
 
@@ -169,7 +183,6 @@ describe VAProfileRedis::ContactInformation do
       describe '#fax_number' do
         it 'returns the users FAX object', :aggregate_failures do
           phone = phone_for VAProfile::Models::Telephone::FAX
-
           expect(contact_info.fax_number).to eq phone
           expect(contact_info.fax_number.class).to eq VAProfile::Models::Telephone
         end
@@ -187,7 +200,7 @@ describe VAProfileRedis::ContactInformation do
 
     context 'with an error response' do
       before do
-        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(service).to receive(:get_person).and_raise(
           Common::Exceptions::BackendServiceException
         )
       end
@@ -269,13 +282,13 @@ describe VAProfileRedis::ContactInformation do
       let(:empty_response) do
         raw_response = OpenStruct.new(status: 500, body: nil)
 
-        VAProfile::ContactInformation::PersonResponse.from(raw_response)
+        contact_person_response.from(raw_response)
       end
 
       before do
         allow(VAProfile::Models::Person).to receive(:build_from).and_return(nil)
         allow_any_instance_of(
-          VAProfile::ContactInformation::Service
+          service
         ).to receive(:get_person).and_return(empty_response)
       end
 
