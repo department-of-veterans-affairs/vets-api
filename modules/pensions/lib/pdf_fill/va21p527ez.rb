@@ -9,24 +9,31 @@ require 'pensions/version'
 
 # rubocop:disable Metrics/ClassLength
 module Pensions
+  # Pdf Fill Module
   module PdfFill
+    # The Va21p527ez Form
     class Va21p527ez < ::PdfFill::Forms::FormBase
       include ::PdfFill::Forms::FormHelper
       include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
       include ActiveSupport::NumberHelper
 
+      # The Form ID
       FORM_ID = '21P-527EZ'
 
+      # The PDF Template
       TEMPLATE = "#{Pensions::MODULE_PATH}/lib/pdf_fill/pdfs/21P-527EZ.pdf".freeze
 
+      # The Index Iterator Key
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
+      # The Recipients Type
       RECIPIENTS = {
         'VETERAN' => 0,
         'SPOUSE' => 1,
         'DEPENDENT' => 2
       }.freeze
 
+      # The Income Types
       INCOME_TYPES = {
         'SOCIAL_SECURITY' => 0,
         'INTEREST_DIVIDEND' => 1,
@@ -35,23 +42,27 @@ module Pensions
         'OTHER' => 4
       }.freeze
 
+      # Medical Care Types
       CARE_TYPES = {
         'CARE_FACILITY' => 0,
         'IN_HOME_CARE_PROVIDER' => 1
       }.freeze
 
+      # The Payment Frequency
       PAYMENT_FREQUENCY = {
         'ONCE_MONTH' => 0,
         'ONCE_YEAR' => 1,
         'ONE_TIME' => 2
       }.freeze
 
+      # The reason for marital separation
       REASONS_FOR_SEPARATION = {
         'DEATH' => 0,
         'DIVORCE' => 1,
         'OTHER' => 2
       }.freeze
 
+      # The PDF Keys
       KEY = {
         # 1a
         'veteranFullName' => {
@@ -1301,6 +1312,9 @@ module Pensions
         }
       }.freeze
 
+      ###
+      # Merge all the key data together
+      #
       def merge_fields(_options = {})
         expand_veteran_identification_information
         expand_veteran_contact_information
@@ -1417,6 +1431,7 @@ module Pensions
           reason_for_current_separation_to_radio(@form_data['reasonForCurrentSeparation'])
       end
 
+      # Take a marital status and convert it to a radio selection.
       def marital_status_to_radio(marital_status)
         case marital_status
         when 'MARRIED' then 0
@@ -1425,6 +1440,7 @@ module Pensions
         end
       end
 
+      # Get the current marriage
       def get_current_marriage(marriages)
         current_marriage_index = marriages&.index { |marriage| !marriage.key?('dateOfSeparation') }
 
@@ -1445,6 +1461,7 @@ module Pensions
         current_marriage
       end
 
+      # Get the current reason of separation to a radio box.
       def reason_for_current_separation_to_radio(reason_for_separation)
         case reason_for_separation
         when 'MEDICAL_CARE' then 0
@@ -1467,6 +1484,7 @@ module Pensions
         end
       end
 
+      # Build the marital history key data.
       def build_marital_history(marriages, marriage_for = 'VETERAN')
         return [] unless marriages.present? && %w[VETERAN SPOUSE].include?(marriage_for)
 
@@ -1507,6 +1525,7 @@ module Pensions
         @form_data['custodians'] = custodian_addresses.values
       end
 
+      # Build the custodian data from dependents
       def build_custodian_hash_from_dependent(dependent)
         dependent['personWhoLivesWithChild']
           .merge({
@@ -1520,6 +1539,7 @@ module Pensions
                  })
       end
 
+      # Create an address string from an address hash
       def build_address_string(address)
         return '' if address.blank?
 
@@ -1532,6 +1552,7 @@ module Pensions
         address_arr.join("\n")
       end
 
+      # Select the children in a household of the dependents.
       def select_children_in_household(dependents)
         return unless dependents&.any?
 
@@ -1540,6 +1561,7 @@ module Pensions
         end.length.to_s
       end
 
+      # Build a string to represent the dependents status.
       def child_status_overflow(dependent)
         child_status_overflow = [dependent['childRelationship']&.humanize]
         child_status_overflow << 'seriously disabled' if dependent['disabled']
@@ -1549,6 +1571,7 @@ module Pensions
         child_status_overflow
       end
 
+      # Create a hash table from a dependent that outlines all the data joined and formatted together.
       def dependent_to_hash(dependent)
         dependent
           .merge({
@@ -1594,6 +1617,7 @@ module Pensions
         @form_data['incomeSources'] = merge_income_sources(@form_data['incomeSources'])
       end
 
+      # Merge all income sources together and normalize the data.
       def merge_income_sources(income_sources)
         income_sources&.map do |income_source|
           income_source_hash = {
@@ -1620,12 +1644,14 @@ module Pensions
         @form_data['medicalExpenses'] = merge_medical_expenses(@form_data['medicalExpenses'])
       end
 
+      # Map over the care expenses and expand the data out.
       def merge_care_expenses(care_expenses)
         care_expenses&.map do |care_expense|
           care_expense.merge(care_expense_to_hash(care_expense))
         end
       end
 
+      # Expand a care expense data hash.
       def care_expense_to_hash(care_expense)
         {
           'recipients' => RECIPIENTS[care_expense['recipients']],
@@ -1648,6 +1674,7 @@ module Pensions
         }
       end
 
+      # Map over medical expenses and create a set of data.
       def merge_medical_expenses(medical_expenses)
         medical_expenses&.map do |medical_expense|
           medical_expense.merge({
@@ -1685,6 +1712,7 @@ module Pensions
         @form_data['signatureDate'] = split_date(Time.zone.now.strftime('%Y-%m-%d'))
       end
 
+      # Convert a date to a string
       def to_date_string(date)
         date_hash = split_date(date)
         return unless date_hash
@@ -1692,10 +1720,12 @@ module Pensions
         "#{date_hash['month']}-#{date_hash['day']}-#{date_hash['year']}"
       end
 
+      # Build a date range string from a date range object
       def build_date_range_string(date_range)
         "#{to_date_string(date_range['from'])} - #{to_date_string(date_range['to']) || 'No End Date'}"
       end
 
+      # Split up currency amounts to three parts.
       def split_currency_amount(amount)
         return {} if amount.nil? || amount.negative? || amount >= 10_000_000
 
@@ -1712,10 +1742,12 @@ module Pensions
         split_hash
       end
 
+      # Convert an objects truthiness to a radio on/off.
       def to_checkbox_on_off(obj)
         obj ? 1 : 'Off'
       end
 
+      # Convert an objects truthiness to a radio yes/no.
       def to_radio_yes_no(obj)
         obj ? 1 : 2
       end
