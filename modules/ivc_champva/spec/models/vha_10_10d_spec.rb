@@ -65,12 +65,19 @@ RSpec.describe IvcChampva::VHA1010d do
     end
   end
 
-  # rubocop:disable Layout/ArgumentAlignment, Layout/HashAlignment, Layout/FirstArrayElementIndentation, Layout/SpaceInsideParens
   describe '#desired_stamps' do
     context 'when sponsor is deceased' do
       let(:data_with_deceased_sponsor) do
-        data.merge('veteran' => data['veteran'].merge('sponsor_is_deceased' => true),
-        'applicants' => [{ 'applicant_address' => { 'country' => 'Canada' } }])
+        data.merge(
+          'veteran' => data['veteran'].merge('sponsor_is_deceased' => true),
+          'applicants' => [
+            {
+              'applicant_address' => {
+                'country' => 'Canada'
+              }
+            }
+          ]
+        )
       end
       let(:vha1010d_with_deceased_sponsor) { described_class.new(data_with_deceased_sponsor) }
 
@@ -92,10 +99,12 @@ RSpec.describe IvcChampva::VHA1010d do
 
     context 'with multiple applicants' do
       let(:data_with_multiple_applicants) do
-        data.merge('applicants' => [
-          { 'applicant_address' => { 'country' => 'Canada' } },
-          { 'applicant_address' => { 'country' => 'Mexico' } }
-          ] )
+        data.merge(
+          'applicants' => [
+            { 'applicant_address' => { 'country' => 'Canada' } },
+            { 'applicant_address' => { 'country' => 'Mexico' } }
+          ]
+        )
       end
       let(:vha1010d_with_multiple_applicants) { described_class.new(data_with_multiple_applicants) }
 
@@ -109,7 +118,6 @@ RSpec.describe IvcChampva::VHA1010d do
       end
     end
   end
-  # rubocop:enable Layout/ArgumentAlignment, Layout/HashAlignment, Layout/FirstArrayElementIndentation, Layout/SpaceInsideParens
 
   describe '#track_email_usage' do
     let(:statsd_key) { 'api.ivc_champva_form.10_10d' }
