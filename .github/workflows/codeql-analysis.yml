@@ -32,7 +32,7 @@ jobs:
           config-file: ./.github/codeql/config.yml
 
   assign-failure-label:
-    if: github.event_name == 'pull_request' && failure()
+    if: github.event_name == 'pull_request' && failure() && !contains(github.event.pull_request.labels.*.name, 'codeql-failure')
     needs: [analyze]
     runs-on: ubuntu-latest
     steps:
@@ -46,7 +46,7 @@ jobs:
             codeql-failure
 
   remove-failure-label:
-    if: github.event_name == 'pull_request' && success()
+    if: github.event_name == 'pull_request' && success() && contains(github.event.pull_request.labels.*.name, 'codeql-failure')
     needs: [analyze]
     runs-on: ubuntu-latest
     steps:

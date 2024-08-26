@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_30_174253) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_21_145040) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
+  enable_extension "fuzzystrmatch"
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
@@ -742,6 +743,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_30_174253) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "benefits_intake_uuid"
     t.index ["form_submission_id"], name: "index_form_submission_attempts_on_form_submission_id"
   end
 
@@ -1034,6 +1036,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_30_174253) do
     t.datetime "itf_datetime"
     t.datetime "form_start_date"
     t.datetime "delete_date"
+    t.text "metadata"
+    t.datetime "metadata_updated_at"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
