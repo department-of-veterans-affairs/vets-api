@@ -752,6 +752,10 @@ features:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
     enable_in_development: true
+  lighthouse_claims_api_poa_dependent_claimants:
+    actor_type: user
+    description: Enable/disable dependent claimant support for POA requests
+    enable_in_development: true
   lighthouse_claims_v2_poa_requests_skip_bgs:
     actor_type: user
     description: Enable/disable skipping BGS calls for POA Requests
@@ -1168,6 +1172,10 @@ features:
     actor_type: cookie_id
     description: Enables the ability to use OAuth authentication via the Sign in Service (Identity)
     enable_in_development: true
+  sign_in_modal_v2:
+    actor_type: user
+    description: Enables new page design of Sign In modal and USiP
+    enable_in_development: false
   medical_copays_zero_debt:
     actor_type: user
     description: Enables zero debt balances feature on the medical copays application

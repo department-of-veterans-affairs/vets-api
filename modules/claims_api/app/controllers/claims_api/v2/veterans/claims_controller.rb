@@ -470,10 +470,6 @@ module ClaimsApi
           @supporting_documents.find { |doc| doc[:tracked_item_id] == id.to_i }.present?
         end
 
-        def find_tracked_item(id)
-          [@tracked_items].flatten.compact.find { |item| item[:dvlpmt_item_id] == id }
-        end
-
         def tracked_item_req_date(tracked_item, item)
           date_present(item[:date_open] || tracked_item[:req_dt] || tracked_item[:create_dt])
         end
