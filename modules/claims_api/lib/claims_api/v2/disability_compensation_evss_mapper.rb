@@ -3,11 +3,10 @@
 module ClaimsApi
   module V2
     class DisabilityCompensationEvssMapper
-      def initialize(auto_claim, file_number)
+      def initialize(auto_claim)
         @auto_claim = auto_claim
         @data = auto_claim&.form_data&.deep_symbolize_keys
         @evss_claim = {}
-        @file_number = file_number
       end
 
       def map_claim
