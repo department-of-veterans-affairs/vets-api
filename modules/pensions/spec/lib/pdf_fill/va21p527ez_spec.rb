@@ -119,6 +119,26 @@ describe Pensions::PdfFill::Va21p527ez do
               'last' => 'Doe'
             },
             'monthlyPayment' => 500
+          },
+          {
+            'childAddress' => {
+              'country' => 'US',
+              'city' => 'Cityville',
+              'street' => '100 Main St',
+              'state' => 'PA',
+              'postalCode' => '11111'
+            },
+            'childInHousehold' => false,
+            'fullName' => {
+              'first' => 'Alice',
+              'middle' => 'B',
+              'last' => 'Johnson'
+            },
+            'personWhoLivesWithChild' => {
+              'first' => 'Jane',
+              'last' => 'Doe'
+            },
+            'monthlyPayment' => 700
           }
         ]
       }
@@ -126,7 +146,7 @@ describe Pensions::PdfFill::Va21p527ez do
       form.expand_dependent_children
       updated_data = form.instance_variable_get('@form_data')
 
-      expect(updated_data['custodians'][0]['dependentsWithCustodianOverflow']).to eq('John A Smith')
+      expect(updated_data['custodians'][0]['dependentsWithCustodianOverflow']).to eq('John A Smith, Alice B Johnson')
     end
   end
 
