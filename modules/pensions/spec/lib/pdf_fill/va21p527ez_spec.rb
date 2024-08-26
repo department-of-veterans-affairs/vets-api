@@ -168,7 +168,6 @@ describe Pensions::PdfFill::Va21p527ez do
     end
   end
 
-
   describe '#expand_direct_deposit_information' do
     it 'sets correct account type' do
       form_data = { 'bankAccount' => { 'accountType' => 'checking' } }
