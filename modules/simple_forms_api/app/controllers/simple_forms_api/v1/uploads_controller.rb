@@ -71,6 +71,10 @@ module SimpleFormsApi
 
       private
 
+      def lighthouse_service
+        @lighthouse_service ||= BenefitsIntake::Service.new
+      end
+
       def skip_authentication?
         UNAUTHENTICATED_FORMS.include?(params[:form_number]) || UNAUTHENTICATED_FORMS.include?(params[:form_id])
       end
@@ -165,7 +169,18 @@ module SimpleFormsApi
       end
 
       def upload_pdf(file_path, metadata, form)
-        lighthouse_service = BenefitsIntake::Service.new
+        location, uuid = request_upload_and_save_form_submission_attempt(form)
+        Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
+        Rails.logger.info(
+          'Simple forms api - preparing to upload PDF to benefits intake',
+          { location:, uuid: }
+        )
+        response = lighthouse_service.perform_upload(metadata: metadata.to_json, document: file_path,
+                                                     upload_url: location)
+        [response.status, uuid]
+      end
+
+      def request_upload_and_save_form_submission_attempt(form)
         location, uuid = lighthouse_service.request_upload
 
         # Stamp uuid on 40-10007
@@ -179,15 +194,7 @@ module SimpleFormsApi
         )
         FormSubmissionAttempt.create(form_submission:)
 
-        Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info(
-          'Simple forms api - preparing to upload PDF to benefits intake',
-          { location:, uuid: }
-        )
-        response = lighthouse_service.perform_upload(metadata: metadata.to_json, document: file_path,
-                                                     upload_url: location)
-
-        [response.status, uuid]
+        [location, uuid]
       end
 
       def form_is264555_and_should_use_lgy_api
