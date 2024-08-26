@@ -1442,8 +1442,9 @@
                                     "city": {
                                       "description": "City for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                      "maxLength": 1000,
+                                      "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                      "minLength": 1,
+                                      "maxLength": 30,
                                       "example": "Portland"
                                     },
                                     "state": {
@@ -2088,8 +2089,9 @@
                                         "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                        "pattern": "([a-zA-Z0-9\"/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                                         "example": "Private Facility 2",
+                                        "minLength": 1,
                                         "maxLength": 100
                                       },
                                       "city": {
@@ -2817,8 +2819,9 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                    "maxLength": 1000,
+                                    "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                    "minLength": 1,
+                                    "maxLength": 30,
                                     "example": "Portland"
                                   },
                                   "state": {
@@ -3463,8 +3466,9 @@
                                       "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                      "pattern": "([a-zA-Z0-9\"/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                                       "example": "Private Facility 2",
+                                      "minLength": 1,
                                       "maxLength": 100
                                     },
                                     "city": {
@@ -4391,7 +4395,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "15080f63-cba1-4a6a-8613-de0d00ddda1f",
+                        "id": "45d60314-0a29-4b7f-814d-88652fc6cdd5",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4576,7 +4580,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-08-18"
+                              "anticipatedSeparationDate": "2024-08-24"
                             },
                             "confinements": [
                               {
@@ -4622,7 +4626,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "6b300dbe-b50f-4a5d-930e-a8d2a9bf9e5e",
+                        "id": "bf012f28-b452-41d8-a0bf-646247529256",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4967,8 +4971,9 @@
                                     "city": {
                                       "description": "City for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                      "maxLength": 1000,
+                                      "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                      "minLength": 1,
+                                      "maxLength": 30,
                                       "example": "Portland"
                                     },
                                     "state": {
@@ -5613,8 +5618,9 @@
                                         "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                        "pattern": "([a-zA-Z0-9\"/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                                         "example": "Private Facility 2",
+                                        "minLength": 1,
                                         "maxLength": 100
                                       },
                                       "city": {
@@ -6342,8 +6348,9 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                    "maxLength": 1000,
+                                    "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                    "minLength": 1,
+                                    "maxLength": 30,
                                     "example": "Portland"
                                   },
                                   "state": {
@@ -6988,8 +6995,9 @@
                                       "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                      "pattern": "([a-zA-Z0-9\"/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                                       "example": "Private Facility 2",
+                                      "minLength": 1,
                                       "maxLength": 100
                                     },
                                     "city": {
@@ -8494,8 +8502,9 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                    "maxLength": 1000,
+                                    "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                    "minLength": 1,
+                                    "maxLength": 30,
                                     "example": "Portland"
                                   },
                                   "state": {
@@ -9140,8 +9149,9 @@
                                       "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                      "pattern": "([a-zA-Z0-9\"/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                                       "example": "Private Facility 2",
+                                      "minLength": 1,
                                       "maxLength": 100
                                     },
                                     "city": {
@@ -9813,7 +9823,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b0f8da77-cf6f-4ca4-ab4d-172ded7e59c9",
+                    "id": "8b99b304-c794-4533-b788-9ec803c1665f",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12754,8 +12764,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-08-16",
-                      "expirationDate": "2025-08-16",
+                      "creationDate": "2024-08-22",
+                      "expirationDate": "2025-08-22",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13651,7 +13661,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "eb376617-11cf-409a-b22a-969e0b102d9c",
+                    "id": "86719efd-aad1-4bdd-9c52-edb3b430b873",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14344,7 +14354,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bfdb7fe4-5c91-4afb-a7b2-15fb4e15f073",
+                    "id": "fa07b00e-d7de-4694-8bcc-50633a13cc9c",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16295,10 +16305,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3f75c799-07ba-4b21-9819-9c11b562efd6",
+                    "id": "ac13d42f-c076-43ee-998d-b8937d3d5de2",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-08-16",
+                      "dateRequestAccepted": "2024-08-22",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
