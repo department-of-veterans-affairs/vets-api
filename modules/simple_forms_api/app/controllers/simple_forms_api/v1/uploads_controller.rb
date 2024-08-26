@@ -120,10 +120,10 @@ module SimpleFormsApi
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
         if Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service)
-          status, confirmation_number = upload_pdf(file_path, metadata, form_id)
+          status, confirmation_number = upload_pdf(file_path, metadata, form)
         else
           status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
-                                                                        form_id).upload_to_benefits_intake(params)
+                                                                        form).upload_to_benefits_intake(params)
         end
 
         form.track_user_identity(confirmation_number)
@@ -164,12 +164,12 @@ module SimpleFormsApi
         [file_path, metadata, form]
       end
 
-      def upload_pdf(file_path, metadata, form_id)
+      def upload_pdf(file_path, metadata, form)
         lighthouse_service = BenefitsIntake::Service.new
         location, uuid = lighthouse_service.request_upload
 
         # Stamp uuid on 40-10007
-        SimpleFormsApi::PdfStamper.new('tmp/vba_40_10007-tmp.pdf').stamp_uuid(form_id, uuid)
+        SimpleFormsApi::PdfStamper.new('tmp/vba_40_10007-tmp.pdf', form).stamp_uuid(uuid)
 
         form_submission = FormSubmission.create(
           form_type: params[:form_number],

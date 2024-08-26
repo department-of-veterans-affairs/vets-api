@@ -9,7 +9,7 @@ module SimpleFormsApi
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
-    def initialize(stamped_template_path, form = nil, loa = nil)
+    def initialize(stamped_template_path, form, loa = nil)
       @stamped_template_path = stamped_template_path
       @form = form
       @loa = loa
@@ -26,8 +26,8 @@ module SimpleFormsApi
       raise StandardError, "An error occurred while stamping the PDF: #{e}"
     end
 
-    def stamp_uuid(form_id, uuid)
-      if form_id == 'vba_40_10007'
+    def stamp_uuid(uuid)
+      if form.instance_of? SimpleFormsApi::VBA4010007
         desired_stamp = { text: "UUID: #{uuid}", font_size: 9 }
         desired_stamps = [[390, 18]]
         page_configuration = [
