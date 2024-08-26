@@ -40,7 +40,16 @@ RSpec.shared_examples 'a form filler' do |options|
             schema = "#{form_id.upcase}-#{type.upcase}"
             VetsJsonSchema::EXAMPLES.fetch(schema)
           end
-          let(:saved_claim) { create(factory, form: form_data.to_json) }
+
+          let(:saved_claim) do
+            if form_id == '21P-530V2'
+              claim = create(factory)
+              claim.update(form: form_data.to_json)
+              claim
+            else
+              create(factory, form: form_data.to_json)
+            end
+          end
 
           it 'fills the form correctly' do
             if type == 'overflow'
