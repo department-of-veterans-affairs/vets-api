@@ -16,6 +16,7 @@
     "is_active_service_death": true,
     "address": {
       "country": "USA",
+      "street": "1 First Ln",
       "street_combined": "1 First Ln",
       "city": "Place",
       "state": "AL",
@@ -34,6 +35,7 @@
     {
       "applicant_address": {
         "country": "USA",
+        "street": "2 Second St",
         "street_combined": "2 Second St",
         "city": "Town",
         "state": "LA",
@@ -56,6 +58,7 @@
     {
       "applicant_address": {
         "country": "USA",
+        "street": "3 Third Ave",
         "street_combined": "3 Third Ave",
         "city": "Ville",
         "state": "AR",
@@ -78,6 +81,7 @@
     {
       "applicant_address": {
         "country": "USA",
+        "street": "4 Third Ave",
         "street_combined": "4 Third Ave",
         "city": "Mark",
         "state": "AR",
@@ -100,6 +104,7 @@
     {
       "applicant_address": {
         "country": "USA",
+        "street": "426 Ave C",
         "street_combined": "426 Ave C",
         "city": "Philadelphia",
         "state": "PA",
@@ -115,6 +120,8 @@
       "applicant_email_address": "mailme@logan.com",
       "applicant_phone": "2345698777",
       "applicant_dob": "1999-03-10",
+      "applicant_medicare_status": { "eligibility": "enrolled" },
+      "applicant_has_ohi": { "has_ohi": "yes" },
       "is_enrolled_in_medicare": true,
       "has_other_health_insurance": true,
       "vet_relationship": "Relative - Other"
@@ -122,6 +129,7 @@
     {
       "applicant_address": {
         "country": "USA",
+        "street": "12345 Play Place",
         "street_combined": "12345 Play Place",
         "city": "Camden",
         "state": "NJ",
@@ -133,10 +141,12 @@
         "last": "Storm"
       },
       "ssn_or_tin": "123664444",
-      "applicant_gender": { "gender": "M" },
+      "applicant_gender": { "gender": "F" },
       "applicant_email_address": "mailme@Maria.com",
       "applicant_phone": "2345698777",
       "applicant_dob": "1959-03-10",
+      "applicant_medicare_status": { "eligibility": "enrolled" },
+      "applicant_has_ohi": { "has_ohi": "yes" },
       "is_enrolled_in_medicare": true,
       "has_other_health_insurance": true,
       "vet_relationship": "Relative - Other"
