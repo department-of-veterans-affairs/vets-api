@@ -26,14 +26,16 @@ module SimpleFormsApi
       raise StandardError, "An error occurred while stamping the PDF: #{e}"
     end
 
-    def stamp_uuid(uuid)
-      desired_stamp = { text: "UUID: #{uuid}", font_size: 9 }
-      desired_stamps = [[390, 18]]
-      page_configuration = [
-        { type: :text, position: desired_stamps[0] }
-      ]
+    def stamp_uuid(form_id, uuid)
+      if form_id == 'vba_40_10007'
+        desired_stamp = { text: "UUID: #{uuid}", font_size: 9 }
+        desired_stamps = [[390, 18]]
+        page_configuration = [
+          { type: :text, position: desired_stamps[0] }
+        ]
 
-      verified_multistamp(stamped_template_path, desired_stamp, page_configuration)
+        verified_multistamp(stamped_template_path, desired_stamp, page_configuration)
+      end
     end
 
     private

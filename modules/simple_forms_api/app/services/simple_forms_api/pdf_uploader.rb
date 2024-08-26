@@ -41,10 +41,11 @@ module SimpleFormsApi
 
     def get_upload_location_and_uuid(lighthouse_service, form_id)
       upload_location = lighthouse_service.get_upload_location.body
-      if form_id == 'vba_40_10007'
-        uuid = upload_location.dig('data', 'id')
-        SimpleFormsApi::PdfStamper.new('tmp/vba_40_10007-tmp.pdf').stamp_uuid(uuid)
-      end
+
+      # Stamp uuid on 40-10007
+      uuid = upload_location.dig('data', 'id')
+      SimpleFormsApi::PdfStamper.new('tmp/vba_40_10007-tmp.pdf').stamp_uuid(form_id, uuid)
+
       {
         uuid: upload_location.dig('data', 'id'),
         location: upload_location.dig('data', 'attributes', 'location')
