@@ -142,6 +142,18 @@
       "vet_relationship": "Relative - Other"
     }
   ],
+  "supporting_docs": [
+      {
+        "name": "file.png",
+        "confirmation_code": "c1f25ef2-e5e3-48b6-927b-a0049a6dcbce",
+        "attachment_id": "Birth certificate",
+        "is_encrypted": false,
+        "applicant_name": {
+            "first": "Applicant",
+            "last": "Jones"
+        }
+    }
+  ],
   "certification": {
     "last_name": "Joe",
     "first_name": "GI",
