@@ -14,31 +14,26 @@ describe SimpleFormsApi::PdfStamper do
       context 'page is specified' do
         let(:coords) { {} }
         let(:page) { 2 }
-        let(:text) { 'text' }
-        let(:font_size) { 10 }
-        let(:desired_stamp) { { coords:, page:, text:, font_size: } }
+        let(:desired_stamp) { { coords:, page: } }
+        let(:page_configuration) { double }
 
         before do
           allow(form).to receive_messages(desired_stamps: [desired_stamp], submission_date_stamps: [])
-          allow(instance).to receive :stamp_auth_text
           allow(instance).to receive(:verified_multistamp)
+          allow(instance).to receive(:verify)
+          allow(instance).to receive(:get_page_configuration).and_return(page_configuration)
         end
 
         it 'calls #get_page_configuration' do
-          allow(instance).to receive(:get_page_configuration)
-
           instance.stamp_pdf
 
-          expect(instance).to have_received(:get_page_configuration).with(page, coords)
+          expect(instance).to have_received(:get_page_configuration).with(desired_stamp)
         end
 
         it 'calls #verified_multistamp' do
-          page_configuration = double
-          allow(instance).to receive(:get_page_configuration).and_return(page_configuration)
-
           instance.stamp_pdf
 
-          expect(instance).to have_received(:verified_multistamp).with(path, text, page_configuration, font_size)
+          expect(instance).to have_received(:verified_multistamp).with(path, desired_stamp, page_configuration)
         end
       end
 
@@ -49,9 +44,9 @@ describe SimpleFormsApi::PdfStamper do
 
         before do
           allow(form).to receive_messages(desired_stamps: [desired_stamp], submission_date_stamps: [])
-          allow(instance).to receive :stamp_auth_text
           allow(File).to receive(:rename)
           allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
+          allow(instance).to receive(:verify)
         end
 
         it 'calls PDFUtilities::DatestampPdf and renames the File' do

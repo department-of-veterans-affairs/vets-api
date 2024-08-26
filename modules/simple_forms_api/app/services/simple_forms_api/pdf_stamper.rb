@@ -68,8 +68,7 @@ module SimpleFormsApi
     end
 
     def multistamp(stamped_template_path, stamp, page_configuration)
-      generate_prawn_document(stamp, page_configuration)
-
+      stamp_path = generate_prawn_document(stamp, page_configuration)
       perform_multistamp(stamped_template_path, stamp_path)
     rescue => e
       Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
@@ -121,6 +120,7 @@ module SimpleFormsApi
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         draw_text(pdf, stamp, page_configuration)
       end
+      stamp_path
     end
 
     def draw_text(pdf, stamp, page_configuration)
@@ -135,7 +135,7 @@ module SimpleFormsApi
     end
 
     def call_datestamp_pdf(coords, text, append_to_stamp)
-      Rails.logger.info('Calling PDFUtilities::DatestampPdf', current_file_path:, stamped_template_path:)
+      Rails.logger.info('Calling PDFUtilities::DatestampPdf', stamped_template_path:)
       datestamp_instance = PDFUtilities::DatestampPdf.new(stamped_template_path, append_to_stamp:)
       datestamp_instance.run(text:, x: coords[0], y: coords[1], text_only: true, size: 9)
     end
