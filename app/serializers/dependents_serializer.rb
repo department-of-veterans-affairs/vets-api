@@ -60,7 +60,12 @@ module DependentsHelper
   end
 
   def dependency_decisions(diaries)
-    decisions = diaries.is_a?(Hash) && diaries[:dependency_decs]
+    decisions = if diaries.is_a?(Hash)
+                  diaries[:dependency_decs]
+                else
+                  Rails.logger.warn('Diaries is not a hash! Diaries value: ', diaries)
+                  nil
+                end
     return if decisions.nil?
 
     decisions.is_a?(Hash) ? [decisions] : decisions
