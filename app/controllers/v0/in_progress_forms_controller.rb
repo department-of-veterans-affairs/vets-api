@@ -31,6 +31,7 @@ module V0
          Lighthouse::CreateIntentToFileJob::ITF_FORMS.include?(form.form_id) && veteran_icn.present?
         if @current_user.participant_id.blank?
           track_missing_user_pids(form)
+          Lighthouse::PensionCreatePidForIcnJob.perform_async(form.form_id, form.created_at, veteran_icn)
         else
           Lighthouse::CreateIntentToFileJob.perform_async(form.form_id, form.created_at, veteran_icn)
         end
@@ -73,6 +74,7 @@ module V0
 
     def track_missing_user_pids(form)
       StatsD.increment('user.participant_id.blank')
+      binding.pry
       context = {
         in_progress_form_id: form.id,
         user_uuid: @current_user.uuid,
