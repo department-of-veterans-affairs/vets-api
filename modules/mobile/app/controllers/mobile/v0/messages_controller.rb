@@ -30,7 +30,9 @@ module Mobile
         user_in_triage_team = user_triage_teams.data.any? { |team| team.name == response.triage_group_name }
 
         meta = response.metadata.merge(user_in_triage_team?: user_in_triage_team)
-        render json: Mobile::V0::MessageSerializer.new(response, { meta: })
+        options = { meta: }
+        options[:include] = [:attachments] if response.attachment
+        render json: Mobile::V0::MessageSerializer.new(response, options)
       end
 
       def create
