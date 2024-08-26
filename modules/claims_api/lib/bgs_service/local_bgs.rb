@@ -17,6 +17,7 @@ module ClaimsApi
     CACHED_SERVICES = %w[
       ClaimantServiceBean/ClaimantWebService
       OrgWebServiceBean/OrgWebService
+      VdcBean/ManageRepresentativeService
       VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
     ].freeze
 
