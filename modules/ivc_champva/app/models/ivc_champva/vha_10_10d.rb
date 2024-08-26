@@ -38,36 +38,14 @@ module IvcChampva
       }
     end
 
-    # rubocop:disable Layout/LineLength, Style/IfUnlessModifier
     def desired_stamps
       return [] unless @data
 
-      stamps = [
-        { coords: [40, 105], text: @data['statement_of_truth_signature'], page: 0 }
-      ]
-
-      sponsor_is_deceased = @data.dig('veteran', 'sponsor_is_deceased')
-      veteran_country = @data.dig('veteran', 'address', 'country')
-      applicants = @data.fetch('applicants', [])
-      first_applicant_country = applicants.is_a?(Array) && !applicants.empty? ? applicants.first&.dig('applicant_address', 'country') : nil
-
-      stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
-
-      unless sponsor_is_deceased
-        stamps << { coords: [520, 590], text: veteran_country, page: 0 }
-      end
-
-      applicants.each_with_index do |applicant, index|
-        next if index.zero?
-
-        coords_y = 470 - (116 * index)
-        applicant_country = applicant.dig('applicant_address', 'country')
-        stamps << { coords: [520, coords_y], text: applicant_country, page: 0 } if applicant_country
-      end
+      stamps = initial_stamps
+      stamps.concat(applicant_stamps)
 
       stamps
     end
-    # rubocop:enable Layout/LineLength, Style/IfUnlessModifier
 
     def submission_date_stamps
       [
@@ -104,6 +82,44 @@ module IvcChampva
 
     def respond_to_missing?(_)
       true
+    end
+
+    private
+
+    def initial_stamps
+      stamps = [
+        { coords: [40, 105], text: @data['statement_of_truth_signature'], page: 0 }
+      ]
+
+      sponsor_is_deceased = @data.dig('veteran', 'sponsor_is_deceased')
+      veteran_country = @data.dig('veteran', 'address', 'country')
+      applicants = @data.fetch('applicants', [])
+
+      first_applicant_country = if applicants.is_a?(Array) && !applicants.empty?
+                                  applicants.first&.dig('applicant_address', 'country')
+                                else
+                                  nil
+                                end
+
+      stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
+      stamps << { coords: [520, 590], text: veteran_country, page: 0 } unless sponsor_is_deceased
+
+      stamps
+    end
+
+    def applicant_stamps
+      stamps = []
+      applicants = @data.fetch('applicants', [])
+
+      applicants.each_with_index do |applicant, index|
+        next if index.zero?
+
+        coords_y = 470 - (116 * index)
+        applicant_country = applicant.dig('applicant_address', 'country')
+        stamps << { coords: [520, coords_y], text: applicant_country, page: 0 } if applicant_country
+      end
+
+      stamps
     end
   end
 end
