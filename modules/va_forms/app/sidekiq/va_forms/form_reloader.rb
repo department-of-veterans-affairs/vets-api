@@ -54,6 +54,10 @@ module VAForms
     end
 
     def perform
+      # Temporarily disable FormReloader job in sandbox to support data migration
+      # https://jira.devops.va.gov/browse/API-37197
+      return if Settings.vsp_environment.downcase == 'sandbox'
+
       return unless enabled?
 
       all_forms_data.each { |form| VAForms::FormBuilder.perform_async(form) }
