@@ -20,6 +20,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         let(:endpoint) { 'VDC/VeteranRepresentativeService' }
         let(:action) { 'readAllVeteranRepresentatives' }
         let(:key) { 'VeteranRepresentativeReturnList' }
+        
         it 'response with the correct attributes' do
           result = subject.for_action(endpoint, action)
           parsed_result = JSON.parse(result.to_json)
@@ -51,6 +52,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
 
       context 'OrgWebService' do
         let(:endpoint) { 'VDC/VeteranRepresentativeService' }
+        
         it 'response with the correct namespace' do
           result = subject.for_service(endpoint)
           parsed_result = JSON.parse(result.to_json)
