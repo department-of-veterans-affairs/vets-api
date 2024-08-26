@@ -44,7 +44,7 @@ class SavedClaim::Burial < CentralMailClaim
   end
 
   def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-    processed_pdf = CentralMail::DatestampPdf.new(pdf_path).run(
+    processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
       text: 'Application Submitted on va.gov',
       x: 400,
       y: 675,

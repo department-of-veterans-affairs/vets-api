@@ -579,6 +579,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
+      # lines 89-92 in disability_compensation_validations.rb checks phone number for dash
       context 'when reservesNationalGuardService information is submitted' do
         let(:json_data) { JSON.parse data }
         let(:title10_activation_date) { (Time.zone.now - 1.day).to_date.to_s }
@@ -782,6 +783,20 @@ RSpec.describe 'Disability Claims ', type: :request do
             post path, params: params.to_json, headers: headers.merge(auth_header)
             expect(response.status).to eq(422)
             expect(JSON.parse(response.body)['errors'].size).to eq(5)
+          end
+        end
+
+        it 'removes the dash in homelessness primary phone' do
+          mock_acg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
+              VCR.use_cassette('claims_api/brd/countries') do
+                par = json_data
+                par['data']['attributes']['veteran']['homelessness']['pointOfContact']['primaryPhone']['phoneNumber'] =
+                  '555-5555'
+                post path, params: par.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
           end
         end
 

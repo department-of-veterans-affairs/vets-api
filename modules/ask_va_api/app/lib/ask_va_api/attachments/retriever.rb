@@ -5,22 +5,13 @@ module AskVAApi
     ENDPOINT = 'attachment'
     class AttachmentsRetrieverError < StandardError; end
 
-    class Retriever
-      attr_reader :id, :service
+    class Retriever < BaseRetriever
+      attr_reader :id, :service, :user_mock_data, :entity_class
 
-      def initialize(id:, service: nil)
+      def initialize(id:, entity_class:, user_mock_data: nil, service: nil)
+        super(user_mock_data:, entity_class:)
         @id = id
         @service = service || default_service
-      end
-
-      def call
-        validate_input(id, "Invalid Attachment's ID")
-
-        attachment = fetch_data(payload: { id: })
-
-        Entity.new(attachment)
-      rescue => e
-        ErrorHandler.handle_service_error(e)
       end
 
       private
@@ -29,23 +20,14 @@ module AskVAApi
         Crm::Service.new(icn: nil)
       end
 
-      def fetch_data(payload: {})
-        response = service.call(endpoint: ENDPOINT, payload:)
-        handle_response_data(response)
+      def fetch_data
+        validate_input(id, "Invalid Attachment's ID")
+        response = service.call(endpoint: ENDPOINT, payload: { id: })
+        handle_response_data(response:, error_class: AttachmentsRetrieverError)
       end
 
       def validate_input(input, error_message)
         raise ArgumentError, error_message if input.blank?
-      end
-
-      def handle_response_data(response)
-        case response
-        when Hash
-          response[:Data]
-        else
-          error = JSON.parse(response.body, symbolize_names: true)
-          raise(AttachmentsRetrieverError, error[:Message])
-        end
       end
     end
   end

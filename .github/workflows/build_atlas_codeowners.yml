@@ -30,7 +30,7 @@ jobs:
 
       - name:  Check codeowner changes
         id: check-codeowner-changes
-        uses: tj-actions/changed-files@v44 # v36.3.0
+        uses: tj-actions/changed-files@v45 # v36.3.0
         with:
           files: |
             .github/CODEOWNERS
@@ -48,4 +48,3 @@ jobs:
           user_email: 'devops@va.gov'
           user_name: 'va-vsp-bot'
           commit_message: 'Auto update Atlas with Vets-API CODEOWNERS'
-
