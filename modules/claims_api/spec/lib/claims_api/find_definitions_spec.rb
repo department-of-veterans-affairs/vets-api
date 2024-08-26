@@ -52,11 +52,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
 
       context 'OrgWebService' do
         let(:endpoint) { 'VDC/VeteranRepresentativeService' }
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 943e1c8924078f1eb322fab714fb40990a2ab8af
         it 'response with the correct namespace' do
           result = subject.for_service(endpoint)
           parsed_result = JSON.parse(result.to_json)
