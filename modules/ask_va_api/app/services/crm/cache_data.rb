@@ -35,8 +35,7 @@ module Crm
       when Hash
         response
       else
-        error = JSON.parse(response.body, symbolize_names: true)
-        raise(StandardError, error[:Message])
+        raise(StandardError, response.body)
       end
     end
   end

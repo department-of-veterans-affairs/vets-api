@@ -1,13 +1,27 @@
 # frozen_string_literal: true
 
 require 'va_profile/contact_information/service'
+require 'va_profile/v2/contact_information/service'
 require 'va_profile/contact_information/person_response'
+require 'va_profile/v2/contact_information/person_response'
 require 'va_profile/models/address'
 require 'va_profile/models/telephone'
 require 'va_profile/models/permission'
 
 # rubocop:disable Metrics/MethodLength
 def stub_vet360(person = nil)
+  service = if Flipper.enabled?(:va_v3_contact_information_service)
+              VAProfile::V2::ContactInformation::Service
+            else
+              VAProfile::ContactInformation::Service
+            end
+
+  person_response = if Flipper.enabled?(:va_v3_contact_information_service)
+                      VAProfile::V2::ContactInformation::PersonResponse
+                    else
+                      VAProfile::ContactInformation::PersonResponse
+                    end
+
   person ||= build(
     :person,
     addresses: [
@@ -30,8 +44,8 @@ def stub_vet360(person = nil)
     ]
   )
 
-  allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_return(
-    VAProfile::ContactInformation::PersonResponse.new(200, person:)
+  allow_any_instance_of(service).to receive(:get_person).and_return(
+    person_response.new(200, person:)
   )
 end
 # rubocop:enable Metrics/MethodLength
