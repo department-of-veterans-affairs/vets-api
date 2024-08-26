@@ -21,7 +21,7 @@ module SimpleFormsApi
       end
 
       # Stamp the text which specifies the user's auth level (footer)
-      verify(stamped_template_path) { stamp_all_pages(get_auth_text_stamp, append_to_stamp: auth_text) }
+      verify { stamp_all_pages(get_auth_text_stamp, append_to_stamp: auth_text) }
     rescue => e
       raise StandardError, "An error occurred while stamping the PDF: #{e}"
     end
@@ -34,7 +34,7 @@ module SimpleFormsApi
           { type: :text, position: desired_stamps[0] }
         ]
 
-        verified_multistamp(stamped_template_path, desired_stamp, page_configuration)
+        verified_multistamp(desired_stamp, page_configuration)
       end
     end
 
@@ -54,7 +54,7 @@ module SimpleFormsApi
 
     def stamp_specified_page(desired_stamp)
       page_configuration = get_page_configuration(desired_stamp)
-      verified_multistamp(stamped_template_path, desired_stamp, page_configuration)
+      verified_multistamp(desired_stamp, page_configuration)
     end
 
     def stamp_all_pages(desired_stamp, append_to_stamp: nil)
@@ -62,15 +62,15 @@ module SimpleFormsApi
       File.rename(current_file_path, stamped_template_path)
     end
 
-    def verified_multistamp(stamped_template_path, stamp, page_configuration)
+    def verified_multistamp(stamp, page_configuration)
       raise StandardError, 'The provided stamp content was empty.' if stamp[:text].blank?
 
-      verify(stamped_template_path) { multistamp(stamped_template_path, stamp, page_configuration) }
+      verify { multistamp(stamp, page_configuration) }
     end
 
-    def multistamp(stamped_template_path, stamp, page_configuration)
+    def multistamp(stamp, page_configuration)
       stamp_path = generate_prawn_document(stamp, page_configuration)
-      perform_multistamp(stamped_template_path, stamp_path)
+      perform_multistamp(stamp_path)
     rescue => e
       Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
       raise
@@ -78,7 +78,7 @@ module SimpleFormsApi
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
     end
 
-    def perform_multistamp(stamped_template_path, stamp_path)
+    def perform_multistamp(stamp_path)
       out_path = Rails.root.join("#{Common::FileHelpers.random_file_path}.pdf")
       pdftk = PdfFill::Filler::PDF_FORMS
       pdftk.multistamp(stamped_template_path, stamp_path, out_path)
@@ -90,10 +90,10 @@ module SimpleFormsApi
       raise e
     end
 
-    def verify(template_path)
-      orig_size = File.size(template_path)
+    def verify
+      orig_size = File.size(stamped_template_path)
       yield
-      stamped_size = File.size(template_path)
+      stamped_size = File.size(stamped_template_path)
 
       raise StandardError, 'The PDF remained unchanged upon stamping.' unless stamped_size > orig_size
     rescue Prawn::Errors::IncompatibleStringEncoding
