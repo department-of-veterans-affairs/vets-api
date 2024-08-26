@@ -8,6 +8,7 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
   before do
     sign_in_as(user)
     allow_any_instance_of(User).to receive(:common_name).and_return('abraham.lincoln@vets.gov')
+    allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?).with(
       :profile_show_direct_deposit_single_form_edu_downtime,
       instance_of(User)
@@ -16,6 +17,7 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
 
   context 'single form feature flag enabled' do
     before do
+      allow(Flipper).to receive(:enabled?).and_call_original
       allow(Flipper).to receive(:enabled?).with(
         :profile_show_direct_deposit_single_form_edu_downtime,
         instance_of(User)
