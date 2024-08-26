@@ -460,15 +460,21 @@ module SM
     #
     # @return [Common::Collection[AllTriageTeams]]
     #
-    def get_all_triage_teams(user_uuid, use_cache)
+    def get_all_triage_teams(user_uuid, use_cache, requires_oh = nil)
       cache_key = "#{user_uuid}-all-triage-teams"
       get_cached_or_fetch_data(use_cache, cache_key, AllTriageTeams) do
-        json = perform(:get, 'alltriageteams', nil, token_headers).body
+        path = 'alltriageteams'
+        if requires_oh == '1'
+          separator = path.include?('?') ? '&' : '?'
+          path += "#{separator}requiresOHTriageGroup=#{requires_oh}"
+        end
+        json = perform(:get, path, nil, token_headers).body
         data = Common::Collection.new(AllTriageTeams, **json)
         AllTriageTeams.set_cached(cache_key, data)
         data
       end
     end
+    # @!endgroup
 
     ##
     # Update preferredTeam value for a patient's list of triage teams
