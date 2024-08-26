@@ -274,28 +274,6 @@ module ClaimsApi
       body.to_s
     end
 
-    def parsed_response(response, action:, key:, transform:)
-      body = Hash.from_xml(response.body)
-      keys = ['Envelope', 'Body', "#{action}Response"]
-      keys << key if key.present?
-
-      result = body.dig(*keys)
-
-      result = result.to_h if result.is_a?(Hash)
-
-      if transform
-        if result.is_a?(Hash)
-          result.deep_transform_keys! { |k| k.underscore.to_sym }
-        elsif result.is_a?(Array)
-          result.map! do |item|
-            item.deep_transform_keys! { |k| k.underscore.to_sym }
-          end
-        end
-      end
-
-      result
-    end
-
     def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
@@ -326,7 +304,8 @@ module ClaimsApi
       soap_error_handler.handle_errors(response) if response
 
       log_duration(event: 'parsed_response', key:) do
-        parsed_response(response, action:, key:, transform: transform_response)
+        parsed_response = parse_response(response, action:, key:)
+        transform_response ? transform_keys(parsed_response) : parsed_response
       end
     end
 
@@ -430,6 +409,32 @@ module ClaimsApi
         jrn_user_id: Settings.bgs.client_username,
         jrn_obj_id: Settings.bgs.application
       }
+    end
+
+    private
+
+    def transform_keys(hash_or_array)
+      transformer = lambda do |object|
+        case object
+        when Hash
+          object.deep_transform_keys! { |k| k.underscore.to_sym }
+        when Array
+          object.map { |item| transformer.call(item) }
+        else
+          object
+        end
+      end
+
+      transformer.call(hash_or_array)
+    end
+
+    def parse_response(response, action:, key:)
+      keys = ['Envelope', 'Body', "#{action}Response"]
+      keys << key if key.present?
+
+      result = Hash.from_xml(response.body).dig(*keys)
+
+      result.is_a?(Hash) ? result.to_h : result
     end
   end
 end
