@@ -39,7 +39,6 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           result = subject.for_action(endpoint, action)
           parsed_result = JSON.parse(result.to_json)
           expect(parsed_result['service']['bean']['path']).to eq 'VDC'
-          expect(parsed_result['service']['path']).to eq 'VnpAtchmsService'
           expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://atchmsService.services.vonapp.vba.va.gov/'
           expect(parsed_result['service']['path']).to eq 'VeteranRepresentativeService'
         end
@@ -86,7 +85,6 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           result = subject.for_service(endpoint)
           parsed_result = JSON.parse(result.to_json)
           expect(parsed_result['bean']['path']).to eq 'VDC'
-          expect(parsed_result['path']).to eq 'VnpAtchmsService'
           expect(parsed_result['bean']['namespaces']['target']).to eq 'http://atchmsService.services.vonapp.vba.va.gov/'
           expect(parsed_result['bean']['path']).to eq 'VDC'
           expect(parsed_result['path']).to eq 'VeteranRepresentativeService'
