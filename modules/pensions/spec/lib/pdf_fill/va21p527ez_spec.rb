@@ -96,5 +96,92 @@ describe Pensions::PdfFill::Va21p527ez do
       expect(updated_data['dependentChildrenInHousehold']).to eq('0')
       expect(updated_data['dependentsNotWithYouAtSameAddress']).to eq(1)
     end
+
+    it 'handles overflow for dependent children not in the same household' do
+      form_data = {
+        'dependents' => [
+          {
+            'childAddress' => {
+              'country' => 'US',
+              'city' => 'Cityville',
+              'street' => '100 Main St',
+              'state' => 'PA',
+              'postalCode' => '11111'
+            },
+            'childInHousehold' => false,
+            'fullName' => {
+              'first' => 'John',
+              'middle' => 'A',
+              'last' => 'Smith'
+            },
+            'personWhoLivesWithChild' => {
+              'first' => 'Jane',
+              'last' => 'Doe'
+            },
+            'monthlyPayment' => 500
+          }
+        ]
+      }
+      form = described_class.new(form_data)
+      form.expand_dependent_children
+      updated_data = form.instance_variable_get('@form_data')
+
+      expect(updated_data['custodians'][0]['dependentsWithCustodianOverflow']).to eq('John A Smith')
+    end
+  end
+
+  describe '#marital_status_to_radio' do
+    it 'returns correct radio value for marital status' do
+      expect(described_class.new({}).marital_status_to_radio('MARRIED')).to eq(0)
+      expect(described_class.new({}).marital_status_to_radio('SEPARATED')).to eq(1)
+      expect(described_class.new({}).marital_status_to_radio('SINGLE')).to eq(2)
+    end
+  end
+
+  describe '#reason_for_current_separation_to_radio' do
+    it 'returns correct radio value for current separation reasons' do
+      expect(described_class.new({}).reason_for_current_separation_to_radio('MEDICAL_CARE')).to eq(0)
+      expect(described_class.new({}).reason_for_current_separation_to_radio('RELATIONSHIP')).to eq(1)
+      expect(described_class.new({}).reason_for_current_separation_to_radio('LOCATION')).to eq(2)
+      expect(described_class.new({}).reason_for_current_separation_to_radio('OTHER')).to eq(3)
+      expect(described_class.new({}).reason_for_current_separation_to_radio('')).to eq('Off')
+    end
+  end
+
+
+  describe '#expand_direct_deposit_information' do
+    it 'sets correct account type' do
+      form_data = { 'bankAccount' => { 'accountType' => 'checking' } }
+      form = described_class.new(form_data)
+      form.expand_direct_deposit_information
+      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to eq(0)
+
+      form_data = { 'bankAccount' => { 'accountType' => 'savings' } }
+      form = described_class.new(form_data)
+      form.expand_direct_deposit_information
+      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to eq(1)
+
+      form_data = { 'bankAccount' => nil }
+      form = described_class.new(form_data)
+      form.expand_direct_deposit_information
+      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to eq(2)
+
+      form_data = { 'bankAccount' => { 'accountType' => nil } }
+      form = described_class.new(form_data)
+      form.expand_direct_deposit_information
+      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to eq(nil)
+    end
+  end
+
+  describe '#expand_veteran_service_information' do
+    it 'puts overflow on line one' do
+      long_place_of_separation = 'A very long place name that exceeds thirty-six characters'
+      form_data = { 'placeOfSeparation' => long_place_of_separation }
+      form = described_class.new(form_data)
+      form.expand_veteran_service_information
+      updated_data = form.instance_variable_get('@form_data')
+
+      expect(updated_data['placeOfSeparationLineOne']).to eq(long_place_of_separation)
+    end
   end
 end
