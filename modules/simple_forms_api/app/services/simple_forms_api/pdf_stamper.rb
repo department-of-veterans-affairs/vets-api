@@ -20,7 +20,8 @@ module SimpleFormsApi
         stamp_form(desired_stamp)
       end
 
-      stamp_auth_text
+      # Stamp the text which specifies the user's auth level (footer)
+      verify(stamped_template_path) { stamp_all_pages(get_auth_text_stamp, append_to_stamp: auth_text) }
     rescue => e
       raise StandardError, "An error occurred while stamping the PDF: #{e}"
     end
@@ -56,23 +57,8 @@ module SimpleFormsApi
     end
 
     def stamp_all_pages(desired_stamp, append_to_stamp: nil)
-      current_file_path = call_datestamp_pdf(stamped_template_path, desired_stamp, append_to_stamp)
+      current_file_path = call_datestamp_pdf(desired_stamp[:coords], desired_stamp[:text], append_to_stamp)
       File.rename(current_file_path, stamped_template_path)
-    end
-
-    def stamp_auth_text
-      desired_stamp = get_auth_text_stamp
-      auth_text = case loa
-                  when 3
-                    'Signee signed with an identity-verified account.'
-                  when 2
-                    'Signee signed in but hasn’t verified their identity.'
-                  else
-                    'Signee not signed in.'
-                  end
-      verify(stamped_template_path) do
-        stamp_all_pages(desired_stamp, append_to_stamp: auth_text)
-      end
     end
 
     def verified_multistamp(stamped_template_path, stamp, page_configuration)
@@ -133,22 +119,26 @@ module SimpleFormsApi
     def generate_prawn_document(stamp, page_configuration)
       stamp_path = Rails.root.join(Common::FileHelpers.random_file_path)
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
-        page_configuration.each do |config|
-          case config[:type]
-          when :text
-            pdf.draw_text stamp[:text], at: config[:position], size: stamp[:font_size] || 16
-          when :new_page
-            pdf.start_new_page
-          end
+        draw_text(pdf, stamp, page_configuration)
+      end
+    end
+
+    def draw_text(pdf, stamp, page_configuration)
+      page_configuration.each do |config|
+        case config[:type]
+        when :text
+          pdf.draw_text stamp[:text], at: config[:position], size: stamp[:font_size] || 16
+        when :new_page
+          pdf.start_new_page
         end
       end
     end
 
-    def call_datestamp_pdf(stamped_template_path, desired_stamp, append_to_stamp)
+    def call_datestamp_pdf(coords, text, append_to_stamp)
       Rails.logger.info('Calling PDFUtilities::DatestampPdf', current_file_path:, stamped_template_path:)
       datestamp_instance = PDFUtilities::DatestampPdf.new(stamped_template_path, append_to_stamp:)
-      coords = desired_stamp[:coords]
-      datestamp_instance.run(text: desired_stamp[:text], x: coords[0], y: coords[1], text_only: true, size: 9)
+      x, y = coords
+      datestamp_instance.run(text:, x:, y:, text_only: true, size: 9)
     end
 
     def get_auth_text_stamp
@@ -156,6 +146,17 @@ module SimpleFormsApi
       coords = [10, 10]
       text = SUBMISSION_TEXT + current_time
       { coords:, text: }
+    end
+
+    def auth_text
+      case loa
+      when 3
+        'Signee signed with an identity-verified account.'
+      when 2
+        'Signee signed in but hasn’t verified their identity.'
+      else
+        'Signee not signed in.'
+      end
     end
   end
 end
