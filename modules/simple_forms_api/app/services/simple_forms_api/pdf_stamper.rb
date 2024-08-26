@@ -40,6 +40,10 @@ module SimpleFormsApi
 
     private
 
+    def pdftk
+      @pdftk ||= PdfFill::Filler::PDF_FORMS
+    end
+
     def all_form_stamps
       form.desired_stamps + form.submission_date_stamps
     end
@@ -80,14 +84,15 @@ module SimpleFormsApi
 
     def perform_multistamp(stamp_path)
       out_path = Rails.root.join("#{Common::FileHelpers.random_file_path}.pdf")
-      pdftk = PdfFill::Filler::PDF_FORMS
       pdftk.multistamp(stamped_template_path, stamp_path, out_path)
+      multistamp_cleanup(out_path)
+    rescue => e
+      handle_multistamp_error(e)
+    end
+
+    def multistamp_cleanup(out_path)
       Common::FileHelpers.delete_file_if_exists(stamped_template_path)
       File.rename(out_path, stamped_template_path)
-    rescue => e
-      Rails.logger.error 'Simple forms api - Failed to perform multistamp', message: e.message
-      Common::FileHelpers.delete_file_if_exists(out_path)
-      raise e
     end
 
     def verify
@@ -96,8 +101,6 @@ module SimpleFormsApi
       stamped_size = File.size(stamped_template_path)
 
       raise StandardError, 'The PDF remained unchanged upon stamping.' unless stamped_size > orig_size
-    rescue Prawn::Errors::IncompatibleStringEncoding
-      raise
     rescue => e
       raise StandardError, "An error occurred while verifying stamp: #{e}"
     end
@@ -157,6 +160,12 @@ module SimpleFormsApi
       else
         'Signee not signed in.'
       end
+    end
+
+    def handle_multistamp_error(e)
+      Rails.logger.error 'Simple forms api - Failed to perform multistamp', message: e.message
+      Common::FileHelpers.delete_file_if_exists(out_path)
+      raise e
     end
   end
 end

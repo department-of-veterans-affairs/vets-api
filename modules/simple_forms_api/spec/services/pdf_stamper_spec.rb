@@ -33,7 +33,7 @@ describe SimpleFormsApi::PdfStamper do
         it 'calls #verified_multistamp' do
           instance.stamp_pdf
 
-          expect(instance).to have_received(:verified_multistamp).with(path, desired_stamp, page_configuration)
+          expect(instance).to have_received(:verified_multistamp).with(desired_stamp, page_configuration)
         end
       end
 
