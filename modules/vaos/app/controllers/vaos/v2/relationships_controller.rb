@@ -9,8 +9,7 @@ module VAOS
           relationships_params[:facility_id]
         )
 
-        serializer = VAOS::V2::VAOSSerializer.new
-        serialized = serializer.serialize(response, 'relationship')
+        serialized = VAOS::V2::VAOSSerializer.new.serialize(response, 'relationship')
         serialized.each { |relationship| relationship.delete(:id) }
 
         render json: { data: serialized }
