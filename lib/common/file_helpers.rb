@@ -12,7 +12,7 @@ module Common
       "tmp/#{SecureRandom.hex}"
     end
 
-    def generate_temp_file(file_body, file_name = nil)
+    def generate_clamav_temp(file_body, file_name = nil)
       file_name = SecureRandom.hex if file_name.nil?
       file_path = "tmp/#{file_name}"
 
