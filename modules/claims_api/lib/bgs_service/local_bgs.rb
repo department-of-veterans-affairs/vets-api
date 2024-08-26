@@ -94,6 +94,11 @@ module ClaimsApi
                    key: 'return')
     end
 
+    def find_poas
+      make_request(endpoint: 'StandardDataWebServiceBean/StandardDataWebService', action: 'findPOAs', body: nil,
+                   key: 'PowerOfAttorneyDTO')
+    end
+
     def find_by_ssn(ssn)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <ssn />
@@ -274,13 +279,21 @@ module ClaimsApi
       keys = ['Envelope', 'Body', "#{action}Response"]
       keys << key if key.present?
 
-      body.dig(*keys).to_h.tap do |value|
-        if transform
-          value.deep_transform_keys! do |key|
-            key.underscore.to_sym
+      result = body.dig(*keys)
+
+      result = result.to_h if result.is_a?(Hash)
+
+      if transform
+        if result.is_a?(Hash)
+          result.deep_transform_keys! { |k| k.underscore.to_sym }
+        elsif result.is_a?(Array)
+          result.map! do |item|
+            item.deep_transform_keys! { |k| k.underscore.to_sym }
           end
         end
       end
+
+      result
     end
 
     def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
