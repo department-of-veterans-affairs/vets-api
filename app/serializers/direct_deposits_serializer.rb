@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-class DisabilityCompensationsSerializer
+class DirectDepositsSerializer
   include JSONAPI::Serializer
 
   set_id { '' }
-  set_type 'direct_deposit/disability_compensations'
+  set_type 'direct_deposits'
 
   attributes :control_information, :payment_account
 
