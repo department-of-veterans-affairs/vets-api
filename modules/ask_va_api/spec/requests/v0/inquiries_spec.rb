@@ -33,6 +33,10 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
   end
 
+  def error_message(body)
+    "AskVAApi::Inquiries::InquiriesCreatorError: #{body}"
+  end
+
   describe 'GET #index' do
     context 'when user is signed in' do
       before { sign_in(authorized_user) }
@@ -56,15 +60,28 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
                  'veteran_relationship' => 'self' } }
         end
 
-        before { get inquiry_path, params: { user_mock_data: true } }
+        before { get inquiry_path, params: { user_mock_data: true, page: 1, per_page: 10 } }
 
         it { expect(response).to have_http_status(:ok) }
         it { expect(JSON.parse(response.body)['data']).to include(json_response) }
+
+        context 'pagination' do
+          it 'returns result that is paginated' do
+            expect(JSON.parse(response.body)['data'].size).to eq(10)
+            expect(JSON.parse(response.body)['meta']['meta']['pagination']).to eq({ 'current_page' => 1,
+                                                                                    'prev_page' => nil,
+                                                                                    'next_page' => 2,
+                                                                                    'total_pages' => 2,
+                                                                                    'total_entries' => 18 })
+          end
+        end
       end
 
       context 'when an error occurs' do
         context 'when a service error' do
-          let(:error_message) { 'service error' }
+          let(:error_message) do
+            'AskVAApi::Inquiries::InquiriesRetrieverError: Data Validation: No Contact found by ICN'
+          end
 
           before do
             allow_any_instance_of(Crm::Service)
@@ -74,7 +91,8 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           end
 
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          'Crm::ErrorHandler::ServiceError: service error'
+                          'Crm::ErrorHandler::ServiceError: ' \
+                          'AskVAApi::Inquiries::InquiriesRetrieverError: Data Validation: No Contact found by ICN'
         end
 
         context 'when a standard error' do
@@ -227,7 +245,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                         'AskVAApi::Inquiries::InquiriesRetrieverError: ' \
-                        'Data Validation: No Inquiries found by ID A-20240423-30709'
+                        '{"Data":null,"Message":"Data Validation: No Inquiries found by ID A-20240423-30709"' \
+                        ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
+                        'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
       end
     end
   end
@@ -286,9 +306,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       subject(:retriever) { described_class.new(icn: '123') }
 
       let(:body) do
-        '{"Data":null,"Message":"Data Validation: No Profile found by ID 123"' \
-          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Profile found by ' \
-          'ID 123","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
+        '{"Data":null,"Message":"Data Validation: No Contact found"' \
+          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Contact found ' \
+          '","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
       end
       let(:service) { instance_double(Crm::Service) }
       let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
@@ -307,7 +327,10 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'AskVAApi::Profile::InvalidProfileError: Data Validation: No Profile found by ID 123'
+                      'AskVAApi::Profile::InvalidProfileError: ' \
+                      '{"Data":null,"Message":"Data Validation: No Contact found"' \
+                      ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Contact found ' \
+                      '","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
     end
   end
 
@@ -360,7 +383,11 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'AskVAApi::Inquiries::Status::StatusRetrieverError: Data Validation: No Inquiries found'
+                      'AskVAApi::Inquiries::Status::StatusRetrieverError: ' \
+                      '{"Data":null,"Message":"Data Validation: No Inquiries found",' \
+                      '"ExceptionOccurred":true,' \
+                      '"ExceptionMessage":"Data Validation: No Inquiries found",' \
+                      '"MessageId":"28cda301-5977-4052-a391-9ab36d514919"}'
     end
   end
 
@@ -610,7 +637,10 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
         end
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                        'AskVAApi::Inquiries::InquiriesCreatorError: Data Validation: missing InquiryCategory'
+                        'AskVAApi::Inquiries::InquiriesCreatorError: {"Data":null,"Message":' \
+                        '"Data Validation: missing InquiryCategory"' \
+                        ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+                        'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
       end
     end
   end
@@ -662,7 +692,10 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
         end
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                        'AskVAApi::Inquiries::InquiriesCreatorError: Data Validation: missing InquiryCategory'
+                        'AskVAApi::Inquiries::InquiriesCreatorError: ' \
+                        '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+                        ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+                        'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
       end
     end
   end
@@ -745,7 +778,10 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
         end
 
         it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                        'AskVAApi::Correspondences::CorrespondencesCreatorError: Data Validation: Missing Reply'
+                        'AskVAApi::Correspondences::CorrespondencesCreatorError: ' \
+                        '{"Data":null,"Message":"Data Validation: Missing Reply"' \
+                        ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: ' \
+                        'Missing Reply","MessageId":"e2cbe041-df91-41f4-8bd2-8b6d9dbb2e38"}'
       end
     end
   end

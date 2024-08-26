@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :pension_burial, class: 'PersistentAttachments::PensionBurial' do
-    saved_claim { build(:burial_claim) }
+    saved_claim { build(:burial_claim_v2) }
 
     transient do
       file_path { nil }
