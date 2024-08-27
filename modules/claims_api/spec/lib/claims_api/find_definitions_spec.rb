@@ -16,20 +16,6 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
       end
 
-      context 'VnpAtchmsWebServiceBean' do
-        let(:endpoint) { 'VnpAtchmsWebServiceBean/VnpAtchmsService' }
-        let(:action) { 'vnpAtchmsCreate' }
-        let(:key) { 'return' }
-
-        it 'response with the correct attributes' do
-          result = subject.for_action(endpoint, action)
-          parsed_result = JSON.parse(result.to_json)
-          expect(parsed_result['service']['bean']['path']).to eq 'VnpAtchmsWebServiceBean'
-          expect(parsed_result['service']['path']).to eq 'VnpAtchmsService'
-          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://atchmsService.services.vonapp.vba.va.gov/'
-        end
-      end
-
       context 'OrgWebServiceBean' do
         let(:endpoint) { 'VDC/VeteranRepresentativeService' }
         let(:action) { 'readAllVeteranRepresentatives' }
@@ -39,7 +25,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           result = subject.for_action(endpoint, action)
           parsed_result = JSON.parse(result.to_json)
           expect(parsed_result['service']['bean']['path']).to eq 'VDC'
-          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://atchmsService.services.vonapp.vba.va.gov/'
+          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://gov.va.vba.benefits.vdc/services'
           expect(parsed_result['service']['path']).to eq 'VeteranRepresentativeService'
         end
       end
@@ -57,6 +43,20 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://gov.va.vba.benefits.vdc/services'
         end
       end
+
+      context 'VnpAtchmsWebServiceBean' do
+        let(:endpoint) { 'VnpAtchmsWebServiceBean/VnpAtchmsService' }
+        let(:action) { 'vnpAtchmsCreate' }
+        let(:key) { 'return' }
+
+        it 'response with the correct attributes' do
+          result = subject.for_action(endpoint, action)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['service']['bean']['path']).to eq 'VnpAtchmsWebServiceBean'
+          expect(parsed_result['service']['path']).to eq 'VnpAtchmsService'
+          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://atchmsService.services.vonapp.vba.va.gov/'
+        end
+      end
     end
   end
 
@@ -66,18 +66,6 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
       end
 
-      context 'VnpAtchmsService' do
-        let(:endpoint) { 'VnpAtchmsWebServiceBean/VnpAtchmsService' }
-
-        it 'response with the correct namespace' do
-          result = subject.for_service(endpoint)
-          parsed_result = JSON.parse(result.to_json)
-          expect(parsed_result['bean']['path']).to eq 'VnpAtchmsWebServiceBean'
-          expect(parsed_result['path']).to eq 'VnpAtchmsService'
-          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://atchmsService.services.vonapp.vba.va.gov/'
-        end
-      end
-
       context 'OrgWebService' do
         let(:endpoint) { 'VDC/VeteranRepresentativeService' }
 
@@ -85,7 +73,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           result = subject.for_service(endpoint)
           parsed_result = JSON.parse(result.to_json)
           expect(parsed_result['bean']['path']).to eq 'VDC'
-          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://atchmsService.services.vonapp.vba.va.gov/'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://gov.va.vba.benefits.vdc/services'
           expect(parsed_result['bean']['path']).to eq 'VDC'
           expect(parsed_result['path']).to eq 'VeteranRepresentativeService'
         end
@@ -99,6 +87,18 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           parsed_result = JSON.parse(result.to_json)
           expect(parsed_result['path']).to eq 'ManageRepresentativeService'
           expect(parsed_result['bean']['namespaces']['target']).to eq 'http://gov.va.vba.benefits.vdc/services'
+        end
+      end
+
+      context 'VnpAtchmsService' do
+        let(:endpoint) { 'VnpAtchmsWebServiceBean/VnpAtchmsService' }
+
+        it 'response with the correct namespace' do
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'VnpAtchmsWebServiceBean'
+          expect(parsed_result['path']).to eq 'VnpAtchmsService'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://atchmsService.services.vonapp.vba.va.gov/'
         end
       end
     end
