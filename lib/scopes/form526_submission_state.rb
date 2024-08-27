@@ -96,9 +96,9 @@ module Scopes
         pend_ids = pending_backup.select(:id)
         where(id: proc_ids + pend_ids)
       }
+
       scope :failure_type, lambda {
-        # filtering in stages avoids timeouts.
-        # this is equivalent to 'where not success_type or incomplete_type'
+        # filtering in stages avoids timeouts. see doc for more info
         allids = all.pluck(:id)
         filter1 = where(id: allids - accepted_to_primary_path.pluck(:id)).pluck(:id)
         filter2 = where(id: filter1 - accepted_to_backup_path.pluck(:id)).pluck(:id)
