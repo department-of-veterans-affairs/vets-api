@@ -8,13 +8,7 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
   let(:submission) { create(:form526_submission) }
   let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
   let(:file_name) { Faker::File.file_name }
-
-  let(:provider) do
-    EVSSSupplementalDocumentUploadProvider.new(
-      submission,
-      file_body
-    )
-  end
+  let(:provider) { EVSSSupplementalDocumentUploadProvider.new(submission) }
 
   let(:evss_claim_document) do
     EVSSClaimDocument.new(
@@ -68,7 +62,7 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
           .with(file_body, evss_claim_document)
           .and_return(faraday_response)
 
-        expect(provider.submit_upload_document(evss_claim_document)).to eq(faraday_response)
+        expect(provider.submit_upload_document(evss_claim_document, file_body)).to eq(faraday_response)
       end
     end
   end
@@ -78,13 +72,7 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
     # since submissions have callbacks that log to StatsD and we need to test
     # only the metrics in this class
     let(:submission) { instance_double(Form526Submission) }
-
-    let(:provider) do
-      EVSSSupplementalDocumentUploadProvider.new(
-        submission,
-        file_body
-      )
-    end
+    let(:provider) { EVSSSupplementalDocumentUploadProvider.new(submission) }
 
     describe 'log_upload_success' do
       it 'increments a StatsD success metric' do
@@ -95,23 +83,15 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
       end
     end
 
-    describe 'log_upload_error_retry' do
-      it 'increments a StatsD retry metric and re-raises the error' do
-        expect(StatsD).to receive(:increment).with(
-          'my_upload_job_prefix.evss_supplemental_document_upload_provider.retried'
-        )
-        provider.log_upload_error_retry('my_upload_job_prefix')
-      end
-    end
-
     describe 'log_upload_failure' do
-      let(:error) { StandardError.new }
+      let(:error_class) { 'StandardError' }
+      let(:error_message) { 'Something broke' }
 
       it 'increments a StatsD failure metric' do
         expect(StatsD).to receive(:increment).with(
           'my_upload_job_prefix.evss_supplemental_document_upload_provider.failed'
         )
-        provider.log_upload_failure('my_upload_job_prefix', error)
+        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
       end
 
       it 'logs to the Rails logger' do
@@ -119,12 +99,12 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
           'EVSSSupplementalDocumentUploadProvider upload failure',
           {
             class: 'EVSSSupplementalDocumentUploadProvider',
-            error_class: error.class,
-            error_message: error.message
+            error_class:,
+            error_message:
           }
         )
 
-        provider.log_upload_failure('my_upload_job_prefix', error)
+        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
       end
     end
   end
