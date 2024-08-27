@@ -185,61 +185,6 @@ module BGS
       { ssn: @user.ssn }
     end
 
-    def get_ch33_dd_eft_info
-      find_ch33_dd_eft_res = find_ch33_dd_eft.body[:find_ch33_dd_eft_response][:return]
-      routing_number = find_ch33_dd_eft_res[:routng_trnsit_nbr]
-
-      find_ch33_dd_eft_res.slice(
-        :dposit_acnt_nbr,
-        :dposit_acnt_type_nm,
-        :routng_trnsit_nbr
-      ).merge(
-        financial_institution_name: lambda do
-          BankName.get_bank_name(@user, routing_number)
-        rescue => e
-          log_exception_to_sentry(e, { routing_number: }, { error: 'ch33_dd' })
-          nil
-        end.call
-      )
-    end
-
-    def find_bank_name_by_routng_trnsit_nbr(routing_number)
-      return if routing_number.blank? || routing_number == EMPTY_ROUTING_NUMBER
-
-      with_monitoring do
-        res = StatsD.measure("#{self.class::STATSD_KEY_PREFIX}.find_bank_name_by_routng_trnsit_nbr.duration") do
-          service.ddeft.find_bank_name_by_routng_trnsit_nbr(routing_number)
-        end
-        res[:find_bank_name_by_routng_trnsit_nbr_response][:return][:bank_name]
-      end
-    end
-
-    def find_ch33_dd_eft
-      with_monitoring do
-        StatsD.measure("#{self.class::STATSD_KEY_PREFIX}.find_ch33_dd_eft.duration") do
-          service.claims.send(:request, :find_ch33_dd_eft, fileNumber: @user.ssn)
-        end
-      end
-    end
-
-    def update_ch33_dd_eft(routing_number, acct_number, checking_acct)
-      with_monitoring do
-        StatsD.measure("#{self.class::STATSD_KEY_PREFIX}.update_ch33_dd_eft.duration") do
-          service.claims.send(
-            :request,
-            :update_ch33_dd_eft,
-            ch33DdEftInput: {
-              dpositAcntNbr: acct_number,
-              dpositAcntTypeNm: checking_acct ? 'C' : 'S',
-              fileNumber: @user.ssn,
-              routngTrnsitNbr: routing_number,
-              tranCode: '2'
-            }
-          )
-        end
-      end
-    end
-
     def get_regional_office_by_zip_code(zip_code, country, province, lob, ssn)
       regional_office_response = service.routing.get_regional_office_by_zip_code(
         zip_code, country, province, lob, ssn
