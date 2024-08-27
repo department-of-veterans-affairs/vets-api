@@ -111,6 +111,10 @@ features:
     actor_type: user
     description: Enables next of kin experience for 10-10EZR applicants.
     enable_in_development: true
+  ezr_tera_branching_enabled:
+    actor_type: user
+    description: Enables TERA branching for 10-10EZR applicants.
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
