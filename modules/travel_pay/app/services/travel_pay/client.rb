@@ -82,7 +82,6 @@ module TravelPay
     end
 
     def request_sts_token(user)
-      host_baseurl = "https://#{Settings.hostname}"
       private_key_file = Settings.sign_in.sts_client.key_path
       private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
 
@@ -90,7 +89,7 @@ module TravelPay
       jwt = JWT.encode(assertion, private_key, 'RS256')
 
       # send to sis
-      response = connection(server_url: host_baseurl).post('/v0/sign_in/token') do |req|
+      response = connection(server_url: host).post('/v0/sign_in/token') do |req|
         req.params['grant_type'] = 'urn:ietf:params:oauth:grant-type:jwt-bearer'
         req.params['assertion'] = jwt
       end
@@ -121,11 +120,10 @@ module TravelPay
 
       current_time = Time.now.to_i
       jti = SecureRandom.uuid
-
       {
-        'iss' => "https://#{Settings.hostname}",
+        'iss' => host,
         'sub' => user.email,
-        'aud' => "https://#{Settings.hostname}/v0/sign_in/token",
+        'aud' => "#{host}/v0/sign_in/token",
         'iat' => current_time,
         'exp' => current_time + 300,
         'scopes' => scopes,
@@ -197,6 +195,13 @@ module TravelPay
 
         conn.adapter Faraday.default_adapter
       end
+    end
+
+    def host
+      env = Settings.vsp_environment
+      protocol = env == 'localhost' ? 'http' : 'https'
+
+      "#{protocol}://#{Settings.hostname}"
     end
 
     ##
