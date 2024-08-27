@@ -367,7 +367,7 @@ RSpec.describe 'CheckIn::V2::Sessions', type: :request do
                   post '/check_in/v2/sessions', **session_params_with_dob
 
                   expect(response).to have_http_status(:gone)
-                  expect(JSON.parse(response.body)).to eq(error_response_410)
+                  expect(JSON.parse(response.body)).to eq(error_response410)
                 end
               end
             end
@@ -380,7 +380,7 @@ RSpec.describe 'CheckIn::V2::Sessions', type: :request do
                   post '/check_in/v2/sessions', **session_params_with_dob
 
                   expect(response).to have_http_status(:gone)
-                  expect(JSON.parse(response.body)).to eq(error_response_410)
+                  expect(JSON.parse(response.body)).to eq(error_response410)
                 end
               end
             end
@@ -393,7 +393,7 @@ RSpec.describe 'CheckIn::V2::Sessions', type: :request do
                   post '/check_in/v2/sessions', **session_params_with_dob
 
                   expect(response).to have_http_status(:gone)
-                  expect(JSON.parse(response.body)).to eq(error_response_410)
+                  expect(JSON.parse(response.body)).to eq(error_response410)
                 end
               end
             end
