@@ -254,6 +254,37 @@ module ClaimsApi
             )
         end
       end
+
+      #
+      # VnpAtchmsWebServiceBean
+      #
+      module VnpAtchmsWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpAtchmsWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://atchmsService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpAtchmsService
+        DEFINITION =
+          Service.new(
+            bean: VnpAtchmsWebServiceBean::DEFINITION,
+            path: 'VnpAtchmsService'
+          )
+
+        module VnpAtchmsCreate
+          DEFINITION =
+            Action.new(
+              service: VnpAtchmsService::DEFINITION,
+              name: 'vnpAtchmsCreate',
+              key: 'return'
+            )
+        end
+      end
     end
   end
 end
