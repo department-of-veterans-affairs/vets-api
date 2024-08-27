@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../rails_helper'
 
-RSpec.describe 'BGS Claims management', type: :request do
+RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
   include SchemaMatchers
 
   let(:request_headers) do

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../rails_helper'
 
-RSpec.describe 'Disability Claims ', type: :request do
+RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
   let(:headers) do
     { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',
