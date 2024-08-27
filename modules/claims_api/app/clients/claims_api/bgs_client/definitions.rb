@@ -233,68 +233,6 @@ module ClaimsApi
         end
       end
 
-      ##
-      # VnpPtcpntAddrsWebServiceBean
-      #
-      module VnpPtcpntAddrsWebServiceBean
-        DEFINITION =
-          Bean.new(
-            path: 'VnpPtcpntAddrsWebServiceBean',
-            namespaces: Namespaces.new(
-              target: 'http://ptcpntAddrsService.services.vonapp.vba.va.gov/',
-              data: nil
-            )
-          )
-      end
-
-      module VnpPtcpntAddrsService
-        DEFINITION =
-          Service.new(
-            bean: VnpPtcpntAddrsWebServiceBean::DEFINITION,
-            path: 'VnpPtcpntAddrsService'
-          )
-
-        module VnpPtcpntAddrsCreate
-          DEFINITION =
-            Action.new(
-              service: VnpPtcpntAddrsService::DEFINITION,
-              name: 'vnpPtcpntAddrsCreate',
-              key: 'return'
-            )
-        end
-      end
-
-      ##
-      # PersonWebServiceBean
-      #
-      module PersonWebServiceBean
-        DEFINITION =
-          Bean.new(
-            path: 'PersonWebServiceBean',
-            namespaces: Namespaces.new(
-              target: 'http://person.services.vetsnet.vba.va.gov/',
-              data: nil
-            )
-          )
-      end
-
-      module PersonWebService
-        DEFINITION =
-          Service.new(
-            bean: PersonWebServiceBean::DEFINITION,
-            path: 'PersonWebService'
-          )
-
-        module FindPersonBySSN
-          DEFINITION =
-            Action.new(
-              service: PersonWebService::DEFINITION,
-              name: 'findPersonBySSN',
-              key: 'PersonDTO'
-            )
-        end
-      end
-
       module VeteranRepresentativeService
         DEFINITION =
           Service.new(
@@ -386,14 +324,95 @@ module ClaimsApi
       ##
       # VnpProcFormWebServiceBean
       #
+      module VnpProcFormWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpProcFormWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://procFormService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpProcFormService
+        DEFINITION =
+          Service.new(
+            bean: VnpProcFormWebServiceBean::DEFINITION,
+            path: 'VnpProcFormService'
+          )
+
+        module VnpProcFormCreate
+          DEFINITION =
+            Action.new(
+              service: VnpProcFormService::DEFINITION,
+              name: 'vnpProcFormCreate',
+              key: 'return'
+            )
+        end
+      end
 
       ##
       # VnpProcWebServiceBeanV2
       #
+      module VnpProcWebServiceBeanV2
+        DEFINITION =
+          Bean.new(
+            path: 'VnpProcWebServiceBeanV2',
+            namespaces: Namespaces.new(
+              target: 'http://procService.services.v2.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpProcServiceV2
+        DEFINITION =
+          Service.new(
+            bean: VnpProcWebServiceBeanV2::DEFINITION,
+            path: 'VnpProcServiceV2'
+          )
+
+        module VnpProcCreate
+          DEFINITION =
+            Action.new(
+              service: VnpProcServiceV2::DEFINITION,
+              name: 'vnpProcCreate',
+              key: 'return'
+            )
+        end
+      end
 
       ##
       # VnpPtcpntAddrsWebServiceBean
       #
+      module VnpPtcpntAddrsWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpPtcpntAddrsWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://ptcpntAddrsService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpPtcpntAddrsService
+        DEFINITION =
+          Service.new(
+            bean: VnpPtcpntAddrsWebServiceBean::DEFINITION,
+            path: 'VnpPtcpntAddrsService'
+          )
+
+        module VnpPtcpntAddrsCreate
+          DEFINITION =
+            Action.new(
+              service: VnpPtcpntAddrsService::DEFINITION,
+              name: 'vnpPtcpntAddrsCreate',
+              key: 'return'
+            )
+        end
+      end
 
       ##
       # VnpPtcpntPhoneWebServiceBean

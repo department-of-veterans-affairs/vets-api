@@ -21,6 +21,8 @@ module ClaimsApi
       VdcBean/ManageRepresentativeService
       VnpAtchmsWebServiceBean/VnpAtchmsService
       VnpPersonWebServiceBean/VnpPersonService
+      VnpProcFormWebServiceBean/VnpProcFormService
+      VnpProcWebServiceBeanV2/VnpProcServiceV2
       VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
     ].freeze
 

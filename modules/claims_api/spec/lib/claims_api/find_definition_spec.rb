@@ -98,9 +98,31 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
       end
 
       context 'VnpProcFormWebServiceBean' do
+        let(:endpoint) { 'VnpProcFormWebServiceBean/VnpProcFormService' }
+        let(:action) { 'vnpProcFormCreate' }
+        let(:key) { 'return' }
+
+        it 'response with the correct attributes' do
+          result = subject.for_action(endpoint, action)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['service']['bean']['path']).to eq 'VnpProcFormWebServiceBean'
+          expect(parsed_result['service']['path']).to eq 'VnpProcFormService'
+          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://procFormService.services.vonapp.vba.va.gov/'
+        end
       end
 
       context 'VnpProcWebServiceBeanV2' do
+        let(:endpoint) { 'VnpProcWebServiceBeanV2/VnpProcServiceV2' }
+        let(:action) { 'vnpProcCreate' }
+        let(:key) { 'return' }
+
+        it 'response with the correct attributes' do
+          result = subject.for_action(endpoint, action)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['service']['bean']['path']).to eq 'VnpProcWebServiceBeanV2'
+          expect(parsed_result['service']['path']).to eq 'VnpProcServiceV2'
+          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://procService.services.v2.vonapp.vba.va.gov/'
+        end
       end
 
       context 'VnpPtcpntAddrsWebServiceBean' do
@@ -201,9 +223,19 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
       end
 
       context 'VnpProcFormWebServiceBean' do
-      end
+        let(:endpoint) { 'VnpProcFormWebServiceBean/VnpProcFormService' }
 
-      context 'VnpProcWebServiceBeanV2' do
+        it 'response with the correct namespace' do
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'VnpProcFormWebServiceBean'
+          expect(parsed_result['path']).to eq 'VnpProcFormService'
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'VnpProcWebServiceBeanV2'
+          expect(parsed_result['path']).to eq 'VnpProcServiceV2'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://procService.services.v2.vonapp.vba.va.gov/'
+        end
       end
 
       context 'VnpPtcpntAddrsWebServiceBean' do
