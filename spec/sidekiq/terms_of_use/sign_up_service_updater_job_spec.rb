@@ -38,8 +38,12 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       allow(MPI::Service).to receive(:new).and_return(mpi_service)
     end
 
-    it 'retries for 47 hours after failure' do
-      expect(described_class.get_sidekiq_options['retry_for']).to eq(48.hours)
+    it 'retries 4 times after failure' do
+      expect(described_class.get_sidekiq_options['retry']).to eq(4)
+    end
+
+    it 'unique for 10 minutes' do
+      expect(described_class.get_sidekiq_options['unique_for']).to eq(10.minutes)
     end
 
     context 'when retries have been exhausted' do
