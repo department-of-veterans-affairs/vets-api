@@ -223,7 +223,7 @@ module SimpleFormsApi
       combined_pdf << CombinePDF.load(attachment_page_path)
 
       attachments.each do |attachment|
-        combined_pdf << CombinePDF.load(attachment, unsafe: true, allow_optional_content: true)
+        combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
       rescue => e
         Rails.logger.error(
           'Simple forms api - failed to load attachment for 40-10007',
