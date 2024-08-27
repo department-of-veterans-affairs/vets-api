@@ -11,7 +11,18 @@ module RepresentationManagement
         if next_steps_email_data.invalid?
           render json: { errors: next_steps_email_data.errors.full_messages }, status: :unprocessable_entity and return
         else
-          # send email and return ok
+          VANotify::EmailJob.perform_async(
+            next_steps_email_data.email_address,
+            Settings.vanotify.services.va_gov.template_id.appoint_a_representative_confirmation_email,
+            {
+              'first_name' => next_steps_email_data.first_name,
+              'form name' => next_steps_email_data.form_name,
+              'form number' => next_steps_email_data.form_number,
+              'representative type' => next_steps_email_data.representative_type_humanized,
+              'representative name' => next_steps_email_data.representative_name,
+              'representative address' => next_steps_email_data.representative_address
+            }
+          )
           render json: { message: 'Email enqueued' }, status: :ok
         end
       end
