@@ -2066,7 +2066,7 @@
                                     "nullable": true
                                   },
                                   "treatedDisabilityNames": {
-                                    "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                    "description": "Name(s) of disabilities treated in this time frame.",
                                     "type": "array",
                                     "nullable": true,
                                     "maxItems": 101,
@@ -3443,7 +3443,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -4395,7 +4395,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "45d60314-0a29-4b7f-814d-88652fc6cdd5",
+                        "id": "19649403-ba5c-49de-aa11-0f2a16f6cdab",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4580,7 +4580,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-08-24"
+                              "anticipatedSeparationDate": "2024-08-29"
                             },
                             "confinements": [
                               {
@@ -4626,7 +4626,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "bf012f28-b452-41d8-a0bf-646247529256",
+                        "id": "ed103d44-ec42-4605-9361-5d2e8c66e636",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5595,7 +5595,7 @@
                                     "nullable": true
                                   },
                                   "treatedDisabilityNames": {
-                                    "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                    "description": "Name(s) of disabilities treated in this time frame.",
                                     "type": "array",
                                     "nullable": true,
                                     "maxItems": 101,
@@ -6972,7 +6972,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -9126,7 +9126,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -9823,7 +9823,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8b99b304-c794-4533-b788-9ec803c1665f",
+                    "id": "22863437-f019-4961-bebd-547d6085fd16",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12764,8 +12764,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-08-22",
-                      "expirationDate": "2025-08-22",
+                      "creationDate": "2024-08-27",
+                      "expirationDate": "2025-08-27",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13661,7 +13661,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "86719efd-aad1-4bdd-9c52-edb3b430b873",
+                    "id": "54f82737-ffdc-464e-beda-445308363400",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14354,7 +14354,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "fa07b00e-d7de-4694-8bcc-50633a13cc9c",
+                    "id": "9b12d295-7fad-4c89-b090-424bd5cd5c69",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16305,10 +16305,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ac13d42f-c076-43ee-998d-b8937d3d5de2",
+                    "id": "5f8e5e44-8e6d-436d-b9ad-5ee229c589ea",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-08-22",
+                      "dateRequestAccepted": "2024-08-27",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
