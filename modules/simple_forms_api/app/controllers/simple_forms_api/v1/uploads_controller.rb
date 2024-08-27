@@ -8,8 +8,8 @@ require 'lighthouse/benefits_intake/service'
 module SimpleFormsApi
   module V1
     class UploadsController < ApplicationController
-      skip_before_action :authenticate
-      before_action :load_user
+      skip_before_action :authenticate, if: :skip_authentication?
+      before_action :load_user, if: :skip_authentication?
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -26,6 +26,8 @@ module SimpleFormsApi
         '40-10007' => 'vba_40_10007',
         '20-10207' => 'vba_20_10207'
       }.freeze
+
+      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
@@ -68,6 +70,10 @@ module SimpleFormsApi
       end
 
       private
+
+      def skip_authentication?
+        UNAUTHENTICATED_FORMS.include?(params[:form_number]) || UNAUTHENTICATED_FORMS.include?(params[:form_id])
+      end
 
       def intent_service
         @intent_service ||= SimpleFormsApi::IntentToFile.new(@current_user, params)
@@ -182,8 +188,7 @@ module SimpleFormsApi
       end
 
       def form_is264555_and_should_use_lgy_api
-        # TODO: Remove comment octothorpe and ALWAYS require icn
-        params[:form_number] == '26-4555' # && icn
+        params[:form_number] == '26-4555' && icn
       end
 
       def icn

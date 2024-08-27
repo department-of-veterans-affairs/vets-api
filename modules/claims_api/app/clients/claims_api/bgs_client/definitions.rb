@@ -224,6 +224,37 @@ module ClaimsApi
         end
       end
 
+      #
+      ## VnpPersonService
+      #
+      module VnpPersonWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpPersonWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://personService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpPersonService
+        DEFINITION =
+          Service.new(
+            bean: VnpPersonWebServiceBean::DEFINITION,
+            path: 'VnpPersonService'
+          )
+
+        module FindPoaByParticipantId
+          DEFINITION =
+            Action.new(
+              service: VnpPersonService::DEFINITION,
+              name: 'vnpPersonCreate',
+              key: 'return'
+            )
+        end
+      end
+
       ##
       # OrgWebServiceBean
       #
@@ -251,6 +282,37 @@ module ClaimsApi
               service: OrgWebService::DEFINITION,
               name: 'findPoaHistoryByPtcpntId',
               key: 'PoaHistory'
+            )
+        end
+      end
+
+      #
+      # VnpAtchmsWebServiceBean
+      #
+      module VnpAtchmsWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpAtchmsWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://atchmsService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpAtchmsService
+        DEFINITION =
+          Service.new(
+            bean: VnpAtchmsWebServiceBean::DEFINITION,
+            path: 'VnpAtchmsService'
+          )
+
+        module VnpAtchmsCreate
+          DEFINITION =
+            Action.new(
+              service: VnpAtchmsService::DEFINITION,
+              name: 'vnpAtchmsCreate',
+              key: 'return'
             )
         end
       end
