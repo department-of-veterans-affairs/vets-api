@@ -40,7 +40,6 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
     let(:evss_data) do
       ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
     end
-    let(:file_number) { '796111863' }
 
     RSpec.shared_examples 'does not map any values' do |section|
       it "does not map any of the #{section} values" do
