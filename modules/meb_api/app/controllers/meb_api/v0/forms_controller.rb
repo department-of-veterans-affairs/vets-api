@@ -102,7 +102,6 @@ module MebApi
       def submission_service
         MebApi::DGI::Forms::Submission::Service.new(@current_user)
       end
-
     end
   end
 end
