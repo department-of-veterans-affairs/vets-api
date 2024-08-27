@@ -5,7 +5,7 @@ require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 
-RSpec.describe 'Power Of Attorney', type: :request do
+RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122a', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:appoint_individual_path) { "/services/claims/v2/veterans/#{veteran_id}/2122a" }
   let(:validate2122a_path) { "/services/claims/v2/veterans/#{veteran_id}/2122a/validate" }

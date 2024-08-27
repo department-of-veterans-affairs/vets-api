@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../../rails_helper'
 
-RSpec.describe 'Evidence Waiver 5103', type: :request do
+RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
   let(:veteran_id) { '1012667145V762142' }
   let(:sponsor_id) { '1012861229V078999' }
   let(:claim_id) { '600131328' }
