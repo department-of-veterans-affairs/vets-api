@@ -72,7 +72,7 @@ describe SimpleFormsApi::PdfStamper do
         text = /Signed electronically and submitted via VA.gov at /
         instance.stamp_pdf
 
-        expect(datestamp_instance).to have_received(:run).with(text:, x: anything, y: anything, text_only: true,
+        expect(datestamp_instance).to have_received(:run).with(text:, x: anything, y: anything, text_only: false,
                                                                size: 9)
         expect(File).to have_received(:rename).with(current_file_path, path)
       end
