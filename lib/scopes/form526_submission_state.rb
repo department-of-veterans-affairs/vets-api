@@ -4,6 +4,7 @@ module Scopes
   module Form526SubmissionState
     extend ActiveSupport::Concern
 
+    # rubocop:disable Metrics/BlockLength
     # DOCUMENTATION:
     # https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/disability/526ez/engineering_research/526_scopes.md
     included do
@@ -110,5 +111,6 @@ module Scopes
         where(id: filter_final)
       }
     end
+    # rubocop:enable Metrics/BlockLength
   end
 end
