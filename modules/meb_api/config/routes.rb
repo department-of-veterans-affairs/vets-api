@@ -23,7 +23,6 @@ MebApi::Engine.routes.draw do
     get 'forms_claimant_info', to: 'forms#claimant_info'
     get 'forms_claim_status', to: 'forms#claim_status'
 
-
     get 'apidocs', to: 'apidocs#index'
   end
 end
