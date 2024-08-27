@@ -429,7 +429,7 @@ module ClaimsApi
 
       result = Hash.from_xml(response.body).dig(*keys)
 
-      result.is_a?(Hash) ? result.to_h : result
+      result.is_a?(Array) ? result : result.to_h
     end
   end
 end
