@@ -21,7 +21,8 @@ module VAOS
       APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
 
       # rubocop:disable Metrics/MethodLength
-      def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {})
+      # rubocop:disable Metrics/ParameterLists
+      def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {}, avs = nil)
         params = date_params(start_date, end_date)
                  .merge(page_params(pagination_params))
                  .merge(status_params(statuses))
@@ -39,7 +40,7 @@ module VAOS
           validate_response_schema(response, 'appointments_index')
           appointments = response.body[:data]
           appointments.each do |appt|
-            prepare_appointment(appt)
+            prepare_appointment(appt, avs)
             reason_code_service.extract_reason_code_fields(appt)
             merge_clinic(appt) if include[:clinics]
             merge_facility(appt) if include[:facilities]
@@ -61,13 +62,14 @@ module VAOS
       end
 
       # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Metrics/ParameterLists
 
-      def get_appointment(appointment_id)
+      def get_appointment(appointment_id, avs = nil)
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           appointment = response.body[:data]
-          prepare_appointment(appointment)
+          prepare_appointment(appointment, avs)
           reason_code_service.extract_reason_code_fields(appointment)
           OpenStruct.new(appointment)
         end
@@ -202,7 +204,7 @@ module VAOS
         get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
       end
 
-      def prepare_appointment(appointment)
+      def prepare_appointment(appointment, avs)
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
         set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
 
@@ -215,7 +217,7 @@ module VAOS
         appointment[:requested_periods] = nil if booked?(appointment) && VAOS::AppointmentsHelper.cerner?(appointment)
 
         convert_appointment_time(appointment)
-        if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
+        if avs_applicable?(appointment, avs) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)
         end
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
@@ -356,8 +358,7 @@ module VAOS
       #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
       def fetch_avs_and_update_appt_body(appt)
-        # Testing AVS empty state using the below id - remove after testing is complete
-        if appt[:id] == AVS_APPT_TEST_ID
+        if appt[:id].nil?
           appt[:avs_path] = nil
         else
           avs_link = get_avs_link(appt)
@@ -384,10 +385,10 @@ module VAOS
       # @param appt [Hash] the appointment to check
       # @return [Boolean] true if the appointment is eligible, false otherwise
       #
-      def avs_applicable?(appt)
-        return false if appt.nil? || appt[:status].nil? || appt[:start].nil?
+      def avs_applicable?(appt, avs)
+        return false if appt.nil? || appt[:status].nil? || appt[:start].nil? || avs.nil?
 
-        appt[:status] == 'booked' && appt[:start].to_datetime.past?
+        appt[:status] == 'booked' && appt[:start].to_datetime.past? && avs.to_s == 'true'
       end
 
       # Filters out non-ASCII characters from the reason code text field in the request object body.

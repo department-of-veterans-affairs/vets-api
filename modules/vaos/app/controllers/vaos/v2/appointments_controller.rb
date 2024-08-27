@@ -112,12 +112,12 @@ module VAOS
 
       def appointments
         @appointments ||=
-          appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_params)
+          appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_params, avs)
       end
 
       def appointment
         @appointment ||=
-          appointments_service.get_appointment(appointment_id)
+          appointments_service.get_appointment(appointment_id, avs)
       end
 
       def new_appointment
@@ -195,6 +195,12 @@ module VAOS
         params.require(:start)
         params.require(:end)
         params.permit(:start, :end, :_include)
+      end
+
+      # boolean passed in on request to determine if we should look up the after visit summary
+      # if false or nil then we bypass the avs calls
+      def avs
+        params[:avs].to_s == 'true'
       end
 
       # rubocop:disable Metrics/MethodLength

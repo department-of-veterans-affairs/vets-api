@@ -334,7 +334,7 @@ RSpec.describe VAOS::V2::AppointmentsController, :skip_mvi, type: :request do
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
               allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_avs_link)
                 .and_return(avs_path)
-              get '/vaos/v2/appointments?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked',
+              get '/vaos/v2/appointments?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked&avs=true',
                   params:, headers: inflection_header
 
               data = JSON.parse(response.body)['data']
@@ -342,8 +342,25 @@ RSpec.describe VAOS::V2::AppointmentsController, :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
 
-              # TODO: currently appointment id 192308 is being used to trigger an avs empty state;
-              # switch back this field to expect avs_path after testing on id 192308 is complete
+              expect(data[0]['attributes']['avsPath']).to eq(avs_path)
+
+              expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+            end
+          end
+
+          it 'fetches appointment list and bypasses avs when query param is false' do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_booked_past_avs_200',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
+              allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_avs_link)
+                .and_return(avs_path)
+              get '/vaos/v2/appointments?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked&avs=false',
+                  params:, headers: inflection_header
+
+              data = JSON.parse(response.body)['data']
+
+              expect(response).to have_http_status(:ok)
+              expect(response.body).to be_a(String)
+
               expect(data[0]['attributes']['avsPath']).to be_nil
 
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
