@@ -548,8 +548,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
       end
     end
 
-    context 'show with validate_id_with_icn when there is a claimant ID in place of the verteran ID' do
-      describe 'BGS attributes (w/ Claimant ID replacing vet ID)' do
+    context 'show with validate_id_with_icn when there is a claimant ID in place of the veteran ID' do
+      describe ' BGS attributes (w/ Claimant ID replacing vet ID)' do
         it 'are listed' do
           bgs_claim_response = build(:bgs_response_claim_with_unmatched_ptcpnt_vet_id).to_h
           lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: '2023062086V8675309',
@@ -1200,7 +1200,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
             end
           end
 
-          it 'lists the contentions correclty with extra commas' do
+          it 'lists the contentions correctly with extra commas' do
             lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                        evss_id: '111111111')
             claim_contentions = bgs_claim_response
@@ -1256,7 +1256,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
         context 'it has no documents' do
           let(:bgs_claim) { build(:bgs_response_with_one_lc_status).to_h }
 
-          it "returns a claim with 'suporting_documents' as an empty array" do
+          it "returns a claim with 'supporting_documents' as an empty array" do
             bgs_claim[:benefit_claim_details_dto][:benefit_claim_id] = '222222222'
 
             mock_ccg(scopes) do |auth_header|
@@ -1290,7 +1290,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
           end
           let(:bgs_claim) { nil }
 
-          it "returns a claim with 'suporting_documents' as an empty array" do
+          it "returns a claim with 'supporting_documents' as an empty array" do
             mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                 expect_any_instance_of(bcs)
