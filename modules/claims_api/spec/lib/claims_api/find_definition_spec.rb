@@ -272,7 +272,11 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           parsed_result = JSON.parse(result.to_json)
           expect(parsed_result['bean']['path']).to eq 'VnpProcFormWebServiceBean'
           expect(parsed_result['path']).to eq 'VnpProcFormService'
-          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://procFormService.services.vonapp.vba.va.gov/'
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'VnpProcWebServiceBeanV2'
+          expect(parsed_result['path']).to eq 'VnpProcServiceV2'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://procService.services.v2.vonapp.vba.va.gov/'
         end
       end
 
