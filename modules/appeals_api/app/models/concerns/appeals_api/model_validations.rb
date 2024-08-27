@@ -14,7 +14,6 @@ module AppealsApi
       end
     end
 
-    # rubocop:disable Metrics/BlockLength
     included do
       # validation (header)
       def veteran_birth_date_is_in_the_past
@@ -141,7 +140,6 @@ module AppealsApi
                    **error_opts.merge(error_tpath: 'common.exceptions.detailed_schema_errors.range')
       end
     end
-    # rubocop:enable Metrics/BlockLength
 
     private
 
