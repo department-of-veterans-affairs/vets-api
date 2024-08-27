@@ -13,7 +13,7 @@ module ClaimsApi
         end
 
         def find_tracked_item(id)
-          @tracked_item = [@tracked_items].flatten.compact.find { |item| item[:dvlpmt_item_id] == id }
+          [@tracked_items].flatten.compact.find { |item| item[:dvlpmt_item_id] == id }
         end
 
         def build_wwsnfy_items
