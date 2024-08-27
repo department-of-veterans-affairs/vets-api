@@ -3,8 +3,8 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
-require_relative '../../rails_helper'
-require_relative '../../support/swagger_shared_components/v1'
+require_relative '../../../rails_helper'
+require_relative '../../../support/swagger_shared_components/v1'
 
 Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do
   let(:pws) { ClaimsApi::LocalBGS }

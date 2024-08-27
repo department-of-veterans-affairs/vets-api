@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../rails_helper'
+require_relative '../../../rails_helper'
 
 RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
   let(:headers) do

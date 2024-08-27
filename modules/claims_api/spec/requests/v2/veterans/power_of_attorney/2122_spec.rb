@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../rails_helper'
+require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 

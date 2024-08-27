@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../rails_helper'
+require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
 
 RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../rails_helper'
+require_relative '../../../../rails_helper'
 
 RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
   let(:veteran_id) { '1012667145V762142' }
