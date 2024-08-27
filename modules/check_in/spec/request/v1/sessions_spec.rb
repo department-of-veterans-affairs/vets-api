@@ -7,7 +7,7 @@ RSpec.describe 'CheckIn::V1::Sessions', type: :request do
     it 'returns not implemented' do
       get '/check_in/v1/sessions/1234'
 
-      expect(response.status).to eq(501)
+      expect(response).to have_http_status(:not_implemented)
     end
   end
 
@@ -15,7 +15,7 @@ RSpec.describe 'CheckIn::V1::Sessions', type: :request do
     it 'returns not implemented' do
       post '/check_in/v1/sessions'
 
-      expect(response.status).to eq(501)
+      expect(response).to have_http_status(:not_implemented)
     end
   end
 end

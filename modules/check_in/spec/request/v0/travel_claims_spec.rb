@@ -27,7 +27,7 @@ RSpec.describe 'CheckIn::V0::TravelClaims', type: :request do
 
       it 'returns routing error' do
         post '/check_in/v0/travel_claims', params: post_params
-        expect(response.status).to be(404)
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -70,7 +70,7 @@ RSpec.describe 'CheckIn::V0::TravelClaims', type: :request do
         expect do
           post '/check_in/v0/travel_claims', params: post_params
         end.to change(CheckIn::TravelClaimSubmissionWorker.jobs, :size).by(1)
-        expect(response.status).to eq(202)
+        expect(response).to have_http_status(:accepted)
         expect(response.body).to be_blank
       end
     end
