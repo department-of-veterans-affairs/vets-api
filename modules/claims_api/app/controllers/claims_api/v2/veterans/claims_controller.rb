@@ -5,7 +5,7 @@ require 'claims_api/bgs_claim_status_mapper'
 module ClaimsApi
   module V2
     module Veterans
-      class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
+      class ClaimsController < ClaimsApi::V2::ApplicationController
         include ClaimsApi::V2::ClaimsRequests::TrackedItems
         include ClaimsApi::V2::ClaimsRequests::ClaimValidation
 
