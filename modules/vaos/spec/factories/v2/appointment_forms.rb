@@ -91,6 +91,29 @@ FactoryBot.define do
       end
     end
 
+    trait :community_cares_multiple_request_dates do
+      community_cares
+      requested_periods do
+        [
+          {
+            'start': '2024-08-28T06:00:00Z',
+            'end': '2024-08-28T17:59:00Z'
+          },
+          {
+            'start': '2024-08-28T18:00:00Z',
+            'end': '2024-08-29T05:59:00Z'
+          }
+        ]
+      end
+    end
+
+    trait :community_cares_no_request_dates do
+      community_cares
+      requested_periods do
+        []
+      end
+    end
+
     trait :community_cares2 do
       kind { 'cc' }
       status { 'proposed' }
@@ -211,10 +234,12 @@ FactoryBot.define do
       service_type { 'audiology' }
       comment { 'Follow-up/Routine: testing' }
       requested_periods do
-        {
-          'end': '2022-01-04T11:59:00Z',
-          'start': '2022-01-04T00:00:00Z'
-        }
+        [
+          {
+            'end': '2022-01-04T11:59:00Z',
+            'start': '2022-01-04T00:00:00Z'
+          }
+        ]
       end
     end
 
@@ -264,10 +289,12 @@ FactoryBot.define do
         }
       end
       requested_periods do
-        {
-          'end': '2022-01-04T11:59:00Z',
-          'start': '2022-01-04T00:00:00Z'
-        }
+        [
+          {
+            'end': '2022-01-04T11:59:00Z',
+            'start': '2022-01-04T00:00:00Z'
+          }
+        ]
       end
     end
 

@@ -7,6 +7,8 @@ RSpec.describe 'email', type: :request do
 
   let!(:user) { sis_user }
 
+  Flipper.disable(:va_v3_contact_information_service)
+
   describe 'POST /mobile/v0/user/emails' do
     context 'with a valid email that takes two tries to complete' do
       before do
