@@ -6,7 +6,7 @@ RSpec.describe Crm::CacheData do
   let(:service) { Crm::Service.new(icn: nil) }
   let(:cache_client) { AskVAApi::RedisClient.new }
   let(:cache_data_instance) { Crm::CacheData.new(service:, cache_client:) }
-  let(:cache_data) { { topics: [{ id: 1, name: 'Topic 1' }] } }
+  let(:cache_data) { { Topics: [{ id: 1, name: 'Topic 1' }] } }
 
   before do
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')

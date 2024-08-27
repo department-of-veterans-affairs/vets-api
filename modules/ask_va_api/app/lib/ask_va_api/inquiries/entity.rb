@@ -6,7 +6,7 @@ module AskVAApi
       attr_reader :id,
                   :inquiry_number,
                   :attachments,
-                  :category_id,
+                  :category_name,
                   :created_on,
                   :correspondences,
                   :has_been_split,
@@ -24,7 +24,7 @@ module AskVAApi
         @id = info[:Id]
         @inquiry_number = info[:InquiryNumber]
         @attachments = info[:AttachmentNames]
-        @category_id = info[:CategoryId]
+        @category_name = info[:CategoryName]
         @created_on = info[:CreatedOn]
         @correspondences = correspondences
         @has_been_split = info[:InquiryHasBeenSplit]

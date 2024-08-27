@@ -2,7 +2,7 @@ en:
   ask_va_api:
     test_users:
       crm_test_user_icn: 1013694290V263188
-      test_user_228_icn: 1008709396V637156
+      test_user_229_icn: 1008709396V637156
       test_user_119_icn: 1012832723V827263
     branch_of_service:
       - code: 'USMA'

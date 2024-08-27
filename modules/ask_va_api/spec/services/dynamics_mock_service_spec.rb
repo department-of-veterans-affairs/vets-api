@@ -38,7 +38,7 @@ RSpec.describe DynamicsMockService do
       let(:expected_result) do
         { Data: { Icn: I18n.t('ask_va_api.test_users.test_user_119_icn'),
                   Id: '1',
-                  CategoryId: '1',
+                  CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
                   CreatedOn: '8/5/202 4:51:52 PM',
                   InquiryNumber: 'A-1',
                   InquiryStatus: 'Replied',

@@ -8,7 +8,7 @@ RSpec.describe AskVAApi::Inquiries::Entity do
   let(:info) do
     {
       InquiryHasBeenSplit: true,
-      CategoryId: '12345',
+      CategoryName: 'Veteran Affairs  - Debt',
       CreatedOn: '8/5/2024 4:51:52 PM',
       Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
       InquiryLevelOfAuthentication: 'Personal',
@@ -34,7 +34,7 @@ RSpec.describe AskVAApi::Inquiries::Entity do
   it 'creates an inquiry' do
     expect(inquiry).to have_attributes({
                                          has_been_split: info[:InquiryHasBeenSplit],
-                                         category_id: info[:CategoryId],
+                                         category_name: info[:CategoryName],
                                          created_on: info[:CreatedOn],
                                          id: info[:Id],
                                          level_of_authentication: info[:InquiryLevelOfAuthentication],
