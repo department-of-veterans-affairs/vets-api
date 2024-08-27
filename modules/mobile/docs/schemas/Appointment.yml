@@ -53,8 +53,9 @@ properties:
         type: string
         example: John Smith
       healthcareService:
-        type: string
-        example: Blind Rehabilitation Center
+        type: null
+        example: null
+        description: This is deprecated and will always return null. It is still included for backwards compatibility.
       location:
         type: object
         required:

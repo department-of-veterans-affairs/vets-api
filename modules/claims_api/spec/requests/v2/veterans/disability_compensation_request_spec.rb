@@ -663,6 +663,20 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when the vaFileNumber is missing' do
+          let(:va_file_number) { nil }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['veteranIdentification']['vaFileNumber'] = va_file_number
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
         context 'when currentVaEmployee is a non-boolean value' do
           let(:current_va_employee) { 'negative' }
 
@@ -2160,8 +2174,8 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'validating treatment.centers' do
           context 'when the treatments.center.name' do
-            context 'is a single space' do
-              let(:treated_center_name) { ' ' }
+            context 'is a single character' do
+              let(:treated_center_name) { '1' }
 
               it 'returns a 422' do
                 mock_ccg(scopes) do |auth_header|
@@ -2169,7 +2183,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   json['data']['attributes']['treatments'][0]['center']['name'] = treated_center_name
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -3063,6 +3077,21 @@ RSpec.describe 'Disability Claims', type: :request do
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when disabilities.name contains brackets' do
+          it 'returns a successful response' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              disability_name = 'osteoarthritis, right knee with chondromalacia' \
+                                ' [previously rated as bilateral chondromalacia, diagnostic code 5010]'
+              json['data']['attributes']['disabilities'][0]['name'] = disability_name
+              json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][0] = disability_name
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
