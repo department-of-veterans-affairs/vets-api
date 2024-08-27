@@ -13,7 +13,8 @@ module Mobile
               formatted_result.push(service_period)
             end
           end
-          OpenStruct.new({ id: user_uuid, service_history: formatted_result })
+
+          Mobile::V0::MilitaryInformationHistory.new({ id: user_uuid, service_history: formatted_result })
         end
 
         private

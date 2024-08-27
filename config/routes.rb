@@ -300,9 +300,6 @@ Rails.application.routes.draw do
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
-      namespace :direct_deposits do
-        resource :disability_compensations, only: %i[show update]
-      end
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do
@@ -338,10 +335,6 @@ Rails.application.routes.draw do
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
     end
-
-    get '/account_controls/credential_index', to: 'account_controls#credential_index'
-    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
-    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
 
     resources :search, only: :index
     resources :search_typeahead, only: :index
