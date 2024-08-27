@@ -5782,7 +5782,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "2d1d4c1c-48c7-4b94-ba33-218a76a5cc23",
+                        "id": "d4c1ff98-ba20-4f94-8042-78ec160e7968",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -6013,7 +6013,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "1f391a4b-a3ba-4343-8778-72b09b3e8138",
+                        "id": "73056e6b-a5cd-4409-91f7-002c8c449a70",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -11210,7 +11210,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e6bc4436-9fb3-40c5-8b87-f0c001ec70bc",
+                    "id": "d4d17058-dd29-452d-a7c0-ffa389607640",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12999,7 +12999,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -15048,7 +15048,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8c695e35-764c-472a-9cf7-66f89f934a97",
+                    "id": "fe2e5331-5454-4341-89e0-81ac8dfa3d59",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15741,7 +15741,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bf8c5f29-2299-4af0-bcc8-b541145745b7",
+                    "id": "1be0c5d3-36e5-4f31-ac5a-beedecc078e4",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17692,7 +17692,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "15be3582-f865-49a6-a47d-e909ed3ad4cf",
+                    "id": "74e32058-20af-4320-ac6d-82ca8aed978f",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2024-08-27",
