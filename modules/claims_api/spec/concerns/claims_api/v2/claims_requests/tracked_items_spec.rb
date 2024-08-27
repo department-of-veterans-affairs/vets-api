@@ -62,5 +62,16 @@ describe FakeController do
                    suspense_date: '2021-06-04', id: 293_439, uploads_allowed: false }
       expect(result).to eq(expected)
     end
+
+    it 'is able to get a tracked_item' do
+      VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
+        @tracked_items = subject.find_tracked_items!(claim_id)
+        allow_any_instance_of(ClaimsApi::V2::ClaimsRequests::TrackedItems)
+          .to receive(:find_tracked_items!).with(claim_id).and_return(@tracked_items)
+        result = subject.find_tracked_item(@tracked_items[0][:dvlpmt_item_id])
+        expect(result[:name]).to eq('DevelopmentItem')
+        expect(result[:claim_id]).to eq('600118544')
+      end
+    end
   end
 end

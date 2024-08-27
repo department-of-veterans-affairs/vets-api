@@ -21,9 +21,9 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
     context 'when Crm raise an error' do
       let(:endpoint) { 'inquiries/1/replies' }
       let(:body) do
-        '{"Data":[],"Message":"Data Validation: No Inquiry Found",' \
-          '"ExceptionOccurred":true,"ExceptionMessage":"Data Validation:' \
-          ' No Inquiry Found","MessageId":"95f9d1e7-d532-41d7-b43f-78ae9a3e778d"}'
+        '{"Data":[],"Message":"null",' \
+          '"ExceptionOccurred":false,"ExceptionMessage":"null", ' \
+          '"MessageId":"95f9d1e7-d532-41d7-b43f-78ae9a3e778d"}'
       end
       let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
@@ -33,7 +33,7 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
       end
 
       it 'returns the error' do
-        expect(retriever.call).to eq('Data Validation: No Inquiry Found')
+        expect(retriever.call).to eq(body)
       end
     end
 

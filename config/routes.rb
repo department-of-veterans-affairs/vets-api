@@ -300,9 +300,6 @@ Rails.application.routes.draw do
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
-      namespace :direct_deposits do
-        resource :disability_compensations, only: %i[show update]
-      end
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do
