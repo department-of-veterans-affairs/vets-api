@@ -38,8 +38,8 @@ RSpec.describe 'individual appeal', type: :request do
                 'issues' =>
                  [{ 'active' => true, 'date' => '2016-05-03', 'description' => 'Increased rating, migraines',
                     'diagnosticCode' => '8100', 'lastAction' => 'remand' },
-                  { 'active' => true, 'date' => '2016-05-03', 'description' => 'Increased rating,
-limitation of leg motion',
+                  { 'active' => true, 'date' => '2016-05-03',
+                    'description' => 'Increased rating, limitation of leg motion',
                     'diagnosticCode' => '5260', 'lastAction' => 'remand' },
                   { 'active' => true, 'date' => '2016-05-03',
                     'description' => '100% rating for individual unemployability',
