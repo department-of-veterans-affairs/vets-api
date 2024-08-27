@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
+RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
   let(:inquiry_path) { '/ask_va_api/v0/inquiries' }
   let(:logger) { instance_double(LogService) }
   let(:span) { instance_double(Datadog::Tracing::Span) }

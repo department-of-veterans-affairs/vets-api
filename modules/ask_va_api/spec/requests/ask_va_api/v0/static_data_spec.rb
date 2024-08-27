@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
+RSpec.describe 'AskVAApi StaticData', type: :request do
   let(:logger) { instance_double(LogService) }
   let(:span) { instance_double(Datadog::Tracing::Span) }
 
