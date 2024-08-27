@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V2::Demographics', type: :request do
+RSpec.describe 'CheckIn::V2::Demographics', type: :request do
   let(:id) { '5bcd636c-d4d3-4349-9058-03b2f6b38ced' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 

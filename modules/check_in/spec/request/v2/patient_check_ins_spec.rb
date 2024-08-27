@@ -2,14 +2,13 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V2::PreCheckInsController', type: :request do
+RSpec.describe 'CheckIn::V2::PatientCheckIns', type: :request do
   let(:id) { '5bcd636c-d4d3-4349-9058-03b2f6b38ced' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled').and_return(true)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_pre_check_in_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
 
     Rails.cache.clear
@@ -26,19 +25,19 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
       end
 
       it 'returns unauthorized status' do
-        get "/check_in/v2/pre_check_ins/#{id}"
+        get "/check_in/v2/patient_check_ins/#{id}"
 
         expect(response.status).to eq(401)
       end
 
       it 'returns read.none permissions' do
-        get "/check_in/v2/pre_check_ins/#{id}"
+        get "/check_in/v2/patient_check_ins/#{id}"
 
         expect(JSON.parse(response.body)).to eq(resp)
       end
     end
 
-    context 'when the session is authorized with dob' do
+    context 'when the session is authorized' do
       let(:next_of_kin1) do
         {
           'name' => 'Joe',
@@ -169,7 +168,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           params: {
             session: {
               uuid: id,
-              dob: '1970-02-24',
+              dob: '1960-03-12',
               last_name: 'Johnson'
             }
           }
@@ -183,56 +182,183 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
-          get "/check_in/v2/pre_check_ins/#{id}", params: { checkInType: 'preCheckIn' }
+          VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/patient_check_ins/#{id}"
+            end
+          end
         end
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)).to eq(resp)
+      end
+
+      context 'for OH sites' do
+        let(:appointment) do
+          {
+            'appointmentIEN' => '4822366',
+            'clinicCreditStopCodeName' => '',
+            'clinicFriendlyName' => 'Endoscopy',
+            'clinicIen' => '32216049',
+            'clinicLocation' => '',
+            'clinicName' => 'Endoscopy',
+            'clinicPhoneNumber' => '909-825-7084',
+            'clinicStopCodeName' => 'Mental Health, Primary Care',
+            'doctorName' => 'Dr. Jones',
+            'facility' => 'Jerry L. Pettis Memorial Veterans Hospital',
+            'facilityAddress' => {
+              'city' => 'Loma Linda',
+              'state' => 'CA',
+              'street1' => '',
+              'street2' => '',
+              'street3' => '',
+              'zip' => '92357-1000'
+            },
+            'kind' => 'clinic',
+            'startTime' => '2024-02-14T22:10:00.000+00:00',
+            'stationNo' => '530',
+            'status' => 'Confirmed',
+            'timezone' => 'America/Los_Angeles'
+          }
+        end
+        let(:resp) do
+          {
+            'id' => id,
+            'payload' => {
+              'address' => '1166 6th Avenue 22, New York, NY 23423 US',
+              'demographics' => {},
+              'appointments' => [appointment],
+              'patientDemographicsStatus' => {},
+              'setECheckinStartedCalled' => nil
+            }
+          }
+        end
+
+        it 'does not call set_echeckin_started' do
+          VCR.use_cassette 'check_in/lorota/token/token_200' do
+            post '/check_in/v2/sessions', **session_params
+            expect(response.status).to eq(200)
+          end
+
+          VCR.use_cassette('check_in/lorota/data/data_oracle_health_200', match_requests_on: [:host]) do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/patient_check_ins/#{id}?facilityType=oh"
+            end
+          end
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)).to eq(resp)
+        end
+      end
+
+      context 'when set_echeckin_started call succeeds' do
+        it 'calls set_echeckin_started and returns valid response' do
+          VCR.use_cassette 'check_in/lorota/token/token_200' do
+            post '/check_in/v2/sessions', **session_params
+            expect(response.status).to eq(200)
+          end
+
+          VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+            VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
+              VCR.use_cassette 'check_in/chip/token/token_200' do
+                get "/check_in/v2/patient_check_ins/#{id}"
+              end
+            end
+          end
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)).to eq(resp)
+        end
+      end
+
+      context 'when setECheckinStartedCalled set to true' do
+        let(:resp_with_true_set_e_check_in) do
+          resp['payload']['setECheckinStartedCalled'] = true
+          resp
+        end
+
+        it 'returns valid response without calling set_echeckin_started' do
+          VCR.use_cassette 'check_in/lorota/token/token_200' do
+            post '/check_in/v2/sessions', **session_params
+            expect(response.status).to eq(200)
+          end
+
+          VCR.use_cassette('check_in/lorota/data/data_with_echeckin_started_200', match_requests_on: [:host]) do
+            get "/check_in/v2/patient_check_ins/#{id}"
+          end
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)).to eq(resp_with_true_set_e_check_in)
+        end
+      end
+
+      context 'when set_echeckin_started call fails' do
+        let(:error_body) do
+          {
+            'errors' => [
+              {
+                'title' => 'Internal Server Error',
+                'detail' => 'Internal Server Error',
+                'code' => 'CHIP-API_500',
+                'status' => '500'
+              }
+            ]
+          }
+        end
+        let(:error_resp) { Faraday::Response.new(response_body: error_body, status: 500) }
+
+        it 'returns error response' do
+          VCR.use_cassette 'check_in/lorota/token/token_200' do
+            post '/check_in/v2/sessions', **session_params
+            expect(response.status).to eq(200)
+          end
+
+          VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+            VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_500' do
+              VCR.use_cassette 'check_in/chip/token/token_200' do
+                get "/check_in/v2/patient_check_ins/#{id}"
+              end
+            end
+          end
+          expect(response.status).to eq(error_resp.status)
+          expect(response.body).to eq(error_resp.body.to_json)
+        end
       end
     end
   end
 
   describe 'POST `create`' do
-    let(:post_params) do
-      {
-        pre_check_in: {
-          uuid: id,
-          demographics_up_to_date: true,
-          next_of_kin_up_to_date: true,
-          emergency_contact_up_to_date: true,
-          check_in_type: :preCheckIn
-        }
-      }
-    end
+    let(:post_params) { { patient_check_ins: { uuid: id, appointment_ien: '123-abc' } } }
 
-    context 'when session is authorized with DOB' do
+    context 'when session is authorized' do
       let(:session_params) do
         {
           params: {
             session: {
               uuid: id,
-              dob: '1940-12-27',
+              dob: '1950-01-27',
               last_name: 'Johnson'
             }
           }
         }
       end
-      let(:response_body) { { 'data' => 'Pre-checkin successful', 'status' => 200 } }
+      let(:response_body) { { 'data' => 'Checkin successful', 'status' => 200 } }
       let(:success_resp) { Faraday::Response.new(response_body:, status: 200) }
 
-      it 'returns successful response' do
+      it 'returns a successful response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', **session_params
           expect(response.status).to eq(200)
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
-          get "/check_in/v2/pre_check_ins/#{id}", params: { checkInType: 'preCheckIn' }
-          expect(response.status).to eq(200)
+          VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/patient_check_ins/#{id}"
+              expect(response.status).to eq(200)
+            end
+          end
         end
 
-        VCR.use_cassette('check_in/chip/pre_check_in/pre_check_in_200', match_requests_on: [:host]) do
+        VCR.use_cassette('check_in/chip/check_in/check_in_200', match_requests_on: [:host]) do
           VCR.use_cassette 'check_in/chip/token/token_200' do
-            post '/check_in/v2/pre_check_ins', params: post_params
+            post '/check_in/v2/patient_check_ins', params: post_params
           end
         end
         expect(response.status).to eq(success_resp.status)
@@ -240,13 +366,13 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
       end
     end
 
-    context 'when CHIP pre_check_in returns a 404' do
+    context 'when CHIP create_check_in returns 404' do
       let(:session_params) do
         {
           params: {
             session: {
               uuid: id,
-              dob: '1940-12-27',
+              dob: '1960-03-12',
               last_name: 'Johnson'
             }
           }
@@ -273,9 +399,9 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           expect(response.status).to eq(200)
         end
 
-        VCR.use_cassette('check_in/chip/pre_check_in/pre_check_in_404', match_requests_on: [:host]) do
+        VCR.use_cassette('check_in/chip/check_in/check_in_404', match_requests_on: [:host]) do
           VCR.use_cassette 'check_in/chip/token/token_200' do
-            post '/check_in/v2/pre_check_ins', params: post_params
+            post '/check_in/v2/patient_check_ins', params: post_params
           end
         end
         expect(response.status).to eq(error_resp.status)
@@ -283,13 +409,13 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
       end
     end
 
-    context 'when CHIP pre_check_in throws exception with 500 status code' do
+    context 'when CHIP create_check_in throws exception with 500 status code' do
       let(:session_params) do
         {
           params: {
             session: {
               uuid: id,
-              dob: '1940-12-27',
+              dob: '1960-03-12',
               last_name: 'Johnson'
             }
           }
@@ -316,9 +442,9 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           expect(response.status).to eq(200)
         end
 
-        VCR.use_cassette('check_in/chip/pre_check_in/pre_check_in_500', match_requests_on: [:host]) do
+        VCR.use_cassette('check_in/chip/check_in/check_in_500', match_requests_on: [:host]) do
           VCR.use_cassette 'check_in/chip/token/token_200' do
-            post '/check_in/v2/pre_check_ins', params: post_params
+            post '/check_in/v2/patient_check_ins', params: post_params
           end
         end
         expect(response.status).to eq(error_resp.status)
@@ -328,10 +454,10 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
 
     context 'when session is not authorized' do
       let(:response_body) { { 'permissions' => 'read.none', 'status' => 'success', 'uuid' => id } }
-      let(:unauth_response) { Faraday::Response.new(response_body:, status: 401) }
+      let(:unauth_response) { Faraday::Response.new(response_body:, status: 200) }
 
       it 'returns unauthorized response' do
-        post '/check_in/v2/pre_check_ins', params: post_params
+        post '/check_in/v2/patient_check_ins', params: post_params
 
         expect(response.body).to eq(unauth_response.body.to_json)
         expect(response.status).to eq(unauth_response.status)
