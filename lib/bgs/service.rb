@@ -16,10 +16,6 @@ module BGS
     # (I = Input, U = Update, D = Delete)
     JOURNAL_STATUS_TYPE_CODE = 'U'
 
-    # It appears that a find_ch33_dd_eft that returns empty bank account information
-    # will set the routing number field to '0' instead of 'nil', at least in certain cases
-    EMPTY_ROUTING_NUMBER = '0'
-
     def initialize(user)
       @user = user
     end
