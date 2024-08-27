@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'claims_api/bgs_claim_status_mapper'
-require 'claims_api/v2/mock_documents_service'
 
 module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
+        include ClaimsApi::V2::ClaimsRequests::TrackedItems
+        include ClaimsApi::V2::ClaimsRequests::ClaimValidation
+
         def index
           bgs_claims = find_bgs_claims!
 
@@ -44,30 +46,6 @@ module ClaimsApi
 
         def bgs_phase_status_mapper
           ClaimsApi::BGSClaimStatusMapper.new
-        end
-
-        def validate_id_with_icn(bgs_claim, lighthouse_claim, request_icn)
-          if bgs_claim&.dig(:benefit_claim_details_dto).present?
-            clm_prtcpnt_vet_id = bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_vet_id)
-            clm_prtcpnt_clmnt_id = bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_clmant_id)
-          end
-
-          veteran_icn = if lighthouse_claim.present? && lighthouse_claim['veteran_icn'].present?
-                          lighthouse_claim['veteran_icn']
-                        end
-
-          if clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id) && veteran_icn != request_icn
-            raise ::Common::Exceptions::ResourceNotFound.new(
-              detail: 'Invalid claim ID for the veteran identified.'
-            )
-          end
-        end
-
-        def clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id)
-          return true if clm_prtcpnt_vet_id.nil? || clm_prtcpnt_clmnt_id.nil?
-
-          # if either of these is false then we have a match and can show the record
-          clm_prtcpnt_vet_id != target_veteran.participant_id && clm_prtcpnt_clmnt_id != target_veteran.participant_id
         end
 
         def generate_show_output(bgs_claim:, lighthouse_claim:) # rubocop:disable Metrics/MethodLength
@@ -166,12 +144,6 @@ module ClaimsApi
           local_bgs_service.find_benefit_claims_status_by_ptcpnt_id(
             target_veteran.participant_id
           )
-        end
-
-        def find_tracked_items!(claim_id)
-          return if claim_id.blank?
-
-          local_bgs_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
         end
 
         def looking_for_lighthouse_claim?(claim_id:)
@@ -498,10 +470,6 @@ module ClaimsApi
           @supporting_documents.find { |doc| doc[:tracked_item_id] == id.to_i }.present?
         end
 
-        def find_tracked_item(id)
-          [@tracked_items].flatten.compact.find { |item| item[:dvlpmt_item_id] == id }
-        end
-
         def tracked_item_req_date(tracked_item, item)
           date_present(item[:date_open] || tracked_item[:req_dt] || tracked_item[:create_dt])
         end
@@ -544,8 +512,6 @@ module ClaimsApi
                    # add with_indifferent_access so ['documents'] works below
                    # we can remove when EVSS is gone and access it via it's symbol
                    supporting_docs_list.with_indifferent_access if supporting_docs_list.present?
-                 elsif sandbox?
-                   { documents: ClaimsApi::V2::MockDocumentsService.new.generate_documents }.with_indifferent_access
                  else
                    get_evss_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id])
                  end
@@ -595,10 +561,6 @@ module ClaimsApi
               phase_type: bgs_phase_status_mapper.get_phase_type_from_dictionary(bgs_claim[:phase_type].downcase)
             }
           end
-        end
-
-        def sandbox?
-          Settings.claims_api.claims_error_reporting.environment_name&.downcase.eql? 'sandbox'
         end
 
         def benefits_documents_enabled?

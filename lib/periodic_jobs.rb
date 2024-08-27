@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/BlockLength
 PERIODIC_JOBS = lambda { |mgr|
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
@@ -44,6 +43,8 @@ PERIODIC_JOBS = lambda { |mgr|
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
   mgr.register('0 2 * * 0', 'Form526StatusPollingJob', 'args' => { paranoid: true })
   # Checks all 'success' type submissions in LH to ensure they haven't changed
+  mgr.register('5 4 * * 7', 'Form526StateLoggingJob')
+  # Log the state of Form 526 submissions to hydrate Datadog monitor
 
   # mgr.register('0 0 * * *', 'VRE::CreateCh31SubmissionsReportJob')
 
@@ -62,6 +63,9 @@ PERIODIC_JOBS = lambda { |mgr|
   # Import income limit data CSVs from S3
   mgr.register('0 0 1 */3 *', 'IncomeLimits::StdZipcodeImport')
   # Import income limit data CSVs from S3
+
+  mgr.register('30 16 * * *', 'HCA::StdInstitutionImportJob')
+  # Import facilities data CSV from S3 daily at 4:30pmET
 
   mgr.register('0 2 * * *', 'EVSS::DeleteOldClaims')
   # Clear out EVSS disability claims that have not been updated in 24 hours
@@ -183,4 +187,3 @@ PERIODIC_JOBS = lambda { |mgr|
   # Clean SavedClaim records that are past delete date
   mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
 }
-# rubocop:enable Metrics/BlockLength

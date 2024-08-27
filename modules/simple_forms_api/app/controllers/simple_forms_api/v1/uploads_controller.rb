@@ -8,8 +8,8 @@ require 'lighthouse/benefits_intake/service'
 module SimpleFormsApi
   module V1
     class UploadsController < ApplicationController
-      skip_before_action :authenticate, if: -> { UNAUTHENTICATED_FORMS.include?(params[:form_number]) }
-      before_action :load_user, if: -> { UNAUTHENTICATED_FORMS.include?(params[:form_number]) }
+      skip_before_action :authenticate, if: :skip_authentication?
+      before_action :load_user, if: :skip_authentication?
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -70,6 +70,10 @@ module SimpleFormsApi
       end
 
       private
+
+      def skip_authentication?
+        UNAUTHENTICATED_FORMS.include?(params[:form_number]) || UNAUTHENTICATED_FORMS.include?(params[:form_id])
+      end
 
       def intent_service
         @intent_service ||= SimpleFormsApi::IntentToFile.new(@current_user, params)
@@ -184,8 +188,7 @@ module SimpleFormsApi
       end
 
       def form_is264555_and_should_use_lgy_api
-        # TODO: Remove comment octothorpe and ALWAYS require icn
-        params[:form_number] == '26-4555' # && icn
+        params[:form_number] == '26-4555' && icn
       end
 
       def icn
