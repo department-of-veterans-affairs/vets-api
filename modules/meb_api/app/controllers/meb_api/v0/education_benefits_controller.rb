@@ -150,10 +150,6 @@ module MebApi
         MebApi::DGI::Automation::Service.new(@current_user)
       end
 
-      def payment_service
-        BGS::Service.new(@current_user)
-      end
-
       def submission_service
         MebApi::DGI::Submission::Service.new(@current_user)
       end
