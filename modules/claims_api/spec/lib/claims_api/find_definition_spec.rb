@@ -238,6 +238,18 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         end
       end
 
+      context 'VnpProcWebServiceBeanV2' do
+        let(:endpoint) { 'VnpProcWebServiceBeanV2/VnpProcServiceV2' }
+
+        it 'response with the correct namespace' do
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'VnpProcWebServiceBeanV2'
+          expect(parsed_result['path']).to eq 'VnpProcServiceV2'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://procService.services.v2.vonapp.vba.va.gov/'
+        end
+      end
+
       context 'VnpPtcpntAddrsWebServiceBean' do
         let(:endpoint) { 'VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService' }
 
