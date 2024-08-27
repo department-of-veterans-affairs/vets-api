@@ -66,6 +66,10 @@ module EVSS
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
+        if Flipper.enabled?(:form526_send_0781_failure_notification)
+          EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail.perform_async(form526_submission_id)
+        end
+
         ::Rails.logger.warn(
           'Submit Form 0781 Retries exhausted',
           { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
