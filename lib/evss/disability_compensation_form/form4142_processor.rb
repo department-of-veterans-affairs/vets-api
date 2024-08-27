@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pdf_fill/forms/va21p527ez'
 require 'pdf_fill/forms/va21p530'
 require 'pdf_fill/forms/va21p530v2'
 require 'pdf_fill/forms/va214142'
