@@ -16,7 +16,10 @@ module ClaimsApi
   class LocalBGS
     CACHED_SERVICES = %w[ClaimantServiceBean/ClaimantWebService
                          OrgWebServiceBean/OrgWebService
-                         VdcBean/ManageRepresentativeService].freeze
+                         VDC/VeteranRepresentativeService
+                         VdcBean/ManageRepresentativeService
+                         VnpAtchmsWebServiceBean/VnpAtchmsService
+                         VnpPersonWebServiceBean/VnpPersonService].freeze
 
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)

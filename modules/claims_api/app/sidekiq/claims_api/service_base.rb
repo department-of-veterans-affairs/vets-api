@@ -36,6 +36,10 @@ module ClaimsApi
 
     protected
 
+    def preserve_original_form_data(form_data)
+      form_data.deep_dup.freeze
+    end
+
     def set_errored_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
     end
