@@ -189,7 +189,7 @@
         "city": {
           "description": "City for the Veteran's new address.",
           "type": "string",
-          "pattern": "^$|^([-a-zA-Z'.' ])+$",
+          "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
           "maxLength": 1000,
           "example": "Portland"
         },
@@ -709,9 +709,11 @@
               "city": {
                 "description": "City of treatment facility.",
                 "type": ["string", "null"],
-                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                 "example": "Portland",
-                "nullable": true
+                "nullable": true,
+                "minLength": 0,
+                "maxLength": 30
               },
               "state": {
                 "description": "State of treatment facility.",

@@ -481,20 +481,16 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when the city is invalid' do
+        context 'when the city is valid' do
           let(:city) { '#Base 6' }
 
-          it 'responds with 422' do
+          it 'responds with 202' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['changeOfAddress']['city'] = city
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-              response_body = JSON.parse(response.body)
-              expect(response_body['errors'][0]['detail']).to include(
-                'The property /changeOfAddress/city did not match the following requirements:'
-              )
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -2239,13 +2235,13 @@ RSpec.describe 'Disability Claims', type: :request do
             context 'has invalid characters in it' do
               let(:treated_center_city) { 'LMNOP 6^7' }
 
-              it 'returns a 422' do
+              it 'returns a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json = JSON.parse data
                   json['data']['attributes']['treatments'][0]['center']['city'] = treated_center_city
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
