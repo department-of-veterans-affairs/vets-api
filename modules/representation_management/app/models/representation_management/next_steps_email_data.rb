@@ -5,6 +5,7 @@ module RepresentationManagement
     include ActiveModel::Model
 
     next_steps_email_attrs = %i[
+      email_address
       first_name
       form_name
       form_number
@@ -15,6 +16,7 @@ module RepresentationManagement
 
     attr_accessor(*[next_steps_email_attrs].flatten)
 
+    validates :email_address, presence: true
     validates :first_name, presence: true
     validates :form_name, presence: true
     validates :form_number, presence: true

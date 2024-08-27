@@ -22,6 +22,7 @@ module RepresentationManagement
 
       def next_steps_email_params
         params.require(:next_steps_email).permit(
+          :email_address,
           :first_name,
           :form_name,
           :form_number,
