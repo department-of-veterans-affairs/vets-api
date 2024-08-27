@@ -6,6 +6,9 @@ require 'pensions/tag_sentry'
 require 'pensions/monitor'
 require 'pdf_utilities/datestamp_pdf'
 
+##
+# Pensions Module
+#
 module Pensions
   ##
   # sidekig job to send pension pdf to Lighthouse:BenefitsIntake API
@@ -15,7 +18,9 @@ module Pensions
     include Sidekiq::Job
     include SentryLogging
 
+    ##
     # generic job processing error
+    #
     class PensionBenefitIntakeError < StandardError; end
 
     # tracking id for datadog metrics
@@ -26,6 +31,8 @@ module Pensions
 
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
+
+    # retry exhaustion
     sidekiq_retries_exhausted do |msg|
       pension_monitor = Pensions::Monitor.new
       begin
