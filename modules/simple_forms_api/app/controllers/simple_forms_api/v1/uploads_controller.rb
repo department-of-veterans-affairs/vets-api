@@ -217,23 +217,6 @@ module SimpleFormsApi
         )
       end
 
-      def request_upload_and_save_form_submission_attempt(form)
-        location, uuid = lighthouse_service.request_upload
-
-        # Stamp uuid on 40-10007
-        SimpleFormsApi::PdfStamper.new('tmp/vba_40_10007-tmp.pdf', form).stamp_uuid(uuid)
-
-        form_submission = FormSubmission.create(
-          form_type: params[:form_number],
-          benefits_intake_uuid: uuid,
-          form_data: params.to_json,
-          user_account: @current_user&.user_account
-        )
-        FormSubmissionAttempt.create(form_submission:)
-
-        [location, uuid]
-      end
-
       def form_is264555_and_should_use_lgy_api
         params[:form_number] == '26-4555' && icn
       end
