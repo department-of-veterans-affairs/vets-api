@@ -2,14 +2,14 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V2::ApidocsController', type: :request do
+RSpec.describe 'CheckIn::V2::Apidocs', type: :request do
   let(:openapi_version) { %w[openapi 3.0.0] }
 
   describe 'GET `index`' do
     it 'is successful' do
       get '/check_in/v2/apidocs'
 
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
     end
 
     it 'is a hash' do

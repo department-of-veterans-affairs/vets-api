@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V2::PatientCheckIns', type: :request do
+RSpec.describe 'CheckIn::V2::PatientCheckIns', type: :request do
   let(:id) { '5bcd636c-d4d3-4349-9058-03b2f6b38ced' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
@@ -27,7 +27,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       it 'returns unauthorized status' do
         get "/check_in/v2/patient_check_ins/#{id}"
 
-        expect(response.status).to eq(401)
+        expect(response).to have_http_status(:unauthorized)
       end
 
       it 'returns read.none permissions' do
@@ -178,7 +178,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       it 'returns valid response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', **session_params
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
@@ -188,7 +188,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
             end
           end
         end
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to eq(resp)
       end
 
@@ -236,7 +236,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         it 'does not call set_echeckin_started' do
           VCR.use_cassette 'check_in/lorota/token/token_200' do
             post '/check_in/v2/sessions', **session_params
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           end
 
           VCR.use_cassette('check_in/lorota/data/data_oracle_health_200', match_requests_on: [:host]) do
@@ -244,7 +244,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
               get "/check_in/v2/patient_check_ins/#{id}?facilityType=oh"
             end
           end
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(resp)
         end
       end
@@ -253,7 +253,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         it 'calls set_echeckin_started and returns valid response' do
           VCR.use_cassette 'check_in/lorota/token/token_200' do
             post '/check_in/v2/sessions', **session_params
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           end
 
           VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
@@ -263,7 +263,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
               end
             end
           end
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(resp)
         end
       end
@@ -277,13 +277,13 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         it 'returns valid response without calling set_echeckin_started' do
           VCR.use_cassette 'check_in/lorota/token/token_200' do
             post '/check_in/v2/sessions', **session_params
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           end
 
           VCR.use_cassette('check_in/lorota/data/data_with_echeckin_started_200', match_requests_on: [:host]) do
             get "/check_in/v2/patient_check_ins/#{id}"
           end
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(resp_with_true_set_e_check_in)
         end
       end
@@ -306,7 +306,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         it 'returns error response' do
           VCR.use_cassette 'check_in/lorota/token/token_200' do
             post '/check_in/v2/sessions', **session_params
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           end
 
           VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
@@ -344,14 +344,14 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       it 'returns a successful response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', **session_params
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
           VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
             VCR.use_cassette 'check_in/chip/token/token_200' do
               get "/check_in/v2/patient_check_ins/#{id}"
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -396,7 +396,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       it 'returns 404 error response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', **session_params
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
         end
 
         VCR.use_cassette('check_in/chip/check_in/check_in_404', match_requests_on: [:host]) do
@@ -439,7 +439,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       it 'returns 500 error response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', **session_params
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
         end
 
         VCR.use_cassette('check_in/chip/check_in/check_in_500', match_requests_on: [:host]) do

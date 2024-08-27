@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V2::PreCheckInsController', type: :request do
+RSpec.describe 'CheckIn::V2::PreCheckIns', type: :request do
   let(:id) { '5bcd636c-d4d3-4349-9058-03b2f6b38ced' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
@@ -28,7 +28,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
       it 'returns unauthorized status' do
         get "/check_in/v2/pre_check_ins/#{id}"
 
-        expect(response.status).to eq(401)
+        expect(response).to have_http_status(:unauthorized)
       end
 
       it 'returns read.none permissions' do
@@ -179,13 +179,13 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
       it 'returns valid response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', **session_params
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
           get "/check_in/v2/pre_check_ins/#{id}", params: { checkInType: 'preCheckIn' }
         end
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to eq(resp)
       end
     end
@@ -222,12 +222,12 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
       it 'returns successful response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', **session_params
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
           get "/check_in/v2/pre_check_ins/#{id}", params: { checkInType: 'preCheckIn' }
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
         end
 
         VCR.use_cassette('check_in/chip/pre_check_in/pre_check_in_200', match_requests_on: [:host]) do
@@ -270,7 +270,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
       it 'returns 404 error response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', **session_params
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
         end
 
         VCR.use_cassette('check_in/chip/pre_check_in/pre_check_in_404', match_requests_on: [:host]) do
@@ -313,7 +313,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
       it 'returns 500 error response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', **session_params
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
         end
 
         VCR.use_cassette('check_in/chip/pre_check_in/pre_check_in_500', match_requests_on: [:host]) do
