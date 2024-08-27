@@ -1,19 +1,20 @@
 {
   "form_number": "10-7959A",
+  "certifier_role": "applicant",
   "primary_contact_info": {
-    "name": {
-      "first": "GI",
-      "last": "Joe"
-    }
+    "name": { "first": "Beneficiary", "last": "Jones" },
+    "email": false,
+    "phone": "1231231234"
   },
-  "applicant_dob": "11/18/2001",
+  "applicant_dob": "10-25-2000",
   "applicant_phone": "215-355-5555",
   "applicant_address": {
     "country": "USA",
-    "street": "123 Street Road",
-    "city": "Philadelphia",
-    "state": "PA",
-    "postal_code": "19020"
+    "street": "123 Beneficiary Street",
+    "city": "Citytown",
+    "state": "MD",
+    "postal_code": "12345",
+    "street_combined": "123 Beneficiary Street  "
   },
   "applicant_new_address": "",
   "applicant_member_number": "12345678",
@@ -22,25 +23,73 @@
     "last": "Joe"
   },
   "sponsor_name": {
-    "first": "GI",
-    "last": "Joe"
+    "first": "Sponsor",
+    "middle": "Quincy",
+    "last": "Jones",
+    "suffix": "Jr."
   },
   "policies": [
     {
-      "name": "Michael",
-      "provider_phone": "215-355-5555",
-      "policy_num": "12345"
+      "type": "group",
+      "name": "BCBS",
+      "policy_num": "123",
+      "provider_phone": "1231231234"
     },
     {
-      "name": "Jordan",
-      "provider_phone": "215-355-5555",
-      "policy_num": "54321"
+      "type": "nonGroup",
+      "name": "Cigna",
+      "policy_num": "321",
+      "provider_phone": "1231231235"
     }
   ],
-  "claim_is_auto_related": false,
-  "claim_is_work_related": false,
-  "claim_type": "FILTERED",
+  "claim_is_auto_related": true,
+  "claim_is_work_related": true,
+  "claim_type": "medical",
   "has_ohi": false,
+  "claims": [
+    {
+      "medical_upload": {
+        "confirmation_code": "e955735c-d433-4c0f-9060-1499a7b8353d",
+        "is_encrypted": false,
+        "name": "file.png",
+        "size": 3530,
+        "claim_id": 0
+      },
+      "claim_is_auto_related": true,
+      "claim_is_work_related": true,
+      "claim_type": "medical",
+      "claim_id": 0
+    },
+    {
+      "medical_upload": {
+        "confirmation_code": "1b39d28c-5d38-4467-808b-9da252b6e95f",
+        "is_encrypted": false,
+        "name": "caia_widget_copy.png",
+        "size": 224266,
+        "claim_id": 1
+      },
+      "claim_is_auto_related": true,
+      "claim_is_work_related": false,
+      "claim_type": "medical",
+      "claim_id": 1
+    }
+  ],
+  "supporting_docs": [
+    {
+      "confirmation_code": "e955735c-d433-4c0f-9060-1499a7b8353d",
+      "is_encrypted": false,
+      "name": "file.png",
+      "size": 3530,
+      "claim_id": 0
+    },
+    {
+      "confirmation_code": "1b39d28c-5d38-4467-808b-9da252b6e95f",
+      "is_encrypted": false,
+      "name": "caia_widget_copy.png",
+      "size": 224266,
+      "claim_id": 1
+    }
+  ],
   "certifier_relationship": "other",
   "certifier_name": {
     "first": "Veteran",
@@ -55,6 +104,6 @@
       "zip_code": "12345"
     },
     "certifier_phone": "5555555555",
-    "certification_date": "10/31/2000",
+    "certification_date": "08-14-2024",
   "statement_of_truth_signature": "GI Joe"
 }
