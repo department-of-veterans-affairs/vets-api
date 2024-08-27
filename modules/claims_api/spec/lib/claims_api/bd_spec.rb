@@ -106,8 +106,8 @@ describe ClaimsApi::BD do
           expect(json_body['data']['fileName']).to end_with('21-22.pdf')
         end
 
-        it 'the claimId is nil' do
-          expect(json_body['data']['claimId']).to be_nil
+        it 'the claimId is not present' do
+          expect(json_body['data']).not_to have_key('claimId')
         end
       end
 
@@ -133,8 +133,8 @@ describe ClaimsApi::BD do
           expect(json_body['data']['fileName']).to end_with('21-22a.pdf')
         end
 
-        it 'the claimId is nil' do
-          expect(json_body['data']['claimId']).to be_nil
+        it 'the claimId is not present' do
+          expect(json_body['data']).not_to have_key('claimId')
         end
       end
     end

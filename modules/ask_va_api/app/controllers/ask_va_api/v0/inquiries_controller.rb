@@ -9,7 +9,17 @@ module AskVAApi
 
       def index
         inquiries = retriever.call
-        render json: Inquiries::Serializer.new(inquiries).serializable_hash, status: :ok
+
+        paginated_collection = WillPaginate::Collection.create(
+          pagination_params[:page],
+          pagination_params[:per_page],
+          inquiries.length
+        ) do |pager|
+          pager.replace inquiries[pager.offset, pager.per_page]
+        end
+
+        options = meta_pagination(paginated_collection, pagination_params)
+        render json: Inquiries::Serializer.new(paginated_collection, meta: options).serializable_hash, status: :ok
       end
 
       def show
@@ -34,7 +44,8 @@ module AskVAApi
       end
 
       def download_attachment
-        att = Attachments::Retriever.new(id: params[:id], service: mock_service).call
+        entity_class = Attachments::Entity
+        att = Attachments::Retriever.new(id: params[:id], service: mock_service, entity_class:).call
 
         raise InvalidAttachmentError if att.blank?
 
@@ -99,6 +110,10 @@ module AskVAApi
 
       def fetch_parameters(key)
         I18n.t("ask_va_api.parameters.#{key}")
+      end
+
+      def resource_path(options)
+        v0_inquiries_url(options)
       end
 
       class InvalidAttachmentError < StandardError; end

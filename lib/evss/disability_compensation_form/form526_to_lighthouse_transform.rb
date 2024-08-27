@@ -106,6 +106,7 @@ module EVSS
         toxic_exposure = form526['toxicExposure']
         lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
 
+        lh_request_body.claim_notes = form526['overflowText']
         lh_request_body
       end
 
@@ -606,8 +607,8 @@ module EVSS
           direct_deposit.financial_institution_name = direct_deposit_source['bankName']
         end
         direct_deposit.account_type = direct_deposit_source['accountType'] if direct_deposit_source['accountType']
-        direct_deposit.account_number = direct_deposit_source['accountNumber'] if direct_deposit_source['accountNumber']
-        direct_deposit.routing_number = direct_deposit_source['routingNumber'] if direct_deposit_source['routingNumber']
+        direct_deposit.account_number = direct_deposit_source['accountNumber']&.strip
+        direct_deposit.routing_number = direct_deposit_source['routingNumber']&.strip
 
         direct_deposit
       end

@@ -175,4 +175,20 @@ RSpec.describe SignIn::ServiceAccountConfigsController, type: :controller do
       end
     end
   end
+
+  describe 'permitted params' do
+    let(:service_account_config) { build(:service_account_config) }
+    let(:attributes) { service_account_config.attributes.symbolize_keys }
+
+    let(:expected_permitted_params) do
+      array_params, params = attributes.excluding(:id, :created_at, :updated_at)
+                                       .partition { |_, v| v.is_a?(Array) }
+      params.to_h.keys << array_params.to_h.transform_values { [] }
+    end
+
+    it 'permits the expected params' do
+      expect(subject).to permit(*expected_permitted_params)
+        .for(:create, params: { service_account_config: attributes })
+    end
+  end
 end

@@ -87,7 +87,7 @@ RSpec.describe 'Forms uploader', type: :request do
 
     it 'raises an error for a missing form number' do
       allow(controller).to receive(:params).and_return({})
-      expect { controller.send(:get_form_id) }.to raise_error('missing form_number in params')
+      expect { controller.send(:get_form_id) }.to raise_error('Missing/malformed form_number in params')
     end
   end
 
@@ -143,14 +143,13 @@ RSpec.describe 'Forms uploader', type: :request do
         it 'returns the correct file paths, metadata, and attachment IDs' do
           allow(controller).to receive(:get_attachment_ids_and_form).and_return([%w[doc1 doc2], form_class.new({})])
           allow_any_instance_of(IvcChampva::PdfFiller).to receive(:generate).and_return('file_path')
-          allow(IvcChampva::MetadataValidator).to receive(:validate).and_return('metadata')
+          allow(IvcChampva::MetadataValidator).to receive(:validate).and_return({ 'metadata' => {} })
           allow_any_instance_of(form_class).to receive(:handle_attachments).and_return(['file_path'])
 
-          file_paths, metadata, attachment_ids = controller.send(:get_file_paths_and_metadata, parsed_form_data)
+          file_paths, metadata = controller.send(:get_file_paths_and_metadata, parsed_form_data)
 
           expect(file_paths).to eq(['file_path'])
-          expect(metadata).to eq('metadata')
-          expect(attachment_ids).to eq(%w[doc1 doc2])
+          expect(metadata).to eq({ 'metadata' => {}, 'attachment_ids' => %w[doc1 doc2] })
         end
       end
     end
