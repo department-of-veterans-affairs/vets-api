@@ -140,7 +140,7 @@ module SimpleFormsApi
 
     def call_datestamp_pdf(coords, text, append_to_stamp)
       Rails.logger.info('Calling PDFUtilities::DatestampPdf', stamped_template_path:)
-      text_only = append_to_stamp ? true : false
+      text_only = append_to_stamp ? false : true
       datestamp_instance = PDFUtilities::DatestampPdf.new(stamped_template_path, append_to_stamp:)
       datestamp_instance.run(text:, x: coords[0], y: coords[1], text_only:, size: 9)
     end
