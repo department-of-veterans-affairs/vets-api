@@ -2670,7 +2670,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   service_period['separationLocationCode'] = separation_location_code
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -2686,7 +2686,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   service_period['separationLocationCode'] = separation_location_code
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end

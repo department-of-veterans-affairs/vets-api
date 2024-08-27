@@ -3558,13 +3558,13 @@
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
-                                        "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                        "description": "Date completed active duty.",
                                         "type": "string",
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
                                       "separationLocationCode": {
-                                        "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                        "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                         "type": "string",
                                         "nullable": true,
                                         "example": "98283"
@@ -4935,13 +4935,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -5782,7 +5782,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "81519caa-97be-445b-943a-c7b7ed6d77c6",
+                        "id": "554a9481-c31f-4807-9ba4-8da0d4895c83",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5967,7 +5967,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-08-24"
+                              "anticipatedSeparationDate": "2024-08-29"
                             },
                             "confinements": [
                               {
@@ -6013,7 +6013,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "43fcbc8f-2e44-494c-8593-894729fbd8cc",
+                        "id": "4b2c4a30-5260-47e5-9c09-f04e696a3d65",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -7087,13 +7087,13 @@
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
-                                        "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                        "description": "Date completed active duty.",
                                         "type": "string",
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
                                       "separationLocationCode": {
-                                        "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                        "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                         "type": "string",
                                         "nullable": true,
                                         "example": "98283"
@@ -8464,13 +8464,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -10618,13 +10618,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -11210,7 +11210,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "94445ea7-e237-49f3-9cf7-67496122193a",
+                    "id": "8098515c-6248-4a73-ba76-75787cbad5bb",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13100,13 +13100,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -14151,8 +14151,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-08-22",
-                      "expirationDate": "2025-08-22",
+                      "creationDate": "2024-08-27",
+                      "expirationDate": "2025-08-27",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -15048,7 +15048,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0505e349-36be-455d-a869-1a78cb3de50a",
+                    "id": "40b3a499-18e6-45f1-8226-8ca74a2ccaa4",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15741,7 +15741,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c4f031dc-d6da-4447-b5fb-dc24ce78990c",
+                    "id": "8b335f5e-c1a0-482a-a12c-eee7d955f899",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17692,10 +17692,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5b8f1642-3314-44ac-ac4a-059c1cac9b8e",
+                    "id": "2e4b0962-907d-4deb-ba32-24a4ebcf9e01",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-08-22",
+                      "dateRequestAccepted": "2024-08-27",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

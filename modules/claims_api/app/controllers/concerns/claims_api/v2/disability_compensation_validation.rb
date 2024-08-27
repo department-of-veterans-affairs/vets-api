@@ -715,7 +715,7 @@ module ClaimsApi
         end
       end
 
-      def validate_service_periods(service_information, target_veteran) # rubocop:disable Metrics/MethodLength
+      def validate_service_periods(service_information, target_veteran)
         date_of_birth = Date.strptime(target_veteran.birth_date, '%Y%m%d')
         age_thirteen = date_of_birth.next_year(13)
         service_information['servicePeriods'].each_with_index do |sp, idx|
@@ -736,11 +736,6 @@ module ClaimsApi
               end
             end
           end
-
-          if sp['activeDutyEndDate'] && Date.strptime(sp['activeDutyEndDate'],
-                                                      '%Y-%m-%d') > Time.zone.now && sp['separationLocationCode'].blank?
-            location_code_exception(idx)
-          end
         end
       end
 
@@ -755,13 +750,6 @@ module ClaimsApi
         collect_error_messages(
           source: "/serviceInformation/servicePeriods/#{idx}/activeDutyEndDate",
           detail: 'activeDutyEndDate needs to be after activeDutyBeginDate'
-        )
-      end
-
-      def location_code_exception(idx)
-        collect_error_messages(
-          source: "/serviceInformation/servicePeriods/#{idx}/separationLocationCode",
-          detail: 'If Active Duty End Date is in the future a Separation Location Code is required.'
         )
       end
 
