@@ -21,7 +21,7 @@ module SimpleFormsApi
       end
 
       # Stamp the text which specifies the user's auth level (footer)
-      verify { stamp_all_pages(get_auth_text_stamp, append_to_stamp: auth_text, text_only: false) }
+      verify { stamp_all_pages(get_auth_text_stamp, append_to_stamp: auth_text) }
     rescue => e
       raise StandardError, "An error occurred while stamping the PDF: #{e}"
     end
@@ -61,8 +61,8 @@ module SimpleFormsApi
       verified_multistamp(desired_stamp, page_configuration)
     end
 
-    def stamp_all_pages(desired_stamp, append_to_stamp: nil, text_only: true)
-      current_file_path = call_datestamp_pdf(desired_stamp[:coords], desired_stamp[:text], append_to_stamp, text_only)
+    def stamp_all_pages(desired_stamp, append_to_stamp: nil)
+      current_file_path = call_datestamp_pdf(desired_stamp[:coords], desired_stamp[:text], append_to_stamp)
       File.rename(current_file_path, stamped_template_path)
     end
 
@@ -138,8 +138,9 @@ module SimpleFormsApi
       end
     end
 
-    def call_datestamp_pdf(coords, text, append_to_stamp, text_only)
+    def call_datestamp_pdf(coords, text, append_to_stamp)
       Rails.logger.info('Calling PDFUtilities::DatestampPdf', stamped_template_path:)
+      text_only = append_to_stamp ? true : false
       datestamp_instance = PDFUtilities::DatestampPdf.new(stamped_template_path, append_to_stamp:)
       datestamp_instance.run(text:, x: coords[0], y: coords[1], text_only:, size: 9)
     end
