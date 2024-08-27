@@ -21,7 +21,12 @@ module RepresentationManagement
     validates :form_name, presence: true
     validates :form_number, presence: true
     validates :representative_type, presence: true
+    validates :representative_type, inclusion: { in: AccreditedIndividual.individual_types.keys }
     validates :representative_name, presence: true
     validates :representative_address, presence: true
+
+    def representative_type_humanized
+      @representative_type_humanized ||= representative_type.humanize.titleize
+    end
   end
 end

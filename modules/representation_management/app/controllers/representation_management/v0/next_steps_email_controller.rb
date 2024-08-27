@@ -8,13 +8,11 @@ module RepresentationManagement
 
       def create
         next_steps_email_data = RepresentationManagement::NextStepsEmailData.new(next_steps_email_params)
-        p "next_steps_email_data: #{next_steps_email_data.inspect}",
-          "next_steps_email_data.invalid?: #{next_steps_email_data.invalid?}"
         if next_steps_email_data.invalid?
-          render json: { errors: next_steps_email_data.errors }, status: :unprocessable_entity and return
+          render json: { errors: next_steps_email_data.errors.full_messages }, status: :unprocessable_entity and return
         else
           # send email and return ok
-          render json: { message: 'Email sent' }, status: :ok
+          render json: { message: 'Email enqueued' }, status: :ok
         end
       end
 
