@@ -17,7 +17,9 @@ module ClaimsApi
     CACHED_SERVICES = %w[ClaimantServiceBean/ClaimantWebService
                          OrgWebServiceBean/OrgWebService
                          VDC/VeteranRepresentativeService
-                         VdcBean/ManageRepresentativeService].freeze
+                         VdcBean/ManageRepresentativeService
+                         VnpAtchmsWebServiceBean/VnpAtchmsService
+                         VnpPersonWebServiceBean/VnpPersonService].freeze
 
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
