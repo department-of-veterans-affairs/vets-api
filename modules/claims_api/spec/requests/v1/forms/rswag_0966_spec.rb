@@ -6,7 +6,7 @@ require 'rails_helper'
 require_relative '../../rails_helper'
 require_relative '../../support/swagger_shared_components/v1'
 
-Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
+Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do
   path '/forms/0966' do
     get 'Get 0966 JSON Schema for form.' do
       deprecated true
@@ -69,8 +69,8 @@ Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/c
 
       describe 'Getting a successful response' do
         response '200', '0966 Response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'intent_to_file', 'submission.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'intent_to_file', 'submission.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'compensation' } } } }
@@ -101,8 +101,8 @@ Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/c
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'compensation' } } } }
@@ -135,8 +135,8 @@ Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/c
 
       describe 'Getting a 403 response' do
         response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'burial' } } } }
@@ -170,8 +170,8 @@ Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/c
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default_with_source.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default_with_source.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'HelloWorld' } } } }
@@ -236,8 +236,8 @@ Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/c
 
       describe 'Getting a 200 response' do
         response '200', '0966 response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'intent_to_file', 'active.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'intent_to_file', 'active.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:type) { 'compensation' }
@@ -270,8 +270,8 @@ Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/c
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:type) { 'compensation' }
@@ -304,8 +304,8 @@ Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/c
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:type) { 'compensation' }
@@ -338,8 +338,8 @@ Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/c
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:type) { 'HelloWorld' }
@@ -405,8 +405,8 @@ Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/c
 
       describe 'Getting a successful response' do
         response '200', '0966 Response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'intent_to_file', 'validate.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'intent_to_file', 'validate.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'compensation' } } } }
@@ -437,8 +437,8 @@ Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/c
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'compensation' } } } }
@@ -471,8 +471,8 @@ Rspec.describe 'Intent to file', openapi_spec: 'modules/claims_api/app/swagger/c
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default_with_source.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default_with_source.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: nil } } }

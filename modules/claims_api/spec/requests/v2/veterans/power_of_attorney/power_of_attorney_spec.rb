@@ -36,7 +36,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
 
                   get get_poa_path, headers: auth_header
 
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -111,7 +111,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
             it 'returns a 401' do
               get get_poa_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(401)
+              expect(response).to have_http_status(:unauthorized)
             end
           end
         end

@@ -53,7 +53,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
 
                     post sub_path, headers: auth_header
 
-                    expect(response.status).to eq(202)
+                    expect(response).to have_http_status(:accepted)
                   end
                 end
               end
@@ -64,7 +64,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
             it 'returns a 401' do
               post sub_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(401)
+              expect(response).to have_http_status(:unauthorized)
             end
           end
 
@@ -77,7 +77,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
 
                   post error_sub_path, headers: auth_header
 
-                  expect(response.status).to eq(404)
+                  expect(response).to have_http_status(:not_found)
                 end
               end
             end
@@ -99,7 +99,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
 
                   post sub_path, headers: auth_header
 
-                  expect(response.status).to eq(202)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -119,7 +119,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
 
                   post sub_path, headers: auth_header
 
-                  expect(response.status).to eq(401)
+                  expect(response).to have_http_status(:unauthorized)
                   json = JSON.parse(response.body)
                   expect_res = json['errors'][0]['detail']
 

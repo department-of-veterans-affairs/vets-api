@@ -6,7 +6,7 @@ require 'rails_helper'
 require_relative '../../rails_helper'
 require_relative '../../support/swagger_shared_components/v1'
 
-Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
+Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do
   let(:pws) { ClaimsApi::LocalBGS }
 
   path '/forms/2122' do
@@ -77,12 +77,12 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a successful response' do
         response '200', '2122 Response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'power_of_attorney', 'submission.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'power_of_attorney', 'submission.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:data) do
-            temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json').read
             temp = JSON.parse(temp)
 
             temp
@@ -123,12 +123,12 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:data) do
-            temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json').read
             temp = JSON.parse(temp)
 
             temp
@@ -160,12 +160,12 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default_with_source.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default_with_source.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:data) do
-            temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json').read
             temp = JSON.parse(temp)
             temp['data']['attributes']['serviceOrganization']['poaCode'] = nil
 
@@ -247,13 +247,13 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a successful response' do
         response '200', '2122 Response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'power_of_attorney', 'upload.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'power_of_attorney', 'upload.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { power_of_attorney.id }
@@ -287,13 +287,13 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { power_of_attorney.id }
@@ -329,12 +329,12 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:attachment) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { 999_999_999 }
@@ -366,13 +366,13 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable Entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { power_of_attorney.id }
@@ -403,13 +403,13 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 424 response' do
         response '424', 'Failed Dependency' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { power_of_attorney.id }
@@ -442,8 +442,8 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 400 response' do
         response '400', 'Bad Request' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
           let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) { nil }
@@ -507,8 +507,8 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 200 response' do
         response '200', '2122 response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'power_of_attorney', 'get.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'power_of_attorney', 'get.json').read)
 
           let(:headers) do
             { 'X-VA-SSN': '796-04-3735',
@@ -546,8 +546,8 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:headers) do
             { 'X-VA-SSN': '796-04-3735',
@@ -587,8 +587,8 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:headers) do
             { 'X-VA-SSN': '796-04-3735',
@@ -657,8 +657,8 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 200 response' do
         response '200', '2122 response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'power_of_attorney', 'active.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'power_of_attorney', 'active.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
@@ -676,7 +676,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
             mock_acg(scopes) do
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              allow(::Veteran::Service::Representative).to receive(:for_user).and_return(true)
+              allow(Veteran::Service::Representative).to receive(:for_user).and_return(true)
               expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').exactly(3).times
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
               expect_any_instance_of(
@@ -702,8 +702,8 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:Authorization) { nil }
@@ -733,8 +733,8 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
@@ -744,7 +744,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
             mock_acg(scopes) do
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              allow(::Veteran::Service::Representative).to receive(:for_user).and_return(true)
+              allow(Veteran::Service::Representative).to receive(:for_user).and_return(true)
               expect(bgs_poa_verifier).to receive(:current_poa_code).and_return(nil)
               submit_request(example.metadata)
             end
@@ -800,12 +800,12 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a successful response' do
         response '200', '2122 Response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'power_of_attorney', 'validate.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'power_of_attorney', 'validate.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:data) do
-            temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json').read
             temp = JSON.parse(temp)
 
             temp
@@ -841,12 +841,12 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:data) do
-            temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json').read
             temp = JSON.parse(temp)
 
             temp
@@ -878,8 +878,8 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default_with_source.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default_with_source.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:data) { { data: { attributes: nil } } }

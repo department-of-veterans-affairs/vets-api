@@ -60,7 +60,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 .to receive(:where).and_return([])
 
               get all_claims_path, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -68,7 +68,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
         context 'when not provided' do
           it 'returns a 401 error code' do
             get all_claims_path
-            expect(response.status).to eq(401)
+            expect(response).to have_http_status(:unauthorized)
           end
         end
       end
@@ -90,7 +90,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   .to receive(:where).and_return([])
 
                 get all_claims_path, headers: auth_header
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
               end
             end
           end
@@ -100,7 +100,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
               mock_ccg(scopes) do |auth_header|
                 allow_any_instance_of(ClaimsApi::ValidatedToken).to receive(:validated_token_data).and_return(nil)
                 get all_claims_path, headers: auth_header
-                expect(response.status).to eq(401)
+                expect(response).to have_http_status(:unauthorized)
               end
             end
           end
@@ -114,7 +114,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
           it 'returns a 404 error code' do
             mock_ccg(scopes) do |auth_header|
               get all_claims_path, headers: auth_header
-              expect(response.status).to eq(404)
+              expect(response).to have_http_status(:not_found)
             end
           end
         end
@@ -132,7 +132,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 .to receive(:where).and_return([])
 
               get all_claims_path, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -143,7 +143,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
               allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(nil)
 
               get all_claims_path, headers: auth_header
-              expect(response.status).to eq(404)
+              expect(response).to have_http_status(:not_found)
             end
           end
         end
@@ -187,7 +187,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
               get all_claims_path, headers: auth_header
 
               json_response = JSON.parse(response.body)
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
               claim = json_response['data'].first
               claim_two = json_response['data'][1]
               expect(claim['attributes']['status']).to eq('COMPLETE')
@@ -259,7 +259,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                   json_response = JSON.parse(response.body)
 
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response['data'].count).to eq(3)
                   expect(json_response['data'][0]['id'])
                     .to eq(bgs_claims[:benefit_claims_dto][:benefit_claim][0][:benefit_claim_id])
@@ -294,7 +294,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   get all_claims_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response['data'].count).to eq(4)
                   expect(json_response['data'][0]['attributes']['lighthouseId']).to eq(lighthouse_claim.id)
                   expect(json_response['data'][1]['attributes']['lighthouseId']).to eq(nil)
@@ -325,7 +325,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
               }
             end
 
-            it "provides values for 'lighthouseId' and 'claimId' " do
+            it "provides values for 'lighthouseId' and 'claimId'" do
               lighthouse_claim = create(
                 :auto_established_claim,
                 id: '0958d973-36fb-43ef-8801-2718bd33c825',
@@ -348,7 +348,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                   json_response = JSON.parse(response.body)
 
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
@@ -377,7 +377,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
             end
             let(:lighthouse_claims) { [] }
 
-            it "provides a value for 'claimId', but 'lighthouseId' will be 'nil' " do
+            it "provides a value for 'claimId', but 'lighthouseId' will be 'nil'" do
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                   expect_any_instance_of(bcs)
@@ -388,14 +388,14 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   get all_claims_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
                   expect(claim['attributes']['baseEndProductCode']).to eq('400')
                   expect(claim['attributes']['status']).to eq('CLAIM_RECEIVED')
                   expect(claim['id']).to eq('111111111')
-                  expect(claim['attributes']['lighthouseId']).to be nil
+                  expect(claim['attributes']['lighthouseId']).to be_nil
                 end
               end
             end
@@ -419,7 +419,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
               ]
             end
 
-            it "provides a value for 'lighthouseId', but 'claimId' will be 'nil' " do
+            it "provides a value for 'lighthouseId', but 'claimId' will be 'nil'" do
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                   expect_any_instance_of(bcs)
@@ -431,13 +431,13 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                   json_response = JSON.parse(response.body)
 
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
                   expect(claim['attributes']['status']).to eq('PENDING')
                   expect(claim['attributes']['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
-                  expect(claim['id']).to be nil
+                  expect(claim['id']).to be_nil
                 end
               end
             end
@@ -454,13 +454,13 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                   json_response = JSON.parse(response.body)
 
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
                   expect(claim['attributes']['status']).to eq('PENDING')
                   expect(claim['attributes']['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
-                  expect(claim['id']).to be nil
+                  expect(claim['id']).to be_nil
                 end
               end
             end
@@ -486,7 +486,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 get all_claims_path, headers: auth_header
 
                 json_response = JSON.parse(response.body)
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
                 expect(json_response['data']).to be_an_instance_of(Array)
                 expect(json_response['data'].count).to eq(0)
               end
@@ -505,7 +505,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
               get all_claims_path, headers: auth_header
 
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
               json_response = JSON.parse(response.body)
               expect(json_response['errors'][0]['detail']).to eq(
                 "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
@@ -520,7 +520,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
     describe 'show with validate_id_with_icn' do
       let(:bgs_claim_response) { build(:bgs_response_with_one_lc_status).to_h }
 
-      describe ' BGS attributes' do
+      describe 'BGS attributes' do
         it 'are listed' do
           lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                      evss_id: '111111111')
@@ -536,7 +536,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 get claim_by_id_path, headers: auth_header
 
                 json_response = JSON.parse(response.body)
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
                 expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(false)
                 expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
                   .to eq('CLAIM_RECEIVED')
@@ -549,7 +549,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
     end
 
     context 'show with validate_id_with_icn when there is a claimant ID in place of the verteran ID' do
-      describe ' BGS attributes (w/ Claimant ID replacing vet ID)' do
+      describe 'BGS attributes (w/ Claimant ID replacing vet ID)' do
         it 'are listed' do
           bgs_claim_response = build(:bgs_response_claim_with_unmatched_ptcpnt_vet_id).to_h
           lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: '2023062086V8675309',
@@ -569,7 +569,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 get claim_by_id_path, headers: auth_header
 
                 json_response = JSON.parse(response.body)
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
                 expect(json_response).to be_an_instance_of(Hash)
               end
             end
@@ -601,7 +601,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 get claim_by_id_path, headers: auth_header
 
                 json_response = JSON.parse(response.body)
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
                 claim_attributes = json_response['data']['attributes']
                 expect(claim_attributes['claimPhaseDates']['currentPhaseBack']).to eq(false)
                 expect(claim_attributes['claimPhaseDates']['latestPhaseType']).to eq('CLAIM_RECEIVED')
@@ -628,7 +628,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
           get claim_by_id_path, headers: auth_header
           json_response = JSON.parse(response.body)
 
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(json_response['data']['attributes']['supportingDocuments'].length).to eq(2)
         end
       end
@@ -636,7 +636,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
       context 'when no auth header provided' do
         it 'returns a 401 error code' do
           get claim_by_id_path
-          expect(response.status).to eq(401)
+          expect(response).to have_http_status(:unauthorized)
         end
       end
 
@@ -650,7 +650,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
               get claim_by_id_path, headers: auth_header
 
-              expect(response.status).to eq(404)
+              expect(response).to have_http_status(:not_found)
             end
           end
         end
@@ -676,7 +676,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
               mock_ccg(scopes) do |auth_header|
                 get mismatched_claim_veteran_path, headers: auth_header
 
-                expect(response.status).to eq(404)
+                expect(response).to have_http_status(:not_found)
               end
             end
           end
@@ -692,7 +692,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                   get matched_claim_veteran_path, headers: auth_header
 
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -702,7 +702,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
             let(:bgs_claim) { nil }
 
             describe "handling 'lighthouseId' and 'claimId'" do
-              it "provides a value for 'lighthouseId', but 'claimId' will be 'nil' " do
+              it "provides a value for 'lighthouseId', but 'claimId' will be 'nil'" do
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                     expect_any_instance_of(bcs)
@@ -711,10 +711,10 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                     get matched_claim_veteran_path, headers: auth_header
 
                     json_response = JSON.parse(response.body)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                     expect(json_response).to be_an_instance_of(Hash)
                     expect(json_response['data']['attributes']['status']).to eq('PENDING')
-                    expect(json_response['data']['id']).to be nil
+                    expect(json_response['data']['id']).to be_nil
                   end
                 end
               end
@@ -737,7 +737,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                       get matched_claim_veteran_path, headers: auth_header
 
                       json_response = JSON.parse(response.body)
-                      expect(response.status).to eq(200)
+                      expect(response).to have_http_status(:ok)
                       expect(json_response).to be_an_instance_of(Hash)
                       expect(json_response['data']['attributes']['lighthouseId']).to eq(lighthouse_claim.id)
                       expect(json_response['data']['id']).to eq('111111111')
@@ -761,7 +761,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
               get claim_by_id_path, headers: auth_header
 
-              expect(response.status).to eq(404)
+              expect(response).to have_http_status(:not_found)
             end
           end
         end
@@ -791,7 +791,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                       get claim_by_id_path, headers: auth_header
 
                       json_response = JSON.parse(response.body)
-                      expect(response.status).to eq(200)
+                      expect(response).to have_http_status(:ok)
                       claim_attributes = json_response['data']['attributes']
                       expect(json_response).to be_an_instance_of(Hash)
                       expect(claim_attributes['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
@@ -804,7 +804,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
           end
 
           context 'and a Lighthouse claim does not exit' do
-            it "provides a value for 'claimId', but 'lighthouseId' will be 'nil' " do
+            it "provides a value for 'claimId', but 'lighthouseId' will be 'nil'" do
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                   VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
@@ -816,10 +816,10 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                     get claim_by_id_path, headers: auth_header
 
                     json_response = JSON.parse(response.body)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                     expect(json_response).to be_an_instance_of(Hash)
                     expect(json_response['data']['id']).to eq('111111111')
-                    expect(json_response['data']['attributes']['lighthouseId']).to be nil
+                    expect(json_response['data']['attributes']['lighthouseId']).to be_nil
                   end
                 end
               end
@@ -851,7 +851,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                       json_response = JSON.parse(response.body)
 
                       expect(json_response['data']['attributes']['supportingDocuments']).to eq([])
-                      expect(response.status).not_to eq(404)
+                      expect(response).not_to have_http_status(:not_found)
                     end
                   end
                 end
@@ -903,7 +903,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                       json_response = JSON.parse(response.body)
                       expect(json_response['data']['attributes']['supportingDocuments']).to eq([])
-                      expect(response.status).not_to eq(404)
+                      expect(response).not_to have_http_status(:not_found)
                     end
                   end
                 end
@@ -958,7 +958,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                       get claim_by_id_path, headers: auth_header
 
-                      expect(response.status).to eq(200)
+                      expect(response).to have_http_status(:ok)
                     end
                   end
                 end
@@ -982,7 +982,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   get claim_by_id_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
                 end
@@ -1008,7 +1008,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   d = Date.parse(bgs_claim[:benefit_claim_details_dto][:claim_complete_dt].to_s)
                   expected_date = d.strftime('%Y-%m-%d')
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['closeDate']).to eq(expected_date)
                 end
@@ -1030,7 +1030,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   get claim_by_id_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
                 end
@@ -1064,7 +1064,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   get claim_by_id_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
                 end
@@ -1088,7 +1088,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   get claim_by_id_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['status']).to eq('INITIAL_REVIEW')
                 end
@@ -1112,7 +1112,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   get claim_by_id_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['status']).to eq('INITIAL_REVIEW')
                   expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(true)
@@ -1141,7 +1141,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                   json_response = JSON.parse(response.body)
                   prev_phases = json_response['data']['attributes']['claimPhaseDates']['previousPhases']
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(prev_phases).to eq({})
                 end
               end
@@ -1162,7 +1162,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   get claim_by_id_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['claimType']).to eq('Compensation')
                   expect(json_response['data']['attributes']['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
@@ -1191,7 +1191,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   get claim_by_id_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   claim_contentions_res = json_response['data']['attributes']['contentions']
                   expect(claim_contentions_res).to eq([{ 'name' => 'c1 (New)' }, { 'name' => 'c2 (Old)' },
                                                        { 'name' => 'c3 (Unknown)' }])
@@ -1217,7 +1217,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   get claim_by_id_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   claim_contentions_res = json_response['data']['attributes']['contentions']
                   expect(claim_contentions_res).to eq([{ 'name' => 'Low back strain (New)' },
                                                        { 'name' => 'Knee, internal derangement (New)' }])
@@ -1243,7 +1243,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                   json_response = JSON.parse(response.body)
                   first_doc_id = json_response['data']['attributes'].dig('supportingDocuments', 0, 'documentId')
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['claimType']).to eq('Compensation')
                   expect(first_doc_id).to eq('{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}')
@@ -1270,7 +1270,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   get claim_by_id_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['claimType']).to eq('Compensation')
                   expect(json_response['data']['attributes']['supportingDocuments']).to be_empty
@@ -1299,7 +1299,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 get matched_claim_veteran_path, headers: auth_header
 
                 json_response = JSON.parse(response.body)
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
                 expect(json_response).to be_an_instance_of(Hash)
                 expect(json_response['data']['attributes']['supportingDocuments']).to be_empty
               end
@@ -1331,7 +1331,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 get claim_by_id_path, headers: auth_header
 
                 json_response = JSON.parse(response.body)
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
                 expect(json_response['data']['attributes'].dig('errors', 0, 'detail')).to eq('ERROR Something happened')
                 expect(json_response['data']['attributes'].dig('errors', 0, 'source')).to eq('test/path/here')
                 expect(json_response['data']['attributes']['status']).to eq('ERRORED')
@@ -1353,7 +1353,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
               get "/services/claims/v2/veterans/#{profile_erroneous_icn.profile.icn}/claims/#{claim_id}",
                   headers: auth_header
 
-              expect(response.status).to eq(404)
+              expect(response).to have_http_status(:not_found)
               json_response = JSON.parse(response.body)
               expect(json_response['errors'][0]['detail']).to eq(
                 "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
@@ -1382,7 +1382,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   first_doc_id = json_response['data']['attributes'].dig('trackedItems', 0, 'id')
                   resp_tracked_items = json_response['data']['attributes']['trackedItems']
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response['data']['id']).to eq(claim_id_with_items)
                   expect(first_doc_id).to eq(293_439)
                   expect(resp_tracked_items[1]['description']).to eq(nil)
@@ -1422,7 +1422,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                   first_doc_id = json_response['data']['attributes'].dig('trackedItems', 0, 'id')
                   resp_tracked_items = json_response['data']['attributes']['trackedItems']
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                   expect(json_response['data']['id']).to eq(claim_id_with_items)
                   expect(first_doc_id).to eq(293_439)
                   expect(resp_tracked_items[0]['status']).to eq('SUBMITTED_AWAITING_REVIEW')
@@ -1451,7 +1451,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 get matched_claim_veteran_path, headers: auth_header
 
                 json_response = JSON.parse(response.body)
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
                 expect(json_response).to be_an_instance_of(Hash)
                 expect(json_response['data']['attributes']['trackedItems']).to be_empty
               end
@@ -1482,7 +1482,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
 
                   get claim_by_id_path, headers: auth_header
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -1494,7 +1494,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 allow_any_instance_of(ClaimsApi::ValidatedToken).to receive(:validated_token_data).and_return(nil)
 
                 get claim_by_id_path, headers: auth_header
-                expect(response.status).to eq(401)
+                expect(response).to have_http_status(:unauthorized)
               end
             end
           end

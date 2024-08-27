@@ -6,7 +6,7 @@ require 'rails_helper'
 require_relative '../../rails_helper'
 require_relative '../../support/swagger_shared_components/v1'
 
-Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
+Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do
   path '/forms/526' do
     get 'Get a 526 schema for a claim.' do
       deprecated true
@@ -87,13 +87,13 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a successful response' do
         response '200', '526 Response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'disability', 'submission.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'disability', 'submission.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
           let(:data) do
-            temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json').read
             temp = JSON.parse(temp)
             temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
             temp['data']['attributes']['applicationExpirationDate'] = (Time.zone.today + 1.day).to_s
@@ -129,13 +129,13 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
           let(:data) do
-            temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json').read
             temp = JSON.parse(temp)
             temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
 
@@ -172,8 +172,8 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default_with_source.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default_with_source.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
@@ -202,7 +202,7 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
           context 'Violates JSON Schema' do
             let(:data) do
-              temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+              temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json').read
               temp = JSON.parse(temp)
               temp['data']['attributes']['someBadKey'] = 'someValue'
 
@@ -293,13 +293,13 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a successful response' do
         response '200', '526 Response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'disability', 'upload.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'disability', 'upload.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { auto_claim.id }
@@ -358,12 +358,12 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:attachment) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { 999_999_999 }
@@ -393,13 +393,13 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { auto_claim.id }
@@ -431,13 +431,13 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { auto_claim.id }
@@ -502,13 +502,13 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a successful response' do
         response '200', '526 Response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'disability', 'validate.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'disability', 'validate.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
           let(:data) do
-            temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json').read
             temp = JSON.parse(temp)
             temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
             temp['data']['attributes']['applicationExpirationDate'] = (Time.zone.today + 1.day).to_s
@@ -551,13 +551,13 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
           let(:data) do
-            temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json').read
             temp = JSON.parse(temp)
             temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
 
@@ -594,8 +594,8 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default_with_source.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default_with_source.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
@@ -682,17 +682,17 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a successful response' do
         response '200', 'upload response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
-                                                      'disability', 'attachments.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'disability', 'attachments.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
           let(:attachment1) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:attachment2) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { auto_claim.id }
@@ -722,17 +722,17 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
           let(:attachment1) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:attachment2) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { auto_claim.id }
@@ -764,16 +764,16 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:attachment1) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:attachment2) do
-            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
           end
           let(:id) { 999_999_999 }

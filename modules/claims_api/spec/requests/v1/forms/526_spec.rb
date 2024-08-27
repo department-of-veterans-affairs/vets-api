@@ -34,7 +34,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     let(:claim_date) { (Time.zone.today - 1.day).to_s }
     let(:auto_cest_pdf_generation_disabled) { false }
     let(:data) do
-      temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json').read
       temp = JSON.parse(temp)
       temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
       temp['data']['attributes']['claimDate'] = claim_date
@@ -43,7 +43,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       temp.to_json
     end
     let(:path) { '/services/claims/v1/forms/526' }
-    let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '526.json')) }
+    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '526.json').read }
     let(:parsed_codes) do
       {
         birls_id: '111985523',
@@ -79,7 +79,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['treatments'] = treatments
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
+                expect(response).to have_http_status(:bad_request)
               end
             end
           end
@@ -96,7 +96,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   params['data']['attributes']['treatments'] = treatments
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -113,7 +113,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['treatments'] = treatments
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -142,7 +142,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   params['data']['attributes']['treatments'] = treatments
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -177,7 +177,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['treatments'] = treatments
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
+                expect(response).to have_http_status(:bad_request)
               end
             end
           end
@@ -194,7 +194,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   params['data']['attributes']['treatments'] = treatments
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -225,7 +225,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   params['data']['attributes']['treatments'] = treatments
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -259,7 +259,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params['data']['attributes']['treatments'][0][:center][:country] = ''
 
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -278,7 +278,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   'Here\'s a country that has a very very very long name'
 
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -294,7 +294,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['treatments'] = treatments
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
+                expect(response).to have_http_status(:bad_request)
               end
             end
           end
@@ -313,7 +313,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
                   post path, params: params.to_json, headers: headers.merge(auth_header)
 
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -330,7 +330,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['treatments'] = treatments
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -348,7 +348,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['treatments'] = treatments
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -366,7 +366,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['treatments'] = treatments
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -416,7 +416,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       context 'when autoCestPDFGenerationDisabled is true' do
         let(:auto_cest_pdf_generation_disabled) { true }
 
-        it 'creates the sidekick job' do
+        it 'creates the sidekick job', skip: 'No expectation in this example' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
@@ -501,7 +501,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         mock_acg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/claims/claims') do
             VCR.use_cassette('claims_api/brd/countries') do
-              auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
+              auth_header_stub = instance_double(EVSS::DisabilityCompensationAuthHeaders)
               expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).once { auth_header_stub })
               expect(auth_header_stub).to receive(:add_headers).once
               post path, params: data, headers: headers.merge(auth_header)
@@ -520,8 +520,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               let(:json_data) { JSON.parse data }
               let(:change_of_address) do
                 {
-                  beginningDate: (Time.zone.now - 1.month).to_date.to_s,
-                  endingDate: (Time.zone.now + 1.month).to_date.to_s,
+                  beginningDate: 1.month.ago.to_date.to_s,
+                  endingDate: 1.month.from_now.to_date.to_s,
                   addressChangeType: value,
                   addressLine1: '1234 Couch Street',
                   city: 'New York City',
@@ -540,7 +540,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
 
                       post path, params: par.to_json, headers: headers.merge(auth_header)
-                      expect(response.status).to eq(400)
+                      expect(response).to have_http_status(:bad_request)
                     end
                   end
                 end
@@ -552,7 +552,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         context 'when an invalid country is submitted' do
           let(:change_of_address) do
             {
-              beginningDate: (Time.zone.now + 1.month).to_date.to_s,
+              beginningDate: 1.month.from_now.to_date.to_s,
               addressChangeType: 'PERMANENT',
               addressLine1: '1234 Couch Street',
               city: 'New York City',
@@ -571,7 +571,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
@@ -582,12 +582,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       # lines 89-92 in disability_compensation_validations.rb checks phone number for dash
       context 'when reservesNationalGuardService information is submitted' do
         let(:json_data) { JSON.parse data }
-        let(:title10_activation_date) { (Time.zone.now - 1.day).to_date.to_s }
-        let(:anticipated_separation_date) { (Time.zone.now + 1.year).to_date.to_s }
+        let(:title10_activation_date) { 1.day.ago.to_date.to_s }
+        let(:anticipated_separation_date) { 1.year.from_now.to_date.to_s }
         let(:reserves_national_guard_service) do
           {
-            obligationTermOfServiceFromDate: (Time.zone.now - 1.year).to_date.to_s,
-            obligationTermOfServiceToDate: (Time.zone.now - 6.months).to_date.to_s,
+            obligationTermOfServiceFromDate: 1.year.ago.to_date.to_s,
+            obligationTermOfServiceToDate: 6.months.ago.to_date.to_s,
             unitName: 'best-name-ever',
             unitPhone: {
               areaCode: '555',
@@ -614,7 +614,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       reserves_national_guard_service
 
                     post path, params: par.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(400)
+                    expect(response).to have_http_status(:bad_request)
                   end
                 end
               end
@@ -632,7 +632,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     reserves_national_guard_service
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
@@ -650,7 +650,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       reserves_national_guard_service
 
                     post path, params: par.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -669,7 +669,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       reserves_national_guard_service
 
                     post path, params: par.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -677,7 +677,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
 
           context 'when title10ActivationDate is tomorrow' do
-            let(:title10_activation_date) { (Time.zone.now + 1.day).to_date.to_s }
+            let(:title10_activation_date) { 1.day.from_now.to_date.to_s }
 
             it 'raises an exception that title10ActivationDate is invalid' do
               mock_acg(scopes) do |auth_header|
@@ -687,7 +687,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     reserves_national_guard_service
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
@@ -696,7 +696,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
         context "'anticipatedSeparationDate' validations" do
           context "when 'anticipatedSeparationDate' is in the past" do
-            let(:anticipated_separation_date) { (Time.zone.now - 1.day).to_date.to_s }
+            let(:anticipated_separation_date) { 1.day.ago.to_date.to_s }
 
             it "raises an exception that 'anticipatedSeparationDate' is invalid" do
               mock_acg(scopes) do |auth_header|
@@ -707,7 +707,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       reserves_national_guard_service
 
                     post path, params: par.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(400)
+                    expect(response).to have_http_status(:bad_request)
                   end
                 end
               end
@@ -715,7 +715,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
 
           context "when 'anticipatedSeparationDate' is today" do
-            let(:anticipated_separation_date) { (Time.zone.now - 1.hour).to_date.to_s }
+            let(:anticipated_separation_date) { 1.hour.ago.to_date.to_s }
 
             it "raises an exception that 'anticipatedSeparationDate' is invalid" do
               mock_acg(scopes) do |auth_header|
@@ -725,14 +725,14 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     reserves_national_guard_service
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
           end
 
           context "when 'anticipatedSeparationDate' is in the future" do
-            let(:anticipated_separation_date) { (Time.zone.now + 1.day).to_date.to_s }
+            let(:anticipated_separation_date) { 1.day.from_now.to_date.to_s }
 
             it 'returns a successful response' do
               mock_acg(scopes) do |auth_header|
@@ -743,7 +743,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       reserves_national_guard_service
 
                     post path, params: par.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -764,7 +764,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
             post path, params: params.to_json, headers: headers.merge(auth_header)
 
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             expect(JSON.parse(response.body)['errors'].size).to eq(2)
             expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
               'The property /serviceInformation/someBadField is not defined on the schema. Additional properties are not allowed'
@@ -781,7 +781,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params = json_data
             params['data']['attributes']['veteran']['currentMailingAddress'] = {}
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             expect(JSON.parse(response.body)['errors'].size).to eq(5)
           end
         end
@@ -794,7 +794,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 par['data']['attributes']['veteran']['homelessness']['pointOfContact']['primaryPhone']['phoneNumber'] =
                   '555-5555'
                 post path, params: par.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
               end
             end
           end
@@ -817,7 +817,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               }
             }
             post path, params: par.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             expect(JSON.parse(response.body)['errors'].size).to eq(1)
           end
         end
@@ -840,7 +840,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 }
               }
               post path, params: par.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
               expect(JSON.parse(response.body)['errors'].size).to eq(1)
             end
           end
@@ -851,7 +851,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params = json_data
             params['data']['attributes']['disabilities'] = [{}]
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             expect(JSON.parse(response.body)['errors'].size).to eq(4)
           end
         end
@@ -863,7 +863,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['specialIssues'] = ['invalidType']
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
                 expect(JSON.parse(response.body)['errors'].size).to eq(1)
               end
             end
@@ -877,7 +877,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['disabilities'][0]['specialIssues'] = %w[ALS PTSD/1]
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -892,7 +892,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['veteran']['flashes'] = ['invalidType']
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
                 expect(JSON.parse(response.body)['errors'].size).to eq(1)
               end
             end
@@ -906,7 +906,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['veteran']['flashes'] = %w[Hardship POW]
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -922,7 +922,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params['data']['attributes']['veteran']['currentMailingAddress'] = mailing_address
 
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             expect(JSON.parse(response.body)['errors'].size).to eq(1)
           end
         end
@@ -940,7 +940,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/bgs/claims/claims') do
               post path, params: data, headers: headers.merge(auth_header)
-              expect(response.status).to eq 422
+              expect(response).to have_http_status :unprocessable_entity
               expect(JSON.parse(response.body)['errors']).to be_an Array
             end
           end
@@ -960,7 +960,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 VCR.use_cassette('claims_api/bgs/claims/claims') do
                   post path, params: data, headers: headers.merge(auth_header)
                   body = JSON.parse(response.body)
-                  expect(response.status).to eq 422
+                  expect(response).to have_http_status :unprocessable_entity
                   expect(body['errors']).to be_an Array
                   expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
                 end
@@ -976,7 +976,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 VCR.use_cassette('claims_api/bgs/claims/claims') do
                   post path, params: data, headers: headers.merge(auth_header)
                   body = JSON.parse(response.body)
-                  expect(response.status).to eq 422
+                  expect(response).to have_http_status :unprocessable_entity
                   expect(body['errors']).to be_an Array
                   expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
                 end
@@ -1034,7 +1034,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params['data']['attributes']['veteran']['currentMailingAddress'] = {}
             post path, params: params.to_json, headers: headers.merge(auth_header)
             parsed = JSON.parse(response.body)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             expect(parsed['errors'].size).to eq(5)
           end
         end
@@ -1042,7 +1042,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         context 'Timeouts are recorded (investigating)' do
           [Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
             context error_klass.to_s do
-              it 'is logged to PersonalInformationLog' do
+              it 'is logged to PersonalInformationLog', skip: 'No expectation in this example' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/brd/countries') do
                     VCR.use_cassette('claims_api/bgs/claims/claims') do
@@ -1107,7 +1107,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -1144,7 +1144,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
                     post path, params: data, headers: auth_header
 
-                    expect(response.status).to eq(422)
+                    expect(response).to have_http_status(:unprocessable_entity)
                   end
                 end
               end
@@ -1163,7 +1163,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       .and_return(profile_with_edipi)
 
                     post path, params: data, headers: auth_header
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -1190,7 +1190,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 post path, params: data, headers: auth_header
 
                 json_response = JSON.parse(response.body)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
                 expect(json_response['errors'][0]['detail']).to eq(
                   "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
                   'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
@@ -1212,7 +1212,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -1237,7 +1237,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
               post path, params: data, headers: headers.merge(auth_header)
               data = JSON.parse(response.body)
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
               expect(data['errors'][0]['detail']).to eq(
                 'Veteran has multiple active Participant IDs in Master Person Index (MPI). ' \
                 'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
@@ -1267,7 +1267,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -1282,7 +1282,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -1296,7 +1296,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
+                expect(response).to have_http_status(:bad_request)
               end
             end
           end
@@ -1320,7 +1320,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -1335,7 +1335,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -1349,21 +1349,21 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
+                expect(response).to have_http_status(:bad_request)
               end
             end
           end
         end
 
         context "and 'claim_date' has timezone (iso w/Z)" do
-          let(:claim_date) { (Time.zone.now - 1.day).iso8601 }
+          let(:claim_date) { 1.day.ago.iso8601 }
 
           it 'responds with a 200' do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -1371,14 +1371,14 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
 
         context "and 'claim_date' has timezone (iso wo/Z)" do
-          let(:claim_date) { (Time.zone.now - 1.day).iso8601.sub('Z', '-00:00') }
+          let(:claim_date) { 1.day.ago.iso8601.sub('Z', '-00:00') }
 
           it 'responds with a 200' do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
                   post path, params: data, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -1386,39 +1386,39 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
 
         context "and 'claim_date' has timezone (iso w/out zone)" do
-          let(:claim_date) { (Time.zone.now - 1.day).iso8601.sub('Z', '') }
+          let(:claim_date) { 1.day.ago.iso8601.sub('Z', '') }
 
           it 'responds with a bad request' do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
         end
 
         context "and 'claim_date' has timezone (TZ String)" do
-          let(:claim_date) { (Time.zone.now - 1.day).to_s }
+          let(:claim_date) { 1.day.ago.to_s }
 
           it 'responds with a 422' do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
         end
 
         context "and 'claim_date' has timezone (w/out T)" do
-          let(:claim_date) { (Time.zone.now - 1.day).iso8601.sub('T', ' ') }
+          let(:claim_date) { 1.day.ago.iso8601.sub('T', ' ') }
 
           it 'responds with a 422' do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -1431,7 +1431,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -1444,7 +1444,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -1460,7 +1460,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params = json_data
             params['data']['attributes']['applicationExpirationDate'] = (Time.zone.today - 1.day).to_s
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -1474,7 +1474,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params = json_data
             params['data']['attributes']['applicationExpirationDate'] = Time.zone.today.to_s
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -1489,7 +1489,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               params = json_data
               params['data']['attributes']['applicationExpirationDate'] = (Time.zone.today + 1.day).to_s
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -1504,7 +1504,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params = json_data
             params['data']['attributes']['claimantCertification'] = false
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -1521,7 +1521,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 (Time.zone.today + 10.days).to_s
               post path, params: params.to_json, headers: headers.merge(auth_header)
               json = JSON.parse(response.body)
-              expect(response.status).to eq(400)
+              expect(response).to have_http_status(:bad_request)
               expect(json['errors'][0]['title']).to eq('Invalid field value')
             end
           end
@@ -1540,7 +1540,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params['data']['attributes']['serviceInformation']['servicePeriods'].first['separationLocationCode'] =
               '11111111111'
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -1559,7 +1559,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               }]
               post path, params: params.to_json, headers: headers.merge(auth_header)
               response_error_details = JSON.parse(response.body)['errors'].first['detail']
-              expect(response.status).to eq(400)
+              expect(response).to have_http_status(:bad_request)
               expect(response_error_details).to include('confinements must be within a service period')
             end
           end
@@ -1583,7 +1583,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             }]
             post path, params: params.to_json, headers: headers.merge(auth_header)
             response_error_details = JSON.parse(response.body)['errors'].first['detail']
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
             expect(response_error_details).to include('confinements must not overlap other confinements')
           end
         end
@@ -1605,11 +1605,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               otherLivingSituation: 'community help center'
             }
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             response_body = JSON.parse(response.body)
             expect(response_body['errors'].length).to eq(1)
             expect(response_body['errors'][0]['detail']).to eq(
-              "Must define only one of 'veteran.homelessness.currentlyHomeless' or "\
+              "Must define only one of 'veteran.homelessness.currentlyHomeless' or " \
               "'veteran.homelessness.homelessnessRisk'"
             )
           end
@@ -1633,12 +1633,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     }
                   }
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(422)
+                  expect(response).to have_http_status(:unprocessable_entity)
                   response_body = JSON.parse(response.body)
                   expect(response_body['errors'].length).to eq(1)
                   expect(response_body['errors'][0]['detail']).to eq(
-                    "If 'veteran.homelessness.pointOfContact' is defined, then one of "\
-                    "'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk'"\
+                    "If 'veteran.homelessness.pointOfContact' is defined, then one of " \
+                    "'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk'" \
                     ' is required'
                   )
                 end
@@ -1661,11 +1661,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 }
                 params['data']['attributes']['veteran']['homelessness'].delete('pointOfContact')
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'].length).to eq(1)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is"\
+                  "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is" \
                   " defined, then 'veteran.homelessness.pointOfContact' is required"
                 )
               end
@@ -1680,12 +1680,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         describe "'receiving' and 'willReceiveInFuture' validations" do
           let(:service_pay_attribute) do
             {
-              'militaryRetiredPay': {
-                'receiving': receiving,
-                'willReceiveInFuture': will_receive,
-                'futurePayExplanation': 'Some explanation',
-                'payment': {
-                  'serviceBranch': 'Air Force'
+              militaryRetiredPay: {
+                receiving:,
+                willReceiveInFuture: will_receive,
+                futurePayExplanation: 'Some explanation',
+                payment: {
+                  serviceBranch: 'Air Force'
                 }
               }
             }
@@ -1704,7 +1704,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       params = json_data
                       params['data']['attributes']['servicePay'] = service_pay_attribute
                       post path, params: params.to_json, headers: headers.merge(auth_header)
-                      expect(response.status).to eq(400)
+                      expect(response).to have_http_status(:bad_request)
                     end
                   end
                 end
@@ -1722,7 +1722,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(400)
+                    expect(response).to have_http_status(:bad_request)
                   end
                 end
               end
@@ -1742,7 +1742,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       params = json_data
                       params['data']['attributes']['servicePay'] = service_pay_attribute
                       post path, params: params.to_json, headers: headers.merge(auth_header)
-                      expect(response.status).to eq(200)
+                      expect(response).to have_http_status(:ok)
                     end
                   end
                 end
@@ -1761,7 +1761,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       params = json_data
                       params['data']['attributes']['servicePay'] = service_pay_attribute
                       post path, params: params.to_json, headers: headers.merge(auth_header)
-                      expect(response.status).to eq(200)
+                      expect(response).to have_http_status(:ok)
                     end
                   end
                 end
@@ -1773,12 +1773,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         describe "'payment'" do
           let(:service_pay_attribute) do
             {
-              'militaryRetiredPay': {
-                'receiving': true,
-                'willReceiveInFuture': false,
-                'payment': {
-                  'serviceBranch': 'Air Force',
-                  'amount': military_retired_payment_amount
+              militaryRetiredPay: {
+                receiving: true,
+                willReceiveInFuture: false,
+                payment: {
+                  serviceBranch: 'Air Force',
+                  amount: military_retired_payment_amount
                 }
               }
             }
@@ -1794,7 +1794,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(422)
+                  expect(response).to have_http_status(:unprocessable_entity)
                 end
               end
             end
@@ -1811,7 +1811,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(422)
+                    expect(response).to have_http_status(:unprocessable_entity)
                   end
                 end
               end
@@ -1829,7 +1829,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -1844,11 +1844,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             context "when 'militaryRetiredPay.futurePayExplanation' is not provided" do
               let(:service_pay_attribute) do
                 {
-                  'militaryRetiredPay': {
-                    'receiving': false,
-                    'willReceiveInFuture': will_receive_in_future,
-                    'payment': {
-                      'serviceBranch': 'Air Force'
+                  militaryRetiredPay: {
+                    receiving: false,
+                    willReceiveInFuture: will_receive_in_future,
+                    payment: {
+                      serviceBranch: 'Air Force'
                     }
                   }
                 }
@@ -1861,7 +1861,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(422)
+                    expect(response).to have_http_status(:unprocessable_entity)
                   end
                 end
               end
@@ -1870,12 +1870,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             context "when 'militaryRetiredPay.futurePayExplanation' is provided" do
               let(:service_pay_attribute) do
                 {
-                  'militaryRetiredPay': {
-                    'receiving': false,
-                    'willReceiveInFuture': will_receive_in_future,
-                    'futurePayExplanation': 'Retiring soon.',
-                    'payment': {
-                      'serviceBranch': 'Air Force'
+                  militaryRetiredPay: {
+                    receiving: false,
+                    willReceiveInFuture: will_receive_in_future,
+                    futurePayExplanation: 'Retiring soon.',
+                    payment: {
+                      serviceBranch: 'Air Force'
                     }
                   }
                 }
@@ -1889,7 +1889,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       params = json_data
                       params['data']['attributes']['servicePay'] = service_pay_attribute
                       post path, params: params.to_json, headers: headers.merge(auth_header)
-                      expect(response.status).to eq(200)
+                      expect(response).to have_http_status(:ok)
                     end
                   end
                 end
@@ -1903,12 +1903,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         describe "'payment'" do
           let(:service_pay_attribute) do
             {
-              'separationPay': {
-                'received': true,
-                'receivedDate': (Time.zone.today - 1.year).to_s,
-                'payment': {
-                  'serviceBranch': 'Air Force',
-                  'amount': separation_payment_amount
+              separationPay: {
+                received: true,
+                receivedDate: (Time.zone.today - 1.year).to_s,
+                payment: {
+                  serviceBranch: 'Air Force',
+                  amount: separation_payment_amount
                 }
               }
             }
@@ -1924,7 +1924,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(422)
+                  expect(response).to have_http_status(:unprocessable_entity)
                 end
               end
             end
@@ -1941,7 +1941,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(422)
+                    expect(response).to have_http_status(:unprocessable_entity)
                   end
                 end
               end
@@ -1959,7 +1959,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -1970,12 +1970,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         describe "'receivedDate'" do
           let(:service_pay_attribute) do
             {
-              'separationPay': {
-                'received': true,
-                'receivedDate': received_date,
-                'payment': {
-                  'serviceBranch': 'Air Force',
-                  'amount': 100
+              separationPay: {
+                received: true,
+                receivedDate: received_date,
+                payment: {
+                  serviceBranch: 'Air Force',
+                  amount: 100
                 }
               }
             }
@@ -1991,7 +1991,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
@@ -2008,7 +2008,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -2033,7 +2033,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(400)
+              expect(response).to have_http_status(:bad_request)
             end
           end
         end
@@ -2061,7 +2061,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -2097,7 +2097,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(400)
+              expect(response).to have_http_status(:bad_request)
             end
           end
         end
@@ -2133,7 +2133,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(400)
+              expect(response).to have_http_status(:bad_request)
             end
           end
         end
@@ -2162,7 +2162,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(400)
+              expect(response).to have_http_status(:bad_request)
             end
           end
         end
@@ -2189,7 +2189,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(400)
+              expect(response).to have_http_status(:bad_request)
             end
           end
         end
@@ -2217,7 +2217,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(400)
+              expect(response).to have_http_status(:bad_request)
             end
           end
         end
@@ -2244,7 +2244,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 ]
                 params['data']['attributes']['disabilities'] = disabilities
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
+                expect(response).to have_http_status(:bad_request)
               end
             end
           end
@@ -2277,7 +2277,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   ]
                   params['data']['attributes']['disabilities'] = disabilities
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -2299,7 +2299,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 ]
                 params['data']['attributes']['disabilities'] = disabilities
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
+                expect(response).to have_http_status(:bad_request)
               end
             end
           end
@@ -2324,7 +2324,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     ]
                     params['data']['attributes']['disabilities'] = disabilities
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(422)
+                    expect(response).to have_http_status(:unprocessable_entity)
                   end
                 end
               end
@@ -2348,7 +2348,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     ]
                     params['data']['attributes']['disabilities'] = disabilities
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -2370,7 +2370,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   ]
                   params['data']['attributes']['disabilities'] = disabilities
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(422)
+                  expect(response).to have_http_status(:unprocessable_entity)
                 end
               end
             end
@@ -2402,7 +2402,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       ]
                       params['data']['attributes']['disabilities'] = disabilities
                       post path, params: params.to_json, headers: headers.merge(auth_header)
-                      expect(response.status).to eq(422)
+                      expect(response).to have_http_status(:unprocessable_entity)
                     end
                   end
                 end
@@ -2428,7 +2428,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     ]
                     params['data']['attributes']['disabilities'] = disabilities
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -2458,7 +2458,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'] = disabilities
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
+                expect(response).to have_http_status(:bad_request)
               end
             end
           end
@@ -2482,7 +2482,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   ]
                   params['data']['attributes']['disabilities'] = disabilities
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -2514,12 +2514,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   params['data']['attributes']['disabilities'] = disabilities
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
 
-            it 'responds with a useful error message  ' do
+            it 'responds with a useful error message' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
@@ -2547,7 +2547,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['disabilities'] = disabilities
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -2568,12 +2568,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params['data']['attributes']['disabilities'] = disabilities
                   params['data']['attributes']['serviceInformation'].delete('confinements')
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
 
-            it 'responds with a useful error message ' do
+            it 'responds with a useful error message' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
@@ -2608,7 +2608,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params['data']['attributes']['disabilities'] = disabilities
                     params['data']['attributes']['serviceInformation']['confinements'] = confinements
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -2693,7 +2693,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['veteran']['currentMailingAddress']['addressLine3'] = 'Box 123'
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
               end
             end
           end
@@ -2709,7 +2709,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['veteran']['currentMailingAddress']['country'] = 'USA'
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
               end
             end
           end
@@ -2722,7 +2722,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               params = json_data
               params['data']['attributes']['veteran']['currentMailingAddress']['country'] = 'US'
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(400)
+              expect(response).to have_http_status(:bad_request)
             end
           end
         end
@@ -2740,7 +2740,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   params['data']['attributes'].delete('applicationExpirationDate')
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -2755,8 +2755,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
-                direct_deposit_info = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
-                                                                'form_526_direct_deposit.json'))
+                direct_deposit_info = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
+                                                      'form_526_direct_deposit.json').read
                 json_data = JSON.parse data
                 params = json_data
                 params['data']['attributes']['directDeposit'] = JSON.parse direct_deposit_info
@@ -2764,7 +2764,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
                 post path, params: params.to_json, headers: headers.merge(auth_header)
 
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
                 response_body = JSON.parse response.body
                 claim_id = response_body['data']['id']
                 claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
@@ -2781,8 +2781,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     let(:claim_date) { (Time.zone.today - 1.day).to_s }
     let(:auto_cest_pdf_generation_disabled) { false }
     let(:data_no_flashes) do
-      temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
-                                       'form_526_no_flashes_no_special_issues.json'))
+      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
+                             'form_526_no_flashes_no_special_issues.json').read
       temp = JSON.parse(temp)
       temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
       temp['data']['attributes']['claimDate'] = claim_date
@@ -2791,7 +2791,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       temp.to_json
     end
     let(:path) { '/services/claims/v1/forms/526' }
-    let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '526.json')) }
+    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '526.json').read }
 
     it 'sets the flashes and special_issues' do
       mock_acg(scopes) do |auth_header|
@@ -2812,22 +2812,22 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     let(:auto_claim) { create(:auto_established_claim) }
     let(:non_auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }
     let(:binary_params) do
-      { attachment1: Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+      { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
                                                                      .split('/')).to_s),
-        attachment2: Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+        attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
                                                                      .split('/')).to_s) }
     end
 
     let(:base64_params) do
-      { attachment1: File.read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s),
-        attachment2: File.read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
+      { attachment1: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s),
+        attachment2: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
     end
 
     context 'when no attachment is provided to the PUT endpoint' do
       it 'rejects the request for missing param' do
         mock_acg(scopes) do |auth_header|
           put("/services/claims/v1/forms/526/#{auto_claim.id}", headers: headers.merge(auth_header))
-          expect(response.status).to eq(400)
+          expect(response).to have_http_status(:bad_request)
           expect(response.parsed_body['errors'][0]['title']).to eq('Missing parameter')
           expect(response.parsed_body['errors'][0]['detail']).to eq('Must include attachment')
         end
@@ -2839,7 +2839,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{auto_claim.id}",
             params: binary_params, headers: headers.merge(auth_header))
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.file_data).to be_truthy
       end
@@ -2850,7 +2850,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{auto_claim.id}",
             params: base64_params, headers: headers.merge(auth_header))
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.file_data).to be_truthy
       end
@@ -2861,7 +2861,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{non_auto_claim.id}",
             params: binary_params, headers: headers.merge(auth_header))
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
@@ -2871,7 +2871,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
              params: binary_params, headers: headers.merge(auth_header))
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
       end
@@ -2883,7 +2883,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
              params: base64_params, headers: headers.merge(auth_header))
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
       end
@@ -2895,7 +2895,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         post("/services/claims/v1/forms/526/#{bad_id}/attachments",
              params: binary_params, headers: headers.merge(auth_header))
-        expect(response.status).to eq(404)
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -2919,7 +2919,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
              params: base64_params, headers: headers.merge(auth_header))
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
       end
@@ -2933,7 +2933,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
           put("/services/claims/v1/forms/526/#{auto_claim.id}",
               params: binary_params, headers: headers.merge(auth_header))
-          expect(response.status).to eq(404)
+          expect(response).to have_http_status(:not_found)
         end
       end
     end
@@ -2943,7 +2943,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     let(:claim_date) { (Time.zone.today - 1.day).to_s }
     let(:auto_cest_pdf_generation_disabled) { false }
     let(:data) do
-      temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json').read
       temp = JSON.parse(temp)
       temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
       temp['data']['attributes']['claimDate'] = claim_date
@@ -2959,7 +2959,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           VCR.use_cassette('claims_api/brd/countries') do
             json = JSON.parse(data)
             post path, params: json.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
             first_submit_parsed = JSON.parse(response.body)
             @original_id = first_submit_parsed['data']['id']
           end
@@ -2970,7 +2970,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           VCR.use_cassette('claims_api/brd/countries') do
             json = JSON.parse(data)
             post path, params: json.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
             duplicate_submit_parsed = JSON.parse(response.body)
             duplicate_id = duplicate_submit_parsed['data']['id']
             expect(@original_id).to eq(duplicate_id)

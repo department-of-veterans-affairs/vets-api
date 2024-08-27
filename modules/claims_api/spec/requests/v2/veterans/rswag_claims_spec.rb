@@ -38,18 +38,14 @@ describe 'Claims',
       describe 'Getting a successful response' do
         response '200', 'claim response' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans', 'claims',
-                              'claims.json')
-            )
+            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans', 'claims',
+                            'claims.json').read
           )
 
           let(:bgs_response) do
             bgs_data = JSON.parse(
-              File.read(
-                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'claims',
-                                'claims_by_participant_id_response.json')
-              ),
+              Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'claims',
+                              'claims_by_participant_id_response.json').read,
               symbolize_names: true
             )
             bgs_data[:benefit_claims_dto][:benefit_claim][0][:claim_dt] = Date.parse(
@@ -88,8 +84,8 @@ describe 'Claims',
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
 
           let(:Authorization) { nil }
           let(:scopes) { %w[system/claim.read] }
@@ -158,18 +154,14 @@ describe 'Claims',
       describe 'Getting a successful response' do
         response '200', 'claim response' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans', 'claims',
-                              'claim.json')
-            )
+            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans', 'claims',
+                            'claim.json').read
           )
 
           let(:bgs_response) do
             bgs_data = JSON.parse(
-              File.read(
-                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'claims',
-                                'claim_by_id_response.json')
-              ),
+              Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'claims',
+                              'claim_by_id_response.json').read,
               symbolize_names: true
             )
             bgs_data[:benefit_claim_details_dto][:claim_dt] = Date.parse(
@@ -210,8 +202,8 @@ describe 'Claims',
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
 
           let(:Authorization) { nil }
           let(:scopes) { %w[system/claim.read] }
@@ -237,9 +229,7 @@ describe 'Claims',
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
-            )
+            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json').read
           )
           let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
           let(:scopes) { %w[system/claim.read] }

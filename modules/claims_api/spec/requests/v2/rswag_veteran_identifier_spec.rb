@@ -49,9 +49,7 @@ describe 'Veteran Identifier', openapi_spec: Rswag::TextHelpers.new.claims_api_d
       describe 'Getting a successful response' do
         response '201', "Veteran's unique identifier" do
           schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'veteran_identifier', 'submission.json')
-            )
+            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'veteran_identifier', 'submission.json').read
           )
 
           before do |example|
@@ -93,9 +91,7 @@ describe 'Veteran Identifier', openapi_spec: Rswag::TextHelpers.new.claims_api_d
 
           response '400', 'Bad Request' do
             schema JSON.parse(
-              File.read(
-                Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
-              )
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json').read
             )
 
             it 'returns a 400 response' do |example|
@@ -122,9 +118,7 @@ describe 'Veteran Identifier', openapi_spec: Rswag::TextHelpers.new.claims_api_d
 
         response '401', 'Unauthorized' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
-            )
+            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json').read
           )
 
           it 'returns a 401 response' do |example|
@@ -153,9 +147,7 @@ describe 'Veteran Identifier', openapi_spec: Rswag::TextHelpers.new.claims_api_d
 
         response '404', 'Resource not found' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
-            )
+            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json').read
           )
 
           it 'returns a 404 response' do |example|

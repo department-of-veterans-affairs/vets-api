@@ -39,7 +39,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
           it 'returns a 200' do
             mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -47,7 +47,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
         context 'when not provided' do
           it 'returns a 401 error code' do
             get itf_type_path
-            expect(response.status).to eq(401)
+            expect(response).to have_http_status(:unauthorized)
           end
         end
       end
@@ -69,7 +69,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
           it 'returns a 400' do
             mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
-              expect(response.status).to eq(400)
+              expect(response).to have_http_status(:bad_request)
             end
           end
         end
@@ -80,7 +80,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
           it 'returns a 200' do
             mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -91,7 +91,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
           it 'returns a 200' do
             mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -103,7 +103,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
             it 'returns a 200' do
               mock_ccg(scopes) do |auth_header|
                 get itf_type_path, headers: auth_header
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
               end
             end
           end
@@ -114,7 +114,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
             it 'returns a 200' do
               mock_ccg(scopes) do |auth_header|
                 get itf_type_path, headers: auth_header
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
               end
             end
           end
@@ -125,7 +125,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
             it 'returns a 200' do
               mock_ccg(scopes) do |auth_header|
                 get itf_type_path, headers: auth_header
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
               end
             end
           end
@@ -138,7 +138,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
         it 'returns a 404' do
           mock_ccg(scopes) do |auth_header|
             get itf_type_path, headers: auth_header
-            expect(response.status).to eq(404)
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
@@ -169,7 +169,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
               get itf_type_path, headers: auth_header
 
               parsed_response = JSON.parse(response.body)
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
               expect(parsed_response['data']['id']).to eq('2')
             end
           end
@@ -199,7 +199,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
             mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
 
-              expect(response.status).to eq(404)
+              expect(response).to have_http_status(:not_found)
             end
           end
         end
@@ -228,7 +228,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
             mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
 
-              expect(response.status).to eq(404)
+              expect(response).to have_http_status(:not_found)
             end
           end
         end
@@ -250,7 +250,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
             mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
 
-              expect(response.status).to eq(404)
+              expect(response).to have_http_status(:not_found)
             end
           end
         end
@@ -270,7 +270,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
             mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
 
-              expect(response.status).to eq(404)
+              expect(response).to have_http_status(:not_found)
             end
           end
         end
@@ -294,14 +294,14 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
               mock_ccg(scopes) do |auth_header|
                 get itf_type_path, headers: auth_header
               end
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
 
           context 'when not valid' do
             it 'returns a 401' do
               get itf_type_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
-              expect(response.status).to eq(401)
+              expect(response).to have_http_status(:unauthorized)
             end
           end
         end
@@ -345,7 +345,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
           it 'returns a 200' do
             mock_ccg(scopes) do |auth_header|
               post itf_submit_path, params: data, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
 
@@ -360,7 +360,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
         context 'when not provided' do
           it 'returns a 401 error code' do
             post itf_submit_path, params: data
-            expect(response.status).to eq(401)
+            expect(response).to have_http_status(:unauthorized)
           end
         end
       end
@@ -370,7 +370,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
           it 'returns a 200' do
             mock_ccg(scopes) do |auth_header|
               post itf_submit_path, params: data, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -389,7 +389,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
               it 'returns a 400' do
                 mock_ccg(scopes) do |auth_header|
                   post itf_submit_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
@@ -401,7 +401,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = ''
 
                   post itf_submit_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
@@ -413,7 +413,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = nil
 
                   post itf_submit_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
@@ -425,7 +425,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = 'foo'
 
                   post itf_submit_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
@@ -439,7 +439,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                   survivor_data[:data][:attributes][:type] = 'survivor'
                   survivor_data[:data][:attributes][:claimantSsn] = '123456789'
                   post itf_submit_path, params: survivor_data, headers: auth_header
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
 
@@ -450,7 +450,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                     survivor_data[:data][:attributes][:type] = 'survivor'
                     survivor_data[:data][:attributes][:claimantSsn] = '123-45-6789'
                     post itf_submit_path, params: survivor_data, headers: auth_header
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -462,7 +462,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                   survivor_data = data
                   survivor_data[:data][:attributes][:type] = 'survivor'
                   post itf_submit_path, params: survivor_data, headers: auth_header
-                  expect(response.status).to eq(422)
+                  expect(response).to have_http_status(:unprocessable_entity)
                 end
               end
             end
@@ -474,7 +474,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                   survivor_data[:data][:attributes][:type] = 'survivor'
                   survivor_data[:data][:attributes][:claimantSsn] = 'abcdefghi'
                   post itf_submit_path, params: survivor_data, headers: auth_header
-                  expect(response.status).to eq(422)
+                  expect(response).to have_http_status(:unprocessable_entity)
                 end
               end
             end
@@ -488,7 +488,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
               valid_data[:data][:attributes][:type] = 'CoMpEnSaTiOn'
 
               post itf_submit_path, params: valid_data, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -501,7 +501,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
               mock_ccg(scopes) do |auth_header|
                 post itf_submit_path, params: data, headers: auth_header
               end
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
 
@@ -509,7 +509,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
             it 'returns a 401' do
               post itf_submit_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(401)
+              expect(response).to have_http_status(:unauthorized)
             end
           end
         end
@@ -550,7 +550,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
           it 'returns a 200' do
             mock_ccg(scopes) do |auth_header|
               post itf_validate_path, params: data, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -558,7 +558,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
         context 'when not provided' do
           it 'returns a 401 error code' do
             post itf_validate_path, params: data
-            expect(response.status).to eq(401)
+            expect(response).to have_http_status(:unauthorized)
           end
         end
       end
@@ -568,7 +568,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
           it 'returns a 200' do
             mock_ccg(scopes) do |auth_header|
               post itf_validate_path, params: data, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -582,7 +582,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = 'survivor'
                   invalid_data[:data][:attributes][:claimantSsn] = ''
                   post itf_validate_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(422)
+                  expect(response).to have_http_status(:unprocessable_entity)
                 end
               end
             end
@@ -596,7 +596,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = ''
 
                   post itf_validate_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
@@ -608,7 +608,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = nil
 
                   post itf_validate_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
@@ -620,7 +620,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = 'foo'
 
                   post itf_validate_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  expect(response).to have_http_status(:bad_request)
                 end
               end
             end
@@ -634,7 +634,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
               valid_data[:data][:attributes][:type] = 'CoMpEnSaTiOn'
 
               post itf_validate_path, params: valid_data, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -648,7 +648,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
                 post itf_validate_path, params: data, headers: auth_header
               end
 
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
 
@@ -656,7 +656,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
             it 'returns a 401' do
               post itf_validate_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(401)
+              expect(response).to have_http_status(:unauthorized)
             end
           end
         end
@@ -698,7 +698,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
         it 'returns 200 when submitting to SUBMIT with correct body format' do
           mock_ccg(scopes) do |auth_header|
             post itf_submit_path, params: data, headers: auth_header
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           end
         end
 
@@ -706,14 +706,14 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
           mock_ccg(scopes) do |auth_header|
             invalid_data_format = data[:data][:attributes]
             post itf_submit_path, params: invalid_data_format, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
 
         it 'returns 200 when submitting to VALIDATE with correct body format' do
           mock_ccg(scopes) do |auth_header|
             post itf_validate_path, params: data, headers: auth_header
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           end
         end
 
@@ -721,7 +721,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFiles', type: :request do
           mock_ccg(scopes) do |auth_header|
             invalid_data_format = data[:data][:attributes]
             post itf_validate_path, params: invalid_data_format, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end

@@ -58,13 +58,13 @@ describe 'EvidenceWaiver5103',
 
       describe 'Getting a successful response' do
         response '202', 'Successful response' do
-          schema JSON.parse(File.read(Rails.root.join('spec',
-                                                      'support',
-                                                      'schemas',
-                                                      'claims_api',
-                                                      'v2',
-                                                      'veterans',
-                                                      'submit_waiver_5103.json')))
+          schema JSON.parse(Rails.root.join('spec',
+                                            'support',
+                                            'schemas',
+                                            'claims_api',
+                                            'v2',
+                                            'veterans',
+                                            'submit_waiver_5103.json').read)
 
           let(:scopes) { %w[system/claim.write] }
           let(:evidence_waiver_submission_request) {}
@@ -102,8 +102,8 @@ describe 'EvidenceWaiver5103',
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
 
           let(:Authorization) { nil }
           let(:scopes) { %w[system/claim.read] }
@@ -129,8 +129,8 @@ describe 'EvidenceWaiver5103',
 
       describe 'Getting a 404 response' do
         response '404', 'NotFound' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
 
           let(:Authorization) { nil }
           let(:scopes) { %w[system/claim.read] }

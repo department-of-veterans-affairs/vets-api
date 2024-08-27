@@ -4,8 +4,8 @@ require 'rails_helper'
 require 'token_validation/v2/client'
 require_relative '../../rails_helper'
 
-RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
-                                              openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
+RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', openapi_spec: Rswag::TextHelpers.new.claims_api_docs,
+                                                   type: :request do
   let(:path) { '/services/claims/v2/veteran-id:find' }
   let(:data) do
     {
@@ -33,7 +33,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
               icn = JSON.parse(response.body)['id']
 
               expect(icn).to eq(test_user_icn)
-              expect(response.status).to eq(201)
+              expect(response).to have_http_status(:created)
             end
           end
         end
@@ -63,7 +63,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
               icn = JSON.parse(response.body)['id']
 
               expect(icn).to eq(test_user_icn)
-              expect(response.status).to eq(201)
+              expect(response).to have_http_status(:created)
             end
           end
         end
@@ -79,7 +79,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
             mock_ccg(scopes) do |auth_header|
               post path, params: data, headers: auth_header
 
-              expect(response.status).to eq(201)
+              expect(response).to have_http_status(:created)
             end
           end
         end
@@ -89,7 +89,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
             mock_ccg(scopes) do |auth_header|
               allow_any_instance_of(ClaimsApi::ValidatedToken).to receive(:validated_token_data).and_return(nil)
               post path, params: data, headers: auth_header
-              expect(response.status).to eq(401)
+              expect(response).to have_http_status(:unauthorized)
             end
           end
         end
@@ -102,7 +102,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
       it 'returns a 400 error code' do
         mock_ccg(scopes) do |auth_header|
           post path, params: data, headers: auth_header
-          expect(response.status).to eq(400)
+          expect(response).to have_http_status(:bad_request)
         end
       end
     end
@@ -110,7 +110,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
     context 'when auth header is not present' do
       it 'returns a 401 error code' do
         post path, params: data
-        expect(response.status).to eq(401)
+        expect(response).to have_http_status(:unauthorized)
       end
     end
 
@@ -121,7 +121,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
         allow(veteran_mpi_data).to receive(:icn).and_return(nil)
         mock_ccg(scopes) do |auth_header|
           post path, params: data, headers: auth_header
-          expect(response.status).to eq(404)
+          expect(response).to have_http_status(:not_found)
         end
       end
     end
@@ -134,7 +134,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
             invalid_data[:ssn] = '7961301159'
 
             post path, params: invalid_data, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -146,7 +146,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
             invalid_data[:ssn] = '79613011'
 
             post path, params: invalid_data, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -158,7 +158,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
             invalid_data[:ssn] = '796130 .A!'
 
             post path, params: invalid_data, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -170,7 +170,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
             invalid_data[:ssn] = ''
 
             post path, params: invalid_data, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -184,7 +184,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
             invalid_data[:birthdate] = '1234'
 
             post path, params: invalid_data, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -196,7 +196,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
             invalid_data[:birthdate] = (Time.zone.today + 1.year).to_s
 
             post path, params: invalid_data, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -209,7 +209,7 @@ RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', type: :request,
         it 'returns a 404 error code' do
           mock_ccg(scopes) do |auth_header|
             post path, params: data, headers: auth_header
-            expect(response.status).to eq(404)
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
