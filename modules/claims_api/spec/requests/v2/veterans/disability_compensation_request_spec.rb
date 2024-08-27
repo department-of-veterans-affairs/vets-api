@@ -4575,6 +4575,85 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
     end
+
+    describe 'POST #generate_pdf' do
+      let(:veteran_id) { '1012832025V743496' }
+      let(:invalid_scopes) { %w[claim.write claim.read] }
+      let(:generate_pdf_scopes) { %w[system/526-pdf.override] }
+      let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF/minimum-validations" }
+
+      context 'valid data' do
+        it 'responds with a 200' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response.header['Content-Disposition']).to include('filename')
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'invalid scopes' do
+        it 'returns a 401 unauthorized' do
+          mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unauthorized)
+          end
+        end
+      end
+
+      context 'without the first and last name present' do
+        it 'does not allow the generatePDF call to occur' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+              .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
+            allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+              .to receive(:veteran_middle_initial).and_return('')
+
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response.parsed_body['errors'][0]['detail']).to eq('Must have either first or last name')
+          end
+        end
+      end
+
+      context 'without the first name present' do
+        it 'allows the generatePDF call to occur' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+              .to receive(:target_veteran).and_return(no_first_name_target_veteran)
+            allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+              .to receive(:veteran_middle_initial).and_return('')
+
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'when the PDF string is not generated' do
+        it 'returns a 422 response when empty object is returned' do
+          allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+            .to receive(:generate_526_pdf)
+            .and_return({})
+
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+
+        it 'returns a 422 response if nil gets returned' do
+          allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+            .to receive(:generate_526_pdf)
+            .and_return(nil)
+
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+      end
+    end
   end
 
   describe 'POST #submit not using md5 lookup' do
