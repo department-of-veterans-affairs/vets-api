@@ -22,6 +22,7 @@ module ClaimsApi
       VnpAtchmsWebServiceBean/VnpAtchmsService
       VnpPersonWebServiceBean/VnpPersonService
       VnpProcFormWebServiceBean/VnpProcFormService
+      VnpProcWebServiceBeanV2/VnpProcServiceV2
     ].freeze
 
     # rubocop:disable Metrics/MethodLength
