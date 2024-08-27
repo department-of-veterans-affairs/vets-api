@@ -110,6 +110,72 @@ module ClaimsApi
       end
 
       ##
+      # IntentToFileWebServiceBean
+      #
+
+      ##
+      # OrgWebServiceBean
+      #
+      module OrgWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'OrgWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://org.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module OrgWebService
+        DEFINITION =
+          Service.new(
+            bean: OrgWebServiceBean::DEFINITION,
+            path: 'OrgWebService'
+          )
+
+        module FindOrgBySSN
+          DEFINITION =
+            Action.new(
+              service: OrgWebService::DEFINITION,
+              name: 'findPoaHistoryByPtcpntId',
+              key: 'PoaHistory'
+            )
+        end
+      end
+
+      ##
+      # PersonWebServiceBean
+      #
+      module PersonWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'PersonWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://person.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module PersonWebService
+        DEFINITION =
+          Service.new(
+            bean: PersonWebServiceBean::DEFINITION,
+            path: 'PersonWebService'
+          )
+
+        module FindPersonBySSN
+          DEFINITION =
+            Action.new(
+              service: PersonWebService::DEFINITION,
+              name: 'findPersonBySSN',
+              key: 'PersonDTO'
+            )
+        end
+      end
+
+      ##
       # VdcBean
       #
       module VdcBean
@@ -167,37 +233,6 @@ module ClaimsApi
         end
       end
 
-      ##
-      # PersonWebServiceBean
-      #
-      module PersonWebServiceBean
-        DEFINITION =
-          Bean.new(
-            path: 'PersonWebServiceBean',
-            namespaces: Namespaces.new(
-              target: 'http://person.services.vetsnet.vba.va.gov/',
-              data: nil
-            )
-          )
-      end
-
-      module PersonWebService
-        DEFINITION =
-          Service.new(
-            bean: PersonWebServiceBean::DEFINITION,
-            path: 'PersonWebService'
-          )
-
-        module FindPersonBySSN
-          DEFINITION =
-            Action.new(
-              service: PersonWebService::DEFINITION,
-              name: 'findPersonBySSN',
-              key: 'PersonDTO'
-            )
-        end
-      end
-
       module VeteranRepresentativeService
         DEFINITION =
           Service.new(
@@ -224,33 +259,142 @@ module ClaimsApi
         end
       end
 
-      ##
-      # OrgWebServiceBean
       #
-      module OrgWebServiceBean
+      # VnpAtchmsWebServiceBean
+      #
+      module VnpAtchmsWebServiceBean
         DEFINITION =
           Bean.new(
-            path: 'OrgWebServiceBean',
+            path: 'VnpAtchmsWebServiceBean',
             namespaces: Namespaces.new(
-              target: 'http://org.services.vetsnet.vba.va.gov/',
+              target: 'http://atchmsService.services.vonapp.vba.va.gov/',
               data: nil
             )
           )
       end
 
-      module OrgWebService
+      module VnpAtchmsService
         DEFINITION =
           Service.new(
-            bean: OrgWebServiceBean::DEFINITION,
-            path: 'OrgWebService'
+            bean: VnpAtchmsWebServiceBean::DEFINITION,
+            path: 'VnpAtchmsService'
           )
 
-        module FindOrgBySSN
+        module VnpAtchmsCreate
           DEFINITION =
             Action.new(
-              service: OrgWebService::DEFINITION,
-              name: 'findPoaHistoryByPtcpntId',
-              key: 'PoaHistory'
+              service: VnpAtchmsService::DEFINITION,
+              name: 'vnpAtchmsCreate',
+              key: 'return'
+            )
+        end
+      end
+
+      #
+      ## VnpPersonService
+      #
+      module VnpPersonWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpPersonWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://personService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpPersonService
+        DEFINITION =
+          Service.new(
+            bean: VnpPersonWebServiceBean::DEFINITION,
+            path: 'VnpPersonService'
+          )
+
+        module FindPoaByParticipantId
+          DEFINITION =
+            Action.new(
+              service: VnpPersonService::DEFINITION,
+              name: 'vnpPersonCreate',
+              key: 'return'
+            )
+        end
+      end
+
+      ##
+      # VnpProcFormWebServiceBean
+      #
+
+      ##
+      # VnpProcWebServiceBeanV2
+      #
+      module VnpProcWebServiceBeanV2
+        DEFINITION =
+          Bean.new(
+            path: 'VnpProcWebServiceBeanV2',
+            namespaces: Namespaces.new(
+              target: 'http://procService.services.v2.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpProcServiceV2
+        DEFINITION =
+          Service.new(
+            bean: VnpProcWebServiceBeanV2::DEFINITION,
+            path: 'VnpProcServiceV2'
+          )
+
+        module VnpProcCreate
+          DEFINITION =
+            Action.new(
+              service: VnpProcServiceV2::DEFINITION,
+              name: 'vnpProcCreate',
+              key: 'return'
+            )
+        end
+      end
+
+      ##
+      # VnpPtcpntAddrsWebServiceBean
+      #
+
+      ##
+      # VnpPtcpntPhoneWebServiceBean
+      #
+
+      ##
+      # VnpPtcpntWebServiceBean
+      #
+
+      ##
+      # VnpProcFormWebServiceBean
+      #
+      module VnpProcFormWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpProcFormWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://procFormService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpProcFormService
+        DEFINITION =
+          Service.new(
+            bean: VnpProcFormWebServiceBean::DEFINITION,
+            path: 'VnpProcFormService'
+          )
+
+        module VnpProcFormCreate
+          DEFINITION =
+            Action.new(
+              service: VnpProcFormService::DEFINITION,
+              name: 'vnpProcFormCreate',
+              key: 'return'
             )
         end
       end
