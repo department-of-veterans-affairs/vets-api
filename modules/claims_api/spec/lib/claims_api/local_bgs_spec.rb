@@ -107,17 +107,6 @@ describe ClaimsApi::LocalBGS do
     end
   end
 
-  describe '#find_poas' do
-    it 'responds as expected' do
-      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poas') do
-        result = subject.find_poas
-        expect(result).to be_a Array
-        expect(result.first).to be_a Hash
-        expect(result.first[:legacy_poa_cd]).to eq '002'
-      end
-    end
-  end
-
   # Testing potential ways the current check could be tricked
   describe '#all' do
     let(:subject_instance) { subject }

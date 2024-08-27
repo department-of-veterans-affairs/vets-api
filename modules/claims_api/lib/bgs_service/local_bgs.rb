@@ -94,11 +94,6 @@ module ClaimsApi
                    key: 'return')
     end
 
-    def find_poas
-      make_request(endpoint: 'StandardDataWebServiceBean/StandardDataWebService', action: 'findPOAs', body: nil,
-                   key: 'PowerOfAttorneyDTO')
-    end
-
     def find_by_ssn(ssn)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <ssn />
