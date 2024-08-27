@@ -549,7 +549,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
     end
 
     context 'show with validate_id_with_icn when there is a claimant ID in place of the veteran ID' do
-      describe ' BGS attributes (w/ Claimant ID replacing vet ID)' do
+      describe 'BGS attributes (w/ Claimant ID replacing vet ID)' do
         it 'are listed' do
           bgs_claim_response = build(:bgs_response_claim_with_unmatched_ptcpnt_vet_id).to_h
           lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: '2023062086V8675309',
