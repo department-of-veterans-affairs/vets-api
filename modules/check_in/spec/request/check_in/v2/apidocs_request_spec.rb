@@ -9,7 +9,7 @@ RSpec.describe 'CheckIn::V2::Apidocs', type: :request do
     it 'is successful' do
       get '/check_in/v2/apidocs'
 
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
     end
 
     it 'is a hash' do
