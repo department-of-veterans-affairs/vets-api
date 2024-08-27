@@ -8,7 +8,6 @@ module VAProfile
   module Profile
     module V3
       class HealthBenefitBioResponse < VAProfile::Response
-        attribute :body, String
         attribute :code, String
         attribute :contacts, Array[VAProfile::Models::AssociatedPerson]
         attribute :messages, Array[VAProfile::Models::Message]
