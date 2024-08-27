@@ -6,10 +6,10 @@ module KmsEncryptedModelPatch
   # Update #kms_key_rotation_date method if rotation date changes from 10/12
 
   # rubocop:disable Naming/PredicateName
-  def has_kms_key
+  def has_kms_key(**args)
     # implicitly calls #has_kms_key with specified options, so that we don't need to require it
     # of future encrypted models
-    super(**kms_options)
+    super(**args.merge(kms_options))
   end
   # rubocop:enable Naming/PredicateName
 
