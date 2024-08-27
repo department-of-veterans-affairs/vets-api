@@ -82,9 +82,7 @@ module TravelPay
     end
 
     def request_sts_token(user)
-      return nil if mock_enabled?
-
-      host_baseurl = build_host_baseurl({ ip_form: false })
+      host_baseurl = "https://#{Settings.hostname}"
       private_key_file = Settings.sign_in.sts_client.key_path
       private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
 
@@ -119,17 +117,15 @@ module TravelPay
 
     def build_sts_assertion(user)
       service_account_id = Settings.travel_pay.sts.service_account_id
-      host_baseurl = build_host_baseurl({ ip_form: false })
-      audience_baseurl = build_host_baseurl({ ip_form: true })
       scopes = Settings.travel_pay.sts.scope.blank? ? [] : [Settings.travel_pay.sts.scope]
 
       current_time = Time.now.to_i
       jti = SecureRandom.uuid
 
       {
-        'iss' => host_baseurl,
+        'iss' => "https://#{Settings.hostname}",
         'sub' => user.email,
-        'aud' => "#{audience_baseurl}/v0/sign_in/token",
+        'aud' => "https://#{Settings.hostname}/v0/sign_in/token",
         'iat' => current_time,
         'exp' => current_time + 300,
         'scopes' => scopes,
@@ -137,21 +133,6 @@ module TravelPay
         'jti' => jti,
         'user_attributes' => { 'icn' => user.icn }
       }
-    end
-
-    def build_host_baseurl(config)
-      env = Settings.vsp_environment
-      host = Settings.hostname
-
-      if env == 'localhost'
-        if config[:ip_form]
-          return 'http://127.0.0.1:3000'
-        else
-          return 'http://localhost:3000'
-        end
-      end
-
-      "https://#{host}"
     end
 
     def veis_params
