@@ -169,15 +169,52 @@ module SimpleFormsApi
       end
 
       def upload_pdf(file_path, metadata, form)
-        location, uuid = request_upload_and_save_form_submission_attempt(form)
-        Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info(
-          'Simple forms api - preparing to upload PDF to benefits intake',
-          { location:, uuid: }
-        )
-        response = lighthouse_service.perform_upload(metadata: metadata.to_json, document: file_path,
-                                                     upload_url: location)
+        location, uuid = prepare_for_upload(form)
+        log_upload_details(location, uuid)
+        response = perform_pdf_upload(location, file_path, metadata)
+
         [response.status, uuid]
+      end
+
+      def prepare_for_upload(form)
+        location, uuid = lighthouse_service.request_upload
+        stamp_pdf_with_uuid(form, uuid)
+        create_form_submission_attempt(uuid)
+
+        [location, uuid]
+      end
+
+      def stamp_pdf_with_uuid(form, uuid)
+        # Stamp uuid on 40-10007
+        pdf_stamper = SimpleFormsApi::PdfStamper.new('tmp/vba_40_10007-tmp.pdf', form)
+        pdf_stamper.stamp_uuid(uuid)
+      end
+
+      def create_form_submission_attempt(uuid)
+        form_submission = create_form_submission(uuid)
+        FormSubmissionAttempt.create(form_submission:)
+      end
+
+      def create_form_submission(uuid)
+        FormSubmission.create(
+          form_type: params[:form_number],
+          benefits_intake_uuid: uuid,
+          form_data: params.to_json,
+          user_account: @current_user&.user_account
+        )
+      end
+
+      def log_upload_details(location, uuid)
+        Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
+        Rails.logger.info('Simple forms api - preparing to upload PDF to benefits intake', { location:, uuid: })
+      end
+
+      def perform_pdf_upload(location, file_path, metadata)
+        lighthouse_service.perform_upload(
+          metadata: metadata.to_json,
+          document: file_path,
+          upload_url: location
+        )
       end
 
       def request_upload_and_save_form_submission_attempt(form)
