@@ -7,7 +7,7 @@ data:
       cancelId: null
       comment: null
       healthcareProvider: Vilasini Reddy
-      healthcareService: Test clinic 2
+      healthcareService: null
       location:
         id: null
         name: Test clinic 2
