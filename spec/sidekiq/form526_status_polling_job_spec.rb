@@ -3,7 +3,6 @@
 
 require 'rails_helper'
 
-# [wipn8923] update to remove paranoid type
 RSpec.describe Form526StatusPollingJob, type: :job do
   describe '#perform' do
     let!(:new_submission) { create(:form526_submission) }
