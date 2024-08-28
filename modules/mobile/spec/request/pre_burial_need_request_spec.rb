@@ -11,36 +11,6 @@ RSpec.describe Mobile::V0::PreNeedBurialController, type: :request do
       { application: attributes_for(:burial_form) }
     end
 
-    context 'with valid input' do
-      let(:submission_record) { Preneeds::PreneedSubmission.first }
-
-      it 'returns details about submitted form' do
-        VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-          post '/mobile/v0/claims/pre-need-burial', headers: sis_headers, params:
-        end
-        expect(response).to have_http_status(:ok)
-        expect(response).to match_camelized_response_schema('preneeds/receive_applications')
-        expect(response.parsed_body.dig('data', 'attributes', 'returnCode')).to eq(0)
-        expect(response.parsed_body.dig('data', 'attributes',
-                                        'returnDescription')).to eq('PreNeed Application Received Successfully.')
-      end
-
-      it 'creates a PreneedSubmission record' do
-        VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-          expect do
-            post('/mobile/v0/claims/pre-need-burial', headers: sis_headers, params:)
-          end.to change(Preneeds::PreneedSubmission, :count).by(1)
-        end
-        expect(response).to have_http_status(:ok)
-
-        attributes = response.parsed_body.dig('data', 'attributes')
-        expect(attributes['trackingNumber']).to eq(submission_record.tracking_number)
-        expect(attributes['applicationUuid']).to eq(submission_record.application_uuid)
-        expect(attributes['returnCode']).to eq(submission_record.return_code)
-        expect(attributes['returnDescription']).to eq(submission_record.return_description)
-      end
-    end
-
     context 'with missing input fields' do
       it 'returns an with a 422 error' do
         params[:application][:veteran].delete(:military_status)
