@@ -330,8 +330,6 @@ Rails.application.routes.draw do
       resources :communication_preferences, only: %i[index create update]
       resources :contacts, only: %i[index]
 
-      resources :ch33_bank_accounts, only: %i[index]
-      put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
     end

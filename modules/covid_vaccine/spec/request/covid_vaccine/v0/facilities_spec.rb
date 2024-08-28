@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'lighthouse/facilities/client'
 
-RSpec.describe 'Covid Vaccine Facilities', type: :request do
+RSpec.describe 'CovidVaccine::V0::Facilities', type: :request do
   include SchemaMatchers
 
   let(:zip) { '60607' }

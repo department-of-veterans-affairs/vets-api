@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Covid Vaccine Registration', type: :request do
+RSpec.describe 'CovidVaccine::V0::Registration', type: :request do
   include SchemaMatchers
 
   let(:loa1_user) { build(:user, :vaos, :loa1) }
@@ -312,12 +312,12 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
         let!(:submission1) do
           create(:covid_vax_registration,
                  account_id: loa3_user.account_uuid,
-                 created_at: Time.zone.now - 2.minutes)
+                 created_at: 2.minutes.ago)
         end
         let!(:submission2) do
           create(:covid_vax_registration,
                  account_id: loa3_user.account_uuid,
-                 created_at: Time.zone.now - 1.minute)
+                 created_at: 1.minute.ago)
         end
 
         it 'returns the latest one' do

@@ -96,7 +96,6 @@ module Users
       if Flipper.enabled?(:profile_user_claims, user)
         {
           appeals: AppealsPolicy.new(user).access?,
-          ch33_bank_accounts: Ch33DdPolicy.new(user).access?,
           coe: CoePolicy.new(user).access?,
           communication_preferences: Vet360Policy.new(user).access? &&
             CommunicationPreferencesPolicy.new(user).access?,
