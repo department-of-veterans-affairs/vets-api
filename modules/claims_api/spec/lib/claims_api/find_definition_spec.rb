@@ -35,6 +35,17 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
       end
 
       context 'IntentToFileWebServiceBean' do
+        let(:endpoint) { 'IntentToFileWebServiceBean/IntentToFileWebService' }
+        let(:action) { 'insertIntentToFile' }
+        let(:key) { 'IntentToFileDTO' }
+
+        it 'response with the correct attributes' do
+          result = subject.for_action(endpoint, action)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['service']['bean']['path']).to eq 'IntentToFileWebServiceBean'
+          expect(parsed_result['service']['path']).to eq 'IntentToFileWebService'
+          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://intenttofile.services.vetsnet.vba.va.gov/'
+        end
       end
 
       context 'OrgWebServiceBean' do
@@ -60,6 +71,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         it 'response with the correct attributes' do
           result = subject.for_action(endpoint, action)
           parsed_result = JSON.parse(result.to_json)
+
           expect(parsed_result['service']['bean']['path']).to eq 'PersonWebServiceBean'
           expect(parsed_result['service']['path']).to eq 'PersonWebService'
           expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://person.services.vetsnet.vba.va.gov/'
@@ -217,6 +229,15 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
       end
 
       context 'IntentToFileWebServiceBean' do
+        let(:endpoint) { 'IntentToFileWebServiceBean/IntentToFileWebService' }
+
+        it 'response with the correct namespace' do
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'IntentToFileWebServiceBean'
+          expect(parsed_result['path']).to eq 'IntentToFileWebService'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://intenttofile.services.vetsnet.vba.va.gov/'
+        end
       end
 
       context 'OrgWebService' do
@@ -231,7 +252,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         end
       end
 
-      context 'PersonWebServiceBean' do
+      context 'PersonWebService' do
         let(:endpoint) { 'PersonWebServiceBean/PersonWebService' }
 
         it 'response with the correct namespace' do
