@@ -766,10 +766,7 @@ module ClaimsApi
         invalid_end_date = detect_invalid_active_duty_enddate(service_information).is_a?(Array)
 
         need_locations = service_information['servicePeriods'].detect do |service_period|
-          if invalid_end_date && service_period['activeDutyEndDate']
-            Date.strptime(service_period['activeDutyEndDate'],
-                          '%Y-%m-%d') > Time.zone.today
-          end
+          service_period['separationLocationCode'].blank?
         end
         separation_locations = retrieve_separation_locations if need_locations
 

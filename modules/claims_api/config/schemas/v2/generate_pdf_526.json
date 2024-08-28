@@ -672,7 +672,7 @@
             "nullable": true
           },
           "treatedDisabilityNames": {
-            "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+            "description": "Name(s) of disabilities treated in this time frame.",
             "type": ["array", "null"],
             "nullable": true,
             "maxItems": 101,

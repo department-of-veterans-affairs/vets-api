@@ -136,16 +136,16 @@
                       "type": "evss_claims",
                       "attributes": {
                         "evss_id": 600354175,
+                        "open": false,
+                        "waiver_submitted": false,
+                        "requested_decision": false,
+                        "claim_type": "Compensation",
                         "date_filed": "2022-12-01",
                         "min_est_date": null,
                         "max_est_date": null,
-                        "open": false,
-                        "waiver_submitted": false,
-                        "documents_needed": false,
                         "development_letter_sent": false,
                         "decision_letter_sent": false,
-                        "requested_decision": false,
-                        "claim_type": "Compensation",
+                        "documents_needed": false,
                         "status": "Complete"
                       }
                     },
@@ -154,16 +154,16 @@
                       "type": "evss_claims",
                       "attributes": {
                         "evss_id": 600354178,
+                        "open": false,
+                        "waiver_submitted": false,
+                        "requested_decision": false,
+                        "claim_type": "Compensation",
                         "date_filed": "2022-12-01",
                         "min_est_date": null,
                         "max_est_date": null,
-                        "open": false,
-                        "waiver_submitted": false,
-                        "documents_needed": false,
                         "development_letter_sent": false,
                         "decision_letter_sent": false,
-                        "requested_decision": false,
-                        "claim_type": "Compensation",
+                        "documents_needed": false,
                         "status": "Complete"
                       }
                     },
@@ -172,16 +172,16 @@
                       "type": "evss_claims",
                       "attributes": {
                         "evss_id": 600311927,
+                        "open": false,
+                        "waiver_submitted": false,
+                        "requested_decision": false,
+                        "claim_type": "Compensation",
                         "date_filed": "2022-06-23",
                         "min_est_date": null,
                         "max_est_date": null,
-                        "open": false,
-                        "waiver_submitted": false,
-                        "documents_needed": false,
                         "development_letter_sent": false,
                         "decision_letter_sent": true,
-                        "requested_decision": false,
-                        "claim_type": "Compensation",
+                        "documents_needed": false,
                         "status": "Complete"
                       }
                     },
@@ -190,16 +190,16 @@
                       "type": "evss_claims",
                       "attributes": {
                         "evss_id": 600309680,
+                        "open": false,
+                        "waiver_submitted": false,
+                        "requested_decision": false,
+                        "claim_type": "Compensation",
                         "date_filed": "2022-06-09",
                         "min_est_date": null,
                         "max_est_date": null,
-                        "open": false,
-                        "waiver_submitted": false,
-                        "documents_needed": false,
                         "development_letter_sent": false,
                         "decision_letter_sent": true,
-                        "requested_decision": false,
-                        "claim_type": "Compensation",
+                        "documents_needed": false,
                         "status": "Complete"
                       }
                     },
@@ -208,16 +208,16 @@
                       "type": "evss_claims",
                       "attributes": {
                         "evss_id": 600308831,
+                        "open": false,
+                        "waiver_submitted": false,
+                        "requested_decision": false,
+                        "claim_type": "Compensation",
                         "date_filed": "2022-06-06",
                         "min_est_date": null,
                         "max_est_date": null,
-                        "open": false,
-                        "waiver_submitted": false,
-                        "documents_needed": false,
                         "development_letter_sent": false,
                         "decision_letter_sent": true,
-                        "requested_decision": false,
-                        "claim_type": "Compensation",
+                        "documents_needed": false,
                         "status": "Complete"
                       }
                     }
@@ -569,24 +569,23 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "253ff9b7-c0f1-491d-863b-93474895e2df",
+                    "id": "0cd7bbcc-eba3-482e-975d-fc005dfaed64",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
+                      "open": false,
+                      "waiver_submitted": false,
+                      "requested_decision": false,
+                      "claim_type": "Compensation",
                       "date_filed": "2017-12-08",
                       "min_est_date": null,
                       "max_est_date": null,
-                      "open": false,
-                      "waiver_submitted": false,
-                      "documents_needed": false,
                       "development_letter_sent": false,
                       "decision_letter_sent": false,
-                      "requested_decision": false,
-                      "claim_type": "Compensation",
+                      "documents_needed": false,
                       "contention_list": [
 
                       ],
-                      "va_representative": "AMERICAN LEGION",
                       "events_timeline": [
                         {
                           "type": "phase7",
@@ -601,14 +600,15 @@
                           "date": "2017-12-08"
                         }
                       ],
+                      "va_representative": "AMERICAN LEGION",
                       "status": "Complete",
                       "supporting_documents": [
                         {
-                          "id": "94450987-37eb-4fbf-ac41-7b58c05ba283",
+                          "id": "a9551655-2048-4c7a-a78e-4a75469315d2",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2024-06-18T14:03:55.000Z"
+                          "uploaded_at": "2024-08-28T18:39:06.521Z"
                         }
                       ]
                     }
@@ -2502,31 +2502,31 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "15727189-a3bf-4fba-8b2b-69552c7f7589",
+                    "id": "08ec1e9c-5aa4-4b6f-af86-71f0cac0486d",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
+                      "open": true,
+                      "waiver_submitted": null,
+                      "requested_decision": null,
+                      "claim_type": null,
+                      "updated_at": "2024-08-28T18:39:08.255Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
-                      "phase_change_date": null,
-                      "open": true,
-                      "waiver_submitted": null,
-                      "documents_needed": null,
                       "development_letter_sent": null,
                       "decision_letter_sent": null,
-                      "phase": null,
-                      "ever_phase_back": null,
-                      "current_phase_back": null,
-                      "requested_decision": null,
-                      "claim_type": null,
-                      "updated_at": "2024-06-18T14:03:56.993Z",
+                      "documents_needed": null,
                       "contention_list": null,
-                      "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "15727189-a3bf-4fba-8b2b-69552c7f7589",
+                      "va_representative": null,
+                      "phase": null,
+                      "phase_change_date": null,
+                      "ever_phase_back": null,
+                      "current_phase_back": null,
+                      "token": "08ec1e9c-5aa4-4b6f-af86-71f0cac0486d",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4379,31 +4379,31 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "effb561d-806b-4153-988e-0e72c7e0f778",
+                    "id": "c1a2ba8e-50ef-48de-a0f6-03a7a3b651d6",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
+                      "open": true,
+                      "waiver_submitted": null,
+                      "requested_decision": null,
+                      "claim_type": null,
+                      "updated_at": "2024-08-28T18:39:08.729Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
-                      "phase_change_date": null,
-                      "open": true,
-                      "waiver_submitted": null,
-                      "documents_needed": null,
                       "development_letter_sent": null,
                       "decision_letter_sent": null,
-                      "phase": null,
-                      "ever_phase_back": null,
-                      "current_phase_back": null,
-                      "requested_decision": null,
-                      "claim_type": null,
-                      "updated_at": "2024-06-18T14:03:57.694Z",
+                      "documents_needed": null,
                       "contention_list": null,
-                      "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "effb561d-806b-4153-988e-0e72c7e0f778",
+                      "va_representative": null,
+                      "phase": null,
+                      "phase_change_date": null,
+                      "ever_phase_back": null,
+                      "current_phase_back": null,
+                      "token": "c1a2ba8e-50ef-48de-a0f6-03a7a3b651d6",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6637,30 +6637,30 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "81ae6b92-0158-4677-9e71-9052d2b0de26",
+                    "id": "3af6c315-3194-46f1-9024-bb6f462aa66c",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
+                      "open": true,
+                      "waiver_submitted": null,
+                      "requested_decision": null,
+                      "claim_type": null,
+                      "updated_at": "2024-08-28T18:39:10.221Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
-                      "open": true,
-                      "waiver_submitted": null,
-                      "documents_needed": null,
                       "development_letter_sent": null,
                       "decision_letter_sent": null,
-                      "requested_decision": null,
-                      "claim_type": null,
-                      "updated_at": "2024-06-18T14:04:00.288Z",
+                      "documents_needed": null,
                       "contention_list": null,
-                      "va_representative": null,
                       "events_timeline": [
 
                       ],
+                      "va_representative": null,
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "f3b54df3-2c83-4009-bd06-8f638399ee6a",
+                          "id": "8e9bcaf7-ab5f-454e-9145-5d603f380258",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8615,17 +8615,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "fe3281c1-504f-44c3-944d-a66e9c412909",
+                    "id": "2756c082-abbc-448d-ae38-b1da8eb7284e",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "status": "pending",
-                      "date_request_accepted": "2024-06-18",
+                      "date_request_accepted": "2024-08-28",
+                      "previous_poa": null,
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
                         }
                       },
-                      "previous_poa": null
+                      "status": "pending"
                     }
                   }
                 },
@@ -9347,17 +9347,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "69c427f2-3dc2-40b5-aaf1-155772e41e3f",
+                    "id": "8e93c6f1-2641-4bba-875d-6ce268cce496",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "status": "submitted",
-                      "date_request_accepted": "2024-06-18",
+                      "date_request_accepted": "2024-08-28",
+                      "previous_poa": null,
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
                         }
                       },
-                      "previous_poa": null
+                      "status": "submitted"
                     }
                   }
                 },
@@ -9865,17 +9865,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ef7059c8-6cf9-432c-b9b8-b20f1a1967ed",
+                    "id": "f3f85ff2-e13f-418c-bdc5-3702435e521f",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "status": "submitted",
-                      "date_request_accepted": "2024-06-18",
+                      "date_request_accepted": "2024-08-28",
+                      "previous_poa": null,
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
                         }
                       },
-                      "previous_poa": null
+                      "status": "submitted"
                     }
                   }
                 },

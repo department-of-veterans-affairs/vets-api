@@ -53,6 +53,21 @@ describe TestDisabilityCompensationValidationClass do
     end
   end
 
+  describe "#validate_form_526_location_codes" do
+    service_periods = form_attributes['serviceInformation']['servicePeriods']
+
+    it 'retrives codes if separationLocationcode is present' do
+      test_526_validation_instance.send(:validate_form_526_location_codes, service_periods)
+      expect(test_526_validation_instance).to have_received(:retrieve_separation_locations)
+    end
+
+    it 'does not retrieve the codes if separationLocation is not present' do
+    end
+
+    it 'does not retrieve the codes if activeDutyEndDate is in the future' do
+    end
+  end
+
   describe '#date_range_overlap?' do
     let(:date_begin_one) { '2018-06-04' }
     let(:date_end_one) { '2020-07-01' }
