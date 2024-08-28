@@ -36,6 +36,10 @@ module SimpleFormsApi
       @data.dig('address', 'country') == 'USA'
     end
 
+    def desired_stamps
+      []
+    end
+
     def submission_date_stamps
       [
         {
