@@ -1265,9 +1265,9 @@ DEPENDENCIES
   sentry-ruby
   shoulda-matchers
   shrine
+  sidekiq (~> 7.2.0)
   sidekiq-ent!
   sidekiq-pro!
-  sidekiq (~> 7.2.0)
   simple_forms_api!
   simplecov
   slack-notify
