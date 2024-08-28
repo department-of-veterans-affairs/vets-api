@@ -9,7 +9,7 @@ module ClaimsApi
     def perform(auto_claim_id) # rubocop:disable Metrics/MethodLength
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
-      orig_form_data = auto_claim.form_data
+      orig_form_data = preserve_original_form_data(auto_claim.form_data)
       form_data = auto_claim.to_internal
       auth_headers = auto_claim.auth_headers
 

@@ -69,6 +69,8 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
               .with('worker.decision_review.saved_claim_hlr_status_updater.processing_records', 2).exactly(1).time
             expect(StatsD).to have_received(:increment)
               .with('worker.decision_review.saved_claim_hlr_status_updater.delete_date_update').exactly(1).time
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.saved_claim_hlr_status_updater.status', tags: ['pending']).exactly(1).time
           end
         end
 
