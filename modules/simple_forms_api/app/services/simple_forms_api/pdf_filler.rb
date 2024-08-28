@@ -17,7 +17,7 @@ module SimpleFormsApi
       @name = name || form_number
     end
 
-    def generate(current_loa = nil)
+    def generate(current_loa = nil, override_timestamp: nil)
       template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
       generated_form_path = Rails.root.join("tmp/#{name}-tmp.pdf").to_s
       stamped_template_path = Rails.root.join("tmp/#{name}-stamped.pdf").to_s
@@ -33,7 +33,7 @@ module SimpleFormsApi
       FileUtils.copy_file(tempfile.path, stamped_template_path)
 
       if File.exist? stamped_template_path
-        stamper = PdfStamper.new(stamped_template_path, form, current_loa)
+        stamper = PdfStamper.new(stamped_template_path, form, current_loa, override_timestamp)
         stamper.stamp_pdf
         pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
         Common::FileHelpers.delete_file_if_exists(stamped_template_path)

@@ -35,6 +35,17 @@ describe SimpleFormsApi::PdfStamper do
 
           expect(instance).to have_received(:verified_multistamp).with(desired_stamp, page_configuration)
         end
+
+        context 'override_timestamp is passed in' do
+          let(:timestamp) { 'right-timestamp' }
+          let(:instance) { described_class.new(path, form, 3, timestamp) }
+
+          it 'passes the right timestamp when fetching the submission date stamps' do
+            instance.stamp_pdf
+
+            expect(form).to have_received(:submission_date_stamps).with(timestamp)
+          end
+        end
       end
 
       context 'page is not specified' do
@@ -73,8 +84,21 @@ describe SimpleFormsApi::PdfStamper do
         instance.stamp_pdf
 
         expect(datestamp_instance).to have_received(:run).with(text:, x: anything, y: anything, text_only: false,
-                                                               size: 9)
+                                                               size: 9, timestamp: nil)
         expect(File).to have_received(:rename).with(current_file_path, path)
+      end
+
+      context 'override_timestamp is passed in' do
+        let(:timestamp) { 'fake-timestamp' }
+        let(:instance) { described_class.new(path, form, 3, timestamp) }
+
+        it 'calls PDFUtilities::DatestampPdf with the timestamp' do
+          text = /Signed electronically and submitted via VA.gov at /
+          instance.stamp_pdf
+
+          expect(datestamp_instance).to have_received(:run).with(text:, x: anything, y: anything, text_only: false,
+                                                                 size: 9, timestamp:)
+        end
       end
     end
   end
