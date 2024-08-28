@@ -10,12 +10,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
   let(:file_name) { Faker::File.file_name }
 
-  let(:provider) do
-    LighthouseSupplementalDocumentUploadProvider.new(
-      submission,
-      file_body
-    )
-  end
+  let(:provider) { LighthouseSupplementalDocumentUploadProvider.new(submission) }
 
   let(:lighthouse_document) do
     LighthouseDocument.new(
@@ -69,7 +64,50 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         .with(file_body, lighthouse_document)
         .and_return(faraday_response)
 
-      expect(provider.submit_upload_document(lighthouse_document)).to eq(faraday_response)
+      expect(provider.submit_upload_document(lighthouse_document, file_body)).to eq(faraday_response)
+    end
+  end
+
+  describe 'logging methods' do
+    # We don't want to generate an actual submission for these tests,
+    # since submissions have callbacks that log to StatsD and we need to test
+    # only the metrics in this class
+    let(:submission) { instance_double(Form526Submission) }
+
+    let(:provider) { LighthouseSupplementalDocumentUploadProvider.new(submission) }
+
+    describe 'log_upload_success' do
+      it 'increments a StatsD success metric' do
+        expect(StatsD).to receive(:increment).with(
+          'my_upload_job_prefix.lighthouse_supplemental_document_upload_provider.success'
+        )
+        provider.log_upload_success('my_upload_job_prefix')
+      end
+    end
+
+    describe 'log_upload_failure' do
+      let(:error_class) { 'StandardError' }
+      let(:error_message) { 'Something broke' }
+
+      it 'increments a StatsD failure metric' do
+        expect(StatsD).to receive(:increment).with(
+          'my_upload_job_prefix.lighthouse_supplemental_document_upload_provider.failed'
+        )
+        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
+      end
+
+      it 'logs to the Rails logger' do
+        expect(Rails.logger).to receive(:error).with(
+          'LighthouseSupplementalDocumentUploadProvider upload failure',
+          {
+            class: 'LighthouseSupplementalDocumentUploadProvider',
+            error_class:,
+            error_message:
+          }
+        )
+
+        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
+      end
     end
   end
 end

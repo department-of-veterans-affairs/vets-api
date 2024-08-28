@@ -24,7 +24,7 @@ module MyHealth
       attribute :recipient_name
       attribute :recipient_id
       attribute :proxy_sender_name, &:proxySender_name
-      attribute :has_attachment
+      attribute :has_attachment, &:thread_has_attachment
       attribute :unsent_drafts
       attribute :unread_messages
 

@@ -47,9 +47,18 @@ module AskVAApi
         when Hash
           response[:Data]
         else
-          error = JSON.parse(response.body, symbolize_names: true)
-          error[:Message]
+          error_message = response.body
+          log_error('correspondence_failure', error_message)
+          error_message
         end
+      end
+
+      def log_error(action, error_message)
+        LogService.new.call(action) do |span|
+          span.set_tag('error', true)
+          span.set_tag('error_message', error_message)
+        end
+        Rails.logger.error("Error during #{action}: #{error_message}")
       end
     end
   end
