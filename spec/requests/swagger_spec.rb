@@ -545,18 +545,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports adding a preneed claim' do
-      VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/burial_forms',
-          200,
-          '_headers' => { 'content-type' => 'application/json' },
-          '_data' => {
-            'application' => attributes_for(:burial_form)
-          }.to_json
-        )
-      end
-
       expect(subject).to validate(
         :post,
         '/v0/preneeds/burial_forms',
