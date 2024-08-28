@@ -24,7 +24,7 @@ RSpec.describe Form526ParanoidSuccessPollingJob, type: :job do
       create(:form526_submission, :backup_path, :backup_rejected)
     end
 
-    context 'polling on parnoid success type submissions' do
+    context 'polling on paranoid success type submissions' do
       let(:api_response) do
         {
           'data' => [
