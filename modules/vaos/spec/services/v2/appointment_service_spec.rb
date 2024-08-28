@@ -1249,7 +1249,9 @@ describe VAOS::V2::AppointmentsService do
   describe '#fetch_avs_and_update_appt_body' do
     let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
     let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
-    let(:appt) { { id: '12345', identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] } }
+    let(:appt) do
+      { id: '12345', identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] }
+    end
     let(:avs_error_message) { 'Error retrieving AVS link' }
 
     context 'when AVS successfully retrieved the AVS link' do
