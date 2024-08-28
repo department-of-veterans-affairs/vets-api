@@ -496,7 +496,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the city is invalid' do
-          it 'responds with 202' do
+          it 'responds with 422' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['changeOfAddress']['city'] = nil
