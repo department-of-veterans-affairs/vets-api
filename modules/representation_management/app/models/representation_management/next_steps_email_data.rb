@@ -14,7 +14,7 @@ module RepresentationManagement
       representative_address
     ]
 
-    attr_accessor(*[next_steps_email_attrs].flatten)
+    attr_accessor(*next_steps_email_attrs)
 
     validates :email_address, presence: true
     validates :first_name, presence: true
