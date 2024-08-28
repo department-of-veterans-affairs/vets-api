@@ -74,7 +74,6 @@ module V0
 
     def track_missing_user_pids(form)
       StatsD.increment('user.participant_id.blank')
-      binding.pry
       context = {
         in_progress_form_id: form.id,
         user_uuid: @current_user.uuid,

@@ -17,7 +17,7 @@ class MPIProxyPersonAdder
   # validate if able to run add_person_proxy, and only call MPI's
   # add_person_proxy if all validation checks pass. If checks don't
   # pass, then skip the add_person_proxy call.
-  # 
+  #
   # @param icn
   #
   def self.add_person_proxy_by_icn(icn)
@@ -29,7 +29,7 @@ class MPIProxyPersonAdder
   # validate if able to run add_person_proxy, and only call MPI's
   # add_person_proxy if all validation checks pass. If checks don't
   # pass, then skip the add_person_proxy call.
-  # 
+  #
   # @param icn
   #
   def add_person_proxy_by_icn
@@ -60,7 +60,7 @@ class MPIProxyPersonAdder
   # Function to fetch MPI profile by user's ICN.
   # If response returns an error, propogates the returned error.
   def fetch_profile
-    return nil unless icn.present?
+    raise ArgumentError, 'Unable to fetch MPI profile. Missing ICN.' if icn.blank?
 
     response = @mpi_service.find_profile_by_identifier(
       identifier: icn,
@@ -71,6 +71,7 @@ class MPIProxyPersonAdder
     @profile = response.profile
   rescue MPI::Errors::RecordNotFound => e
     track_proxy_add_failure(e, 'No MPI profile found for given user account')
+    raise e
   end
 
   # Necessary param list for MPI add_person_proxy call.
