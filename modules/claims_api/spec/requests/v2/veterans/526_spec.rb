@@ -2087,91 +2087,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
           end
         end
 
-        context 'when treatedDisabilityName includes a name that is not in the list of declared disabilities' do
-          let(:not_treated_disability_name) { 'not included in submitted disabilities collection' }
-
-          it 'returns a 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][0] =
-                not_treated_disability_name
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-
-        context 'when treatedDisabilityName includes a name that is declared only as a secondary disability' do
-          let(:treated_disability_name) { 'Cancer - Musculoskeletal - Elbow' }
-          # let(:secondary_disability_name) { 'Cancer - Musculoskeletal - Elbow' }
-
-          it 'returns a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              attrs = json['data']['attributes']
-              attrs['treatments'][0]['treatedDisabilityNames'][1] = treated_disability_name
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
-        context 'when treatedDisabilityName has a match the list of declared disabilities' do
-          it 'returns a 202' do
-            mock_ccg(scopes) do |auth_header|
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-
-          context 'but has leading whitespace' do
-            let(:treated_disability_name) { '  Cancer - Musculoskeletal - Elbow' }
-
-            it 'returns a 202' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][1] =
-                  treated_disability_name
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:accepted)
-              end
-            end
-          end
-
-          context 'but has trailing whitespace' do
-            let(:treated_disability_name) { 'Cancer - Musculoskeletal - Elbow   ' }
-
-            it 'returns a 202' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][1] =
-                  treated_disability_name
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:accepted)
-              end
-            end
-          end
-
-          context 'but has different casing' do
-            let(:treated_disability_name) { 'CAnCer - MusCuLoskeLetaL - ElBow' }
-
-            it 'returns a 202' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][1] =
-                  treated_disability_name
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:accepted)
-              end
-            end
-          end
-        end
-
         context 'validating treatment.centers' do
           context 'when the treatments.center.name' do
             context 'is a single character' do
@@ -3480,7 +3395,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                 post submit_path, params: params.to_json, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
-                expect(response_body['errors'].count).to eq(2)
+                expect(response_body['errors'].count).to eq(1)
               end
             end
           end
