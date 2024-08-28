@@ -5,14 +5,17 @@ require 'claims_api/common/exceptions/lighthouse/timeout'
 require 'claims_api/v2/error/lighthouse_error_mapper'
 module ClaimsApi
   class CustomError
-    def initialize(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
+    def initialize(error, detail = nil, async = true) # rubocop:disable Style/OptionalBooleanParameter
       @error = error
       @async = async
+      @detail = detail
       @original_status = @error&.original_status if @error&.methods&.include?(:original_status)
-      @original_body = @error&.original_body if @error&.methods&.include?(:original_body)
+      @original_body = get_original_body
     end
 
     def build_error
+      handle_strings if @error.is_a?(String) || @original_body.is_a?(String)
+
       case @error
       when Faraday::ParsingError
         raise_backend_exception
@@ -50,24 +53,19 @@ module ClaimsApi
     def get_error_info
       all_errors = []
 
-      @original_body&.[](:messages)&.each do |err|
+      @original_body&.fetch(:messages)&.each do |err|
         symbolized_error = err.deep_symbolize_keys
-        all_errors << collect_errors(symbolized_error)
+        all_errors << munge_error(symbolized_error) unless symbolized_error[:severity] == 'WARN'
       end
       all_errors
     end
 
-    def collect_errors(symbolized_error)
-      details = get_details(symbolized_error)
-      severity = symbolized_error[:severity] || nil
-      detail = details || nil
-      text = symbolized_error[:text] || nil
-      key = symbolized_error[:key] || nil
+    def munge_error(symbolized_error)
       {
-        key:,
-        severity:,
-        detail:,
-        text:
+        key: symbolized_error[:key],
+        severity: symbolized_error[:severity],
+        detail: get_details(symbolized_error),
+        text: symbolized_error[:text]
       }
     end
 
@@ -77,6 +75,16 @@ module ClaimsApi
       else
         ClaimsApi::V2::Error::LighthouseErrorMapper.new(error).get_details
       end
+    end
+
+    def handle_strings
+      @error = ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException.new(
+        [{ detail: @error.is_a?(String) ? @error : @original_body, status: 422, title: 'String error' }]
+      )
+    end
+
+    def get_original_body
+      @detail ||= @error&.original_body if @error&.methods&.include?(:original_body)
     end
   end
 end

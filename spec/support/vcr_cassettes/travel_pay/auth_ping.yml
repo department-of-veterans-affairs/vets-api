@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://auth.veis.gov/tenant_id/oauth2/token
+    uri: "<VEIS_AUTH_URL>/tenant_id/oauth2/token"
     body:
       encoding: US-ASCII
       string: 'client_id=client_id&client_secret=client_secret&client_info=1&grant_type=client_credentials&resource=resource_id'

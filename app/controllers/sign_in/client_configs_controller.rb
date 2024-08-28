@@ -45,9 +45,11 @@ module SignIn
     private
 
     def client_config_params
-      params.require(:client_config).permit(:client_id, :authentication, :anti_csrf, :redirect_uri, :description,
-                                            :access_token_duration, :access_token_audience, :refresh_token_duration,
-                                            :logout_redirect_uri, :pkce, :refresh_token_path, certificates: [])
+      params.require(:client_config).permit(:client_id, :authentication, :redirect_uri, :refresh_token_duration,
+                                            :access_token_duration, :access_token_audience, :logout_redirect_uri,
+                                            :pkce, :terms_of_use_url, :enforced_terms, :shared_sessions, :anti_csrf,
+                                            :description, certificates: [], access_token_attributes: [],
+                                                          service_levels: [], credential_service_providers: [])
     end
 
     def set_client_config
