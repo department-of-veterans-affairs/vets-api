@@ -45,7 +45,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
       VCR.use_cassette('dmc/submit_fsr') do
         VCR.use_cassette('bgs/people_service/person_data') do
           post('/debts_api/v0/financial_status_reports', params: valid_form_data.to_h, as: :json)
-          expect(response.code).to eq('200')
+          expect(response).to have_http_status(:ok)
         end
       end
     end
@@ -119,7 +119,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
             params: pre_transform_fsr_streamlined_form_data.to_h,
             as: :json
           )
-          expect(response.code).to eq('200')
+          expect(response).to have_http_status(:ok)
         end
       end
     end
@@ -133,7 +133,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
             params: pre_transform_fsr_form_data.to_h,
             as: :json
           )
-          expect(response.code).to eq('200')
+          expect(response).to have_http_status(:ok)
         end
       end
     end
@@ -147,7 +147,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
             params: pre_transform_fsr_streamlined_long_form_data.to_h,
             as: :json
           )
-          expect(response.code).to eq('200')
+          expect(response).to have_http_status(:ok)
         end
       end
     end
@@ -179,7 +179,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
         form5655_submission
         form5655_submission.update!(user_uuid: 'nottherightguy', ipf_data: '{"its":"me"}')
         get "/debts_api/v0/financial_status_reports/rehydrate_submission/#{form5655_submission.id}"
-        expect(response.code).to eq('401')
+        expect(response).to have_http_status(:unauthorized)
         body = "{\"error\":\"User #{user.uuid} does not own submission #{form5655_submission.id}\"}"
         expect(response.body).to eq(body)
       end
@@ -194,7 +194,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
         form5655_submission
         form5655_submission.update!(user_uuid: user.uuid, ipf_data: '{"its":"me"}')
         get "/debts_api/v0/financial_status_reports/rehydrate_submission/#{form5655_submission.id}"
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
     end
   end

@@ -12,7 +12,7 @@ Rspec.describe 'DhpConnectedDevices::VeteranDeviceRecords', type: :request do
 
       it 'returns unauthenticated error' do
         get '/dhp_connected_devices/veteran-device-records'
-        expect(response.status).to eq(401)
+        expect(response).to have_http_status(:unauthorized)
       end
     end
 

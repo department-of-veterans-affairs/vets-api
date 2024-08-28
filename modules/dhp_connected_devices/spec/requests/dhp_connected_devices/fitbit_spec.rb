@@ -126,7 +126,7 @@ RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
       let(:missing_auth_error) { DhpConnectedDevices::Fitbit::MissingAuthError }
       let(:access_token) { '{"access_token":"token"}' }
 
-      it 'logs errors to Sentry ' do
+      it 'logs errors to Sentry' do
         allow_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(any_args)
 
         expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
