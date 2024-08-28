@@ -29,7 +29,7 @@ describe SimpleFormsApiSubmission::Service do
 
     it 'generates a json file from the metadata' do
       simple_forms_service.generate_tmp_metadata(mock_metadata)
-      expect(Dir['tmp/*.SimpleFormsApi.metadata.json'].any?).to equal(true)
+      expect(Dir['clamav_tmp/*.SimpleFormsApi.metadata.json'].any?).to equal(true)
     ensure
       Common::FileHelpers.delete_file_if_exists(mock_file_path_metadata)
     end
