@@ -60,19 +60,6 @@ describe SimpleFormsApi::PdfFiller do
           end
         end
       end
-
-      context 'override_timestamp is populated' do
-        it 'passes the timestamp along to the PdfStamper' do
-          timestamp = 'fake-timestamp'
-          allow(SimpleFormsApi::PdfStamper).to receive(:new).with(anything, anything, anything,
-                                                                  timestamp)
-
-          described_class.new(form_number:, form:, name:).generate(override_timestamp: timestamp)
-
-          expect(SimpleFormsApi::PdfStamper).to have_received(:new).with(anything, anything, anything,
-                                                                         timestamp)
-        end
-      end
     end
   end
 

@@ -8,11 +8,11 @@ module SimpleFormsApi
 
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
 
-    def initialize(stamped_template_path, form, loa = nil, override_timestamp = nil)
+    def initialize(stamped_template_path:, form:, timestamp:, current_loa:)
       @stamped_template_path = stamped_template_path
       @form = form
-      @loa = loa
-      @timestamp = override_timestamp
+      @loa = current_loa
+      @timestamp = timestamp
     end
 
     def stamp_pdf

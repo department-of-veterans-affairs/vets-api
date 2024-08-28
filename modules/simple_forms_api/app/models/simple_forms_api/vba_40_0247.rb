@@ -80,7 +80,7 @@ module SimpleFormsApi
       []
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(_timestamp)
       []
     end
 

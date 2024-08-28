@@ -57,7 +57,7 @@ module SimpleFormsApi
       end.compact
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(_timestamp)
       []
     end
 
