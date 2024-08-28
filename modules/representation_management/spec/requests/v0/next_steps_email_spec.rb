@@ -12,7 +12,7 @@ RSpec.describe 'NextStepsEmailController', type: :request do
           first_name: 'First',
           form_name: 'Form Name',
           form_number: 'Form Number',
-          representative_type: 'Type',
+          representative_type: 'attorney',
           representative_name: 'Name',
           representative_address: 'Address'
         }
@@ -20,16 +20,33 @@ RSpec.describe 'NextStepsEmailController', type: :request do
     end
 
     context 'When submitting all fields with valid data' do
-      before do
-        post(base_path, params:)
-      end
-
       it 'responds with a ok status' do
+        post(base_path, params:)
         expect(response).to have_http_status(:ok)
       end
 
       it 'responds with the expected body' do
+        post(base_path, params:)
         expect(response.body).to eq({ message: 'Email enqueued' }.to_json)
+      end
+
+      it 'enqueues the email' do
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          params[:next_steps_email][:email_address],
+          'appoint_a_representative_confirmation_email_template_id', # This is the actual value from the settings file
+          {
+            'first_name' => 'First',
+            'form name' => 'Form Name',
+            'form number' => 'Form Number',
+            'representative type' => 'Attorney', # We enqueue this as a humanized and titleized string
+            'representative name' => 'Name',
+            'representative address' => 'Address'
+          }
+        )
+        allow(VANotify::EmailJob).to receive(:perform_async) do |*args|
+          puts "perform_async called with: #{args.inspect}"
+        end
+        post(base_path, params:)
       end
     end
 
