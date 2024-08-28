@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
+# rake vye:data:random_addy_dirdep_ver_creates
+# this task will create 2000 random address changes, 2000 random direct deposit changes,
+# and 10,000 random verification changes. The purpose of this is for sandbox testing of
+# production runs for VYE.
+
 namespace :vye do
   namespace :data do
     desc 'Make 2000 random address changes for testing'
-    task change_2000_addys: :environment do |_cmd, _args|
-      file = File.open('tmp/addy_changes.txt', 'w')
+    task random_addy_dirdep_ver_creates: :environment do |_cmd, _args|
+      file = File.open('tmp/addy_dirdep_ver_creates.txt', 'w')
 
       random_ids = random_user_info_ids(2000)
       random_ids.each { |user_info_id| create_addy(file, user_info_id) }
@@ -46,8 +51,7 @@ namespace :vye do
           file.puts "  Addy3: #{addy.address3}" if addy.address3
           file.puts "  Addy4: #{addy.address4}" if addy.address4
           file.puts "  Addy5: #{addy.address5}" if addy.address5
-          file.puts "  c/s/z: #{addy.city}, #{addy.state}, #{addy.zip_code}"
-          file.puts "\n\n"
+          file.puts "  c/s/z: #{addy.city}, #{addy.state}, #{addy.zip_code}\n\n"
         else
           file.puts "Failed to save addy change for user #{user_info_id}"
         end
@@ -73,8 +77,7 @@ namespace :vye do
       file.puts "  Name: #{ddc.full_name}"
       file.puts "  Phone/Email: #{ddc.phone}, #{ddc.email}"
       file.puts "  Acct no/type: #{ddc.acct_no}, #{ddc.acct_type}"
-      file.puts "  Bank routing no/name/phone: #{ddc.routing_no}, #{ddc.bank_name}, #{ddc.bank_phone}"
-      file.puts "\n\n"
+      file.puts "  Bank routing no/name/phone: #{ddc.routing_no}, #{ddc.bank_name}, #{ddc.bank_phone}\n\n"
     end
 
     def create_verification_changes(file, user_info_id)
@@ -89,8 +92,7 @@ namespace :vye do
           file.puts "Created verification change for user #{user_info_id}"
           file.puts "  Award: #{vc.award_id}"
           file.puts "  Source: #{vc.source_ind}"
-          file.puts "  Transact Date: #{vc.transact_date}"
-          file.puts "\n\n"
+          file.puts "  Transact Date: #{vc.transact_date}\n\n"
         else
           file.puts "Failed to save verification change for user #{user_info_id}"
         end
