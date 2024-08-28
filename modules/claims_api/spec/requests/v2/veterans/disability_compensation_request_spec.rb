@@ -2244,7 +2244,7 @@ RSpec.describe 'Disability Claims', type: :request do
               end
             end
 
-            context 'has invalid characters in it' do
+            context 'has valid characters in it' do
               let(:treated_center_city) { 'LMNOP 6^7' }
 
               it 'returns a 202' do
