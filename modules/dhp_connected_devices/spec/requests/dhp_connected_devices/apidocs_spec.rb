@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DhpConnectedDevices::ApidocsController, type: :request do
+RSpec.describe 'DhpConnectedDevices::Apidocs', type: :request do
   describe 'GET /dhp_connected_devices/apidocs' do
     it 'renders the apidocs as json' do
       get '/dhp_connected_devices/apidocs'
