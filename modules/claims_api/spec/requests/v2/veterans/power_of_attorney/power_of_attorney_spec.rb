@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../rails_helper'
+require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 
-RSpec.describe 'Power Of Attorney', type: :request do
+RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:get_poa_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney" }
-  let(:request_rep_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney-request" }
   let(:scopes) { %w[system/claim.write system/claim.read] }
   let(:invalid_post_scopes) { %w[system/claim.read] }
   let(:individual_poa_code) { 'A1H' }
@@ -37,7 +36,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
                   get get_poa_path, headers: auth_header
 
-                  expect(response.status).to eq(200)
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -112,7 +111,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             it 'returns a 401' do
               get get_poa_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(401)
+              expect(response).to have_http_status(:unauthorized)
             end
           end
         end

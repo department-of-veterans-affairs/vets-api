@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../rails_helper'
 
-RSpec.describe 'BGS Claims management', type: :request do
+RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
   include SchemaMatchers
 
   let(:request_headers) do
@@ -73,7 +73,7 @@ RSpec.describe 'BGS Claims management', type: :request do
         mock_acg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/claims/claims_with_errors') do
             get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
-            expect(response.status).to eq(404)
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
@@ -187,7 +187,7 @@ RSpec.describe 'BGS Claims management', type: :request do
         mock_acg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/claims/claim_with_errors') do
             get '/services/claims/v1/claims/123123131', params: nil, headers: request_headers.merge(auth_header)
-            expect(response.status).to eq(404)
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
@@ -212,7 +212,7 @@ RSpec.describe 'BGS Claims management', type: :request do
 
             get '/services/claims/v1/claims/123123131', params: nil, headers: request_headers.merge(auth_header)
 
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             body = JSON.parse(response.body)
             expect(body['errors'][0]['detail']).to eq('Unable to locate Veteran in Master Person Index (MPI). ' \
                                                       'Please submit an issue at ask.va.gov or call ' \
@@ -238,7 +238,7 @@ RSpec.describe 'BGS Claims management', type: :request do
 
             get '/services/claims/v1/claims/123123131', params: nil, headers: request_headers.merge(auth_header)
 
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             body = JSON.parse(response.body)
             expect(body['errors'][0]['detail']).to eq('Veteran missing Integration Control Number (ICN). ' \
                                                       'Please submit an issue at ask.va.gov or call 1-800-MyVA411 ' \
@@ -259,7 +259,7 @@ RSpec.describe 'BGS Claims management', type: :request do
           VCR.use_cassette('claims_api/bgs/claims/claim') do
             headers = request_headers.merge(auth_header)
             get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
           end
         end
       end
@@ -276,7 +276,7 @@ RSpec.describe 'BGS Claims management', type: :request do
           VCR.use_cassette('claims_api/bgs/claims/claim') do
             headers = request_headers.merge(auth_header)
             get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
           end
         end
       end
@@ -287,12 +287,12 @@ RSpec.describe 'BGS Claims management', type: :request do
     it 'users the poa verifier when the header is present' do
       mock_acg(scopes) do |auth_header|
         VCR.use_cassette('claims_api/bgs/claims/claim') do
-          verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
+          verifier_stub = instance_double(BGS::PowerOfAttorneyVerifier)
           allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
           allow(verifier_stub).to receive(:verify)
           headers = request_headers.merge(auth_header)
           get("/services/claims/v1/claims/#{bgs_claim_id}", params: nil, headers:)
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
         end
       end
     end
@@ -301,7 +301,7 @@ RSpec.describe 'BGS Claims management', type: :request do
   context 'with oauth user and no headers' do
     it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       mock_acg(scopes) do |auth_header|
-        verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
+        verifier_stub = instance_double(BGS::PowerOfAttorneyVerifier)
         allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
         VCR.use_cassette('claims_api/bgs/claims/claims') do
@@ -315,7 +315,7 @@ RSpec.describe 'BGS Claims management', type: :request do
 
     it 'lists all Claims when camel-inflected', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       mock_acg(scopes) do |auth_header|
-        verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
+        verifier_stub = instance_double(BGS::PowerOfAttorneyVerifier)
         allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
         VCR.use_cassette('claims_api/bgs/claims/claims') do
@@ -334,7 +334,7 @@ RSpec.describe 'BGS Claims management', type: :request do
                                           headers: request_headers.merge(auth)
         parsed_response = JSON.parse(response.body)
 
-        expect(response.status).to eq(401)
+        expect(response).to have_http_status(:unauthorized)
         expect(parsed_response['errors'].first['title']).to eq('Not authorized')
       end
     end
@@ -347,7 +347,7 @@ RSpec.describe 'BGS Claims management', type: :request do
           get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil, headers: request_headers.merge(auth_header)
           body = JSON.parse(response.body)
           events_timeline = body['data']['attributes']['events_timeline']
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(events_timeline[1]['type']).to eq('completed')
           expect(events_timeline[2]['type']).to eq('filed')
         end
@@ -385,7 +385,7 @@ RSpec.describe 'BGS Claims management', type: :request do
         VCR.use_cassette('bgs/claims/claim') do
           headers = request_headers.merge(auth_header)
           get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
-          expect(response.status).not_to eq(404)
+          expect(response).not_to have_http_status(:not_found)
           body = JSON.parse(response.body)
           expect(body['errors'][0]['detail']).not_to eq('Claim not found')
           expect(body['errors'][0]['source']).to eq('400')

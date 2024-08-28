@@ -18,6 +18,7 @@ RSpec.describe IvcChampva::VHA1010d do
         'address' => { 'country' => 'USA', 'postal_code' => '12345' }
       },
       'form_number' => 'VHA1010d',
+      'has_applicant_over65' => false,
       'veteran_supporting_documents' => [
         { 'confirmation_code' => 'abc123' },
         { 'confirmation_code' => 'def456' }
@@ -54,6 +55,7 @@ RSpec.describe IvcChampva::VHA1010d do
         'source' => 'VA Platform Digital Forms',
         'docType' => 'VHA1010d',
         'businessLine' => 'CMP',
+        'hasApplicantOver65' => 'false',
         'primaryContactInfo' => {
           'name' => {
             'first' => 'Veteran',

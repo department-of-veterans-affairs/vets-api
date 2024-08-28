@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../rails_helper'
+require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
 
-RSpec.describe 'Intent to file', type: :request do
+RSpec.describe 'ClaimsApi::V1::Forms::0966', type: :request do
   let(:headers) do
     { 'X-VA-SSN': '796-10-4437',
       'X-VA-First-Name': 'WESLEY',
@@ -21,7 +21,7 @@ RSpec.describe 'Intent to file', type: :request do
       participant_claimant_id: '123_456_789',
       received_date: '2015-01-05T17:42:12.058Z' }
   end
-  let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '0966.json')) }
+  let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '0966.json').read }
 
   before do
     stub_poa_verification
@@ -41,7 +41,7 @@ RSpec.describe 'Intent to file', type: :request do
         mock_acg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
             post path, params: data.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
           end
         end
@@ -52,7 +52,7 @@ RSpec.describe 'Intent to file', type: :request do
           VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
             data[:data][:attributes] = extra
             post path, params: data.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
           end
         end
@@ -63,7 +63,7 @@ RSpec.describe 'Intent to file', type: :request do
           VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_500') do
             data[:data][:attributes] = { type: 'pension' }
             post path, params: data.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(404)
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
@@ -74,7 +74,7 @@ RSpec.describe 'Intent to file', type: :request do
             VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
               data[:data][:attributes] = { type: 'burial' }
               post path, params: data.to_json, headers: auth_header
-              expect(response.status).to eq(403)
+              expect(response).to have_http_status(:forbidden)
             end
           end
         end
@@ -84,7 +84,7 @@ RSpec.describe 'Intent to file', type: :request do
             VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
               data[:data][:attributes] = { type: 'burial' }
               post path, params: data.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(403)
+              expect(response).to have_http_status(:forbidden)
             end
           end
         end
@@ -95,7 +95,7 @@ RSpec.describe 'Intent to file', type: :request do
               data[:attributes] = extra
               data[:attributes][:type] = 'burial'
               post path, params: data.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -106,7 +106,7 @@ RSpec.describe 'Intent to file', type: :request do
               data[:data][:attributes][:type] = 'burial'
               data[:data][:attributes][:claimant_ssn] = '123_456_789'
               post path, params: data.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -116,21 +116,21 @@ RSpec.describe 'Intent to file', type: :request do
         mock_acg(scopes) do |auth_header|
           data[:data][:attributes][:type] = 'failingtesttype'
           post path, params: data.to_json, headers: headers.merge(auth_header)
-          expect(response.status).to eq(422)
+          expect(response).to have_http_status(:unprocessable_entity)
         end
       end
 
       it 'fails if none is passed in' do
         mock_acg(scopes) do |auth_header|
           post path, headers: headers.merge(auth_header)
-          expect(response.status).to eq(422)
+          expect(response).to have_http_status(:unprocessable_entity)
         end
       end
 
       it 'fails if none is passed in as non-poa request' do
         mock_acg(scopes) do |auth_header|
           post path, headers: auth_header, params: ''
-          expect(response.status).to eq(422)
+          expect(response).to have_http_status(:unprocessable_entity)
         end
       end
 
@@ -140,7 +140,7 @@ RSpec.describe 'Intent to file', type: :request do
 
           post path, params: data.to_json, headers: headers.merge(auth_header)
 
-          expect(response.status).to eq(422)
+          expect(response).to have_http_status(:unprocessable_entity)
           expect(JSON.parse(response.body)['errors'].size).to eq(1)
           expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
             'The property /someBadField is not defined on the schema. Additional properties are not allowed'
@@ -178,7 +178,7 @@ RSpec.describe 'Intent to file', type: :request do
             stub_mpi(build(:mpi_profile, participant_id: '999'))
           end
 
-          it "'participant_claimant_id' is set to the target_veteran.participant_id and sent to BGS " do
+          it "'participant_claimant_id' is set to the target_veteran.participant_id and sent to BGS" do
             expect_any_instance_of(ClaimsApi::LocalBGS)
               .to receive(:insert_intent_to_file).with(hash_including(participant_claimant_id: '999')).and_return({})
 
@@ -189,7 +189,7 @@ RSpec.describe 'Intent to file', type: :request do
         end
 
         context "when both 'participant_claimant_id' and 'claimant_ssn' are provided" do
-          it "both 'participant_claimant_id' and 'claimant_ssn' are sent to BGS " do
+          it "both 'participant_claimant_id' and 'claimant_ssn' are sent to BGS" do
             expect_any_instance_of(ClaimsApi::LocalBGS)
               .to receive(:insert_intent_to_file).with(
                 hash_including(
@@ -215,7 +215,7 @@ RSpec.describe 'Intent to file', type: :request do
                   post path, params: data.to_json, headers: headers.merge(auth_header)
                 end.to change(ClaimsApi::IntentToFile, :count).by(1)
                 expect(ClaimsApi::IntentToFile.last.status).to eq(ClaimsApi::IntentToFile::SUBMITTED)
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
               end
             end
           end
@@ -230,7 +230,7 @@ RSpec.describe 'Intent to file', type: :request do
                   post path, params: data.to_json, headers: headers.merge(auth_header)
                 end.to change(ClaimsApi::IntentToFile, :count).by(1)
                 expect(ClaimsApi::IntentToFile.last.status).to eq(ClaimsApi::IntentToFile::ERRORED)
-                expect(response.status).to eq(404)
+                expect(response).to have_http_status(:not_found)
               end
             end
           end
@@ -247,7 +247,7 @@ RSpec.describe 'Intent to file', type: :request do
         it 'returns an unprocessible entity status' do
           mock_acg(scopes) do |auth_header|
             post path, params: data.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
           end
         end
       end
@@ -262,7 +262,7 @@ RSpec.describe 'Intent to file', type: :request do
         it 'returns an unprocessible entity status' do
           mock_acg(scopes) do |auth_header|
             post path, params: data.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
           end
         end
       end
@@ -282,7 +282,7 @@ RSpec.describe 'Intent to file', type: :request do
       mock_acg(scopes) do |auth_header|
         VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/get_intent_to_file') do
           get "#{path}/active", params: { type: 'compensation' }, headers: headers.merge(auth_header)
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
         end
       end
@@ -292,7 +292,7 @@ RSpec.describe 'Intent to file', type: :request do
       mock_acg(scopes) do |auth_header|
         VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/get_intent_to_file') do
           get "#{path}/active", params: { type: 'pension' }, headers: headers.merge(auth_header)
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
         end
       end
@@ -302,7 +302,7 @@ RSpec.describe 'Intent to file', type: :request do
       mock_acg(scopes) do |auth_header|
         VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/get_intent_to_file') do
           get "#{path}/active", params: { type: 'burial' }, headers: headers.merge(auth_header)
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
         end
       end
@@ -311,21 +311,21 @@ RSpec.describe 'Intent to file', type: :request do
     it 'fails if passed with wrong type' do
       mock_acg(scopes) do |auth_header|
         get "#{path}/active", params: { type: 'test' }, headers: headers.merge(auth_header)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
     it 'fails if none is passed in for poa request' do
       mock_acg(scopes) do |auth_header|
         get "#{path}/active", headers: headers.merge(auth_header)
-        expect(response.status).to eq(400)
+        expect(response).to have_http_status(:bad_request)
       end
     end
 
     it 'fails if none is passed in for non-poa request' do
       mock_acg(scopes) do |auth_header|
         get "#{path}/active", headers: auth_header, params: ''
-        expect(response.status).to eq(400)
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
@@ -344,7 +344,7 @@ RSpec.describe 'Intent to file', type: :request do
       mock_acg(scopes) do |auth_header|
         post "#{path}/validate", params: { data: { attributes: nil } }.to_json, headers: headers.merge(auth_header)
         parsed = JSON.parse(response.body)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors']).not_to be_empty
       end
     end
@@ -352,7 +352,7 @@ RSpec.describe 'Intent to file', type: :request do
     it 'responds properly when JSON parse error' do
       mock_acg(scopes) do |auth_header|
         post "#{path}/validate", params: 'hello', headers: headers.merge(auth_header)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
@@ -364,7 +364,7 @@ RSpec.describe 'Intent to file', type: :request do
 
         post "#{path}/validate", params: data.to_json, headers: headers.merge(auth_header)
         parsed = JSON.parse(response.body)
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors'][0]['detail']).to eq("Unable to locate Veteran's BIRLS ID in Master Person Index " \
                                                     '(MPI). ' \
                                                     'Please submit an issue at ask.va.gov or call 1-800-MyVA411 ' \
