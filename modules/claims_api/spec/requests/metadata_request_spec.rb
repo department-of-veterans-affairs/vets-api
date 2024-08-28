@@ -51,7 +51,7 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
         end
 
         required_upstream_services = %w[mpi]
-        optional_upstream_services = %w[vbms bgs-vet_record bgs-corporate_update bgs-contention
+        optional_upstream_services = %w[bgs-vet_record bgs-corporate_update bgs-contention
                                         localbgs-healthcheck]
         (required_upstream_services + optional_upstream_services).each do |upstream_service|
           it "returns correct status when #{upstream_service} is not healthy" do
@@ -64,11 +64,18 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
               .and_return(Struct.new(:healthy?).new(upstream_service != 'bgs-contention'))
             allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:healthcheck)
               .and_return(200)
-            allow_any_instance_of(Faraday::Connection).to receive(:get)
-              .and_return(upstream_service == 'vbms' ? Struct.new(:status).new(500) : Struct.new(:status).new(200))
             get "/services/claims/#{version}/upstream_healthcheck"
-            expected_status = required_upstream_services.include?(upstream_service) ? :internal_server_error : :success
-            expect(response).to have_http_status(expected_status)
+            result = JSON.parse(response.body)
+            expect(result['mpi']['success']).to eq(false)
+            expect(result['bgs-vet_record']['success']).to eq(false)
+            expect(result['bgs-corporate_update']['success']).to eq(false)
+            expect(result['bgs-contention']['success']).to eq(false)
+            expect(result['localbgs-claimant']['success']).to eq(true)
+            expect(result['localbgs-person']['success']).to eq(true)
+            expect(result['localbgs-org']['success']).to eq(true)
+            expect(result['localbgs-ebenefitsbenftclaim']['success']).to eq(true)
+            expect(result['localbgs-intenttofile']['success']).to eq(true)
+            expect(result['localbgs-trackeditem']['success']).to eq(true)
           end
         end
       end
