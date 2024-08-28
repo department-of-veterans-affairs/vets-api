@@ -218,10 +218,6 @@ features:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes 5103 letters
     enable_in_development: true
-  cst_use_claim_details_v2:
-    actor_type: user
-    description: When enabled, claims status tool uses the new claim details design
-    enable_in_development: true
   cst_use_dd_rum:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
