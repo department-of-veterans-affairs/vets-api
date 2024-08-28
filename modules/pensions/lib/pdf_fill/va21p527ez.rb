@@ -9,7 +9,6 @@ require 'pensions/version'
 
 # rubocop:disable Metrics/ClassLength
 module Pensions
-  # Pdf Fill Module
   module PdfFill
     # The Va21p527ez Form
     class Va21p527ez < ::PdfFill::Forms::FormBase

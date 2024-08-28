@@ -6,11 +6,11 @@ module Pensions
     isolate_namespace Pensions
     config.generators.api_only = true
 
-    initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do
+    initializer 'pensions.factories', after: 'factory_bot.set_factory_paths' do
       FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
     end
 
-    initializer 'pensions.after_initialize' do |app|
+    initializer 'pensions.after_initialize', after: 'eager_load!' do |app|
       app.config.after_initialize do
         require 'pdf_fill/filler'
         require 'pdf_fill/va21p527ez'

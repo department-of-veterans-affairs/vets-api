@@ -6,9 +6,6 @@ require 'pensions/tag_sentry'
 require 'pensions/monitor'
 require 'pdf_utilities/datestamp_pdf'
 
-##
-# Pensions Module
-#
 module Pensions
   ##
   # sidekig job to send pension pdf to Lighthouse:BenefitsIntake API
