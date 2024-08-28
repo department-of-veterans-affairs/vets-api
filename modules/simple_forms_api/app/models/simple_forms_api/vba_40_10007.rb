@@ -231,8 +231,8 @@ module SimpleFormsApi
       sponsor_veteran_maiden = @data.dig('application', 'veteran', 'current_name', 'maiden')
       military_status_label = get_military_status(@data.dig('application', 'veteran', 'military_status'))
 
-
-      if @data['version']  
+      # rubocop:disable Layout/LineLength
+      if @data['version']
         race_data = @data.dig('application', 'veteran', 'race')
         race = ''.dup
         race += 'American Indian or Alaskan Native, ' if race_data['is_american_indian_or_alaskan_native']
@@ -244,6 +244,7 @@ module SimpleFormsApi
         race += 'Other, ' if race_data['is_other']
         race.chomp!(', ')
       end
+      # rubocop:enable Layout/LineLength
 
       Prawn::Document.generate(file_path) do |pdf|
         pdf.text '40-10007 Overflow Data', align: :center, size: 20
