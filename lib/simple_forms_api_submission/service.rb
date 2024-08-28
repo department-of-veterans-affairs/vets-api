@@ -24,7 +24,7 @@ module SimpleFormsApiSubmission
     end
 
     def generate_tmp_metadata(metadata)
-      Common::FileHelpers.generate_temp_file(metadata.to_s, "#{SecureRandom.hex}.SimpleFormsApi.metadata.json")
+      Common::FileHelpers.generate_clamav_temp_file(metadata.to_s, "#{SecureRandom.hex}.SimpleFormsApi.metadata.json")
     end
 
     def get_upload_docs(file:, metadata:)

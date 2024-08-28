@@ -435,7 +435,7 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'with claim pdf' do
-      let(:claim_pdf_path) { Common::FileHelpers.generate_temp_file('foo', 'claim.pdf') }
+      let(:claim_pdf_path) { Common::FileHelpers.generate_clamav_temp_file('foo', 'claim.pdf') }
 
       after do
         File.delete(claim_pdf_path)
@@ -453,7 +453,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'with poa pdf' do
-        let(:poa_pdf_path) { Common::FileHelpers.generate_temp_file('foo', 'poa.pdf') }
+        let(:poa_pdf_path) { Common::FileHelpers.generate_clamav_temp_file('foo', 'poa.pdf') }
 
         after do
           File.delete(poa_pdf_path)
