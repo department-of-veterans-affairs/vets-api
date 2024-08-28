@@ -44,30 +44,29 @@ class Form526ParanoidSuccessPollingJob
       status = submission.dig('attributes', 'status')
       id = submission['id']
       form_submission = Form526Submission.find_by(backup_submitted_claim_id: id)
-
-      if %w[error expired].include?(status)
-        form_submission.rejected!
-        log_result('failed', id)
-        count_change(status)
-      elsif status == 'vbms'
-        form_submission.accepted!
-        log_result('marked as true success', id)
-        count_change(status)
-      elsif status == 'processing'
-        form_submission.update!(backup_submitted_claim_status: nil)
-        log_result('reverted to processing', id)
-        count_change(status)
-      elsif status != 'success'
-        # if we have paranoid successes becomming a new state we don't recognize
-        # we need to update our definition of success to include it and and
-        # treat these as potential failures.
-        Rails.logger.error('Paranoid Success transitioned to unknown status',
-                           status:, submission_id: id)
-        form_submission.rejected!
-        count_change(status)
-      end
-
+      handle_submission(form_submission, status, id)
       @total_checked += 1
+    end
+  end
+
+  def handle_submission(form_submission, status, id)
+    if %w[error expired].include?(status)
+      form_submission.rejected!
+      log_result('failed', id)
+      count_change(status)
+    elsif status == 'vbms'
+      form_submission.accepted!
+      log_result('marked as true success', id)
+      count_change(status)
+    elsif status == 'processing'
+      form_submission.update!(backup_submitted_claim_status: nil)
+      log_result('reverted to processing', id)
+      count_change(status)
+    elsif status != 'success'
+      Rails.logger.error('Paranoid Success transitioned to unknown status',
+                         status:, submission_id: id)
+      form_submission.rejected!
+      count_change(status)
     end
   end
 
