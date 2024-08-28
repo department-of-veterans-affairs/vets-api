@@ -13,9 +13,15 @@ describe Common::CacheAside do
 
   describe '#do_cached_with' do
     let(:person_response) do
-      VAProfile::ContactInformation::PersonResponse.from(
-        OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
-      )
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        VAProfile::V2::ContactInformation::PersonResponse.from(
+          OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
+        )
+      else
+        VAProfile::ContactInformation::PersonResponse.from(
+          OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
+        )
+      end
     end
 
     it 'sets the attributes needed to perform redis actions', :aggregate_failures do
