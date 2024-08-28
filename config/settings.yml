@@ -67,8 +67,8 @@ session_cookie:
   secure: false
 
 sign_in:
-  jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
-  jwt_old_encode_key: 'spec/fixtures/sign_in/privatekey_old.pem'
+  jwt_encode_key: "spec/fixtures/sign_in/privatekey.pem"
+  jwt_old_encode_key: "spec/fixtures/sign_in/privatekey_old.pem"
   cookies_secure: false
   info_cookie_domain: localhost
   auto_uplevel: true
@@ -101,8 +101,8 @@ clamav:
   mock: false
   # host & port here are only used in development here:
   # config/initializers/clamav.rb
-  host: 'clamav'
-  port: '3310'
+  host: "clamav"
+  port: "3310"
 
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
@@ -426,7 +426,7 @@ intent_to_file:
 ivc_champva:
   prefill: true
 
-form_upload_flow:
+form_upload:
   prefill: true
 
 # Settings for Expiry Scanner
@@ -659,8 +659,8 @@ ask_va_api:
 claims_api:
   pdf_generator_526:
     url: ~
-    path: '/form-526ez-pdf-generator/v1/forms/'
-    content_type: 'application/vnd.api+json'
+    path: "/form-526ez-pdf-generator/v1/forms/"
+    content_type: "application/vnd.api+json"
   report_enabled: false
   audit_enabled: false
   s3:
@@ -1508,8 +1508,8 @@ chip:
   mock: true
   mobile_app:
     tenant_id: 6f1c8b41-9c77-469d-852d-269c51a7d380
-    username: 'testuser'
-    password: '12345'
+    username: "testuser"
+    password: "12345"
 
 check_in:
   vaos:
@@ -1722,7 +1722,6 @@ ivc_forms:
     missing_form_status_job:
       enabled: true
 
-
 coverband:
   github_organization: ~
   github_team: ~
@@ -1752,9 +1751,8 @@ avs:
   api_jwt: abcd1234abcd1234abcd1234abcd1234abcd1234
 
 brd:
-  api_key: 'fake_key'
-  base_name: 'https://something.fake.va.gov'
-
+  api_key: "fake_key"
+  base_name: "https://something.fake.va.gov"
 
 travel_pay:
   sts:
@@ -1802,8 +1800,8 @@ vye:
     bucket: ~
 
 schema_contract:
-  appointments_index: 'modules/vaos/app/schemas/appointments_index.json'
-  test_index: 'spec/fixtures/schema_contract/test_schema.json'
+  appointments_index: "modules/vaos/app/schemas/appointments_index.json"
+  test_index: "spec/fixtures/schema_contract/test_schema.json"
 
 form_mock_ae_design_patterns:
   prefill: true

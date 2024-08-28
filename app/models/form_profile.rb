@@ -175,7 +175,7 @@ class FormProfile
       form_class.new(form_id:, user:)
     end
 
-    def mappings_for_form(form_id, user)
+    def mappings_for_form(form_id, user = nil)
       @mappings ||= {}
       # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
       form_id = adjust_form_id_based_on_flags(form_id, user)
@@ -184,7 +184,9 @@ class FormProfile
 
     def load_form_mapping(form_id)
       form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
-      file_path = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
+      file_name = upload_form?(form_id) ? 'FORM-UPLOAD.yml' : "#{form_id}.yml"
+      file_path = Rails.root.join('config', 'form_profile_mappings', file_name)
+
       raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file_path)
 
       YAML.load_file(file_path)
@@ -220,6 +222,8 @@ class FormProfile
     end
 
     def adjust_form_id_based_on_flags(form_id, user)
+      return form_id unless user
+
       if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, user)
         '21P-527EZ-military'
       else
@@ -250,7 +254,7 @@ class FormProfile
     @military_information = initialize_military_information
     form = form_id == '1010EZ' ? '1010ez' : form_id
     if FormProfile.prefill_enabled_forms.include?(form)
-      mappings = self.class.mappings_for_form(form_id)
+      mappings = self.class.mappings_for_form(form_id, @user)
 
       form_data = generate_prefill(mappings)
 
