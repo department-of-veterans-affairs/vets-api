@@ -57,6 +57,13 @@ describe ClaimsApi::DisabilityCompensation::DockerContainerService do
       end
     end
 
+    it 'logs the transaction_id' do
+      VCR.use_cassette('/claims_api/evss/submit') do
+        expect(Rails.logger).to receive(:info).with(/#{claim_with_transaction_id.transaction_id}/).at_least(:once)
+        docker_container_service.send(:upload, claim_with_transaction_id.id)
+      end
+    end
+
     context 'the error is saved on the claim in the evss_response attribute' do
       errors = {
         messages: [

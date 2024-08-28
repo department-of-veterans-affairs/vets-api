@@ -25,6 +25,7 @@ describe ClaimsApi::DisabilityCompensation::PdfGenerationService do
   let(:claim) do
     claim = create(:auto_established_claim, form_data:)
     claim.auth_headers = auth_headers
+    claim.transaction_id = '00000000-0000-0000-000000000000'
     claim.save
     claim
   end
@@ -40,6 +41,16 @@ describe ClaimsApi::DisabilityCompensation::PdfGenerationService do
                                                                               middle_initial).and_return(mapped_claim)
 
         expect(pdf_generation_service.send(:generate, claim.id, middle_initial)).to be_a(String)
+      end
+    end
+
+    it 'logs the transaction_id' do
+      VCR.use_cassette('claims_api/pdf_client') do
+        allow(Rails.logger).to receive(:info)
+        allow(pdf_generation_service).to receive(:generate_mapped_claim).with(claim,
+                                                                              middle_initial).and_return(mapped_claim)
+        pdf_generation_service.send(:generate, claim.id, middle_initial)
+        expect(Rails.logger).to have_received(:info).with(/#{claim.transaction_id}/).at_least(:once)
       end
     end
   end

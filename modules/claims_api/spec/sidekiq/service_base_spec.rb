@@ -128,5 +128,13 @@ RSpec.describe ClaimsApi::ServiceBase do
 
       @service.send(:log_job_progress, claim.id, detail)
     end
+
+    it 'logs job progress with transaction_id when provided' do
+      transaction_id = '00000000-0000-0000-000000000000'
+      expect(ClaimsApi::Logger).to receive(:log).with('claims_api_sidekiq_service_base', claim_id: claim.id, detail:,
+                                                                                         transaction_id:)
+
+      @service.send(:log_job_progress, claim.id, detail, transaction_id)
+    end
   end
 end
