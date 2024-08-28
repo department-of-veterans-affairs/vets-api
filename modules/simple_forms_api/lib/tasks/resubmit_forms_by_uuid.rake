@@ -18,7 +18,7 @@ namespace :simple_forms_api do
       parsed_form_data = JSON.parse(form_submission.form_data)
       form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
       filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
-      file_path = filler.generate(override_timestamp: form_submission.created_at)
+      file_path = filler.generate(timestamp: form_submission.created_at)
       metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
                                                                       zip_code_is_us_based: form.zip_code_is_us_based)
       form.handle_attachments(file_path) if %w[vba_40_0247 vba_20_10207 vba_40_10007].include? form_id
