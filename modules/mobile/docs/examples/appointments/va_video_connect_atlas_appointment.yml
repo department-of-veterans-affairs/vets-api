@@ -7,7 +7,7 @@ data:
       cancelId: MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=
       comment: Please log on 5 minutes before the start of your appointment
       healthcareProvider: null
-      healthcareService: ATLAS Conference Center
+      healthcareService: null
       location:
         name: VA Long Beach Healthcare System
         address:
