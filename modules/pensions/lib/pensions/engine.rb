@@ -19,6 +19,5 @@ module Pensions
         ::PdfFill::Filler.register_form(Pensions::PdfFill::Va21p527ez::FORM_ID, Pensions::PdfFill::Va21p527ez)
       end
     end
-
   end
 end
