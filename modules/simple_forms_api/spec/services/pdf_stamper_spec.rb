@@ -7,7 +7,7 @@ describe SimpleFormsApi::PdfStamper do
   let(:data) { JSON.parse(File.read('modules/simple_forms_api/spec/fixtures/form_json/vba_21_0845.json')) }
   let(:form) { SimpleFormsApi::VBA210845.new(data) }
   let(:path) { 'tmp/template.pdf' }
-  let(:instance) { described_class.new(path, form, 3) }
+  let(:instance) { described_class.new(stamped_template_path: path, form:, current_loa: 3, timestamp: nil) }
 
   describe '#stamp_pdf' do
     context 'applying stamps as specified by the form model' do
@@ -36,9 +36,9 @@ describe SimpleFormsApi::PdfStamper do
           expect(instance).to have_received(:verified_multistamp).with(desired_stamp, page_configuration)
         end
 
-        context 'override_timestamp is passed in' do
+        context 'timestamp is passed in' do
           let(:timestamp) { 'right-timestamp' }
-          let(:instance) { described_class.new(path, form, 3, timestamp) }
+          let(:instance) { described_class.new(stamped_template_path: path, form:, current_loa: 3, timestamp:) }
 
           it 'passes the right timestamp when fetching the submission date stamps' do
             instance.stamp_pdf
@@ -84,13 +84,13 @@ describe SimpleFormsApi::PdfStamper do
         instance.stamp_pdf
 
         expect(datestamp_instance).to have_received(:run).with(text:, x: anything, y: anything, text_only: false,
-                                                               size: 9, timestamp: nil)
+                                                               size: 9, timestamp: anything)
         expect(File).to have_received(:rename).with(current_file_path, path)
       end
 
-      context 'override_timestamp is passed in' do
+      context 'timestamp is passed in' do
         let(:timestamp) { 'fake-timestamp' }
-        let(:instance) { described_class.new(path, form, 3, timestamp) }
+        let(:instance) { described_class.new(stamped_template_path: path, form:, current_loa: 3, timestamp:) }
 
         it 'calls PDFUtilities::DatestampPdf with the timestamp' do
           text = /Signed electronically and submitted via VA.gov at /
