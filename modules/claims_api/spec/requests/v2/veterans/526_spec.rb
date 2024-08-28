@@ -2585,7 +2585,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
             context 'and the separationLocationCode is blank' do
               let(:separation_location_code) { nil }
 
-              it 'responds with a 422' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   service_period = json['data']['attributes']['serviceInformation']['servicePeriods'][0]
@@ -2593,7 +2593,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                   service_period['separationLocationCode'] = separation_location_code
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -2601,7 +2601,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
             context 'and the separationLocationCode is an empty string' do
               let(:separation_location_code) { '' }
 
-              it 'responds with a 422' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   service_period = json['data']['attributes']['serviceInformation']['servicePeriods'][0]
@@ -2609,7 +2609,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                   service_period['separationLocationCode'] = separation_location_code
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
