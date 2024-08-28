@@ -240,9 +240,6 @@
                 "claims": {
                   "type": "object",
                   "properties": {
-                    "ch33BankAccounts": {
-                      "type": "boolean"
-                    },
                     "coe": {
                       "type": "boolean"
                     },

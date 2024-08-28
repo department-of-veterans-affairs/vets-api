@@ -112,6 +112,42 @@ module ClaimsApi
       ##
       # IntentToFileWebServiceBean
       #
+      module IntentToFileWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'IntentToFileWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://intenttofile.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module IntentToFileWebService
+        DEFINITION =
+          Service.new(
+            bean: IntentToFileWebServiceBean::DEFINITION,
+            path: 'IntentToFileWebService'
+          )
+
+        module InsertIntentToFile
+          DEFINITION =
+            Action.new(
+              service: IntentToFileWebService::DEFINITION,
+              name: 'insertIntentToFile',
+              key: 'IntentToFileDTO'
+            )
+        end
+
+        module FindIntentToFileByPtcpntIdItfTypeCd
+          DEFINITION =
+            Action.new(
+              service: IntentToFileWebService::DEFINITION,
+              name: 'findIntentToFileByPtcpntIdItfTypeCd',
+              key: 'return'
+            )
+        end
+      end
 
       ##
       # OrgWebServiceBean
@@ -259,7 +295,7 @@ module ClaimsApi
         end
       end
 
-      #
+      ##
       # VnpAtchmsWebServiceBean
       #
       module VnpAtchmsWebServiceBean
@@ -290,8 +326,8 @@ module ClaimsApi
         end
       end
 
-      #
-      ## VnpPersonService
+      ##
+      # VnpPersonService
       #
       module VnpPersonWebServiceBean
         DEFINITION =
@@ -417,10 +453,64 @@ module ClaimsApi
       ##
       # VnpPtcpntPhoneWebServiceBean
       #
+      module VnpPtcpntPhoneWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpPtcpntPhoneWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://ptcpntPhoneService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpPtcpntPhoneService
+        DEFINITION =
+          Service.new(
+            bean: VnpPtcpntPhoneWebServiceBean::DEFINITION,
+            path: 'VnpPtcpntPhoneService'
+          )
+
+        module FindPersonBySSN
+          DEFINITION =
+            Action.new(
+              service: VnpPtcpntPhoneService::DEFINITION,
+              name: 'vnpPtcpntPhoneCreate',
+              key: 'return'
+            )
+        end
+      end
 
       ##
       # VnpPtcpntWebServiceBean
       #
+      module VnpPtcpntWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpPtcpntWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://ptcpntService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpPtcpntService
+        DEFINITION =
+          Service.new(
+            bean: VnpPtcpntWebServiceBean::DEFINITION,
+            path: 'VnpPtcpntService'
+          )
+
+        module VnpPtcpntCreate
+          DEFINITION =
+            Action.new(
+              service: VnpPtcpntService::DEFINITION,
+              name: 'vnpPtcpntCreate',
+              key: 'return'
+            )
+        end
+      end
     end
   end
 end
