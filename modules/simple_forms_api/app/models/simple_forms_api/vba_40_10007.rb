@@ -341,6 +341,10 @@ module SimpleFormsApi
       []
     end
 
+    def desired_stamps
+      []
+    end
+
     private
 
     def get_attachments

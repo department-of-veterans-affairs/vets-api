@@ -17,12 +17,16 @@ module ClaimsApi
     CACHED_SERVICES = %w[
       ClaimantServiceBean/ClaimantWebService
       OrgWebServiceBean/OrgWebService
+      IntentToFileWebServiceBean/IntentToFileWebService
       VDC/VeteranRepresentativeService
       VdcBean/ManageRepresentativeService
       VnpAtchmsWebServiceBean/VnpAtchmsService
       VnpPersonWebServiceBean/VnpPersonService
       VnpProcFormWebServiceBean/VnpProcFormService
       VnpProcWebServiceBeanV2/VnpProcServiceV2
+      VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
+      VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
+      VnpPtcpntWebServiceBean/VnpPtcpntService
     ].freeze
 
     # rubocop:disable Metrics/MethodLength
