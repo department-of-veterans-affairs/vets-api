@@ -160,51 +160,71 @@ class FormProfile
   attribute :military_information, FormMilitaryInformation
 
   class << self
-    FORM_ID_PREFIX = 'FORM-UPLOAD-'
+    FORM_UPLOAD_ID_PREFIX = 'FORM-UPLOAD-'
+    PREDEFINED_FORMS = %w[21-686C 40-10007 0873].freeze
 
     def prefill_enabled_forms
-      ALL_FORMS.each_with_object(%w[21-686C 40-10007 0873]) do |(type, form_list), forms|
-        forms.concat(form_list) if Settings[type].prefill
+      ALL_FORMS.each_with_object(PREDEFINED_FORMS.dup) do |(type, form_list), forms|
+        forms.concat(form_list) if prefill_enabled?(type)
       end
     end
 
     def for(form_id:, user:)
       form_id = form_id.upcase
-      form_class = upload_form?(form_id) ? lookup_upload_class(form_id) : FORM_ID_TO_CLASS.fetch(form_id, self)
+      form_class = determine_form_class(form_id)
       form_class.new(form_id:, user:)
     end
 
-    def mappings_for_form(form_id)
+    def mappings_for_form(form_id, user)
       @mappings ||= {}
       # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
-      form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
-      @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
+      form_id = adjust_form_id_based_on_flags(form_id, user)
+      @mappings[form_id] ||= load_form_mapping(form_id)
     end
 
     def load_form_mapping(form_id)
       form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
-      file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
-      raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
+      file_path = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
+      raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file_path)
 
-      YAML.load_file(file)
+      YAML.load_file(file_path)
     end
 
     private
 
+    def prefill_enabled?(type)
+      Settings[type].prefill
+    end
+
+    def determine_form_class(form_id)
+      upload_form?(form_id) ? lookup_upload_class(form_id) : form_class_for_id(form_id)
+    end
+
     def upload_form?(form_id)
-      form_id.include?(FORM_ID_PREFIX)
+      form_id.include?(FORM_UPLOAD_ID_PREFIX)
     end
 
     def lookup_upload_class(form_id)
-      class_string = extract_class_string(form_id)
-      class_name = "::FormProfiles::FormUpload#{class_string}"
+      class_name = "::FormProfiles::FormUpload#{extract_class_string(form_id)}"
       Object.const_get(class_name)
     rescue NameError
       FormProfiles::FormUploadBase
     end
 
+    def form_class_for_id(form_id)
+      FORM_ID_TO_CLASS.fetch(form_id, self)
+    end
+
     def extract_class_string(form_id)
-      form_id.gsub(FORM_ID_PREFIX, 'VA').delete('-')
+      form_id.gsub(FORM_UPLOAD_ID_PREFIX, 'VA').delete('-')
+    end
+
+    def adjust_form_id_based_on_flags(form_id, user)
+      if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, user)
+        '21P-527EZ-military'
+      else
+        form_id
+      end
     end
   end
 
