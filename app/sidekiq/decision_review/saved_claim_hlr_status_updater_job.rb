@@ -23,9 +23,7 @@ module DecisionReview
 
       higher_level_reviews.each do |hlr|
         guid = hlr.guid
-        response = decision_review_service.get_higher_level_review(guid).body
-        status = response.dig('data', 'attributes', 'status')
-        attributes = response.dig('data', 'attributes')
+        status, attributes = get_status_and_attributes(guid)
 
         timestamp = DateTime.now
         params = { metadata: attributes.to_json, metadata_updated_at: timestamp }
@@ -34,6 +32,8 @@ module DecisionReview
           params[:delete_date] = timestamp + RETENTION_PERIOD
           StatsD.increment("#{STATSD_KEY_PREFIX}.delete_date_update")
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
+        else
+          StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])
         end
 
         hlr.update(params)
@@ -53,6 +53,14 @@ module DecisionReview
 
     def higher_level_reviews
       @higher_level_reviews ||= ::SavedClaim::HigherLevelReview.where(delete_date: nil).order(created_at: :asc)
+    end
+
+    def get_status_and_attributes(guid)
+      response = decision_review_service.get_higher_level_review(guid).body
+      status = response.dig('data', 'attributes', 'status')
+      attributes = response.dig('data', 'attributes')
+
+      [status, attributes]
     end
 
     def enabled?

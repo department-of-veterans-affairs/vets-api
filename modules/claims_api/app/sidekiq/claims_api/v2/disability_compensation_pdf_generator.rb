@@ -38,7 +38,7 @@ module ClaimsApi
                            '526EZ PDF generator PDF string returned')
 
           file_name = "#{SecureRandom.hex}.pdf"
-          path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
+          path = ::Common::FileHelpers.generate_clamav_temp_file(pdf_string, file_name)
           upload = ActionDispatch::Http::UploadedFile.new({
                                                             filename: file_name,
                                                             type: 'application/pdf',

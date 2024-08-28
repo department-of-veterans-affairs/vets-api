@@ -2,6 +2,8 @@
 
 module IvcChampva
   class VHA107959a
+    ADDITIONAL_PDF_KEY = 'claims'
+    ADDITIONAL_PDF_COUNT = 1
     STATS_KEY = 'api.ivc_champva_form.10_7959a'
 
     include Virtus.model(nullify_blank: true)

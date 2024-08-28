@@ -43,7 +43,7 @@ module ClaimsApi
       end
 
       def get_evss_data(auto_claim)
-        evss_mapper_service(auto_claim, veteran_file_number(auto_claim)).map_claim
+        evss_mapper_service(auto_claim).map_claim
       end
     end
   end

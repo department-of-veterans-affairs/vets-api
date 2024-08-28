@@ -8,10 +8,10 @@ module RedisHealthChecker
   def self.app_data_redis_up
     Thread.current[:app_data_redis_up] ||= begin
       # Test 1: Check attribute that uses redis key
-      bank_name = BankName.find_or_build('fake routing number')
-      bank_name.update(bank_name: 'fake bank name')
-      BankName.delete('fake routing number')
-      bank_name.present?
+      session = Session.find_or_build('fake token')
+      session.update(uuid: '1234')
+      Session.delete('fake token')
+      session.present?
     rescue => e
       Rails.logger.error(
         { message: "ARGO CD UPGRADE - REDIS TEST: Failed to access app data Redis. Error: #{e.message}" }
