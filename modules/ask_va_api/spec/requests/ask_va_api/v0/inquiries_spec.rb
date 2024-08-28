@@ -138,7 +138,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                  'type' => 'correspondence',
                  'attributes' =>
                  { 'message_type' => '722310001: Response from VA',
-                   'modified_on' => '1/2/23',
+                   'created_on' => '1/2/23 4:45:45 PM',
+                   'modified_on' => '1/2/23 5:45:45 PM',
                    'status_reason' => 'Completed/Sent',
                    'description' => 'Your claim is still In Progress',
                    'enable_reply' => true,
@@ -206,6 +207,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                      'type' => 'correspondence',
                      'attributes' =>
                      { 'message_type' => nil,
+                       'created_on' => '8/5/2024 4:51:52 PM',
                        'modified_on' => nil,
                        'status_reason' => nil,
                        'description' => nil,

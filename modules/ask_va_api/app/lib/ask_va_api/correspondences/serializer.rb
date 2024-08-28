@@ -7,6 +7,7 @@ module AskVAApi
       set_type :correspondence
 
       attributes :message_type,
+                 :created_on,
                  :modified_on,
                  :status_reason,
                  :description,

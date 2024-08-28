@@ -8,7 +8,8 @@ RSpec.describe AskVAApi::Correspondences::Entity do
   let(:info) do
     {
       Id: '1',
-      ModifiedOn: '1/2/23',
+      CreatedOn: '1/2/23 4:45:45 PM',
+      ModifiedOn: '1/2/23 5:45:45 PM',
       StatusReason: 'Completed/Sent',
       Description: 'Your claim is still In Progress',
       MessageType: '722310001: Response from VA',
