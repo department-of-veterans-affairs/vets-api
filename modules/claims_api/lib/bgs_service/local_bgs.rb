@@ -16,6 +16,7 @@ module ClaimsApi
   class LocalBGS
     CACHED_SERVICES = %w[
       ClaimantServiceBean/ClaimantWebService
+      IntentToFileWebServiceBean/IntentToFileWebService
       OrgWebServiceBean/OrgWebService
       PersonWebServiceBean/PersonWebService
       VDC/VeteranRepresentativeService
