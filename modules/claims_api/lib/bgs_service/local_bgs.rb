@@ -17,8 +17,10 @@ module ClaimsApi
     CACHED_SERVICES = %w[
       ClaimantServiceBean/ClaimantWebService
       EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
+      IntentToFileWebServiceBean/IntentToFileWebService
       OrgWebServiceBean/OrgWebService
-      OrgWebServiceBean/OrgWebService
+      PersonWebServiceBean/PersonWebService
+      TrackedItemService/TrackedItemService
       VDC/VeteranRepresentativeService
       VdcBean/ManageRepresentativeService
       VnpAtchmsWebServiceBean/VnpAtchmsService

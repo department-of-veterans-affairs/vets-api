@@ -112,6 +112,42 @@ module ClaimsApi
       ##
       # IntentToFileWebServiceBean
       #
+      module IntentToFileWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'IntentToFileWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://intenttofile.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module IntentToFileWebService
+        DEFINITION =
+          Service.new(
+            bean: IntentToFileWebServiceBean::DEFINITION,
+            path: 'IntentToFileWebService'
+          )
+
+        module InsertIntentToFile
+          DEFINITION =
+            Action.new(
+              service: IntentToFileWebService::DEFINITION,
+              name: 'insertIntentToFile',
+              key: 'IntentToFileDTO'
+            )
+        end
+
+        module FindIntentToFileByPtcpntIdItfTypeCd
+          DEFINITION =
+            Action.new(
+              service: IntentToFileWebService::DEFINITION,
+              name: 'findIntentToFileByPtcpntIdItfTypeCd',
+              key: 'return'
+            )
+        end
+      end
 
       ##
       # OrgWebServiceBean
@@ -171,6 +207,38 @@ module ClaimsApi
               service: PersonWebService::DEFINITION,
               name: 'findPersonBySSN',
               key: 'PersonDTO'
+            )
+        end
+      end
+
+      ##
+      # TrackedItemService
+      #
+      # Adding 'Bean' to the end to differentiate from the service
+      module TrackedItemServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'TrackedItemService',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module TrackedItemService
+        DEFINITION =
+          Service.new(
+            bean: TrackedItemServiceBean::DEFINITION,
+            path: 'TrackedItemService'
+          )
+
+        module FindTrackedItems
+          DEFINITION =
+            Action.new(
+              service: TrackedItemService::DEFINITION,
+              name: 'findTrackedItems',
+              key: 'BenefitClaim'
             )
         end
       end
