@@ -159,25 +159,53 @@ class FormProfile
   attribute :contact_information, FormContactInformation
   attribute :military_information, FormMilitaryInformation
 
-  def self.prefill_enabled_forms
-    ALL_FORMS.each_with_object(%w[21-686C 40-10007 0873]) do |(type, form_list), forms|
-      forms.concat(form_list) if Settings[type].prefill
+  class << self
+    FORM_ID_PREFIX = 'FORM-UPLOAD-'
+
+    def prefill_enabled_forms
+      ALL_FORMS.each_with_object(%w[21-686C 40-10007 0873]) do |(type, form_list), forms|
+        forms.concat(form_list) if Settings[type].prefill
+      end
     end
-  end
 
-  def self.form_upload_class_from_string(form_id)
-    class_string = form_id.gsub('FORM-UPLOAD-', 'VA').delete('-')
-    class_name = "::FormProfiles::FormUpload#{class_string}"
-    Object.const_get(class_name)
-  end
+    def for(form_id:, user:)
+      form_id = form_id.upcase
+      form_class = upload_form?(form_id) ? lookup_upload_class(form_id) : FORM_ID_TO_CLASS.fetch(form_id, self)
+      form_class.new(form_id:, user:)
+    end
 
-  # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
-  def self.for(form_id:, user:)
-    form_id = form_id.upcase
+    def mappings_for_form(form_id)
+      @mappings ||= {}
+      # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
+      form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
+      @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
+    end
 
-    return form_upload_class_from_string(form_id).new if form_id.include?('FORM-UPLOAD-')
+    def load_form_mapping(form_id)
+      form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
+      file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
+      raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 
-    FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id:, user:)
+      YAML.load_file(file)
+    end
+
+    private
+
+    def upload_form?(form_id)
+      form_id.include?(FORM_ID_PREFIX)
+    end
+
+    def lookup_upload_class(form_id)
+      class_string = extract_class_string(form_id)
+      class_name = "::FormProfiles::FormUpload#{class_string}"
+      Object.const_get(class_name)
+    rescue NameError
+      FormProfiles::FormUploadBase
+    end
+
+    def extract_class_string(form_id)
+      form_id.gsub(FORM_ID_PREFIX, 'VA').delete('-')
+    end
   end
 
   def initialize(form_id:, user:)
@@ -187,21 +215,6 @@ class FormProfile
 
   def metadata
     {}
-  end
-
-  def self.mappings_for_form(form_id)
-    @mappings ||= {}
-    # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
-    form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
-    @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
-  end
-
-  def self.load_form_mapping(form_id)
-    form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
-    file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
-    raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
-
-    YAML.load_file(file)
   end
 
   # Collects data the VA has on hand for a user. The data may come from many databases/services.
