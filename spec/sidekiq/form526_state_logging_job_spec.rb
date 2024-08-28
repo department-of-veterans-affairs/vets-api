@@ -9,6 +9,8 @@ RSpec.describe Form526StateLoggingJob, type: :worker do
 
   let!(:olden_times) { (Form526Submission::MAX_PENDING_TIME + 1.day).ago }
   let!(:modern_times) { 2.days.ago }
+  let!(:end_date) { Time.zone.today.beginning_of_day }
+  let!(:start_date) { end_date - 1.week }
 
   describe '526 state logging' do
     let!(:new_unprocessed) do
@@ -263,6 +265,37 @@ RSpec.describe Form526StateLoggingJob, type: :worker do
           new_double_job_failure.id,
           new_double_job_failure_de_remediated.id
         ].sort
+      }
+
+      expect(described_class.new.state_log).to eq(expected_log)
+    end
+
+    it 'converts the logs to counts where prefered' do
+      expected_log = {
+        state_log: {
+          timeboxed_count: 17,
+          timeboxed_primary_successes_count: 4,
+          timeboxed_exhausted_primary_job_count: 8,
+          timeboxed_exhausted_backup_job_count: 3,
+          timeboxed_incomplete_type_count: 5,
+          total_awaiting_backup_status_count: 1,
+          total_incomplete_type_count: 5,
+          total_failure_type_count: 10,
+          total_failure_type_ids: [
+            old_unprocessed.id,
+            old_backup_pending.id,
+            new_backup_rejected.id,
+            old_backup_rejected.id,
+            old_double_job_failure.id,
+            old_double_job_failure_de_remediated.id,
+            old_no_job_de_remediated.id,
+            old_remediated_and_de_remediated.id,
+            new_double_job_failure.id,
+            new_double_job_failure_de_remediated.id
+          ].sort
+        },
+        start_date:,
+        end_date:
       }
 
       expect(Rails.logger).to receive(:info) do |label, log|
