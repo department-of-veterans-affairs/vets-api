@@ -10,6 +10,7 @@ RSpec.describe 'V0::PPIU::PaymentInformation', type: :request do
 
   before do
     sign_in(user)
+    allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
                                         .and_return(false)
   end
@@ -259,6 +260,7 @@ RSpec.describe 'V0::PPIU::PaymentInformation', type: :request do
   describe 'feature flag' do
     context 'when feature flag enabled' do
       before do
+        allow(Flipper).to receive(:enabled?).and_call_original
         allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
                                             .and_return(true)
       end
