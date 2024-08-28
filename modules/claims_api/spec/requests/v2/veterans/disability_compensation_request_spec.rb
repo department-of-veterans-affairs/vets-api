@@ -2662,7 +2662,7 @@ RSpec.describe 'Disability Claims', type: :request do
             context 'and the separationLocationCode is blank' do
               let(:separation_location_code) { nil }
 
-              it 'responds with a 422' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   service_period = json['data']['attributes']['serviceInformation']['servicePeriods'][0]
@@ -2678,7 +2678,7 @@ RSpec.describe 'Disability Claims', type: :request do
             context 'and the separationLocationCode is an empty string' do
               let(:separation_location_code) { '' }
 
-              it 'responds with a 422' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   service_period = json['data']['attributes']['serviceInformation']['servicePeriods'][0]
