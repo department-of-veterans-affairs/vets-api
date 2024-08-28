@@ -37,7 +37,7 @@ RSpec.describe 'HealthQuest::V0::Organizations', type: :request do
         allow_any_instance_of(HealthQuest::Resource::Query).to receive(:search).with(anything).and_return(client_reply)
       end
 
-      it 'returns a FHIR Bundle ' do
+      it 'returns a FHIR Bundle' do
         get '/health_quest/v0/organizations?_id=abc123,def456'
 
         expect(JSON.parse(response.body)).to eq({ 'resourceType' => 'Bundle' })
