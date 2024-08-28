@@ -6,7 +6,7 @@ require 'rails_helper'
 require_relative '../../rails_helper'
 require_relative '../../support/swagger_shared_components/v1'
 
-describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
+Rspec.describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do
   path '/claims' do
     get 'Find all benefits claims for a Veteran' do
       tags 'Claims'
@@ -54,7 +54,7 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
 
       describe 'Getting a 200 response' do
         response '200', 'claim response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'claims.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'claims.json').read)
 
           let(:scopes) { %w[claim.read] }
 
@@ -86,8 +86,8 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read] }
           let(:Authorization) { nil }
@@ -119,8 +119,8 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
 
       describe 'Getting a 404 response' do
         response '404', 'Resource Not Found' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read] }
 
@@ -189,7 +189,7 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
 
       describe 'Getting a 200 response' do
         response '200', 'claims response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'claim.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'claim.json').read)
 
           let(:scopes) { %w[claim.read] }
           let(:claim) do
@@ -223,8 +223,8 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read] }
           let(:id) { '600118851' }
@@ -257,8 +257,8 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
 
       describe 'Getting a 404 response' do
         response '404', 'Record Not Found' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[claim.read] }
           let(:id) { '999999999999999' }

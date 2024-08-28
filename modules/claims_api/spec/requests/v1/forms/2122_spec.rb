@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../rails_helper'
+require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
 
-RSpec.describe 'Power of Attorney ', type: :request do
+RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
   let(:headers) do
     { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',
@@ -27,9 +27,9 @@ RSpec.describe 'Power of Attorney ', type: :request do
   end
 
   describe '#2122' do
-    let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json')) }
+    let(:data) { Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json').read }
     let(:path) { '/services/claims/v1/forms/2122' }
-    let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '2122.json')) }
+    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '2122.json').read }
 
     describe 'schema' do
       it 'returns a successful get response with json schema' do
@@ -111,7 +111,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
               it 'returns an unprocessible entity status' do
                 mock_acg(scopes) do |auth_header|
                   post path, params: data, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(422)
+                  expect(response).to have_http_status(:unprocessable_entity)
                 end
               end
             end
@@ -125,7 +125,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                     post path, params: data, headers: auth_header
 
                     response_body = JSON.parse response.body
-                    expect(response.status).to eq(422)
+                    expect(response).to have_http_status(:unprocessable_entity)
                     expect(response_body['errors'][0]['detail']).to eq(
                       "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
                       'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
@@ -153,7 +153,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                     allow(bgs_poa_verifier).to receive(:current_poa_code)
                       .and_return(Struct.new(:code).new('HelloWorld'))
                     post path, params: data, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
@@ -170,7 +170,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
                 allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
                 params = JSON.parse data
-                base64_signature = File.read(::Rails.root.join(
+                base64_signature = File.read(Rails.root.join(
                   *'/modules/claims_api/spec/fixtures/signature_b64.txt'.split('/')
                 ).to_s)
                 signatures = { veteran: base64_signature, representative: base64_signature }
@@ -205,13 +205,13 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
           it 'responds with a 422' do
             mock_acg(scopes) do |auth_header|
-              allow(::Veteran::Service::Representative).to receive(:all_for_user).and_return([])
+              allow(Veteran::Service::Representative).to receive(:all_for_user).and_return([])
               allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                 .to receive(:check_request_ssn_matches_mpi).and_return(nil)
 
               post path, params: data, headers: headers.merge(auth_header)
 
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
               error_detail = JSON.parse(response.body)['errors'][0]['detail']
               substring = 'Veterans making requests do not need to include identifying headers'
               expect(error_detail.include?(substring)).to be true
@@ -225,7 +225,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
               allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                 .to receive(:check_request_ssn_matches_mpi).and_return(nil)
               post path, params: data, headers: headers.merge(auth_header)
-              expect(response.status).to eq(400)
+              expect(response).to have_http_status(:bad_request)
             end
           end
         end
@@ -237,7 +237,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
             allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
               .to receive(:check_request_ssn_matches_mpi).and_return(nil)
             post path, params: data, headers: headers.merge(auth_header)
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -253,7 +253,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
               .and_raise(ArgumentError)
             mock_acg(scopes) do |auth_header|
               post path, params: data, headers: headers.merge(auth_header)
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -269,13 +269,13 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
           it 'responds with invalid birth_date' do
             mock_acg(scopes) do |auth_header|
-              allow(::Veteran::Service::Representative).to receive(:all_for_user).and_return([])
+              allow(Veteran::Service::Representative).to receive(:all_for_user).and_return([])
               allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                 .to receive(:check_request_ssn_matches_mpi).and_return(nil)
 
               post path, params: data, headers: invalid_headers.merge(auth_header)
 
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
               error_detail = JSON.parse(response.body)['errors'][0]['detail']
               substring = 'The following values are invalid: X-VA-Birth-Date'
               expect(error_detail).to eq(substring)
@@ -294,13 +294,13 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
           it 'responds with invalid birth_date' do
             mock_acg(scopes) do |auth_header|
-              allow(::Veteran::Service::Representative).to receive(:all_for_user).and_return([])
+              allow(Veteran::Service::Representative).to receive(:all_for_user).and_return([])
               allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                 .to receive(:check_request_ssn_matches_mpi).and_return(nil)
 
               post path, params: data, headers: invalid_headers.merge(auth_header)
 
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
               error_detail = JSON.parse(response.body)['errors'][0]['detail']
               substring = 'The following values are invalid: X-VA-First-Name, X-VA-Last-Name'
               expect(error_detail).to eq(substring)
@@ -319,7 +319,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
             params = json_data
             params['data']['attributes']['serviceOrganization']['poaCode'] = nil
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             expect(JSON.parse(response.body)['errors'].size).to eq(1)
           end
         end
@@ -331,7 +331,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
             params = json_data
             params['data']['attributes']['someBadField'] = 'someValue'
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             expect(JSON.parse(response.body)['errors'].size).to eq(1)
             expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
               'The property /someBadField is not defined on the schema. Additional properties are not allowed'
@@ -369,7 +369,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
             params = JSON.parse data
             params['data']['attributes']['veteran'] = vetdata
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           end
         end
       end
@@ -392,12 +392,12 @@ RSpec.describe 'Power of Attorney ', type: :request do
     describe '#upload' do
       let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
       let(:binary_params) do
-        { attachment: Rack::Test::UploadedFile.new(::Rails.root.join(
+        { attachment: Rack::Test::UploadedFile.new(Rails.root.join(
           *'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')
         ).to_s) }
       end
       let(:base64_params) do
-        { attachment: File.read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
+        { attachment: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
       end
 
       it 'submit binary and change the document status' do
@@ -444,7 +444,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
               allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                 .to receive(:check_request_ssn_matches_mpi).with('987654321')
               parsed = JSON.parse(response.body)
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
               expect(parsed['errors'].first['title']).to eq('Unprocessable Entity')
             end
           end
@@ -465,7 +465,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
               power_of_attorney.reload
               parsed = JSON.parse(response.body)
               expect(power_of_attorney.file_data).to be_nil
-              expect(response.status).to eq(424)
+              expect(response).to have_http_status(:failed_dependency)
               expect(parsed['errors'].first['title']).to eq('Failed Dependency')
               expect(parsed['errors'].first['detail']).to eq('Failure occurred in a system dependency')
             end
@@ -491,7 +491,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 power_of_attorney.reload
                 parsed = JSON.parse(response.body)
                 expect(power_of_attorney.file_data).to be_nil
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
                 expect(parsed['errors'].first['title']).to eq('Unprocessable Entity')
                 expect(parsed['errors'].first['detail']).to eq(error_detail)
               end
@@ -511,7 +511,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 power_of_attorney.reload
                 parsed = JSON.parse(response.body)
                 expect(power_of_attorney.file_data).to be_nil
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
                 expect(parsed['errors'].first['title']).to eq('Unprocessable Entity')
                 expect(parsed['errors'].first['detail']).to eq(error_detail)
               end
@@ -531,7 +531,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 power_of_attorney.reload
                 parsed = JSON.parse(response.body)
                 expect(power_of_attorney.file_data).to be_nil
-                expect(response.status).to eq(422)
+                expect(response).to have_http_status(:unprocessable_entity)
                 expect(parsed['errors'].first['title']).to eq('Unprocessable Entity')
                 expect(parsed['errors'].first['detail']).to eq(error_detail)
               end
@@ -548,7 +548,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
             allow_any_instance_of(pws)
               .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
             put("#{path}/#{power_of_attorney.id}", headers: headers.merge(auth_header))
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
             expect(response.parsed_body['errors'][0]['title']).to eq('Missing parameter')
             expect(response.parsed_body['errors'][0]['detail']).to eq('Must include attachment')
           end
@@ -604,7 +604,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
             expect(bgs_poa_verifier).to receive(:current_poa_code).and_return(nil).once
             get("#{path}/active", params: nil, headers: headers.merge(auth_header))
-            expect(response.status).to eq(404)
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
@@ -633,7 +633,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
             get("#{path}/active", params: nil, headers: headers.merge(auth_header))
 
             parsed = JSON.parse(response.body)
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
             expect(parsed['data']['attributes']['representative']['service_organization']['poa_code'])
               .to eq('HelloWorld')
           end
@@ -644,7 +644,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         it 'returns a 403' do
           mock_acg(scopes) do |auth_header|
             get("#{path}/active", params: nil, headers: headers.merge(auth_header))
-            expect(response.status).to eq(403)
+            expect(response).to have_http_status(:forbidden)
           end
         end
       end
@@ -664,7 +664,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
               expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').exactly(3).times
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
-              expect(::Veteran::Service::Organization).to receive(:find_by).and_return(
+              expect(Veteran::Service::Organization).to receive(:find_by).and_return(
                 OpenStruct.new(name: 'Some Great Organization', phone: '555-555-5555')
               ).twice
 
@@ -672,7 +672,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
               parsed = JSON.parse(response.body)
 
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
               expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
                 .to eq('Some Great Organization')
               expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
@@ -694,7 +694,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
               expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').exactly(3).times
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
-              allow(::Veteran::Service::Representative).to receive(:where).and_return(
+              allow(Veteran::Service::Representative).to receive(:where).and_return(
                 [
                   OpenStruct.new(
                     first_name: 'Tommy',
@@ -708,7 +708,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
               parsed = JSON.parse(response.body)
 
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
               expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
                 .to eq('Tommy')
               expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
@@ -729,12 +729,12 @@ RSpec.describe 'Power of Attorney ', type: :request do
               ).to receive(:validate_user_is_accredited!).and_return(nil)
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
               expect(bgs_poa_verifier).to receive(:current_poa_code).and_return('HelloWorld').twice
-              allow(::Veteran::Service::Organization).to receive(:find_by).and_return(nil)
-              allow(::Veteran::Service::Representative).to receive(:where).and_return([])
+              allow(Veteran::Service::Organization).to receive(:find_by).and_return(nil)
+              allow(Veteran::Service::Representative).to receive(:where).and_return([])
 
               get("#{path}/active", params: nil, headers: headers.merge(auth_header))
 
-              expect(response.status).to eq(404)
+              expect(response).to have_http_status(:not_found)
             end
           end
         end
