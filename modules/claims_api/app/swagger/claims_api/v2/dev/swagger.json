@@ -2938,8 +2938,9 @@
                                 "city": {
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                  "maxLength": 1000,
+                                  "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                  "minLength": 0,
+                                  "maxLength": 30,
                                   "example": "Portland"
                                 },
                                 "state": {
@@ -3453,7 +3454,7 @@
                                     "nullable": true
                                   },
                                   "treatedDisabilityNames": {
-                                    "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                    "description": "Name(s) of disabilities treated in this time frame.",
                                     "type": "array",
                                     "nullable": true,
                                     "maxItems": 101,
@@ -3484,9 +3485,11 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                        "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                         "example": "Portland",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "minLength": 0,
+                                        "maxLength": 30
                                       },
                                       "state": {
                                         "description": "State of treatment facility.",
@@ -4315,8 +4318,9 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                "maxLength": 1000,
+                                "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                "minLength": 0,
+                                "maxLength": 30,
                                 "example": "Portland"
                               },
                               "state": {
@@ -4830,7 +4834,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -4861,9 +4865,11 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                      "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                       "example": "Portland",
-                                      "nullable": true
+                                      "nullable": true,
+                                      "minLength": 0,
+                                      "maxLength": 30
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
@@ -5782,7 +5788,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "81519caa-97be-445b-943a-c7b7ed6d77c6",
+                        "id": "c41045ef-67ec-456c-906c-cb0155083478",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5967,7 +5973,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-08-24"
+                              "anticipatedSeparationDate": "2024-08-30"
                             },
                             "confinements": [
                               {
@@ -6013,7 +6019,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "43fcbc8f-2e44-494c-8593-894729fbd8cc",
+                        "id": "05263a98-41fe-40af-9f1e-0075dccb27cc",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -6467,8 +6473,9 @@
                                 "city": {
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                  "maxLength": 1000,
+                                  "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                  "minLength": 0,
+                                  "maxLength": 30,
                                   "example": "Portland"
                                 },
                                 "state": {
@@ -6982,7 +6989,7 @@
                                     "nullable": true
                                   },
                                   "treatedDisabilityNames": {
-                                    "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                    "description": "Name(s) of disabilities treated in this time frame.",
                                     "type": "array",
                                     "nullable": true,
                                     "maxItems": 101,
@@ -7013,9 +7020,11 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                        "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                         "example": "Portland",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "minLength": 0,
+                                        "maxLength": 30
                                       },
                                       "state": {
                                         "description": "State of treatment facility.",
@@ -7844,8 +7853,9 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                "maxLength": 1000,
+                                "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                "minLength": 0,
+                                "maxLength": 30,
                                 "example": "Portland"
                               },
                               "state": {
@@ -8359,7 +8369,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -8390,9 +8400,11 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                      "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                       "example": "Portland",
-                                      "nullable": true
+                                      "nullable": true,
+                                      "minLength": 0,
+                                      "maxLength": 30
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
@@ -9998,8 +10010,9 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                "maxLength": 1000,
+                                "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                "minLength": 0,
+                                "maxLength": 30,
                                 "example": "Portland"
                               },
                               "state": {
@@ -10513,7 +10526,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -10544,9 +10557,11 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                      "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                       "example": "Portland",
-                                      "nullable": true
+                                      "nullable": true,
+                                      "minLength": 0,
+                                      "maxLength": 30
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
@@ -11210,7 +11225,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "94445ea7-e237-49f3-9cf7-67496122193a",
+                    "id": "b826dcd2-c41b-496e-a746-a983cd216902",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12999,7 +13014,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -14151,8 +14166,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-08-22",
-                      "expirationDate": "2025-08-22",
+                      "creationDate": "2024-08-28",
+                      "expirationDate": "2025-08-28",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -15048,7 +15063,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0505e349-36be-455d-a869-1a78cb3de50a",
+                    "id": "5f60ad74-3852-45c3-acea-6dbfc86e9598",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15741,7 +15756,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c4f031dc-d6da-4447-b5fb-dc24ce78990c",
+                    "id": "95528f1f-e16f-4585-8c58-aa7187fc247b",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17692,10 +17707,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5b8f1642-3314-44ac-ac4a-059c1cac9b8e",
+                    "id": "e26ca565-f778-43fa-89ee-821af17f8447",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-08-22",
+                      "dateRequestAccepted": "2024-08-28",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
