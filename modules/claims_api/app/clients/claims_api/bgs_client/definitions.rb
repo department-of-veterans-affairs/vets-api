@@ -259,7 +259,7 @@ module ClaimsApi
         end
       end
 
-      #
+      ##
       # VnpAtchmsWebServiceBean
       #
       module VnpAtchmsWebServiceBean
@@ -290,8 +290,8 @@ module ClaimsApi
         end
       end
 
-      #
-      ## VnpPersonService
+      ##
+      # VnpPersonService
       #
       module VnpPersonWebServiceBean
         DEFINITION =
@@ -417,6 +417,33 @@ module ClaimsApi
       ##
       # VnpPtcpntPhoneWebServiceBean
       #
+      module VnpPtcpntPhoneWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VnpPtcpntPhoneWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://ptcpntPhoneService.services.vonapp.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VnpPtcpntPhoneService
+        DEFINITION =
+          Service.new(
+            bean: VnpPtcpntPhoneWebServiceBean::DEFINITION,
+            path: 'VnpPtcpntPhoneService'
+          )
+
+        module FindPersonBySSN
+          DEFINITION =
+            Action.new(
+              service: VnpPtcpntPhoneService::DEFINITION,
+              name: 'vnpPtcpntPhoneCreate',
+              key: 'return'
+            )
+        end
+      end
 
       ##
       # VnpPtcpntWebServiceBean
