@@ -88,8 +88,10 @@ class FormProfile
   MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }
 
   ALL_FORMS = {
-    edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
-            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
+    edu: %w[
+      22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E 22-5495
+      22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ
+    ],
     evss: ['21-526EZ'],
     hca: %w[1010ez 10-10EZR],
     pension_burial: %w[21P-530 21P-527EZ 21P-530V2],
@@ -103,51 +105,50 @@ class FormProfile
     adapted_housing: ['26-4555'],
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
-    form_upload_flow: ['FORM-UPLOAD-FLOW'],
+    form_upload: ['FORM-UPLOAD-21-0779'],
     acc_rep_management: %w[21-22 21-22A],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS']
   }.freeze
 
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
-    '1010EZ' => ::FormProfiles::VA1010ez,
     '10-10EZR' => ::FormProfiles::VA1010ezr,
     '10-7959C' => ::FormProfiles::VHA107959c,
+    '1010EZ' => ::FormProfiles::VA1010ez,
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
+    '21-0966' => ::FormProfiles::VA210966,
+    '21-22' => ::FormProfiles::VA2122,
+    '21-22A' => ::FormProfiles::VA2122a,
     '21-526EZ' => ::FormProfiles::VA526ez,
+    '21-686C' => ::FormProfiles::VA21686c,
+    '21P-527EZ' => ::FormProfiles::VA21p527ez,
+    '21P-530' => ::FormProfiles::VA21p530,
+    '21P-530V2' => ::FormProfiles::VA21p530v2,
+    '22-0993' => ::FormProfiles::VA0993,
+    '22-0994' => ::FormProfiles::VA0994,
+    '22-10203' => ::FormProfiles::VA10203,
     '22-1990' => ::FormProfiles::VA1990,
-    '22-1990N' => ::FormProfiles::VA1990n,
     '22-1990E' => ::FormProfiles::VA1990e,
     '22-1990EMEB' => ::FormProfiles::VA1990emeb,
+    '22-1990EZ' => ::FormProfiles::VA1990ez,
+    '22-1990N' => ::FormProfiles::VA1990n,
+    '22-1990S' => ::FormProfiles::VA1990s,
     '22-1995' => ::FormProfiles::VA1995,
     '22-5490' => ::FormProfiles::VA5490,
     '22-5490E' => ::FormProfiles::VA5490e,
     '22-5495' => ::FormProfiles::VA5495,
-    '21P-530' => ::FormProfiles::VA21p530,
-    '21P-530V2' => ::FormProfiles::VA21p530v2,
-    '21-686C' => ::FormProfiles::VA21686c,
-    '686C-674' => ::FormProfiles::VA686c674,
-    '40-10007' => ::FormProfiles::VA4010007,
-    '21P-527EZ' => ::FormProfiles::VA21p527ez,
-    '22-0993' => ::FormProfiles::VA0993,
-    '22-0994' => ::FormProfiles::VA0994,
-    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
-    'MDOT' => ::FormProfiles::MDOT,
-    '22-10203' => ::FormProfiles::VA10203,
-    '22-1990S' => ::FormProfiles::VA1990s,
-    '5655' => ::FormProfiles::VA5655,
-    '28-8832' => ::FormProfiles::VA288832,
-    '28-1900' => ::FormProfiles::VA281900,
-    '22-1990EZ' => ::FormProfiles::VA1990ez,
     '26-1880' => ::FormProfiles::VA261880,
     '26-4555' => ::FormProfiles::VA264555,
-    '21-0966' => ::FormProfiles::VA210966,
-    'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
-    '21-22' => ::FormProfiles::VA2122,
-    '21-22A' => ::FormProfiles::VA2122a,
-    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns
+    '28-1900' => ::FormProfiles::VA281900,
+    '28-8832' => ::FormProfiles::VA288832,
+    '40-10007' => ::FormProfiles::VA4010007,
+    '5655' => ::FormProfiles::VA5655,
+    '686C-674' => ::FormProfiles::VA686c674,
+    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
+    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
+    'MDOT' => ::FormProfiles::MDOT
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -159,14 +160,23 @@ class FormProfile
   attribute :military_information, FormMilitaryInformation
 
   def self.prefill_enabled_forms
-    forms = %w[21-686C 40-10007 0873]
-    ALL_FORMS.each { |type, form_list| forms += form_list if Settings[type].prefill }
-    forms
+    ALL_FORMS.each_with_object(%w[21-686C 40-10007 0873]) do |(type, form_list), forms|
+      forms.concat(form_list) if Settings[type].prefill
+    end
+  end
+
+  def self.form_upload_class_from_string(form_id)
+    class_string = form_id.gsub('FORM-UPLOAD-', 'VA').delete('-')
+    class_name = "::FormProfiles::FormUpload#{class_string}"
+    Object.const_get(class_name)
   end
 
   # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
   def self.for(form_id:, user:)
     form_id = form_id.upcase
+
+    return form_upload_class_from_string(form_id).new if form_id.include?('FORM-UPLOAD-')
+
     FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id:, user:)
   end
 
