@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../../../support/stub_financial_status_report'
 require_relative '../../../support/financial_status_report_helpers'
 
-RSpec.describe 'DebtsApi::V0::FinancialStatusReports requesting', type: :request do
+RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
   let(:fsr_service) { DebtsApi::V0::FinancialStatusReportService }
   let(:full_transform_service) { DebtsApi::V0::FsrFormTransform::FullTransformService }
   let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
