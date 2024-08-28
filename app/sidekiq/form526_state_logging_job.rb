@@ -21,8 +21,6 @@ class Form526StateLoggingJob
                       start_date:,
                       end_date:)
   rescue => e
-    puts("\n\n wipn8923 :: #{File.basename(__FILE__)}-#{self.class.name}##{__method__.to_s} - \n\t data: #{e} \n\n")
-
     Rails.logger.error('Error logging 526 state data',
                        class: self.class.name,
                        message: e.try(:message),
@@ -37,7 +35,7 @@ class Form526StateLoggingJob
   def abbreviated_state_log
     {}.tap do |abbreviation|
       state_log.each do |dp, ids|
-        abbreviation["#{dp}_count".to_sym] = ids.count
+        abbreviation[:"#{dp}_count"] = ids.count
       end
       abbreviation[:total_failure_type_ids] = total_failure_type
     end
@@ -57,7 +55,7 @@ class Form526StateLoggingJob
     {
       total_awaiting_backup_status: Form526Submission.pending_backup.pluck(:id).sort,
       total_incomplete_type: Form526Submission.incomplete_type.pluck(:id).sort,
-      total_failure_type: total_failure_type
+      total_failure_type:
     }
   end
 
