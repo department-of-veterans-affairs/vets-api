@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-Rspec.describe DhpConnectedDevices::VeteranDeviceRecordsController, type: :request do
+Rspec.describe 'DhpConnectedDevices::VeteranDeviceRecords', type: :request do
   let(:current_user) { build(:user, :loa1) }
   let(:user_without_icn) { build(:user, :loa1, icn: '') }
 
