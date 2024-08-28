@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/form_base'
-require 'pdf_fill/hash_converter'
 
 module PdfFill
   module Forms
