@@ -194,7 +194,7 @@ module VAOS
           dates = []
 
           requested_periods.each do |period|
-            if !period&.[](:start).nil?
+            unless period&.[](:start).nil?
               datetime = DateTime.parse(period[:start])
               if datetime.strftime('%p') == 'AM'
                 dates.push(datetime.strftime(OUTPUT_FORMAT_AM))
