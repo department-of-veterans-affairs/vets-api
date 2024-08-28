@@ -43,9 +43,6 @@ RSpec.describe 'NextStepsEmailController', type: :request do
             'representative address' => 'Address'
           }
         )
-        allow(VANotify::EmailJob).to receive(:perform_async) do |*args|
-          puts "perform_async called with: #{args.inspect}"
-        end
         post(base_path, params:)
       end
     end
