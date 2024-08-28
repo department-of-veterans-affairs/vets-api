@@ -15,6 +15,9 @@ module RepresentationManagement
             next_steps_email_data.email_address,
             Settings.vanotify.services.va_gov.template_id.appoint_a_representative_confirmation_email,
             {
+              # The first_name is the only key here that has an underscore.
+              # That is intentional.  All the keys here match the keys in the
+              # template.
               'first_name' => next_steps_email_data.first_name,
               'form name' => next_steps_email_data.form_name,
               'form number' => next_steps_email_data.form_number,
