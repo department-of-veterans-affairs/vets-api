@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'health_quest questionnaire_manager', type: :request do
+RSpec.describe 'HealthQuest::V0::QuestionnaireManager', type: :request do
   let(:access_denied_message) { 'You do not have access to the health quest service' }
   let(:questionnaires_id) { '32' }
   let(:default_client_reply) { double('FHIR::ClientReply') }

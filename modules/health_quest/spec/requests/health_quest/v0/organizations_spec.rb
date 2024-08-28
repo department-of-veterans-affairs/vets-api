@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Lighthouse locations', type: :request do
+RSpec.describe 'HealthQuest::V0::Organizations', type: :request do
   let(:access_denied_message) { 'You do not have access to the health quest service' }
 
-  describe 'GET locations `index`' do
+  describe 'GET organizations `index`' do
     context 'loa1 user' do
       let(:current_user) { build(:user, :loa1) }
 
@@ -14,13 +14,13 @@ RSpec.describe 'Lighthouse locations', type: :request do
       end
 
       it 'has forbidden status' do
-        get '/health_quest/v0/locations?_id=1234'
+        get '/health_quest/v0/organizations?_id=1234'
 
         expect(response).to have_http_status(:forbidden)
       end
 
       it 'has access denied message' do
-        get '/health_quest/v0/locations?_id=1234'
+        get '/health_quest/v0/organizations?_id=1234'
 
         expect(JSON.parse(response.body)['errors'].first['detail']).to eq(access_denied_message)
       end
@@ -37,15 +37,15 @@ RSpec.describe 'Lighthouse locations', type: :request do
         allow_any_instance_of(HealthQuest::Resource::Query).to receive(:search).with(anything).and_return(client_reply)
       end
 
-      it 'returns a FHIR Bundle ' do
-        get '/health_quest/v0/locations?_id=abc123,def456'
+      it 'returns a FHIR Bundle' do
+        get '/health_quest/v0/organizations?_id=abc123,def456'
 
         expect(JSON.parse(response.body)).to eq({ 'resourceType' => 'Bundle' })
       end
     end
   end
 
-  describe 'GET location `show`' do
+  describe 'GET organization `show`' do
     context 'loa1 user' do
       before do
         sign_in_as(current_user)
@@ -54,13 +54,13 @@ RSpec.describe 'Lighthouse locations', type: :request do
       let(:current_user) { build(:user, :loa1) }
 
       it 'has forbidden status' do
-        get '/health_quest/v0/locations/I2-ABC123'
+        get '/health_quest/v0/organizations/I2-ABC123'
 
         expect(response).to have_http_status(:forbidden)
       end
 
       it 'has access denied message' do
-        get '/health_quest/v0/locations/I2-ABC123'
+        get '/health_quest/v0/organizations/I2-ABC123'
 
         expect(JSON.parse(response.body)['errors'].first['detail']).to eq(access_denied_message)
       end
@@ -80,7 +80,7 @@ RSpec.describe 'Lighthouse locations', type: :request do
       end
 
       it 'returns a FHIR type of Location' do
-        get '/health_quest/v0/locations/I2-ABC123'
+        get '/health_quest/v0/organizations/I2-ABC123'
 
         expect(JSON.parse(response.body)).to eq({ 'resourceType' => 'Location' })
       end

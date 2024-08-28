@@ -26,7 +26,7 @@ RSpec.describe Vye::Verification, type: :model do
     end
 
     it 'produces report rows' do
-      expect(described_class.report_rows.length).to eq(7)
+      expect(described_class.each_report_row.to_a.length).to eq(7)
     end
 
     it 'writes out a report' do

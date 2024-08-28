@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'health quest appointment requests', type: :request do
+RSpec.describe 'HealthQuest::V0::Apidocs', type: :request do
   describe 'GET /health_quest/v0/apidocs' do
     let(:openapi_version) { %w[openapi 3.0.0] }
 

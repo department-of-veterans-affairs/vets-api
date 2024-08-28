@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-Rspec.describe DhpConnectedDevices::VeteranDeviceRecordsController, type: :request do
+Rspec.describe 'DhpConnectedDevices::VeteranDeviceRecords', type: :request do
   let(:current_user) { build(:user, :loa1) }
   let(:user_without_icn) { build(:user, :loa1, icn: '') }
 
@@ -12,7 +12,7 @@ Rspec.describe DhpConnectedDevices::VeteranDeviceRecordsController, type: :reque
 
       it 'returns unauthenticated error' do
         get '/dhp_connected_devices/veteran-device-records'
-        expect(response.status).to eq(401)
+        expect(response).to have_http_status(:unauthorized)
       end
     end
 
