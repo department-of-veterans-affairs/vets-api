@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Pega callback', type: :request do
+RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
   before do
     allow_any_instance_of(IvcChampva::V1::PegaController).to receive(:authenticate_service_account).and_return(true)
   end
