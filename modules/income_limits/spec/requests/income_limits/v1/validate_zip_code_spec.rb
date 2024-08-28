@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'IncomeLimits::V1::IncomeLimitsController', type: :request do
+RSpec.describe 'IncomeLimits::V1::ValidateZipCode', type: :request do
   describe 'GET #validate_zipcode' do
     def parse_response(response)
       JSON.parse(response.body)
