@@ -50,32 +50,36 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
           expect(response).to have_http_status(:ok)
         end
 
-        required_upstream_services = %w[mpi]
-        optional_upstream_services = %w[bgs-vet_record bgs-corporate_update bgs-contention
-                                        localbgs-healthcheck]
-        (required_upstream_services + optional_upstream_services).each do |upstream_service|
-          it "returns correct status when #{upstream_service} is not healthy" do
-            allow(MPI::Service).to receive(:service_is_up?).and_return(upstream_service != 'mpi')
-            allow_any_instance_of(BGS::Services).to receive(:vet_record)
-              .and_return(Struct.new(:healthy?).new(upstream_service != 'bgs-vet_record'))
-            allow_any_instance_of(BGS::Services).to receive(:corporate_update)
-              .and_return(Struct.new(:healthy?).new(upstream_service != 'bgs-corporate_update'))
-            allow_any_instance_of(BGS::Services).to receive(:contention)
-              .and_return(Struct.new(:healthy?).new(upstream_service != 'bgs-contention'))
-            allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:healthcheck)
-              .and_return(200)
+        it 'returns the correct status when MPI is not healthy' do
+          allow(MPI::Service).to receive(:service_is_up?).and_return(false)
+          get "/services/claims/#{version}/upstream_healthcheck"
+          result = JSON.parse(response.body)
+          expect(result['mpi']['success']).to eq(false)
+        end
+
+        local_bgs_services = %i[claimant person org ebenefitsbenftclaim intenttofile trackeditem].freeze
+        local_bgs_methods = %i[find_poa_by_participant_id find_by_ssn find_poa_history_by_ptcpnt_id
+                               find_benefit_claims_status_by_ptcpnt_id insert_intent_to_file find_tracked_items].freeze
+        local_bgs_services.each do |local_bgs_service|
+          it "returns the correct status when the local bgs #{local_bgs_service} is not healthy" do
+            local_bgs_methods.each do |local_bgs_method|
+              allow_any_instance_of(ClaimsApi::LocalBGS).to receive(local_bgs_method.to_sym)
+                .and_return(Struct.new(:healthy?).new(false))
+              get "/services/claims/#{version}/upstream_healthcheck"
+              result = JSON.parse(response.body)
+              expect(result["localbgs-#{local_bgs_service}"]['success']).to eq(false)
+            end
+          end
+        end
+
+        bgs_services = %i[vet_record corporate_update contention].freeze
+        bgs_services.each do |service|
+          it "returns the correct status when the BGS #{service} is not healthy" do
+            allow_any_instance_of(BGS::Services).to receive(service.to_sym)
+              .and_return(Struct.new(:healthy?).new(false))
             get "/services/claims/#{version}/upstream_healthcheck"
             result = JSON.parse(response.body)
-            expect(result['mpi']['success']).to eq(false)
-            expect(result['bgs-vet_record']['success']).to eq(false)
-            expect(result['bgs-corporate_update']['success']).to eq(false)
-            expect(result['bgs-contention']['success']).to eq(false)
-            expect(result['localbgs-claimant']['success']).to eq(true)
-            expect(result['localbgs-person']['success']).to eq(true)
-            expect(result['localbgs-org']['success']).to eq(true)
-            expect(result['localbgs-ebenefitsbenftclaim']['success']).to eq(true)
-            expect(result['localbgs-intenttofile']['success']).to eq(true)
-            expect(result['localbgs-trackeditem']['success']).to eq(true)
+            expect(result["bgs-#{service}"]['success']).to eq(false)
           end
         end
       end
