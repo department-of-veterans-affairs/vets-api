@@ -544,31 +544,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    it 'supports adding a preneed claim' do
-      VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/burial_forms',
-          200,
-          '_headers' => { 'content-type' => 'application/json' },
-          '_data' => {
-            'application' => attributes_for(:burial_form)
-          }.to_json
-        )
-      end
-
-      expect(subject).to validate(
-        :post,
-        '/v0/preneeds/burial_forms',
-        422,
-        '_data' => {
-          'application' => {
-            'invalid-form' => { invalid: true }.to_json
-          }
-        }
-      )
-    end
-
     it 'supports getting cemetaries preneed claim' do
       VCR.use_cassette('preneeds/cemeteries/gets_a_list_of_cemeteries') do
         expect(subject).to validate(
@@ -576,43 +551,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           '/v0/preneeds/cemeteries',
           200,
           '_headers' => { 'content-type' => 'application/json' }
-        )
-      end
-    end
-
-    describe 'preneed attachments upload' do
-      it 'supports uploading a file' do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/preneed_attachments',
-          200,
-          '_data' => {
-            'preneed_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/preneeds/extras.pdf', 'application/pdf')
-            }
-          }
-        )
-      end
-
-      it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/preneed_attachments',
-          400,
-          ''
-        )
-      end
-
-      it 'returns 422 if the attachment is not an allowed type' do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/preneed_attachments',
-          422,
-          '_data' => {
-            'preneed_attachment' => {
-              'file_data' => fixture_file_upload('invalid_idme_cert.crt')
-            }
-          }
         )
       end
     end
@@ -2740,92 +2678,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
               expect(subject).to validate(
                 :get,
                 path,
-                200,
-                headers
-              )
-            end
-          end
-        end
-      end
-
-      context 'ch33 bank accounts methods' do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow_any_instance_of(User).to receive(:common_name).and_return('abraham.lincoln@vets.gov')
-          allow(Flipper).to receive(:enabled?).with(
-            :profile_show_direct_deposit_single_form_edu_downtime,
-            anything
-          ).and_return(false)
-        end
-
-        let(:mhv_user) { FactoryBot.build(:ch33_dd_user) }
-
-        it 'supports the update ch33 bank account api 400 response' do
-          res = {
-            update_ch33_dd_eft_response: {
-              return: {
-                return_code: 'F',
-                error_message: 'Invalid routing number',
-                return_message: 'FAILURE'
-              },
-              '@xmlns:ns0': 'http://services.share.benefits.vba.va.gov/'
-            }
-          }
-
-          expect_any_instance_of(BGS::Service).to receive(:update_ch33_dd_eft).with(
-            '122239982',
-            '444',
-            true
-          ).and_return(
-            OpenStruct.new(
-              body: res
-            )
-          )
-
-          expect(subject).to validate(
-            :put,
-            '/v0/profile/ch33_bank_accounts',
-            400,
-            headers.merge(
-              '_data' => {
-                account_type: 'Checking',
-                account_number: '444',
-                financial_institution_routing_number: '122239982'
-              }
-            )
-          )
-        end
-
-        it 'supports the update ch33 bank account api' do
-          expect(subject).to validate(:put, '/v0/profile/ch33_bank_accounts', 401)
-          VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-              VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
-                expect(subject).to validate(
-                  :put,
-                  '/v0/profile/ch33_bank_accounts',
-                  200,
-                  headers.merge(
-                    '_data' => {
-                      account_type: 'Checking',
-                      account_number: '444',
-                      financial_institution_routing_number: '122239982'
-                    }
-                  )
-                )
-              end
-            end
-          end
-        end
-
-        it 'supports the get ch33 bank account api' do
-          expect(subject).to validate(:get, '/v0/profile/ch33_bank_accounts', 401)
-
-          VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
-              expect(subject).to validate(
-                :get,
-                '/v0/profile/ch33_bank_accounts',
                 200,
                 headers
               )

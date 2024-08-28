@@ -43,21 +43,24 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
 
       context 'when everything is okay' do
         let(:json_response) do
-          { 'id' => '1',
+          { 'id' => '4',
             'type' => 'inquiry',
             'attributes' =>
-               { 'inquiry_number' => 'A-1',
-                 'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
-                 'correspondences' => nil,
-                 'has_attachments' => true,
-                 'has_been_split' => true,
-                 'level_of_authentication' => 'Personal',
-                 'last_update' => '12/20/23',
-                 'status' => 'In Progress',
-                 'submitter_question' => 'What is my status?',
-                 'school_facility_code' => '0123',
-                 'topic' => 'Status of a pending claim',
-                 'veteran_relationship' => 'self' } }
+             { 'inquiry_number' => 'A-4',
+               'attachments' => [{ 'Id' => '4', 'Name' => 'testfile.txt' }],
+               'category_id' => '1',
+               'created_on' => '8/5/202 4:51:52 PM',
+               'correspondences' => nil,
+               'has_been_split' => true,
+               'inquiry_topic' => 'All other Questions',
+               'level_of_authentication' => 'Personal',
+               'last_update' => '3/20/23',
+               'queue_id' => '987654',
+               'queue_name' => 'Debt Management Center',
+               'status' => 'In Progress',
+               'submitter_question' => 'What is compensation?',
+               'school_facility_code' => '0123',
+               'veteran_relationship' => 'self' } }
         end
 
         before { get inquiry_path, params: { user_mock_data: true, page: 1, per_page: 10 } }
@@ -72,7 +75,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                                                                                     'prev_page' => nil,
                                                                                     'next_page' => 2,
                                                                                     'total_pages' => 2,
-                                                                                    'total_entries' => 18 })
+                                                                                    'total_entries' => 15 })
           end
         end
       end
@@ -126,31 +129,28 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           'attributes' =>
           { 'inquiry_number' => 'A-1',
             'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
-            'correspondences' => { 'data' => [{
-              'id' => '1',
-              'type' => 'correspondence',
-              'attributes' => {
-                'message_type' => '722310001: Response from VA',
-                'modified_on' => '1/2/23',
-                'status_reason' => 'Completed/Sent',
-                'description' => 'Your claim is still In Progress',
-                'enable_reply' => true,
-                'attachments' => [
-                  {
-                    'Id' => '12',
-                    'Name' => 'correspondence_1_attachment.pdf'
-                  }
-                ]
-              }
-            }] },
-            'has_attachments' => true,
+            'category_id' => '1',
+            'created_on' => '8/5/202 4:51:52 PM',
+            'correspondences' =>
+            { 'data' =>
+              [{ 'id' => '1',
+                 'type' => 'correspondence',
+                 'attributes' =>
+                 { 'message_type' => '722310001: Response from VA',
+                   'modified_on' => '1/2/23',
+                   'status_reason' => 'Completed/Sent',
+                   'description' => 'Your claim is still In Progress',
+                   'enable_reply' => true,
+                   'attachments' => [{ 'Id' => '12', 'Name' => 'correspondence_1_attachment.pdf' }] } }] },
             'has_been_split' => true,
+            'inquiry_topic' => 'Status of a pending claim',
             'level_of_authentication' => 'Personal',
             'last_update' => '12/20/23',
-            'status' => 'In Progress',
+            'queue_id' => '987654',
+            'queue_name' => 'Debt Management Center',
+            'status' => 'Replied',
             'submitter_question' => 'What is my status?',
             'school_facility_code' => '0123',
-            'topic' => 'Status of a pending claim',
             'veteran_relationship' => 'self' } } }
     end
 
@@ -167,30 +167,41 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
 
       context 'when mock is not given' do
         let(:crm_response) do
-          { Data: [{ Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
-                     InquiryNumber: 'A-20230305-306178',
-                     InquiryStatus: 'Reopened',
-                     SubmitterQuestion: 'test',
-                     LastUpdate: '4/1/2024 12:00:00 AM',
-                     InquiryHasAttachments: true,
-                     InquiryHasBeenSplit: true,
-                     VeteranRelationship: 'GIBillBeneficiary',
-                     SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
-                     InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
-                     InquiryLevelOfAuthentication: 'Unauthenticated',
-                     AttachmentNames: [{ Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
-                                         Name: 'Test.txt' }] }] }
+          { Data: [{
+            InquiryHasBeenSplit: true,
+            CategoryId: '12345',
+            CreatedOn: '8/5/2024 4:51:52 PM',
+            Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
+            InquiryLevelOfAuthentication: 'Personal',
+            InquiryNumber: 'A-123456',
+            InquiryStatus: 'In Progress',
+            InquiryTopic: 'Cemetery Debt',
+            LastUpdate: '1/1/1900',
+            QueueId: '9876t54',
+            QueueName: 'Debt Management Center',
+            SchoolFacilityCode: '0123',
+            SubmitterQuestion: 'My question is... ',
+            VeteranRelationship: 'self',
+            AttachmentNames: [
+              {
+                Id: '012345',
+                Name: 'File A.pdf'
+              }
+            ]
+          }] }
         end
         let(:expected_response) do
           { 'data' =>
-            { 'id' => '154163f2-8fbb-ed11-9ac4-00155da17a6f',
+            { 'id' => 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
               'type' => 'inquiry',
               'attributes' =>
-              { 'inquiry_number' => 'A-20230305-306178',
-                'attachments' => [{ 'Id' => '367e8d31-6c82-1d3c-81b8-dd2cabed7555', 'Name' => 'Test.txt' }],
+              { 'inquiry_number' => 'A-123456',
+                'attachments' => [{ 'Id' => '012345', 'Name' => 'File A.pdf' }],
+                'category_id' => '12345',
+                'created_on' => '8/5/2024 4:51:52 PM',
                 'correspondences' =>
                 { 'data' =>
-                  [{ 'id' => '154163f2-8fbb-ed11-9ac4-00155da17a6f',
+                  [{ 'id' => 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
                      'type' => 'correspondence',
                      'attributes' =>
                      { 'message_type' => nil,
@@ -198,17 +209,17 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                        'status_reason' => nil,
                        'description' => nil,
                        'enable_reply' => nil,
-                       'attachments' => [{ 'Id' => '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
-                                           'Name' => 'Test.txt' }] } }] },
-                'has_attachments' => true,
+                       'attachments' => [{ 'Id' => '012345', 'Name' => 'File A.pdf' }] } }] },
                 'has_been_split' => true,
-                'level_of_authentication' => 'Unauthenticated',
-                'last_update' => '4/1/2024 12:00:00 AM',
-                'status' => 'Reopened',
-                'submitter_question' => 'test',
-                'school_facility_code' => '77a51029-6816-e611-9436-0050568d743d',
-                'topic' => 'Medical Care Concerns at a VA Medical Facility',
-                'veteran_relationship' => 'GIBillBeneficiary' } } }
+                'inquiry_topic' => 'Cemetery Debt',
+                'level_of_authentication' => 'Personal',
+                'last_update' => '1/1/1900',
+                'queue_id' => '9876t54',
+                'queue_name' => 'Debt Management Center',
+                'status' => 'In Progress',
+                'submitter_question' => 'My question is... ',
+                'school_facility_code' => '0123',
+                'veteran_relationship' => 'self' } } }
         end
         let(:service) { instance_double(Crm::Service) }
 

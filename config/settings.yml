@@ -1515,6 +1515,17 @@ check_in:
     claims_base_path: EC/ClaimIngestSvc
     redis_token_expiry: 3540 # 59 minutes
     service_name: BTSSS-API
+  travel_reimbursement_api_v2:
+    auth_url: https://login.microsoftonline.us
+    auth_url_v2: ~
+    tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
+    client_id: ~
+    client_secret: ~
+    claims_url: https://dev.integration.d365.va.gov
+    claims_url_v2: ~
+    claims_base_path: ~
+    redis_token_expiry: 3540 # 59 minutes
+    service_name: BTSSS-API
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days

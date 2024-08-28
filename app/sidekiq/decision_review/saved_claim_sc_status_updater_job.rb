@@ -33,7 +33,7 @@ module DecisionReview
           StatsD.increment("#{STATSD_KEY_PREFIX}.delete_date_update")
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
         else
-          StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: [status])
+          StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])
         end
 
         sc.update(params)
