@@ -13,6 +13,8 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
   before do
     Flipper.disable(:lighthouse_claims_api_poa_use_bd)
     Sidekiq::Job.clear_all
+    allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+      .to receive(:get_auth_token).and_return('some-value-here')
     b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
     power_of_attorney.form_data = {
       recordConcent: true,
@@ -76,10 +78,12 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       end
 
       it 'generates the pdf to match example' do
-        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-        expect(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:new).and_call_original
-        expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:construct).and_call_original
-        subject.new.perform(power_of_attorney.id)
+        VCR.use_cassette('claims_api/bd/upload') do
+          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+          expect(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:new).and_call_original
+          expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:construct).and_call_original
+          subject.new.perform(power_of_attorney.id)
+        end
       end
 
       it 'Calls the POA updater job upon successful upload to VBMS' do
@@ -89,8 +93,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
           '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
         }.with_indifferent_access)
 
-        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
-        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_return(document_response)
+        allow_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return(document_response)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
 
         expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
@@ -106,10 +109,12 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       end
 
       it 'generates the pdf to match example' do
-        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-        expect(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:new).and_call_original
-        expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
-        subject.new.perform(power_of_attorney.id)
+        VCR.use_cassette('claims_api/bd/upload') do
+          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+          expect(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:new).and_call_original
+          expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
+          subject.new.perform(power_of_attorney.id)
+        end
       end
 
       it 'Calls the POA updater job upon successful upload to VBMS' do
@@ -119,8 +124,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
           '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
         }.with_indifferent_access)
 
-        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
-        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_return(document_response)
+        allow_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return(document_response)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
 
         expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
