@@ -164,4 +164,35 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
       end
     end
   end
+
+  context 'an external service returns a 504' do
+    error_original_body = {
+      messages: [
+        {
+          'key' => 'timout',
+          'severity' => 'ERROR',
+          'text' => 'external service timeout'
+        }
+      ]
+    }
+
+    let(:external_timeout) do
+      Common::Exceptions::BackendServiceException.new(
+        backtrace.backtrace,
+        { status: 504, detail: 'timeout' },
+        504,
+        error_original_body
+      )
+    end
+
+    let(:external_timeout_submit) { ClaimsApi::CustomError.new(external_timeout) }
+
+    it 'raises a 502' do
+      external_timeout_submit.build_error
+    rescue => e
+      expect(e.errors[0][:status]).to eq('502')
+      expect(e.errors[0][:title]).to eq('Bad gateway')
+      expect(e.errors[0][:detail]).to eq('The server received an invalid or null response from an upstream server.')
+    end
+  end
 end
