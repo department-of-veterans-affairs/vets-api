@@ -231,16 +231,20 @@ module SimpleFormsApi
       sponsor_veteran_maiden = @data.dig('application', 'veteran', 'current_name', 'maiden')
       military_status_label = get_military_status(@data.dig('application', 'veteran', 'military_status'))
 
-      race_data = @data.dig('application', 'veteran', 'race')
-      race = ''
-      race += 'American Indian or Alaskan Native, ' if race_data['is_american_indian_or_alaskan_native']
-      race += 'Asian, ' if race_data['is_asian']
-      race += 'Black or African American, ' if race_data['is_black_or_african_american']
-      race += 'Native Hawaiian or other Pacific Islander, ' if race_data['is_native_hawaiian_or_other_pacific_islander']
-      race += 'White, ' if race_data['is_white']
-      race += 'Prefer not to answer, ' if race_data['na']
-      race += 'Other, ' if race_data['is_other']
-      race.chomp!(', ')
+      # rubocop:disable Layout/LineLength
+      if @data['version']
+        race_data = @data.dig('application', 'veteran', 'race')
+        race = ''.dup
+        race += 'American Indian or Alaskan Native, ' if race_data['is_american_indian_or_alaskan_native']
+        race += 'Asian, ' if race_data['is_asian']
+        race += 'Black or African American, ' if race_data['is_black_or_african_american']
+        race += 'Native Hawaiian or other Pacific Islander, ' if race_data['is_native_hawaiian_or_other_pacific_islander']
+        race += 'White, ' if race_data['is_white']
+        race += 'Prefer not to answer, ' if race_data['na']
+        race += 'Other, ' if race_data['is_other']
+        race.chomp!(', ')
+      end
+      # rubocop:enable Layout/LineLength
 
       Prawn::Document.generate(file_path) do |pdf|
         pdf.text '40-10007 Overflow Data', align: :center, size: 20
@@ -337,7 +341,7 @@ module SimpleFormsApi
       Rails.logger.info('Simple forms api - 40-10007 submission user identity', identity:, confirmation_number:)
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(_timestamp)
       []
     end
 
