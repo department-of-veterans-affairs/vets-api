@@ -15,7 +15,6 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
 
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:lighthouse_claims_api_poa_use_bd)
     allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
       .to receive(:get_auth_token).and_return('some-value-here')
   end
