@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
+require_relative '../../../../../support/helpers/rails_helper'
+
 RSpec.describe 'Mobile::V0::Appointments::CheckIn::Demographics', type: :request do
   let(:location_id) { '516' }
   let(:patient_dfn) { '12345' }
