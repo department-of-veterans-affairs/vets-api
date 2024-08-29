@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile Messages Integration', type: :request do
+RSpec.describe 'Mobile::V0::Messaging::Health::Folders::Threads', type: :request do
   include SchemaMatchers
 
   let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }

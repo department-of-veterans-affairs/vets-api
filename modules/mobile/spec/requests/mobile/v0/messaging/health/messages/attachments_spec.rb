@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../support/helpers/rails_helper'
-RSpec.describe 'Mobile Message Attachments Integration', :skip_json_api_validation, type: :request do
+
+RSpec.describe 'Mobile::V0::Messaging::Health::Messages::Attachments', :skip_json_api_validation, type: :request do
   let!(:user) { sis_user(:mhv, mhv_account_type: 'Premium') }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
