@@ -2,7 +2,7 @@
 
 require_relative '../../support/helpers/rails_helper'
 
-RSpec.describe 'immunizations', :skip_json_api_validation, type: :request do
+RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '9000682') }

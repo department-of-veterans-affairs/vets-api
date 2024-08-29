@@ -3,7 +3,7 @@
 require_relative '../../support/helpers/rails_helper'
 require 'common/client/errors'
 
-RSpec.describe 'user', type: :request do
+RSpec.describe 'Mobile::V2::User', type: :request do
   include JsonSchemaMatchers
 
   describe 'GET /mobile/v2/user' do
