@@ -38,7 +38,7 @@ module ClaimsApi
     #
     # @return success or failure
     def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil, original_filename: nil, # rubocop:disable Metrics/ParameterLists
-               pctpnt_vet_id: nil)
+               pctpnt_vet_id: nil, api_version: 'v2')
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist,
                                                     #{doc_type_to_plain_language(doc_type)}_id: #{claim.id}")
@@ -46,7 +46,7 @@ module ClaimsApi
       end
 
       @multipart = true
-      body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:, original_filename:,
+      body = generate_upload_body(claim:, doc_type:, pdf_path:, api_version:, file_number:, original_filename:,
                                   pctpnt_vet_id:)
       res = client.post('documents', body)&.body
 
@@ -100,18 +100,17 @@ module ClaimsApi
     #
     # @return {parameters, file}
     # rubocop:disable Metrics/ParameterLists
-    def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil, original_filename: nil,
+    def generate_upload_body(claim:, doc_type:, pdf_path:, api_version:, file_number: nil, original_filename: nil,
                              pctpnt_vet_id: nil)
       payload = {}
       auth_headers = claim.auth_headers
       veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'], auth_headers['va_eauth_lastName'])
       birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number if doc_type != 'L705'
       claim_id = get_claim_id(doc_type, claim)
-      file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
+      file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, api_version:)
       participant_id = pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)
       system_name = 'Lighthouse' if %w[L075 L190].include?(doc_type)
       tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
-
       data = build_body(doc_type:, file_name:, participant_id:, claim_id:,
                         file_number: birls_file_num, system_name:, tracked_item_ids:)
 
@@ -123,16 +122,21 @@ module ClaimsApi
     end
     # rubocop:enable Metrics/ParameterLists
 
-    def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
+    def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, api_version:)
       # https://confluence.devops.va.gov/display/VAExternal/Document+Types
-      doc_type_to_form_name = {
-        'L075' => '21-22a',
-        'L122' => '526EZ',
-        'L190' => '21-22',
-        'L705' => '5103'
+      doc_type_names = {
+        'v1' => {
+          'L075' => 'representative'
+        },
+        'v2' => {
+          'L075' => '21-22a',
+          'L122' => '526EZ',
+          'L190' => '21-22',
+          'L705' => '5103'
+        }
       }
 
-      form_name = doc_type_to_form_name[doc_type]
+      form_name = doc_type_names[api_version][doc_type]
 
       if form_name
         "#{[veteran_name, claim_id, form_name].compact_blank.join('_')}.pdf"
