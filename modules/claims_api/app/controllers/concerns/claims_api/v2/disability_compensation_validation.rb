@@ -591,32 +591,7 @@ module ClaimsApi
         treatments = form_attributes['treatments']
         return if treatments.blank?
 
-        validate_treated_disability_names(treatments)
         validate_treatment_dates(treatments)
-      end
-
-      def validate_treated_disability_names(treatments)
-        treated_disability_names = collect_treated_disability_names(treatments)
-        declared_disability_names = collect_primary_secondary_disability_names(form_attributes['disabilities'])
-
-        treated_disability_names.each do |treatment|
-          next if declared_disability_names.include?(treatment)
-
-          collect_error_messages(
-            source: '/treatments/treatedDisabilityNames',
-            detail: 'The treated disability must match a disability listed above'
-          )
-        end
-      end
-
-      def collect_treated_disability_names(treatments)
-        names = []
-        treatments&.each do |treatment|
-          treatment['treatedDisabilityNames']&.each do |disability_name|
-            names << disability_name.strip.downcase
-          end
-        end
-        names
       end
 
       def valid_treatment_date?(first_service_date, treatment_begin_date)
@@ -666,17 +641,6 @@ module ClaimsApi
         end
       end
 
-      def collect_primary_secondary_disability_names(disabilities)
-        names = []
-        disabilities.each do |disability|
-          names << disability['name'].strip.downcase
-          disability['secondaryDisabilities']&.each do |secondary|
-            names << secondary['name']&.strip&.downcase
-          end
-        end
-        names
-      end
-
       def validate_form_526_service_information(target_veteran)
         service_information = form_attributes['serviceInformation']
 
@@ -715,7 +679,7 @@ module ClaimsApi
         end
       end
 
-      def validate_service_periods(service_information, target_veteran) # rubocop:disable Metrics/MethodLength
+      def validate_service_periods(service_information, target_veteran)
         date_of_birth = Date.strptime(target_veteran.birth_date, '%Y%m%d')
         age_thirteen = date_of_birth.next_year(13)
         service_information['servicePeriods'].each_with_index do |sp, idx|
@@ -736,11 +700,6 @@ module ClaimsApi
               end
             end
           end
-
-          if sp['activeDutyEndDate'] && Date.strptime(sp['activeDutyEndDate'],
-                                                      '%Y-%m-%d') > Time.zone.now && sp['separationLocationCode'].blank?
-            location_code_exception(idx)
-          end
         end
       end
 
@@ -758,13 +717,6 @@ module ClaimsApi
         )
       end
 
-      def location_code_exception(idx)
-        collect_error_messages(
-          source: "/serviceInformation/servicePeriods/#{idx}/separationLocationCode",
-          detail: 'If Active Duty End Date is in the future a Separation Location Code is required.'
-        )
-      end
-
       def detect_invalid_active_duty_enddate(service_information)
         service_information['servicePeriods'].detect do |service_period|
           errors = date_is_valid?(service_period['activeDutyEndDate'],
@@ -777,19 +729,13 @@ module ClaimsApi
         # only retrieve separation locations if we'll need them
         invalid_end_date = detect_invalid_active_duty_enddate(service_information).is_a?(Array)
 
-        need_locations = service_information['servicePeriods'].detect do |service_period|
-          if invalid_end_date && service_period['activeDutyEndDate']
-            Date.strptime(service_period['activeDutyEndDate'],
-                          '%Y-%m-%d') > Time.zone.today
-          end
+        need_locations = service_information['servicePeriods'].any? do |service_period|
+          service_period['separationLocationCode'].present?
         end
         separation_locations = retrieve_separation_locations if need_locations
 
         service_information['servicePeriods'].each do |service_period|
-          if invalid_end_date && (service_period['activeDutyEndDate'] &&
-            Date.strptime(service_period['activeDutyEndDate'], '%Y-%m-%d') <= Time.zone.today)
-            next
-          end
+          next if invalid_end_date
           next if separation_locations&.any? do |location|
                     if service_period['separationLocationCode']
                       @location_code = service_period['separationLocationCode']

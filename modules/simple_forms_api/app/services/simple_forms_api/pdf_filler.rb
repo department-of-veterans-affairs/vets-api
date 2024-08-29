@@ -33,7 +33,8 @@ module SimpleFormsApi
       FileUtils.copy_file(tempfile.path, stamped_template_path)
 
       if File.exist? stamped_template_path
-        PdfStamper.stamp_pdf(stamped_template_path, form, current_loa)
+        stamper = PdfStamper.new(stamped_template_path, form, current_loa)
+        stamper.stamp_pdf
         pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
         Common::FileHelpers.delete_file_if_exists(stamped_template_path)
         generated_form_path

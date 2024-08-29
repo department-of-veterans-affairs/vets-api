@@ -2938,8 +2938,9 @@
                                 "city": {
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                  "maxLength": 1000,
+                                  "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                  "minLength": 0,
+                                  "maxLength": 30,
                                   "example": "Portland"
                                 },
                                 "state": {
@@ -3453,7 +3454,7 @@
                                     "nullable": true
                                   },
                                   "treatedDisabilityNames": {
-                                    "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                    "description": "Name(s) of disabilities treated in this time frame.",
                                     "type": "array",
                                     "nullable": true,
                                     "maxItems": 101,
@@ -3484,9 +3485,11 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                        "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                         "example": "Portland",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "minLength": 0,
+                                        "maxLength": 30
                                       },
                                       "state": {
                                         "description": "State of treatment facility.",
@@ -3558,13 +3561,13 @@
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
-                                        "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                        "description": "Date completed active duty.",
                                         "type": "string",
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
                                       "separationLocationCode": {
-                                        "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                        "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                         "type": "string",
                                         "nullable": true,
                                         "example": "98283"
@@ -4315,8 +4318,9 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                "maxLength": 1000,
+                                "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                "minLength": 0,
+                                "maxLength": 30,
                                 "example": "Portland"
                               },
                               "state": {
@@ -4830,7 +4834,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -4861,9 +4865,11 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                      "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                       "example": "Portland",
-                                      "nullable": true
+                                      "nullable": true,
+                                      "minLength": 0,
+                                      "maxLength": 30
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
@@ -4935,13 +4941,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -5782,7 +5788,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "81519caa-97be-445b-943a-c7b7ed6d77c6",
+                        "id": "2d5c4ffa-38db-4639-ad95-ff8cefc31b33",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5967,7 +5973,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-08-24"
+                              "anticipatedSeparationDate": "2024-08-30"
                             },
                             "confinements": [
                               {
@@ -6013,7 +6019,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "43fcbc8f-2e44-494c-8593-894729fbd8cc",
+                        "id": "69bc0078-632f-4234-ad22-e2e06f780c60",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -6467,8 +6473,9 @@
                                 "city": {
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                  "maxLength": 1000,
+                                  "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                  "minLength": 0,
+                                  "maxLength": 30,
                                   "example": "Portland"
                                 },
                                 "state": {
@@ -6982,7 +6989,7 @@
                                     "nullable": true
                                   },
                                   "treatedDisabilityNames": {
-                                    "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                    "description": "Name(s) of disabilities treated in this time frame.",
                                     "type": "array",
                                     "nullable": true,
                                     "maxItems": 101,
@@ -7013,9 +7020,11 @@
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                        "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                         "example": "Portland",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "minLength": 0,
+                                        "maxLength": 30
                                       },
                                       "state": {
                                         "description": "State of treatment facility.",
@@ -7087,13 +7096,13 @@
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
-                                        "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                        "description": "Date completed active duty.",
                                         "type": "string",
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
                                       "separationLocationCode": {
-                                        "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                        "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                         "type": "string",
                                         "nullable": true,
                                         "example": "98283"
@@ -7844,8 +7853,9 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                "maxLength": 1000,
+                                "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                "minLength": 0,
+                                "maxLength": 30,
                                 "example": "Portland"
                               },
                               "state": {
@@ -8359,7 +8369,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -8390,9 +8400,11 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                      "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                       "example": "Portland",
-                                      "nullable": true
+                                      "nullable": true,
+                                      "minLength": 0,
+                                      "maxLength": 30
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
@@ -8464,13 +8476,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -9998,8 +10010,9 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                "maxLength": 1000,
+                                "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                "minLength": 0,
+                                "maxLength": 30,
                                 "example": "Portland"
                               },
                               "state": {
@@ -10513,7 +10526,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -10544,9 +10557,11 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                      "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                       "example": "Portland",
-                                      "nullable": true
+                                      "nullable": true,
+                                      "minLength": 0,
+                                      "maxLength": 30
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
@@ -10618,13 +10633,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -11210,7 +11225,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "94445ea7-e237-49f3-9cf7-67496122193a",
+                    "id": "24e893dc-7e15-45ee-8eb5-1ce7f7a8aaf3",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12999,7 +13014,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -13100,13 +13115,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -14151,8 +14166,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-08-22",
-                      "expirationDate": "2025-08-22",
+                      "creationDate": "2024-08-28",
+                      "expirationDate": "2025-08-28",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -15048,7 +15063,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0505e349-36be-455d-a869-1a78cb3de50a",
+                    "id": "828e8e98-4918-4eb8-af90-d449d5440c24",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15741,7 +15756,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c4f031dc-d6da-4447-b5fb-dc24ce78990c",
+                    "id": "022ab4a1-b598-4822-8b2d-6c70af2c950f",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17692,10 +17707,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5b8f1642-3314-44ac-ac4a-059c1cac9b8e",
+                    "id": "c90cd8bb-b48b-4d13-be89-ab4caa95f3ff",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-08-22",
+                      "dateRequestAccepted": "2024-08-28",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
