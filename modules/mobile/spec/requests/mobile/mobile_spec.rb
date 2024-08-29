@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'discovery', type: :request do
+RSpec.describe 'Mobile', type: :request do
   describe 'GET /mobile' do
     before { get '/mobile' }
 
