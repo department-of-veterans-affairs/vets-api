@@ -127,7 +127,7 @@ module SimpleFormsApi
           status, confirmation_number = upload_pdf(file_path, metadata, form)
         else
           status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
-                                                                        form_id).upload_to_benefits_intake(params)
+                                                                        form).upload_to_benefits_intake(params)
         end
 
         form.track_user_identity(confirmation_number)
