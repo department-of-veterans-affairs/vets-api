@@ -48,12 +48,6 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
 
     it 'rescues file not found from S3, updates POA record, and re-raises to allow Sidekiq retries' do
       VCR.use_cassette('claims_api/bd/upload') do
-        token_response = OpenStruct.new(upload_token: '<{573F054F-E9F7-4BF2-8C66-D43ADA5C62E7}')
-        OpenStruct.new(upload_document_response: {
-          '@new_document_version_ref_id' => '{52300B69-1D6E-43B2-8BEB-67A7C55346A2}',
-          '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
-        }.with_indifferent_access)
-
         allow_any_instance_of(BGS::PersonWebService)
           .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         allow_any_instance_of(ClaimsApi::BD).to receive(:upload).and_raise(Errno::ENOENT)
@@ -82,7 +76,6 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
 
     it 'uploads to VBMS' do
       VCR.use_cassette('claims_api/bd/upload') do
-        token_response = OpenStruct.new(upload_token: '<{573F054F-E9F7-4BF2-8C66-D43ADA5C62E7}')
         response = OpenStruct.new(upload_document_response: {
           '@new_document_version_ref_id' => '{52300B69-1D6E-43B2-8BEB-67A7C55346A2}',
           '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
