@@ -2,9 +2,8 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'payment information', type: :request do
+RSpec.describe 'Mobile::V0::PaymentInformation::Benefits', type: :request do
   include JsonSchemaMatchers
-
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
   let(:get_payment_info_body) do
     {
@@ -26,9 +25,9 @@ RSpec.describe 'payment information', type: :request do
           },
           'paymentAccount' => {
             'accountType' => 'Checking',
-            'financialInstitutionName' => 'Comerica',
-            'accountNumber' => '*********1234',
-            'financialInstitutionRoutingNumber' => '042102115'
+            'financialInstitutionName' => 'WELLS FARGO BANK',
+            'accountNumber' => '******7890',
+            'financialInstitutionRoutingNumber' => '031000503'
           }
         }
       }
@@ -37,12 +36,14 @@ RSpec.describe 'payment information', type: :request do
   let!(:user) { sis_user(icn: '1012666073V986297', sign_in: { service_name: SAML::User::IDME_CSID }) }
 
   before do
-    Flipper.disable(:mobile_lighthouse_direct_deposit)
+    Settings.mobile_lighthouse.rsa_key = rsa_key.to_s
+    Settings.lighthouse.direct_deposit.use_mocks = true
+    Flipper.enable_actor(:mobile_lighthouse_direct_deposit, user)
   end
 
-  describe 'GET /mobile/v0/payment-information/benefits evss' do
+  describe 'GET /mobile/v0/payment-information/benefits lighthouse' do
     context 'user without access' do
-      let!(:user) { sis_user(participant_id: nil) }
+      let!(:user) { sis_user(:api_auth, :loa1) }
 
       it 'returns 403' do
         get '/mobile/v0/payment-information/benefits', headers: sis_headers
@@ -53,7 +54,7 @@ RSpec.describe 'payment information', type: :request do
 
     context 'with a valid response' do
       it 'matches the payment information schema' do
-        VCR.use_cassette('evss/ppiu/payment_information') do
+        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
           get '/mobile/v0/payment-information/benefits', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(get_payment_info_body)
@@ -64,20 +65,20 @@ RSpec.describe 'payment information', type: :request do
 
     context 'with a 403 response' do
       it 'returns a not authorized response' do
-        VCR.use_cassette('evss/ppiu/forbidden') do
+        VCR.use_cassette('mobile/direct_deposit/show/403_forbidden') do
           get '/mobile/v0/payment-information/benefits', headers: sis_headers
           expect(response).to have_http_status(:forbidden)
-          expect(response.body).to match_json_schema('evss_errors')
+          expect(response.body).to match_json_schema('lighthouse_errors')
         end
       end
     end
 
     context 'with a 500 server error type' do
       it 'returns a service error response' do
-        VCR.use_cassette('evss/ppiu/service_error') do
+        VCR.use_cassette('lighthouse/direct_deposit/show/errors/400_unspecified_error') do
           get '/mobile/v0/payment-information/benefits', headers: sis_headers
-          expect(response).to have_http_status(:service_unavailable)
-          expect(response.body).to match_json_schema('evss_errors')
+          expect(response).to have_http_status(:bad_request)
+          expect(response.body).to match_json_schema('lighthouse_errors')
         end
       end
     end
@@ -90,22 +91,22 @@ RSpec.describe 'payment information', type: :request do
             'type' => 'paymentInformation',
             'attributes' => {
               'accountControl' => {
-                'canUpdateAddress' => true,
+                'canUpdateAddress' => false,
                 'corpAvailIndicator' => true,
                 'corpRecFoundIndicator' => true,
                 'hasNoBdnPaymentsIndicator' => true,
                 'identityIndicator' => true,
-                'isCompetentIndicator' => false,
+                'isCompetentIndicator' => true,
                 'indexIndicator' => true,
                 'noFiduciaryAssignedIndicator' => true,
                 'notDeceasedIndicator' => true,
                 'canUpdatePayment' => false
               },
               'paymentAccount' => {
-                'accountType' => nil,
-                'financialInstitutionName' => nil,
-                'accountNumber' => nil,
-                'financialInstitutionRoutingNumber' => nil
+                'accountType' => 'Checking',
+                'financialInstitutionName' => 'WELLS FARGO BANK',
+                'accountNumber' => '******7890',
+                'financialInstitutionRoutingNumber' => '031000503'
               }
             }
           }
@@ -113,7 +114,7 @@ RSpec.describe 'payment information', type: :request do
       end
 
       it 'has canUpdatePayment as false' do
-        VCR.use_cassette('mobile/payment_information/payment_information_unauthorized_to_update') do
+        VCR.use_cassette('lighthouse/direct_deposit/show/200_has_restrictions') do
           get '/mobile/v0/payment-information/benefits', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(get_payment_info_body)
@@ -123,9 +124,7 @@ RSpec.describe 'payment information', type: :request do
     end
 
     context 'with a non idme user' do
-      before do
-        allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: 'sis_ssoe')
-      end
+      let!(:user) { sis_user(icn: '1012666073V986297', sign_in: { service_name: 'iam_ssoe' }) }
 
       it 'returns forbidden' do
         get '/mobile/v0/payment-information/benefits', headers: sis_headers
@@ -134,16 +133,7 @@ RSpec.describe 'payment information', type: :request do
     end
   end
 
-  describe 'PUT /mobile/v0/payment-information evss' do
-    before do
-      VCR.insert_cassette('evss/ppiu/payment_information')
-    end
-
-    after do
-      VCR.eject_cassette
-    end
-
-    let(:content_type) { { 'CONTENT_TYPE' => 'application/json' } }
+  describe 'PUT /mobile/v0/payment-information lighthouse' do
     let(:payment_info_request) { File.read('spec/support/ppiu/update_ppiu_request.json') }
     let(:post_payment_info_body) do
       {
@@ -165,9 +155,9 @@ RSpec.describe 'payment information', type: :request do
             },
             'paymentAccount' => {
               'accountType' => 'Checking',
-              'financialInstitutionName' => 'Bank of EVSS',
-              'accountNumber' => '****5678',
-              'financialInstitutionRoutingNumber' => '021000021'
+              'financialInstitutionName' => 'WELLS FARGO BANK',
+              'accountNumber' => '******7890',
+              'financialInstitutionRoutingNumber' => '031000503'
             }
           }
         }
@@ -175,11 +165,11 @@ RSpec.describe 'payment information', type: :request do
     end
 
     context 'user without access' do
-      let!(:user) { sis_user(participant_id: nil) }
+      let!(:user) { sis_user(:api_auth, :loa1) }
 
       it 'returns 403' do
         put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                       headers: sis_headers(content_type)
+                                                       headers: sis_headers(json: true)
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -188,9 +178,9 @@ RSpec.describe 'payment information', type: :request do
     context 'with a valid response' do
       it 'matches the ppiu schema' do
         allow(DirectDepositEmailJob).to receive(:send_to_emails)
-        VCR.use_cassette('evss/ppiu/update_payment_information') do
+        VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: sis_headers(content_type)
+                                                         headers: sis_headers(json: true)
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(post_payment_info_body)
           expect(response.body).to match_json_schema('payment_information')
@@ -200,14 +190,14 @@ RSpec.describe 'payment information', type: :request do
 
     context 'when the user does have an associated email address' do
       subject do
-        VCR.use_cassette('evss/ppiu/update_payment_information') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers:
+        VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: sis_headers(json: true)
         end
       end
 
       it 'calls VA Notify background job to send an email' do
-        user.all_emails do |email|
-          expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, nil)
+        user.all_emails.each do |email|
+          expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, 'comp_and_pen')
         end
 
         subject
@@ -218,12 +208,12 @@ RSpec.describe 'payment information', type: :request do
       before { allow(Settings.sentry).to receive(:dsn).and_return('asdf') }
 
       it 'logs a message to Sentry' do
-        VCR.use_cassette('evss/ppiu/update_payment_information') do
+        VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           expect_any_instance_of(User).to receive(:all_emails).and_return([])
           expect(Sentry).to receive(:capture_message).once
 
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: sis_headers(content_type)
+                                                         headers: sis_headers(json: true)
           expect(response).to have_http_status(:ok)
         end
       end
@@ -239,53 +229,79 @@ RSpec.describe 'payment information', type: :request do
       end
 
       it 'returns a validation error' do
-        put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                       headers: sis_headers(content_type)
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_account_number') do
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                         headers: sis_headers(json: true)
+        end
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
     context 'with a 403 response' do
       it 'returns a not authorized response' do
-        VCR.use_cassette('evss/ppiu/update_forbidden') do
+        VCR.use_cassette('mobile/direct_deposit/update/403_forbidden') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: sis_headers(content_type)
+                                                         headers: sis_headers(json: true)
           expect(response).to have_http_status(:forbidden)
-          expect(response.body).to match_json_schema('evss_errors')
+          expect(response.body).to match_json_schema('lighthouse_errors')
         end
       end
     end
 
     context 'with a 500 server error type' do
       it 'returns a service error response' do
-        VCR.use_cassette('evss/ppiu/service_error') do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_unspecified_error') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: sis_headers(content_type)
-          expect(response).to have_http_status(:service_unavailable)
-          expect(response.body).to match_json_schema('evss_errors')
+                                                         headers: sis_headers(json: true)
+          expect(response).to have_http_status(:bad_request)
+          expect(response.body).to match_json_schema('lighthouse_errors')
         end
       end
     end
 
     context 'with a 500 server error type pertaining to potential fraud' do
       it 'returns a service error response', :aggregate_failures do
-        VCR.use_cassette('evss/ppiu/update_fraud') do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_account_number_fraud') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: sis_headers(content_type)
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response.body).to match_json_schema('evss_errors')
+                                                         headers: sis_headers(json: true)
+          expect(response).to have_http_status(:bad_request)
+          expect(response.body).to match_json_schema('lighthouse_errors')
         end
       end
     end
 
     context 'with a 500 server error type pertaining to the account being flagged' do
       it 'returns a service error response', :aggregate_failures do
-        VCR.use_cassette('evss/ppiu/update_flagged') do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_unspecified_error') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: sis_headers(content_type)
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response.body).to match_json_schema('evss_errors')
+                                                         headers: sis_headers(json: true)
+          expect(response).to have_http_status(:bad_request)
+          expect(response.body).to match_json_schema('lighthouse_errors')
         end
+      end
+    end
+
+    context 'with a 400 error pertaining to routing number' do
+      it 'returns a routing number checksum error converted to a 500' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_routing_number_checksum') do
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                         headers: sis_headers(json: true)
+        end
+
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.body).to match_json_schema('lighthouse_errors')
+
+        meta_error = response.parsed_body.dig('errors', 0, 'meta', 'messages', 0)
+        expect(meta_error['key']).to match('payment.accountRoutingNumber.invalidCheckSum')
+        expect(meta_error['text']).to match('Financial institution routing number is invalid')
+      end
+    end
+
+    context 'when the upstream times out' do
+      it 'returns 504' do
+        allow_any_instance_of(Faraday::Connection).to receive(:put).and_raise(Faraday::TimeoutError)
+        put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: sis_headers(json: true)
+        expect(response).to have_http_status(:gateway_timeout)
       end
     end
   end

@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'push register', type: :request do
+RSpec.describe 'Mobile::V0::Push::Register', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user }
