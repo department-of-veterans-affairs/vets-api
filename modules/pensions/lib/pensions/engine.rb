@@ -11,9 +11,9 @@ module Pensions
     end
 
     initializer 'pensions.register_form' do |app|
-      app.config.after_initialize do
+      app.config.to_prepare do
         require 'pdf_fill/filler'
-        require 'pdf_fill/va21p527ez'
+        require_relative '../pdf_fill/va21p527ez'
 
         # Register our Pension Pdf Fill form
         ::PdfFill::Filler.register_form(Pensions::PdfFill::Va21p527ez::FORM_ID, Pensions::PdfFill::Va21p527ez)
