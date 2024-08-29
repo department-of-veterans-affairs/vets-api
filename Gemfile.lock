@@ -135,6 +135,18 @@ PATH
     vye (0.1.0)
 
 GEM
+  remote: https://enterprise.contribsys.com/
+  specs:
+    sidekiq-ent (7.2.4)
+      einhorn (~> 1.0)
+      gserver
+      sidekiq (>= 7.2.0, < 8)
+      sidekiq-pro (>= 7.2.0, < 8)
+    sidekiq-pro (7.2.1)
+      base64
+      sidekiq (>= 7.2.0, < 8)
+
+GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (1.1.0)
@@ -392,6 +404,7 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
+    einhorn (1.0.0)
     erubi (1.13.0)
     et-orbi (1.2.11)
       tzinfo
@@ -498,8 +511,13 @@ GEM
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
-    google-protobuf (4.27.4)
+    google-protobuf (4.27.3)
       bigdecimal
+      rake (>= 13)
+    google-protobuf (4.27.3-java)
+      bigdecimal
+      ffi (~> 1)
+      ffi-compiler (~> 1)
       rake (>= 13)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
@@ -508,6 +526,7 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
+    gserver (0.0.1)
     guard (2.18.1)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -1252,6 +1271,8 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq (~> 7.2.0)
+  sidekiq-ent!
+  sidekiq-pro!
   simple_forms_api!
   simplecov
   slack-notify
