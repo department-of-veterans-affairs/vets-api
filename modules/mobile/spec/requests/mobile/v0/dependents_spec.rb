@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'dependents', type: :request do
+RSpec.describe 'Mobile::V0::Dependents', type: :request do
   let!(:user) { sis_user(ssn: '796043735') }
 
   describe '#index' do

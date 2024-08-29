@@ -4,7 +4,7 @@ require_relative '../support/helpers/rails_helper'
 
 require 'lighthouse/letters_generator/configuration'
 
-RSpec.describe 'letters', type: :request do
+RSpec.describe 'Mobile::V0::Letters', type: :request do
   include JsonSchemaMatchers
 
   let(:letter_json) do

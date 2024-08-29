@@ -4,7 +4,7 @@ require_relative '../support/helpers/rails_helper'
 
 require 'evss/disability_compensation_form/service_unavailable_exception'
 
-RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
+RSpec.describe 'Mobile::V0::DisabilityRating', type: :request do
   include JsonSchemaMatchers
 
   before do

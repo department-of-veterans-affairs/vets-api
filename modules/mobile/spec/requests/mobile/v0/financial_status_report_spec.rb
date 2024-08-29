@@ -3,7 +3,7 @@
 require_relative '../support/helpers/rails_helper'
 require_relative '../../../debts_api/lib/debts_api/v0/financial_status_report_service'
 
-RSpec.describe 'financial-status-reports', :skip_json_api_validation, type: :request do
+RSpec.describe 'Mobile::V0::FinancialStatusReports', :skip_json_api_validation, type: :request do
   let!(:user) { sis_user }
 
   describe 'POST /mobile/v0/financial-status-reports/download' do

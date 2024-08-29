@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
+RSpec.describe 'Mobile::V0::DisabilityRating', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '1008596379V859838') }

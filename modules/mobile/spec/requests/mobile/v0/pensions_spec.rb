@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe Mobile::V0::PensionsController, type: :request do
+RSpec.describe 'Mobile::V0::Pensions', type: :request do
   before do
     sis_user(participant_id: 600_061_742)
   end

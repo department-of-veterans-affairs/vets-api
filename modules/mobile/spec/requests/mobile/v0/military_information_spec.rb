@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'military_information', type: :request do
+RSpec.describe 'Mobile::V0::MilitaryInformation', type: :request do
   include JsonSchemaMatchers
 
   describe 'GET /mobile/v0/military-service-history' do

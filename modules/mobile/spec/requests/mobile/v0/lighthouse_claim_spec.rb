@@ -5,7 +5,7 @@ require_relative '../support/helpers/rails_helper'
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service'
 
-RSpec.describe 'lighthouse individual claim', type: :request do
+RSpec.describe 'Mobile::V0::Claim', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '1008596379V859838') }

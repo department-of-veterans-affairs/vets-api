@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'facilities info', type: :request do
+RSpec.describe 'Mobile::V0::FacilitiesInfo', type: :request do
   include JsonSchemaMatchers
 
   let(:params) { { lat: 40.5, long: 100.1 } }

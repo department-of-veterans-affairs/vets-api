@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'enrollment status', type: :request do
+RSpec.describe 'Mobile::V0::EnrollmentStatus', type: :request do
   let!(:user) { sis_user }
 
   describe 'GET /mobile/v0/enrollment-status' do

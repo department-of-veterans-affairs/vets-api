@@ -4,7 +4,7 @@ require_relative '../support/helpers/rails_helper'
 
 require 'debt_management_center/models/debt_store'
 
-RSpec.describe 'debts', type: :request do
+RSpec.describe 'Mobile::V0::Debts', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user }

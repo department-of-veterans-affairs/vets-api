@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'maintenance windows', type: :request do
+RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
   include JsonSchemaMatchers
 
   def mw_uuid(service_name)

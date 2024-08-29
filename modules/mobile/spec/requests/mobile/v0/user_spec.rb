@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'user', type: :request do
+RSpec.describe 'Mobile::V0::User', type: :request do
   include JsonSchemaMatchers
 
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }

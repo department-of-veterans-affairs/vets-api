@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'letters', type: :request do
+RSpec.describe 'Mobile::V0::Letters', type: :request do
   include JsonSchemaMatchers
   before do
     Flipper.disable(:mobile_lighthouse_letters)

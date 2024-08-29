@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'individual appeal', type: :request do
+RSpec.describe 'Mobile::V0::Appeal', type: :request do
   include JsonSchemaMatchers
 
   describe 'GET /v0/appeal/:id' do

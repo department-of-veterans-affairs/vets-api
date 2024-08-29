@@ -5,7 +5,7 @@ require_relative '../support/helpers/rails_helper'
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service'
 
-RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
+RSpec.shared_examples 'Mobile::V0::ClaimsAndAppeals' do |lighthouse_flag|
   let(:good_claims_response_vcr_path) do
     lighthouse_flag ? 'mobile/lighthouse_claims/index/200_response' : 'mobile/claims/claims'
   end
