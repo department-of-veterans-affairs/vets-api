@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../support/helpers/rails_helper'
+require_relative '../../../../../support/helpers/rails_helper'
 
 RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
   let!(:user) { sis_user(:mhv, :api_auth, mhv_correlation_id: '123', mhv_account_type: 'Premium') }

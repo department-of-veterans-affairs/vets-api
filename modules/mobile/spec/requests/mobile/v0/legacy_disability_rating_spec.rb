@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
+require_relative '../../../support/helpers/rails_helper'
 
 require 'evss/disability_compensation_form/service_unavailable_exception'
 

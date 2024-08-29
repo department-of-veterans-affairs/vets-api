@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../support/helpers/rails_helper'
+require_relative '../../../support/helpers/rails_helper'
 require 'common/client/errors'
 
 RSpec.describe 'Mobile::V1::User', type: :request do

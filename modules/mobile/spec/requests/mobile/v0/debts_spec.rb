@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
+require_relative '../../../support/helpers/rails_helper'
 
 require 'debt_management_center/models/debt_store'
 

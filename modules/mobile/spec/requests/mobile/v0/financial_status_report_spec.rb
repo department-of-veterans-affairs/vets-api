@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
-require_relative '../../../debts_api/lib/debts_api/v0/financial_status_report_service'
+require_relative '../../../support/helpers/rails_helper'
+require_relative '../../../../../debts_api/lib/debts_api/v0/financial_status_report_service'
 
 RSpec.describe 'Mobile::V0::FinancialStatusReports', :skip_json_api_validation, type: :request do
   let!(:user) { sis_user }
