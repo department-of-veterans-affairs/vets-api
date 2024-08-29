@@ -15,7 +15,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
     end
 
     context 'when the claim is found' do
-      it 'matches our schema is successfully returned with the 200 status ',
+      it 'matches our schema is successfully returned with the 200 status',
          run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('evss/claims/claim_with_docs') do
           get '/mobile/v0/claim/600117255', headers: sis_headers
@@ -25,7 +25,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
     end
 
     context 'with a non-existent claim' do
-      it 'returns a 404 with an error ',
+      it 'returns a 404 with an error',
          run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('evss/claims/claim_with_docs') do
           get '/mobile/v0/claim/2222222', headers: sis_headers
@@ -36,7 +36,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
     end
 
     context 'when attempting to access another users claim' do
-      it 'returns a 404 with an error ',
+      it 'returns a 404 with an error',
          run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('evss/claims/claim_with_docs') do
           get '/mobile/v0/claim/111222333', headers: sis_headers

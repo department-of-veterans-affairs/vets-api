@@ -15,7 +15,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'prescriptions.json')
     json_data = JSON.parse(File.read(path), symbolize_names: true)
 
-    Common::Collection.fetch(::Prescription, cache_key: '123:gethistoryrx', ttl: 3600) { json_data }
+    Common::Collection.fetch(Prescription, cache_key: '123:gethistoryrx', ttl: 3600) { json_data }
   end
 
   before do
@@ -426,7 +426,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     end
 
     context 'with empty otherPrescriptions section' do
-      it 'returns 200 with ' do
+      it 'returns 200 with' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/gets_tracking_with_empty_other_prescriptions') do
           get '/mobile/v0/health/rx/prescriptions/13650541/tracking', headers: sis_headers
         end

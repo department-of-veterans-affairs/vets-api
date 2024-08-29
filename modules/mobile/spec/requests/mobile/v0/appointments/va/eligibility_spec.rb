@@ -155,7 +155,7 @@ RSpec.describe 'Mobile::V0::Appointments::VA::Eligibility', type: :request do
           )
         end
 
-        it 'groups cc_supported ids ' do
+        it 'groups cc_supported ids' do
           cc_supported_facility_ids = response.parsed_body.dig('data', 'attributes', 'ccSupported')
 
           expect(cc_supported_facility_ids).to eq(%w[984])

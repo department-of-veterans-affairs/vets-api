@@ -33,7 +33,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
 
-    expect(response.status).to eq(202)
+    expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
     expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])
   end
@@ -47,7 +47,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: sis_headers(json: true)
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
-    expect(response.status).to eq(202)
+    expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
     expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])
   end
@@ -58,7 +58,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       expect do
         post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers(camelize: false)
       end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
-      expect(response.status).to eq(202)
+      expect(response).to have_http_status(:accepted)
       expect(response.parsed_body.dig('data', 'job_id')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
       expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])
     end
@@ -73,7 +73,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
                                                                  headers: sis_headers(camelize: false, json: true)
       end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
 
-      expect(response.status).to eq(202)
+      expect(response).to have_http_status(:accepted)
       expect(response.parsed_body.dig('data', 'job_id')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
       expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])
     end
@@ -89,7 +89,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: sis_headers(json: true)
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
-    expect(response.status).to eq(202)
+    expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
   end
 
@@ -102,14 +102,14 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: sis_headers(json: true)
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
-    expect(response.status).to eq(202)
+    expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
   end
 
   it 'rejects files with invalid document_types' do
     params = { file:, claim_id:, tracked_item_id:, document_type: 'Invalid Type' }
     post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-    expect(response.status).to eq(422)
+    expect(response).to have_http_status(:unprocessable_entity)
     expect(
       response.parsed_body['errors'].first['title']
     ).to eq(I18n.t('errors.messages.uploads.document_type_unknown'))
@@ -119,7 +119,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     params = { file:, claim_id:, tracked_item_id: nil, document_type: }
     post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
     args = Lighthouse::DocumentUpload.jobs.first['args'][1]
-    expect(response.status).to eq(202)
+    expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
     expect(args.key?('tracked_item_id')).to eq(true)
     expect(args['tracked_item_id']).to be_nil
@@ -136,7 +136,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
         post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
 
-      expect(response.status).to eq(202)
+      expect(response).to have_http_status(:accepted)
       expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
     end
   end
@@ -147,7 +147,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     it 'rejects files with invalid document_types' do
       params = { file:, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
       expect(response.parsed_body['errors'].first['title']).to eq('File extension is not included in the list')
     end
   end
@@ -158,7 +158,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     it 'rejects locked PDFs if no password is provided' do
       params = { file: locked_file, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
       expect(response.parsed_body['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.pdf.locked'))
     end
 
@@ -166,7 +166,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       params = { file: locked_file, claimId: claim_id, trackedItemId: tracked_item_id, documentType: document_type,
                  password: 'test' }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      expect(response.status).to eq(202)
+      expect(response).to have_http_status(:accepted)
       expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
     end
 
@@ -174,7 +174,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       params = { file: locked_file, claimId: claim_id, trackedItemId: tracked_item_id, documentType: document_type,
                  password: 'bad' }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
       expect(
         response.parsed_body['errors'].first['title']
       ).to eq(I18n.t('errors.messages.uploads.pdf.incorrect_password'))
@@ -192,7 +192,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     it 'rejects a file that is not really a PDF' do
       params = { file: tempfile, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
       expect(
         response.parsed_body['errors'].first['title']
       ).to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
@@ -205,7 +205,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     it 'rejects a text file with no body' do
       params = { file:, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      expect(response.status).to eq(500)
+      expect(response).to have_http_status(:internal_server_error)
       expect(response.parsed_body['errors'].first['meta']['exception']).to match(/1 Byte/)
     end
   end
@@ -221,7 +221,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     it 'rejects a text file containing untranslatable characters' do
       params = { file: tempfile, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
       expect(
         response.parsed_body['errors'].first['title']
       ).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
@@ -239,7 +239,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     it 'accepts a text file containing translatable characters' do
       params = { file: tempfile, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      expect(response.status).to eq(202)
+      expect(response).to have_http_status(:accepted)
       expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
     end
   end
@@ -247,7 +247,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
   context 'with a PDF pretending to be text' do
     let(:tempfile) do
       f = Tempfile.new(['test', '.txt'], encoding: 'utf-16be')
-      pdf = File.open(::Rails.root.join(*'/spec/fixtures/files/doctors-note.pdf'.split('/')).to_s, 'rb')
+      pdf = File.open(Rails.root.join(*'/spec/fixtures/files/doctors-note.pdf'.split('/')).to_s, 'rb')
       FileUtils.copy_stream(pdf, f)
       pdf.close
       f.rewind
@@ -257,7 +257,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     it 'rejects a text file containing binary data' do
       params = { file: tempfile, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
       expect(
         response.parsed_body['errors'].first['title']
       ).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))

@@ -9,14 +9,14 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
     let!(:user) { sis_user }
 
     context 'with an authorized user' do
-      it 'and a result that matches our schema is successfully returned with the 200 status ' do
+      it 'and a result that matches our schema is successfully returned with the 200 status' do
         VCR.use_cassette('caseflow/appeals') do
           get '/mobile/v0/appeal/3294289', headers: sis_headers
           expect(response).to have_http_status(:ok)
         end
       end
 
-      it 'and attempting to access a nonexistant appeal returns a 404 wtih an error ' do
+      it 'and attempting to access a nonexistant appeal returns a 404 wtih an error' do
         VCR.use_cassette('caseflow/appeals') do
           get '/mobile/v0/appeal/1234567', headers: sis_headers
           expect(response).to have_http_status(:not_found)

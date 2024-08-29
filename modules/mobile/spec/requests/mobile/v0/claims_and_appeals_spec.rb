@@ -44,7 +44,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
     let(:params) { { useCache: false, page: { size: 60 } } }
 
     describe '#index (all user claims) is polled' do
-      it 'and a result that matches our schema is successfully returned with the 200 status ' do
+      it 'and a result that matches our schema is successfully returned with the 200 status' do
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
@@ -365,7 +365,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         before { allow_any_instance_of(User).to receive(:loa3?).and_return(nil) }
 
         context 'claims service succeed' do
-          it 'uses cached claims ' do
+          it 'uses cached claims' do
             VCR.use_cassette(good_claims_response_vcr_path) do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             end
@@ -389,7 +389,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         end
 
         context 'claims service fails' do
-          it 'returns error and does not cache ' do
+          it 'returns error and does not cache' do
             VCR.use_cassette(error_claims_response_vcr_path) do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
               expect(Mobile::V0::ClaimOverview.get_cached(user)).to eq(nil)
@@ -404,7 +404,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         before { allow_any_instance_of(User).to receive(:participant_id).and_return(nil) }
 
         context 'appeals service succeed' do
-          it 'appeals service succeed and caches appeals ' do
+          it 'appeals service succeed and caches appeals' do
             VCR.use_cassette('mobile/appeals/appeals') do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             end
@@ -429,7 +429,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         end
 
         context 'appeals service fails' do
-          it 'returns error and does not cache ' do
+          it 'returns error and does not cache' do
             VCR.use_cassette('mobile/appeals/server_error') do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
               expect(Mobile::V0::ClaimOverview.get_cached(user)).to eq(nil)

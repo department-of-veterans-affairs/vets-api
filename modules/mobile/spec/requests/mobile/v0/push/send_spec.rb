@@ -50,7 +50,7 @@ RSpec.describe 'Mobile::V0::Push::Send', type: :request do
       end
     end
 
-    context 'when causing vetext internal server error ' do
+    context 'when causing vetext internal server error' do
       let(:params) do
         {
           appName: 'va_mobile_app',

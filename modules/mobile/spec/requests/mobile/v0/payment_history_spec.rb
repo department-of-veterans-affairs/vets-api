@@ -285,7 +285,7 @@ RSpec.describe 'Mobile::V0::PaymentHistory', type: :request do
       end
     end
 
-    context 'with an only scheduled payments ' do
+    context 'with an only scheduled payments' do
       before do
         allow(Rails.logger).to receive(:warn)
         VCR.use_cassette('mobile/payment_history/retrieve_payment_summary_with_bdn_only_blank_dates',

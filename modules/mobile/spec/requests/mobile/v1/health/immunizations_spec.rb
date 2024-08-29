@@ -245,7 +245,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
           get '/mobile/v1/health/immunizations', headers: sis_headers, params: nil
         end
 
-        ids = response.parsed_body['data'].map { |i| i['id'] }
+        ids = response.parsed_body['data'].pluck('id')
 
         # these are the last ten records in the vcr cassette
         expected_ids = %w[I2-QGX75BMCEGXFC57E47NAWSKSBE000000
@@ -267,7 +267,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
           get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 2, number: 3 } }
         end
 
-        ids = response.parsed_body['data'].map { |i| i['id'] }
+        ids = response.parsed_body['data'].pluck('id')
 
         # these are the fifth and sixth from last records in the vcr cassette
         expect(ids).to eq(%w[I2-XTVY4IDSEUWVYC25SST25RG5KU000000 I2-SMRNQOX7DLAPOZBY4XMAOMQKX4000000])
