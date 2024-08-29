@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'address', type: :request do
+RSpec.describe 'Mobile::V0::User::Address', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user }
