@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'Community Care Eligibility', type: :request do
+RSpec.describe 'Mobile::V0::Appointments::CommunityCare::Eligibility', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '9000682') }

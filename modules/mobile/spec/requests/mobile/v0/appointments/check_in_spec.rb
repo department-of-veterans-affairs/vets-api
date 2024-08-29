@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../support/helpers/rails_helper'
-RSpec.describe 'check in', type: :request do
+RSpec.describe 'Mobile::V0::Appointments::CheckIn', type: :request do
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
   let!(:user) { sis_user }
 

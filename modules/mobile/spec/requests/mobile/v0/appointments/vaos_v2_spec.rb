@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'vaos v2 appointments', type: :request do
+RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '1012846043V576341') }

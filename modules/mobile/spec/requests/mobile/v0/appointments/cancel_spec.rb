@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'appointments', type: :request do
+RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '24811694708759028') }
