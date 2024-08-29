@@ -1324,7 +1324,7 @@ components:
             clinic:
               $ref: "#/components/schemas/ClinicReference"
             serviceType:
-              $ref: '#/components/schemas/CodeableConcept'
+              $ref: "#/components/schemas/CodeableConcept"
             lastSeen:
               type: string
               description: The date-time (in UTC) when the patient was last seen.
