@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mockdata/mpi/find'
 
-RSpec.describe 'Mocked authentication mpi mockdata', type: :request do
+RSpec.describe 'MockedAuthentication::MPI::Mockdata', type: :request do
   let(:icn) { '12345' }
   let(:yml) { 'some-yml-content' }
   let(:api_key) { 'some-api-key' }

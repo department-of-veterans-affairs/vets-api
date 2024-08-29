@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Mocked Authentication Mock Credential', type: :request do
+RSpec.describe 'MockedAuthentication::Credentials', type: :request do
   describe 'GET authorize' do
     subject do
       get(authorize_path, params: authorize_params)
