@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
+require_relative '../../../../../../support/helpers/rails_helper'
 
 RSpec.describe 'Mobile::V0::Messaging::Health::Folders::Threads', type: :request do
   include SchemaMatchers
