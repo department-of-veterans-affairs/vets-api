@@ -5,6 +5,8 @@ require 'pdf_fill/form_value'
 module PdfFill
   module Forms
     class FormBase
+      attr_reader :form_data
+
       def self.date_strftime
         '%m/%d/%Y'
       end

@@ -20,10 +20,10 @@
   "form1[0].#subform[0].NameOHI-2[0]":                                        "<%= form.data.dig('policies', 1, 'name') %>",
   "form1[0].#subform[0].OHIPolicyNmbr-2[0]":                                  "<%= form.data.dig('policies', 1, 'policy_num') %>",
   "form1[0].#subform[0].Phone-OHI-2[0]":                                      "<%= form.data.dig('policies', 1, 'provider_phone') %>",
-  "form1[0].#subform[0].#area[2].WorkRelatedTreat[0]":                        "<%= form.data.dig('claim_is_work_related') ? 0 : 1 %>",
-  "form1[0].#subform[0].#area[0].OutsdWrkAccdnt[0]":                          "<%= form.data.dig('claim_is_auto_related') ? 0 : 1 %>",
-  "form1[0].#subform[0].PtntCverage[0]":                                      "<%= form.data.dig('has_ohi') ? 0 : 1 %>",
-  "form1[0].#subform[0].#area[1].RadioButtonList[0]":                         "<%= form.data.dig('policies', 0, 'type') === 'group' ? 1 : 
+  "form1[0].#subform[0].#area[2].WorkRelatedTreat[0]":                        "<%= ['true', true].include?(form.data.dig('claims', 0, 'claim_is_work_related')) ? 0 : 1 %>",
+  "form1[0].#subform[0].#area[0].OutsdWrkAccdnt[0]":                          "<%= ['true', true].include?(form.data.dig('claims', 0, 'claim_is_auto_related')) ? 0 : 1 %>",
+  "form1[0].#subform[0].PtntCverage[0]":                                      "<%= ['true', true].include?(form.data.dig('has_ohi')) ? 0 : 1 %>",
+  "form1[0].#subform[0].#area[1].RadioButtonList[0]":                         "<%= form.data.dig('policies', 0, 'type') === 'group' ? 1 :
                                                                                    form.data.dig('policies', 0, 'type') === 'non_group' ? 2 :
                                                                                    form.data.dig('policies', 0, 'type') === 'medicare' ? 3 :
                                                                                    form.data.dig('policies', 0, 'type') === 'other' ? 4 : 0 %>",

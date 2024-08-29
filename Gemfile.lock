@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 58003a668fc817031cb581621358bab902d5bd75
+  revision: 4dbe56831768e94fc82a896d698b6134b12c742a
   branch: master
   specs:
-    vets_json_schema (24.2.1)
+    vets_json_schema (24.2.3)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -511,13 +511,8 @@ GEM
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
-    google-protobuf (4.27.3)
+    google-protobuf (4.28.0)
       bigdecimal
-      rake (>= 13)
-    google-protobuf (4.27.3-java)
-      bigdecimal
-      ffi (~> 1)
-      ffi-compiler (~> 1)
       rake (>= 13)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
@@ -717,7 +712,7 @@ GEM
     parallel (1.26.3)
     parallel_tests (4.7.1)
       parallel
-    parser (3.3.4.0)
+    parser (3.3.4.2)
       ast (~> 2.4.1)
       racc
     patience_diff (1.2.0)
@@ -927,17 +922,17 @@ GEM
       rubocop-ast (>= 1.31.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.32.0)
+    rubocop-ast (1.32.1)
       parser (>= 3.3.1.0)
     rubocop-capybara (2.21.0)
       rubocop (~> 1.41)
     rubocop-factory_bot (2.26.1)
       rubocop (~> 1.61)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.25.1)
+    rubocop-rails (2.26.0)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
-      rubocop (>= 1.33.0, < 2.0)
+      rubocop (>= 1.52.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
     rubocop-rspec (3.0.4)
       rubocop (~> 1.61)

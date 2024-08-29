@@ -36,6 +36,10 @@ module ClaimsApi
 
     protected
 
+    def preserve_original_form_data(form_data)
+      form_data.deep_dup.freeze
+    end
+
     def set_errored_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
     end
@@ -176,8 +180,8 @@ module ClaimsApi
       end
     end
 
-    def evss_mapper_service(auto_claim, file_number)
-      ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number)
+    def evss_mapper_service(auto_claim)
+      ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim)
     end
 
     def veteran_file_number(auto_claim)
