@@ -38,8 +38,6 @@ namespace :simple_forms_api do
         'Simple forms api - resubmitted PDF to benefits intake',
         { status: response.status, uuid: }
       )
-
-      p uuid
     end
   end
 end
