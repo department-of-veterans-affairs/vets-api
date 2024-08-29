@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe TravelPay::PingsController, type: :request do
+RSpec.describe TravelPay::Pings, type: :request do
   let(:user) { build(:user) }
 
   before do
