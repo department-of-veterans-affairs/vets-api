@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../support/helpers/rails_helper'
-RSpec.describe 'observations', type: :request do
+RSpec.describe 'Mobile::V0::Health::Observations', type: :request do
   let!(:user) { sis_user(icn: '32000225') }
 
   let(:observation_response) do

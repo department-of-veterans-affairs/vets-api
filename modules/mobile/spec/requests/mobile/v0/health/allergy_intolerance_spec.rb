@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../support/helpers/rails_helper'
-RSpec.describe 'allergy intolerances', type: :request do
+
+RSpec.describe 'Mobile::V0::Health::AllergyIntolerances', type: :request do
   let!(:user) { sis_user(icn: '32000225') }
 
   let(:allergy_intolerance_response) do

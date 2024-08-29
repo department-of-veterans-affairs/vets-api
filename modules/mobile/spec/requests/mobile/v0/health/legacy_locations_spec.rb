@@ -2,7 +2,7 @@
 
 require_relative '../support/helpers/rails_helper'
 
-RSpec.describe 'locations', type: :request do
+RSpec.describe 'legacy Mobile::V0::Health::Locations', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '9000682') }
