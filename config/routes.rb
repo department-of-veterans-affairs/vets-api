@@ -423,6 +423,8 @@ Rails.application.routes.draw do
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
 
+    resource :decision_review_evidence, only: :create
+
     namespace :higher_level_reviews do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
