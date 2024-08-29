@@ -6,7 +6,7 @@ RSpec.describe AskVAApi::Inquiries::Serializer do
   let(:info) do
     {
       InquiryHasBeenSplit: true,
-      CategoryId: '12345',
+      CategoryName: 'Veteran Affairs  - Debt',
       CreatedOn: '8/5/2024 4:51:52 PM',
       Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
       InquiryLevelOfAuthentication: 'Personal',
@@ -34,7 +34,7 @@ RSpec.describe AskVAApi::Inquiries::Serializer do
               type: :inquiry,
               attributes: {
                 has_been_split: info[:InquiryHasBeenSplit],
-                category_id: info[:CategoryId],
+                category_name: 'Veteran Affairs  - Debt',
                 created_on: info[:CreatedOn],
                 level_of_authentication: info[:InquiryLevelOfAuthentication],
                 inquiry_number: info[:InquiryNumber],
@@ -67,7 +67,8 @@ RSpec.describe AskVAApi::Inquiries::Serializer do
     let(:correspondences_response) do
       { data: [{ id: '1', type: :correspondence,
                  attributes: { message_type: '722310001: Response from VA',
-                               modified_on: '1/2/23',
+                               created_on: '1/2/23 4:45:45 PM',
+                               modified_on: '1/2/23 5:45:45 PM',
                                status_reason: 'Completed/Sent',
                                description: 'Your claim is still In Progress',
                                enable_reply: true,
