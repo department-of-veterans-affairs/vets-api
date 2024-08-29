@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/rails_helper'
+
 RSpec.describe 'Mobile::V0::Health::LabsAndTests', type: :request do
   let!(:user) { sis_user(icn: '32000225') }
 

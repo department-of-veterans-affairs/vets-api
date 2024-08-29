@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
+require_relative '../../../../../support/helpers/rails_helper'
 require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/rails_helper'
 
 RSpec.describe 'Mobile::V0::Health::Immunizations', :skip_json_api_validation, type: :request do
   include JsonSchemaMatchers
