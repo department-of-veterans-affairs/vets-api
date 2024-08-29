@@ -341,7 +341,7 @@ module SimpleFormsApi
       Rails.logger.info('Simple forms api - 40-10007 submission user identity', identity:, confirmation_number:)
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(_timestamp)
       []
     end
 
