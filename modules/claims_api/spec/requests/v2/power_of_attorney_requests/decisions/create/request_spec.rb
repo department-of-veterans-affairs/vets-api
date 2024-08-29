@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
 
-RSpec.describe 'Power Of Attorney Requests: decisions#create', :bgs, type: :request do
+RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests::Decisions#create', :bgs, type: :request do
   def perform_request(params)
     post(
       "/services/claims/v2/power-of-attorney-requests/#{id}/decision",
