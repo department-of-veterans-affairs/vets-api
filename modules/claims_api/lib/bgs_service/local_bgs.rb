@@ -18,6 +18,7 @@ module ClaimsApi
       ClaimantServiceBean/ClaimantWebService
       OrgWebServiceBean/OrgWebService
       IntentToFileWebServiceBean/IntentToFileWebService
+      StandardDataWebServiceBean/StandardDataWebService
       VDC/VeteranRepresentativeService
       VdcBean/ManageRepresentativeService
       VnpAtchmsWebServiceBean/VnpAtchmsService
