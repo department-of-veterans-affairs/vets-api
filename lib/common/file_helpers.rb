@@ -12,17 +12,6 @@ module Common
       "tmp/#{SecureRandom.hex}"
     end
 
-    def generate_temp_file(file_body, file_name = nil)
-      file_name = SecureRandom.hex if file_name.nil?
-      file_path = "tmp/#{file_name}"
-
-      File.open(file_path, 'wb') do |file|
-        file.write(file_body)
-      end
-
-      file_path
-    end
-
     def generate_clamav_temp_file(file_body, file_name = nil)
       file_name = SecureRandom.hex if file_name.nil?
       clamav_directory = Rails.root.join('clamav_tmp')
