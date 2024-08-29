@@ -5,6 +5,7 @@ module RepresentationManagement
     class NextStepsEmailController < ApplicationController
       service_tag 'representation-management'
       skip_before_action :authenticate
+      before_action :feature_enabled
 
       def create
         next_steps_email_data = RepresentationManagement::NextStepsEmailData.new(next_steps_email_params)
@@ -31,6 +32,10 @@ module RepresentationManagement
       end
 
       private
+
+      def feature_enabled
+        routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
+      end
 
       def next_steps_email_params
         params.require(:next_steps_email).permit(
