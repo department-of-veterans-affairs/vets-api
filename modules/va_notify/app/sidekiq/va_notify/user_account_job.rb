@@ -16,7 +16,13 @@ module VANotify
       Rails.logger.error(message, { job_id:, error_class:, error_message: })
     end
 
-    def perform(user_account_id, template_id, personalisation = nil, api_key = Settings.vanotify.services.va_gov.api_key)
+    # rubocop:disable Metrics/MethodLength
+    def perform(
+      user_account_id,
+      template_id,
+      personalisation = nil,
+      api_key = Settings.vanotify.services.va_gov.api_key
+    )
       user_account = UserAccount.find(user_account_id)
       notify_client = VaNotify::Service.new(api_key)
 
@@ -40,5 +46,6 @@ module VANotify
         raise e
       end
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
