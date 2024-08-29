@@ -160,3 +160,12 @@ btsss.update!(
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
   certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
 )
+
+# Create Service Account Config for MHV Account Creation API
+identity_dashboard_service_account_config = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: '6c2a86f9796af43da68322240d19d86c')
+identity_dashboard_service_account_config.update!(description: 'MHV Account Creation API',
+                                                  scopes: ['http://localhost:3000/v0/mvi_users/new'],
+                                                  access_token_audience: 'http://localhost:4000',
+                                                  access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+                                                  certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')],
+                                                  access_token_user_attributes: ['icn'])
