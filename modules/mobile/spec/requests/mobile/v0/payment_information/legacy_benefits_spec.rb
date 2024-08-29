@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/rails_helper'
 
 RSpec.describe 'legacy Mobile::V0::PaymentInformation::Benefits', type: :request do
   include JsonSchemaMatchers
