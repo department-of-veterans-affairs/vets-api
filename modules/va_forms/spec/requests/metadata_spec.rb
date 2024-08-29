@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'va_forms/health_checker'
 
-RSpec.describe 'VA Forms Metadata Endpoint', type: :request do
+RSpec.describe 'VAForms::Metadata', type: :request do
   describe '#get /metadata' do
     it 'returns metadata JSON' do
       get '/services/va_forms/metadata'
