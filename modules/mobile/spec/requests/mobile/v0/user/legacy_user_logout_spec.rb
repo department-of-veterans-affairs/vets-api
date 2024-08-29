@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../../../../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/iam_session_helper'
 
 RSpec.describe 'legacy Mobile::V0::User::Logout', type: :request do
   # this is considered legacy because it's specific to IAM users and is no longer in use by the mobile client.

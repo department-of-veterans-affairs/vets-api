@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/rails_helper'
 
 require 'va_profile/demographics/service'
 

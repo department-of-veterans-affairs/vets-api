@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/rails_helper'
 RSpec.describe 'Mobile::V0::User::ContactInfo', type: :request do
   let!(:user) { sis_user }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
