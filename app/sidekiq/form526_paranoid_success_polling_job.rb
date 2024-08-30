@@ -53,21 +53,18 @@ class Form526ParanoidSuccessPollingJob
     if %w[error expired].include?(status)
       form_submission.rejected!
       log_result('failed', id)
-      count_change(status)
     elsif status == 'vbms'
       form_submission.accepted!
       log_result('marked as true success', id)
-      count_change(status)
     elsif status == 'processing'
       form_submission.update!(backup_submitted_claim_status: nil)
       log_result('reverted to processing', id)
-      count_change(status)
     elsif status != 'success'
       Rails.logger.error('Paranoid Success transitioned to unknown status',
                          status:, submission_id: id)
       form_submission.rejected!
-      count_change(status)
     end
+    count_change(status) unless status == 'success'
   end
 
   def count_change(status)
