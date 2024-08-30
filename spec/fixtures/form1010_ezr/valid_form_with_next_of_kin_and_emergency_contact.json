@@ -106,48 +106,6 @@
   "veteranContacts": [
     {
       "fullName": {
-        "first": "FirstNoKA",
-        "middle": "MiddleNoKA",
-        "last": "LastNoKA",
-        "suffix": "Jr."
-      },
-      "contactType": "Primary Next of Kin",
-      "relationship": "SON",
-      "address": {
-        "street": "476 Test Ave",
-        "street2": "",
-        "street3": "",
-        "city": "Dulles",
-        "country": "USA",
-        "state": "VA",
-        "postalCode": "20101-0101"
-      },
-      "primaryPhone": "1239131234",
-      "alternatePhone": "7254551234"
-    },
-    {
-      "fullName": {
-        "first": "FirstNoKB",
-        "middle": "MiddleNoKB",
-        "last": "LastNoKB"
-      },
-      "contactType": "Other Next of Kin",
-      "relationship": "DAUGHTER",
-      "address": {
-        "street": "834 NE 36th St",
-        "street2": "",
-        "street3": "",
-        "city": "Ontario",
-        "country": "CAN",
-        "state": "ON",
-        "provinceCode": "ProvinceName",
-        "postalCode": "21534"
-      },
-      "primaryPhone": "1239183546",
-      "alternatePhone": "2658351234"
-    },
-    {
-      "fullName": {
         "first": "FirstECA",
         "middle": "MiddleECA",
         "last": "LastECA"
