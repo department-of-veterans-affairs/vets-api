@@ -117,9 +117,6 @@ app/controllers/v0/messages_controller.rb @department-of-veterans-affairs/vfs-he
 app/controllers/v0/messaging_preferences_controller.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/mhv_opt_in_flags_controller.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/mpi_users_controller.rb @department-of-veterans-affairs/octo-identity
-app/controllers/v0/notice_of_disagreements @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/controllers/v0/notice_of_disagreements/contestable_issues_controller.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/controllers/v0/notice_of_disagreements_controller.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/onsite_notifications_controller.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/pension_claims_controller.rb @department-of-veterans-affairs/pensions @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/ppiu_controller.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
