@@ -1,11 +1,17 @@
 # frozen_string_literal: true
 
 module BenefitsClaims
+  # add/retrieve a pid
   module PersonProxyAdd
+    # monitoring functions
     class Monitor
-      STATSD_KEY_PREFIX = 'worker.lighthouse.pension_create_pid_for_icn'
+      # statd prefix
+      STATSD_KEY_PREFIX = 'worker.lighthouse.create_pid_for_icn'
+
+      # default message
       DEFAULT_LOGGER_MESSAGE = 'Add person proxy by icn'
 
+      # track job exhaustion for proxy add
       def track_proxy_add_exhaustion(form_type, form_start_date, user_account_uuid, error)
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
         context = {

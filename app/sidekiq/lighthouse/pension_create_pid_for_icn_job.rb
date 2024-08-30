@@ -3,6 +3,7 @@
 require 'lighthouse/benefits_claims/person_proxy_add/monitor'
 
 module Lighthouse
+  # proxy job to perform pid creation before intent-to-file
   class PensionCreatePidForIcnJob
     include Sidekiq::Job
 
@@ -17,6 +18,13 @@ module Lighthouse
       monitor.track_proxy_add_exhaustion(form_type, form_start_date, user_account&.id, error)
     end
 
+    # attempt to add/retrieve a pid, then call intnet-to-file job
+    # @see Lighthouse::CreateIntentToFileJob
+    #
+    # @param form_type [String] the form_id, form_type; eg. '21P-527EZ'
+    # @param form_start_date [DateTime] date to set ITF
+    # @param veteran_icn
+    #
     def perform(form_type, form_start_date, veteran_icn)
       adder_service = MPIProxyPersonAdder.new(veteran_icn)
       if adder_service.add_person_proxy_by_icn

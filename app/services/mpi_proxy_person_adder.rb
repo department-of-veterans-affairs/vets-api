@@ -13,10 +13,7 @@ class MPIProxyPersonAdder
   end
 
   ##
-  # Class method to retrieve MPI profile for icn,
-  # validate if able to run add_person_proxy, and only call MPI's
-  # add_person_proxy if all validation checks pass. If checks don't
-  # pass, then skip the add_person_proxy call.
+  # (see #add_person_proxy_by_icn)
   #
   # @param icn
   #
@@ -25,12 +22,10 @@ class MPIProxyPersonAdder
   end
 
   ##
-  # Instance method to retrieve MPI profile for icn,
+  # Retrieve MPI profile for icn,
   # validate if able to run add_person_proxy, and only call MPI's
   # add_person_proxy if all validation checks pass. If checks don't
   # pass, then skip the add_person_proxy call.
-  #
-  # @param icn
   #
   def add_person_proxy_by_icn
     monitor.track_proxy_add_begun
@@ -121,6 +116,7 @@ class MPIProxyPersonAdder
     # skipped proxy add
     #
     # @param message [String] custom message to be logged; default DEFAULT_LOGGER_MESSAGE
+    #
     def track_proxy_add_skipped(message = nil)
       StatsD.increment("#{STATSD_KEY_PREFIX}.skipped")
 
@@ -132,6 +128,7 @@ class MPIProxyPersonAdder
     #
     # @param error [Object] the 'error' to be logged
     # @param message [String] custom message to be logged; default DEFAULT_LOGGER_MESSAGE
+    #
     def track_proxy_add_failure(error, message = nil)
       StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
 
