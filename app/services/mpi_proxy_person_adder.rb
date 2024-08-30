@@ -88,7 +88,7 @@ class MPIProxyPersonAdder
     # statsd prefix
     STATSD_KEY_PREFIX = 'mpi_proxy.add_person_proxy_by_icn'
 
-    #default message for skipped and failure
+    # default message for skipped and failure
     DEFAULT_LOGGER_MESSAGE = 'Add person proxy by icn'
 
     # source for log messages
@@ -133,7 +133,7 @@ class MPIProxyPersonAdder
       StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
 
       message ||= "#{DEFAULT_LOGGER_MESSAGE} failure"
-      Rails.logger.warn(message, {error:}.merge(context))
+      Rails.logger.warn(message, { error: }.merge(context))
     end
 
     private
