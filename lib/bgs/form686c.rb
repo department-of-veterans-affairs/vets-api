@@ -193,7 +193,7 @@ module BGS
 
     def prep_manual_claim(benefit_claim_id)
       @proc_state = 'MANUAL_VAGOV'
-
+      Rails.logger.info("calling create note")
       bgs_service.create_note(benefit_claim_id, @note_text)
     end
 

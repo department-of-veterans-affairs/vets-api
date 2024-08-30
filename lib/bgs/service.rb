@@ -198,7 +198,7 @@ module BGS
     end
 
     def create_note(claim_id, note_text)
-      Rails.logger.debug("starting create_note for #{claim_id} from api side with text: #{note_text}")
+      Rails.logger.info("starting create_note for #{claim_id} from api side with text: #{note_text}")
       option_hash = {
         jrn_stt_tc: 'I',
         name: 'Claim rejected by VA.gov',
@@ -207,16 +207,16 @@ module BGS
         ptcpnt_id: @user.participant_id,
         txt: note_text
       }.merge!(bgs_auth).except!(:jrn_status_type_cd)
-      Rails.logger.debug("about to send to create note")
-      Rails.logger.debug(option_hash)
+      Rails.logger.info("about to send to create note")
+      Rails.logger.info(option_hash)
       response = service.notes.create_note(option_hash)
-      Rails.logger.debug("create_note external finished")
+      Rails.logger.info("create_note external finished")
       message = if response[:note]
                   response[:note].slice(:clm_id, :txt)
                 else
                   response
                 end
-      Rails.logger.debug("the message is #{message}")
+      Rails.logger.info("the message is #{message}")
       log_message_to_sentry(message, :info, {}, { team: 'vfs-ebenefits' })
       response
     rescue => e

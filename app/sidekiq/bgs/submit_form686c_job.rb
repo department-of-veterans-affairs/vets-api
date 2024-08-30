@@ -98,7 +98,7 @@ module BGS
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
       claim_data = normalize_names_and_addresses!(claim.formatted_686_data(vet_info))
-
+      Rails.logger.info("686 inside of submit forms")
       BGS::Form686c.new(user, claim).submit(claim_data)
 
       # If Form 686c job succeeds, then enqueue 674 job.
