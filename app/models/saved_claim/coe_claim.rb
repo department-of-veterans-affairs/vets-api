@@ -1,32 +1,23 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
-
 class SavedClaim::CoeClaim < SavedClaim
-  include SentryLogging
-
   FORM = '26-1880'
 
   def send_to_lgy(edipi:, icn:)
     @edipi = edipi
     @icn = icn
 
+    # If the EDIPI is blank, throw an error
     if @edipi.blank?
-      log_message_to_sentry(
-        'COE application cannot be submitted without an edipi!',
-        :error,
-        {},
-        { team: 'vfs-ebenefits' }
-      )
+      Rails.logger.error('COE application cannot be submitted without an edipi!')
+      # return back nil and break out of CoeClaim since we don't have a EDIPI
+      return nil
     end
 
     response = lgy_service.put_application(payload: prepare_form_data)
-    log_message_to_sentry(
-      "COE claim submitted to LGY: #{guid}",
-      :warn,
-      { attachment_id: guid },
-      { team: 'vfs-ebenefits' }
-    )
+
+    Rails.logger.error("COE claim submitted to LGY: #{guid}")
+
     process_attachments!
     response['reference_number']
   end
