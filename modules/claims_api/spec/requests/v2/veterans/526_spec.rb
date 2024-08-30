@@ -6,45 +6,12 @@ require_relative '../../../rails_helper'
 RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
   let(:scopes) { %w[claim.write claim.read] }
   let(:claim_date) { Time.find_zone!('Central Time (US & Canada)').today }
-  let(:no_first_name_target_veteran) do
-    OpenStruct.new(
-      icn: '1012832025V743496',
-      first_name: '',
-      last_name: 'Ford',
-      birth_date: '19630211',
-      loa: { current: 3, highest: 3 },
-      edipi: nil,
-      ssn: '796043735',
-      participant_id: '600061742',
-      mpi: OpenStruct.new(
-        icn: '1012832025V743496',
-        profile: OpenStruct.new(ssn: '796043735')
-      )
-    )
-  end
-
-  let(:no_last_name_target_veteran) do
+  let(:target_veteran) do
     OpenStruct.new(
       icn: '1012832025V743496',
       first_name: 'Wesley',
-      last_name: '',
-      birth_date: '19630211',
-      loa: { current: 3, highest: 3 },
-      edipi: nil,
-      ssn: '796043735',
-      participant_id: '600061742',
-      mpi: OpenStruct.new(
-        icn: '1012832025V743496',
-        profile: OpenStruct.new(ssn: '796043735')
-      )
-    )
-  end
-
-  let(:no_first_last_name_target_veteran) do
-    OpenStruct.new(
-      icn: '1012832025V743496',
-      first_name: '',
-      last_name: '',
+      last_name: 'Ford',
+      middle_name: 'John',
       birth_date: '19630211',
       loa: { current: 3, highest: 3 },
       edipi: nil,
@@ -148,8 +115,9 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         context 'without the first name present' do
           it 'does not allow the submit to occur' do
             mock_ccg(scopes) do |auth_header|
+              target_veteran.first_name = ''
               allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:target_veteran).and_return(no_first_name_target_veteran)
+                .to receive(:target_veteran).and_return(target_veteran)
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
               expect(response.parsed_body['errors'][0]['detail']).to eq('Missing first name')
@@ -160,8 +128,9 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         context 'without the last name present' do
           it 'does not allow the submit to occur' do
             mock_ccg(scopes) do |auth_header|
+              target_veteran.last_name = ''
               allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:target_veteran).and_return(no_last_name_target_veteran)
+                .to receive(:target_veteran).and_return(target_veteran)
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
               expect(response.parsed_body['errors'][0]['detail']).to eq('Missing last name')
@@ -4500,7 +4469,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
     end
 
     describe '#generate_pdf' do
-      let(:veteran_id) { '1012832025V743496' }
       let(:invalid_scopes) { %w[claim.write claim.read] }
       let(:generate_pdf_scopes) { %w[system/526-pdf.override] }
       let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF/minimum-validations" }
@@ -4527,10 +4495,10 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
       context 'without the first and last name present' do
         it 'does not allow the generatePDF call to occur' do
           mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            target_veteran.first_name = ''
+            target_veteran.last_name = ''
             allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-              .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
-            allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
-              .to receive(:veteran_middle_initial).and_return('')
+              .to receive(:target_veteran).and_return(target_veteran)
 
             post generate_pdf_path, params: data, headers: auth_header
             expect(response).to have_http_status(:unprocessable_entity)
@@ -4542,10 +4510,9 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
       context 'without the first name present' do
         it 'allows the generatePDF call to occur' do
           mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            target_veteran.first_name = ''
             allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-              .to receive(:target_veteran).and_return(no_first_name_target_veteran)
-            allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
-              .to receive(:veteran_middle_initial).and_return('')
+              .to receive(:target_veteran).and_return(target_veteran)
 
             post generate_pdf_path, params: data, headers: auth_header
             expect(response).to have_http_status(:ok)
@@ -4722,8 +4689,10 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         it 'does not allow the submit to occur' do
           mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
             VCR.use_cassette('claims_api/disability_comp') do
+              target_veteran.first_name = ''
+              target_veteran.last_name = ''
               allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
+                .to receive(:target_veteran).and_return(target_veteran)
               post synchronous_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
               expect(response.parsed_body['errors'][0]['detail']).to eq('Missing first and last name')
