@@ -6,8 +6,6 @@ RSpec.describe 'V0::Appeals', type: :request do
   include SchemaMatchers
 
   appeals_endpoint = '/v0/appeals'
-  hlr_endpoint = '/v0/higher_level_reviews'
-  hlr_get_contestable_issues_endpoint = "#{hlr_endpoint}/contestable_issues"
 
   before { sign_in_as(user) }
 
