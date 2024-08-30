@@ -9,23 +9,28 @@ RSpec.describe MPIProxyPersonAdder do
   let(:user_account) { create(:user_account, icn:) }
   let(:profile) { build(:mpi_profile) }
   let(:mpi_service) { instance_double(MPI::Service) }
+  let(:monitor) { instance_double(MPIProxyPersonAdder::Monitor) }
 
   before do
     allow(UserAccount).to receive(:find_by).with(icn:).and_return(user_account)
     allow(MPI::Service).to receive(:new).and_return(mpi_service)
+    allow(monitor).to receive_messages(track_proxy_add_begun: nil, track_proxy_add_success: nil,
+                                       track_proxy_add_skipped: nil, track_proxy_add_failure: nil)
+
+    subject.instance_variable_set(:@monitor, monitor)
   end
 
   describe '#add_person_proxy_by_icn' do
     context 'when profile is present and access is granted' do
       before do
-        allow(subject).to receive(:fetch_profile)
-        allow(subject).to receive(:profile).and_return(profile)
-        allow(MPIPolicy).to receive(:new).with(profile).and_return(instance_double(MPIPolicy,
-                                                                                   access_add_person_proxy?: true))
+        policy = instance_double(MPIPolicy, access_add_person_proxy?: true)
+        allow(MPIPolicy).to receive(:new).with(profile).and_return(policy)
+
         allow(mpi_service).to receive(:add_person_proxy)
-        allow(subject).to receive(:track_proxy_add_success)
+        allow(mpi_service).to receive(:find_profile_by_identifier).and_return(OpenStruct.new(profile:))
+
+        expect(monitor).to receive(:track_proxy_add_success)
       end
-      subject { described_class.new(icn) }
 
       it 'calls MPI service to add person proxy' do
         expect(mpi_service).to receive(:add_person_proxy).with(
@@ -37,12 +42,9 @@ RSpec.describe MPIProxyPersonAdder do
           edipi: profile.edipi,
           search_token: profile.search_token
         )
-        subject.add_person_proxy_by_icn
-      end
+        expect(MPIProxyPersonAdder).to receive(:new).and_return(subject)
 
-      it 'tracks the proxy add success' do
-        expect(subject).to receive(:track_proxy_add_success)
-        subject.add_person_proxy_by_icn
+        MPIProxyPersonAdder.add_person_proxy_by_icn(icn)
       end
 
       it 'returns true' do
@@ -52,9 +54,9 @@ RSpec.describe MPIProxyPersonAdder do
 
     context 'when profile is not present' do
       before do
-        allow(subject).to receive(:fetch_profile)
-        allow(subject).to receive(:profile).and_return(nil)
-        allow(subject).to receive(:track_proxy_add_skipped)
+        allow(mpi_service).to receive(:find_profile_by_identifier).and_return(OpenStruct.new(profile: nil))
+
+        allow(monitor).to receive(:track_proxy_add_skipped)
       end
 
       it 'does not call MPI service to add person proxy' do
@@ -63,7 +65,7 @@ RSpec.describe MPIProxyPersonAdder do
       end
 
       it 'tracks the proxy add skipped' do
-        expect(subject).to receive(:track_proxy_add_skipped)
+        expect(monitor).to receive(:track_proxy_add_skipped)
         subject.add_person_proxy_by_icn
       end
 
@@ -74,11 +76,12 @@ RSpec.describe MPIProxyPersonAdder do
 
     context 'when access is not granted' do
       before do
-        allow(subject).to receive(:fetch_profile)
-        allow(subject).to receive(:profile).and_return(profile)
-        allow(MPIPolicy).to receive(:new).with(profile).and_return(instance_double(MPIPolicy,
-                                                                                   access_add_person_proxy?: false))
-        allow(subject).to receive(:track_proxy_add_skipped)
+        policy = instance_double(MPIPolicy, access_add_person_proxy?: false)
+        allow(MPIPolicy).to receive(:new).with(profile).and_return(policy)
+
+        allow(mpi_service).to receive(:find_profile_by_identifier).and_return(OpenStruct.new(profile:))
+
+        allow(monitor).to receive(:track_proxy_add_skipped)
       end
 
       it 'does not call MPI service to add person proxy' do
@@ -87,7 +90,7 @@ RSpec.describe MPIProxyPersonAdder do
       end
 
       it 'tracks the proxy add skipped' do
-        expect(subject).to receive(:track_proxy_add_skipped)
+        expect(monitor).to receive(:track_proxy_add_skipped)
         subject.add_person_proxy_by_icn
       end
 
@@ -100,13 +103,85 @@ RSpec.describe MPIProxyPersonAdder do
       let(:error) { StandardError.new('An error occurred') }
 
       before do
-        allow(subject).to receive(:fetch_profile).and_raise(error)
-        allow(subject).to receive(:track_proxy_add_failure)
+        allow(mpi_service).to receive(:find_profile_by_identifier).and_return(OpenStruct.new(error:))
+
+        allow(monitor).to receive(:track_proxy_add_failure)
       end
 
       it 'tracks the proxy add failure' do
-        expect(subject).to receive(:track_proxy_add_failure).with(error)
+        expect(monitor).to receive(:track_proxy_add_failure).with(error)
         expect { subject.add_person_proxy_by_icn }.to raise_error(error)
+      end
+    end
+  end
+
+  describe '#monitor' do
+    it 'sets the instance variable' do
+      subject.instance_variable_set(:@monitor, nil)
+      expect(MPIProxyPersonAdder::Monitor).to receive(:new).with(user_account.id)
+      subject.send(:monitor)
+    end
+  end
+
+  describe '#fetch_profile' do
+    it 'raises ArgumentError' do
+      subject.instance_variable_set(:@icn, nil)
+      expect { subject.send(:fetch_profile) }.to raise_error(ArgumentError, /Missing ICN/)
+    end
+
+    it 'catches and raises the MPI error' do
+      error_response = OpenStruct.new(error: MPI::Errors::RecordNotFound)
+      allow(mpi_service).to receive(:find_profile_by_identifier).and_return(error_response)
+
+      expect(monitor).to receive(:track_proxy_add_failure)
+      expect { subject.send(:fetch_profile) }.to raise_error(MPI::Errors::RecordNotFound)
+    end
+  end
+
+  describe MPIProxyPersonAdder::Monitor do
+    subject { described_class.new(user_account_uuid) }
+
+    let(:source) { described_class::MPI_PROXY_PERSON_ADDER_PATH }
+    let(:user_account_uuid) { 'TEST123' }
+
+    before do
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive_messages(info: nil, warn: nil)
+    end
+
+    describe '#track_proxy_add_begun' do
+      it 'logs proxy add begun' do
+        expect(StatsD).to receive(:increment).with(/\.begun/)
+        expect(Rails.logger).to receive(:info).with(/begun/, { source:, user_account_uuid: })
+
+        subject.track_proxy_add_begun
+      end
+    end
+
+    describe '#track_proxy_add_success' do
+      it 'logs proxy add success' do
+        expect(StatsD).to receive(:increment).with(/\.success/)
+        expect(Rails.logger).to receive(:info).with(/success/, { source:, user_account_uuid: })
+
+        subject.track_proxy_add_success
+      end
+    end
+
+    describe '#track_proxy_add_skipped' do
+      it 'logs proxy add skipped' do
+        expect(StatsD).to receive(:increment).with(/\.skipped/)
+        expect(Rails.logger).to receive(:info).with(/skipped/, { source:, user_account_uuid: })
+
+        subject.track_proxy_add_skipped
+      end
+    end
+
+    describe '#track_proxy_add_failure' do
+      it 'logs proxy add failure' do
+        expect(StatsD).to receive(:increment).with(/\.failure/)
+        expect(Rails.logger).to receive(:warn).with(/failure/, { source:, user_account_uuid:, error: 'test error' })
+
+        subject.track_proxy_add_failure('test error')
       end
     end
   end

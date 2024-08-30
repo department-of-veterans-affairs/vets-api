@@ -3,7 +3,7 @@
 # Service class for validating and creating a participant in MPI by ICN
 # This class will propogate any error that occurs while being processed.
 class MPIProxyPersonAdder
-  attr_reader :user_account_uuid, :profile, :icn
+  attr_reader :user_account_uuid, :profile, :icn, :mpi_service
 
   # Retrieve user profile from MPI on instantiation
   def initialize(icn)
@@ -33,28 +33,29 @@ class MPIProxyPersonAdder
   # @param icn
   #
   def add_person_proxy_by_icn
-    track_proxy_add_begun
+    monitor.track_proxy_add_begun
 
     fetch_profile
 
     if profile.present? && MPIPolicy.new(profile).access_add_person_proxy?
-      @mpi_service.add_person_proxy(**add_person_proxy_params)
-      track_proxy_add_success
+      mpi_service.add_person_proxy(**add_person_proxy_params)
+      monitor.track_proxy_add_success
       true
     else
-      track_proxy_add_skipped
+      monitor.track_proxy_add_skipped
       false
     end
   rescue => e
-    track_proxy_add_failure(e)
+    monitor.track_proxy_add_failure(e)
     raise e
   end
 
   private
 
-  STATSD_KEY_PREFIX = 'mpi_proxy.add_person_proxy_by_icn'
-  DEFAULT_LOGGER_MESSAGE = 'Add person proxy by icn'
-  MPI_PROXY_PERSON_ADDER_PATH = 'app/services/mpi_proxy_person_adder'
+  # Create instance Monitor
+  def monitor
+    @monitor ||= MPIProxyPersonAdder::Monitor.new(user_account_uuid)
+  end
 
   ##
   # Function to fetch MPI profile by user's ICN.
@@ -62,7 +63,7 @@ class MPIProxyPersonAdder
   def fetch_profile
     raise ArgumentError, 'Unable to fetch MPI profile. Missing ICN.' if icn.blank?
 
-    response = @mpi_service.find_profile_by_identifier(
+    response = mpi_service.find_profile_by_identifier(
       identifier: icn,
       identifier_type: MPI::Constants::ICN
     )
@@ -70,7 +71,7 @@ class MPIProxyPersonAdder
 
     @profile = response.profile
   rescue MPI::Errors::RecordNotFound => e
-    track_proxy_add_failure(e, 'No MPI profile found for given user account')
+    monitor.track_proxy_add_failure(e, 'No MPI profile found for given user account')
     raise e
   end
 
@@ -88,41 +89,64 @@ class MPIProxyPersonAdder
   end
 
   # Monitor/Logging functions
+  class Monitor
+    # statsd prefix
+    STATSD_KEY_PREFIX = 'mpi_proxy.add_person_proxy_by_icn'
 
-  def track_proxy_add_begun
-    StatsD.increment("#{STATSD_KEY_PREFIX}.begun")
-    context = {
-      user_account_uuid:,
-      source: MPI_PROXY_PERSON_ADDER_PATH
-    }
-    Rails.logger.info("#{DEFAULT_LOGGER_MESSAGE} begun", context)
-  end
+    #default message for skipped and failure
+    DEFAULT_LOGGER_MESSAGE = 'Add person proxy by icn'
 
-  def track_proxy_add_success
-    StatsD.increment("#{STATSD_KEY_PREFIX}.success")
-    context = {
-      user_account_uuid:,
-      source: MPI_PROXY_PERSON_ADDER_PATH
-    }
-    Rails.logger.info("#{DEFAULT_LOGGER_MESSAGE} succeeded", context)
-  end
+    # source for log messages
+    MPI_PROXY_PERSON_ADDER_PATH = 'app/services/mpi_proxy_person_adder'
 
-  def track_proxy_add_skipped(message = nil)
-    StatsD.increment("#{STATSD_KEY_PREFIX}.skipped")
-    context = {
-      user_account_uuid:,
-      source: MPI_PROXY_PERSON_ADDER_PATH
-    }
-    Rails.logger.info(message || "#{DEFAULT_LOGGER_MESSAGE} skipped", context)
-  end
+    attr_reader :user_account_uuid
 
-  def track_proxy_add_failure(error, message = nil)
-    StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
-    context = {
-      error:,
-      user_account_uuid:,
-      source: MPI_PROXY_PERSON_ADDER_PATH
-    }
-    Rails.logger.warn((message || "#{DEFAULT_LOGGER_MESSAGE} failed"), context)
+    # create monitor instance
+    def initialize(user_account_uuid)
+      @user_account_uuid = user_account_uuid
+    end
+
+    # beginning proxy add
+    def track_proxy_add_begun
+      StatsD.increment("#{STATSD_KEY_PREFIX}.begun")
+      Rails.logger.info("#{DEFAULT_LOGGER_MESSAGE} begun", context)
+    end
+
+    # successful proxy add
+    def track_proxy_add_success
+      StatsD.increment("#{STATSD_KEY_PREFIX}.success")
+      Rails.logger.info("#{DEFAULT_LOGGER_MESSAGE} success", context)
+    end
+
+    # skipped proxy add
+    #
+    # @param message [String] custom message to be logged; default DEFAULT_LOGGER_MESSAGE
+    def track_proxy_add_skipped(message = nil)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.skipped")
+
+      message ||= "#{DEFAULT_LOGGER_MESSAGE} skipped"
+      Rails.logger.info(message, context)
+    end
+
+    # skipped proxy add
+    #
+    # @param error [Object] the 'error' to be logged
+    # @param message [String] custom message to be logged; default DEFAULT_LOGGER_MESSAGE
+    def track_proxy_add_failure(error, message = nil)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
+
+      message ||= "#{DEFAULT_LOGGER_MESSAGE} failure"
+      Rails.logger.warn(message, {error:}.merge(context))
+    end
+
+    private
+
+    # the monitor context to be logged
+    def context
+      {
+        user_account_uuid:,
+        source: MPI_PROXY_PERSON_ADDER_PATH
+      }
+    end
   end
 end
