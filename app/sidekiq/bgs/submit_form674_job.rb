@@ -36,7 +36,6 @@ module BGS
 
       Rails.logger.warn('BGS::SubmitForm674Job received error, retrying...',
                         { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
-      log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
       raise
     end
 
