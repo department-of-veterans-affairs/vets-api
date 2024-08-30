@@ -140,17 +140,34 @@ describe ClaimsApi::BD do
         end
 
         context 'when the api version is v1' do
-          let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22A/signed_filled_final.pdf' }
-          let(:json_body) do
-            res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, api_version: 'v1',
-                                                      doc_type: 'L075')
-            temp_io = res[:parameters].instance_variable_get(:@io).path
-            temp_io_contents = File.read(temp_io)
-            JSON.parse(temp_io_contents)
+          context 'the doc type is 21-22a' do
+            let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22A/signed_filled_final.pdf' }
+            let(:json_body) do
+              res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, api_version: 'v1',
+                                                        doc_type: 'L075')
+              temp_io = res[:parameters].instance_variable_get(:@io).path
+              temp_io_contents = File.read(temp_io)
+              JSON.parse(temp_io_contents)
+            end
+
+            it 'the fileName ends in representative.pdf' do
+              expect(json_body['data']['fileName']).to end_with('_representative.pdf')
+            end
           end
 
-          it 'the fileName ends in 21-22a.pdf' do
-            expect(json_body['data']['fileName']).to end_with('_representative.pdf')
+          context 'the doc type is 21-22' do
+            let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22A/signed_filled_final.pdf' }
+            let(:json_body) do
+              res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, api_version: 'v1',
+                                                        doc_type: 'L190')
+              temp_io = res[:parameters].instance_variable_get(:@io).path
+              temp_io_contents = File.read(temp_io)
+              JSON.parse(temp_io_contents)
+            end
+
+            it 'the fileName ends in 21-22.pdf' do
+              expect(json_body['data']['fileName']).to end_with('_21-22.pdf')
+            end
           end
         end
       end

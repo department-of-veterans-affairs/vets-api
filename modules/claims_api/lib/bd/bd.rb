@@ -126,7 +126,8 @@ module ClaimsApi
       # https://confluence.devops.va.gov/display/VAExternal/Document+Types
       doc_type_names = {
         'v1' => {
-          'L075' => 'representative'
+          'L075' => 'representative',
+          'L190' => '21-22'
         },
         'v2' => {
           'L075' => '21-22a',
