@@ -4499,7 +4499,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
       end
     end
 
-    describe 'POST #generate_pdf' do
+    describe '#generate_pdf' do
       let(:veteran_id) { '1012832025V743496' }
       let(:invalid_scopes) { %w[claim.write claim.read] }
       let(:generate_pdf_scopes) { %w[system/526-pdf.override] }
