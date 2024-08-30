@@ -165,7 +165,7 @@ module ClaimsApi
 
         # Only value required by background jobs that is missing in headers is middle name
         def veteran_middle_initial
-          @target_veteran.middle_name ? @target_veteran.middle_name[0].uppercase : ''
+          target_veteran.middle_name ? target_veteran.middle_name[0].upcase : ''
         end
 
         def flashes
