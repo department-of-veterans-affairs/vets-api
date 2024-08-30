@@ -49,12 +49,18 @@ module ClaimsApi
         return if require_birls && target_veteran.participant_id.present? && target_veteran.birls_id.present?
 
         if require_birls && target_veteran.participant_id.present? && target_veteran.birls_id.blank?
+          claims_v1_logging('unable_to_locate_birls',
+                            message: 'unable_to_locate_birls on request in v1 application controller.')
+
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's BIRLS ID in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
 
         if header_request? && !target_veteran.mpi_record?
+          claims_v1_logging('unable_to_locate_mpi_record',
+                            message: 'unable_to_locate_mpi_record on request in v1 application controller.')
+
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail:
               'Unable to locate Veteran in Master Person Index (MPI). ' \
@@ -68,6 +74,9 @@ module ClaimsApi
                                 'rid: #{request&.request_id}, ' /
                                 'ptcpnt_id: #{target_veteran&.participant_id.present?}")
         if target_veteran.icn.blank?
+          claims_v1_logging('unable_to_locate_icn',
+                            message: 'unable_to_locate_icn on request in v1 application controller.')
+
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail:
               'Veteran missing Integration Control Number (ICN). ' \
@@ -80,6 +89,9 @@ module ClaimsApi
 
         ids = target_veteran&.mpi&.participant_ids
         if ids.nil? || ids.size.zero?
+          claims_v1_logging('unable_to_locate_participant_id',
+                            message: 'unable_to_locate_participant_id on request in v1 application controller.')
+
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
@@ -92,6 +104,9 @@ module ClaimsApi
                                                   'mpi_res_ok: #{mpi_add_response&.ok?}, ' /
                                                   'ptcpnt_id: #{target_veteran&.participant_id.present?}")
       rescue MPI::Errors::ArgumentError
+        claims_v1_logging('unable_to_locate_participant_id',
+                          message: 'unable_to_locate_participant_id on request in v1 application controller.')
+
         raise ::Common::Exceptions::UnprocessableEntity.new(detail:
           "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
           'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
@@ -161,7 +176,7 @@ module ClaimsApi
                     end
       end
 
-      def veteran_from_headers(with_gender: false)
+      def veteran_from_headers(with_gender: false) # rubocop:disable Metrics/MethodLength
         vet = ClaimsApi::Veteran.new(
           uuid: header('X-VA-SSN')&.gsub(/[^0-9]/, ''),
           ssn: header('X-VA-SSN')&.gsub(/[^0-9]/, ''),
@@ -173,6 +188,15 @@ module ClaimsApi
         )
         # Fail fast if mpi_record can't be found
         unless vet.mpi_record?
+          # Intentionally NOT calling the claims_v1_logging method here
+          # to avoid the infinite loop that calling target_veteran there can create
+          # While we technically can just pass in icn: nil when doing that I felt it was best
+          # to avoid it entirely
+          ClaimsApi::Logger.log('unable_to_locate_mpi_record',
+                                message: 'unable_to_locate_mpi_record on request in v1 application controller.',
+                                api_version: 'V1',
+                                level: :info)
+
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             'Unable to retrieve a record from Master Person Index (MPI). ' \
             'Please try again later.')
@@ -191,6 +215,9 @@ module ClaimsApi
 
       def edipi_check
         if target_veteran.edipi.blank?
+          claims_v1_logging('unable_to_locate_edipi',
+                            message: 'unable_to_locate_edipi on request in v1 application controller.')
+
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')

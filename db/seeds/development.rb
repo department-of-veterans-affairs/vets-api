@@ -86,15 +86,15 @@ sample_sts_config.update!(
 )
 
 # Create Config for VA Identity Dashboard using cookie auth
-vaid_dash = SignIn::ClientConfig.find_or_initialize_by(client_id: 'identity_dashboard')
+vaid_dash = SignIn::ClientConfig.find_or_initialize_by(client_id: 'identity_dashboard_rails')
 vaid_dash.update!(authentication: SignIn::Constants::Auth::COOKIE,
                   anti_csrf: true,
                   pkce: true,
-                  redirect_uri: 'http://localhost:3001/auth/login/callback',
+                  redirect_uri: 'http://localhost:4000/sessions/callback',
                   access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
-                  access_token_audience: 'sample_client',
+                  access_token_audience: 'identity dashboard',
                   access_token_attributes: %w[first_name last_name email],
-                  logout_redirect_uri: 'http://localhost:3001',
+                  logout_redirect_uri: 'http://localhost:4000/sessions/logout_callback',
                   refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Service Account Config for VA Identity Dashboard Service Account auth
@@ -105,10 +105,7 @@ identity_dashboard_service_account_config =
   SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: vaid_service_account_id)
 identity_dashboard_service_account_config.update!(service_account_id: vaid_service_account_id,
                                                   description: 'VA Identity Dashboard API',
-                                                  scopes: ['http://localhost:3000/sign_in/client_configs',
-                                                           'http://localhost:3000/v0/account_controls/credential_index',
-                                                           'http://localhost:3000/v0/account_controls/credential_lock',
-                                                           'http://localhost:3000/v0/account_controls/credential_unlock'],
+                                                  scopes: ['http://localhost:3000/sign_in/client_configs'],
                                                   access_token_audience: 'http://localhost:4000',
                                                   access_token_duration: vaid_access_token_duration,
                                                   certificates: [vaid_certificate],

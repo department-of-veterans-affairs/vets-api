@@ -178,6 +178,7 @@ module MPI
           edipis: sanitize_id_array(parsed_mvi_ids[:edipis]),
           participant_ids: sanitize_id_array(parsed_mvi_ids[:vba_corp_ids]),
           mhv_iens: sanitize_id_array(parsed_mvi_ids[:mhv_iens]),
+          sec_ids: parsed_mvi_ids[:sec_ids],
           vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
           vha_facility_hash: parsed_mvi_ids[:vha_facility_hash],
           birls_ids: sanitize_id_array(parsed_mvi_ids[:birls_ids]),

@@ -16,6 +16,7 @@ describe Identity::Parsers::GCIds do
         {
           icn: nil,
           sec_id: nil,
+          sec_ids: nil,
           mhv_ids: nil,
           mhv_ien: nil,
           mhv_iens: nil,
@@ -105,6 +106,22 @@ describe Identity::Parsers::GCIds do
 
         it 'returns a parsed sec id from the input xml object' do
           expect(subject[:sec_id]).to eq id
+        end
+
+        context 'and the ids include one or multiple sec id regex matches' do
+          let(:id_object_one) { "#{id}^PN^200PROV^USDVA^A" }
+          let(:id_object_two) { '9988776655^PN^200PROV^USDVA^A' }
+          let(:ids) do
+            [
+              double(attributes: { extension: id_object_one, root: root_oid }),
+              double(attributes: { extension: id_object_two, root: root_oid })
+            ]
+          end
+          let(:expected_sec_ids) { %w[123454321 9988776655] }
+
+          it 'returns parsed sec_ids from the input xml object' do
+            expect(subject[:sec_ids]).to eq(expected_sec_ids)
+          end
         end
       end
 

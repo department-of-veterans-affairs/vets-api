@@ -4,7 +4,7 @@
   "form1[0].#subform[0].applicantMiddleInitial2[0]":                          "<%= form.data.dig('applicant_name', 'middle') %>",
   "form1[0].#subform[0].applicantSocialSecurityNumber2[0]":                   "<%= form.data.dig('applicant_ssn') %>",
   "form1[0].#subform[0].#area[0].Doyouhaveotherinsyesno[0]":                  "<%= form.data.dig('has_other_health_insurance') ? 0 : 1  %>",
-  "form1[0].#subform[0].applicantStreetAddress2[0]":                          "<%= form.data.dig('applicant_address', 'street') %>",
+  "form1[0].#subform[0].applicantStreetAddress2[0]":                          "<%= form.data.dig('applicant_address', 'street_combined') %>",
   "form1[0].#subform[0].applicantCity2[0]":                                   "<%= form.data.dig('applicant_address', 'city') %>",
   "form1[0].#subform[0].applicantState2[0]":                                  "<%= form.data.dig('applicant_address', 'state') %>",
   "form1[0].#subform[0].applicantZipCode2[0]":                                "<%= form.data.dig('applicant_address', 'postal_code') %>",

@@ -106,6 +106,7 @@ module EVSS
         toxic_exposure = form526['toxicExposure']
         lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
 
+        lh_request_body.claim_notes = form526['overflowText']
         lh_request_body
       end
 
@@ -149,9 +150,9 @@ module EVSS
         change_of_address.address_line_2 = change_of_address_source['addressLine2']
         change_of_address.address_line_3 = change_of_address_source['addressLine3']
 
-        change_of_address.zip_first_five = change_of_address_source['internationalPostalCode'] ||
-                                           change_of_address_source['zipFirstFive']
+        change_of_address.zip_first_five = change_of_address_source['zipFirstFive']
         change_of_address.zip_last_four = change_of_address_source['zipLastFour']
+        change_of_address.international_postal_code = change_of_address_source['internationalPostalCode']
         change_of_address.type_of_address_change = change_of_address_source['addressChangeType']
         change_of_address.dates = Requests::Dates.new
 
@@ -503,10 +504,11 @@ module EVSS
         veteran_identification.mailing_address.state = veteran['currentMailingAddress']['militaryStateCode'] ||
                                                        veteran['currentMailingAddress']['state']
         veteran_identification.mailing_address.zip_first_five =
-          veteran['currentMailingAddress']['internationalPostalCode'] ||
           veteran['currentMailingAddress']['zipFirstFive']
         veteran_identification.mailing_address.zip_last_four = veteran['currentMailingAddress']['zipLastFour']
         veteran_identification.mailing_address.country = veteran['currentMailingAddress']['country']
+        veteran_identification.mailing_address.international_postal_code =
+          veteran['currentMailingAddress']['internationalPostalCode']
       end
 
       def transform_service_periods(service_information_source, service_information)
@@ -605,8 +607,8 @@ module EVSS
           direct_deposit.financial_institution_name = direct_deposit_source['bankName']
         end
         direct_deposit.account_type = direct_deposit_source['accountType'] if direct_deposit_source['accountType']
-        direct_deposit.account_number = direct_deposit_source['accountNumber'] if direct_deposit_source['accountNumber']
-        direct_deposit.routing_number = direct_deposit_source['routingNumber'] if direct_deposit_source['routingNumber']
+        direct_deposit.account_number = direct_deposit_source['accountNumber']&.strip
+        direct_deposit.routing_number = direct_deposit_source['routingNumber']&.strip
 
         direct_deposit
       end

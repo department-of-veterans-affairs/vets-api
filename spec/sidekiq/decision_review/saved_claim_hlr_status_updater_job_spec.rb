@@ -13,11 +13,13 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
   let(:guid3) { SecureRandom.uuid }
 
   let(:response_complete) do
-    JSON.parse('{"data":{"attributes":{"status":"complete"}}}')
+    response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('HLR-SHOW-RESPONSE-200_V2').to_json) # deep copy
+    response['data']['attributes']['status'] = 'complete'
+    instance_double(Faraday::Response, body: response)
   end
 
   let(:response_pending) do
-    JSON.parse('{"data":{"attributes":{"status":"pending"}}}')
+    instance_double(Faraday::Response, body: VetsJsonSchema::EXAMPLES.fetch('HLR-SHOW-RESPONSE-200_V2'))
   end
 
   before do
@@ -28,6 +30,7 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
     context 'with flag enabled', :aggregate_failures do
       before do
         Flipper.enable :decision_review_saved_claim_hlr_status_updater_job_enabled
+        allow(StatsD).to receive(:increment)
       end
 
       context 'SavedClaim records are present' do
@@ -54,10 +57,31 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
 
             claim1 = SavedClaim::HigherLevelReview.find_by(guid: guid1)
             expect(claim1.delete_date).to eq frozen_time + 59.days
+            expect(claim1.metadata).to include 'complete'
+            expect(claim1.metadata_updated_at).to eq frozen_time
 
             claim2 = SavedClaim::HigherLevelReview.find_by(guid: guid2)
             expect(claim2.delete_date).to be_nil
+            expect(claim2.metadata).to include 'pending'
+            expect(claim2.metadata_updated_at).to eq frozen_time
+
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.saved_claim_hlr_status_updater.processing_records', 2).exactly(1).time
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.saved_claim_hlr_status_updater.delete_date_update').exactly(1).time
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.saved_claim_hlr_status_updater.status', tags: ['status:pending'])
+              .exactly(1).time
           end
+        end
+
+        it 'handles request errors and increments the statsd metric' do
+          allow(service).to receive(:get_higher_level_review).and_raise(DecisionReviewV1::ServiceException)
+
+          subject.new.perform
+
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_hlr_status_updater.error').exactly(2).times
         end
       end
     end

@@ -53,6 +53,57 @@ describe TestDisabilityCompensationValidationClass do
     end
   end
 
+  describe '#validate_form_526_location_codes' do
+    let(:no_separation_code) do
+      { 'servicePeriods' => [
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => '2023-10-30'
+        }
+      ] }
+    end
+
+    let(:service_period_end_in_future) do
+      { 'servicePeriods' => [
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => 2.days.from_now.strftime('%Y-%m-%d').to_s
+        }
+      ] }
+    end
+
+    let(:service_periods) { form_attributes['serviceInformation'] }
+
+    # rubocop:disable RSpec/SubjectStub
+    context 'calls to retrieve codes' do
+      before do
+        allow(test_526_validation_instance).to receive(:retrieve_separation_locations).and_return([])
+      end
+
+      it 'retrives codes if separationLocationcode is present' do
+        test_526_validation_instance.send(:validate_form_526_location_codes, service_periods)
+        expect(test_526_validation_instance).to have_received(:retrieve_separation_locations)
+      end
+    end
+
+    context 'does not call to retrieve codes' do
+      it 'does not retrieve the codes if separationLocation is not present' do
+        test_526_validation_instance.send(:validate_form_526_location_codes, no_separation_code)
+        expect(test_526_validation_instance).not_to receive(:retrieve_separation_locations)
+      end
+
+      it 'does not retrieve the codes if activeDutyEndDate is in the future' do
+        test_526_validation_instance.send(:validate_form_526_location_codes, service_period_end_in_future)
+        expect(test_526_validation_instance).not_to receive(:retrieve_separation_locations)
+      end
+    end
+    # rubocop:enable RSpec/SubjectStub
+  end
+
   describe '#date_range_overlap?' do
     let(:date_begin_one) { '2018-06-04' }
     let(:date_end_one) { '2020-07-01' }

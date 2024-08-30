@@ -42,7 +42,6 @@ end
 gem 'rails', '~> 7.1.3'
 
 gem 'aasm'
-gem 'active_model_serializers'
 gem 'activerecord-import'
 gem 'activerecord-postgis-adapter'
 gem 'addressable'
@@ -50,7 +49,7 @@ gem 'aws-sdk-kms'
 gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
-gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs'
+gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs', ref: 'dc1b6938a3'
 gem 'blueprinter'
 gem 'bootsnap', require: false
 gem 'breakers'

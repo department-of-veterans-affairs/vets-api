@@ -75,14 +75,6 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  describe '#carma_client' do
-    it 'gets a mulesoft client' do
-      service = described_class.new(build(:caregivers_assistance_claim))
-
-      expect(service.send(:carma_client)).to be_an_instance_of(CARMA::Client::MuleSoftClient)
-    end
-  end
-
   describe '::collect_attachments' do
     let(:claim_pdf_path) { 'tmp/10-10cg-application.pdf' }
     let(:poa_attachment_path) { 'tmp/poa_file.jpg' }
@@ -443,7 +435,7 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'with claim pdf' do
-      let(:claim_pdf_path) { Common::FileHelpers.generate_temp_file('foo', 'claim.pdf') }
+      let(:claim_pdf_path) { Common::FileHelpers.generate_clamav_temp_file('foo', 'claim.pdf') }
 
       after do
         File.delete(claim_pdf_path)
@@ -461,7 +453,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'with poa pdf' do
-        let(:poa_pdf_path) { Common::FileHelpers.generate_temp_file('foo', 'poa.pdf') }
+        let(:poa_pdf_path) { Common::FileHelpers.generate_clamav_temp_file('foo', 'poa.pdf') }
 
         after do
           File.delete(poa_pdf_path)
@@ -488,6 +480,11 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#process_claim_v2!' do
+    subject do
+      service.process_claim_v2!
+    end
+
+    let(:service) { described_class.new(claim_with_mpi_veteran) }
     let(:mule_soft_client) { instance_double(CARMA::Client::MuleSoftClient) }
     let(:mule_soft_payload) { { fake_payload: 'value' } }
 
@@ -501,27 +498,52 @@ RSpec.describe Form1010cg::Service do
       allow(from_claim_result).to receive(:to_request_payload).and_return(mule_soft_payload)
 
       allow(CARMA::Client::MuleSoftClient).to receive(:new).and_return(mule_soft_client)
-      allow(mule_soft_client).to receive(:create_submission_v2)
     end
 
-    it 'submits to mulesoft' do
-      described_class.new(claim_with_mpi_veteran).process_claim_v2!
-      expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
-    end
+    context 'success' do
+      before do
+        allow(mule_soft_client).to receive(:create_submission_v2)
+      end
 
-    context 'with a poa attachment' do
       it 'submits to mulesoft' do
-        claim_with_mpi_veteran.parsed_form['poaAttachmentId'] = create(:form1010cg_attachment, :with_attachment).guid
-
-        expect_any_instance_of(Form1010cg::Attachment).to receive(:to_local_file).and_return(
-          'spec/fixtures/files/doctors-note.jpg'
-        )
-
-        allow(File).to receive(:delete).with('spec/fixtures/files/doctors-note.jpg')
-
-        described_class.new(claim_with_mpi_veteran).process_claim_v2!
+        subject
         expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
-        expect(File).to have_received(:delete).with('spec/fixtures/files/doctors-note.jpg')
+      end
+
+      context 'with a poa attachment' do
+        it 'submits to mulesoft' do
+          claim_with_mpi_veteran.parsed_form['poaAttachmentId'] = create(:form1010cg_attachment, :with_attachment).guid
+
+          expect_any_instance_of(Form1010cg::Attachment).to receive(:to_local_file).and_return(
+            'spec/fixtures/files/doctors-note.jpg'
+          )
+
+          allow(File).to receive(:delete).with('spec/fixtures/files/doctors-note.jpg')
+
+          subject
+
+          expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
+          expect(File).to have_received(:delete).with('spec/fixtures/files/doctors-note.jpg')
+        end
+      end
+    end
+
+    context 'handles errors' do
+      let(:exception) { Common::Client::Errors::ClientError.new(message: 'something happened') }
+
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(mule_soft_client).to receive(:create_submission_v2).and_raise(exception)
+      end
+
+      it 'logs claim_guid for any exceptions and raises error' do
+        expect(service).to receive(:log_exception_to_sentry)
+          .with(exception, {
+                  form: '10-10CG',
+                  claim_guid: claim_with_mpi_veteran.guid
+                })
+
+        expect { subject }.to raise_error(exception)
       end
     end
   end

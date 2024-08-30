@@ -5,28 +5,25 @@ module IvcChampva
     attr_reader :data
 
     FORM_NAME_MAP = {
-      '10-10D' => ['Application for CHAMPVA Benefits', '800-733-8387'],
-      '10-7959F-1' => ['Foreign Medical Program (FMP) Registration Form', '877-345-8179'],
-      '10-7959F-2' => ['Foreign Medical Program (FMP) Claim Cover Sheet', '877-345-8179'],
-      '10-7959C' => ['Other Health Insurance (OHI) Certification', '800-733-8387'],
-      '10-7959A' => ['CHAMPVA Claim Form', '800-733-8387']
+      '10-10D' => Settings.vanotify.services.ivc_champva.template_id.form_10_10d_email,
+      '10-7959F-1' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959f_1_email,
+      '10-7959F-2' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959f_2_email,
+      '10-7959C' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959c_email,
+      '10-7959A' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959a_email
     }.freeze
 
     def initialize(data)
       @data = data
     end
 
-    def send_email # rubocop:disable Metrics/MethodLength
+    def send_email
       Datadog::Tracing.trace('Send PEGA Status Update Email') do
         return false unless valid_environment?
 
         VANotify::EmailJob.perform_async(
           data[:email],
-          Settings.vanotify.services.ivc_champva.template_id.pega_status_update_email_template_id,
+          FORM_NAME_MAP[data[:form_number]],
           {
-            'form_number' => data[:form_number],
-            'form_name' => FORM_NAME_MAP[data[:form_number]][0],
-            'phone_number' => FORM_NAME_MAP[data[:form_number]][1],
             'first_name' => data[:first_name],
             'last_name' => data[:last_name],
             'file_count' => data[:file_count],

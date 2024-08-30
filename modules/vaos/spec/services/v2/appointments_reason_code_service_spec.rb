@@ -11,6 +11,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:patient_comments]).to be_nil
       expect(appt[:reason_for_appointment]).to be_nil
       expect(appt[:preferred_dates]).to be_nil
+      expect(appt[:preferred_modality]).to be_nil
     end
 
     it 'returns without modification if no valid reason code text fields exists' do
@@ -20,24 +21,27 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:patient_comments]).to be_nil
       expect(appt[:reason_for_appointment]).to be_nil
       expect(appt[:preferred_dates]).to be_nil
+      expect(appt[:preferred_modality]).to be_nil
     end
 
     it 'returns without modification for cc request' do
       appt = FactoryBot.build(:appointment_form_v2, :community_cares_valid_reason_code_text).attributes
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
-      expect(appt[:patient_comments]).to be_nil
+      expect(appt[:patient_comments]).to eq('test request')
       expect(appt[:reason_for_appointment]).to be_nil
       expect(appt[:preferred_dates]).to be_nil
+      expect(appt[:preferred_modality]).to be_nil
     end
 
     it 'returns without modification for cc booked' do
       appt = FactoryBot.build(:appointment_form_v2, :ds_cc_booked_valid_reason_code_text).attributes
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
-      expect(appt[:patient_comments]).to be_nil
+      expect(appt[:patient_comments]).to eq('test booked')
       expect(appt[:reason_for_appointment]).to be_nil
       expect(appt[:preferred_dates]).to be_nil
+      expect(appt[:preferred_modality]).to be_nil
     end
 
     it 'extract valid reason code fields for booked va direct scheduling appointments' do
@@ -47,6 +51,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:patient_comments]).to eq('test')
       expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
       expect(appt[:preferred_dates]).to be_nil
+      expect(appt[:preferred_modality]).to be_nil
     end
 
     it 'extract valid reason code fields for cancelled va direct scheduling appointments' do
@@ -56,6 +61,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:patient_comments]).to eq('test')
       expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
       expect(appt[:preferred_dates]).to be_nil
+      expect(appt[:preferred_modality]).to be_nil
     end
 
     it 'extract valid reason code fields for va request' do
@@ -67,6 +73,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
       expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
                                             'Wed, June 26, 2024 in the afternoon'])
+      expect(appt[:preferred_modality]).to eq('In person')
     end
 
     context 'when there are valid and invalid reason code fields' do
@@ -79,6 +86,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
         expect(appt[:reason_for_appointment]).to eq(nil)
         expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
                                               'Wed, June 26, 2024 in the afternoon'])
+        expect(appt[:preferred_modality]).to eq('In person')
       end
     end
   end
@@ -96,6 +104,22 @@ describe VAOS::V2::AppointmentsReasonCodeService do
         input_hash = {}
         input_hash['reason code'] = input
         expect(subject.send(:extract_reason_for_appointment, input_hash)).to eq(output)
+      end
+    end
+  end
+
+  describe '#extract_preferred_modality' do
+    [
+      ['', nil],
+      ['NON_EXISTENT', nil],
+      ['FACE TO FACE', 'In person'],
+      ['VIDEO', 'Video'],
+      ['TELEPHONE', 'Phone']
+    ].each do |input, output|
+      it "#{input} returns #{output}" do
+        input_hash = {}
+        input_hash['preferred modality'] = input
+        expect(subject.send(:extract_preferred_modality, input_hash)).to eq(output)
       end
     end
   end

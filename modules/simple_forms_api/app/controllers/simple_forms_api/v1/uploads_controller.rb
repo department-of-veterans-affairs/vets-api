@@ -8,8 +8,8 @@ require 'lighthouse/benefits_intake/service'
 module SimpleFormsApi
   module V1
     class UploadsController < ApplicationController
-      skip_before_action :authenticate
-      before_action :load_user
+      skip_before_action :authenticate, if: :skip_authentication?
+      before_action :load_user, if: :skip_authentication?
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -26,6 +26,8 @@ module SimpleFormsApi
         '40-10007' => 'vba_40_10007',
         '20-10207' => 'vba_20_10207'
       }.freeze
+
+      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
@@ -69,6 +71,14 @@ module SimpleFormsApi
 
       private
 
+      def lighthouse_service
+        @lighthouse_service ||= BenefitsIntake::Service.new
+      end
+
+      def skip_authentication?
+        UNAUTHENTICATED_FORMS.include?(params[:form_number]) || UNAUTHENTICATED_FORMS.include?(params[:form_id])
+      end
+
       def intent_service
         @intent_service ||= SimpleFormsApi::IntentToFile.new(@current_user, params)
       end
@@ -87,9 +97,10 @@ module SimpleFormsApi
         end
 
         json_for210966(confirmation_number, expiration_date, existing_intents)
-      rescue Common::Exceptions::UnprocessableEntity => e
-        # There is an authentication issue with the Intent to File API so we revert to sending a PDF to Central Mail
-        # through the Benefits Intake API
+      rescue Common::Exceptions::UnprocessableEntity, Net::ReadTimeout => e
+        # Common::Exceptions::UnprocessableEntity: There is an authentication issue with the Intent to File API
+        # Faraday::TimeoutError: The Intent to File API is down or timed out
+        # In either case, we revert to sending a PDF to Central Mail through the Benefits Intake API
         prepare_params_for_benefits_intake_and_log_error(e)
         submit_form_to_benefits_intake
       end
@@ -113,10 +124,10 @@ module SimpleFormsApi
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
         if Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service)
-          status, confirmation_number = upload_pdf(file_path, metadata, form_id)
+          status, confirmation_number = upload_pdf(file_path, metadata, form)
         else
           status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
-                                                                        form_id).upload_to_benefits_intake(params)
+                                                                        form).upload_to_benefits_intake(params)
         end
 
         form.track_user_identity(confirmation_number)
@@ -138,7 +149,8 @@ module SimpleFormsApi
       def get_file_paths_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN'
+        # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
+        if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && @current_user
           form = form.populate_veteran_data(@current_user)
         end
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
@@ -156,32 +168,57 @@ module SimpleFormsApi
         [file_path, metadata, form]
       end
 
-      def upload_pdf(file_path, metadata, form_id)
-        lighthouse_service = BenefitsIntake::Service.new
+      def upload_pdf(file_path, metadata, form)
+        location, uuid = prepare_for_upload(form)
+        log_upload_details(location, uuid)
+        response = perform_pdf_upload(location, file_path, metadata)
+
+        [response.status, uuid]
+      end
+
+      def prepare_for_upload(form)
         location, uuid = lighthouse_service.request_upload
-        SimpleFormsApi::PdfStamper.stamp4010007_uuid(uuid) if form_id == 'vba_40_10007'
-        form_submission = FormSubmission.create(
+        stamp_pdf_with_uuid(form, uuid)
+        create_form_submission_attempt(uuid)
+
+        [location, uuid]
+      end
+
+      def stamp_pdf_with_uuid(form, uuid)
+        # Stamp uuid on 40-10007
+        pdf_stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path: 'tmp/vba_40_10007-tmp.pdf', form:)
+        pdf_stamper.stamp_uuid(uuid)
+      end
+
+      def create_form_submission_attempt(uuid)
+        form_submission = create_form_submission(uuid)
+        FormSubmissionAttempt.create(form_submission:)
+      end
+
+      def create_form_submission(uuid)
+        FormSubmission.create(
           form_type: params[:form_number],
           benefits_intake_uuid: uuid,
           form_data: params.to_json,
           user_account: @current_user&.user_account
         )
-        FormSubmissionAttempt.create(form_submission:)
+      end
 
+      def log_upload_details(location, uuid)
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info(
-          'Simple forms api - preparing to upload PDF to benefits intake',
-          { location:, uuid: }
-        )
-        response = lighthouse_service.perform_upload(metadata: metadata.to_json, document: file_path,
-                                                     upload_url: location)
+        Rails.logger.info('Simple forms api - preparing to upload PDF to benefits intake', { location:, uuid: })
+      end
 
-        [response.status, uuid]
+      def perform_pdf_upload(location, file_path, metadata)
+        lighthouse_service.perform_upload(
+          metadata: metadata.to_json,
+          document: file_path,
+          upload_url: location
+        )
       end
 
       def form_is264555_and_should_use_lgy_api
-        # TODO: Remove comment octothorpe and ALWAYS require icn
-        params[:form_number] == '26-4555' # && icn
+        params[:form_number] == '26-4555' && icn
       end
 
       def icn

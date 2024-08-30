@@ -175,7 +175,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     send_lighthouse_confirmation_email(user)
   rescue => e
-    Rails.logger.error('Error uploading VRE claim to central mail.', { user_uuid: user.uuid, e: })
+    Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
   end
 
   def send_to_res(user)
