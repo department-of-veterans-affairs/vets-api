@@ -65,6 +65,25 @@ describe TestDisabilityCompensationValidationClass do
       ] }
     end
 
+    let(:mixed_separation_codes) do
+      { 'servicePeriods' => [
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => '2023-10-30',
+          'separationLocationCode' => '24912' # valid
+        },
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => '2023-10-30',
+          'separationLocationCode' => '123456' # invalid
+        }
+      ] }
+    end
+
     let(:service_periods) { form_attributes['serviceInformation'] }
 
     # rubocop:disable RSpec/SubjectStub
@@ -92,6 +111,15 @@ describe TestDisabilityCompensationValidationClass do
         it 'adds an error to the errors array' do
           service_periods['servicePeriods'][0]['separationLocationCode'] = '123456'
           test_526_validation_instance.send(:validate_form_526_location_codes, service_periods)
+          errors = test_526_validation_instance.send(:error_collection)
+
+          expect(errors.size).to eq(1)
+        end
+      end
+
+      context 'when the location code is valid in some service periods and invalid in others' do
+        it 'adds an error to the errors array' do
+          test_526_validation_instance.send(:validate_form_526_location_codes, mixed_separation_codes)
           errors = test_526_validation_instance.send(:error_collection)
 
           expect(errors.size).to eq(1)
