@@ -16,7 +16,7 @@ class SavedClaim::CoeClaim < SavedClaim
 
     response = lgy_service.put_application(payload: prepare_form_data)
 
-    Rails.logger.warn("COE claim submitted to LGY", guid:)
+    Rails.logger.warn('COE claim submitted to LGY', guid:)
 
     process_attachments!
     response['reference_number']
