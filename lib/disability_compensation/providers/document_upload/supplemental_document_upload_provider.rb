@@ -13,11 +13,11 @@ module SupplementalDocumentUploadProvider
     raise_not_implemented_error
   end
 
-  def self.validate_upload_document(_lighthouse_document)
+  def self.validate_upload_document(_document)
     raise_not_implemented_error
   end
 
-  def self.submit_upload_document(_lighthouse_document)
+  def self.submit_upload_document(_document, _file_body)
     raise_not_implemented_error
   end
 
@@ -25,11 +25,7 @@ module SupplementalDocumentUploadProvider
     raise_not_implemented_error
   end
 
-  def self.log_upload_error_retry(_uploading_class_prefix)
-    raise_not_implemented_error
-  end
-
-  def self.log_upload_failure(_uploading_class_prefix, _error)
+  def self.log_upload_failure(_uploading_class_prefix, _error_class, _error_message)
     raise_not_implemented_error
   end
 end

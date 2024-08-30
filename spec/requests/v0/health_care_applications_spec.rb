@@ -62,7 +62,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
     let(:body) do
       { 'formSubmissionId' => 377_609_264,
-        'timestamp' => '2016-12-12T08:06:08.423-06:00' }
+        'timestamp' => '2024-08-20T11:38:44.535-05:00' }
     end
     let(:es_stub) { double(health_check: { up: true }) }
 
@@ -210,6 +210,8 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
   describe 'GET facilities' do
     it 'responds with facilities data' do
+      StdInstitutionFacility.create(station_number: '042')
+
       VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
         get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
       end
@@ -244,12 +246,21 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                                               'name' => "Baxter Springs City Soldiers' Lot",
                                               'operating_status' => { 'code' => 'NORMAL' },
                                               'operational_hours_special_instructions' => nil,
+                                              'parent' => nil,
                                               'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
                                               'services' => nil,
                                               'type' => 'va_facilities',
                                               'unique_id' => '042',
                                               'visn' => nil,
                                               'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp' })
+    end
+
+    it 'filters out facilities not yet supported downstream' do
+      VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+        get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
+      end
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body[0]).to be_nil
     end
   end
 
@@ -306,8 +317,8 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
       context 'anonymously' do
         let(:body) do
-          { 'formSubmissionId' => 40_124_668_140,
-            'timestamp' => '2016-05-25T04:59:39.345-05:00',
+          { 'formSubmissionId' => 436_426_165,
+            'timestamp' => '2024-08-20T12:08:06.729-05:00',
             'success' => true }
         end
 
@@ -354,8 +365,8 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       context 'while authenticated', :skip_mvi do
         let(:current_user) { build(:user, :mhv) }
         let(:body) do
-          { 'formSubmissionId' => 40_125_311_094,
-            'timestamp' => '2017-02-08T13:50:32.020-06:00',
+          { 'formSubmissionId' => 436_426_340,
+            'timestamp' => '2024-08-20T12:26:48.275-05:00',
             'success' => true }
         end
 
