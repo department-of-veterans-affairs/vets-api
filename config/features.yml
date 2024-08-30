@@ -1060,9 +1060,6 @@ features:
   my_va_enable_mhv_link:
     actor_type: user
     description: Enables the "Visit MHV" CTA link under Health care section
-  my_va_enable_new_sip_config:
-    actor_type: user
-    description: Enables use of the new SiP configuration
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
