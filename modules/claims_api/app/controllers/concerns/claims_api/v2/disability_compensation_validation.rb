@@ -738,11 +738,11 @@ module ClaimsApi
 
         separation_location_ids = separation_locations.pluck(:id).to_set(&:to_s)
 
-        service_periods.each do |service_period|
+        service_periods.each_with_index do |service_period, idx|
           next if separation_location_ids.include?(service_period['separationLocationCode'])
 
           collect_error_messages(
-            source: '/serviceInformation/servicePeriods/separationLocationCode',
+            source: "/serviceInformation/servicePeriods/#{idx}/separationLocationCode",
             detail: 'The separation location code for the claimant is not a valid value'
           )
         end
