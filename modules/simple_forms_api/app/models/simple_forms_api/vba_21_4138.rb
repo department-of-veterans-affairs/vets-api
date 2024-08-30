@@ -19,7 +19,7 @@ module SimpleFormsApi
       }]
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(timestamp = Time.current)
       [
         {
           coords: [460, 710],
@@ -29,7 +29,7 @@ module SimpleFormsApi
         },
         {
           coords: [460, 690],
-          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: 0,
           font_size: 12
         }
