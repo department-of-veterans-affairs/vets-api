@@ -4,7 +4,7 @@ require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'pensions/tag_sentry'
 require 'pensions/monitor'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 
 module Pensions
   ##
@@ -15,7 +15,9 @@ module Pensions
     include Sidekiq::Job
     include SentryLogging
 
+    ##
     # generic job processing error
+    #
     class PensionBenefitIntakeError < StandardError; end
 
     # tracking id for datadog metrics
@@ -26,6 +28,8 @@ module Pensions
 
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
+
+    # retry exhaustion
     sidekiq_retries_exhausted do |msg|
       pension_monitor = Pensions::Monitor.new
       begin
@@ -99,8 +103,8 @@ module Pensions
     # @return [String] path to stamped PDF
     #
     def process_document(file_path)
-      document = CentralMail::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
-      document = CentralMail::DatestampPdf.new(document).run(
+      document = PDFUtilities::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
+      document = PDFUtilities::DatestampPdf.new(document).run(
         text: 'FDC Reviewed - VA.gov Submission',
         x: 429,
         y: 770,

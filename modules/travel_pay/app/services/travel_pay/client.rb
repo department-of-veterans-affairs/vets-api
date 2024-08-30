@@ -36,7 +36,7 @@ module TravelPay
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['BTSSS-API-Client-Number'] = client_number.to_s
         req.headers['X-Correlation-ID'] = correlation_id
-        req.headers.merge(claim_headers)
+        req.headers.merge!(claim_headers)
         req.body = { authJwt: sts_token }
       end
 
@@ -196,7 +196,7 @@ module TravelPay
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['BTSSS-Access-Token'] = btsss_token
         req.headers['X-Correlation-ID'] = correlation_id
-        req.headers.merge(claim_headers)
+        req.headers.merge!(claim_headers)
       end
     end
 

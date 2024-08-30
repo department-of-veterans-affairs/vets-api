@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 
 module IvcChampva
   class PdfStamper
@@ -80,7 +80,7 @@ module IvcChampva
         page_configuration = get_page_configuration(page, coords)
         verified_multistamp(stamped_template_path, text, page_configuration, font_size)
       else
-        datestamp_instance = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:)
+        datestamp_instance = PDFUtilities::DatestampPdf.new(current_file_path, append_to_stamp:)
         current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
         File.rename(current_file_path, stamped_template_path)
       end

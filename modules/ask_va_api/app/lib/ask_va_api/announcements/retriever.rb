@@ -7,8 +7,6 @@ module AskVAApi
     ENDPOINT = 'announcements'
 
     class Retriever < BaseRetriever
-      attr_reader :name
-
       def initialize(user_mock_data:, entity_class:)
         super(user_mock_data:, entity_class:)
       end
@@ -30,17 +28,7 @@ module AskVAApi
 
       def fetch_service_data
         response = default_service.call(endpoint: ENDPOINT)
-        handle_response_data(response)
-      end
-
-      def handle_response_data(response)
-        case response
-        when Hash
-          response[:Data]
-        else
-          error = JSON.parse(response.body, symbolize_names: true)
-          raise(AnnouncementsRetrieverError, error[:Message])
-        end
+        handle_response_data(response:, error_class: AnnouncementsRetrieverError)
       end
     end
   end

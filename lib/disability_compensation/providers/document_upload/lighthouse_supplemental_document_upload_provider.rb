@@ -9,10 +9,8 @@ class LighthouseSupplementalDocumentUploadProvider
   STATSD_PROVIDER_METRIC = 'lighthouse_supplemental_document_upload_provider'
 
   # @param form526_submission [Form526Submission]
-  # @param file_body [String]
-  def initialize(form526_submission, file_body)
+  def initialize(form526_submission)
     @form526_submission = form526_submission
-    @file_body = file_body
   end
 
   # Uploads to Lighthouse require both the file body and an instance
@@ -46,29 +44,27 @@ class LighthouseSupplementalDocumentUploadProvider
   # Uploads the supplied file to the Lighthouse Benefits Documents API
   #
   # @param lighthouse_document [LighthouseDocument]
+  # @param file_body [String]
+  #
   # return [Faraday::Response] BenefitsDocuments::WorkerService makes http
   # calls with the Faraday gem under the hood
-  def submit_upload_document(lighthouse_document)
-    BenefitsDocuments::Form526::UploadSupplementalDocumentService.call(@file_body, lighthouse_document)
+  def submit_upload_document(lighthouse_document, file_body)
+    BenefitsDocuments::Form526::UploadSupplementalDocumentService.call(file_body, lighthouse_document)
   end
 
   def log_upload_success(uploading_class_prefix)
     StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_SUCCESS_METRIC}")
   end
 
-  def log_upload_error_retry(uploading_class_prefix)
-    StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_RETRIED_METRIC}")
-  end
-
-  def log_upload_failure(uploading_class_prefix, error)
+  def log_upload_failure(uploading_class_prefix, error_class, error_message)
     StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
 
     Rails.logger.error(
       'LighthouseSupplementalDocumentUploadProvider upload failure',
       {
         class: 'LighthouseSupplementalDocumentUploadProvider',
-        error_class: error.class,
-        error_message: error.message
+        error_class:,
+        error_message:
       }
     )
   end

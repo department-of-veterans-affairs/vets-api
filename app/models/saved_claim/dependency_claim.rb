@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'claims_api/vbms_uploader'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
+
 class SavedClaim::DependencyClaim < CentralMailClaim
   FORM = '686C-674'
   STUDENT_ATTENDING_COLLEGE_KEYS = %w[
@@ -44,7 +45,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-    processed_pdf = CentralMail::DatestampPdf.new(pdf_path).run(
+    processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
       text: 'Application Submitted on va.gov',
       x: form_id == '686C-674' ? 400 : 300,
       y: form_id == '686C-674' ? 675 : 775,

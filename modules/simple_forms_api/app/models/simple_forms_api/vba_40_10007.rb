@@ -152,13 +152,59 @@ module SimpleFormsApi
       '4' => 'Other'
     }.freeze
 
+    ETHNICITY_VALUES = {
+      'isSpanishHispanicLatino' => 'Hispanic or Latino',
+      'notSpanishHispanicLatino' => 'Not Hispanic or Latino',
+      'unknown' => 'Unknown',
+      'na' => 'Prefer not to answer'
+    }.freeze
+
+    MILITARY_STATUS = {
+      'A' => 'Active duty',
+      'S' => 'Reserve/National Guard',
+      'R' => 'Retired',
+      'E' => 'Retired active duty',
+      'O' => 'Retired Reserve/National Guard',
+      'V' => 'Veteran',
+      'X' => 'Other',
+      'I' => 'Death related to inactive duty training',
+      'D' => 'Died on active duty'
+    }.freeze
+
+    GENDER = {
+      'Male' => 'Male',
+      'Female' => 'Female',
+      'na' => 'Prefer not to answer'
+    }.freeze
+
     def get_relationship_to_vet(key)
       RELATIONSHIP_TO_VETS[key]
     end
 
-    # rubocop:disable Metrics/MethodLength
+    def get_ethnicity_labels(key)
+      ETHNICITY_VALUES[key]
+    end
+
+    def get_military_status(key)
+      MILITARY_STATUS[key]
+    end
+
+    def get_gender(key)
+      GENDER[key]
+    end
+
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def create_attachment_page(file_path)
+      veteran_sex = get_gender(@data.dig('application', 'veteran', 'gender'))
+
+      race_comment = @data.dig('application', 'veteran', 'race_comment')
+
       place_of_birth = @data.dig('application', 'veteran', 'place_of_birth')
+
+      city_of_birth = @data.dig('application', 'veteran', 'city_of_birth')
+
+      state_of_birth = @data.dig('application', 'veteran', 'state_of_birth')
+
       service_branch_value_a = get_service_label(@data.dig('application', 'veteran', 'service_records', 0,
                                                            'service_branch')) || ''
       service_branch_value_b = get_service_label(@data.dig('application', 'veteran', 'service_records', 1,
@@ -171,48 +217,100 @@ module SimpleFormsApi
                                                        'discharge_type')) || ''
       discharge_type_c = get_discharge_label(@data.dig('application', 'veteran', 'service_records', 2,
                                                        'discharge_type')) || ''
-      highest_rank_a = @data.dig('application', 'veteran', 'service_records', 0, 'highest_rank') || ''
+      highest_rank_a = @data.dig('application', 'veteran', 'service_records', 0, 'highest_rank_') || ''
       highest_rank_b = @data.dig('application', 'veteran', 'service_records', 1, 'highest_rank') || ''
       highest_rank_c = @data.dig('application', 'veteran', 'service_records', 2, 'highest_rank') || ''
+      highest_rank_int_a = @data.dig('application', 'veteran', 'service_records', 0, 'highest_rank_description') || ''
+      highest_rank_int_b = @data.dig('application', 'veteran', 'service_records', 1, 'highest_rank_description') || ''
+      highest_rank_int_c = @data.dig('application', 'veteran', 'service_records', 2, 'highest_rank_description') || ''
+
+      ethnicity = get_ethnicity_labels(@data.dig('application', 'veteran', 'ethnicity'))
+      relationship_to_veteran = @data.dig('application', 'claimant', 'relationship_to_vet')
+      sponsor_veteran_email = @data.dig('application', 'veteran', 'email')
+      sponsor_veteran_phone = @data.dig('application', 'veteran', 'phone_number')
+      sponsor_veteran_maiden = @data.dig('application', 'veteran', 'current_name', 'maiden')
+      military_status_label = get_military_status(@data.dig('application', 'veteran', 'military_status'))
+
+      # rubocop:disable Layout/LineLength
+      if @data['version']
+        race_data = @data.dig('application', 'veteran', 'race')
+        race = ''.dup
+        race += 'American Indian or Alaskan Native, ' if race_data['is_american_indian_or_alaskan_native']
+        race += 'Asian, ' if race_data['is_asian']
+        race += 'Black or African American, ' if race_data['is_black_or_african_american']
+        race += 'Native Hawaiian or other Pacific Islander, ' if race_data['is_native_hawaiian_or_other_pacific_islander']
+        race += 'White, ' if race_data['is_white']
+        race += 'Prefer not to answer, ' if race_data['na']
+        race += 'Other, ' if race_data['is_other']
+        race.chomp!(', ')
+      end
+      # rubocop:enable Layout/LineLength
 
       Prawn::Document.generate(file_path) do |pdf|
         pdf.text '40-10007 Overflow Data', align: :center, size: 20
         pdf.move_down 20
         pdf.text 'The following pages contain data related to the application.', align: :center
         pdf.move_down 20
-        pdf.text 'Question 10 Place of Birth'
-        pdf.text "Place of Birth: #{place_of_birth}", size: 10
+
+        if @data['version']
+          pdf.text "Question 7a Veteran/Servicemember Sex: #{veteran_sex}", size: 8
+          pdf.move_down 10
+          pdf.text "Question 8 Ethnicity: #{ethnicity}", size: 8
+          pdf.move_down 10
+          pdf.text "Question 8 Race: #{race}", size: 8
+          pdf.move_down 10
+          pdf.text "Question 8 Race Comment: #{race_comment}", size: 8
+          pdf.move_down 10
+          pdf.text "Question 10 Veteran/Servicemember Place of Birth (City): #{city_of_birth}", size: 8
+          pdf.move_down 10
+          pdf.text "Question 10 Veteran/Servicemember Place of Birth (State): #{state_of_birth}", size: 8
+          pdf.move_down 10
+          pdf.text "Question 14 Military Status Used to Apply for Eligibility: #{military_status_label}", size: 8
+        else
+          pdf.text 'Question 10 Place of Birth'
+          pdf.text "Place of Birth: #{place_of_birth}", size: 8
+        end
         pdf.move_down 10
-        pdf.text 'Question 15 Branch of Service Line 1'
-        pdf.text "Branch of Service: #{service_branch_value_a}", size: 10
-        pdf.move_down 10
-        pdf.text 'Question 18 Discharge - Character of Service Line 1'
-        pdf.text "Character of Service: #{discharge_type_a}", size: 10
-        pdf.move_down 10
-        pdf.text 'Question 19 Highest Rank Attained Line 1'
-        pdf.text "Highest Rank Attained: #{highest_rank_a}", size: 10
-        pdf.move_down 10
-        pdf.text 'Question 15 Branch of Service Line 2'
-        pdf.text "Branch of Service: #{service_branch_value_b}", size: 10
-        pdf.move_down 10
-        pdf.text 'Question 18 Discharge - Character of Service Line 2'
-        pdf.text "Character of Service: #{discharge_type_b}", size: 10
-        pdf.move_down 10
-        pdf.text 'Question 19 Highest Rank Attained Line 2'
-        pdf.text "Highest Rank Attained: #{highest_rank_b}", size: 10
-        pdf.move_down 10
-        pdf.text 'Question 15 Branch of Service Line 3'
-        pdf.text "Branch of Service: #{service_branch_value_c}", size: 10
-        pdf.move_down 10
-        pdf.text 'Question 18 Discharge - Character of Service Line 3'
-        pdf.text "Character of Service: #{discharge_type_c}", size: 10
-        pdf.move_down 10
-        pdf.text 'Question 19 Highest Rank Attained Line 3'
-        pdf.text "Highest Rank Attained: #{highest_rank_c}", size: 10
+        if @data['version']
+          %w[a b c].each do |letter|
+            service_branch = binding.local_variable_get("service_branch_value_#{letter}")
+            discharge_type = binding.local_variable_get("discharge_type_#{letter}")
+            highest_rank = binding.local_variable_get("highest_rank_int_#{letter}")
+            pdf.text "Question 15 Branch of Service #{letter.upcase}: #{service_branch}", size: 8
+            pdf.move_down 10
+            pdf.text "Question 18 Discharge - Character of Service #{letter.upcase}: #{discharge_type}", size: 8
+            pdf.move_down 10
+            pdf.text "Question 19 Highest Rank Attained #{letter.upcase}: #{highest_rank}", size: 8
+            pdf.move_down 10
+          end
+        else
+          %w[a b c].each_with_index do |letter, i|
+            pdf.text "Question 15 Branch of Service Line #{i + 1}"
+            pdf.text "Branch of Service: #{binding.local_variable_get("service_branch_value_#{letter}")}", size: 8
+            pdf.move_down 10
+            pdf.text "Question 18 Discharge - Character of Service Line #{i + 1}"
+            pdf.text "Character of Service: #{binding.local_variable_get("discharge_type_#{letter}")}", size: 8
+            pdf.move_down 10
+            pdf.text "Question 19 Highest Rank Attained Line #{i + 1}"
+            pdf.text "Highest Rank Attained: #{binding.local_variable_get("highest_rank_#{letter}")}", size: 8
+            pdf.move_down 10
+          end
+        end
+
+        if @data['version']
+          pdf.text "Question 24 Claimant Relationship to Servicemember or Veteran: #{relationship_to_veteran}", size: 8
+          pdf.move_down 10
+          pdf.text "Sponsor Veteran/Servicemember Contact Details Email Address: #{sponsor_veteran_email}", size: 8
+          pdf.move_down 10
+          pdf.text "Sponsor Veteran/Servicemember Contact Details Phone Number: #{sponsor_veteran_phone}", size: 8
+          pdf.move_down 10
+          pdf.text "Sponsor Veteran/Servicemember Maiden Name: #{sponsor_veteran_maiden}", size: 8
+          pdf.move_down 10
+        end
       end
     end
 
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     def handle_attachments(file_path)
       attachments = get_attachments
       combined_pdf = CombinePDF.new
@@ -223,7 +321,7 @@ module SimpleFormsApi
       combined_pdf << CombinePDF.load(attachment_page_path)
 
       attachments.each do |attachment|
-        combined_pdf << CombinePDF.load(attachment)
+        combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
       rescue => e
         Rails.logger.error(
           'Simple forms api - failed to load attachment for 40-10007',
@@ -243,7 +341,11 @@ module SimpleFormsApi
       Rails.logger.info('Simple forms api - 40-10007 submission user identity', identity:, confirmation_number:)
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(_timestamp)
+      []
+    end
+
+    def desired_stamps
       []
     end
 

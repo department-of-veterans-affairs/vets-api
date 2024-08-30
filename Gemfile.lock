@@ -38,6 +38,7 @@ GIT
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
   revision: dc1b6938a385f6ef2cf55b030ae94f06e08ccc9a
+  ref: dc1b6938a3
   specs:
     bgs_ext (0.21.3)
       httpclient
@@ -73,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7bbee674bfeef84f4ebd9d9e75490c09ee18f438
+  revision: 4dbe56831768e94fc82a896d698b6134b12c742a
   branch: master
   specs:
-    vets_json_schema (24.2.1)
+    vets_json_schema (24.2.3)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -241,16 +242,16 @@ GEM
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.961.0)
-    aws-sdk-core (3.201.3)
+    aws-partitions (1.966.0)
+    aws-sdk-core (3.201.5)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
-      aws-sigv4 (~> 1.8)
+      aws-sigv4 (~> 1.9)
       jmespath (~> 1, >= 1.6.1)
     aws-sdk-kms (1.88.0)
       aws-sdk-core (~> 3, >= 3.201.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.157.0)
+    aws-sdk-s3 (1.159.0)
       aws-sdk-core (~> 3, >= 3.201.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -272,13 +273,13 @@ GEM
     blueprinter (1.1.0)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
-    brakeman (6.1.2)
+    brakeman (6.2.1)
       racc
     breakers (0.7.1)
       faraday (>= 1.2.0, < 3.0)
       multi_json (~> 1.0)
     builder (3.3.0)
-    bundler-audit (0.9.1)
+    bundler-audit (0.9.2)
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
     byebug (11.1.3)
@@ -510,7 +511,7 @@ GEM
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
-    google-protobuf (4.27.3)
+    google-protobuf (4.28.0)
       bigdecimal
       rake (>= 13)
     googleauth (1.11.0)
@@ -711,7 +712,7 @@ GEM
     parallel (1.26.3)
     parallel_tests (4.7.1)
       parallel
-    parser (3.3.4.0)
+    parser (3.3.4.2)
       ast (~> 2.4.1)
       racc
     patience_diff (1.2.0)
@@ -830,7 +831,7 @@ GEM
     rchardet (1.8.0)
     rdoc (6.7.0)
       psych (>= 4.0.0)
-    redis (5.2.0)
+    redis (5.3.0)
       redis-client (>= 0.22.0)
     redis-client (0.22.2)
       connection_pool
@@ -853,7 +854,7 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.3.4)
+    rexml (3.3.6)
       strscan
     rgeo (3.0.1)
     rgeo-activerecord (7.0.1)
@@ -883,7 +884,7 @@ GEM
     rspec-mocks (3.13.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-rails (6.1.3)
+    rspec-rails (6.1.4)
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       railties (>= 6.1)
@@ -921,17 +922,17 @@ GEM
       rubocop-ast (>= 1.31.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.32.0)
+    rubocop-ast (1.32.1)
       parser (>= 3.3.1.0)
     rubocop-capybara (2.21.0)
       rubocop (~> 1.41)
     rubocop-factory_bot (2.26.1)
       rubocop (~> 1.61)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.25.1)
+    rubocop-rails (2.26.0)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
-      rubocop (>= 1.33.0, < 2.0)
+      rubocop (>= 1.52.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
     rubocop-rspec (3.0.4)
       rubocop (~> 1.61)
@@ -1007,7 +1008,7 @@ GEM
       ffi
     ssrf_filter (1.1.2)
     staccato (0.5.3)
-    statsd-instrument (3.8.0)
+    statsd-instrument (3.9.0)
     stringio (3.1.1)
     strong_migrations (2.0.0)
       activerecord (>= 6.1)
@@ -1039,7 +1040,7 @@ GEM
     uri (0.13.0)
     utf8-cleaner (1.0.0)
       activesupport
-    vcr (6.3.0)
+    vcr (6.3.1)
       base64
     version_gem (1.1.3)
     virtus (2.0.0)

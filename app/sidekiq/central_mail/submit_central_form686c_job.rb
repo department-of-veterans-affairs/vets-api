@@ -2,7 +2,7 @@
 
 require 'central_mail/service'
 require 'benefits_intake_service/service'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 require 'pdf_info'
 require 'simple_forms_api_submission/metadata_validator'
 
@@ -144,15 +144,15 @@ module CentralMail
 
     # rubocop:disable Metrics/MethodLength
     def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
-      stamped_path2 = CentralMail::DatestampPdf.new(stamped_path1).run(
+      stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
+      stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
         y: 770,
         text_only: true
       )
       if form_id.present?
-        CentralMail::DatestampPdf.new(stamped_path2).run(
+        PDFUtilities::DatestampPdf.new(stamped_path2).run(
           text: 'Application Submitted on va.gov',
           x: form_id == '686C-674' ? 400 : 300,
           y: form_id == '686C-674' ? 675 : 775,
