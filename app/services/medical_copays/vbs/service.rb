@@ -12,6 +12,7 @@ module MedicalCopays
     # @!attribute response_data
     #   @return [ResponseData]
     class Service
+      include RedisCaching
       class StatementNotFound < StandardError
       end
 
@@ -75,7 +76,7 @@ module MedicalCopays
 
         if response_body.is_a?(Array) && response_body.empty?
           StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_copays.empty_response_cached")
-          Rails.cache.write("vbs_copays_data_#{user.uuid}", response, expires_in: time_until_5am_utc)
+          Rails.cache.write("vbs_copays_data_#{user.uuid}", response, expires_in: self.class.time_until_5am_utc)
         end
 
         response
@@ -130,13 +131,6 @@ module MedicalCopays
 
       def settings
         Flipper.enabled?(:medical_copays_api_key_change) ? Settings.mcp.vbs_v2 : Settings.mcp.vbs
-      end
-
-      def time_until_5am_utc
-        now = Time.now.utc
-        five_am_utc = Time.utc(now.year, now.month, now.day, 5)
-        five_am_utc += 1.day if now >= five_am_utc
-        five_am_utc - now
       end
     end
   end
