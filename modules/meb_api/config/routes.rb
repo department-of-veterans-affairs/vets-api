@@ -19,6 +19,7 @@ MebApi::Engine.routes.draw do
     post 'forms_claim_letter', to: 'forms#claim_letter'
     post 'forms_sponsors', to: 'forms#sponsors'
     post 'forms_submit_claim', to: 'forms#submit_claim'
+    post 'forms_send_confirmation_email', to: 'forms#send_confirmation_email'
     get 'forms_claimant_info', to: 'forms#claimant_info'
     get 'forms_claim_status', to: 'forms#claim_status'
 

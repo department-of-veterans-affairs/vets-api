@@ -186,7 +186,7 @@ module SimpleFormsApi
 
       def stamp_pdf_with_uuid(form, uuid)
         # Stamp uuid on 40-10007
-        pdf_stamper = SimpleFormsApi::PdfStamper.new('tmp/vba_40_10007-tmp.pdf', form)
+        pdf_stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path: 'tmp/vba_40_10007-tmp.pdf', form:)
         pdf_stamper.stamp_uuid(uuid)
       end
 

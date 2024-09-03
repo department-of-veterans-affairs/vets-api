@@ -5,6 +5,9 @@ require 'pensions/monitor'
 
 module Pensions
   module V0
+    ##
+    # The pensions claim controller that handles form submissions
+    #
     class ClaimsController < ApplicationController
       skip_before_action(:authenticate)
       before_action :load_user, only: :create
@@ -17,12 +20,16 @@ module Pensions
         'pension_claim'
       end
 
+      ##
       # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
+      #
       def claim_class
         Pensions::SavedClaim
       end
 
+      ##
       # GET serialized pension form data
+      #
       def show
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
         render json: SavedClaimSerializer.new(claim)

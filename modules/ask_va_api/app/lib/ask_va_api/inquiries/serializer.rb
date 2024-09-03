@@ -8,7 +8,7 @@ module AskVAApi
 
       attributes :inquiry_number,
                  :attachments,
-                 :category_id,
+                 :category_name,
                  :created_on,
                  :correspondences,
                  :has_been_split,
