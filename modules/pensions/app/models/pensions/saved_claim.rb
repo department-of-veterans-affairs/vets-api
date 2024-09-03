@@ -3,6 +3,7 @@
 module Pensions
   ##
   # Pension 21P-527EZ Active::Record
+  # @see app/model/saved_claim
   #
   class SavedClaim < ::SavedClaim
     # We want to use the `Type` behavior but we want to override it with our custom type default scope behaviors.

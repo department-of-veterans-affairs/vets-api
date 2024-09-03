@@ -90,8 +90,8 @@ module ClaimsApi
       end
 
       def log_outcome_for_claims_api(action, status, response, claim)
-        ClaimsApi::Logger.log('526_docker_container',
-                              detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
+        ClaimsApi::Logger.log('526_docker_container', detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}",
+                                                      claim: claim&.id, transaction_id: claim&.transaction_id)
       end
 
       def error_handler(error, detail, async = true) # rubocop:disable Style/OptionalBooleanParameter
