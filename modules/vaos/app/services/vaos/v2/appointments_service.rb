@@ -26,6 +26,7 @@ module VAOS
       OUTPUT_FORMAT_PM = '%a, %B %-d, %Y in the afternoon'
 
       # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/ParameterLists
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {}, avs = nil)
         params = date_params(start_date, end_date).merge(page_params(pagination_params))
                                                   .merge(status_params(statuses))
@@ -66,7 +67,6 @@ module VAOS
 
       # rubocop:enable Metrics/MethodLength
       # rubocop:enable Metrics/ParameterLists
-
       def get_appointment(appointment_id, avs = nil)
         params = {}
         with_monitoring do
