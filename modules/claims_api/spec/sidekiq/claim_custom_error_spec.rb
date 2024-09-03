@@ -169,7 +169,7 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
     error_original_body = {
       messages: [
         {
-          'key' => 'timout',
+          'key' => 'timeout',
           'severity' => 'ERROR',
           'text' => 'external service timeout'
         }
