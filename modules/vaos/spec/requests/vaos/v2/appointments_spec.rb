@@ -14,20 +14,20 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
   let(:mock_clinic) do
     {
-      'service_name': 'service_name',
-      'physical_location': 'physical_location'
+      service_name: 'service_name',
+      physical_location: 'physical_location'
     }
   end
 
-  let(:mock_clinic_without_physical_location) { { 'service_name': 'service_name' } }
+  let(:mock_clinic_without_physical_location) { { service_name: 'service_name' } }
 
   let(:mock_facility) do
     {
-      'test': 'test',
-      'id': '668',
-      'name': 'COL OR 1',
-      'timezone': {
-        'time_zone_id': 'America/New_York'
+      test: 'test',
+      id: '668',
+      name: 'COL OR 1',
+      timezone: {
+        time_zone_id: 'America/New_York'
       }
     }
   end
@@ -45,37 +45,37 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
   let(:mock_appt_location_openstruct) do
     OpenStruct.new({
-                     'id': '983',
-                     'vistaSite': '983',
-                     'vastParent': '983',
-                     'type': 'va_facilities',
-                     'name': 'COL OR 1',
-                     'classification': 'VA Medical Center (VAMC)',
-                     'lat': 39.744507,
-                     'long': -104.830956,
-                     'website': 'https://www.denver.va.gov/locations/directions.asp',
-                     'phone': {
-                       'main': '307-778-7550',
-                       'fax': '307-778-7381',
-                       'pharmacy': '866-420-6337',
-                       'afterHours': '307-778-7550',
-                       'patientAdvocate': '307-778-7550 x7517',
-                       'mentalHealthClinic': '307-778-7349',
-                       'enrollmentCoordinator': '307-778-7550 x7579'
+                     id: '983',
+                     vistaSite: '983',
+                     vastParent: '983',
+                     type: 'va_facilities',
+                     name: 'COL OR 1',
+                     classification: 'VA Medical Center (VAMC)',
+                     lat: 39.744507,
+                     long: -104.830956,
+                     website: 'https://www.denver.va.gov/locations/directions.asp',
+                     phone: {
+                       main: '307-778-7550',
+                       fax: '307-778-7381',
+                       pharmacy: '866-420-6337',
+                       afterHours: '307-778-7550',
+                       patientAdvocate: '307-778-7550 x7517',
+                       mentalHealthClinic: '307-778-7349',
+                       enrollmentCoordinator: '307-778-7550 x7579'
                      },
-                     'physicalAddress': {
-                       'type': 'physical',
-                       'line': ['2360 East Pershing Boulevard'],
-                       'city': 'Cheyenne',
-                       'state': 'WY',
-                       'postalCode': '82001-5356'
+                     physicalAddress: {
+                       type: 'physical',
+                       line: ['2360 East Pershing Boulevard'],
+                       city: 'Cheyenne',
+                       state: 'WY',
+                       postalCode: '82001-5356'
                      },
-                     'mobile': false,
-                     'healthService': %w[Audiology Cardiology DentalServices EmergencyCare Gastroenterology
-                                         Gynecology MentalHealthCare Nutrition Ophthalmology Optometry Orthopedics
-                                         Podiatry PrimaryCare SpecialtyCare UrgentCare Urology WomensHealth],
-                     'operatingStatus': {
-                       'code': 'NORMAL'
+                     mobile: false,
+                     healthService: %w[Audiology Cardiology DentalServices EmergencyCare Gastroenterology
+                                       Gynecology MentalHealthCare Nutrition Ophthalmology Optometry Orthopedics
+                                       Podiatry PrimaryCare SpecialtyCare UrgentCare Urology WomensHealth],
+                     operatingStatus: {
+                       code: 'NORMAL'
                      }
                    })
   end
@@ -632,7 +632,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     end
 
     describe 'GET appointment' do
-      context 'when the VAOS service returns a single appointment ' do
+      context 'when the VAOS service returns a single appointment' do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
         end
@@ -807,7 +807,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
           VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
             put '/vaos/v2/appointments/42081', params: { status: 'cancelled' }
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['errors'][0]['code']).to eq('VAOS_400')
           end
         end
@@ -821,7 +821,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         it 'returns a 502 status code' do
           VCR.use_cassette('vaos/v2/appointments/cancel_appointment_500', match_requests_on: %i[method path query]) do
             put '/vaos/v2/appointments/35952', params: { status: 'cancelled' }
-            expect(response.status).to eq(502)
+            expect(response).to have_http_status(:bad_gateway)
             expect(JSON.parse(response.body)['errors'][0]['code']).to eq('VAOS_502')
           end
         end
