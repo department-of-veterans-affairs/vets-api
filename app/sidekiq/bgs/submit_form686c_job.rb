@@ -13,11 +13,11 @@ module BGS
 
     sidekiq_options retry: 14
 
-    sidekiq_retries_exhausted do |msg, error|
+    sidekiq_retries_exhausted do |msg, _error|
       user_uuid, icn, saved_claim_id, encrypted_vet_info = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      Rails.logger.error('BGS::SubmitForm686cJob failed, retries exhausted!',
-                         { user_uuid:, saved_claim_id:, icn:, error: })
+      Rails.logger.error("BGS::SubmitForm686cJob failed, retries exhausted! Last error: #{msg['error_message']}",
+                         { user_uuid:, saved_claim_id:, icn: })
 
       BGS::SubmitForm686cJob.send_backup_submission(vet_info, saved_claim_id, user_uuid)
     end

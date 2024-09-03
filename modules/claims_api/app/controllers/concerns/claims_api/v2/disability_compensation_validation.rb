@@ -591,32 +591,7 @@ module ClaimsApi
         treatments = form_attributes['treatments']
         return if treatments.blank?
 
-        validate_treated_disability_names(treatments)
         validate_treatment_dates(treatments)
-      end
-
-      def validate_treated_disability_names(treatments)
-        treated_disability_names = collect_treated_disability_names(treatments)
-        declared_disability_names = collect_primary_secondary_disability_names(form_attributes['disabilities'])
-
-        treated_disability_names.each do |treatment|
-          next if declared_disability_names.include?(treatment)
-
-          collect_error_messages(
-            source: '/treatments/treatedDisabilityNames',
-            detail: 'The treated disability must match a disability listed above'
-          )
-        end
-      end
-
-      def collect_treated_disability_names(treatments)
-        names = []
-        treatments&.each do |treatment|
-          treatment['treatedDisabilityNames']&.each do |disability_name|
-            names << disability_name.strip.downcase
-          end
-        end
-        names
       end
 
       def valid_treatment_date?(first_service_date, treatment_begin_date)
@@ -664,17 +639,6 @@ module ClaimsApi
             detail: 'Each treatment begin date must be after the first activeDutyBeginDate.'
           )
         end
-      end
-
-      def collect_primary_secondary_disability_names(disabilities)
-        names = []
-        disabilities.each do |disability|
-          names << disability['name'].strip.downcase
-          disability['secondaryDisabilities']&.each do |secondary|
-            names << secondary['name']&.strip&.downcase
-          end
-        end
-        names
       end
 
       def validate_form_526_service_information(target_veteran)

@@ -657,6 +657,7 @@ RSpec.describe VAOS::V2::AppointmentsController, :skip_mvi, type: :request do
         it 'has access and returns appointment - va proposed' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200',
                            match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
             get '/vaos/v2/appointments/70060', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
@@ -665,6 +666,10 @@ RSpec.describe VAOS::V2::AppointmentsController, :skip_mvi, type: :request do
             expect(data['id']).to eq('70060')
             expect(data['attributes']['kind']).to eq('clinic')
             expect(data['attributes']['status']).to eq('proposed')
+            expect(Rails.logger).to have_received(:info).with(
+              'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
+              { created: '2021-12-13T14:03:02Z' }.to_json
+            )
           end
         end
 
@@ -676,6 +681,7 @@ RSpec.describe VAOS::V2::AppointmentsController, :skip_mvi, type: :request do
             stub_clinics
             VCR.use_cassette('vaos/v2/appointments/get_appointment_200_no_avs',
                              match_requests_on: %i[method path query]) do
+              allow(Rails.logger).to receive(:info).at_least(:once)
               get '/vaos/v2/appointments/192308', headers: inflection_header
               expect(response).to have_http_status(:ok)
               expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
@@ -683,6 +689,10 @@ RSpec.describe VAOS::V2::AppointmentsController, :skip_mvi, type: :request do
 
               expect(data['id']).to eq('192308')
               expect(data['attributes']['avsPath']).to be_nil
+              expect(Rails.logger).to have_received(:info).with(
+                'VAOS::V2::AppointmentsController appointment creation time: 2023-11-01T00:00:00Z',
+                { created: '2023-11-01T00:00:00Z' }.to_json
+              )
             end
           end
         end
@@ -692,6 +702,7 @@ RSpec.describe VAOS::V2::AppointmentsController, :skip_mvi, type: :request do
                            match_requests_on: %i[method path query]) do
             allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
               receive(:get_provider_with_cache).with('1407938061').and_return(provider_response)
+            allow(Rails.logger).to receive(:info).at_least(:once)
             get '/vaos/v2/appointments/81063', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
@@ -701,12 +712,17 @@ RSpec.describe VAOS::V2::AppointmentsController, :skip_mvi, type: :request do
             expect(data['attributes']['kind']).to eq('cc')
             expect(data['attributes']['status']).to eq('proposed')
             expect(data['attributes']['preferredProviderName']).to eq('DEHGHAN, AMIR')
+            expect(Rails.logger).to have_received(:info).with(
+              'VAOS::V2::AppointmentsController appointment creation time: 2022-02-22T21:46:00Z',
+              { created: '2022-02-22T21:46:00Z' }.to_json
+            )
           end
         end
 
         it 'has access and returns appointment - cc booked' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_JACQUELINE_M_BOOKED_with_facility_200',
                            match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
             get '/vaos/v2/appointments/72106', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
@@ -715,6 +731,10 @@ RSpec.describe VAOS::V2::AppointmentsController, :skip_mvi, type: :request do
             expect(data['id']).to eq('72106')
             expect(data['attributes']['kind']).to eq('cc')
             expect(data['attributes']['status']).to eq('booked')
+            expect(Rails.logger).to have_received(:info).with(
+              'VAOS::V2::AppointmentsController appointment creation time: 2022-01-10T22:02:08Z',
+              { created: '2022-01-10T22:02:08Z' }.to_json
+            )
           end
         end
 
@@ -725,6 +745,7 @@ RSpec.describe VAOS::V2::AppointmentsController, :skip_mvi, type: :request do
             .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return('Location')
           allow_any_instance_of(described_class).to receive(:appointment).and_return(appointment)
+          allow(Rails.logger).to receive(:info).at_least(:once)
 
           get '/vaos/v2/appointments/70060', headers: inflection_header
 
@@ -733,6 +754,9 @@ RSpec.describe VAOS::V2::AppointmentsController, :skip_mvi, type: :request do
           expect(data['physicalLocation']).to eq('Physical Location')
           expect(data['friendlyName']).to eq('Service Name')
           expect(data['location']).to eq('Location')
+          expect(Rails.logger).to have_received(:info).with(
+            'VAOS::V2::AppointmentsController appointment creation time: unknown'
+          )
         end
       end
 

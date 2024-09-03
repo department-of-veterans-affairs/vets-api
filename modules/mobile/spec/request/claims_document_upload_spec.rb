@@ -19,6 +19,7 @@ RSpec.describe 'claims document upload', :skip_json_api_validation, type: :reque
     allow_any_instance_of(BGS::People::Response).to receive(:file_number).and_return('12345')
     allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return(token)
     Flipper.enable_actor(:mobile_lighthouse_document_upload, user)
+    Flipper.disable(:cst_synchronous_evidence_uploads)
     FileUtils.rm_rf(Rails.root.join('tmp', 'uploads', 'cache', '*'))
   end
 

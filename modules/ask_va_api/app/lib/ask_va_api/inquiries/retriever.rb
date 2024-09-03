@@ -33,7 +33,7 @@ module AskVAApi
           payload = { id: }
 
           response = Crm::Service.new(icn:).call(endpoint:, payload:)
-          handle_response_data(response)
+          handle_response_data(response:, error_class: InquiriesRetrieverError)
         end
       end
 
@@ -60,16 +60,6 @@ module AskVAApi
       def filter_data(data, id = nil)
         data.select do |inq|
           id ? inq[:InquiryNumber] == id : inq[:Icn] == icn
-        end
-      end
-
-      def handle_response_data(response)
-        case response
-        when Hash
-          response[:Data]
-        else
-          error = JSON.parse(response.body, symbolize_names: true)
-          raise(InquiriesRetrieverError, error[:Message])
         end
       end
     end

@@ -12,9 +12,8 @@ module V0
     def eligible_data_classes
       resource = client.get_eligible_data_classes
 
-      render json: resource.data,
-             serializer: EligibleDataClassesSerializer,
-             meta: resource.metadata
+      options = { meta: resource.metadata, is_collection: false }
+      render json: EligibleDataClassesSerializer.new(resource.data, options)
     end
 
     def create

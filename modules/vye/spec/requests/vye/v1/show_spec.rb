@@ -42,6 +42,28 @@ RSpec.describe Vye::V1::UserInfosController, type: :request do
 
           it 'returns the user_info' do
             get '/vye/v1'
+
+            json = JSON.parse(response.body)
+
+            expect(json['vye/user_info']).to be_present
+
+            %w[cert_issue_date del_date date_last_certified].each do |attribute|
+              expect(json['vye/user_info'][attribute]).to eq user_info.send(attribute.to_sym).to_s
+            end
+
+            expected_veteran_name = user_info.latest_address.veteran_name
+            expect(json['vye/user_info'].keys).to include('latest_address')
+            expect(json['vye/user_info']['latest_address']['veteran_name']).to eq expected_veteran_name
+
+            expect_doc_type = user_info.pending_documents.first.doc_type
+            expect_queue_date = user_info.pending_documents.first.queue_date.to_s
+            expect(json['vye/user_info']['pending_documents'].class).to eq Array
+            expect(json['vye/user_info']['pending_documents'][0]['doc_type']).to eq expect_doc_type
+            expect(json['vye/user_info']['pending_documents'][0]['queue_date']).to eq expect_queue_date
+
+            expect(json['vye/user_info']['verifications'].class).to eq Array
+            expect(json['vye/user_info']['pending_verifications'].class).to eq Array
+
             expect(response).to have_http_status(:ok)
           end
         end

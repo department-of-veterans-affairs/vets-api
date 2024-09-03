@@ -2829,8 +2829,9 @@
                                     "city": {
                                       "description": "City for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                      "maxLength": 1000,
+                                      "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                      "minLength": 1,
+                                      "maxLength": 30,
                                       "example": "Portland"
                                     },
                                     "state": {
@@ -2937,8 +2938,9 @@
                                 "city": {
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                  "maxLength": 1000,
+                                  "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                  "minLength": 0,
+                                  "maxLength": 30,
                                   "example": "Portland"
                                 },
                                 "state": {
@@ -3004,11 +3006,6 @@
                                   "nullable": true,
                                   "description": "Is the Veteran currently homeless?"
                                 },
-                                "isAtRiskOfBecomingHomeless": {
-                                  "type": "boolean",
-                                  "nullable": true,
-                                  "description": "Is the Veteran currently at risk of becoming homeless?"
-                                },
                                 "currentlyHomeless": {
                                   "type": "object",
                                   "nullable": true,
@@ -3036,6 +3033,11 @@
                                       "example": "other living situation"
                                     }
                                   }
+                                },
+                                "isAtRiskOfBecomingHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently at risk of becoming homeless?"
                                 },
                                 "riskOfBecomingHomeless": {
                                   "type": "object",
@@ -3298,7 +3300,7 @@
                                   "name": {
                                     "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                     "type": "string",
-                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                     "example": "PTSD (post traumatic stress disorder)",
                                     "maxLength": 255
                                   },
@@ -3386,7 +3388,7 @@
                                         "name": {
                                           "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                           "type": "string",
-                                          "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                          "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                           "example": "PTSD (post traumatic stress disorder)",
                                           "maxLength": 255
                                         },
@@ -3452,7 +3454,7 @@
                                     "nullable": true
                                   },
                                   "treatedDisabilityNames": {
-                                    "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                    "description": "Name(s) of disabilities treated in this time frame.",
                                     "type": "array",
                                     "nullable": true,
                                     "maxItems": 101,
@@ -3475,16 +3477,19 @@
                                         "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                        "pattern": "([a-zA-Z0-9\"/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                                         "example": "Private Facility 2",
+                                        "minLength": 1,
                                         "maxLength": 100
                                       },
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                        "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                         "example": "Portland",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "minLength": 0,
+                                        "maxLength": 30
                                       },
                                       "state": {
                                         "description": "State of treatment facility.",
@@ -4204,8 +4209,9 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                    "maxLength": 1000,
+                                    "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                    "minLength": 1,
+                                    "maxLength": 30,
                                     "example": "Portland"
                                   },
                                   "state": {
@@ -4312,8 +4318,9 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                "maxLength": 1000,
+                                "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                "minLength": 0,
+                                "maxLength": 30,
                                 "example": "Portland"
                               },
                               "state": {
@@ -4379,11 +4386,6 @@
                                 "nullable": true,
                                 "description": "Is the Veteran currently homeless?"
                               },
-                              "isAtRiskOfBecomingHomeless": {
-                                "type": "boolean",
-                                "nullable": true,
-                                "description": "Is the Veteran currently at risk of becoming homeless?"
-                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -4411,6 +4413,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",
@@ -4673,7 +4680,7 @@
                                 "name": {
                                   "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                   "type": "string",
-                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                   "example": "PTSD (post traumatic stress disorder)",
                                   "maxLength": 255
                                 },
@@ -4761,7 +4768,7 @@
                                       "name": {
                                         "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                         "type": "string",
-                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                         "example": "PTSD (post traumatic stress disorder)",
                                         "maxLength": 255
                                       },
@@ -4827,7 +4834,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -4850,16 +4857,19 @@
                                       "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                      "pattern": "([a-zA-Z0-9\"/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                                       "example": "Private Facility 2",
+                                      "minLength": 1,
                                       "maxLength": 100
                                     },
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                      "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                       "example": "Portland",
-                                      "nullable": true
+                                      "nullable": true,
+                                      "minLength": 0,
+                                      "maxLength": 30
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
@@ -5547,10 +5557,12 @@
                           }
                         },
                         "homeless": {
+                          "isCurrentlyHomeless": true,
                           "currentlyHomeless": {
                             "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                             "otherDescription": "ABCDEFGHIJKLM"
                           },
+                          "isAtRiskOfBecomingHomeless": false,
                           "pointOfContact": "john stewart",
                           "pointOfContactNumber": {
                             "telephone": "5555555555",
@@ -5776,7 +5788,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "afcad79e-bcce-4f3d-9643-56408b4aa8bf",
+                        "id": "c41045ef-67ec-456c-906c-cb0155083478",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5820,10 +5832,12 @@
                             }
                           },
                           "homeless": {
+                            "isCurrentlyHomeless": true,
                             "currentlyHomeless": {
                               "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                               "otherDescription": "ABCDEFGHIJKLM"
                             },
+                            "isAtRiskOfBecomingHomeless": false,
                             "pointOfContact": "john stewart",
                             "pointOfContactNumber": {
                               "telephone": "5555555555",
@@ -5959,7 +5973,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-08-01"
+                              "anticipatedSeparationDate": "2024-08-30"
                             },
                             "confinements": [
                               {
@@ -6005,7 +6019,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "edb28482-636a-4933-9e7d-ff5670f5b268",
+                        "id": "05263a98-41fe-40af-9f1e-0075dccb27cc",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -6049,10 +6063,12 @@
                             }
                           },
                           "homeless": {
+                            "isCurrentlyHomeless": true,
                             "currentlyHomeless": {
                               "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                               "otherDescription": "ABCDEFGHIJKLM"
                             },
+                            "isAtRiskOfBecomingHomeless": false,
                             "pointOfContact": "john stewart",
                             "pointOfContactNumber": {
                               "telephone": "5555555555",
@@ -6348,8 +6364,9 @@
                                     "city": {
                                       "description": "City for the Veteran's current mailing address.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                      "maxLength": 1000,
+                                      "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                      "minLength": 1,
+                                      "maxLength": 30,
                                       "example": "Portland"
                                     },
                                     "state": {
@@ -6456,8 +6473,9 @@
                                 "city": {
                                   "description": "City for the Veteran's new address.",
                                   "type": "string",
-                                  "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                  "maxLength": 1000,
+                                  "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                  "minLength": 0,
+                                  "maxLength": 30,
                                   "example": "Portland"
                                 },
                                 "state": {
@@ -6523,11 +6541,6 @@
                                   "nullable": true,
                                   "description": "Is the Veteran currently homeless?"
                                 },
-                                "isAtRiskOfBecomingHomeless": {
-                                  "type": "boolean",
-                                  "nullable": true,
-                                  "description": "Is the Veteran currently at risk of becoming homeless?"
-                                },
                                 "currentlyHomeless": {
                                   "type": "object",
                                   "nullable": true,
@@ -6555,6 +6568,11 @@
                                       "example": "other living situation"
                                     }
                                   }
+                                },
+                                "isAtRiskOfBecomingHomeless": {
+                                  "type": "boolean",
+                                  "nullable": true,
+                                  "description": "Is the Veteran currently at risk of becoming homeless?"
                                 },
                                 "riskOfBecomingHomeless": {
                                   "type": "object",
@@ -6817,7 +6835,7 @@
                                   "name": {
                                     "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                     "type": "string",
-                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                     "example": "PTSD (post traumatic stress disorder)",
                                     "maxLength": 255
                                   },
@@ -6905,7 +6923,7 @@
                                         "name": {
                                           "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                           "type": "string",
-                                          "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                          "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                           "example": "PTSD (post traumatic stress disorder)",
                                           "maxLength": 255
                                         },
@@ -6971,7 +6989,7 @@
                                     "nullable": true
                                   },
                                   "treatedDisabilityNames": {
-                                    "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                    "description": "Name(s) of disabilities treated in this time frame.",
                                     "type": "array",
                                     "nullable": true,
                                     "maxItems": 101,
@@ -6994,16 +7012,19 @@
                                         "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                        "pattern": "([a-zA-Z0-9\"/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                                         "example": "Private Facility 2",
+                                        "minLength": 1,
                                         "maxLength": 100
                                       },
                                       "city": {
                                         "description": "City of treatment facility.",
                                         "type": "string",
-                                        "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                        "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                         "example": "Portland",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "minLength": 0,
+                                        "maxLength": 30
                                       },
                                       "state": {
                                         "description": "State of treatment facility.",
@@ -7723,8 +7744,9 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                    "maxLength": 1000,
+                                    "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                    "minLength": 1,
+                                    "maxLength": 30,
                                     "example": "Portland"
                                   },
                                   "state": {
@@ -7831,8 +7853,9 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                "maxLength": 1000,
+                                "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                "minLength": 0,
+                                "maxLength": 30,
                                 "example": "Portland"
                               },
                               "state": {
@@ -7898,11 +7921,6 @@
                                 "nullable": true,
                                 "description": "Is the Veteran currently homeless?"
                               },
-                              "isAtRiskOfBecomingHomeless": {
-                                "type": "boolean",
-                                "nullable": true,
-                                "description": "Is the Veteran currently at risk of becoming homeless?"
-                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -7930,6 +7948,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",
@@ -8192,7 +8215,7 @@
                                 "name": {
                                   "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                   "type": "string",
-                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                   "example": "PTSD (post traumatic stress disorder)",
                                   "maxLength": 255
                                 },
@@ -8280,7 +8303,7 @@
                                       "name": {
                                         "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                         "type": "string",
-                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                         "example": "PTSD (post traumatic stress disorder)",
                                         "maxLength": 255
                                       },
@@ -8346,7 +8369,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -8369,16 +8392,19 @@
                                       "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                      "pattern": "([a-zA-Z0-9\"/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                                       "example": "Private Facility 2",
+                                      "minLength": 1,
                                       "maxLength": 100
                                     },
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                      "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                       "example": "Portland",
-                                      "nullable": true
+                                      "nullable": true,
+                                      "minLength": 0,
+                                      "maxLength": 30
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
@@ -9066,10 +9092,12 @@
                           }
                         },
                         "homeless": {
+                          "isCurrentlyHomeless": true,
                           "currentlyHomeless": {
                             "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                             "otherDescription": "ABCDEFGHIJKLM"
                           },
+                          "isAtRiskOfBecomingHomeless": false,
                           "pointOfContact": "john stewart",
                           "pointOfContactNumber": {
                             "telephone": "5555555555",
@@ -9296,10 +9324,12 @@
                           }
                         },
                         "homeless": {
+                          "isCurrentlyHomeless": true,
                           "currentlyHomeless": {
                             "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                             "otherDescription": "ABCDEFGHIJKLM"
                           },
+                          "isAtRiskOfBecomingHomeless": false,
                           "pointOfContact": "john stewart",
                           "pointOfContactNumber": {
                             "telephone": "5555555555",
@@ -9871,8 +9901,9 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                    "maxLength": 1000,
+                                    "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                    "minLength": 1,
+                                    "maxLength": 30,
                                     "example": "Portland"
                                   },
                                   "state": {
@@ -9979,8 +10010,9 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^([-a-zA-Z'.' ])+$",
-                                "maxLength": 1000,
+                                "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+                                "minLength": 0,
+                                "maxLength": 30,
                                 "example": "Portland"
                               },
                               "state": {
@@ -10046,11 +10078,6 @@
                                 "nullable": true,
                                 "description": "Is the Veteran currently homeless?"
                               },
-                              "isAtRiskOfBecomingHomeless": {
-                                "type": "boolean",
-                                "nullable": true,
-                                "description": "Is the Veteran currently at risk of becoming homeless?"
-                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -10078,6 +10105,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",
@@ -10340,7 +10372,7 @@
                                 "name": {
                                   "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                   "type": "string",
-                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                   "example": "PTSD (post traumatic stress disorder)",
                                   "maxLength": 255
                                 },
@@ -10428,7 +10460,7 @@
                                       "name": {
                                         "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                                         "type": "string",
-                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                         "example": "PTSD (post traumatic stress disorder)",
                                         "maxLength": 255
                                       },
@@ -10494,7 +10526,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -10517,16 +10549,19 @@
                                       "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                      "pattern": "([a-zA-Z0-9\"/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                                       "example": "Private Facility 2",
+                                      "minLength": 1,
                                       "maxLength": 100
                                     },
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                                      "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                                       "example": "Portland",
-                                      "nullable": true
+                                      "nullable": true,
+                                      "minLength": 0,
+                                      "maxLength": 30
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
@@ -11190,7 +11225,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3b9bd54b-0559-4383-923c-1a758f39c639",
+                    "id": "b826dcd2-c41b-496e-a746-a983cd216902",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -11233,10 +11268,12 @@
                         }
                       },
                       "homeless": {
+                        "isCurrentlyHomeless": true,
                         "currentlyHomeless": {
                           "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                           "otherDescription": "ABCDEFGHIJKLM"
                         },
+                        "isAtRiskOfBecomingHomeless": false,
                         "pointOfContact": "john stewart",
                         "pointOfContactNumber": {
                           "telephone": "5555555555",
@@ -12338,8 +12375,6 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "state",
-                                  "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
@@ -12374,7 +12409,7 @@
                                     "type": "string",
                                     "example": "OR",
                                     "maxLength": 1000,
-                                    "minLength": 0
+                                    "nullable": true
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -12386,7 +12421,8 @@
                                     "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
                                     "type": "string",
                                     "example": "12345",
-                                    "maxLength": 500
+                                    "maxLength": 500,
+                                    "nullable": true
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
@@ -12394,6 +12430,12 @@
                                     "example": "6789",
                                     "nullable": true,
                                     "maxLength": 500
+                                  },
+                                  "internationalPostalCode": {
+                                    "description": "International postal code for the Veteran's current mailing address.",
+                                    "type": "string",
+                                    "maxLength": 1000,
+                                    "nullable": true
                                   }
                                 }
                               },
@@ -12469,19 +12511,22 @@
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
                                 "example": "OR",
-                                "maxLength": 1000
+                                "maxLength": 1000,
+                                "nullable": true
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                 "type": "string",
                                 "example": "USA",
-                                "maxLength": 1000
+                                "maxLength": 1000,
+                                "nullable": true
                               },
                               "zipFirstFive": {
                                 "description": "Zip code (First 5 digits) for the Veteran's new address.",
                                 "type": "string",
                                 "example": "12345",
-                                "maxLength": 500
+                                "maxLength": 500,
+                                "nullable": true
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -12489,6 +12534,12 @@
                                 "nullable": true,
                                 "example": "6789",
                                 "maxLength": 500
+                              },
+                              "internationalPostalCode": {
+                                "description": "International postal code for the Veteran's new address.",
+                                "type": "string",
+                                "maxLength": 1000,
+                                "nullable": true
                               },
                               "dates": {
                                 "type": "object",
@@ -12515,6 +12566,11 @@
                             "nullable": true,
                             "additionalProperties": false,
                             "properties": {
+                              "isCurrentlyHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently homeless?"
+                              },
                               "currentlyHomeless": {
                                 "type": "object",
                                 "nullable": true,
@@ -12542,6 +12598,11 @@
                                     "example": "other living situation"
                                   }
                                 }
+                              },
+                              "isAtRiskOfBecomingHomeless": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "Is the Veteran currently at risk of becoming homeless?"
                               },
                               "riskOfBecomingHomeless": {
                                 "type": "object",
@@ -12953,7 +13014,7 @@
                                   "nullable": true
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+                                  "description": "Name(s) of disabilities treated in this time frame.",
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 101,
@@ -14105,8 +14166,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-07-30",
-                      "expirationDate": "2025-07-30",
+                      "creationDate": "2024-08-28",
+                      "expirationDate": "2025-08-28",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -15002,7 +15063,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "46fedb7e-9141-4080-9c19-6247fe86e77f",
+                    "id": "5f60ad74-3852-45c3-acea-6dbfc86e9598",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15695,7 +15756,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a48f35ac-d472-48e0-a19d-b60e0b26e72d",
+                    "id": "95528f1f-e16f-4585-8c58-aa7187fc247b",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17646,10 +17707,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "25fcda8b-a9e5-48b8-ac33-4a6ba64d55d0",
+                    "id": "e26ca565-f778-43fa-89ee-821af17f8447",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-07-30",
+                      "dateRequestAccepted": "2024-08-28",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

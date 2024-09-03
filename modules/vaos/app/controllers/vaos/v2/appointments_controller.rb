@@ -24,6 +24,7 @@ module VAOS
             appt[:location] = FACILITY_ERROR_MSG
           end
           scrape_appt_comments_and_log_details(appt, index_method_logging_name, PAP_COMPLIANCE_TELE)
+          log_appt_creation_time(appt)
         end
 
         serializer = VAOS::V2::VAOSSerializer.new
@@ -51,6 +52,7 @@ module VAOS
         add_location(appointment)
 
         scrape_appt_comments_and_log_details(appointment, show_method_logging_name, PAP_COMPLIANCE_TELE)
+        log_appt_creation_time(appointment)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointment, 'appointments')
@@ -169,6 +171,16 @@ module VAOS
                                                                                                      comment_content,
                                                                                                      field_name) }
         Rails.logger.info("Details for #{comment_key} appointment", appt_comment_data_entry.to_json)
+      end
+
+      def log_appt_creation_time(appt)
+        if appt.nil? || appt[:created].nil?
+          Rails.logger.info('VAOS::V2::AppointmentsController appointment creation time: unknown')
+        else
+          creation_time = appt[:created]
+          Rails.logger.info("VAOS::V2::AppointmentsController appointment creation time: #{creation_time}",
+                            { created: creation_time }.to_json)
+        end
       end
 
       def appt_comment_log_details(appt, appt_method, comment_content, field_name)

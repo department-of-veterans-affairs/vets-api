@@ -14,7 +14,7 @@ module RepresentationManagement
                       filename: '21-22.pdf',
                       type: 'application/pdf',
                       disposition: 'attachment',
-                      status: :created
+                      status: :ok
           end
           # The Tempfile is automatically deleted after the block ends
         else

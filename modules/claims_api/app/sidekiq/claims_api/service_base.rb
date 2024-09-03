@@ -36,6 +36,10 @@ module ClaimsApi
 
     protected
 
+    def preserve_original_form_data(form_data)
+      form_data.deep_dup.freeze
+    end
+
     def set_errored_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
     end
@@ -61,18 +65,29 @@ module ClaimsApi
 
     def set_evss_response(auto_claim, error)
       auto_claim.evss_response ||= []
+      errors_to_add = []
 
-      if error&.original_body.present?
-        error&.original_body&.each { |e| auto_claim.evss_response << e }
+      if error_responds_to_original_body?(error)
+        if error&.original_body.present?
+          errors_to_add.concat(error.original_body)
+        else
+          # This is a default catch all
+          # Since the error could theoretically respond_to the
+          # original_body method but still not have it
+          errors_to_add << error
+        end
       elsif error&.errors.present?
-        error&.errors&.each { |e| auto_claim.evss_response << e }
+        errors_to_add.concat(error.errors)
       end
+
+      # Add all collected errors to the auto_claim evss_response
+      auto_claim.evss_response.concat(errors_to_add)
 
       auto_claim.save!
     end
 
     def get_error_message(error)
-      if error.respond_to? :original_body
+      if error_responds_to_original_body?(error)
         error.original_body
       elsif error.respond_to? :message
         error.message
@@ -117,7 +132,7 @@ module ClaimsApi
     def will_retry?(auto_claim, error)
       msg = if auto_claim.evss_response.present?
               auto_claim.evss_response&.dig(0, 'key')
-            elsif error.respond_to? :original_body
+            elsif error_responds_to_original_body?(error)
               get_error_key(error.original_body)
             else
               ''
@@ -153,12 +168,28 @@ module ClaimsApi
                             detail:)
     end
 
+    def error_responds_to_original_body?(error)
+      error.respond_to? :original_body
+    end
+
     def extract_poa_code(poa_form_data)
       if poa_form_data.key?('serviceOrganization')
         poa_form_data['serviceOrganization']['poaCode']
       elsif poa_form_data.key?('representative') # V2 2122a
         poa_form_data['representative']['poaCode']
       end
+    end
+
+    def evss_mapper_service(auto_claim)
+      ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim)
+    end
+
+    def veteran_file_number(auto_claim)
+      auto_claim.auth_headers['va_eauth_birlsfilenumber']
+    end
+
+    def evss_service
+      ClaimsApi::EVSSService::Base.new
     end
   end
 end

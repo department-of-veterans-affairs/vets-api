@@ -39,7 +39,6 @@ RSpec.describe 'Threads Integration', type: :request do
 
   context 'when authorized' do
     before do
-      allow(SM::Client).to receive(:new).and_return(authenticated_client)
       VCR.insert_cassette('sm_client/session')
     end
 

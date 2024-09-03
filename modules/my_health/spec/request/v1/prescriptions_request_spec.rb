@@ -328,7 +328,7 @@ RSpec.describe 'prescriptions', type: :request do
             sorted_date_str = d.dig('attributes', 'sortedDispensedDate')
             Time.zone.parse(sorted_date_str) unless sorted_date_str.nil?
           end
-          is_sorted = dates.select(&:present?).each_cons(2).all? { |item1, item2| item1 >= item2 }
+          is_sorted = dates.compact_blank.each_cons(2).all? { |item1, item2| item1 >= item2 }
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(is_sorted).to be_truthy

@@ -68,7 +68,8 @@ module V0
       # - vets-website/src/platform/utilities/api/index.js (apiRequest)
       # - vets-website/src/platform/startup/setup.js (setUpCommonFunctionality)
       # - vets-website/src/platform/startup/index.js (startApp)
-      source_app_name = request.headers['Source-App-Name']
+      # - vets-api/lib/source_app_middleware.rb
+      source_app_name = request.env['SOURCE_APP']
       # The higher-level review form (996) is not included in this list because it does not permit evidence uploads.
       form_id = {
         '10182-board-appeal' => '10182',

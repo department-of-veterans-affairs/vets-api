@@ -17,6 +17,24 @@ describe TravelPay::Client do
     allow_any_instance_of(TravelPay::Client).to receive(:connection).and_return(conn)
   end
 
+  context 'prod settings' do
+    it 'returns both subscription keys in headers' do
+      headers =
+        {
+          'Content-Type' => 'application/json',
+          'Ocp-Apim-Subscription-Key-E' => 'e_key',
+          'Ocp-Apim-Subscription-Key-S' => 's_key'
+        }
+
+      with_settings(Settings, vsp_environment: 'production') do
+        with_settings(Settings.travel_pay,
+                      { subscription_key_e: 'e_key', subscription_key_s: 's_key' }) do
+          expect(subject.send(:claim_headers)).to eq(headers)
+        end
+      end
+    end
+  end
+
   context 'request_veis_token' do
     it 'returns veis token from proper endpoint' do
       tenant_id = Settings.travel_pay.veis.tenant_id

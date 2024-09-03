@@ -17,5 +17,9 @@ FactoryBot.define do
         organization.reload
       end
     end
+
+    trait :with_location do
+      location { 'POINT(-73.77623285 42.65140884)' }
+    end
   end
 end

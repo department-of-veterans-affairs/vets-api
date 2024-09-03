@@ -14,6 +14,8 @@ RSpec.describe 'address', type: :request do
     address
   end
 
+  Flipper.disable(:va_v3_contact_information_service)
+
   describe 'update endpoints' do
     describe 'POST /mobile/v0/user/addresses' do
       context 'with a valid address that takes two tries to complete' do
