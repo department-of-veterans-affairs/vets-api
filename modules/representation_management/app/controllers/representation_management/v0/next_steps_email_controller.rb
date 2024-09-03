@@ -7,6 +7,11 @@ module RepresentationManagement
       skip_before_action :authenticate
       before_action :feature_enabled
 
+      # Creates and enqueues an email with the provided "next steps" information. This action
+      # validates the input parameters and, if valid, queues an email using the VANotify service.
+      #
+      # @return [JSON] Returns a success message if the email is enqueued, otherwise returns validation errors.
+      #
       def create
         next_steps_email_data = RepresentationManagement::NextStepsEmailData.new(next_steps_email_params)
         if next_steps_email_data.invalid?
@@ -37,6 +42,9 @@ module RepresentationManagement
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
       end
 
+      # Strong parameters method for sanitizing input data for the next steps email.
+      #
+      # @return [ActionController::Parameters] Filtered parameters permitted for the next steps email.
       def next_steps_email_params
         params.require(:next_steps_email).permit(
           :email_address,
