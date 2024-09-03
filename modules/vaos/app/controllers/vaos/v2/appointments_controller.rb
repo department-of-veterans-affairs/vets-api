@@ -7,7 +7,6 @@ module VAOS
     class AppointmentsController < VAOS::BaseController
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
-      FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
       APPT_INDEX_VPG = "GET '/vpg/v1/patients/<icn>/appointments'"
       APPT_SHOW_VAOS = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
@@ -20,9 +19,6 @@ module VAOS
 
       def index
         appointments[:data].each do |appt|
-          if include_index_params[:facilities] && appt[:location_id].present? && appt[:location].nil?
-            appt[:location] = FACILITY_ERROR_MSG
-          end
           scrape_appt_comments_and_log_details(appt, index_method_logging_name, PAP_COMPLIANCE_TELE)
           log_appt_creation_time(appt)
         end
@@ -42,15 +38,6 @@ module VAOS
       def show
         appointment
 
-        unless appointment[:clinic].nil? || appointment[:location_id].nil?
-          clinic = mobile_facility_service.get_clinic(appointment[:location_id], appointment[:clinic])
-          appointment[:service_name] = clinic&.[](:service_name)
-          appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
-          appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
-        end
-
-        add_location(appointment)
-
         scrape_appt_comments_and_log_details(appointment, show_method_logging_name, PAP_COMPLIANCE_TELE)
         log_appt_creation_time(appointment)
 
@@ -62,15 +49,6 @@ module VAOS
       def create
         new_appointment
 
-        unless new_appointment[:clinic].nil? || new_appointment[:location_id].nil?
-          clinic = mobile_facility_service.get_clinic(new_appointment[:location_id], new_appointment[:clinic])
-          new_appointment[:service_name] = clinic&.[](:service_name)
-          new_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
-          new_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
-        end
-
-        add_location(new_appointment)
-
         scrape_appt_comments_and_log_details(new_appointment, create_method_logging_name, PAP_COMPLIANCE_TELE)
 
         serializer = VAOS::V2::VAOSSerializer.new
@@ -80,14 +58,6 @@ module VAOS
 
       def update
         updated_appointment
-        unless updated_appointment[:clinic].nil? || updated_appointment[:location_id].nil?
-          clinic = mobile_facility_service.get_clinic(updated_appointment[:location_id], updated_appointment[:clinic])
-          updated_appointment[:service_name] = clinic&.[](:service_name)
-          updated_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
-          updated_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
-        end
-
-        add_location(updated_appointment)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(updated_appointment, 'appointments')
@@ -104,12 +74,6 @@ module VAOS
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(current_user)
-      end
-
-      def add_location(appointment)
-        return if appointment[:location_id].nil?
-
-        appointment[:location] = mobile_facility_service.get_facility(appointment[:location_id]) || FACILITY_ERROR_MSG
       end
 
       def appointments
