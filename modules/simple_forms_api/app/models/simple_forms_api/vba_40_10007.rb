@@ -60,6 +60,11 @@ module SimpleFormsApi
       end
     end
 
+    def words_to_remove
+      race_and_privacy + veteran_ssn_and_file_number + veteran_dates_of_birth_and_death + postal_code +
+        phone_number + email
+    end
+
     def format_date(date)
       if date == ''
         date
@@ -320,16 +325,17 @@ module SimpleFormsApi
       create_attachment_page(attachment_page_path)
       combined_pdf << CombinePDF.load(attachment_page_path)
 
-      attachments.each do |attachment|
-        combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
-      rescue => e
-        Rails.logger.error(
-          'Simple forms api - failed to load attachment for 40-10007',
-          { message: e.message, attachment: attachment.inspect }
-        )
-        raise
+      if attachments.count.positive?
+        attachments.each do |attachment|
+          combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
+        rescue => e
+          Rails.logger.error(
+            'Simple forms api - failed to load attachment for 40-10007',
+            { message: e.message, attachment: attachment.inspect }
+          )
+          raise
+        end
       end
-
       combined_pdf.save file_path
 
       FileUtils.rm_f(attachment_page_path)
@@ -350,6 +356,79 @@ module SimpleFormsApi
     end
 
     private
+
+    def race_and_privacy
+      [
+        @data.dig('application', 'veteran', 'race', 'is_american_indian_or_alaskan_native'),
+        @data.dig('application', 'veteran', 'race', 'is_asian'),
+        @data.dig('application', 'veteran', 'race', 'is_black_or_african_american'),
+        @data.dig('application', 'veteran', 'race', 'is_spanish_hispanic_latino'),
+        @data.dig('application', 'veteran', 'race', 'not_spanish_hispanic_latino'),
+        @data.dig('application', 'veteran', 'race', 'is_native_hawaiian_or_other_pacific_islander'),
+        @data.dig('application', 'veteran', 'race', 'is_white'),
+        @data.dig('application', 'privacy_agreement_accepted')
+      ]
+    end
+
+    def veteran_ssn_and_file_number
+      [
+        @data.dig('applicant', 'veteran', 'ssn')&.[](0..2),
+        @data.dig('applicant', 'veteran', 'ssn')&.[](3..4),
+        @data.dig('applicant', 'veteran', 'ssn')&.[](5..8),
+        @data.dig('applicant', 'claimant', 'ssn')&.[](0..2),
+        @data.dig('applicant', 'claimant', 'ssn')&.[](3..4),
+        @data.dig('applicant', 'claimant', 'ssn')&.[](5..8),
+        @data.dig('veteran_id', 'military_service_number')&.[](0..2),
+        @data.dig('veteran_id', 'military_service_number')&.[](3..4),
+        @data.dig('veteran_id', 'military_service_number')&.[](5..8),
+        @data.dig('veteran_id', 'va_claim_number')&.[](0..2),
+        @data.dig('veteran_id', 'va_claim_number')&.[](3..4),
+        @data.dig('veteran_id', 'va_claim_number')&.[](5..8)
+      ]
+    end
+
+    def veteran_dates_of_birth_and_death
+      [
+        data.dig('veteran', 'date_of_birth')&.[](0..3),
+        data.dig('veteran', 'date_of_birth')&.[](5..6),
+        data.dig('veteran', 'date_of_birth')&.[](8..9),
+        data.dig('veteran', 'date_of_death')&.[](0..3),
+        data.dig('veteran', 'date_of_death')&.[](5..6),
+        data.dig('veteran', 'date_of_death')&.[](8..9),
+        data.dig('claimant', 'date_of_birth')&.[](0..3),
+        data.dig('claimant', 'date_of_birth')&.[](5..6),
+        data.dig('claimant', 'date_of_birth')&.[](8..9)
+      ]
+    end
+
+    def postal_code
+      [
+        data.dig('application', 'veteran', 'address', 'postal_code')&.[](0..4),
+        data.dig('application', 'veteran', 'address', 'postal_code')&.[](5..8),
+        data.dig('application', 'claimant', 'address', 'postal_code')&.[](0..4),
+        data.dig('application', 'claimant', 'address', 'postal_code')&.[](5..8),
+        data.dig('application', 'applicant', 'mailing_address', 'postal_code')&.[](0..4),
+        data.dig('application', 'applicant', 'mailing_address', 'postal_code')&.[](5..8)
+      ]
+    end
+
+    def phone_number
+      [
+        data.dig('application', 'claimant', 'phone_number')&.gsub('-', '')&.[](0..2),
+        data.dig('application', 'claimant', 'phone_number')&.gsub('-', '')&.[](3..5),
+        data.dig('application', 'claimant', 'phone_number')&.gsub('-', '')&.[](6..9),
+        data.dig('application', 'applicant', 'applicant_phone_number')&.gsub('-', '')&.[](0..2),
+        data.dig('application', 'applicant', 'applicant_phone_number')&.gsub('-', '')&.[](3..5),
+        data.dig('application', 'applicant', 'applicant_phone_number')&.gsub('-', '')&.[](6..9)
+      ]
+    end
+
+    def email
+      [
+        data.dig('application', 'claimant', 'email')&.[](0..14),
+        data.dig('application', 'claimant', 'email')&.[](15..)
+      ]
+    end
 
     def get_attachments
       attachments = []

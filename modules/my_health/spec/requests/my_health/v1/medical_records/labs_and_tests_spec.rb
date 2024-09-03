@@ -6,7 +6,7 @@ require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
 
-RSpec.describe 'Medical Records Integration', type: :request do
+RSpec.describe 'MyHealth::V1::MedicalRecords::LabsAndTests', type: :request do
   include MedicalRecords::ClientHelpers
   include SchemaMatchers
 
@@ -23,7 +23,7 @@ RSpec.describe 'Medical Records Integration', type: :request do
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
-    before { get '/my_health/v1/medical_records/clinical_notes' }
+    before { get '/my_health/v1/medical_records/labs_and_tests' }
 
     include_examples 'for user account level', message: 'You do not have access to medical records'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to medical records'
@@ -32,7 +32,7 @@ RSpec.describe 'Medical Records Integration', type: :request do
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
 
-    before { get '/my_health/v1/medical_records/clinical_notes' }
+    before { get '/my_health/v1/medical_records/labs_and_tests' }
 
     include_examples 'for user account level', message: 'You do not have access to medical records'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to medical records'
@@ -42,7 +42,7 @@ RSpec.describe 'Medical Records Integration', type: :request do
     let(:mhv_account_type) { 'Premium' }
 
     context 'not a va patient' do
-      before { get '/my_health/v1/medical_records/clinical_notes' }
+      before { get '/my_health/v1/medical_records/labs_and_tests' }
 
       let(:va_patient) { false }
       let(:current_user) do
@@ -54,8 +54,12 @@ RSpec.describe 'Medical Records Integration', type: :request do
     end
 
     it 'responds to GET #index' do
-      VCR.use_cassette('mr_client/get_a_list_of_clinical_notes') do
-        get '/my_health/v1/medical_records/clinical_notes'
+      VCR.use_cassette('mr_client/get_a_list_of_chemhem_labs') do
+        VCR.use_cassette('mr_client/get_a_list_of_diagreport_labs') do
+          VCR.use_cassette('mr_client/get_a_list_of_docref_labs') do
+            get '/my_health/v1/medical_records/labs_and_tests'
+          end
+        end
       end
 
       expect(response).to be_successful
@@ -63,8 +67,8 @@ RSpec.describe 'Medical Records Integration', type: :request do
     end
 
     it 'responds to GET #show' do
-      VCR.use_cassette('mr_client/get_a_clinical_note') do
-        get '/my_health/v1/medical_records/clinical_notes/1175305'
+      VCR.use_cassette('mr_client/get_a_single_lab_or_test') do
+        get '/my_health/v1/medical_records/labs_and_tests/40766'
       end
 
       expect(response).to be_successful
@@ -73,19 +77,19 @@ RSpec.describe 'Medical Records Integration', type: :request do
 
     context 'when the patient is not found' do
       before do
-        allow_any_instance_of(MedicalRecords::Client).to receive(:list_clinical_notes)
+        allow_any_instance_of(MedicalRecords::Client).to receive(:list_labs_and_tests)
           .and_raise(MedicalRecords::PatientNotFound)
-        allow_any_instance_of(MedicalRecords::Client).to receive(:get_clinical_note)
+        allow_any_instance_of(MedicalRecords::Client).to receive(:get_diagnostic_report)
           .and_raise(MedicalRecords::PatientNotFound)
       end
 
       it 'returns a 202 Accepted response for GET #index' do
-        get '/my_health/v1/medical_records/clinical_notes'
+        get '/my_health/v1/medical_records/labs_and_tests'
         expect(response).to have_http_status(:accepted)
       end
 
       it 'returns a 202 Accepted response for GET #show' do
-        get '/my_health/v1/medical_records/clinical_notes/1175305'
+        get '/my_health/v1/medical_records/labs_and_tests/40766'
         expect(response).to have_http_status(:accepted)
       end
     end
