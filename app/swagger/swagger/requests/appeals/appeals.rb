@@ -48,6 +48,26 @@ module Swagger
             end
           end
         end
+
+        swagger_path '/v0/notice_of_disagreements/contestable_issues' do
+          operation :get do
+            description =
+              'For the logged-in veteran, returns a list of issues that could be contested in a Notice of Disagreement'
+            key :description, description
+            key :operationId, 'getContestableIssues'
+            key :tags, %w[notice_of_disagreements]
+
+            response 200 do
+              key :description, 'Issues'
+              schema '$ref': :nodContestableIssues
+            end
+
+            response 404 do
+              key :description, 'Veteran not found'
+              schema '$ref': :Errors
+            end
+          end
+        end
       end
     end
   end
