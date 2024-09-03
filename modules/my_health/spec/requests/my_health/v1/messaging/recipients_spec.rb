@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/sm_client_helpers'
 require 'support/shared_examples_for_mhv'
 
-RSpec.describe 'All Triage Teams Integration', type: :request do
+RSpec.describe 'MyHealth::V1::Messaging::Recipients', type: :request do
   include SM::ClientHelpers
   include SchemaMatchers
 
@@ -22,7 +22,7 @@ RSpec.describe 'All Triage Teams Integration', type: :request do
   context 'when NOT authorized' do
     before do
       VCR.insert_cassette('sm_client/session_error')
-      get '/my_health/v1/messaging/allrecipients'
+      get '/my_health/v1/messaging/recipients'
     end
 
     after do
@@ -42,23 +42,23 @@ RSpec.describe 'All Triage Teams Integration', type: :request do
     end
 
     it 'responds to GET #index' do
-      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        get '/my_health/v1/messaging/allrecipients'
+      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+        get '/my_health/v1/messaging/recipients'
       end
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('all_triage_teams')
+      expect(response).to match_response_schema('triage_teams')
     end
 
     it 'responds to GET #index when camel-inflected' do
-      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        get '/my_health/v1/messaging/allrecipients', headers: { 'X-Key-Inflection' => 'camel' }
+      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+        get '/my_health/v1/messaging/recipients', headers: { 'X-Key-Inflection' => 'camel' }
       end
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
-      expect(response).to match_camelized_response_schema('all_triage_teams')
+      expect(response).to match_camelized_response_schema('triage_teams')
     end
   end
 end

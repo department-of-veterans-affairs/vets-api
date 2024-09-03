@@ -402,7 +402,7 @@
             "otherLocationsServed": {
               "type": ["string", "null"],
               "nullable": true,
-              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+              "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
               "maxLength": 5000,
               "description": "Other location(s) where Veteran served."
             },
@@ -457,7 +457,7 @@
             "specifyOtherExposures": {
               "type": ["string", "null"],
               "nullable": true,
-              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+              "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
               "maxLength": 5000,
               "description": "Exposure to asbestos."
             },
@@ -503,7 +503,7 @@
               "exposureLocation": {
                 "type": ["string", "null"],
                 "nullable": true,
-                "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                 "maxLength": 1000,
                 "description": "Location where the exposure happened."
               },
