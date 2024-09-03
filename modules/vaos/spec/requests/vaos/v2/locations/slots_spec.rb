@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Available Slots Request', type: :request do
+RSpec.describe 'VAOS::V2::Locations::Slots', type: :request do
   include SchemaMatchers
 
   before do

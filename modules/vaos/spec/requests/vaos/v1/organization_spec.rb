@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Organization', type: :request do
+RSpec.describe 'VAOS::V1::Organization', type: :request do
   include SchemaMatchers
 
   before do
