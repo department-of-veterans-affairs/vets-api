@@ -158,6 +158,17 @@ btsss.update!(
   certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
 )
 
+# Create Service Account Config for MHV Account Creation
+mhv_ac = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'c34b86f2130ff3cd4b1d309bc09d8740')
+mhv_ac.update!(
+  description: 'MHV Account Creation - localhost',
+  scopes: ['https://mhv-intb-api.myhealth.va.gov/mhvapi/v1/usermgmt/account-service/account'],
+  access_token_audience: 'http://localhost:3000',
+  access_token_user_attributes: ['icn'],
+  access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+  certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
+)
+
 # Update any exisitng ServiceAccountConfigs and ClientConfigs with default empty arrays
 SignIn::ServiceAccountConfig.where(certificates: nil).update(certificates: [])
 SignIn::ServiceAccountConfig.where(scopes: nil).update(scopes: [])
