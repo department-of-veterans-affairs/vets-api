@@ -98,7 +98,7 @@ RSpec.describe VAForms::FormBuilder, type: :job do
       end
 
       it 'clears the sha256' do
-        expect(result.sha256).to be(nil)
+        expect(result.sha256).to be_nil
       end
 
       it 'correctly updates the remaining attributes based on the form data' do
