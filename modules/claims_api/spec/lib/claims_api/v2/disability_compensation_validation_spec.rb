@@ -68,13 +68,21 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       ] }
     end
 
-    let(:service_period_end_in_future) do
+    let(:mixed_separation_codes) do
       { 'servicePeriods' => [
         {
           'serviceBranch' => 'Public Health Service',
           'serviceComponent' => 'Active',
           'activeDutyBeginDate' => '2008-11-14',
-          'activeDutyEndDate' => 2.days.from_now.strftime('%Y-%m-%d').to_s
+          'activeDutyEndDate' => '2023-10-30',
+          'separationLocationCode' => '24912' # valid
+        },
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => '2023-10-30',
+          'separationLocationCode' => '123456' # invalid
         }
       ] }
     end
@@ -82,26 +90,53 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     let(:service_periods) { subject.form_attributes['serviceInformation'] }
 
     # rubocop:disable RSpec/SubjectStub
-    context 'calls to retrieve codes' do
+    context 'when a separation location code is present' do
       before do
-        allow(test_526_validation_instance).to receive(:retrieve_separation_locations).and_return([])
+        separation_locations = [
+          { id: 24_912, description: 'AF Academy' },
+          { id: 26_722, description: 'ANG Hub' }
+        ]
+        allow(test_526_validation_instance).to receive(:retrieve_separation_locations)
+          .and_return(separation_locations)
       end
 
-      it 'retrives codes if separationLocationcode is present' do
-        test_526_validation_instance.send(:validate_form_526_location_codes, service_periods)
-        expect(test_526_validation_instance).to have_received(:retrieve_separation_locations)
+      context 'when the location code is valid' do
+        it 'returns no errors' do
+          service_periods['servicePeriods'][0]['separationLocationCode'] = '24912'
+          test_526_validation_instance.send(:validate_form_526_location_codes, service_periods)
+          errors = test_526_validation_instance.send(:error_collection)
+
+          expect(errors).to be_empty
+        end
+      end
+
+      context 'when the location code is invalid' do
+        it 'adds an error to the errors array' do
+          service_periods['servicePeriods'][0]['separationLocationCode'] = '123456'
+          test_526_validation_instance.send(:validate_form_526_location_codes, service_periods)
+          errors = test_526_validation_instance.send(:error_collection)
+
+          expect(errors.size).to eq(1)
+        end
+      end
+
+      context 'when the location code is valid in some service periods and invalid in others' do
+        it 'adds an error to the errors array' do
+          test_526_validation_instance.send(:validate_form_526_location_codes, mixed_separation_codes)
+          errors = test_526_validation_instance.send(:error_collection)
+
+          expect(errors.size).to eq(1)
+        end
       end
     end
 
-    context 'does not call to retrieve codes' do
-      it 'does not retrieve the codes if separationLocation is not present' do
+    context 'when a separation location code is not present' do
+      it 'does not retrieve the location codes and skips validation' do
         test_526_validation_instance.send(:validate_form_526_location_codes, no_separation_code)
-        expect(test_526_validation_instance).not_to receive(:retrieve_separation_locations)
-      end
+        errors = test_526_validation_instance.send(:error_collection)
 
-      it 'does not retrieve the codes if activeDutyEndDate is in the future' do
-        test_526_validation_instance.send(:validate_form_526_location_codes, service_period_end_in_future)
         expect(test_526_validation_instance).not_to receive(:retrieve_separation_locations)
+        expect(errors).to be_empty
       end
     end
     # rubocop:enable RSpec/SubjectStub
