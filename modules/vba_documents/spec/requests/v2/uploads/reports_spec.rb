@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../support/vba_document_fixtures'
+require_relative '../../../support/vba_document_fixtures'
 require 'vba_documents/pdf_inspector'
-require_relative '../../../app/serializers/vba_documents/upload_serializer'
+require_relative '../../../../app/serializers/vba_documents/upload_serializer'
 
-RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
+RSpec.describe 'VBADocument::V2::Uploads::Report', type: :request do
   include VBADocuments::Fixtures
   load('./modules/vba_documents/config/routes.rb')
 
