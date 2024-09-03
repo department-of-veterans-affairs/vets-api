@@ -6,13 +6,15 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
   let(:inquiry_path) { '/ask_va_api/v0/inquiries' }
   let(:logger) { instance_double(LogService) }
   let(:span) { instance_double(Datadog::Tracing::Span) }
-  let(:icn) { I18n.t('ask_va_api.test_users.test_user_228_icn') }
+  let(:icn) { I18n.t('ask_va_api.test_users.test_user_229_icn') }
   let(:authorized_user) { build(:user, :accountable_with_sec_id, icn:) }
   let(:mock_inquiries) do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['Data']
   end
   let(:valid_id) { mock_inquiries.first['InquiryNumber'] }
   let(:invalid_id) { 'A-20240423-30709' }
+  let(:static_data_mock) { File.read('modules/ask_va_api/config/locales/static_data.json') }
+  let(:cache_data) { JSON.parse(static_data_mock, symbolize_names: true) }
 
   before do
     allow(LogService).to receive(:new).and_return(logger)
@@ -20,6 +22,9 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     allow(span).to receive(:set_tag)
     allow(Rails.logger).to receive(:error)
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+    allow_any_instance_of(AskVAApi::RedisClient).to receive(:fetch)
+      .with('categories_topics_subtopics')
+      .and_return(cache_data)
   end
 
   shared_examples_for 'common error handling' do |status, action, error_message|
@@ -33,10 +38,6 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     end
   end
 
-  def error_message(body)
-    "AskVAApi::Inquiries::InquiriesCreatorError: #{body}"
-  end
-
   describe 'GET #index' do
     context 'when user is signed in' do
       before { sign_in(authorized_user) }
@@ -48,7 +49,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             'attributes' =>
              { 'inquiry_number' => 'A-4',
                'attachments' => [{ 'Id' => '4', 'Name' => 'testfile.txt' }],
-               'category_id' => '1',
+               'category_name' => 'Benefits issues outside the U.S.',
                'created_on' => '8/5/202 4:51:52 PM',
                'correspondences' => nil,
                'has_been_split' => true,
@@ -56,7 +57,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                'level_of_authentication' => 'Personal',
                'last_update' => '3/20/23',
                'queue_id' => '987654',
-               'queue_name' => 'Debt Management Center',
+               'queue_name' => 'Compensation',
                'status' => 'In Progress',
                'submitter_question' => 'What is compensation?',
                'school_facility_code' => '0123',
@@ -129,7 +130,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           'attributes' =>
           { 'inquiry_number' => 'A-1',
             'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
-            'category_id' => '1',
+            'category_name' => 'Veteran Affairs  - Debt',
             'created_on' => '8/5/202 4:51:52 PM',
             'correspondences' =>
             { 'data' =>
@@ -137,7 +138,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                  'type' => 'correspondence',
                  'attributes' =>
                  { 'message_type' => '722310001: Response from VA',
-                   'modified_on' => '1/2/23',
+                   'created_on' => '1/2/23 4:45:45 PM',
+                   'modified_on' => '1/2/23 5:45:45 PM',
                    'status_reason' => 'Completed/Sent',
                    'description' => 'Your claim is still In Progress',
                    'enable_reply' => true,
@@ -169,7 +171,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
         let(:crm_response) do
           { Data: [{
             InquiryHasBeenSplit: true,
-            CategoryId: '12345',
+            CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
             CreatedOn: '8/5/2024 4:51:52 PM',
             Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
             InquiryLevelOfAuthentication: 'Personal',
@@ -197,7 +199,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
               'attributes' =>
               { 'inquiry_number' => 'A-123456',
                 'attachments' => [{ 'Id' => '012345', 'Name' => 'File A.pdf' }],
-                'category_id' => '12345',
+                'category_name' => 'Veteran Affairs  - Debt',
                 'created_on' => '8/5/2024 4:51:52 PM',
                 'correspondences' =>
                 { 'data' =>
@@ -205,6 +207,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                      'type' => 'correspondence',
                      'attributes' =>
                      { 'message_type' => nil,
+                       'created_on' => '8/5/2024 4:51:52 PM',
                        'modified_on' => nil,
                        'status_reason' => nil,
                        'description' => nil,

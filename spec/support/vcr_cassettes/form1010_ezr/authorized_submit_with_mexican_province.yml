@@ -2,127 +2,6 @@
 http_interactions:
 - request:
     method: post
-    uri: <%= Settings.hca.ee.endpoint %>
-    body:
-      encoding: UTF-8
-      string: |
-        <?xml version="1.0"?>
-        <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sch="http://jaxws.webservices.esr.med.va.gov/schemas">
-          <SOAP-ENV:Header>
-            <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" SOAP-ENV:mustUnderstand="1">
-              <wsse:UsernameToken xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="XWSSGID-1281117217796-43574433">
-                <wsse:Username>HCASvcUsr</wsse:Username>
-                <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText"><EE_PASS></wsse:Password>
-              </wsse:UsernameToken>
-            </wsse:Security>
-          </SOAP-ENV:Header>
-          <SOAP-ENV:Body>
-            <sch:getEESummaryRequest>
-              <sch:key>1013032368V065534</sch:key>
-              <sch:requestName>HCAData</sch:requestName>
-            </sch:getEESummaryRequest>
-          </SOAP-ENV:Body>
-        </SOAP-ENV:Envelope>
-    headers:
-      Accept:
-      - text/xml;charset=UTF-8
-      Content-Type:
-      - text/xml;charset=UTF-8
-      User-Agent:
-      - Vets.gov Agent
-      Date:
-      - Tue, 21 Nov 2023 22:29:51 GMT
-      Content-Length:
-      - '975'
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Tue, 21 Nov 2023 22:29:51 GMT
-      Server:
-      - Apache
-      X-Frame-Options:
-      - SAMEORIGIN
-      Content-Security-Policy:
-      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
-      Content-Length:
-      - '10998'
-      Accept:
-      - text/xml
-      X-Oracle-Dms-Rid:
-      - '0'
-      X-Oracle-Dms-Ecid:
-      - bddca6b8-059e-431a-8624-33eec916e5e2-00008453
-      Soapaction:
-      - '""'
-      X-Oneagent-Js-Injection:
-      - 'true'
-      Ssl-Env:
-      - 'On'
-      X-Xss-Protection:
-      - 1; mode=block
-      X-Content-Type-Options:
-      - nosniff
-      Cache-Control:
-      - max-age=0, no-store
-      Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="-13872712"
-      Content-Type:
-      - text/xml; charset=UTF-8
-      Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
-    body:
-      encoding: UTF-8
-      string: <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"><env:Header/><env:Body><getEESummaryResponse
-        xmlns="http://jaxws.webservices.esr.med.va.gov/schemas"><eesVersion>5.12.0.05003</eesVersion><summary><insuranceList><insurance><groupName>123456</groupName><groupNumber>123456</groupNumber><planType>Dental
-        Insurance</planType><companyName>Aetna</companyName><policyEffectiveDate>20180101</policyEffectiveDate><policyExpirationDate>20250101</policyExpirationDate><policyHolderName>Four
-        IVMTEST</policyHolderName><policyNumber>123456</policyNumber><lastEditedDate>2020-04-13T13:07:34.000-05:00</lastEditedDate><insuredRelationship>Veteran</insuredRelationship><preadmitCertification>false</preadmitCertification><insAddress><line1>457
-        H ST</line1><city>SAN ANTONIO</city><county>BEXAR</county><state>TX</state><zipCode>78259</zipCode><addressTypeCode>Firm/Business</addressTypeCode></insAddress><insurancePhones><phone><type>Fax</type><phoneNumber>(123)456-7890</phoneNumber></phone><phone><type>Pre-Certification
-        Phone</type><phoneNumber>(123)456-7890</phoneNumber></phone><phone><type>Business</type><phoneNumber>(123)456-7890</phoneNumber></phone></insurancePhones></insurance><insurance><groupName>Part
-        A</groupName><groupNumber>Part A</groupNumber><companyName>Medicare</companyName><policyHolderName>ZZTEST,
-        FIRSTNAME</policyHolderName><policyNumber>873462432</policyNumber><enrolledInPartA>true</enrolledInPartA><partAEffectiveDate>19991016</partAEffectiveDate><lastEditedDate>2023-10-23T18:12:24.000-05:00</lastEditedDate><insuredRelationship>Veteran</insuredRelationship></insurance><insurance><groupNumber>G1234</groupNumber><companyName>MyInsurance</companyName><policyHolderName>FirstName
-        ZZTEST</policyHolderName><policyNumber>P1234</policyNumber><lastEditedDate>2023-10-23T18:12:24.000-05:00</lastEditedDate><insuredRelationship>Veteran</insuredRelationship></insurance></insuranceList><eligibilityVerificationInfo><eligibilityStatus>VERIFIED</eligibilityStatus><eligibilityStatusDate>20200319</eligibilityStatusDate><verificationMethod>dd214</verificationMethod></eligibilityVerificationInfo><purpleHeart><indicator>false</indicator><status>Rejected</status></purpleHeart><enrollmentDeterminationInfo><priorityGroup>Group
-        1</priorityGroup><calculationSource>HEC</calculationSource><enrollmentStatus>Verified</enrollmentStatus><enrollmentDate>2019-08-09T16:13:43.000-05:00</enrollmentDate><effectiveDate>2023-11-21T14:30:05.000-06:00</effectiveDate><eligibleForMedicaid>true</eligibleForMedicaid><applicationDate>2021-01-01T23:00:06.000-06:00</applicationDate><veteran>true</veteran><primaryEligibility><type>SERVICE
-        CONNECTED 50% to 100%</type><indicator>P</indicator><eligibilityReportDate>2020-08-04T12:42:32.000-05:00</eligibilityReportDate></primaryEligibility><secondaryEligibilities><eligibility><type>Clinical
-        Evaluation</type><indicator>S</indicator><eligibilityReportDate>2023-07-11T11:29:24.000-05:00</eligibilityReportDate></eligibility><eligibility><type>SERVICE
-        ACT</type><indicator>S</indicator><eligibilityReportDate>2023-11-21T14:30:05.000-06:00</eligibilityReportDate></eligibility></secondaryEligibilities><otherEligibilities><eligibility><type>Eligible
-        for Medicaid</type><indicator>O</indicator><eligibilityReportDate>2023-10-23T18:12:24.000-05:00</eligibilityReportDate></eligibility></otherEligibilities><monetaryBenefitAwardInfo><monetaryBenefits><monetaryBenefit><type>Aid
-        And Attendance</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2019-11-19T16:56:24.000-06:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><type>Housebound</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2019-11-19T16:56:24.000-06:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><type>Disability
-        Compensation</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2019-11-19T16:56:24.000-06:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><type>VA
-        Pension</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2019-11-19T16:56:24.000-06:00</monetaryBenefitReportDate></monetaryBenefit></monetaryBenefits></monetaryBenefitAwardInfo><militarySexualTraumaInfo><status>Unknown,
-        Not Screened</status></militarySexualTraumaInfo><specialFactors><agentOrangeInd>false</agentOrangeInd><radiationExposureInd>false</radiationExposureInd><envContaminantsInd>false</envContaminantsInd></specialFactors><cancelDeclineInfo><cancelDeclineIndicator>false</cancelDeclineIndicator></cancelDeclineInfo><serviceConnectionAward><serviceConnectedPercentage>60</serviceConnectedPercentage><serviceConnectedIndicator>true</serviceConnectedIndicator><combinedServiceConnectedPercentageEffectiveDate>20181105</combinedServiceConnectedPercentageEffectiveDate><unemployable>false</unemployable><permanentAndTotal>false</permanentAndTotal><ratedDisabilities><ratedDisability><disability>6711-Lung
-        condition</disability><percentage>60</percentage><diagnosticExtremity>Both
-        Lower Extremities</diagnosticExtremity><recordModifiedDate>2020-08-04T12:42:32.000-05:00</recordModifiedDate><disabilityCode>6711</disabilityCode></ratedDisability></ratedDisabilities><scReportDate>2020-08-04T12:42:32.000-05:00</scReportDate></serviceConnectionAward><medicaidLastModifiedDate>2023-11-21T14:42:44.000-06:00</medicaidLastModifiedDate><recordCreatedDate>2018-02-02T18:08:22.000-06:00</recordCreatedDate><recordModifiedDate>2023-11-21T14:30:05.000-06:00</recordModifiedDate><enrollmentCategoryName>Enrolled</enrollmentCategoryName></enrollmentDeterminationInfo><associations><association><contactType>Emergency
-        Contact</contactType><givenName>EMERG</givenName><familyName>IVM</familyName><relationship>FATHER</relationship><address><line1>877
-        MAIN STREET</line1><city>NEWTOWN</city><state>CO</state><zipCode>99999</zipCode><zipPlus4>3530</zipPlus4><country>USA</country></address><primaryPhone>(555)457-2514</primaryPhone><lastUpdateDate>2022-02-16T21:43:32.000-06:00</lastUpdateDate></association></associations><militaryServiceInfo><militaryServiceSiteRecords><militaryServiceSiteRecord><site>988
-        - DAYT20</site><servicePeriod>OTHER OR NONE</servicePeriod><militaryServiceEpisodes><militaryServiceEpisode><serviceBranch>ARMY</serviceBranch><dischargeType>HONORABLE</dischargeType><serviceNumber>379852146</serviceNumber><startDate>19540101</startDate><endDate>19640101</endDate></militaryServiceEpisode></militaryServiceEpisodes></militaryServiceSiteRecord><militaryServiceSiteRecord><site>742
-        - HEALTH ELIGIBILITY CENTER</site><servicePeriod>VIETNAM ERA</servicePeriod><militaryServiceEpisodes><militaryServiceEpisode><serviceBranch>ARMY</serviceBranch><dischargeType>HONORABLE</dischargeType><serviceNumber>379852146</serviceNumber><startDate>19540101</startDate><endDate>19640101</endDate></militaryServiceEpisode></militaryServiceEpisodes></militaryServiceSiteRecord></militaryServiceSiteRecords></militaryServiceInfo><prisonerOfWarInfo><powIndicator>No</powIndicator></prisonerOfWarInfo><demographics><contactInfo><addresses><address><line1>123
-        NW 5TH ST</line1><city>ONTARIO</city><postalCode>21231</postalCode><country>CAN</country><addressTypeCode>Residential</addressTypeCode><addressChangeDateTime>2023-11-21T14:30:05.000-06:00</addressChangeDateTime><addressChangeSource>Health
-        Eligibility Center</addressChangeSource><addressChangeSite>742 - HEALTH ELIGIBILITY
-        CENTER</addressChangeSite></address><address><line1>123 M ST</line1><city>CO
-        SPGS</city><county>EL PASO</county><state>CO</state><zipCode>80922</zipCode><country>USA</country><addressTypeCode>Temporary</addressTypeCode><addressChangeDateTime>2018-04-04T21:41:20.000-05:00</addressChangeDateTime><addressChangeEffectiveDate>20180403</addressChangeEffectiveDate><addressChangeSource>Health
-        Eligibility Center</addressChangeSource><addressChangeSite>742 - HEALTH ELIGIBILITY
-        CENTER</addressChangeSite><contactMethodType>08</contactMethodType><contactMethodReportDate>2019-11-19T16:56:24.000-06:00</contactMethodReportDate></address><address><line1>7321
-        SW 7TH ST</line1><city>ONTARIO</city><postalCode>21534</postalCode><country>CAN</country><addressTypeCode>Permanent</addressTypeCode><addressChangeDateTime>2023-11-21T14:42:44.000-06:00</addressChangeDateTime><addressChangeSource>Health
-        Eligibility Center</addressChangeSource><addressChangeSite>742 - HEALTH ELIGIBILITY
-        CENTER</addressChangeSite><contactMethodType>08</contactMethodType><contactMethodReportDate>2023-11-21T14:42:44.000-06:00</contactMethodReportDate></address></addresses><phones><phone><type>Mobile</type><phoneNumber>(123)555-1234</phoneNumber><phoneNumberReportDate>2023-10-23T18:12:24.000-05:00</phoneNumberReportDate></phone><phone><type>Home</type><phoneNumber>(123)124-1234</phoneNumber><phoneNumberReportDate>2023-10-23T18:12:24.000-05:00</phoneNumberReportDate></phone><phone><type>Business</type><phoneNumber>(801)444-8888</phoneNumber><phoneNumberReportDate>2023-11-21T14:42:44.000-06:00</phoneNumberReportDate></phone></phones><emails><email><type>Personal</type><address>foo@example.com</address><siteOfChange>742
-        - HEALTH ELIGIBILITY CENTER</siteOfChange><sourceOfChange>HEC</sourceOfChange></email></emails></contactInfo><maritalStatus>Married</maritalStatus><preferredFacility>988
-        - DAYT20</preferredFacility><appointmentRequestResponse>false</appointmentRequestResponse><assignmentDate>2023-11-21T14:42:45.000-06:00</assignmentDate><preferredLanguage>eng
-        - English</preferredLanguage><preferredLanguageEntryDate>2018-08-28T00:00:00.000-05:00</preferredLanguageEntryDate><preferredFacilities><preferredFacilityInfo><preferredFacility>988
-        - DAYT20</preferredFacility><assignmentDate>2023-11-21T14:30:13.000-06:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
-        - DAYT20</preferredFacility><assignmentDate>2018-02-02T18:08:28.000-06:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
-        - DAYT20</preferredFacility><assignmentDate>2018-02-02T18:08:24.000-06:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
-        - DAYT20</preferredFacility><assignmentDate>2023-11-21T14:41:55.000-06:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
-        - DAYT20</preferredFacility><assignmentDate>2023-11-21T14:42:45.000-06:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
-        - DAYT20</preferredFacility><assignmentDate>2023-10-23T18:12:26.000-05:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
-        - DAYT20</preferredFacility><assignmentDate>2023-10-23T18:42:54.000-05:00</assignmentDate></preferredFacilityInfo></preferredFacilities></demographics><deathRecond><deathReportDate>2023-10-23T18:12:27.000-05:00</deathReportDate></deathRecond></summary><invocationDate>2023-11-21T16:29:52</invocationDate></getEESummaryResponse></env:Body></env:Envelope>
-  recorded_at: Tue, 21 Nov 2023 22:29:52 GMT
-- request:
-    method: post
     uri: <%= Settings.hca.endpoint %>
     body:
       encoding: UTF-8
@@ -156,7 +35,7 @@ http_interactions:
       Date:
       - Tue, 21 Nov 2023 22:29:52 GMT
       Content-Length:
-      - '8810'
+      - '8811'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -165,7 +44,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 21 Nov 2023 22:29:52 GMT
+      - Fri, 23 Aug 2024 16:49:44 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -175,7 +54,7 @@ http_interactions:
       X-Oracle-Dms-Rid:
       - '0'
       X-Oracle-Dms-Ecid:
-      - 666a9a68-12e6-47b1-8338-7f0ead38eb6b-0002628e
+      - c2c62aca-191c-42ad-bad8-dbbd9c5271ad-001e9392
       X-Oneagent-Js-Injection:
       - 'true'
       Ssl-Env:
@@ -187,7 +66,7 @@ http_interactions:
       Cache-Control:
       - max-age=0, no-store
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="1759274849"
+      - dtSInfo;desc="0", dtRpid;desc="-384101255"
       Transfer-Encoding:
       - chunked
       Content-Type:
@@ -197,7 +76,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><submitFormResponse
-        xmlns="http://va.gov/schema/esr/voa/v1" xmlns:ns0="http://jaxws.webservices.esr.med.va.gov/schemas"><status>100</status><formSubmissionId>432777930</formSubmissionId><message><type>Form
-        successfully received for EE processing</type></message><timeStamp>2023-11-21T16:29:52.432-06:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
+        xmlns="http://va.gov/schema/esr/voa/v1" xmlns:ns0="http://jaxws.webservices.esr.med.va.gov/schemas"><status>100</status><formSubmissionId>436460791</formSubmissionId><message><type>Form
+        successfully received for EE processing</type></message><timeStamp>2024-08-23T11:49:44.562-05:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
   recorded_at: Tue, 21 Nov 2023 22:29:52 GMT
-recorded_with: VCR 6.2.0
+recorded_with: VCR 6.3.1
