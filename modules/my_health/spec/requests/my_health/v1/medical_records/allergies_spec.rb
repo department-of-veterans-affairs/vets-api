@@ -6,7 +6,7 @@ require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
 
-RSpec.describe 'Medical Records Integration', type: :request do
+RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
   include MedicalRecords::ClientHelpers
   include SchemaMatchers
 
@@ -23,7 +23,7 @@ RSpec.describe 'Medical Records Integration', type: :request do
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
-    before { get '/my_health/v1/medical_records/conditions' }
+    before { get '/my_health/v1/medical_records/allergies' }
 
     include_examples 'for user account level', message: 'You do not have access to medical records'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to medical records'
@@ -32,7 +32,7 @@ RSpec.describe 'Medical Records Integration', type: :request do
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
 
-    before { get '/my_health/v1/medical_records/conditions' }
+    before { get '/my_health/v1/medical_records/allergies' }
 
     include_examples 'for user account level', message: 'You do not have access to medical records'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to medical records'
@@ -42,7 +42,7 @@ RSpec.describe 'Medical Records Integration', type: :request do
     let(:mhv_account_type) { 'Premium' }
 
     context 'not a va patient' do
-      before { get '/my_health/v1/medical_records/conditions' }
+      before { get '/my_health/v1/medical_records/allergies' }
 
       let(:va_patient) { false }
       let(:current_user) do
@@ -54,8 +54,8 @@ RSpec.describe 'Medical Records Integration', type: :request do
     end
 
     it 'responds to GET #index' do
-      VCR.use_cassette('mr_client/get_a_list_of_health_conditions') do
-        get '/my_health/v1/medical_records/conditions'
+      VCR.use_cassette('mr_client/get_a_list_of_allergies') do
+        get '/my_health/v1/medical_records/allergies'
       end
 
       expect(response).to be_successful
@@ -63,8 +63,8 @@ RSpec.describe 'Medical Records Integration', type: :request do
     end
 
     it 'responds to GET #show' do
-      VCR.use_cassette('mr_client/get_a_health_condition') do
-        get '/my_health/v1/medical_records/conditions/4169'
+      VCR.use_cassette('mr_client/get_an_allergy') do
+        get '/my_health/v1/medical_records/allergies/30242'
       end
 
       expect(response).to be_successful
@@ -73,19 +73,19 @@ RSpec.describe 'Medical Records Integration', type: :request do
 
     context 'when the patient is not found' do
       before do
-        allow_any_instance_of(MedicalRecords::Client).to receive(:list_conditions)
+        allow_any_instance_of(MedicalRecords::Client).to receive(:list_allergies)
           .and_raise(MedicalRecords::PatientNotFound)
-        allow_any_instance_of(MedicalRecords::Client).to receive(:get_condition)
+        allow_any_instance_of(MedicalRecords::Client).to receive(:get_allergy)
           .and_raise(MedicalRecords::PatientNotFound)
       end
 
       it 'returns a 202 Accepted response for GET #index' do
-        get '/my_health/v1/medical_records/conditions'
+        get '/my_health/v1/medical_records/allergies'
         expect(response).to have_http_status(:accepted)
       end
 
       it 'returns a 202 Accepted response for GET #show' do
-        get '/my_health/v1/medical_records/conditions/39274'
+        get '/my_health/v1/medical_records/allergies/30242'
         expect(response).to have_http_status(:accepted)
       end
     end

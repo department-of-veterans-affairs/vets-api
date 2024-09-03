@@ -222,6 +222,10 @@ features:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes 5103 letters
     enable_in_development: true
+  cst_include_ddl_sqd_letters:
+    actor_type: user
+    description: When enabled, the Download Decision Letters feature includes Subsequent Development Letters
+    enable_in_development: true
   cst_use_dd_rum:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
@@ -643,7 +647,11 @@ features:
     enable_in_development: true
   form1990meb_confirmation_email:
     actor_type: user
-    description: Enables form 1990meb email submission confirmation (VaNotify)
+    description: Enables form 1990 MEB email submission confirmation (VaNotify)
+    enable_in_development: true
+  form1990emeb_confirmation_email:
+    actor_type: user
+    description: Enables form 1990e MEB email submission confirmation (VaNotify)
     enable_in_development: true
   form5490_confirmation_email:
     actor_type: user
@@ -1644,10 +1652,25 @@ features:
       When disabled: it will use the old SOB application that only works from 0600 to 2200 hrs
   travel_pay_power_switch:
     actor_type: user
+    enable_in_development: true
     description: >-
       Main switch for the Travel Pay feature on VA.gov using the new BTSSS (travel pay) API.
       Enabled - Requests are handled as normal.
       Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
+  travel_pay_view_claim_details:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A frontend-focused switch that toggles visibility of and access to the Travel Pay claim details page and entry point (features toggled together).
+      Enabled - Entry point link and claim details page are viewable.
+      Disabled - Entry point link and claim details page are not viewable. 
+  travel_pay_submit_mileage_expense:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles availability of the submit mileage expense feature.
+      Enabled - Requests are handled as normal. Frontend features are available per toggle settings.
+      Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled. Frontend features are not available.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
