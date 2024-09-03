@@ -216,6 +216,9 @@ jobs:
           files: Test Results/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: List coverage directory contents
+        run: ls -al 'Coverage Report'
+
       - name: Fix up coverage report to work with coverage-check-action
         run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
 
