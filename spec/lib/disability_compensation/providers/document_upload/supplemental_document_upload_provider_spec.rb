@@ -18,7 +18,8 @@ RSpec.describe SupplementalDocumentUploadProvider do
 
   it 'raises an error if the submit_upload_document method is not implemented' do
     expect do
-      subject.submit_upload_document(LighthouseDocument.new)
+      file_body = double
+      subject.submit_upload_document(LighthouseDocument.new, file_body)
     end.to raise_error NotImplementedError
   end
 
@@ -28,15 +29,9 @@ RSpec.describe SupplementalDocumentUploadProvider do
     end.to raise_error NotImplementedError
   end
 
-  it 'raises an error if the log_upload_error_retry method is not implemented' do
-    expect do
-      subject.log_upload_error_retry('my_upload_job_prefix')
-    end.to raise_error NotImplementedError
-  end
-
   it 'raises an error if the log_upload_failure method is not implemented' do
     expect do
-      subject.log_upload_failure('my_upload_job_prefix', StandardError.new)
+      subject.log_upload_failure('my_upload_job_prefix', 'StandardError', 'Something broke')
     end.to raise_error NotImplementedError
   end
 end

@@ -53,6 +53,92 @@ describe TestDisabilityCompensationValidationClass do
     end
   end
 
+  describe '#validate_form_526_location_codes' do
+    let(:no_separation_code) do
+      { 'servicePeriods' => [
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => '2023-10-30'
+        }
+      ] }
+    end
+
+    let(:mixed_separation_codes) do
+      { 'servicePeriods' => [
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => '2023-10-30',
+          'separationLocationCode' => '24912' # valid
+        },
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => '2023-10-30',
+          'separationLocationCode' => '123456' # invalid
+        }
+      ] }
+    end
+
+    let(:service_periods) { form_attributes['serviceInformation'] }
+
+    # rubocop:disable RSpec/SubjectStub
+    context 'when a separation location code is present' do
+      before do
+        separation_locations = [
+          { id: 24_912, description: 'AF Academy' },
+          { id: 26_722, description: 'ANG Hub' }
+        ]
+        allow(test_526_validation_instance).to receive(:retrieve_separation_locations)
+          .and_return(separation_locations)
+      end
+
+      context 'when the location code is valid' do
+        it 'returns no errors' do
+          service_periods['servicePeriods'][0]['separationLocationCode'] = '24912'
+          test_526_validation_instance.send(:validate_form_526_location_codes, service_periods)
+          errors = test_526_validation_instance.send(:error_collection)
+
+          expect(errors).to be_empty
+        end
+      end
+
+      context 'when the location code is invalid' do
+        it 'adds an error to the errors array' do
+          service_periods['servicePeriods'][0]['separationLocationCode'] = '123456'
+          test_526_validation_instance.send(:validate_form_526_location_codes, service_periods)
+          errors = test_526_validation_instance.send(:error_collection)
+
+          expect(errors.size).to eq(1)
+        end
+      end
+
+      context 'when the location code is valid in some service periods and invalid in others' do
+        it 'adds an error to the errors array' do
+          test_526_validation_instance.send(:validate_form_526_location_codes, mixed_separation_codes)
+          errors = test_526_validation_instance.send(:error_collection)
+
+          expect(errors.size).to eq(1)
+        end
+      end
+    end
+
+    context 'when a separation location code is not present' do
+      it 'does not retrieve the location codes and skips validation' do
+        test_526_validation_instance.send(:validate_form_526_location_codes, no_separation_code)
+        errors = test_526_validation_instance.send(:error_collection)
+
+        expect(test_526_validation_instance).not_to receive(:retrieve_separation_locations)
+        expect(errors).to be_empty
+      end
+    end
+    # rubocop:enable RSpec/SubjectStub
+  end
+
   describe '#date_range_overlap?' do
     let(:date_begin_one) { '2018-06-04' }
     let(:date_end_one) { '2020-07-01' }

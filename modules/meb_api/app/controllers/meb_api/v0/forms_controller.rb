@@ -75,6 +75,16 @@ module MebApi
         }
       end
 
+      def send_confirmation_email
+        return head :no_content unless Flipper.enabled?(:form1990emeb_confirmation_email)
+
+        status = params[:claim_status]
+        email = params[:email] || @current_user.email
+        first_name = params[:first_name]&.upcase || @current_user.first_name&.upcase
+
+        MebApi::V0::Submit1990emebFormConfirmation.perform_async(status, email, first_name)
+      end
+
       private
 
       def claimant_service
@@ -91,10 +101,6 @@ module MebApi
 
       def submission_service
         MebApi::DGI::Forms::Submission::Service.new(@current_user)
-      end
-
-      def payment_service
-        BGS::Service.new(@current_user)
       end
     end
   end

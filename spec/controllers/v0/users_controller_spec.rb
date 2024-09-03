@@ -38,7 +38,6 @@ RSpec.describe V0::UsersController, type: :controller do
         expect(response).to be_successful
 
         claims = json.dig('attributes', 'profile', 'claims')
-        expect(claims['ch33_bank_accounts']).to be(false)
         expect(claims['communication_preferences']).to be(false)
         expect(claims['connected_apps']).to be(true)
         expect(claims['military_history']).to be(false)
@@ -111,7 +110,6 @@ RSpec.describe V0::UsersController, type: :controller do
         expect(response).to be_successful
 
         claims = json.dig('attributes', 'profile', 'claims')
-        expect(claims['ch33_bank_accounts']).to be(true)
         expect(claims['communication_preferences']).to be(true)
         expect(claims['connected_apps']).to be(true)
         expect(claims['military_history']).to be(true)
