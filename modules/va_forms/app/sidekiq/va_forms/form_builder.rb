@@ -120,7 +120,7 @@ module VAForms
         # If the PDF was valid but is no longer valid
         notify_slack(
           "URL for form #{existing_form.form_name} no longer returns a valid PDF or web page.",
-          form_url: url
+          form_url: updated_attrs[:url]
         )
       elsif existing_form.url != updated_attrs[:url]
         # If the URL has changed, we notify regardless of content
