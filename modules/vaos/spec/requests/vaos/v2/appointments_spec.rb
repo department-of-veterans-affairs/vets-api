@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 
+
 RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
 
@@ -11,6 +12,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
+
+  let(:described_class) { VAOS::V2::AppointmentsController }
 
   let(:mock_clinic) do
     {
