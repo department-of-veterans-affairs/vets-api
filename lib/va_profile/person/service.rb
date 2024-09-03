@@ -3,7 +3,9 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'va_profile/contact_information/configuration'
+require 'va_profile/v2/contact_information/configuration'
 require 'va_profile/contact_information/transaction_response'
+require 'va_profile/v2/contact_information/transaction_response'
 require 'va_profile/service'
 require 'va_profile/stats'
 require 'identity/parsers/gc_ids_constants'
@@ -27,7 +29,6 @@ module VAProfile
       def init_vet360_id(icn = nil)
         with_monitoring do
           raw_response = perform(:post, encode_url!(icn), empty_body)
-
           VAProfile::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
         end
       rescue => e

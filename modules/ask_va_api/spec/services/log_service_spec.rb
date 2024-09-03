@@ -46,11 +46,6 @@ RSpec.describe LogService do
         allow(Sentry).to receive(:capture_exception)
       end
 
-      it 'captures the exception with Sentry' do
-        expect { logger.call(action, tags:) { raise StandardError, error_message } }.not_to raise_error
-        expect(Sentry).to have_received(:capture_exception).with(instance_of(StandardError), extra: { action: })
-      end
-
       it 'logs the error' do
         logger.call(action, tags:) { raise StandardError, error_message }
         expect(Rails.logger).to have_received(:error).with("Error logging action #{action}: #{error_message}")

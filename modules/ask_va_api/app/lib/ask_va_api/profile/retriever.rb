@@ -39,7 +39,7 @@ module AskVAApi
       end
 
       def load_mock_data
-        data = if icn == @test_users[:test_user_228_icn]
+        data = if icn == @test_users[:test_user_229_icn]
                  File.read('modules/ask_va_api/config/locales/get_profile_mock_data.json')
                else
                  generate_mock_error
@@ -64,8 +64,7 @@ module AskVAApi
         when Hash
           response[:Data]
         else
-          error = JSON.parse(response.body, symbolize_names: true)
-          raise(InvalidProfileError, error[:Message])
+          raise(InvalidProfileError, response.body)
         end
       end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'central_mail/service'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 require 'pension_burial/tag_sentry'
 require 'benefits_intake_service/service'
 require 'simple_forms_api_submission/metadata_validator'
@@ -87,15 +87,15 @@ module Lighthouse
     # rubocop:disable Metrics/MethodLength
     def process_record(record, timestamp = nil, form_id = nil)
       pdf_path = record.to_pdf
-      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
-      stamped_path2 = CentralMail::DatestampPdf.new(stamped_path1).run(
+      stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
+      stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
         y: 770,
         text_only: true
       )
       if form_id.present? && ['21P-530V2'].include?(form_id)
-        CentralMail::DatestampPdf.new(stamped_path2).run(
+        PDFUtilities::DatestampPdf.new(stamped_path2).run(
           text: 'Application Submitted on va.gov',
           x: 425,
           y: 675,

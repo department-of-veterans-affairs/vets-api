@@ -10,6 +10,22 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
   let(:frozen_time) { Time.zone.local(2018, 6, 6, 15, 35, 55) }
 
+  let(:service) do
+    if Flipper.enabled?(:va_v3_contact_information_service)
+      VAProfile::V2::ContactInformation::Service
+    else
+      VAProfile::ContactInformation::Service
+    end
+  end
+
+  let(:cassette_path) do
+    if Flipper.enabled?(:va_v3_contact_information_service)
+      'va_profile/v2/contact_information'
+    else
+      'va_profile/contact_information'
+    end
+  end
+
   before do
     Timecop.freeze(frozen_time)
     sign_in_as(user)
@@ -23,8 +39,8 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
     let(:address) { build(:va_profile_address, vet360_id: user.vet360_id) }
 
     it 'calls update_address' do
-      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_address).and_call_original
-      VCR.use_cassette('va_profile/contact_information/put_address_success') do
+      expect_any_instance_of(service).to receive(:update_address).and_call_original
+      VCR.use_cassette("#{cassette_path}/put_address_success") do
         post('/v0/profile/addresses/create_or_update', params: address.to_json, headers:)
       end
 
@@ -37,7 +53,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
     context 'with a 200 response' do
       it 'matches the address schema', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/post_address_success') do
+        VCR.use_cassette("#{cassette_path}/post_address_success") do
           post('/v0/profile/addresses', params: address.to_json, headers:)
 
           expect(response).to have_http_status(:ok)
@@ -46,7 +62,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       it 'matches the address camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/post_address_success') do
+        VCR.use_cassette("#{cassette_path}/post_address_success") do
           post('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
@@ -55,7 +71,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       it 'creates a new AsyncTransaction::VAProfile::AddressTransaction db record' do
-        VCR.use_cassette('va_profile/contact_information/post_address_success') do
+        VCR.use_cassette("#{cassette_path}/post_address_success") do
           expect do
             post('/v0/profile/addresses', params: address.to_json, headers:)
           end.to change(AsyncTransaction::VAProfile::AddressTransaction, :count).from(0).to(1)
@@ -65,7 +81,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
     context 'with a 400 response' do
       it 'matches the errors schema', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/post_address_w_id_error') do
+        VCR.use_cassette("#{cassette_path}/post_address_w_id_error") do
           post('/v0/profile/addresses', params: address.to_json, headers:)
 
           expect(response).to have_http_status(:bad_request)
@@ -74,7 +90,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       it 'matches the errors camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/post_address_w_id_error') do
+        VCR.use_cassette("#{cassette_path}/post_address_w_id_error") do
           post('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:bad_request)
@@ -85,7 +101,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
     context 'with a low confidence error' do
       it 'returns the low confidence error error code', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/post_address_w_low_confidence_error') do
+        VCR.use_cassette("#{cassette_path}/post_address_w_low_confidence_error") do
           low_confidence_error = 'VET360_ADDR306'
 
           post('/v0/profile/addresses', params: address.to_json, headers:)
@@ -98,7 +114,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       it 'returns the low confidence error error code when camel-inflected', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/post_address_w_low_confidence_error') do
+        VCR.use_cassette("#{cassette_path}/post_address_w_low_confidence_error") do
           low_confidence_error = 'VET360_ADDR306'
 
           post('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
@@ -113,7 +129,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
     context 'with a 403 response' do
       it 'returns a forbidden response' do
-        VCR.use_cassette('va_profile/contact_information/post_address_status_403') do
+        VCR.use_cassette("#{cassette_path}/post_address_status_403") do
           post('/v0/profile/addresses', params: address.to_json, headers:)
 
           expect(response).to have_http_status(:forbidden)
@@ -159,7 +175,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
     context 'with a 200 response' do
       it 'matches the email address schema', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/put_address_success') do
+        VCR.use_cassette("#{cassette_path}/put_address_success") do
           put('/v0/profile/addresses', params: address.to_json, headers:)
 
           expect(response).to have_http_status(:ok)
@@ -168,7 +184,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       it 'matches the email address camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/put_address_success') do
+        VCR.use_cassette("#{cassette_path}/put_address_success") do
           put('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
@@ -177,7 +193,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       it 'creates a new AsyncTransaction::VAProfile::AddressTransaction db record' do
-        VCR.use_cassette('va_profile/contact_information/put_address_success') do
+        VCR.use_cassette("#{cassette_path}/put_address_success") do
           expect do
             put('/v0/profile/addresses', params: address.to_json, headers:)
           end.to change(AsyncTransaction::VAProfile::AddressTransaction, :count).from(0).to(1)
@@ -195,7 +211,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
         end
 
         it 'is successful' do
-          VCR.use_cassette('va_profile/contact_information/put_address_override', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette("#{cassette_path}/put_address_override", VCR::MATCH_EVERYTHING) do
             put('/v0/profile/addresses', params: address.to_json, headers:)
 
             expect(JSON.parse(response.body)['data']['attributes']['transaction_id']).to eq(
@@ -235,7 +251,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do
-        expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:put_address) do |_, address|
+        expect_any_instance_of(service).to receive(:put_address) do |_, address|
           expect(address.effective_end_date).to eq(nil)
         end
 
@@ -292,7 +308,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       it 'effective_end_date gets appended to the request body', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/delete_address_success', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette("#{cassette_path}/delete_address_success", VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
           delete('/v0/profile/addresses', params: address.to_json, headers:)
@@ -302,7 +318,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       it 'effective_end_date gets appended to the request body when camel-inflected', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/delete_address_success', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette("#{cassette_path}/delete_address_success", VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
           delete('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
