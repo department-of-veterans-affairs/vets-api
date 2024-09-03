@@ -117,7 +117,7 @@ module VAForms
     # returned by the form URL, sends appropriate Slack notifications
     def send_slack_notifications(existing_form, updated_attrs, content_type)
       if existing_form.valid_pdf && !updated_attrs[:valid_pdf]
-        # If the PDF was valid but is no longer valid
+        # If the PDF was valid but is no longer valid, notify
         notify_slack(
           "URL for form #{updated_attrs[:form_name]} no longer returns a valid PDF or web page.",
           form_url: updated_attrs[:url]
