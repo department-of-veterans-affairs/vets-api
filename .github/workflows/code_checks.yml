@@ -158,6 +158,7 @@ jobs:
           name: Test Results
           path: log/*.xml
           if-no-files-found: ignore
+          include-hidden-files: true
 
       - name: Add Test Failure label
         if: failure() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'test-failure')
