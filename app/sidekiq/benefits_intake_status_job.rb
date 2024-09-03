@@ -21,10 +21,16 @@ class BenefitsIntakeStatusJob
 
   def perform
     Rails.logger.info('BenefitsIntakeStatusJob started')
+    resolved_form_submissions = FormSubmission
+                                .joins(:form_submission_attempts)
+                                .where(form_submission_attempts: { aasm_state: %w[vbms failure] })
     pending_form_submissions = FormSubmission
                                .joins(:form_submission_attempts)
                                .where(form_submission_attempts: { aasm_state: 'pending' })
-    total_handled, result = batch_process(pending_form_submissions)
+    # We're calculating the resolved_form_submissions and subtracting them because it is possible for a FormSubmission
+    # to have two (or more) attempts, one 'pending' and the other 'vbms'. In such cases we don't want to include
+    # that FormSubmission because it has been resolved.
+    total_handled, result = batch_process(pending_form_submissions - resolved_form_submissions)
     Rails.logger.info('BenefitsIntakeStatusJob ended', total_handled:) if result
   end
 
@@ -64,13 +70,21 @@ class BenefitsIntakeStatusJob
 
       # https://developer.va.gov/explore/api/benefits-intake/docs
       status = submission.dig('attributes', 'status')
-      if %w[error expired].include?(status)
-        # Error - Indicates that there was an error. Refer to the error code and detail for further information.
+      lighthouse_updated_at = submission.dig('attributes', 'updated_at')
+      if status == 'expired'
         # Expired - Indicate that documents were not successfully uploaded within the 15-minute window.
+        form_submission_attempt.update(error_message: 'expired', lighthouse_updated_at:)
+        form_submission_attempt.fail!
+        log_result('failure', form_id, uuid, time_to_transition)
+      elsif status == 'error'
+        # Error - Indicates that there was an error. Refer to the error code and detail for further information.
+        error_message = "#{submission.dig('attributes', 'code')}: #{submission.dig('attributes', 'detail')}"
+        form_submission_attempt.update(error_message:, lighthouse_updated_at:)
         form_submission_attempt.fail!
         log_result('failure', form_id, uuid, time_to_transition)
       elsif status == 'vbms'
         # submission was successfully uploaded into a Veteran's eFolder within VBMS
+        form_submission_attempt.update(lighthouse_updated_at:)
         form_submission_attempt.vbms!
         log_result('success', form_id, uuid, time_to_transition)
       elsif time_to_transition > STALE_SLA.days

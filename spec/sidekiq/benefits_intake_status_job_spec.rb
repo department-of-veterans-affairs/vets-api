@@ -16,6 +16,17 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
 
         BenefitsIntakeStatusJob.new.perform
       end
+
+      context 'form submission has one pending attempt and one successful attempt' do
+        it 'does not process the form submission' do
+          form_submission = create(:form_submission)
+          create(:form_submission_attempt, :pending, form_submission:)
+          create(:form_submission_attempt, :vbms, form_submission:)
+          expect_any_instance_of(BenefitsIntakeStatusJob).to receive(:batch_process).with(FormSubmission.none)
+
+          BenefitsIntakeStatusJob.new.perform
+        end
+      end
     end
 
     describe 'when batch size is less than or equal to max batch size' do
