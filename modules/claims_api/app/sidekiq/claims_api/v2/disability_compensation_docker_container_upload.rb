@@ -18,7 +18,7 @@ module ClaimsApi
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
-        evss_data = evss_mapper_service(auto_claim, veteran_file_number(auto_claim)).map_claim
+        evss_data = evss_mapper_service(auto_claim).map_claim
 
         log_job_progress(claim_id,
                          'Submitting mapped data to Docker container')

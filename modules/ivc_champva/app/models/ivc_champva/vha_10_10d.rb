@@ -34,7 +34,8 @@ module IvcChampva
         'businessLine' => 'CMP',
         'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
         'uuid' => @uuid,
-        'primaryContactInfo' => @data['primary_contact_info']
+        'primaryContactInfo' => @data['primary_contact_info'],
+        'hasApplicantOver65' => @data['has_applicant_over65'].to_s
       }
     end
 
