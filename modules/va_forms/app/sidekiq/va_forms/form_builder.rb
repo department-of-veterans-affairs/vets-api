@@ -89,7 +89,7 @@ module VAForms
     # and sends Slack notifications; if response is unsuccessful, raises an error
     def check_form_validity(form, attrs, url)
       response = fetch_form(url)
-      if response.success? || response.status == 404
+      if response.success? || response.status == 404 # 404s are non-recoverable and should not be retried
         attrs[:valid_pdf] = response.success?
         attrs[:sha256] = response.success? ? Digest::SHA256.hexdigest(response.body) : nil
         attrs[:url] = url
