@@ -22,14 +22,16 @@ class BenefitsIntakeStatusJob
   def perform
     Rails.logger.info('BenefitsIntakeStatusJob started')
     form_submissions_and_attempts = FormSubmission.joins(:form_submission_attempts)
-    resolved_form_submissions = form_submissions_and_attempts.where(
-      form_submission_attempts: { aasm_state: %w[vbms failure] }
-    )
-    pending_form_submissions = form_submissions_and_attempts.where(form_submission_attempts: { aasm_state: 'pending' })
-    # We're calculating the resolved_form_submissions and subtracting them because it is possible for a FormSubmission
+    resolved_form_submission_ids = form_submissions_and_attempts
+                                   .where(form_submission_attempts: { aasm_state: %w[vbms failure] })
+                                   .pluck(:id)
+    pending_form_submissions = form_submissions_and_attempts
+                               .where(form_submission_attempts: { aasm_state: 'pending' })
+                               .where.not(id: resolved_form_submission_ids)
+    # We're calculating the resolved_form_submissions and removing them because it is possible for a FormSubmission
     # to have two (or more) attempts, one 'pending' and the other 'vbms'. In such cases we don't want to include
     # that FormSubmission because it has been resolved.
-    total_handled, result = batch_process(pending_form_submissions - resolved_form_submissions)
+    total_handled, result = batch_process(pending_form_submissions)
     Rails.logger.info('BenefitsIntakeStatusJob ended', total_handled:) if result
   end
 
@@ -74,13 +76,13 @@ class BenefitsIntakeStatusJob
         # Expired - Indicate that documents were not successfully uploaded within the 15-minute window.
         form_submission_attempt.update(error_message: 'expired', lighthouse_updated_at:)
         form_submission_attempt.fail!
-        log_result('failure', form_id, uuid, time_to_transition)
+        log_result('failure', form_id, uuid, time_to_transition, error_message)
       elsif status == 'error'
         # Error - Indicates that there was an error. Refer to the error code and detail for further information.
         error_message = "#{submission.dig('attributes', 'code')}: #{submission.dig('attributes', 'detail')}"
         form_submission_attempt.update(error_message:, lighthouse_updated_at:)
         form_submission_attempt.fail!
-        log_result('failure', form_id, uuid, time_to_transition)
+        log_result('failure', form_id, uuid, time_to_transition, error_message)
       elsif status == 'vbms'
         # submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.update(lighthouse_updated_at:)
@@ -101,9 +103,9 @@ class BenefitsIntakeStatusJob
   end
   # rubocop:enable Metrics/MethodLength
 
-  def log_result(result, form_id, uuid, time_to_transition = nil)
+  def log_result(result, form_id, uuid, time_to_transition = nil, error_message = nil)
     StatsD.increment("#{STATS_KEY}.#{form_id}.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
-    Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:)
+    Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:, error_message:)
   end
 end
