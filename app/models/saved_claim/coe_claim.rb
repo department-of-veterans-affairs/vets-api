@@ -10,6 +10,7 @@ class SavedClaim::CoeClaim < SavedClaim
     # If the EDIPI is blank, throw an error
     if @edipi.blank?
       Rails.logger.error('COE application cannot be submitted without an edipi!')
+    # Otherwise, submit the claim to the LGY API
     else
       Rails.logger.info('Begin COE claim submission to LGY API', guid:)
       response = lgy_service.put_application(payload: prepare_form_data)
