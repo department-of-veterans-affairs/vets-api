@@ -71,6 +71,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         it 'response with the correct attributes' do
           result = subject.for_action(endpoint, action)
           parsed_result = JSON.parse(result.to_json)
+
           expect(parsed_result['service']['bean']['path']).to eq 'PersonWebServiceBean'
           expect(parsed_result['service']['path']).to eq 'PersonWebService'
           expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://person.services.vetsnet.vba.va.gov/'
@@ -250,7 +251,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         end
       end
 
-      context 'PersonWebServiceBean' do
+      context 'PersonWebService' do
         let(:endpoint) { 'PersonWebServiceBean/PersonWebService' }
 
         it 'response with the correct namespace' do
