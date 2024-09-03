@@ -13,11 +13,41 @@ module SimpleFormsApi
       @data = data
     end
 
+    def veteran_or_claimant_first_name(form_data)
+      relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
+      
+      if relationship != '1' && relationship != 'veteran'
+        form_data.dig('application', 'veteran', 'current_name', 'first')
+      else
+        form_data.dig('application', 'claimant', 'name', 'first')
+      end
+    end
+    
+    def veteran_or_claimant_last_name(form_data)
+      relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
+      
+      if relationship != '1' && relationship != 'veteran'
+        form_data.dig('application', 'veteran', 'current_name', 'last')
+      else
+        form_data.dig('application', 'claimant', 'name', 'last')
+      endq
+    end
+    
+    def veteran_or_claimant_file_number(form_data)
+      relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
+      
+      if relationship != '1' && relationship != 'veteran'
+        form_data.dig('application', 'veteran', 'ssn') || ''
+      else
+        form_data.dig('application', 'claimant', 'ssn') || ''
+      end
+    end
+    
     def metadata
       {
-        'veteranFirstName' => @data.dig('application', 'claimant', 'name', 'first'),
-        'veteranLastName' => @data.dig('application', 'claimant', 'name', 'last'),
-        'fileNumber' => @data.dig('application', 'claimant', 'ssn')&.gsub('-', ''),
+        'veteranFirstName' => veteran_or_claimant_first_name(@data),
+        'veteranLastName' => veteran_or_claimant_last_name(@data),
+        'fileNumber' => veteran_or_claimant_file_number(@data)&.gsub('-', ''),
         'zipCode' => @data.dig('application', 'claimant', 'address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
