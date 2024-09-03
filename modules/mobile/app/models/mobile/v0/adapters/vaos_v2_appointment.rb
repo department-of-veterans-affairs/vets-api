@@ -227,7 +227,7 @@ module Mobile
         def contact(telecom, type)
           return nil if telecom.blank?
 
-          telecom.select { |contact| contact[:type] == type }&.dig(0, :value)
+          telecom.select { |contact| contact&.try(:dig, :type) == type }&.dig(0, :value)
         end
 
         def proposed_times
