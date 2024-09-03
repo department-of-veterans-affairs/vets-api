@@ -195,7 +195,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         it 'returns an error array' do
           subject.form_attributes['changeOfAddress']['country'] = ''
           res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
-          expect(res[0][:detail]).to eq('The country provided is not a valid.')
+          expect(res[0][:detail]).to eq('The country provided is not valid.')
           expect(res[0][:source]).to eq('/changeOfAddress/country')
         end
       end
@@ -221,7 +221,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['country'] = 'United States of Nada'
         res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
-        expect(res[0][:detail]).to eq('The country provided is not a valid.')
+        expect(res[0][:detail]).to eq('The country provided is not valid.')
         expect(res[0][:source]).to eq('/changeOfAddress/country')
       end
     end
