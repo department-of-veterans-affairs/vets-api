@@ -1031,14 +1031,14 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         context 'when the other_locations_served does not match the regex' do
           let(:other_locations_served) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
 
-          it 'responds with a 422' do
+          it 'responds with a 202' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['toxicExposure']['herbicideHazardService']['otherLocationsServed'] =
                 other_locations_served
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1061,14 +1061,14 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         context 'when the specify_other_exposures does not match the regex' do
           let(:specify_other_exposures) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
 
-          it 'responds with a bad request' do
+          it 'responds with a accepted' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['toxicExposure']['additionalHazardExposures']['specifyOtherExposures'] =
                 specify_other_exposures
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1076,14 +1076,14 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         context 'when the exposure_location does not match the regex' do
           let(:exposure_location) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
 
-          it 'responds with a bad request' do
+          it 'responds with a accepted' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['toxicExposure']['multipleExposures'][0]['exposureLocation'] =
                 exposure_location
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
