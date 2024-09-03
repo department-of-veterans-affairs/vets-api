@@ -23,7 +23,12 @@ module Scopes
       }
 
       scope :accepted_to_primary_path, lambda {
+        pdf_found.or(accepted_to_evss_primary_path)
+      }
+      scope :accepted_to_evss_primary_path, lambda {
         where.not(submitted_claim_id: nil)
+             .and(Form526Submission.where(submit_endpoint: nil)
+             .or(Form526Submission.where.not(submit_endpoint: 'claims_api')))
       }
       scope :accepted_to_backup_path, lambda {
         where.not(backup_submitted_claim_id: nil)
@@ -37,6 +42,12 @@ module Scopes
       scope :rejected_from_backup_path, lambda {
         where.not(backup_submitted_claim_id: nil)
              .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:rejected])
+      }
+      scope :pdf_found, lambda {
+        left_outer_joins(:form526_job_statuses).where.not(submitted_claim_id: nil)
+                                               .where(submit_endpoint: 'claims_api', form526_job_statuses: {
+                                                        job_class: 'PollForm526Pdf', status: 'success'
+                                                      })
       }
 
       scope :remediated, lambda {

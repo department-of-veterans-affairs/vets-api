@@ -113,6 +113,9 @@ RSpec.describe Form526Submission do
     let!(:in_process) { create(:form526_submission) }
     let!(:expired) { create(:form526_submission, :created_more_than_3_weeks_ago) }
     let!(:happy_path_success) { create(:form526_submission, :with_submitted_claim_id) }
+    let!(:happy_lighthouse_path_success) do
+      create(:form526_submission, :with_submitted_claim_id, submit_endpoint: 'claims_api')
+    end
     let!(:pending_backup) { create(:form526_submission, :backup_path) }
     let!(:accepted_backup) { create(:form526_submission, :backup_path, :backup_accepted) }
     let!(:rejected_backup) { create(:form526_submission, :backup_path, :backup_rejected) }
@@ -202,10 +205,55 @@ RSpec.describe Form526Submission do
     end
 
     describe 'accepted_to_primary_path' do
+      before do
+        happy_lighthouse_path_success.form526_job_statuses << Form526JobStatus.new(
+          job_class: 'PollForm526Pdf',
+          status: Form526JobStatus::STATUS[:success],
+          job_id: 1
+        )
+      end
+
       it 'returns submissions with a submitted_claim_id' do
-        expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
+        expect(Form526Submission.accepted_to_evss_primary_path).to contain_exactly(
           happy_path_success
         )
+      end
+
+      it 'returns Lighthouse submissions with a found PDF with a submitted_claim_id' do
+        expect(Form526Submission.pdf_found).to contain_exactly(happy_lighthouse_path_success)
+      end
+
+      it 'returns both an EVSS submission and a Lighthouse submission with a found PDF and a submitted_claim_id' do
+        expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
+          happy_path_success, happy_lighthouse_path_success
+        )
+      end
+
+      it 'does not return the LH submission when the PDF is not found' do
+        happy_lighthouse_path_success.form526_job_statuses.last.update(status: Form526JobStatus::STATUS[:pdf_not_found])
+
+        expect(Form526Submission.pdf_found).to be_empty
+      end
+
+      it 'returns the EVSS submission when the Lighthouse submission is not found' do
+        happy_lighthouse_path_success.update(submitted_claim_id: nil)
+        expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
+                                                                happy_path_success
+                                                              )
+      end
+
+      it 'returns the Lighthouse submission when the EVSS submission has no submitted claim id' do
+        happy_path_success.update(submitted_claim_id: nil)
+        expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
+                                                                happy_lighthouse_path_success
+                                                              )
+      end
+
+      it 'returns neither submission when neither EVSS nor Lighthouse submissions have submitted claim ids' do
+        happy_path_success.update(submitted_claim_id: nil)
+        happy_lighthouse_path_success.update(submitted_claim_id: nil)
+
+        expect(Form526Submission.accepted_to_primary_path).to be_empty
       end
     end
 
