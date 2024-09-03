@@ -84,5 +84,20 @@ RSpec.describe 'NextStepsEmailController', type: :request do
         end
       end
     end
+
+    context "when the feature flag 'appoint_a_representative_enable_pdf' is disabled" do
+      before do
+        Flipper.disable(:appoint_a_representative_enable_pdf)
+      end
+
+      after do
+        Flipper.enable(:appoint_a_representative_enable_pdf)
+      end
+
+      it 'returns a 404' do
+        post(base_path, params:)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
   end
 end
