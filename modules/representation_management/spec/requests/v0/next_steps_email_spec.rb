@@ -35,6 +35,9 @@ RSpec.describe 'NextStepsEmailController', type: :request do
           params[:next_steps_email][:email_address],
           'appoint_a_representative_confirmation_email_template_id', # This is the actual value from the settings file
           {
+            # The first_name is the only key here that has an underscore.
+            # That is intentional.  All the keys here match the keys in the
+            # template.
             'first_name' => 'First',
             'form name' => 'Form Name',
             'form number' => 'Form Number',
@@ -48,7 +51,7 @@ RSpec.describe 'NextStepsEmailController', type: :request do
     end
 
     context 'when triggering validation errors' do
-      context 'when submitting without the organization name for a single validation error' do
+      context 'when submitting without the single required attribute for a single validation error' do
         before do
           params[:next_steps_email][:email_address] = nil
           post(base_path, params:)
