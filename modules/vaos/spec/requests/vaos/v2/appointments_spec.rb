@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 
-
 RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
 
