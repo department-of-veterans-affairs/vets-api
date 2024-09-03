@@ -21,12 +21,11 @@ class BenefitsIntakeStatusJob
 
   def perform
     Rails.logger.info('BenefitsIntakeStatusJob started')
-    resolved_form_submissions = FormSubmission
-                                .joins(:form_submission_attempts)
-                                .where(form_submission_attempts: { aasm_state: %w[vbms failure] })
-    pending_form_submissions = FormSubmission
-                               .joins(:form_submission_attempts)
-                               .where(form_submission_attempts: { aasm_state: 'pending' })
+    form_submissions_and_attempts = FormSubmission.joins(:form_submission_attempts)
+    resolved_form_submissions = form_submissions_and_attempts.where(
+      form_submission_attempts: { aasm_state: %w[vbms failure] }
+    )
+    pending_form_submissions = form_submissions_and_attempts.where(form_submission_attempts: { aasm_state: 'pending' })
     # We're calculating the resolved_form_submissions and subtracting them because it is possible for a FormSubmission
     # to have two (or more) attempts, one 'pending' and the other 'vbms'. In such cases we don't want to include
     # that FormSubmission because it has been resolved.
