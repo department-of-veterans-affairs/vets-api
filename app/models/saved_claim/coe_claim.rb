@@ -10,16 +10,14 @@ class SavedClaim::CoeClaim < SavedClaim
     # If the EDIPI is blank, throw an error
     if @edipi.blank?
       Rails.logger.error('COE application cannot be submitted without an edipi!')
-      # return back nil and break out of CoeClaim since we don't have a EDIPI
-      return nil
+    else
+      Rails.logger.info('Begin COE claim submission to LGY API', guid:)
+      response = lgy_service.put_application(payload: prepare_form_data)
+      Rails.logger.info('COE claim submitted to LGY API', guid:)
+
+      process_attachments!
+      response['reference_number']
     end
-
-    response = lgy_service.put_application(payload: prepare_form_data)
-
-    Rails.logger.warn('COE claim submitted to LGY', guid:)
-
-    process_attachments!
-    response['reference_number']
   end
 
   def regional_office
