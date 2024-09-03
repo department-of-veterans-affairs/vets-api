@@ -201,6 +201,15 @@ module ClaimsApi
             path: 'PersonWebService'
           )
 
+        module FindDependentsByPtcpntId
+          DEFINITION =
+            Action.new(
+              service: PersonWebService::DEFINITION,
+              name: 'findDependentsByPtcpntId',
+              key: 'DependentDTO'
+            )
+        end
+
         module FindPersonBySSN
           DEFINITION =
             Action.new(
