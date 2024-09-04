@@ -22,8 +22,6 @@ module BenefitsClaims
     end
 
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      Rails.logger.info("Get claims - icn: #{@icn.present?}, client_id: #{lighthouse_client_id.present?},
-                        lighthouse_rsa: #{lighthouse_rsa_key_path.present?}")
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       claims['data'] = filter_by_status(claims['data'])
       claims
@@ -34,9 +32,6 @@ module BenefitsClaims
     end
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      Rails.logger.info("Get claim - icn: #{@icn.present?}, get_claim: #{id.present?},
-                        client_id: #{lighthouse_client_id.present?},
-                        lighthouse_rsa: #{lighthouse_rsa_key_path.present?}")
       config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -52,8 +47,17 @@ module BenefitsClaims
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
-    def submit5103(id, options = {})
-      config.post("#{@icn}/claims/#{id}/5103", {}, nil, nil, options).body
+    def submit5103(id, tracked_item_id, options = {})
+      config.post("#{@icn}/claims/#{id}/5103", {
+                    data: {
+                      type: 'form/5103',
+                      attributes: {
+                        trackedItemIds: [
+                          tracked_item_id
+                        ]
+                      }
+                    }
+                  }, nil, nil, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
