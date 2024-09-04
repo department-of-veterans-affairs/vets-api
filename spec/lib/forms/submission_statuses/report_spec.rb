@@ -26,7 +26,7 @@ describe Forms::SubmissionStatuses::Report do
     before do
       create(:form_submission, :with_form214142, user_account_id: user_account.id)
       create(:form_submission, :with_form210966, user_account_id: user_account.id)
-      create(:form_submission, :with_form_not_allowlisted, user_account_id: user_account.id)
+      create(:form_submission, :with_form_blocked, user_account_id: user_account.id)
     end
 
     context 'has statuses' do

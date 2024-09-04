@@ -38,7 +38,7 @@ FactoryBot.define do
       created_at { '2024-03-12' }
     end
 
-    trait :with_form_not_allowlisted do
+    trait :with_form_blocked do
       user_account_id { '' }
       form_type { 'NOT-WHITELISTED' }
       benefits_intake_uuid { '84dd8902-0744-4b1a-ab3f-6b4ec3e5dd3c' }
