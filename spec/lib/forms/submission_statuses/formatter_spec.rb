@@ -32,6 +32,7 @@ describe Forms::SubmissionStatuses::Formatter do
         Forms::SubmissionStatuses::Dataset,
         submissions?: true,
         submissions:,
+        intake_statuses?: false,
         intake_statuses: nil
       )
 

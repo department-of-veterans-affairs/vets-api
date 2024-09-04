@@ -51,13 +51,6 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', type: :request do
               benefits_intake_uuid: 'd0c6cea6-9885-4e2f-8e0c-708d5933833a',
               user_account_id:,
               created_at: '2024-03-13'
-            ),
-            OpenStruct.new(
-              id: 3,
-              form_type: '21-10210',
-              benefits_intake_uuid: 'd772f671-fbca-4392-ab55-b0e4115dee47',
-              user_account_id:,
-              created_at: '2024-03-08'
             )
           ]
         )
