@@ -71,8 +71,8 @@ module SimpleFormsApi
     end
 
     def zip_code_is_us_based
-      @data.dig('veteran_mailing_address',
-                'country') == 'USA' || @data.dig('non_veteran_mailing_address', 'country') == 'USA'
+      @data.dig('veteran_mailing_address', 'country') == 'USA' ||
+        @data.dig('non_veteran_mailing_address', 'country') == 'USA'
     end
 
     def handle_attachments(file_path)
@@ -135,8 +135,6 @@ module SimpleFormsApi
                         living_situations:, other_reasons:)
     end
 
-    private
-
     def get_attachments
       attachments = []
 
@@ -163,6 +161,8 @@ module SimpleFormsApi
 
       attachments
     end
+
+    private
 
     def veteran_ssn
       [

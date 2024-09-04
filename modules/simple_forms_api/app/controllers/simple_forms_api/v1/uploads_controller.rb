@@ -92,7 +92,7 @@ module SimpleFormsApi
 
         if Flipper.enabled?(:simple_forms_email_confirmations)
           SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: get_form_id, confirmation_number:, user: @current_user
+            form_data: parsed_form_data, form_number: fetch_form_id, confirmation_number:, user: @current_user
           ).send
         end
 
@@ -119,59 +119,115 @@ module SimpleFormsApi
       end
 
       def submit_form_to_benefits_intake
-        form_id = get_form_id
+        form_id = fetch_form_id
         parsed_form_data = JSON.parse(params.to_json)
-        file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
+        form_info = gather_form_info(parsed_form_data)
 
-        if Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service)
-          status, confirmation_number = upload_pdf(file_path, metadata, form)
-        else
-          status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
-                                                                        form).upload_to_benefits_intake(params)
-        end
+        status, confirmation_number = process_form_submission(form_info, params)
 
-        form.track_user_identity(confirmation_number)
+        form_info[:form].track_user_identity(confirmation_number)
 
-        Rails.logger.info(
-          'Simple forms api - sent to benefits intake',
-          { form_number: params[:form_number], status:, uuid: confirmation_number }
-        )
+        log_submission(form_id, params[:form_number], status, confirmation_number)
 
-        if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
-          SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @current_user
-          ).send
-        end
+        send_confirmation_email(form_id, parsed_form_data, confirmation_number, status)
 
-        { json: get_json(confirmation_number || nil, form_id), status: }
+        generate_response(form_id, confirmation_number, status)
       end
 
-      def get_file_paths_and_metadata(parsed_form_data)
-        form_id = get_form_id
+      def process_form_submission(form_info, params)
+        if Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service)
+          upload_pdf_via_service(form_info)
+        else
+          upload_pdf_via_uploader(form_info, params)
+        end
+      end
+
+      def upload_pdf_via_service(form_info)
+        upload_pdf(
+          form_info[:file_path],
+          form_info[:metadata],
+          form_info[:form],
+          form_info[:attachments]
+        )
+      end
+
+      def upload_pdf_via_uploader(form_info, params)
+        uploader = SimpleFormsApi::PdfUploader.new(
+          form_info[:file_path],
+          form_info[:metadata],
+          form_info[:form],
+          form_info[:attachments]
+        )
+        uploader.upload_to_benefits_intake(params)
+      end
+
+      def log_submission(form_number, status, uuid)
+        Rails.logger.info('Simple forms api - sent to benefits intake', { form_number:, status:, uuid: })
+      end
+
+      def send_confirmation_email(form_id, parsed_form_data, confirmation_number, status)
+        return unless status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
+
+        SimpleFormsApi::ConfirmationEmail.new(
+          form_data: parsed_form_data,
+          form_number: form_id,
+          confirmation_number:,
+          user: @current_user
+        ).send
+      end
+
+      def generate_response(form_id, confirmation_number, status)
+        { json: get_json(confirmation_number, form_id), status: }
+      end
+
+      def gather_form_info(parsed_form_data)
+        form_id = fetch_form_id
+        form = initialize_form(form_id, parsed_form_data)
+        file_path = generate_filled_form(form_id, form)
+        metadata = validate_metadata(form)
+
+        handle_form_attachments(form, file_path, form_id)
+
+        attachments = fetch_attachments(form, form_id)
+
+        { file_path:, metadata:, form:, attachments: }
+      end
+
+      def initialize_form(form_id, parsed_form_data)
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
+
         # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
         if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && @current_user
-          form = form.populate_veteran_data(@current_user)
+          return form.populate_veteran_data(@current_user)
         end
-        filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
-        file_path = if @current_user
-                      filler.generate(@current_user.loa[:current])
-                    else
-                      filler.generate
-                    end
-        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
-                                                                        zip_code_is_us_based: form.zip_code_is_us_based)
-
-        form.handle_attachments(file_path) if %w[vba_40_0247 vba_20_10207 vba_40_10007].include? form_id
-
-        [file_path, metadata, form]
+        form
       end
 
-      def upload_pdf(file_path, metadata, form)
+      def generate_filled_form(form_id, form)
+        filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
+        @current_user ? filler.generate(@current_user.loa[:current]) : filler.generate
+      end
+
+      def validate_metadata(form)
+        SimpleFormsApiSubmission::MetadataValidator.validate(
+          form.metadata,
+          zip_code_is_us_based: form.zip_code_is_us_based
+        )
+      end
+
+      def handle_form_attachments(form, file_path, form_id)
+        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007].include?(form_id)
+      end
+
+      def fetch_attachments(form, form_id)
+        form.get_attachments if form_id == 'vba_20_10207'
+      end
+
+      def upload_pdf(file_path, metadata, form, attachments)
         location, uuid = prepare_for_upload(form)
         log_upload_details(location, uuid)
-        response = perform_pdf_upload(location, file_path, metadata)
+        response = perform_pdf_upload(location, file_path, metadata, attachments)
 
         [response.status, uuid]
       end
@@ -209,12 +265,8 @@ module SimpleFormsApi
         Rails.logger.info('Simple forms api - preparing to upload PDF to benefits intake', { location:, uuid: })
       end
 
-      def perform_pdf_upload(location, file_path, metadata)
-        lighthouse_service.perform_upload(
-          metadata: metadata.to_json,
-          document: file_path,
-          upload_url: location
-        )
+      def perform_pdf_upload(upload_url, document, metadata, attachments)
+        lighthouse_service.perform_upload(metadata: metadata.to_json, document:, upload_url:, attachments:)
       end
 
       def form_is264555_and_should_use_lgy_api
@@ -225,7 +277,7 @@ module SimpleFormsApi
         @current_user&.icn
       end
 
-      def get_form_id
+      def fetch_form_id
         form_number = params[:form_number]
         raise 'missing form_number in params' unless form_number
 
@@ -258,13 +310,15 @@ module SimpleFormsApi
       end
 
       def json_for210966(confirmation_number, expiration_date, existing_intents)
-        { json: {
-          confirmation_number:,
-          expiration_date:,
-          compensation_intent: existing_intents['compensation'],
-          pension_intent: existing_intents['pension'],
-          survivor_intent: existing_intents['survivor']
-        } }
+        {
+          json: {
+            confirmation_number:,
+            expiration_date:,
+            compensation_intent: existing_intents['compensation'],
+            pension_intent: existing_intents['pension'],
+            survivor_intent: existing_intents['survivor']
+          }
+        }
       end
     end
   end
