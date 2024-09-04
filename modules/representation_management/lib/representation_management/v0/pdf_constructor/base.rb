@@ -55,16 +55,24 @@ module RepresentationManagement
         end
 
         def next_steps_part1(pdf)
-          pdf.font_size(20)
-          pdf.text('Fill out your form to appoint a VA accredited representative or VSO')
-          pdf.move_down(10)
-          pdf.font_size(12)
-          pdf.text('VA Form 21-22a')
-          pdf.move_down(10)
-          pdf.font_size(16)
-          pdf.text('Your Next Steps')
-          pdf.move_down(10)
-          pdf.font_size(12)
+          # TODO: - Add a method that takes a text string then adds it to the pdf,
+          # moves down 10, and sets the font size to 12
+          pdf.font('bitter', style: :bold) do
+            pdf.font_size(20)
+            pdf.text('Fill out your form to appoint a VA accredited representative or VSO')
+            pdf.move_down(10)
+          end
+          pdf.font('bitter', style: :normal) do
+            pdf.font_size(12)
+            pdf.text('VA Form 21-22a')
+            pdf.move_down(10)
+          end
+          pdf.font('bitter', style: :bold) do
+            pdf.font_size(16)
+            pdf.text('Your Next Steps')
+            pdf.move_down(10)
+            pdf.font_size(12)
+          end
           str = <<~HEREDOC.squish
             Both you and the accredited representative will need to sign your form.
             You can bring your form to them in person or mail it to them.
@@ -81,9 +89,11 @@ module RepresentationManagement
           HEREDOC
           pdf.text(str)
           pdf.move_down(10)
-          pdf.font_size(16)
-          pdf.text('After you submit your printed form')
-          pdf.move_down(10)
+          pdf.font('bitter', style: :bold) do
+            pdf.font_size(16)
+            pdf.text('After you submit your printed form')
+            pdf.move_down(10)
+          end
           pdf.font_size(12)
           str = <<~HEREDOC.squish
             We'll confirm that the accredited representative is available to help you.
@@ -100,9 +110,11 @@ module RepresentationManagement
           HEREDOC
           pdf.text(str)
           pdf.move_down(10)
-          pdf.font_size(14)
-          pdf.text('Need help?')
-          pdf.move_down(10)
+          pdf.font('bitter', style: :bold) do
+            pdf.font_size(14)
+            pdf.text('Need help?')
+            pdf.move_down(10)
+          end
           pdf.font_size(12)
           pdf.text("You can call us at 800-698-2411, ext. 0 (TTY: 711). We're here 24/7.")
           pdf.move_down(10)
@@ -130,6 +142,13 @@ module RepresentationManagement
         def generate_next_steps_page(data)
           tempfile = Tempfile.new
           next_steps = Prawn::Document.new
+          next_steps.font_families.update(
+            'bitter' => {
+              # modules/health_quest/lib/fonts/bitter-regular.ttf
+              normal: Rails.root.join('modules', 'health_quest', 'lib', 'fonts', 'bitter-regular.ttf'),
+              bold: Rails.root.join('modules', 'health_quest', 'lib', 'fonts', 'bitter-bold.ttf')
+            }
+          )
           next_steps_part1(next_steps)
           next_steps_contact(next_steps, data)
           next_steps_part2(next_steps)

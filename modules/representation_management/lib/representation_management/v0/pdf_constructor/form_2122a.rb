@@ -20,7 +20,9 @@ module RepresentationManagement
             #{data.representative_middle_initial}
             #{data.representative_last_name}
           HEREDOC
-          pdf.text(rep_name)
+          pdf.font('bitter', style: :bold) do
+            pdf.text(rep_name)
+          end
           pdf.text(data.representative_address_line1)
           pdf.text(data.representative_address_line2)
           city_state_zip = <<~HEREDOC.squish
