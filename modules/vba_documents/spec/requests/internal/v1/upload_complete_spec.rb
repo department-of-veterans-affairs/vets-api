@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VBA Document SNS upload complete notification', type: :request do
+RSpec.describe 'VBADocument::Internal::V1::UploadComplete', type: :request do
   context 'with a subscriptionconfirmation message type' do
     # rubocop:disable Layout/LineLength
     let(:headers) do
@@ -214,7 +214,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
 
     # rubocop:enable Layout/LineLength
 
-    xit 'responds with a parameter missing error' do
+    it 'responds with a parameter missing error', skip: 'temporarily skip not working' do
       with_settings(Settings.vba_documents.sns,
                     'topic_arns' => ['arn:aws:sns:us-west-2:123456789012:MyTopic'],
                     'region' => 'us-gov-west-1') do

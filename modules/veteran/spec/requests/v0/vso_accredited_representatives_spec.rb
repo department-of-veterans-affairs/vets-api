@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative 'base_accredited_representatives_shared_spec'
 
-RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
+RSpec.describe 'Veteran::V0::VSOAccreditedRepresentatives', type: :request do
   include_examples 'base_accredited_representatives_controller_shared_examples',
                    '/services/veteran/v0/vso_accredited_representatives', 'veteran_service_officer'
 

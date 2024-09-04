@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../support/vba_document_fixtures'
+require_relative '../../../support/vba_document_fixtures'
 require 'vba_documents/pdf_inspector'
-require_relative '../../../app/serializers/vba_documents/upload_serializer'
+require_relative '../../../../app/serializers/vba_documents/upload_serializer'
 
-RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
+RSpec.describe 'VBADocument::V1::Uploads::Report', type: :request do
   describe '#create /v1/uploads/report' do
     let(:upload) { FactoryBot.create(:upload_submission) }
     let(:pdf_info) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
@@ -36,7 +36,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         expect(ids).to include(upload2_received.guid)
       end
 
-      it 'silentlies skip status not returned from central mail' do
+      it 'silentlies skip status not returned from central mail', skip: 'Repeated examples' do
         params = [upload_received.guid, upload2_received.guid]
         post '/services/vba_documents/v1/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)

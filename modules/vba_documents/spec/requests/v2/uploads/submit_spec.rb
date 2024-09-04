@@ -2,17 +2,18 @@
 
 require 'rails_helper'
 require './lib/central_mail/utilities'
-require_relative '../../support/vba_document_fixtures'
+require_relative '../../../support/vba_document_fixtures'
 
 # rubocop:disable Style/OptionalBooleanParameter
-RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
+RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
   include VBADocuments::Fixtures
 
   load('./modules/vba_documents/config/routes.rb')
 
   # need a larger limit for sending raw data (base_64 for example)
   Rack::Utils.key_space_limit = 65_536 * 5
-  SUBMIT_ENDPOINT = '/services/vba_documents/v2/uploads/submit'
+
+  let(:submit_endpoint) { '/services/vba_documents/v2/uploads/submit' }
 
   def build_fixture(fixture, is_metadata = false, is_erb = false)
     fixture_path = if is_erb && is_metadata
@@ -89,7 +90,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     end
 
     it 'returns a UUID with status of uploaded and populated pdf metadata with a valid post' do
-      post SUBMIT_ENDPOINT,
+      post submit_endpoint,
            params: {}.merge(valid_metadata).merge(valid_content).merge(valid_attachments)
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
@@ -104,7 +105,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     end
 
     it 'processes base64 requests' do
-      post SUBMIT_ENDPOINT, params: get_fixture('base_64').read
+      post submit_endpoint, params: get_fixture('base_64').read
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       @attributes = json['data']['attributes']
@@ -119,7 +120,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       let(:params) { {}.merge(valid_metadata).merge(valid_content).merge(invalid_attachment_oversized) }
 
       it 'returns a UUID with status of error' do
-        post(SUBMIT_ENDPOINT, params:)
+        post(submit_endpoint, params:)
         expect(response).to have_http_status(:bad_request)
         json = JSON.parse(response.body)
         @attributes = json['data']['attributes']
@@ -135,7 +136,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
 
     %i[dashes_slashes_first_last valid_metadata_space_in_name].each do |allowed|
       it "allows #{allowed} in names" do
-        post SUBMIT_ENDPOINT,
+        post submit_endpoint,
              params: {}.merge(send(allowed)).merge(valid_content)
         expect(response).to have_http_status(:ok)
       end
@@ -144,7 +145,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last
        name_too_long_metadata].each do |bad|
       it "returns an error if the name field #{bad} is missing or has bad characters" do
-        post SUBMIT_ENDPOINT,
+        post submit_endpoint,
              params: {}.merge(send(bad)).merge(valid_content)
         expect(response).to have_http_status(:bad_request)
         json = JSON.parse(response.body)
@@ -156,7 +157,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     end
 
     it 'returns an error when a content is missing' do
-      post SUBMIT_ENDPOINT,
+      post submit_endpoint,
            params: {}.merge(valid_metadata).merge(invalid_content_missing).merge(valid_attachments)
       expect(response).to have_http_status(:bad_request)
       json = JSON.parse(response.body)
@@ -167,7 +168,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     end
 
     it 'returns an error when an attachment is missing' do
-      post SUBMIT_ENDPOINT,
+      post submit_endpoint,
            params: {}.merge(valid_metadata).merge(valid_content).merge(invalid_attachment_missing)
       expect(response).to have_http_status(:bad_request)
       json = JSON.parse(response.body)
@@ -186,7 +187,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
           StringIO.new(metadata.to_json), 'application/json', false,
           original_filename: 'metadata.json'
         ) }
-        post SUBMIT_ENDPOINT, params: {}.merge(metadata_file).merge(valid_content).merge(valid_attachments)
+        post submit_endpoint, params: {}.merge(metadata_file).merge(valid_content).merge(valid_attachments)
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         @attributes = json['data']['attributes']
@@ -206,7 +207,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
           StringIO.new(metadata.to_json), 'application/json', false,
           original_filename: 'metadata.json'
         ) }
-        post SUBMIT_ENDPOINT, params: {}.merge(metadata_file).merge(valid_content).merge(valid_attachments)
+        post submit_endpoint, params: {}.merge(metadata_file).merge(valid_content).merge(valid_attachments)
         expect(response).to have_http_status(:bad_request)
         json = JSON.parse(response.body)
         @attributes = json['data']['attributes']
@@ -220,7 +221,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         it "Returns a 400 error when #{key} is nil" do
           # set key to be nil in metadata
           metadata = { metadata: invalidate_metadata(key) }
-          post SUBMIT_ENDPOINT, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
+          post submit_endpoint, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
           expect(response).to have_http_status(:bad_request)
           json = JSON.parse(response.body)
           @attributes = json['data']['attributes']
@@ -232,7 +233,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         it "Returns a 400 error when #{key} is missing" do
           # remove the key from metadata
           metadata = { metadata: invalidate_metadata(key, '', true) }
-          post SUBMIT_ENDPOINT, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
+          post submit_endpoint, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
           expect(response).to have_http_status(:bad_request)
           json = JSON.parse(response.body)
           @attributes = json['data']['attributes']
@@ -245,7 +246,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
           it "Returns an error when #{key} is not a string" do
             # make fileNumber a non-string value
             metadata = { metadata: invalidate_metadata(key, 123_456_789) }
-            post SUBMIT_ENDPOINT, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
+            post submit_endpoint, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
             expect(response).to have_http_status(:bad_request)
             json = JSON.parse(response.body)
             @attributes = json['data']['attributes']
