@@ -1385,6 +1385,10 @@ features:
   veteran_onboarding_show_to_newly_onboarded:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user, based upon number of days since verified
+  veteran_onboarding_show_welcome_message_to_new_users:
+    actor_type: user
+    description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
+    enable_in_development: true
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
