@@ -128,7 +128,7 @@ module Mobile
         private
 
         def appointment_request?
-          requested_periods.present?
+          appointment[:requested_periods].present?
         end
 
         # to match web behavior, prefer the value found in the practitioners list over the preferred_provider_name.
@@ -231,20 +231,13 @@ module Mobile
         end
 
         def proposed_times
-          return nil if requested_periods.nil?
+          return nil if appointment[:requested_periods].nil?
 
-          requested_periods.map do |period|
-            date, time = begin
-              start_date = time_to_datetime(period[:start])
-              date = start_date.strftime('%m/%d/%Y')
-              time = start_date.hour.zero? ? 'AM' : 'PM'
-              [date, time]
-            end
-
-            {
-              date:,
-              time:
-            }
+          appointment[:requested_periods].map do |period|
+            start_date = time_to_datetime(period[:start])
+            date = start_date.strftime('%m/%d/%Y')
+            time = start_date.hour.zero? ? 'AM' : 'PM'
+            { date:, time: }
           end
         end
 
@@ -252,15 +245,12 @@ module Mobile
           STATUSES[appointment[:status].to_sym]
         end
 
-        def requested_periods
-          @requested_periods ||= appointment[:requested_periods]
-        end
 
         def start_date_utc
           @start_date_utc ||= begin
             start = appointment[:start]
             if start.nil?
-              sorted_dates = requested_periods.map do |period|
+              sorted_dates = appointment[:requested_periods].map do |period|
                 time_to_datetime(period[:start])
               end.sort
               future_dates = sorted_dates.select { |period| period > DateTime.now }
