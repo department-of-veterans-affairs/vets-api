@@ -56,7 +56,6 @@ module BGS
         # but for now we are temporarily always setting to MANUAL_VAGOV for 674
         # when that changes, we need to surround this block of code in an IF statement
         note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
-        Rails.logger.info("674: calling create note")
         bgs_service.create_note(benefit_claim_record[:benefit_claim_id], note_text)
 
         bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')

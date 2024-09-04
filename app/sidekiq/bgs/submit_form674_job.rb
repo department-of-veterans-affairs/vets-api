@@ -101,7 +101,6 @@ module BGS
       raise Invalid674Claim unless claim.valid?(:run_686_form_jobs)
 
       claim_data = normalize_names_and_addresses!(claim.formatted_674_data(vet_info))
-      Rails.logger.info("674 inside of submit form")
       BGS::Form674.new(user, claim).submit(claim_data)
     end
 
