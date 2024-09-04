@@ -18,11 +18,7 @@ module ClaimsApi
       uploader.retrieve_from_store!(power_of_attorney.file_data['filename'])
       file_path = fetch_file_path(uploader)
 
-      if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
-        benefits_doc_api.upload(claim: power_of_attorney, pdf_path: file_path, doc_type: 'L075')
-      else
-        upload_to_vbms(power_of_attorney, file_path)
-      end
+      benefits_doc_api.upload(claim: power_of_attorney, pdf_path: file_path, doc_type: 'L075')
 
       ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
     rescue VBMS::Unknown

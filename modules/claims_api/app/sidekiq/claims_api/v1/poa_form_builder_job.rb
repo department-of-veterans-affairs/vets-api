@@ -9,7 +9,7 @@ require 'bd/bd'
 module ClaimsApi
   module V1
     class PoaFormBuilderJob < ClaimsApi::ServiceBase
-      include ClaimsApi::PoaVbmsSidekiq
+      # include ClaimsApi::PoaVbmsSidekiq
 
       # Generate a 21-22 or 21-22a form for a given POA request.
       # Uploads the generated form to VBMS or BD. If successfully uploaded,
@@ -24,11 +24,7 @@ module ClaimsApi
 
         output_path = pdf_constructor(poa_code).construct(data(power_of_attorney), id: power_of_attorney.id)
 
-        if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
-          benefits_doc_api.upload(claim: power_of_attorney, pdf_path: output_path, doc_type:)
-        else
-          upload_to_vbms(power_of_attorney, output_path)
-        end
+        benefits_doc_api.upload(claim: power_of_attorney, pdf_path: output_path, doc_type:)
 
         ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
       rescue VBMS::Unknown

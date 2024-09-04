@@ -11,8 +11,9 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
   let(:bad_b64_image) { File.read('modules/claims_api/spec/fixtures/signature_b64_prefix_bad.txt') }
 
   before do
-    Flipper.disable(:lighthouse_claims_api_poa_use_bd)
     Sidekiq::Job.clear_all
+    allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+      .to receive(:get_auth_token).and_return('some-value-here')
     b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
     power_of_attorney.form_data = {
       recordConcent: true,
@@ -76,21 +77,21 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       end
 
       it 'generates the pdf to match example' do
-        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-        expect(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:new).and_call_original
-        expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:construct).and_call_original
-        subject.new.perform(power_of_attorney.id)
+        VCR.use_cassette('claims_api/bd/upload') do
+          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+          expect(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:new).and_call_original
+          expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:construct).and_call_original
+          subject.new.perform(power_of_attorney.id)
+        end
       end
 
       it 'Calls the POA updater job upon successful upload to VBMS' do
-        token_response = OpenStruct.new(upload_token: '<{573F054F-E9F7-4BF2-8C66-D43ADA5C62E7}')
         document_response = OpenStruct.new(upload_document_response: {
           '@new_document_version_ref_id' => '{52300B69-1D6E-43B2-8BEB-67A7C55346A2}',
           '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
         }.with_indifferent_access)
 
-        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
-        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_return(document_response)
+        allow_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return(document_response)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
 
         expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
@@ -106,21 +107,22 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       end
 
       it 'generates the pdf to match example' do
-        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-        expect(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:new).and_call_original
-        expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
-        subject.new.perform(power_of_attorney.id)
+        VCR.use_cassette('claims_api/bd/upload') do
+          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+          expect(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:new).and_call_original
+          expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization)
+            .to receive(:construct).and_call_original
+          subject.new.perform(power_of_attorney.id)
+        end
       end
 
       it 'Calls the POA updater job upon successful upload to VBMS' do
-        token_response = OpenStruct.new(upload_token: '<{573F054F-E9F7-4BF2-8C66-D43ADA5C62E7}')
         document_response = OpenStruct.new(upload_document_response: {
           '@new_document_version_ref_id' => '{52300B69-1D6E-43B2-8BEB-67A7C55346A2}',
           '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
         }.with_indifferent_access)
 
-        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
-        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_return(document_response)
+        allow_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return(document_response)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
 
         expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
@@ -174,7 +176,6 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
 
   context 'when the BD upload feature flag is enabled' do
     it 'calls the benefits document API upload instead of VBMS' do
-      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
 
