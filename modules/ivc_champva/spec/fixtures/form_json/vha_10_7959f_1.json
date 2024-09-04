@@ -17,6 +17,7 @@
     "physical_address": {
       "country": "USA",
       "street": "1 Physical Ln",
+      "street_combined": "1 Physical Ln",
       "city": "Place",
       "state": "AL",
       "postal_code": "12345"
@@ -24,6 +25,7 @@
     "mailing_address": {
       "country": "USA",
       "street": "1 Mail Ln",
+      "street_combined": "1 Mail Ln",
       "city": "Place",
       "state": "PA",
       "postal_code": "12345"
