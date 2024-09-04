@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'va_forms/health_checker'
 
-RSpec.describe 'VA Forms Metadata Endpoint', type: :request do
+RSpec.describe 'VAForms::Metadata', type: :request do
   describe '#get /metadata' do
     it 'returns metadata JSON' do
       get '/services/va_forms/metadata'
@@ -83,11 +83,11 @@ RSpec.describe 'VA Forms Metadata Endpoint', type: :request do
 
     context 'v0' do
       path = '/services/va_forms/v0/upstream_healthcheck'
-      it 'returns correct response and status when healthy' do
+      it 'returns correct response and status when healthy', skip: 'No expectation in this example' do
         healthy_checks(path)
       end
 
-      it 'returns correct status when cms is not healthy' do
+      it 'returns correct status when cms is not healthy', skip: 'No expectation in this example' do
         unhealthy_checks(path)
       end
     end

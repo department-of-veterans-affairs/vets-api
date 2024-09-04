@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Forms Documentation Endpoint', type: :request do
+RSpec.describe 'VAForms::V0::Apidocs', type: :request do
   describe '#get /docs/v1/api' do
     it 'returns Open API Spec v3 JSON' do
       get '/services/va_forms/docs/v0/api'

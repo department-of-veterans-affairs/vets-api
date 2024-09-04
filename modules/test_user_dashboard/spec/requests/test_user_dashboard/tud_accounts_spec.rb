@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Test User Dashboard', type: :request do
+RSpec.describe 'TestUserDashboard::TudAccounts', type: :request do
   let(:rsa_private) { OpenSSL::PKey::RSA.new 2048 }
   let(:rsa_public) { rsa_private.public_key }
   let(:pub_key) { Base64.encode64(rsa_public.to_der) }
@@ -14,7 +14,7 @@ RSpec.describe 'Test User Dashboard', type: :request do
       it 'refuses the request' do
         get('/test_user_dashboard/tud_accounts')
 
-        expect(response.status).to eq 403
+        expect(response).to have_http_status :forbidden
         expect(response.content_type).to eq 'text/html'
       end
     end
@@ -32,7 +32,7 @@ RSpec.describe 'Test User Dashboard', type: :request do
       it 'returns a 403' do
         get('/test_user_dashboard/tud_accounts', params: '', headers: { 'JWT' => 'invalid', 'PK' => pub_key })
 
-        expect(response.status).to eq 403
+        expect(response).to have_http_status :forbidden
       end
     end
   end

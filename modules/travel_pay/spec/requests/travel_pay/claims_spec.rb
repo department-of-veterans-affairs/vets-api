@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe TravelPay::ClaimsController, type: :request do
+RSpec.describe 'TravelPay::Claims', type: :request do
   let(:user) { build(:user) }
 
   before do

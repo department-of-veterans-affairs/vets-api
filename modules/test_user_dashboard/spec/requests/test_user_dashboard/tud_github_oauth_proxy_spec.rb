@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe TestUserDashboard::TudGithubOAuthProxyController do
+Rspec.describe 'TestUserDashboard::TudGithubOAuthProxy', type: :request do
   describe '#index' do
     context 'when the token is generated successfully' do
       before do
@@ -12,7 +12,7 @@ describe TestUserDashboard::TudGithubOAuthProxyController do
       it 'returns the access token as json' do
         get('/test_user_dashboard/tud_github_oauth_proxy?code=123')
 
-        expect(response.status).to be(200)
+        expect(response).to have_http_status(:ok)
         expect(response.content_type).to include('application/json')
         expect(response.body).to eql('{"access_token":"345"}')
       end
@@ -25,7 +25,7 @@ describe TestUserDashboard::TudGithubOAuthProxyController do
         expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
         get('/test_user_dashboard/tud_github_oauth_proxy?code=123')
 
-        expect(response.status).to be(400)
+        expect(response).to have_http_status(:bad_request)
         expect(response.body).to eql(' ')
       end
     end
