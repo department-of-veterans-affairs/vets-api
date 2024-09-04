@@ -151,7 +151,7 @@ module CentralMail
         text_only: true
       )
       if form_id.present?
-        stamped_pdf_with_form(form_id, stamped_path2)
+        stamped_pdf_with_form(form_id, stamped_path2, timestamp)
       else
         stamped_path2
       end
@@ -229,7 +229,7 @@ module CentralMail
 
     private
 
-    def stamped_pdf_with_form(form_id, path)
+    def stamped_pdf_with_form(form_id, path, timestamp)
       PDFUtilities::DatestampPdf.new(path).run(
         text: 'Application Submitted on va.gov',
         x: form_id == '686C-674' ? 400 : 300,
