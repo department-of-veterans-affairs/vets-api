@@ -12,7 +12,8 @@
     "full_name": {
       "first": "Veteran",
       "middle": "B",
-      "last": "Surname"
+      "last": "Surname",
+      "suffix": "Mr."
     },
     "physical_address": {
       "country": "USA",
