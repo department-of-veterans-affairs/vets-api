@@ -206,7 +206,7 @@ module BGS
         ptcpnt_id: @user.participant_id,
         txt: note_text
       }.merge!(bgs_auth).except!(:jrn_status_type_cd)
-      
+
       response = service.notes.create_note(option_hash)
       message = if response[:note]
                   response[:note].slice(:clm_id, :txt)

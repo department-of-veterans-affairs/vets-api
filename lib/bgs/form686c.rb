@@ -193,6 +193,7 @@ module BGS
 
     def prep_manual_claim(benefit_claim_id)
       @proc_state = 'MANUAL_VAGOV'
+
       bgs_service.create_note(benefit_claim_id, @note_text)
     end
 
