@@ -189,7 +189,6 @@ module V0
       Swagger::Responses::UnprocessableEntityError,
       Swagger::Schemas::Address,
       Swagger::Schemas::Appeals::Requests,
-      Swagger::Schemas::Appeals::HigherLevelReview,
       Swagger::Schemas::Appeals::NoticeOfDisagreement,
       Swagger::Schemas::ContactUs::SuccessfulInquiryCreation,
       Swagger::Schemas::ContactUs::InquiriesList,
