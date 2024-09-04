@@ -72,6 +72,10 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_insurance_v2_enabled:
+    actor_type: user
+    description: Enables the the upgraded insurance section of the Health Care Application
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
