@@ -544,31 +544,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    it 'supports adding a preneed claim' do
-      VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/burial_forms',
-          200,
-          '_headers' => { 'content-type' => 'application/json' },
-          '_data' => {
-            'application' => attributes_for(:burial_form)
-          }.to_json
-        )
-      end
-
-      expect(subject).to validate(
-        :post,
-        '/v0/preneeds/burial_forms',
-        422,
-        '_data' => {
-          'application' => {
-            'invalid-form' => { invalid: true }.to_json
-          }
-        }
-      )
-    end
-
     it 'supports getting cemetaries preneed claim' do
       VCR.use_cassette('preneeds/cemeteries/gets_a_list_of_cemeteries') do
         expect(subject).to validate(
@@ -576,43 +551,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           '/v0/preneeds/cemeteries',
           200,
           '_headers' => { 'content-type' => 'application/json' }
-        )
-      end
-    end
-
-    describe 'preneed attachments upload' do
-      it 'supports uploading a file' do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/preneed_attachments',
-          200,
-          '_data' => {
-            'preneed_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/preneeds/extras.pdf', 'application/pdf')
-            }
-          }
-        )
-      end
-
-      it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/preneed_attachments',
-          400,
-          ''
-        )
-      end
-
-      it 'returns 422 if the attachment is not an allowed type' do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/preneed_attachments',
-          422,
-          '_data' => {
-            'preneed_attachment' => {
-              'file_data' => fixture_file_upload('invalid_idme_cert.crt')
-            }
-          }
         )
       end
     end

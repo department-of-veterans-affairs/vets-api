@@ -4,15 +4,15 @@ require 'pdf_utilities/datestamp_pdf'
 
 module SimpleFormsApi
   class PdfStamper
-    attr_reader :stamped_template_path, :form, :loa
+    attr_reader :stamped_template_path, :form, :loa, :timestamp
 
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
-    SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
-    def initialize(stamped_template_path, form, loa = nil)
+    def initialize(stamped_template_path:, form:, current_loa: nil, timestamp: nil)
       @stamped_template_path = stamped_template_path
       @form = form
-      @loa = loa
+      @loa = current_loa
+      @timestamp = timestamp
     end
 
     def stamp_pdf
@@ -45,7 +45,7 @@ module SimpleFormsApi
     end
 
     def all_form_stamps
-      form.desired_stamps + form.submission_date_stamps
+      form.desired_stamps + form.submission_date_stamps(timestamp)
     end
 
     def stamp_form(desired_stamp)
@@ -142,7 +142,7 @@ module SimpleFormsApi
       Rails.logger.info('Calling PDFUtilities::DatestampPdf', stamped_template_path:)
       text_only = append_to_stamp ? false : true
       datestamp_instance = PDFUtilities::DatestampPdf.new(stamped_template_path, append_to_stamp:)
-      datestamp_instance.run(text:, x: coords[0], y: coords[1], text_only:, size: 9)
+      datestamp_instance.run(text:, x: coords[0], y: coords[1], text_only:, size: 9, timestamp:)
     end
 
     def get_auth_text_stamp
