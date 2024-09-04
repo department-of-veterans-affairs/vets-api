@@ -113,7 +113,6 @@ module IvcChampva
 
         coords_y = 470 - (116 * index)
         applicant_country = applicant.dig('applicant_address', 'country')
-        
 
         if applicant_country && stamps.count { |stamp| stamp[:text] == applicant_country } < 2
           stamps << { coords: [520, coords_y], text: applicant_country, page: 0 }
