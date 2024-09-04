@@ -30,7 +30,7 @@ module SimpleFormsApi
         form_data.dig('application', 'veteran', 'current_name', 'last')
       else
         form_data.dig('application', 'claimant', 'name', 'last')
-      endq
+      end
     end
     
     def veteran_or_claimant_file_number(form_data)
