@@ -19,6 +19,7 @@ module ClaimsApi
       IntentToFileWebServiceBean/IntentToFileWebService
       OrgWebServiceBean/OrgWebService
       PersonWebServiceBean/PersonWebService
+      TrackedItemService/TrackedItemService
       VDC/VeteranRepresentativeService
       VdcBean/ManageRepresentativeService
       VnpAtchmsWebServiceBean/VnpAtchmsService

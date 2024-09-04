@@ -78,6 +78,21 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         end
       end
 
+      # This one doesn't have `Bean` at the end
+      context 'TrackedItemService' do
+        let(:endpoint) { 'TrackedItemService/TrackedItemService' }
+        let(:action) { 'findTrackedItems' }
+        let(:key) { 'BenefitClaim' }
+
+        it 'response with the correct attributes' do
+          result = subject.for_action(endpoint, action)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['service']['bean']['path']).to eq 'TrackedItemService'
+          expect(parsed_result['service']['path']).to eq 'TrackedItemService'
+          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://services.mapd.benefits.vba.va.gov/'
+        end
+      end
+
       context 'VdcBean' do
         let(:endpoint) { 'VDC/ManageRepresentativeService' }
         let(:action) { 'readPOARequest' }
@@ -246,6 +261,18 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           expect(parsed_result['bean']['path']).to eq 'PersonWebServiceBean'
           expect(parsed_result['path']).to eq 'PersonWebService'
           expect(parsed_result['bean']['namespaces']['target']).to eq 'http://person.services.vetsnet.vba.va.gov/'
+        end
+      end
+
+      context 'TrackedItemService' do
+        let(:endpoint) { 'TrackedItemService/TrackedItemService' }
+
+        it 'response with the correct namespace' do
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'TrackedItemService'
+          expect(parsed_result['path']).to eq 'TrackedItemService'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://services.mapd.benefits.vba.va.gov/'
         end
       end
 
