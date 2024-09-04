@@ -212,6 +212,38 @@ module ClaimsApi
       end
 
       ##
+      # TrackedItemService
+      #
+      # Adding 'Bean' to the end to differentiate from the service
+      module TrackedItemServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'TrackedItemService',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module TrackedItemService
+        DEFINITION =
+          Service.new(
+            bean: TrackedItemServiceBean::DEFINITION,
+            path: 'TrackedItemService'
+          )
+
+        module FindTrackedItems
+          DEFINITION =
+            Action.new(
+              service: TrackedItemService::DEFINITION,
+              name: 'findTrackedItems',
+              key: 'BenefitClaim'
+            )
+        end
+      end
+
+      ##
       # VdcBean
       #
       module VdcBean
