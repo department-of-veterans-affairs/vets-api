@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppointController', type: :request do
+RSpec.describe 'RepresentationManagement::V0::AccreditedEntitiesForAppoint', type: :request do
   let(:path) { '/representation_management/v0/accredited_entities_for_appoint' }
   let!(:bob_law) { create(:accredited_individual, :with_location, full_name: 'Bob Law') }
   let!(:bob_smith) { create(:accredited_individual, :with_location, full_name: 'Bob Smith') }

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'PdfGenerator2122aController', type: :request do
+RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/pdf_generator2122a' }
     let(:params) do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'RepresentationManagement::V0::AccreditedIndividualsController', type: :request do
+RSpec.describe 'RepresentationManagement::V0::AccreditedIndividuals', type: :request do
   let(:path) { '/representation_management/v0/accredited_individuals' }
   let(:type) { 'representative' }
   let(:distance) { 50 }

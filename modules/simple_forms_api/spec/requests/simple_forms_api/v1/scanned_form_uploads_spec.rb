@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 
-RSpec.describe 'Scanned forms uploader', type: :request do
+RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
   before do
     sign_in
   end
