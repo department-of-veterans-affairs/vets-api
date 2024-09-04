@@ -3,6 +3,7 @@
 require 'dgi/forms/service/sponsor_service'
 require 'dgi/forms/service/claimant_service'
 require 'dgi/forms/service/submission_service'
+require 'dgi/forms/service/letter_service'
 
 module MebApi
   module V0
@@ -12,8 +13,8 @@ module MebApi
       def claim_letter
         claimant_response = claimant_service.get_claimant_info('toe')
         claimant_id = claimant_response['claimant']['claimant_id']
-        claim_status_response = claim_status_service.get_claim_status('toe', claimant_id)
-        claim_letter_response = letter_service.get_claim_letter('toe', claimant_id)
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, 'toe')
+        claim_letter_response = letter_service.get_claim_letter(claimant_id, 'toe')
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
         response = claimant_response.status == 201 ? claim_letter_response : claimant_response
 
@@ -92,7 +93,7 @@ module MebApi
       end
 
       def letter_service
-        MebApi::DGI::Forms::Letter::Service.new(@current_user)
+        MebApi::DGI::Forms::Letters::Service.new(@current_user)
       end
 
       def sponsor_service

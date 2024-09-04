@@ -212,6 +212,69 @@ module ClaimsApi
       end
 
       ##
+      # StandardDataWebServiceBean
+      #
+      module StandardDataWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'StandardDataWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://standarddata.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module StandardDataWebService
+        DEFINITION =
+          Service.new(
+            bean: StandardDataWebServiceBean::DEFINITION,
+            path: 'StandardDataWebService'
+          )
+
+        module FindPOAs
+          DEFINITION =
+            Action.new(
+              service: StandardDataWebService::DEFINITION,
+              name: 'findPOAs',
+              key: 'PowerOfAttorneyDTO'
+            )
+        end
+      end
+
+      ##
+      # TrackedItemService
+      #
+      # Adding 'Bean' to the end to differentiate from the service
+      module TrackedItemServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'TrackedItemService',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module TrackedItemService
+        DEFINITION =
+          Service.new(
+            bean: TrackedItemServiceBean::DEFINITION,
+            path: 'TrackedItemService'
+          )
+
+        module FindTrackedItems
+          DEFINITION =
+            Action.new(
+              service: TrackedItemService::DEFINITION,
+              name: 'findTrackedItems',
+              key: 'BenefitClaim'
+            )
+        end
+      end
+
+      ##
       # VdcBean
       #
       module VdcBean
