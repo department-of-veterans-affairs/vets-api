@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'facilities', type: :request do
+RSpec.describe 'VAOS::V2::Facilities', type: :request do
   include SchemaMatchers
 
   before do

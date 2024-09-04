@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'clinics', type: :request do
+RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
   include SchemaMatchers
 
   before do
