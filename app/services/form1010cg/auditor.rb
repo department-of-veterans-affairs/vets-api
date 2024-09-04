@@ -95,22 +95,24 @@ module Form1010cg
     private
 
     def increment_primary_caregiver_data(secondaries_count)
+      caregivers = self.class.metrics.submission.caregivers
       case secondaries_count
       when 0
-        increment(self.class.metrics.submission.caregivers.primary_no_secondary)
+        increment(caregivers.primary_no_secondary)
       when 1
-        increment(self.class.metrics.submission.caregivers.primary_one_secondary)
+        increment(caregivers.primary_one_secondary)
       when 2
-        increment(self.class.metrics.submission.caregivers.primary_two_secondary)
+        increment(caregivers.primary_two_secondary)
       end
     end
 
     def increment_no_primary_caregiver_data(secondaries_count)
+      caregivers = self.class.metrics.submission.caregivers
       case secondaries_count
       when 1
-        increment(self.class.metrics.submission.caregivers.no_primary_one_secondary)
+        increment(caregivers.no_primary_one_secondary)
       when 2
-        increment(self.class.metrics.submission.caregivers.no_primary_two_secondary)
+        increment(caregivers.no_primary_two_secondary)
       end
     end
 
