@@ -8,7 +8,7 @@ describe ClaimsApi::StandardDataWebService do
 
   describe '#find_poas' do
     it 'responds as expected' do
-      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poas') do
+      VCR.use_cassette('claims_api/bgs/standard_data_web_service/find_poas') do
         result = subject.find_poas
         expect(result).to be_a Array
         expect(result.first).to be_a Hash
