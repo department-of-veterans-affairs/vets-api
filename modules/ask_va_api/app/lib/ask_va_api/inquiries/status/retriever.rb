@@ -22,17 +22,7 @@ module AskVAApi
         def fetch_data
           payload = { InquiryNumber: inquiry_number }
           response = service.call(endpoint: ENDPOINT, payload:)
-          handle_response_data(response)
-        end
-
-        def handle_response_data(response)
-          case response
-          when Hash
-            response[:Data]
-          else
-            error = JSON.parse(response.body, symbolize_names: true)
-            raise(StatusRetrieverError, error[:Message])
-          end
+          handle_response_data(response:, error_class: StatusRetrieverError)
         end
       end
     end

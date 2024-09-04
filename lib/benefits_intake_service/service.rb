@@ -104,7 +104,7 @@ module BenefitsIntakeService
     end
 
     def generate_tmp_metadata_file(metadata)
-      Common::FileHelpers.generate_temp_file(metadata.to_s, "#{SecureRandom.hex}.benefits_intake.metadata.json")
+      Common::FileHelpers.generate_clamav_temp_file(metadata.to_s, "#{SecureRandom.hex}.benefits_intake.metadata.json")
     end
 
     # Instantiates a new location and uuid via lighthouse

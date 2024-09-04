@@ -29,39 +29,18 @@ module TravelPay
     def request_btsss_token(veis_token, sts_token)
       btsss_url = Settings.travel_pay.base_url
       client_number = Settings.travel_pay.client_number
+      correlation_id = SecureRandom.uuid
+      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
 
       response = connection(server_url: btsss_url).post('api/v1/Auth/access-token') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['BTSSS-API-Client-Number'] = client_number.to_s
-        req.headers['X-Correlation-ID'] = SecureRandom.uuid
-        req.headers.merge(claim_headers)
+        req.headers['X-Correlation-ID'] = correlation_id
+        req.headers.merge!(claim_headers)
         req.body = { authJwt: sts_token }
       end
 
       response.body['data']['accessToken']
-    end
-
-    ##
-    # HTTP GET call to the BTSSS 'ping' endpoint to test liveness
-    #
-    # @return [Faraday::Response]
-    #
-    def ping
-      veis_token = request_veis_token
-      request_ping(veis_token)
-    end
-
-    ##
-    # HTTP GET call to the BTSSS 'authorized-ping' endpoint to test liveness
-    #
-    # @return [Faraday::Response]
-    #
-    def authorized_ping(current_user)
-      sts_token = request_sts_token(current_user)
-      veis_token = request_veis_token
-      btsss_token = request_btsss_token(veis_token, sts_token)
-
-      request_authorized_ping(veis_token, btsss_token)
     end
 
     ##
@@ -187,12 +166,14 @@ module TravelPay
 
     def request_claims(veis_token, btsss_token)
       btsss_url = Settings.travel_pay.base_url
+      correlation_id = SecureRandom.uuid
+      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
 
       connection(server_url: btsss_url).get('api/v1/claims') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['BTSSS-Access-Token'] = btsss_token
-        req.headers['X-Correlation-ID'] = SecureRandom.uuid
-        req.headers.merge(claim_headers)
+        req.headers['X-Correlation-ID'] = correlation_id
+        req.headers.merge!(claim_headers)
       end
     end
 

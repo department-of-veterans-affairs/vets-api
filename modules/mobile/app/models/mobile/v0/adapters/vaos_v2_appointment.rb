@@ -3,7 +3,6 @@
 module Mobile
   module V0
     module Adapters
-      # rubocop:disable Metrics/ClassLength
       class VAOSV2Appointment
         APPOINTMENT_TYPES = {
           va: 'VA',
@@ -96,7 +95,7 @@ module Mobile
             facility_id:,
             sta6aid: facility_id,
             healthcare_provider:,
-            healthcare_service: nil, # set to nil until we decide what the purpose of this field was meant to be
+            healthcare_service: nil, # set to nil because it is deprecated
             location:,
             physical_location: appointment[:physical_location],
             minutes_duration: appointment[:minutes_duration],
@@ -442,14 +441,6 @@ module Mobile
           { area_code: nil, number: nil, extension: nil }
         end
 
-        def healthcare_service
-          if va_appointment?
-            appointment[:service_name] || appointment[:physical_location]
-          else
-            appointment.dig(:extension, :cc_location, :practice_name)
-          end
-        end
-
         def va_appointment?
           [APPOINTMENT_TYPES[:va],
            APPOINTMENT_TYPES[:va_video_connect_gfe],
@@ -511,7 +502,6 @@ module Mobile
           time.is_a?(DateTime) ? time : DateTime.parse(time)
         end
       end
-      # rubocop:enable Metrics/ClassLength
     end
   end
 end

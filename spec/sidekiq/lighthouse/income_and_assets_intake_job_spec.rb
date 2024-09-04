@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'lighthouse/benefits_intake/service'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 
 RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
   stub_virus_scan
@@ -94,10 +94,10 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
 
     it 'returns a datestamp pdf path' do
       run_count = 0
-      allow_any_instance_of(CentralMail::DatestampPdf).to receive(:run) {
-                                                            run_count += 1
-                                                            pdf_path
-                                                          }
+      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) {
+                                                             run_count += 1
+                                                             pdf_path
+                                                           }
       allow(service).to receive(:valid_document?).and_return(pdf_path)
       new_path = job.send(:process_document, 'test/path')
 

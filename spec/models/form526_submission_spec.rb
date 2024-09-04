@@ -119,11 +119,38 @@ RSpec.describe Form526Submission do
     let!(:remediated) { create(:form526_submission, :remediated) }
     let!(:remediated_and_expired) { create(:form526_submission, :remediated, :created_more_than_3_weeks_ago) }
     let!(:remediated_and_rejected) { create(:form526_submission, :remediated, :backup_path, :backup_rejected) }
-    let!(:no_longer_remediated) { create(:form526_submission, :no_longer_remediated) }
+    let!(:new_no_longer_remediated) { create(:form526_submission, :no_longer_remediated) }
+    let!(:old_no_longer_remediated) do
+      Timecop.freeze(3.months.ago) do
+        create(:form526_submission, :no_longer_remediated)
+      end
+    end
     let!(:paranoid_success) { create(:form526_submission, :backup_path, :paranoid_success) }
     let!(:success_by_age) do
       Timecop.freeze((1.year + 1.day).ago) do
         create(:form526_submission, :backup_path, :paranoid_success)
+      end
+    end
+    let!(:failed_primary) { create(:form526_submission, :with_failed_primary_job) }
+    let!(:exhausted_primary) { create(:form526_submission, :with_exhausted_primary_job) }
+    let!(:failed_backup) { create(:form526_submission, :with_failed_backup_job) }
+    let!(:exhausted_backup) { create(:form526_submission, :with_exhausted_backup_job) }
+
+    describe 'with_exhausted_primary_jobs' do
+      it 'returns submissions associated to failed or exhausted primary jobs' do
+        expect(Form526Submission.with_exhausted_primary_jobs).to contain_exactly(
+          failed_primary,
+          exhausted_primary
+        )
+      end
+    end
+
+    describe 'with_exhausted_backup_jobs' do
+      it 'returns submissions associated to failed or exhausted backup jobs' do
+        expect(Form526Submission.with_exhausted_backup_jobs).to contain_exactly(
+          failed_backup,
+          exhausted_backup
+        )
       end
     end
 
@@ -135,17 +162,17 @@ RSpec.describe Form526Submission do
       end
     end
 
-    describe 'success_by_age_type' do
+    describe 'success_by_age' do
       it 'returns records more than a year old with paranoid_success backup status' do
-        expect(Form526Submission.success_by_age_type).to contain_exactly(
+        expect(Form526Submission.success_by_age).to contain_exactly(
           success_by_age
         )
       end
     end
 
-    describe 'pending_backup_submissions' do
+    describe 'pending_backup' do
       it 'returns records submitted to the backup path but lacking a decisive state' do
-        expect(Form526Submission.pending_backup_submissions).to contain_exactly(
+        expect(Form526Submission.pending_backup).to contain_exactly(
           pending_backup
         )
       end
@@ -155,7 +182,21 @@ RSpec.describe Form526Submission do
       it 'only returns submissions that are still in process' do
         expect(Form526Submission.in_process).to contain_exactly(
           in_process,
-          pending_backup
+          new_no_longer_remediated,
+          exhausted_primary,
+          failed_primary
+        )
+      end
+    end
+
+    describe 'incomplete_type' do
+      it 'only returns submissions that are still in process' do
+        expect(Form526Submission.incomplete_type).to contain_exactly(
+          in_process,
+          pending_backup,
+          new_no_longer_remediated,
+          exhausted_primary,
+          failed_primary
         )
       end
     end
@@ -171,7 +212,9 @@ RSpec.describe Form526Submission do
     describe 'accepted_to_backup_path' do
       it 'returns submissions with a backup_submitted_claim_id that have been explicitly accepted' do
         expect(Form526Submission.accepted_to_backup_path).to contain_exactly(
-          accepted_backup
+          accepted_backup,
+          paranoid_success,
+          success_by_age
         )
       end
     end
@@ -213,8 +256,10 @@ RSpec.describe Form526Submission do
       it 'returns anything not explicitly successful or still in process' do
         expect(Form526Submission.failure_type).to contain_exactly(
           rejected_backup,
-          no_longer_remediated,
-          expired
+          expired,
+          old_no_longer_remediated,
+          failed_backup,
+          exhausted_backup
         )
       end
     end

@@ -6,7 +6,7 @@ module ClaimsApi
   module TargetVeteran
     extend ActiveSupport::Concern
 
-    included do # rubocop:disable Metrics/BlockLength
+    included do
       def target_veteran
         @target_veteran ||= if @is_valid_ccg_flow
                               build_target_veteran(veteran_id: params[:veteranId], loa: { current: 3, highest: 3 })

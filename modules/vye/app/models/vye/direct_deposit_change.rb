@@ -57,26 +57,30 @@ module Vye
         )
     end
 
-    def self.report_rows
-      export_ready.each_with_object([]) do |record, result|
-        user_info = record.user_info
+    def self.each_report_row
+      return to_enum(:each_report_row) unless block_given?
 
-        result << {
-          rpo: user_info.rpo_code,
-          ben_type: user_info.indicator,
-          ssn: user_info.ssn,
-          file_number: user_info.file_number,
-          full_name: record.full_name,
-          phone: dashed_triples_format(record.phone.presence),
-          phone2: dashed_triples_format(record.phone2.presence),
-          email: record.email,
-          acct_no: record.acct_no,
-          acct_type: acct_types[record.acct_type],
-          routing_no: record.routing_no_body,
-          chk_digit: record.routing_no_chk,
-          bank_name: record.bank_name,
-          bank_phone: dashed_triples_format(record.bank_phone)
-        }.transform_values { |v| v.presence || ' ' }
+      export_ready.in_batches(of: 1000) do |batch|
+        batch.each do |record|
+          user_info = record.user_info
+
+          yield({
+            rpo: user_info.rpo_code,
+            ben_type: user_info.indicator,
+            ssn: user_info.ssn,
+            file_number: user_info.file_number,
+            full_name: record.full_name,
+            phone: dashed_triples_format(record.phone.presence),
+            phone2: dashed_triples_format(record.phone2.presence),
+            email: record.email,
+            acct_no: record.acct_no,
+            acct_type: acct_types[record.acct_type],
+            routing_no: record.routing_no_body,
+            chk_digit: record.routing_no_chk,
+            bank_name: record.bank_name,
+            bank_phone: dashed_triples_format(record.bank_phone)
+          }.transform_values { |v| v.presence || ' ' })
+        end
       end
     end
 
@@ -101,8 +105,8 @@ module Vye
     private_constant :REPORT_TEMPLATE
 
     def self.write_report(io)
-      report_rows.each do |record|
-        io.puts(format(REPORT_TEMPLATE, record))
+      each_report_row do |row|
+        io.puts(format(REPORT_TEMPLATE, row))
       end
     end
   end
