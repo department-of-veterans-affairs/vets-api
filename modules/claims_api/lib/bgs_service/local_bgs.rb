@@ -16,13 +16,18 @@ module ClaimsApi
   class LocalBGS
     CACHED_SERVICES = %w[
       ClaimantServiceBean/ClaimantWebService
+      IntentToFileWebServiceBean/IntentToFileWebService
       OrgWebServiceBean/OrgWebService
+      PersonWebServiceBean/PersonWebService
       VDC/VeteranRepresentativeService
       VdcBean/ManageRepresentativeService
       VnpAtchmsWebServiceBean/VnpAtchmsService
       VnpPersonWebServiceBean/VnpPersonService
       VnpProcFormWebServiceBean/VnpProcFormService
       VnpProcWebServiceBeanV2/VnpProcServiceV2
+      VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
+      VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
+      VnpPtcpntWebServiceBean/VnpPtcpntService
     ].freeze
 
     # rubocop:disable Metrics/MethodLength

@@ -16,13 +16,29 @@ class Form526StateLoggingJob
   end
 
   def perform
-    Rails.logger.info('Form 526 State Data', state_log)
+    Rails.logger.info('Form 526 State Data',
+                      state_log: abbreviated_state_log,
+                      start_date:,
+                      end_date:)
   rescue => e
-    Rails.logger.error('Error logging 526 state data', class: self.class.name, message: e.try(:message))
+    Rails.logger.error('Error logging 526 state data',
+                       class: self.class.name,
+                       message: e.try(:message),
+                       start_date:,
+                       end_date:)
   end
 
   def state_log
     timeboxed_state.merge(all_time_state)
+  end
+
+  def abbreviated_state_log
+    {}.tap do |abbreviation|
+      state_log.each do |dp, ids|
+        abbreviation[:"#{dp}_count"] = ids.count
+      end
+      abbreviation[:total_failure_type_ids] = total_failure_type
+    end
   end
 
   def timeboxed_state
@@ -39,8 +55,12 @@ class Form526StateLoggingJob
     {
       total_awaiting_backup_status: Form526Submission.pending_backup.pluck(:id).sort,
       total_incomplete_type: Form526Submission.incomplete_type.pluck(:id).sort,
-      total_failure_type: Form526Submission.failure_type.pluck(:id).sort
+      total_failure_type:
     }
+  end
+
+  def total_failure_type
+    @total_failure_type ||= Form526Submission.failure_type.pluck(:id).sort
   end
 
   def sub_arel
