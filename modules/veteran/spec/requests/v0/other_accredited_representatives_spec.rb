@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative 'base_accredited_representatives_shared_spec'
 require_relative 'other_accredited_representatives_shared_spec'
 
-RSpec.describe 'OtherAccreditedRepresentativesController', type: :request do
+RSpec.describe 'Veteran::V0::OtherAccreditedRepresentatives', type: :request do
   let(:path) { '/services/veteran/v0/other_accredited_representatives' }
 
   before do

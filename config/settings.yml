@@ -1284,6 +1284,7 @@ vanotify:
     va_gov:
       api_key: fake_secret
       template_id:
+        appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
         burial_claim_confirmation_email_template_id: burial_claim_confirmation_email_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
