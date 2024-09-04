@@ -24,6 +24,27 @@ module ClaimsApi
 
     private
 
+    def get_monthly_claims_by_consumer_by_status(monthly_claims_by_cid_by_status, monthly_pact_claims_by_cid)
+      totals_row = Hash.new(0)
+
+      monthly_claims_by_consumer_by_status = monthly_claims_by_cid_by_status.map do |cid, column_counts|
+        column_counts[:totals] = column_counts.values.sum
+        column_counts[:pact_count] = monthly_pact_claims_by_cid[cid]
+
+        column_counts.symbolize_keys!
+
+        column_counts.each do |column, count|
+          totals_row[column] += count
+        end
+
+        { ClaimsApi::CidMapper.new(cid:).name => column_counts }
+      end
+
+      monthly_claims_by_consumer_by_status.tap do |claims_rows|
+        claims_rows << { 'Totals' => totals_row } unless totals_row.empty?
+      end
+    end
+
     def monthly_claims_totals
       monthly_claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to)
       monthly_pact_claims = ClaimsApi::ClaimSubmission.where(created_at: @from..@to,
@@ -38,13 +59,7 @@ module ClaimsApi
         hash[cid] += 1 if cid
       end
 
-      monthly_claims_by_cid_by_status.map do |cid, status_counts|
-        status_counts[:totals] = status_counts.values.sum
-        status_counts[:pact_count] = monthly_pact_claims_by_cid[cid]
-        {
-          ClaimsApi::CidMapper.new(cid:).name => status_counts.deep_symbolize_keys
-        }
-      end
+      get_monthly_claims_by_consumer_by_status(monthly_claims_by_cid_by_status, monthly_pact_claims_by_cid)
     end
   end
 end

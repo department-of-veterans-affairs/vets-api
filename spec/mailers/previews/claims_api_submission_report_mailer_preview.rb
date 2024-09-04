@@ -24,7 +24,8 @@ class ClaimsApiSubmissionReportMailerPreview < ActionMailer::Preview
   def claims_totals
     [
       { 'consumer 1' => { pending: 2, errored: 1, totals: 3, pact_count: 2 } },
-      { 'consumer 2' => { pending: 3, errored: 3, totals: 6, pact_count: 1 } }
+      { 'consumer 2' => { pending: 3, errored: 3, totals: 6, pact_count: 1 } },
+      { 'Totals' => { pending: 5, errored: 4, totals: 9, pact_count: 3 } }
     ]
   end
 

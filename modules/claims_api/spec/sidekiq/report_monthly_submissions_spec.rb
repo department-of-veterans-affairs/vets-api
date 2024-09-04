@@ -39,7 +39,10 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
 
   context 'with one claims consumer and one PACT claim' do
     let(:claim_setup) { :setup_one_claim_one_pact_claim }
-    let(:expected_totals) { [{ 'VA TurboClaim' => { established: 1, totals: 1, pact_count: 1 } }] }
+    let(:expected_totals) do
+      [{ 'VA TurboClaim' => { established: 1, totals: 1, pact_count: 1 } },
+       { 'Totals' => { established: 1, totals: 1, pact_count: 1 } }]
+    end
 
     def setup_one_claim_one_pact_claim
       claim = create(:auto_established_claim, :status_established, cid: '0oa9uf05lgXYk6ZXn297')
@@ -51,7 +54,10 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
 
   context 'with one claims consumer and no PACT claims' do
     let(:claim_setup) { :setup_one_claim_no_pact_claims }
-    let(:expected_totals) { [{ 'VA TurboClaim' => { established: 1, totals: 1, pact_count: 0 } }] }
+    let(:expected_totals) do
+      [{ 'VA TurboClaim' => { established: 1, totals: 1, pact_count: 0 } },
+       { 'Totals' => { established: 1, totals: 1, pact_count: 0 } }]
+    end
 
     def setup_one_claim_no_pact_claims
       create(:auto_established_claim, :status_established, cid: '0oa9uf05lgXYk6ZXn297')
@@ -64,7 +70,8 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
     let(:claim_setup) { :setup_two_claims_one_pact_claim }
     let(:expected_totals) do
       [{ 'VA TurboClaim' => { established: 1, totals: 1, pact_count: 1 } },
-       { 'VA.gov' => { errored: 1, totals: 1, pact_count: 0 } }]
+       { 'VA.gov' => { errored: 1, totals: 1, pact_count: 0 } },
+       { 'Totals' => { established: 1, errored: 1, totals: 2, pact_count: 1 } }]
     end
 
     def setup_two_claims_one_pact_claim
@@ -78,7 +85,10 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
 
   context 'with one claims consumer and multiple claims' do
     let(:claim_setup) { :setup_one_consumer_multiple_claims }
-    let(:expected_totals) { [{ 'VA TurboClaim' => { established: 2, errored: 1, totals: 3, pact_count: 0 } }] }
+    let(:expected_totals) do
+      [{ 'VA TurboClaim' => { established: 2, errored: 1, totals: 3, pact_count: 0 } },
+       { 'Totals' => { established: 2, errored: 1, totals: 3, pact_count: 0 } }]
+    end
 
     def setup_one_consumer_multiple_claims
       cid = '0oa9uf05lgXYk6ZXn297'
