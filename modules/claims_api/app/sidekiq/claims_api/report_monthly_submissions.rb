@@ -16,7 +16,7 @@ module ClaimsApi
         @from,
         @to,
         consumer_claims_totals: monthly_claims_totals,
-        poa_totals:,
+        poa_totals: monthly_poa_totals,
         itf_totals:,
         ews_totals:
       ).deliver_now
@@ -24,12 +24,12 @@ module ClaimsApi
 
     private
 
-    def get_monthly_claims_by_consumer_by_status(monthly_claims_by_cid_by_status, monthly_pact_claims_by_cid)
+    def get_monthly_summary_by_consumer_by_status(monthly_summary_by_cid_by_status, monthly_pact_claims_by_cid = nil)
       totals_row = Hash.new(0)
 
-      monthly_claims_by_consumer_by_status = monthly_claims_by_cid_by_status.map do |cid, column_counts|
+      monthly_summary_by_consumer_by_status = monthly_summary_by_cid_by_status.map do |cid, column_counts|
         column_counts[:totals] = column_counts.values.sum
-        column_counts[:pact_count] = monthly_pact_claims_by_cid[cid]
+        column_counts[:pact_count] = monthly_pact_claims_by_cid[cid] if monthly_pact_claims_by_cid
 
         column_counts.symbolize_keys!
 
@@ -40,8 +40,8 @@ module ClaimsApi
         { ClaimsApi::CidMapper.new(cid:).name => column_counts }
       end
 
-      monthly_claims_by_consumer_by_status.tap do |claims_rows|
-        claims_rows << { 'Totals' => totals_row } unless totals_row.empty?
+      monthly_summary_by_consumer_by_status.tap do |rows|
+        rows << { 'Totals' => totals_row } unless totals_row.empty?
       end
     end
 
@@ -59,7 +59,17 @@ module ClaimsApi
         hash[cid] += 1 if cid
       end
 
-      get_monthly_claims_by_consumer_by_status(monthly_claims_by_cid_by_status, monthly_pact_claims_by_cid)
+      get_monthly_summary_by_consumer_by_status(monthly_claims_by_cid_by_status, monthly_pact_claims_by_cid)
+    end
+
+    def monthly_poa_totals
+      monthly_poa_consumers = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to)
+
+      monthly_poa_by_cid_by_status = monthly_poa_consumers.group_by(&:cid).transform_values do |poas|
+        poas.group_by(&:status).transform_values(&:count)
+      end
+
+      get_monthly_summary_by_consumer_by_status(monthly_poa_by_cid_by_status)
     end
   end
 end

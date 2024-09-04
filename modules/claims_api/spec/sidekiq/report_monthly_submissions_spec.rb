@@ -23,8 +23,12 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
         expect(ClaimsApi::SubmissionReportMailer).to receive(:build).once.with(
           from,
           to,
-          consumer_claims_totals: match_array(expected_totals),
-          poa_totals: [],
+          consumer_claims_totals: if defined?(expected_consumer_claims_totals)
+                                    match_array(expected_consumer_claims_totals)
+                                  else
+                                    []
+                                  end,
+          poa_totals: defined?(expected_poa_totals) ? match_array(expected_poa_totals) : [],
           ews_totals: [],
           itf_totals: []
         ).and_return(double.tap do |mailer|
@@ -39,7 +43,7 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
 
   context 'with one claims consumer and one PACT claim' do
     let(:claim_setup) { :setup_one_claim_one_pact_claim }
-    let(:expected_totals) do
+    let(:expected_consumer_claims_totals) do
       [{ 'VA TurboClaim' => { established: 1, totals: 1, pact_count: 1 } },
        { 'Totals' => { established: 1, totals: 1, pact_count: 1 } }]
     end
@@ -54,7 +58,7 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
 
   context 'with one claims consumer and no PACT claims' do
     let(:claim_setup) { :setup_one_claim_no_pact_claims }
-    let(:expected_totals) do
+    let(:expected_consumer_claims_totals) do
       [{ 'VA TurboClaim' => { established: 1, totals: 1, pact_count: 0 } },
        { 'Totals' => { established: 1, totals: 1, pact_count: 0 } }]
     end
@@ -68,7 +72,7 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
 
   context 'with two claims consumers and one PACT claim' do
     let(:claim_setup) { :setup_two_claims_one_pact_claim }
-    let(:expected_totals) do
+    let(:expected_consumer_claims_totals) do
       [{ 'VA TurboClaim' => { established: 1, totals: 1, pact_count: 1 } },
        { 'VA.gov' => { errored: 1, totals: 1, pact_count: 0 } },
        { 'Totals' => { established: 1, errored: 1, totals: 2, pact_count: 1 } }]
@@ -85,7 +89,7 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
 
   context 'with one claims consumer and multiple claims' do
     let(:claim_setup) { :setup_one_consumer_multiple_claims }
-    let(:expected_totals) do
+    let(:expected_consumer_claims_totals) do
       [{ 'VA TurboClaim' => { established: 2, errored: 1, totals: 3, pact_count: 0 } },
        { 'Totals' => { established: 2, errored: 1, totals: 3, pact_count: 0 } }]
     end
@@ -102,10 +106,27 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
 
   context 'no claims' do
     let(:claim_setup) { :setup_no_claims }
-    let(:expected_totals) { [] }
+    let(:expected_consumer_claims_totals) { [] }
 
     def setup_no_claims
       # no claims
+    end
+
+    it_behaves_like 'sends mail with expected totals'
+  end
+
+  context 'three POAs' do
+    let(:claim_setup) { :setup_three_poas }
+    let(:expected_poa_totals) do
+      [{ 'VA TurboClaim' => { submitted: 1, errored: 1, totals: 2 } },
+       { 'VA.gov' => { submitted: 1, totals: 1 } },
+       { 'Totals' => { submitted: 2, errored: 1, totals: 3 } }]
+    end
+
+    def setup_three_poas
+      create(:power_of_attorney, cid: '0oa9uf05lgXYk6ZXn297')
+      create(:power_of_attorney, status: 'errored', cid: '0oa9uf05lgXYk6ZXn297')
+      create(:power_of_attorney, cid: '0oagdm49ygCSJTp8X297')
     end
 
     it_behaves_like 'sends mail with expected totals'
