@@ -156,7 +156,7 @@ describe ClaimsApi::BD do
           end
 
           context 'the doc type is 21-22' do
-            let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22A/signed_filled_final.pdf' }
+            let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
             let(:json_body) do
               res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, action: 'put',
                                                         doc_type: 'L190')
