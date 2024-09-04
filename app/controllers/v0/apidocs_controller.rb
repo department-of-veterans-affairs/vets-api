@@ -165,7 +165,6 @@ module V0
       Swagger::Requests::Messages::TriageTeams,
       Swagger::Requests::MviUsers,
       Swagger::Requests::OnsiteNotifications,
-      Swagger::Requests::PensionClaims,
       Swagger::Requests::IncomeAndAssetsClaims,
       Swagger::Requests::PPIU,
       Swagger::Requests::PreneedsClaims,

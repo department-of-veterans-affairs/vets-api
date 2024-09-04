@@ -909,7 +909,6 @@ RSpecRails/HaveHttpStatus:
     - 'spec/requests/health_care_applications_request_spec.rb'
     - 'spec/requests/in_progress_forms_request_spec.rb'
     - 'spec/requests/mpi_users_request_spec.rb'
-    - 'spec/requests/pension_claims_controller_spec.rb'
     - 'spec/requests/ppiu_request_spec.rb'
     - 'spec/requests/service_history_request_spec.rb'
     - 'spec/requests/user_request_spec.rb'
