@@ -139,6 +139,14 @@ RSpec.describe Form526Submission do
     let!(:failed_backup) { create(:form526_submission, :with_failed_backup_job) }
     let!(:exhausted_backup) { create(:form526_submission, :with_exhausted_backup_job) }
 
+    before do
+      happy_lighthouse_path_success.form526_job_statuses << Form526JobStatus.new(
+        job_class: 'PollForm526Pdf',
+        status: Form526JobStatus::STATUS[:success],
+        job_id: 1
+      )
+    end
+
     describe 'with_exhausted_primary_jobs' do
       it 'returns submissions associated to failed or exhausted primary jobs' do
         expect(Form526Submission.with_exhausted_primary_jobs).to contain_exactly(
@@ -205,13 +213,6 @@ RSpec.describe Form526Submission do
     end
 
     describe 'accepted_to_primary_path' do
-      before do
-        happy_lighthouse_path_success.form526_job_statuses << Form526JobStatus.new(
-          job_class: 'PollForm526Pdf',
-          status: Form526JobStatus::STATUS[:success],
-          job_id: 1
-        )
-      end
 
       it 'returns submissions with a submitted_claim_id' do
         expect(Form526Submission.accepted_to_evss_primary_path).to contain_exactly(
@@ -293,6 +294,7 @@ RSpec.describe Form526Submission do
           remediated_and_expired,
           remediated_and_rejected,
           happy_path_success,
+          happy_lighthouse_path_success,
           accepted_backup,
           paranoid_success,
           success_by_age
