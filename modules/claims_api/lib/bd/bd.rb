@@ -104,7 +104,6 @@ module ClaimsApi
                              pctpnt_vet_id: nil)
       payload = {}
       auth_headers = claim.auth_headers
-      auth_headers['va_eauth_birlsfilenumber'] = ''
       veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'], auth_headers['va_eauth_lastName'])
       birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number if doc_type != 'L705'
       claim_id = get_claim_id(doc_type, claim)
@@ -123,7 +122,7 @@ module ClaimsApi
     end
     # rubocop:enable Metrics/ParameterLists
 
-    def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, action: 'post')
+    def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, action:)
       # https://confluence.devops.va.gov/display/VAExternal/Document+Types
       doc_type_names = {
         'put' => {
