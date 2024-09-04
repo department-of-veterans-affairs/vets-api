@@ -1598,9 +1598,6 @@ features:
   pension_browser_monitoring_enabled:
     actor_type: user
     description: Pension Datadog RUM monitoring
-  pension_claim_submission_to_lighthouse:
-    actor_type: user
-    description: Pension claim submission uses Lighthouse API
   pension_multiple_page_response:
     actor_type: user
     description: Implement multiple page response pattern
