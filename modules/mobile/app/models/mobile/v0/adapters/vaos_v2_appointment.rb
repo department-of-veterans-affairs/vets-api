@@ -231,7 +231,7 @@ module Mobile
         end
 
         def proposed_times
-          return nil if appointment[:requested_periods].nil?
+          return nil unless appointment[:requested_periods]
 
           appointment[:requested_periods].map do |period|
             start_date = time_to_datetime(period[:start])
