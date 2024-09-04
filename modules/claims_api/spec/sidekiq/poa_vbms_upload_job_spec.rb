@@ -215,7 +215,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
           claim: power_of_attorney,
           pdf_path: anything,
           doc_type: 'L075',
-          action: "post"
+          action: 'post'
         )
         subject.new.perform(power_of_attorney.id)
       end
