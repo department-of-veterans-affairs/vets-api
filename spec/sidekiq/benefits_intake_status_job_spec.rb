@@ -22,7 +22,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
           form_submission = create(:form_submission)
           create(:form_submission_attempt, :pending, form_submission:)
           create(:form_submission_attempt, :vbms, form_submission:)
-          expect_any_instance_of(BenefitsIntakeStatusJob).to receive(:batch_process).with(FormSubmission.none)
+          expect_any_instance_of(BenefitsIntake::Service).not_to receive(:bulk_status)
 
           BenefitsIntakeStatusJob.new.perform
         end
