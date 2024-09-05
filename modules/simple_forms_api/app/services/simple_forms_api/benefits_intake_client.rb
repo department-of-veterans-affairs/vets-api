@@ -42,6 +42,10 @@ module SimpleFormsApi
 
     attr_accessor :attachments, :file_path, :form_id, :form, :metadata, :params
 
+    def lighthouse_service
+      @lighthouse_service ||= BenefitsIntake::Service.new
+    end
+
     def fetch_form_id
       FORM_NUMBER_MAP.fetch(form_number) { raise ArgumentError, "Invalid form_number: #{form_number}" }
     end

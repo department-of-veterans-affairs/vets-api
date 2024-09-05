@@ -57,10 +57,6 @@ module SimpleFormsApi
 
       private
 
-      def lighthouse_service
-        @lighthouse_service ||= BenefitsIntake::Service.new
-      end
-
       def skip_authentication?
         UNAUTHENTICATED_FORMS.include?(params[:form_number]) || UNAUTHENTICATED_FORMS.include?(params[:form_id])
       end
