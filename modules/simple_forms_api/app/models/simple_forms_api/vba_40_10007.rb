@@ -6,7 +6,6 @@ module SimpleFormsApi
   class VBA4010007
     include Virtus.model(nullify_blank: true)
     STATS_KEY = 'api.simple_forms_api.40_10007'
-
     attribute :data
 
     def initialize(data)
@@ -15,34 +14,31 @@ module SimpleFormsApi
 
     def veteran_or_claimant_first_name(form_data)
       relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
-      
       if relationship != '1' && relationship != 'veteran'
         form_data.dig('application', 'veteran', 'current_name', 'first')
       else
         form_data.dig('application', 'claimant', 'name', 'first')
       end
     end
-    
+
     def veteran_or_claimant_last_name(form_data)
       relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
-      
       if relationship != '1' && relationship != 'veteran'
         form_data.dig('application', 'veteran', 'current_name', 'last')
       else
         form_data.dig('application', 'claimant', 'name', 'last')
       end
     end
-    
+
     def veteran_or_claimant_file_number(form_data)
       relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
-      
       if relationship != '1' && relationship != 'veteran'
         form_data.dig('application', 'veteran', 'ssn') || ''
       else
         form_data.dig('application', 'claimant', 'ssn') || ''
       end
     end
-    
+
     def metadata
       {
         'veteranFirstName' => veteran_or_claimant_first_name(@data),
