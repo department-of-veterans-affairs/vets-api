@@ -51,9 +51,9 @@ module SimpleFormsApi
     end
 
     def parse_and_assign_form_data
-      parsed_form_data = JSON.parse(params.to_json)
-      assign_form_info(parsed_form_data)
-      parsed_form_data
+      JSON.parse(params.to_json).tap do |parsed_form_data|
+        assign_form_info(parsed_form_data)
+      end
     end
 
     def log_submission(status, uuid)
@@ -72,7 +72,13 @@ module SimpleFormsApi
     end
 
     def generate_response(confirmation_number, status)
-      { json: get_json(confirmation_number, form_id), status: }
+      { json: confirmation_payload(confirmation_number), status: }
+    end
+
+    def confirmation_payload(confirmation_number)
+      { confirmation_number: }.tap do |payload|
+        payload[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
+      end
     end
 
     def assign_form_info(parsed_form_data)
@@ -119,8 +125,8 @@ module SimpleFormsApi
     def upload_pdf
       location, uuid = prepare_for_upload
       log_upload_details(location, uuid)
-
       response = use_benefits_intake_service? ? perform_pdf_upload(location) : perform_document_upload(location)
+
       [response.status, uuid]
     end
 
@@ -132,6 +138,7 @@ module SimpleFormsApi
       location, uuid = lighthouse_service.request_upload
       stamp_pdf_with_uuid(uuid)
       create_form_submission_attempt(uuid)
+
       [location, uuid]
     end
 
