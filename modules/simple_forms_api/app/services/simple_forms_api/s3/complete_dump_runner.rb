@@ -4,19 +4,15 @@ class CompleteDumpRunner
   attr_reader :submission_ids, :parent_dir, :successes, :failures,
               :bundle_by_user, :run_quiet, :quiet_upload_failures, :quiet_pdf_failures
 
-  def initialize(submission_ids:,
-                 parent_dir: 'wipn8923-test',
-                 bundle_by_user: true,
-                 run_quiet: true,
-                 quiet_upload_failures: false,
-                 quiet_pdf_failures: false,
-                 signed_link: false)
+  def initialize(submission_ids:, **options)
+    defaults = default_options.merge(options)
+
     @submission_ids = submission_ids
-    @parent_dir = parent_dir
-    @bundle_by_user = bundle_by_user
-    @run_quiet = run_quiet # silence but record errors until the end
-    @quiet_upload_failures = quiet_upload_failures # granular control over how user processing raises errors
-    @quiet_pdf_failures = quiet_pdf_failures # granular control over how user processing raises errors
+    @parent_dir = defaults[:parent_dir]
+    @bundle_by_user = defaults[:bundle_by_user]
+    @run_quiet = defaults[:run_quiet]
+    @quiet_upload_failures = defaults[:quiet_upload_failures]
+    @quiet_pdf_failures = defaults[:quiet_pdf_failures]
     @failures = []
   end
 
@@ -28,8 +24,18 @@ class CompleteDumpRunner
 
   private
 
+  def default_options
+    {
+      parent_dir: 'wipn8923-test',
+      bundle_by_user: true,
+      run_quiet: true, # silence but record errors until the end
+      quiet_upload_failures: false, # granular control over how user processing raises errors
+      quiet_pdf_failures: false # granular control over how user processing raises errors
+    }
+  end
+
   def submissions
-    @submissions ||= Form526Submission.where(id: submission_ids)
+    @submissions ||= FormSubmission.where(id: submission_ids)
   end
 
   def submissions_by_uuid
