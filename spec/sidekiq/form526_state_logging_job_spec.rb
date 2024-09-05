@@ -267,7 +267,7 @@ RSpec.describe Form526StateLoggingJob, type: :worker do
         ].sort
       }
 
-      expect(described_class.new.state_log).to eq(expected_log)
+      expect(described_class.new.base_state).to eq(expected_log)
     end
 
     it 'converts the logs to counts where prefered' do
@@ -302,6 +302,21 @@ RSpec.describe Form526StateLoggingJob, type: :worker do
         expect(label).to eq('Form 526 State Data')
         expect(log).to eq(expected_log)
       end
+      described_class.new.perform
+    end
+
+    it 'writes counts as Stats D gauges' do
+      prefix = described_class::STATSD_PREFIX
+
+      expect(StatsD).to receive(:gauge).with("#{prefix}.timeboxed_count", 17)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.timeboxed_primary_successes_count", 4)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.timeboxed_exhausted_primary_job_count", 8)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.timeboxed_exhausted_backup_job_count", 3)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.timeboxed_incomplete_type_count", 5)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.total_awaiting_backup_status_count", 1)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.total_incomplete_type_count", 5)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.total_failure_type_count", 10)
+
       described_class.new.perform
     end
   end
