@@ -45,14 +45,17 @@ module ClaimsApi
       end
     end
 
+    def group_by_cid_by_status(consumers)
+      consumers.group_by(&:cid).transform_values do |submissions|
+        submissions.group_by(&:status).transform_values(&:count)
+      end
+    end
+
     def monthly_claims_totals
       monthly_claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to)
       monthly_pact_claims = ClaimsApi::ClaimSubmission.where(created_at: @from..@to,
                                                              claim_id: monthly_claims_consumers.pluck(:id))
-
-      monthly_claims_by_cid_by_status = monthly_claims_consumers.group_by(&:cid).transform_values do |claims|
-        claims.group_by(&:status).transform_values(&:count)
-      end
+      monthly_claims_by_cid_by_status = group_by_cid_by_status(monthly_claims_consumers)
 
       monthly_pact_claims_by_cid = monthly_pact_claims.each_with_object(Hash.new(0)) do |pact_claim, hash|
         cid = monthly_claims_consumers.find { |claim| claim.id == pact_claim.claim_id }&.cid
@@ -64,30 +67,21 @@ module ClaimsApi
 
     def monthly_poa_totals
       monthly_poa_consumers = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to)
-
-      monthly_poa_by_cid_by_status = monthly_poa_consumers.group_by(&:cid).transform_values do |poa|
-        poa.group_by(&:status).transform_values(&:count)
-      end
+      monthly_poa_by_cid_by_status = group_by_cid_by_status(monthly_poa_consumers)
 
       get_monthly_summary_by_consumer_by_status(monthly_poa_by_cid_by_status)
     end
 
     def monthly_itf_totals
       monthly_itf_consumers = ClaimsApi::IntentToFile.where(created_at: @from..@to)
-
-      monthly_itf_by_cid_by_status = monthly_itf_consumers.group_by(&:cid).transform_values do |itf|
-        itf.group_by(&:status).transform_values(&:count)
-      end
+      monthly_itf_by_cid_by_status = group_by_cid_by_status(monthly_itf_consumers)
 
       get_monthly_summary_by_consumer_by_status(monthly_itf_by_cid_by_status)
     end
 
     def monthly_ews_totals
       monthly_ews_consumers = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to)
-
-      monthly_ews_by_cid_by_status = monthly_ews_consumers.group_by(&:cid).transform_values do |ews|
-        ews.group_by(&:status).transform_values(&:count)
-      end
+      monthly_ews_by_cid_by_status = group_by_cid_by_status(monthly_ews_consumers)
 
       get_monthly_summary_by_consumer_by_status(monthly_ews_by_cid_by_status)
     end
