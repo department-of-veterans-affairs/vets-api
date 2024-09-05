@@ -72,10 +72,10 @@ class BenefitsIntakeStatusJob
       # https://developer.va.gov/explore/api/benefits-intake/docs
       status = submission.dig('attributes', 'status')
       lighthouse_updated_at = submission.dig('attributes', 'updated_at')
-      byebug
       if status == 'expired'
         # Expired - Indicate that documents were not successfully uploaded within the 15-minute window.
-        form_submission_attempt.update(error_message: 'expired', lighthouse_updated_at:)
+        error_message = 'expired'
+        form_submission_attempt.update(error_message:, lighthouse_updated_at:)
         form_submission_attempt.fail!
         log_result('failure', form_id, uuid, time_to_transition, error_message)
       elsif status == 'error'

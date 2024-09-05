@@ -98,13 +98,18 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       it 'updates the status with error from the bulk status report endpoint' do
         pending_form_submissions = create_list(:form_submission, 1, :pending)
         batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
-        data = batch_uuids.map { |id| { 'id' => id, 'attributes' => { 'status' => 'error' } } }
+        error_code = 'error-code'
+        error_detail = 'error-detail'
+        data = batch_uuids.map do |id|
+          { 'id' => id, 'attributes' => { 'code' => error_code, 'detail' => error_detail, 'status' => 'error' } }
+        end
         response = double(success?: true, body: { 'data' => data })
 
         status_job = BenefitsIntakeStatusJob.new
 
         pfs = pending_form_submissions.first
-        expect(status_job).to receive(:log_result).with('failure', pfs.form_type, pfs.benefits_intake_uuid, anything)
+        expect(status_job).to receive(:log_result).with('failure', pfs.form_type, pfs.benefits_intake_uuid, anything,
+                                                        "#{error_code}: #{error_detail}")
         expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
           .with(uuids: batch_uuids).and_return(response)
 
@@ -124,7 +129,8 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
         status_job = BenefitsIntakeStatusJob.new
 
         pfs = pending_form_submissions.first
-        expect(status_job).to receive(:log_result).with('failure', pfs.form_type, pfs.benefits_intake_uuid, anything)
+        expect(status_job).to receive(:log_result).with('failure', pfs.form_type, pfs.benefits_intake_uuid, anything,
+                                                        'expired')
         expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
           .with(uuids: batch_uuids).and_return(response)
 
