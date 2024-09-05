@@ -126,12 +126,12 @@ module BGS
 
     def log_submit_failure(error)
       Rails.logger.warning('BGS::Form674.submit failed after creating benefit claim in BGS',
-      {
-        user_uuid: user.uuid,
-        saved_claim_id: saved_claim.id,
-        icn: user.icn,
-        error: error.message
-      })
+                           {
+                             user_uuid: user.uuid,
+                             saved_claim_id: saved_claim.id,
+                             icn: user.icn,
+                             error: error.message
+                           })
     end
 
     def bgs_service
