@@ -13,7 +13,6 @@ module VAOS
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
-      FACILITY_ERROR_MSG = 'Error fetching facility details'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
@@ -296,9 +295,7 @@ module VAOS
       end
 
       def merge_facility(appt)
-        return if appt[:location_id].nil?
-
-        appt[:location] = mobile_facility_service.get_facility(appt[:location_id]) || FACILITY_ERROR_MSG
+        appt[:location] = mobile_facility_service.get_facility(appt[:location_id]) unless appt[:location_id].nil?
         VAOS::AppointmentsHelper.log_appt_id_location_name(appt)
       end
 

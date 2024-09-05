@@ -7,6 +7,7 @@ module VAOS
     class AppointmentsController < VAOS::BaseController
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
+      FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
       APPT_INDEX_VPG = "GET '/vpg/v1/patients/<icn>/appointments'"
       APPT_SHOW_VAOS = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
@@ -19,6 +20,7 @@ module VAOS
 
       def index
         appointments[:data].each do |appt|
+          set_facility_error_msg(appt) if include_params[:facilities]
           scrape_appt_comments_and_log_details(appt, index_method_logging_name, PAP_COMPLIANCE_TELE)
           log_appt_creation_time(appt)
         end
@@ -37,6 +39,7 @@ module VAOS
 
       def show
         appointment
+        set_facility_error_msg(appointment)
 
         scrape_appt_comments_and_log_details(appointment, show_method_logging_name, PAP_COMPLIANCE_TELE)
         log_appt_creation_time(appointment)
@@ -48,6 +51,7 @@ module VAOS
 
       def create
         new_appointment
+        set_facility_error_msg(new_appointment)
 
         scrape_appt_comments_and_log_details(new_appointment, create_method_logging_name, PAP_COMPLIANCE_TELE)
 
@@ -58,6 +62,7 @@ module VAOS
 
       def update
         updated_appointment
+        set_facility_error_msg(updated_appointment)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(updated_appointment, 'appointments')
@@ -65,6 +70,10 @@ module VAOS
       end
 
       private
+
+      def set_facility_error_msg(appointment)
+        appointment[:location] = FACILITY_ERROR_MSG if appointment[:location_id].present? && appointment[:location].nil?
+      end
 
       def appointments_service
         @appointments_service ||=
