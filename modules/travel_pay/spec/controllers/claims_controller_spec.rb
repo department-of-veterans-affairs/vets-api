@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe TravelPay::ClaimsController, type: :request do
+RSpec.describe TravelPay::V0::ClaimsController, type: :request do
   let(:user) { build(:user) }
 
   before do
@@ -19,21 +19,45 @@ RSpec.describe TravelPay::ClaimsController, type: :request do
         ]
       end
 
-      it 'responds with 200' do
-        VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[method path]) do
-          get '/travel_pay/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
-          expect(response).to have_http_status(:ok)
-          claim_ids = JSON.parse(response.body)['data'].pluck('id')
-          expect(claim_ids).to eq(expected_claim_ids)
+      context '(Older) unversioned API route' do
+        it 'responds with 200' do
+          VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[method path]) do
+            get '/travel_pay/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
+            expect(response).to have_http_status(:ok)
+            claim_ids = JSON.parse(response.body)['data'].pluck('id')
+            expect(claim_ids).to eq(expected_claim_ids)
+          end
+        end
+      end
+
+      context 'Versioned v0 API route' do
+        it 'responds with 200' do
+          VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[method path]) do
+            get '/travel_pay/v0/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
+            expect(response).to have_http_status(:ok)
+            claim_ids = JSON.parse(response.body)['data'].pluck('id')
+            expect(claim_ids).to eq(expected_claim_ids)
+          end
         end
       end
     end
 
     context 'unsuccessful response from API' do
-      it 'responds with a 404 if the API endpoint is not found' do
-        VCR.use_cassette('travel_pay/404_claims', match_requests_on: %i[method path]) do
-          get '/travel_pay/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
-          expect(response).to have_http_status(:bad_request)
+      context '(Older) unversioned API route' do
+        it 'responds with a 404 if the API endpoint is not found' do
+          VCR.use_cassette('travel_pay/404_claims', match_requests_on: %i[method path]) do
+            get '/travel_pay/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
+            expect(response).to have_http_status(:bad_request)
+          end
+        end
+      end
+
+      context 'Versioned v0 API route' do
+        it 'responds with a 404 if the API endpoint is not found' do
+          VCR.use_cassette('travel_pay/404_claims', match_requests_on: %i[method path]) do
+            get '/travel_pay/v0/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
+            expect(response).to have_http_status(:bad_request)
+          end
         end
       end
     end
