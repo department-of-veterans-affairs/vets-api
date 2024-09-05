@@ -12,31 +12,25 @@ module SimpleFormsApi
       @data = data
     end
 
-    def veteran_or_claimant_first_name(form_data)
+    def not_veteran?(form_data)
       relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
-      if relationship != '1' && relationship != 'veteran'
-        form_data.dig('application', 'veteran', 'current_name', 'first')
-      else
-        form_data.dig('application', 'claimant', 'name', 'first')
-      end
+      relationship != '1' && relationship != 'veteran'
+    end
+
+    def dig_data(form_data, field_veteran, field_claimant)
+      not_veteran?(form_data) ? form_data.dig(*field_veteran) : form_data.dig(*field_claimant)
+    end
+
+    def veteran_or_claimant_first_name(form_data)
+      dig_data(form_data, %w[application veteran current_name first], %w[application claimant name first])
     end
 
     def veteran_or_claimant_last_name(form_data)
-      relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
-      if relationship != '1' && relationship != 'veteran'
-        form_data.dig('application', 'veteran', 'current_name', 'last')
-      else
-        form_data.dig('application', 'claimant', 'name', 'last')
-      end
+      dig_data(form_data, %w[application veteran current_name last], %w[application claimant name last])
     end
 
     def veteran_or_claimant_file_number(form_data)
-      relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
-      if relationship != '1' && relationship != 'veteran'
-        form_data.dig('application', 'veteran', 'ssn') || ''
-      else
-        form_data.dig('application', 'claimant', 'ssn') || ''
-      end
+      dig_data(form_data, %w[application veteran ssn], %w[application claimant ssn]) || ''
     end
 
     def metadata
