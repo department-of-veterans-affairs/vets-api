@@ -135,8 +135,12 @@ module RepresentationManagement
           next_steps.font_families.update(
             'bitter' => {
               # modules/health_quest/lib/fonts/bitter-regular.ttf
-              normal: Rails.root.join('modules', 'health_quest', 'lib', 'fonts', 'bitter-regular.ttf'),
-              bold: Rails.root.join('modules', 'health_quest', 'lib', 'fonts', 'bitter-bold.ttf')
+              normal: Rails.root.join('modules', 'representation_management', 'lib', 'fonts', 'bitter-regular.ttf'),
+              bold: Rails.root.join('modules', 'representation_management', 'lib', 'fonts', 'bitter-bold.ttf')
+            },
+            'soursesanspro' => {
+              normal: Rails.root.join('modules', 'representation_management', 'lib', 'fonts',
+                                      'sourcesanspro-regular-webfont.ttf')
             }
           )
           next_steps_part1(next_steps)
