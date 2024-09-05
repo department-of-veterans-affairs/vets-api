@@ -26,7 +26,7 @@ module SimpleFormsApi
 
     def submit_form
       parsed_form_data = parse_and_assign_form_data
-      status, confirmation_number = process_form_submission
+      status, confirmation_number = upload_pdf
 
       form.track_user_identity(confirmation_number)
       log_submission(status, confirmation_number)
@@ -50,13 +50,6 @@ module SimpleFormsApi
       parsed_form_data = JSON.parse(params.to_json)
       assign_form_info(parsed_form_data)
       parsed_form_data
-    end
-
-    def process_form_submission
-      return upload_pdf if Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service)
-
-      uploader = SimpleFormsApi::PdfUploader.new(file_path, metadata, form, attachments)
-      uploader.upload_to_benefits_intake(params)
     end
 
     def log_submission(status, uuid)
@@ -123,8 +116,12 @@ module SimpleFormsApi
       location, uuid = prepare_for_upload
       log_upload_details(location, uuid)
 
-      response = perform_pdf_upload(location)
+      response = use_benefits_intake_service? ? perform_pdf_upload(location) : perform_document_upload(location)
       [response.status, uuid]
+    end
+
+    def use_benefits_intake_service?
+      Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service)
     end
 
     def prepare_for_upload
@@ -163,6 +160,15 @@ module SimpleFormsApi
       lighthouse_service.perform_upload(
         metadata: metadata.to_json,
         document: file_path,
+        upload_url:,
+        attachments:
+      )
+    end
+
+    def perform_document_upload(upload_url)
+      lighthouse_service.upload_doc(
+        metadata: metadata.to_json,
+        file: file_path,
         upload_url:,
         attachments:
       )
