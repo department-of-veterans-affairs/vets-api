@@ -12,21 +12,6 @@ module SimpleFormsApi
       before_action :load_user, if: :skip_authentication?
       skip_after_action :set_csrf_header
 
-      FORM_NUMBER_MAP = {
-        '21-0966' => 'vba_21_0966',
-        '21-0972' => 'vba_21_0972',
-        '21-0845' => 'vba_21_0845',
-        '21-10210' => 'vba_21_10210',
-        '21-4138' => 'vba_21_4138',
-        '21-4142' => 'vba_21_4142',
-        '21P-0847' => 'vba_21p_0847',
-        '26-4555' => 'vba_26_4555',
-        '40-0247' => 'vba_40_0247',
-        '20-10206' => 'vba_20_10206',
-        '40-10007' => 'vba_40_10007',
-        '20-10207' => 'vba_20_10207'
-      }.freeze
-
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
 
       def submit
@@ -37,7 +22,8 @@ module SimpleFormsApi
                    elsif form_is264555_and_should_use_lgy_api
                      handle264555
                    else
-                     submit_form_to_benefits_intake
+                     submission_handler = SimpleFormsApi::BenefitsIntakeSubmissionHandler.new(@current_user, params)
+                     submission_handler.submit_form
                    end
 
         clear_saved_form(params[:form_number])
@@ -71,10 +57,6 @@ module SimpleFormsApi
 
       private
 
-      def lighthouse_service
-        @lighthouse_service ||= BenefitsIntake::Service.new
-      end
-
       def skip_authentication?
         UNAUTHENTICATED_FORMS.include?(params[:form_number]) || UNAUTHENTICATED_FORMS.include?(params[:form_id])
       end
@@ -92,7 +74,7 @@ module SimpleFormsApi
 
         if Flipper.enabled?(:simple_forms_email_confirmations)
           SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: get_form_id, confirmation_number:, user: @current_user
+            form_data: parsed_form_data, form_number: fetch_form_id, confirmation_number:, user: @current_user
           ).send
         end
 
@@ -118,105 +100,6 @@ module SimpleFormsApi
         { json: { reference_number:, status: }, status: lgy_response.status }
       end
 
-      def submit_form_to_benefits_intake
-        form_id = get_form_id
-        parsed_form_data = JSON.parse(params.to_json)
-        file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
-
-        if Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service)
-          status, confirmation_number = upload_pdf(file_path, metadata, form)
-        else
-          status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
-                                                                        form).upload_to_benefits_intake(params)
-        end
-
-        form.track_user_identity(confirmation_number)
-
-        Rails.logger.info(
-          'Simple forms api - sent to benefits intake',
-          { form_number: params[:form_number], status:, uuid: confirmation_number }
-        )
-
-        if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
-          SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @current_user
-          ).send
-        end
-
-        { json: get_json(confirmation_number || nil, form_id), status: }
-      end
-
-      def get_file_paths_and_metadata(parsed_form_data)
-        form_id = get_form_id
-        form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
-        if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && @current_user
-          form = form.populate_veteran_data(@current_user)
-        end
-        filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
-
-        file_path = if @current_user
-                      filler.generate(@current_user.loa[:current])
-                    else
-                      filler.generate
-                    end
-        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
-                                                                        zip_code_is_us_based: form.zip_code_is_us_based)
-
-        form.handle_attachments(file_path) if %w[vba_40_0247 vba_20_10207 vba_40_10007].include? form_id
-
-        [file_path, metadata, form]
-      end
-
-      def upload_pdf(file_path, metadata, form)
-        location, uuid = prepare_for_upload(form)
-        log_upload_details(location, uuid)
-        response = perform_pdf_upload(location, file_path, metadata)
-
-        [response.status, uuid]
-      end
-
-      def prepare_for_upload(form)
-        location, uuid = lighthouse_service.request_upload
-        stamp_pdf_with_uuid(form, uuid)
-        create_form_submission_attempt(uuid)
-
-        [location, uuid]
-      end
-
-      def stamp_pdf_with_uuid(form, uuid)
-        # Stamp uuid on 40-10007
-        pdf_stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path: 'tmp/vba_40_10007-tmp.pdf', form:)
-        pdf_stamper.stamp_uuid(uuid)
-      end
-
-      def create_form_submission_attempt(uuid)
-        form_submission = create_form_submission(uuid)
-        FormSubmissionAttempt.create(form_submission:)
-      end
-
-      def create_form_submission(uuid)
-        FormSubmission.create(
-          form_type: params[:form_number],
-          benefits_intake_uuid: uuid,
-          form_data: params.to_json,
-          user_account: @current_user&.user_account
-        )
-      end
-
-      def log_upload_details(location, uuid)
-        Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info('Simple forms api - preparing to upload PDF to benefits intake', { location:, uuid: })
-      end
-
-      def perform_pdf_upload(location, file_path, metadata)
-        lighthouse_service.perform_upload(
-          metadata: metadata.to_json,
-          document: file_path,
-          upload_url: location
-        )
-      end
-
       def form_is264555_and_should_use_lgy_api
         params[:form_number] == '26-4555' && icn
       end
@@ -225,18 +108,11 @@ module SimpleFormsApi
         @current_user&.icn
       end
 
-      def get_form_id
+      def fetch_form_id
         form_number = params[:form_number]
         raise 'missing form_number in params' unless form_number
 
-        FORM_NUMBER_MAP[form_number]
-      end
-
-      def get_json(confirmation_number, form_id)
-        json = { confirmation_number: }
-        json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
-
-        json
+        SimpleFormsApi::BenefitsIntakeSubmissionHandler::FORM_NUMBER_MAP[form_number]
       end
 
       def prepare_params_for_benefits_intake_and_log_error(e)
@@ -258,13 +134,15 @@ module SimpleFormsApi
       end
 
       def json_for210966(confirmation_number, expiration_date, existing_intents)
-        { json: {
-          confirmation_number:,
-          expiration_date:,
-          compensation_intent: existing_intents['compensation'],
-          pension_intent: existing_intents['pension'],
-          survivor_intent: existing_intents['survivor']
-        } }
+        {
+          json: {
+            confirmation_number:,
+            expiration_date:,
+            compensation_intent: existing_intents['compensation'],
+            pension_intent: existing_intents['pension'],
+            survivor_intent: existing_intents['survivor']
+          }
+        }
       end
     end
   end
