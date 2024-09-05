@@ -11,7 +11,7 @@ module VAForms
 
     STATSD_KEY_PREFIX = 'api.va_forms.form_builder'
 
-    NON_RETRYABLE_ERROR_CODES = [403, 404].freeze # No need to retry because not likely to recover
+    NON_RETRYABLE_ERROR_CODES = [403, 404].freeze # No need to retry because unlikely to recover
 
     sidekiq_options retry: 7
 
