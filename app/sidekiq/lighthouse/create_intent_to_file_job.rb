@@ -7,7 +7,10 @@ module Lighthouse
   class CreateIntentToFileJob
     include Sidekiq::Job
 
-    class CreateIntentToFileError < StandardError; end
+    class MissingICNError < StandardError; end
+    class MissingParticipantIDError < StandardError; end
+    class InvalidITFTypeError < StandardError; end
+    class UserAccountNotFoundError < StandardError; end
 
     # Only pension form configured to create async ITFs for now
     ITF_FORMS = {
@@ -21,17 +24,18 @@ module Lighthouse
     # exhausted attempts will be logged in intent_to_file_queue_exhaustions table
     sidekiq_options retry: 14, queue: 'low'
     sidekiq_retries_exhausted do |msg, error|
-      form_type, form_start_date, veteran_icn = msg['args']
+      in_progress_form_id, veteran_icn, participant_id = msg['args']
+      in_progress_form = InProgressForm.find(in_progress_form_id)
       itf_log_monitor = BenefitsClaims::IntentToFile::Monitor.new
+      form_type = in_progress_form.form_id
       itf_type = ITF_FORMS[form_type]
-      user_account = UserAccount.find_by(icn: veteran_icn)
 
-      itf_log_monitor.track_create_itf_exhaustion(itf_type, form_start_date, user_account&.id, error)
+      itf_log_monitor.track_create_itf_exhaustion(itf_type, in_progress_form, error)
 
       # create ITF queue exhaustion entry
       itfqe = IntentToFileQueueExhaustion.create({
                                                    form_type:,
-                                                   form_start_date:,
+                                                   form_start_date: in_progress_form.created_at,
                                                    veteran_icn:
                                                  })
       ::Rails.logger.info(
@@ -51,14 +55,20 @@ module Lighthouse
     # @param [ActiveSupport::TimeWithZone] form_start_date
     # @param [String] veteran's ICN
     #
-    def perform(form_type, form_start_date, veteran_icn)
-      init(form_type, veteran_icn)
+    def perform(in_progress_form_id, veteran_icn, participant_id)
+      init(in_progress_form_id, veteran_icn)
 
-      @itf_log_monitor.track_create_itf_begun(@itf_type, form_start_date, @user_account&.id)
+      @itf_log_monitor.track_create_itf_begun(@itf_type, @form_start_date, @user_account&.id)
       @service.create_intent_to_file(@itf_type, '')
-      @itf_log_monitor.track_create_itf_success(@itf_type, form_start_date, @user_account&.id)
+      @itf_log_monitor.track_create_itf_success(@itf_type, @form_start_date, @user_account&.id)
+    rescue MissingICNError, MissingParticipantIDError => e
+      if veteran_icn.blank?
+        @itf_log_monitor.track_missing_user_icn(@in_progress_form)
+      elsif participant_id.blank?
+        @itf_log_monitor.track_missing_user_pid(@in_progress_form)
+      end
     rescue => e
-      @itf_log_monitor.track_create_itf_failure(@itf_type, form_start_date, @user_account&.id, e)
+      @itf_log_monitor.track_create_itf_failure(@itf_type, @form_start_date, @user_account&.id, e)
       raise e
     end
 
@@ -67,18 +77,22 @@ module Lighthouse
     ##
     # Instantiate instance variables for _this_ job
     #
-    def init(form_type, icn)
+    def init(in_progress_form_id, icn)
+      @in_progress_form = InProgressForm.find(in_progress_form_id)
+      @form_type = @in_progress_form.form_id
+      @form_start_date = @in_progress_form.created_at
       @itf_log_monitor = BenefitsClaims::IntentToFile::Monitor.new
       @user_account = UserAccount.find_by(icn:)
-      @itf_type = ITF_FORMS[form_type]
+      @itf_type = ITF_FORMS[@form_type]
 
-      raise CreateIntentToFileError, 'Init failed. No veteran ICN provided' if icn.blank?
+      raise MissingICNError, 'Init failed. No veteran ICN provided' if icn.blank?
+      raise MissingParticipantIDError, 'Init failed. No veteran participant ID provided' if participant_id.blank?
 
       if @user_account.blank?
-        raise CreateIntentToFileError,
+        raise UserAccountNotFoundError,
               'Init failed. User account not found for given veteran ICN'
       end
-      raise CreateIntentToFileError, 'Init failed. Invalid ITF type' if @itf_type.blank?
+      raise InvalidITFTypeError, 'Init failed. Invalid ITF type' if @itf_type.blank?
 
       @service = BenefitsClaims::Service.new(icn)
     end

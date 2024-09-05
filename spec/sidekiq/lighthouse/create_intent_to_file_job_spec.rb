@@ -8,7 +8,7 @@ RSpec.describe Lighthouse::CreateIntentToFileJob do
   let(:user) { create(:user) }
   let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
   let(:user_account) { create(:user_account, icn: user.icn, user_verifications: [user_verification]) }
-  let(:pension_ipf) { create(:in_progress_527_form, user_uuid: user.uuid) }
+  let(:pension_ipf) { create(:in_progress_527_form, user_account: user_account) }
   let(:service) { double('service') }
   let(:monitor) { double('monitor') }
 
@@ -30,6 +30,8 @@ RSpec.describe Lighthouse::CreateIntentToFileJob do
       allow(monitor).to receive :track_create_itf_success
       allow(monitor).to receive :track_create_itf_exhaustion
       allow(monitor).to receive :track_create_itf_exhaustion_failure
+      allow(monitor).to receive :track_missing_user_icn
+      allow(monitor).to receive :track_missing_user_pid
     end
 
     # Retries exhausted
