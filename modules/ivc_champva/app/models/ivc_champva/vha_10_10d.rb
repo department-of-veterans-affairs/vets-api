@@ -34,7 +34,8 @@ module IvcChampva
         'businessLine' => 'CMP',
         'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
         'uuid' => @uuid,
-        'primaryContactInfo' => @data['primary_contact_info']
+        'primaryContactInfo' => @data['primary_contact_info'],
+        'hasApplicantOver65' => @data['has_applicant_over65'].to_s
       }
     end
 
@@ -99,7 +100,7 @@ module IvcChampva
 
       stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
       stamps << { coords: [520, 590], text: veteran_country, page: 0 } unless sponsor_is_deceased
-
+      stamps << { coords: [420, 45], text: veteran_country, page: 0 } if @data['certifier_role'] == 'sponsor'
       stamps
     end
 

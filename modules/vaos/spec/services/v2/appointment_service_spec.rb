@@ -1409,4 +1409,21 @@ describe VAOS::V2::AppointmentsService do
       expect(appt[:preferred_dates]).to be_nil
     end
   end
+
+  describe '#extract_request_preferred_dates' do
+    let(:appt_no_req_periods) do
+      { id: '12345', requestedPeriods: [{ start: nil, end: nil }] }
+    end
+
+    it 'does not extract when requested period start is nil' do
+      subject.send(:extract_request_preferred_dates, appt_no_req_periods)
+      expect(appt_no_req_periods[:preferred_dates]).to be_nil
+    end
+
+    it 'extracts when requested period start is present' do
+      appt = FactoryBot.build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
+      subject.send(:extract_request_preferred_dates, appt)
+      expect(appt[:preferred_dates]).not_to be_nil
+    end
+  end
 end

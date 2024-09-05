@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require 'claims_api/common/exceptions/lighthouse/backend_service_exception'
+require 'claims_api/common/exceptions/lighthouse/bad_gateway'
 require 'claims_api/common/exceptions/lighthouse/timeout'
 require 'claims_api/v2/error/lighthouse_error_mapper'
+
 module ClaimsApi
   class CustomError
     def initialize(error, detail = nil, async = true) # rubocop:disable Style/OptionalBooleanParameter
@@ -29,6 +31,7 @@ module ClaimsApi
       when ::Common::Exceptions::BackendServiceException
         raise ::Common::Exceptions::Forbidden if @original_status == 403
 
+        raise_bad_gateway_exception if @original_status == 504
         raise_backend_exception if @original_status == 400
         raise ::Common::Exceptions::Unauthorized if @original_status == 401
 
@@ -48,6 +51,11 @@ module ClaimsApi
     def raise_timeout_exception
       error_details = get_error_info if @original_body.present?
       raise ::ClaimsApi::Common::Exceptions::Lighthouse::Timeout, error_details
+    end
+
+    def raise_bad_gateway_exception
+      error_details = get_error_info if @original_body.present?
+      raise ::ClaimsApi::Common::Exceptions::Lighthouse::BadGateway, error_details
     end
 
     def get_error_info

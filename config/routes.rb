@@ -214,15 +214,9 @@ Rails.application.routes.draw do
 
     resources :appeals, only: :index
 
-    namespace :higher_level_reviews do
-      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
-    end
-    resources :higher_level_reviews, only: %i[create show]
-
     namespace :notice_of_disagreements do
       get 'contestable_issues', to: 'contestable_issues#index'
     end
-    resources :notice_of_disagreements, only: %i[create show]
 
     scope :messaging do
       scope :health do
@@ -330,8 +324,6 @@ Rails.application.routes.draw do
       resources :communication_preferences, only: %i[index create update]
       resources :contacts, only: %i[index]
 
-      resources :ch33_bank_accounts, only: %i[index]
-      put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
     end
@@ -415,6 +407,8 @@ Rails.application.routes.draw do
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
+
+    resource :decision_review_evidence, only: :create
 
     namespace :higher_level_reviews do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'

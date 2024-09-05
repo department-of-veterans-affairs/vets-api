@@ -166,7 +166,7 @@ class SavedClaim::CoeClaim < SavedClaim
         { 'attachmentType' => '', 'attachmentDescription' => '' }
 
       if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
-        file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
+        file_path = Common::FileHelpers.generate_clamav_temp_file(attachment.file.read)
 
         File.rename(file_path, "#{file_path}#{file_extension}")
         file_path = "#{file_path}#{file_extension}"
