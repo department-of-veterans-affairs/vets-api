@@ -105,7 +105,8 @@ module ClaimsApi
       payload = {}
       auth_headers = claim.auth_headers
       veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'], auth_headers['va_eauth_lastName'])
-      birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number if doc_type != 'L705'
+      birls_file_num = auth_headers['va_eauth_birlsfilenumber'] if doc_type == 'L122' ||
+                       file_number if doc_type != 'L705'|| nil if %w[L075 L190].include?(doc_type)
       claim_id = get_claim_id(doc_type, claim)
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:)
       participant_id = pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)

@@ -17,14 +17,16 @@ module ClaimsApi
       uploader = ClaimsApi::PowerOfAttorneyUploader.new(power_of_attorney_id)
       uploader.retrieve_from_store!(power_of_attorney.file_data['filename'])
       file_path = fetch_file_path(uploader)
+      auth_headers = power_of_attorney.auth_headers
 
       if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
-        benefits_doc_api.upload(claim: power_of_attorney, pdf_path: file_path, doc_type: 'L075')
+        benefits_doc_api.upload(claim: power_of_attorney, pdf_path: file_path, doc_type: 'L075',
+                                pctpnt_vet_id: auth_headers['participant_id'])
       else
         upload_to_vbms(power_of_attorney, file_path)
       end
 
-      ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
+      ClaimsApi::PoaUpdater.new.perform(power_of_attorney.id)
     rescue VBMS::Unknown
       rescue_vbms_error(power_of_attorney)
     rescue Errno::ENOENT
