@@ -1,56 +1,51 @@
 # frozen_string_literal: true
 
 class UserSubmissionDumpBuilder
-  attr_reader :uuid, :user_dir, :links, :submission_ids
+  attr_reader :uuid, :user_dir, :submission_ids
 
   def initialize(uuid:, submission_ids:, parent_dir: 'wipn8923-test')
     @submission_ids = submission_ids
     @uuid = uuid
-    @user_dir = "#{parent_dir}/#{uuid}"
-    @links = []
+    @user_dir = build_user_directory(parent_dir)
   end
 
   def run
+    log_info("Starting dump for user: #{uuid}, Submissions: #{submission_ids}")
     write_user_submissions
-    # write_dedupe_files
+    log_info("Dump completed for user: #{uuid}")
     user_dir
+  rescue => e
+    log_error("Error in dump process for user: #{uuid}", e)
+    raise e
+  end
+
+  private
+
+  def build_user_directory(parent_dir)
+    "#{parent_dir}/#{uuid}"
   end
 
   def write_user_submissions
     submissions.each do |submission|
-      DumpSubmissionToPdf.new(submission:, parent_dir: user_dir).run
+      dump_submission(submission)
+    rescue => e
+      log_error("Failed to dump submission: #{submission.id} for user: #{uuid}", e)
     end
+  end
+
+  def dump_submission(submission)
+    log_info("Processing submission: #{submission.id}")
+    DumpSubmissionToPdf.new(submission:, parent_dir: user_dir).run
   end
 
   def submissions
-    @submissions ||= Form526Submission.where(id: submission_ids)
+    @submissions ||= fetch_submissions
   end
 
-  def write_dedupe_files
-    content = "The following mismatched form data was identified for user (uuid): #{uuid}\n"
-    if dedupe_report_for_user.blank?
-      content << "\nNo variations in users submissions! \n"
-    else
-      dedupe_report_for_user.each do |key_chain, diff|
-        next if diff.blank?
-
-        content << "\tnested under form keys #{key_chain.join(' -> ')}...\n"
-        diff.each do |value, submission_ids|
-          content << "\t\tthese submissions: #{submission_ids.join(', ')}\n"
-          content << "\t\t\thave a value of: '#{value}'\n"
-        end
-      end
+  def fetch_submissions
+    FormSubmission.where(id: submission_ids).tap do |subs|
+      log_info("Fetched #{subs.count} submissions for user: #{uuid}")
     end
-    s3_resource.bucket(target_bucket)
-               .object("#{user_dir}/duplicate_report_pretty.txt")
-               .put(body: content)
-    s3_resource.bucket(target_bucket)
-               .object("#{user_dir}/duplicate_report.json")
-               .put(body: dedupe_report_for_user.to_json)
-  end
-
-  def dedupe_report_for_user
-    @dedupe_report_for_user ||= SubmissionDuplicateReport.new(submission_ids:).run[uuid]
   end
 
   def s3_resource
@@ -59,5 +54,13 @@ class UserSubmissionDumpBuilder
 
   def target_bucket
     @target_bucket ||= Reports::Uploader.s3_bucket
+  end
+
+  def log_info(message)
+    Rails.logger.info(message)
+  end
+
+  def log_error(message, error)
+    Rails.logger.error("#{message}. Error: #{error.message}")
   end
 end
