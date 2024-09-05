@@ -245,7 +245,6 @@ module Mobile
           STATUSES[appointment[:status].to_sym]
         end
 
-
         def start_date_utc
           @start_date_utc ||= begin
             start = appointment[:start]
