@@ -110,7 +110,7 @@ module ClaimsApi
 
         collect_error_messages(
           source: '/changeOfAddress/country',
-          detail: 'The country provided is not a valid.'
+          detail: 'The country provided is not valid.'
         )
       end
 
