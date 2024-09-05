@@ -12,7 +12,7 @@ module ClaimsApi
     # If successfully uploaded, it queues a job to update the POA code in BGS, as well.
     #
     # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-    def perform(power_of_attorney_id)
+    def perform(power_of_attorney_id, action: 'post')
       power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       uploader = ClaimsApi::PowerOfAttorneyUploader.new(power_of_attorney_id)
       uploader.retrieve_from_store!(power_of_attorney.file_data['filename'])
@@ -20,7 +20,7 @@ module ClaimsApi
       auth_headers = power_of_attorney.auth_headers
 
       if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
-        benefits_doc_api.upload(claim: power_of_attorney, pdf_path: file_path, doc_type: 'L075',
+        benefits_doc_api.upload(claim: power_of_attorney, pdf_path: file_path, action:, doc_type: 'L075',
                                 pctpnt_vet_id: auth_headers['participant_id'])
       else
         upload_to_vbms(power_of_attorney, file_path)
