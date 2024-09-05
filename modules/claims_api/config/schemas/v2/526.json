@@ -120,7 +120,7 @@
               "type": ["string", "null"],
               "maxLength": 16,
               "nullable": true,
-              "pattern": "^$|([a-zA-Z0-9 ]([a-zA-Z0-9 ])?)+$"
+              "pattern": "^[a-zA-Z0-9]*$"
             }
           }
         },
@@ -227,7 +227,7 @@
           "type": ["string", "null"],
           "maxLength": 16,
           "nullable": true,
-          "pattern": "^$|([a-zA-Z0-9\\.# ]([a-zA-Z0-9\\.# ])?)+$"
+          "pattern": "^[a-zA-Z0-9]*$"
         },
         "dates": {
           "type": "object",
