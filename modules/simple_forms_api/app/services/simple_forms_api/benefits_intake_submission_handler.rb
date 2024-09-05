@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class BenefitsIntakeClient
+  class BenefitsIntakeSubmissionHandler
     FORM_NUMBER_MAP = {
       '20-10206' => 'vba_20_10206',
       '20-10207' => 'vba_20_10207',
@@ -17,9 +17,9 @@ module SimpleFormsApi
       '40-10007' => 'vba_40_10007'
     }.freeze
 
-    def initialize(current_user, form_number:, **kwargs)
+    def initialize(current_user, **kwargs)
       @current_user = current_user
-      @form_number = form_number
+      @form_number = kwargs[:form_number]
       @params = kwargs
       @form_id = fetch_form_id
     end
@@ -125,7 +125,11 @@ module SimpleFormsApi
     def upload_pdf
       location, uuid = prepare_for_upload
       log_upload_details(location, uuid)
-      response = use_benefits_intake_service? ? perform_pdf_upload(location) : perform_document_upload(location)
+      response = if use_benefits_intake_service?
+                   perform_pdf_upload(location)
+                 else
+                   SimpleFormsApi::PdfUploader.new(file_path, metadata, form).upload_to_benefits_intake(params)
+                 end
 
       [response.status, uuid]
     end
@@ -171,15 +175,6 @@ module SimpleFormsApi
       lighthouse_service.perform_upload(
         metadata: metadata.to_json,
         document: file_path,
-        upload_url:,
-        attachments:
-      )
-    end
-
-    def perform_document_upload(upload_url)
-      lighthouse_service.upload_doc(
-        metadata: metadata.to_json,
-        file: file_path,
         upload_url:,
         attachments:
       )

@@ -22,8 +22,8 @@ module SimpleFormsApi
                    elsif form_is264555_and_should_use_lgy_api
                      handle264555
                    else
-                     benefits_intake_client = SimpleFormsApi::BenefitsIntakeClient.new(@current_user, params)
-                     benefits_intake_client.submit_form
+                     submission_handler = SimpleFormsApi::BenefitsIntakeSubmissionHandler.new(@current_user, params)
+                     submission_handler.submit_form
                    end
 
         clear_saved_form(params[:form_number])
@@ -112,14 +112,7 @@ module SimpleFormsApi
         form_number = params[:form_number]
         raise 'missing form_number in params' unless form_number
 
-        SimpleFormsApi::BenefitsIntakeClient::FORM_NUMBER_MAP[form_number]
-      end
-
-      def get_json(confirmation_number, form_id)
-        json = { confirmation_number: }
-        json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
-
-        json
+        SimpleFormsApi::BenefitsIntakeSubmissionHandler::FORM_NUMBER_MAP[form_number]
       end
 
       def prepare_params_for_benefits_intake_and_log_error(e)
