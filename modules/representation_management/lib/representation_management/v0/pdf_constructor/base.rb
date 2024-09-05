@@ -57,22 +57,11 @@ module RepresentationManagement
         def next_steps_part1(pdf)
           # TODO: - Add a method that takes a text string then adds it to the pdf,
           # moves down 10, and sets the font size to 12
-          pdf.font('bitter', style: :bold) do
-            pdf.font_size(20)
-            pdf.text('Fill out your form to appoint a VA accredited representative or VSO')
-            pdf.move_down(10)
-          end
-          pdf.font('bitter', style: :normal) do
-            pdf.font_size(12)
-            pdf.text('VA Form 21-22a')
-            pdf.move_down(10)
-          end
-          pdf.font('bitter', style: :bold) do
-            pdf.font_size(16)
-            pdf.text('Your Next Steps')
-            pdf.move_down(10)
-            pdf.font_size(12)
-          end
+          add_text_with_spacing(pdf,
+                                'Fill out your form to appoint a VA accredited representative or VSO', size: 20,
+                                                                                                       style: :bold)
+          add_text_with_spacing(pdf, 'VA Form 21-22a')
+          add_text_with_spacing(pdf, 'Your Next Steps', size: 16, style: :bold)
           str = <<~HEREDOC.squish
             Both you and the accredited representative will need to sign your form.
             You can bring your form to them in person or mail it to them.
@@ -89,11 +78,7 @@ module RepresentationManagement
           HEREDOC
           pdf.text(str)
           pdf.move_down(10)
-          pdf.font('bitter', style: :bold) do
-            pdf.font_size(16)
-            pdf.text('After you submit your printed form')
-            pdf.move_down(10)
-          end
+          add_text_with_spacing(pdf, 'After you submit your printed form', size: 16, style: :bold)
           pdf.font_size(12)
           str = <<~HEREDOC.squish
             We'll confirm that the accredited representative is available to help you.
@@ -110,17 +95,22 @@ module RepresentationManagement
           HEREDOC
           pdf.text(str)
           pdf.move_down(10)
-          pdf.font('bitter', style: :bold) do
-            pdf.font_size(14)
-            pdf.text('Need help?')
-            pdf.move_down(10)
-          end
+          add_text_with_spacing(pdf, 'Need help?', size: 14, style: :bold)
           pdf.font_size(12)
           pdf.text("You can call us at 800-698-2411, ext. 0 (TTY: 711). We're here 24/7.")
           pdf.move_down(10)
         end
 
         private
+
+        def add_text_with_spacing(pdf, text, size: 12, move_down: 10, style: :normal, font: 'bitter')
+          pdf.font(font, style:) do
+            pdf.font_size(size)
+            pdf.text(text)
+            pdf.move_down(move_down)
+          end
+          pdf.font_size(12) # Reset to default size
+        end
 
         #
         # Fill in pdf form fields based on data provided, then combine all
