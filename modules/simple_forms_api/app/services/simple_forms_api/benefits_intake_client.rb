@@ -20,33 +20,36 @@ module SimpleFormsApi
     def initialize(current_user, form_number:, **kwargs)
       @current_user = current_user
       @form_number = form_number
-      @form_id = fetch_form_id
       @params = kwargs
+      @form_id = fetch_form_id
     end
 
     def submit_form
-      parsed_form_data = JSON.parse(params.to_json)
-      assign_form_info(parsed_form_data)
-
+      parsed_form_data = parse_and_assign_form_data
       status, confirmation_number = process_form_submission
 
       form.track_user_identity(confirmation_number)
-
       log_submission(status, confirmation_number)
 
-      send_confirmation_email(parsed_form_data, confirmation_number, status)
+      send_confirmation_email(parsed_form_data, confirmation_number) if status == 200
 
       generate_response(confirmation_number, status)
+    rescue => e
+      handle_submission_error(e)
     end
 
     private
 
-    attr_accessor :attachments, :file_path, :form_id, :form_number, :form, :metadata, :params
+    attr_accessor :attachments, :file_path, :form_id, :form, :metadata, :params
 
     def fetch_form_id
-      raise 'missing form_number in params' unless form_number
+      FORM_NUMBER_MAP.fetch(form_number) { raise ArgumentError, "Invalid form_number: #{form_number}" }
+    end
 
-      FORM_NUMBER_MAP[form_number]
+    def parse_and_assign_form_data
+      parsed_form_data = JSON.parse(params.to_json)
+      assign_form_info(parsed_form_data)
+      parsed_form_data
     end
 
     def process_form_submission
@@ -57,7 +60,7 @@ module SimpleFormsApi
     end
 
     def log_submission(status, uuid)
-      Rails.logger.info('Simple forms api - sent to benefits intake', { form_number: form_id, status:, uuid: })
+      Rails.logger.info('PDF was successfully uploaded to benefits intake', { form_number: form_id, status:, uuid: })
     end
 
     def send_confirmation_email(parsed_form_data, confirmation_number, status)
@@ -77,22 +80,18 @@ module SimpleFormsApi
 
     def assign_form_info(parsed_form_data)
       @form = initialize_form(parsed_form_data)
-      @file_path = generate_filled_form(form)
-      @metadata = validate_metadata(form)
+      @file_path = generate_filled_form
+      @metadata = validate_metadata
 
-      form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007].include?(form_id)
-
-      @attachments = form.get_attachments if form_id == 'vba_20_10207'
+      handle_form_specific_logic
     end
 
     def initialize_form(parsed_form_data)
-      form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
+      form_class = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize
+      form = form_class.new(parsed_form_data)
 
       # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
-      if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && @current_user
-        return form.populate_veteran_data(@current_user)
-      end
-
+      form.populate_veteran_data(@current_user) if form_id == 'vba_21_0966' && preparer_is_veteran?
       form
     end
 
@@ -108,11 +107,23 @@ module SimpleFormsApi
       )
     end
 
+    def preparer_is_veteran?
+      params[:preparer_identification] == 'VETERAN' && @current_user
+    end
+
+    def handle_form_specific_logic
+      if form_id == 'vba_20_10207'
+        @attachments = form.get_attachments
+      elsif %w[vba_40_0247 vba_40_10007].include?(form_id)
+        form.handle_attachments(file_path)
+      end
+    end
+
     def upload_pdf
       location, uuid = prepare_for_upload
       log_upload_details(location, uuid)
-      response = perform_pdf_upload(location, file_path, metadata, attachments)
 
+      response = perform_pdf_upload(location)
       [response.status, uuid]
     end
 
@@ -120,7 +131,6 @@ module SimpleFormsApi
       location, uuid = lighthouse_service.request_upload
       stamp_pdf_with_uuid(uuid)
       create_form_submission_attempt(uuid)
-
       [location, uuid]
     end
 
@@ -146,7 +156,7 @@ module SimpleFormsApi
 
     def log_upload_details(location, uuid)
       Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-      Rails.logger.info('Simple forms api - preparing to upload PDF to benefits intake', { location:, uuid: })
+      Rails.logger.info('Preparing to upload PDF to benefits intake', { location:, uuid: })
     end
 
     def perform_pdf_upload(upload_url)
@@ -156,6 +166,10 @@ module SimpleFormsApi
         upload_url:,
         attachments:
       )
+    end
+
+    def handle_submission_error(error)
+      Rails.logger.error('Form submission to benefits intake failed', { error: error.message, form_number: form_id })
     end
   end
 end
