@@ -76,7 +76,11 @@ module SimpleFormsApi
       veteran_ssn_and_file_number + veteran_dates_of_birth_and_death + applicant_zip + applicant_phone
     end
 
-    def submission_date_stamps
+    def desired_stamps
+      []
+    end
+
+    def submission_date_stamps(_timestamp)
       []
     end
 

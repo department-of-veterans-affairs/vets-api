@@ -52,6 +52,7 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
             Data: [
               {
                 Id: 'a5247de6-62c4-ee11-907a-001dd804eab2',
+                CreatedOn: '2/5/2024 8:14:48 PM',
                 ModifiedOn: '2/5/2024 8:14:48 PM',
                 StatusReason: 'PendingSend',
                 Description: 'Dear aminul, Thank you for submitting ' \

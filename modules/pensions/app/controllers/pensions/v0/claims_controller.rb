@@ -3,13 +3,7 @@
 require 'pensions/tag_sentry'
 require 'pensions/monitor'
 
-##
-# Pensions Module
-#
 module Pensions
-  ##
-  # V0 API
-  #
   module V0
     ##
     # The pensions claim controller that handles form submissions
