@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-RSpec.describe MebApi::V0::BaseController, type: :request do
+RSpec.describe 'MebApi::V0 Authentication', type: :request do
   let(:user_details_loa3) do
     {
       first_name: 'Lara',
