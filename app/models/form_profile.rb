@@ -207,10 +207,10 @@ class FormProfile
     end
 
     def lookup_upload_class(form_id)
-      class_name = "::FormProfiles::FormUpload#{extract_class_string(form_id)}"
+      class_name = "::FormProfiles::FormUpload::#{extract_class_string(form_id)}"
       Object.const_get(class_name)
     rescue NameError
-      FormProfiles::FormUploadBase
+      FormProfiles::FormUpload::Base
     end
 
     def form_class_for_id(form_id)
