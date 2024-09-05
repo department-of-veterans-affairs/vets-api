@@ -116,10 +116,11 @@
               "nullable": true
             },
             "internationalPostalCode": {
-              "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+              "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
               "type": ["string", "null"],
-              "maxLength": 100,
-              "nullable": true
+              "maxLength": 16,
+              "nullable": true,
+              "pattern": "^$|([a-zA-Z0-9 ]([a-zA-Z0-9 ])?)+$"
             }
           }
         },
@@ -222,10 +223,11 @@
           "example": "6789"
         },
         "internationalPostalCode": {
-          "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+          "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
           "type": ["string", "null"],
-          "maxLength": 100,
-          "nullable": true
+          "maxLength": 16,
+          "nullable": true,
+          "pattern": "^$|([a-zA-Z0-9\\.# ]([a-zA-Z0-9\\.# ])?)+$"
         },
         "dates": {
           "type": "object",
