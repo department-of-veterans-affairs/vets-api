@@ -32,6 +32,17 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
       end
 
       context 'EBenefitsBnftClaimStatusWebServiceBean' do
+        let(:endpoint) { 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService' }
+        let(:action) { 'findBenefitClaimsStatusByPtcpntId' }
+        let(:key) { 'BenefitClaimsDTO' }
+
+        it 'response with the correct attributes' do
+          result = subject.for_action(endpoint, action)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['service']['bean']['path']).to eq 'EBenefitsBnftClaimStatusWebServiceBean'
+          expect(parsed_result['service']['path']).to eq 'EBenefitsBnftClaimStatusWebService'
+          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://claimstatus.services.ebenefits.vba.va.gov/'
+        end
       end
 
       context 'IntentToFileWebServiceBean' do
@@ -75,6 +86,20 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           expect(parsed_result['service']['bean']['path']).to eq 'PersonWebServiceBean'
           expect(parsed_result['service']['path']).to eq 'PersonWebService'
           expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://person.services.vetsnet.vba.va.gov/'
+        end
+      end
+
+      context 'StandardDataWebServiceBean' do
+        let(:endpoint) { 'StandardDataWebServiceBean/StandardDataWebService' }
+        let(:action) { 'findPOAs' }
+        let(:key) { 'PowerOfAttorneyDTO' }
+
+        it 'responds with the correct attributes' do
+          result = subject.for_action(endpoint, action)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['service']['bean']['path']).to eq 'StandardDataWebServiceBean'
+          expect(parsed_result['service']['path']).to eq 'StandardDataWebService'
+          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://standarddata.services.vetsnet.vba.va.gov/'
         end
       end
 
@@ -226,6 +251,15 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
       end
 
       context 'EBenefitsBnftClaimStatusWebServiceBean' do
+        let(:endpoint) { 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService' }
+
+        it 'response with the correct namespace' do
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'EBenefitsBnftClaimStatusWebServiceBean'
+          expect(parsed_result['path']).to eq 'EBenefitsBnftClaimStatusWebService'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://claimstatus.services.ebenefits.vba.va.gov/'
+        end
       end
 
       context 'IntentToFileWebServiceBean' do
@@ -261,6 +295,18 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           expect(parsed_result['bean']['path']).to eq 'PersonWebServiceBean'
           expect(parsed_result['path']).to eq 'PersonWebService'
           expect(parsed_result['bean']['namespaces']['target']).to eq 'http://person.services.vetsnet.vba.va.gov/'
+        end
+      end
+
+      context 'StandardDataWebServiceBean' do
+        let(:endpoint) { 'StandardDataWebServiceBean/StandardDataWebService' }
+
+        it 'responds with the correct namespace' do
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'StandardDataWebServiceBean'
+          expect(parsed_result['path']).to eq 'StandardDataWebService'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://standarddata.services.vetsnet.vba.va.gov/'
         end
       end
 
