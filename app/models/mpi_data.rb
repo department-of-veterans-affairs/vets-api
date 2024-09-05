@@ -243,8 +243,18 @@ class MPIData < Common::RedisStore
     do_cached_with(key: user_key) do
       find_profile
     rescue ArgumentError, MPI::Errors::ArgumentError => e
+      ClaimsApi::Logger.log('unable_to_locate_mpi_record',
+                            message: 'ArgumentError from MPI find_profile',
+                            api_version: 'V1',
+                            level: :error, class: e.class, type: e.message.class)
       log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
       return nil
+    rescue => e
+      ClaimsApi::Logger.log('unable_to_locate_mpi_record',
+                            message: 'Other error from MPI find_profile',
+                            api_version: 'V1',
+                            level: :error, class: e.class, type: e.message.class)
+      raise e
     end
   end
 
