@@ -225,7 +225,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
   end
 
   describe 'validation of claimant change of address elements' do
-    context "when any values present, 'dates','typeOfAddressChange','numberAndStreet','country' are required" do
+    context "'typeOfAddressChange','addressLine1','country' are conditionally required" do
       context 'without the required country value present' do
         it 'returns an error array' do
           subject.form_attributes['changeOfAddress']['country'] = ''
@@ -245,6 +245,34 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
+    context 'without the required typeOfAddressChange' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = ''
+        change_of_address = subject.form_attributes['changeOfAddress']
+        res = test_526_validation_instance.send(
+          :validate_form_526_coa_type_of_address_change_presence,
+          change_of_address,
+          '/changeOfAddress'
+        )
+        expect(res[0][:detail]).to eq('The typeOfAddressChange is required for /changeOfAddress.')
+        expect(res[0][:source]).to eq('/changeOfAddress')
+      end
+    end
+
+    context 'without the required addressLine1' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['addressLine1'] = ''
+        change_of_address = subject.form_attributes['changeOfAddress']
+        res = test_526_validation_instance.send(
+          :validate_form_526_coa_address_line_one_presence,
+          change_of_address,
+          '/changeOfAddress'
+        )
+        expect(res[0][:detail]).to eq('The addressLine1 is required for /changeOfAddress.')
+        expect(res[0][:source]).to eq('/changeOfAddress')
+      end
+    end
+
     context 'when the country is valid' do # country is USA in the JSON
       it 'responds with true' do
         res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
@@ -258,6 +286,34 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
         expect(res[0][:detail]).to eq('The country provided is not valid.')
         expect(res[0][:source]).to eq('/changeOfAddress/country')
+      end
+    end
+
+    context 'when the country is not provided' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['country'] = ''
+        change_of_address = subject.form_attributes['changeOfAddress']
+        res = test_526_validation_instance.send(
+          :validate_form_526_coa_country_presence,
+          change_of_address,
+          '/changeOfAddress'
+        )
+        expect(res[0][:detail]).to eq('The country is required for /changeOfAddress.')
+        expect(res[0][:source]).to eq('/changeOfAddress')
+      end
+    end
+
+    context 'without the required city' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['city'] = ''
+        change_of_address = subject.form_attributes['changeOfAddress']
+        res = test_526_validation_instance.send(
+          :validate_form_526_coa_city_presence,
+          change_of_address,
+          '/changeOfAddress'
+        )
+        expect(res[0][:detail]).to eq('The city is required for /changeOfAddress.')
+        expect(res[0][:source]).to eq('/changeOfAddress')
       end
     end
 
