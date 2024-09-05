@@ -22,7 +22,7 @@ module SignIn
       if client_config.save
         render json: client_config, status: :created
       else
-        render json: client_config.errors, status: :unprocessable_entity
+        render json: { errors: client_config.errors }, status: :unprocessable_entity
       end
     end
 
@@ -30,7 +30,7 @@ module SignIn
       if @client_config.update(client_config_params)
         render json: @client_config, status: :ok
       else
-        render json: @client_config.errors, status: :unprocessable_entity
+        render json: { errors: @client_config.errors }, status: :unprocessable_entity
       end
     end
 
@@ -38,24 +38,26 @@ module SignIn
       if @client_config.destroy
         head :no_content
       else
-        render json: @client_config.errors, status: :unprocessable_entity
+        render json: { errors: @client_config.errors }, status: :unprocessable_entity
       end
     end
 
     private
 
     def client_config_params
-      params.require(:client_config).permit(:client_id, :authentication, :anti_csrf, :redirect_uri, :description,
-                                            :access_token_duration, :access_token_audience, :refresh_token_duration,
-                                            :logout_redirect_uri, :pkce, :refresh_token_path, certificates: [])
+      params.require(:client_config).permit(:client_id, :authentication, :redirect_uri, :refresh_token_duration,
+                                            :access_token_duration, :access_token_audience, :logout_redirect_uri,
+                                            :pkce, :terms_of_use_url, :enforced_terms, :shared_sessions, :anti_csrf,
+                                            :description, certificates: [], access_token_attributes: [],
+                                                          service_levels: [], credential_service_providers: [])
     end
 
     def set_client_config
-      @client_config = SignIn::ClientConfig.find(params[:id])
+      @client_config = SignIn::ClientConfig.find_by!(client_id: params[:client_id])
     end
 
     def not_found
-      render json: { error: 'Client config not found' }, status: :not_found
+      render json: { errors: { client_config: ['not found'] } }, status: :not_found
     end
   end
 end

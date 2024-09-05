@@ -137,14 +137,22 @@ module SimpleFormsApi
 
     # email and first name for form 20-10207
     def form20_10207_contact_info
+      preparer_types = %w[veteran third-party-veteran non-veteran third-party-non-veteran]
+
+      return unless preparer_types.include?(@form_data['preparer_type'])
+
       email_and_first_name = [@user.va_profile_email]
       # veteran
       email_and_first_name << if @form_data['preparer_type'] == 'veteran'
                                 @form_data['veteran_full_name']['first']
 
                               # non-veteran
-                              else
+                              elsif @form_data['preparer_type'] == 'non-veteran'
                                 @form_data['non_veteran_full_name']['first']
+
+                                # third-party
+                              else
+                                @form_data['third_party_full_name']['first']
                               end
 
       email_and_first_name

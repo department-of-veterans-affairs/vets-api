@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
+ActiveRecord::Schema[7.1].define(version: 2024_09_03_124855) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
+  enable_extension "fuzzystrmatch"
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
@@ -128,15 +129,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
     t.index ["name"], name: "index_accredited_organizations_on_name"
     t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
-  end
-
-  create_table "accredited_representative_portal_pilot_representatives", force: :cascade do |t|
-    t.string "ogc_registration_number", null: false
-    t.string "email", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_pilot_representatives_on_email", unique: true
-    t.index ["ogc_registration_number"], name: "index_pilot_representatives_on_ogc_number", unique: true
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -742,6 +734,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "benefits_intake_uuid"
+    t.datetime "lighthouse_updated_at"
     t.index ["form_submission_id"], name: "index_form_submission_attempts_on_form_submission_id"
   end
 
@@ -1034,6 +1028,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.datetime "itf_datetime"
     t.datetime "form_start_date"
     t.datetime "delete_date"
+    t.text "metadata"
+    t.datetime "metadata_updated_at"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
@@ -1115,6 +1111,44 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.datetime "updated"
     t.string "created_by"
     t.string "updated_by"
+  end
+
+  create_table "std_institution_facilities", force: :cascade do |t|
+    t.date "activation_date"
+    t.date "deactivation_date"
+    t.string "name"
+    t.string "station_number"
+    t.string "vista_name"
+    t.integer "agency_id"
+    t.integer "street_country_id"
+    t.string "street_address_line1"
+    t.string "street_address_line2"
+    t.string "street_address_line3"
+    t.string "street_city"
+    t.integer "street_state_id"
+    t.integer "street_county_id"
+    t.string "street_postal_code"
+    t.integer "mailing_country_id"
+    t.string "mailing_address_line1"
+    t.string "mailing_address_line2"
+    t.string "mailing_address_line3"
+    t.string "mailing_city"
+    t.integer "mailing_state_id"
+    t.integer "mailing_county_id"
+    t.string "mailing_postal_code"
+    t.integer "facility_type_id"
+    t.integer "mfn_zeg_recipient"
+    t.integer "parent_id"
+    t.integer "realigned_from_id"
+    t.integer "realigned_to_id"
+    t.integer "visn_id"
+    t.integer "version"
+    t.datetime "created"
+    t.datetime "updated"
+    t.string "created_by"
+    t.string "updated_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "std_states", force: :cascade do |t|

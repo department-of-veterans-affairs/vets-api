@@ -15,7 +15,6 @@ AskVAApi::Engine.routes.draw do
     post '/inquiries', to: 'inquiries#unauth_create'
     post '/upload_attachment', to: 'inquiries#upload_attachment'
     post '/inquiries/:id/reply/new', to: 'inquiries#create_reply'
-    post '/test_create', to: 'inquiries#test_create'
 
     # static_data
     get '/categories', to: 'static_data#categories'
@@ -26,6 +25,7 @@ AskVAApi::Engine.routes.draw do
     get '/optionset', to: 'static_data#optionset'
     get '/announcements', to: 'static_data#announcements'
     get '/branch_of_service', to: 'static_data#branch_of_service'
+    get '/test_endpoint', to: 'static_data#test_endpoint'
 
     # address_validation
     post '/address_validation', to: 'address_validation#create'

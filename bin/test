@@ -4,7 +4,7 @@
 require_relative 'lib/vets-api/commands/test'
 require 'rake'
 
-VALID_OPTIONS = ['--no-parallel', '--coverage', '--log'].freeze
+VALID_OPTIONS = ['--parallel', '--coverage', '--log'].freeze
 
 # rubocop:disable Metrics/MethodLength
 def help_message
@@ -14,18 +14,18 @@ def help_message
     Options:
       --help, -h            Display help message for 'setup'
       --ci                  Run the tests exactly like the CI (requires docker to be setup)
-      --no-parallel         Run the tests in parallel
+      --parallel         Run the tests in parallel
       --coverage            Include test coverage report
       --log                 Output pending/failures to log/rspec.log instead of STDOUT
     Examples:
       bin/test spec modules
-      bin/test --no-parallel spec/models/account_spec.rb
+      bin/test --parallel spec/models/account_spec.rb
       bin/test spec/models/account_spec.rb
-      bin/test --no-parallel --log spec/models/account_spec.rb
+      bin/test --parallel --log spec/models/account_spec.rb
       bin/test --ci
     Defaults:
       - Only run tests in './spec' folder
-      - Run in parallel
+      - No parallel
       - No coverage or log
     Notes:
       If you are running the full suite, it's recommended to run with `--log`

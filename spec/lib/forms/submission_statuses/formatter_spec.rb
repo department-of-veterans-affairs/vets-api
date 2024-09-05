@@ -32,10 +32,11 @@ describe Forms::SubmissionStatuses::Formatter do
         Forms::SubmissionStatuses::Dataset,
         submissions?: true,
         submissions:,
-        statuses: nil
+        intake_statuses: nil
       )
 
-      expect(subject.format_data(dataset)).not_to be_empty
+      result = subject.format_data(dataset)
+      expect(result).not_to be_empty
     end
   end
 end

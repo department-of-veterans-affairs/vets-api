@@ -1203,7 +1203,9 @@ describe VAOS::V2::AppointmentsService do
             system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
             value: '500:9876543'
           }
-        ]
+        ],
+        ien: '9876543',
+        station: '500'
       }
     end
 
@@ -1239,7 +1241,10 @@ describe VAOS::V2::AppointmentsService do
   describe '#fetch_avs_and_update_appt_body' do
     let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
     let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
-    let(:appt) { { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] } }
+    let(:appt) do
+      { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }], ien: '12345678',
+        station: '983' }
+    end
     let(:avs_error_message) { 'Error retrieving AVS link' }
 
     context 'when AVS successfully retrieved the AVS link' do
@@ -1377,6 +1382,48 @@ describe VAOS::V2::AppointmentsService do
         subject.send(:modify_desired_date, va_booked_request_body, 'America/Denver')
         expect(va_booked_request_body[:extension][:desired_date].to_s).to eq('2022-11-30T00:00:00-07:00')
       end
+    end
+  end
+
+  describe '#extract_appointment_fields' do
+    it 'do not overwrite existing preferred dates' do
+      # Note that the va_proposed appointment here contains both a reason code text and
+      # requested periods which will not occur in a real scenario. However the example
+      # demonstrates that the preferred dates from reason code text are not overwritten.
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text, user:).attributes
+      subject.send(:extract_appointment_fields, appt)
+      expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
+                                            'Wed, June 26, 2024 in the afternoon'])
+    end
+
+    it 'extracts preferred dates if possible' do
+      appt = FactoryBot.build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
+      subject.send(:extract_appointment_fields, appt)
+      expect(appt[:preferred_dates]).to eq(['Wed, August 28, 2024 in the morning',
+                                            'Wed, August 28, 2024 in the afternoon'])
+    end
+
+    it 'do not extract preferred dates if no requested periods' do
+      appt = FactoryBot.build(:appointment_form_v2, :community_cares_no_request_dates, user:).attributes
+      subject.send(:extract_appointment_fields, appt)
+      expect(appt[:preferred_dates]).to be_nil
+    end
+  end
+
+  describe '#extract_request_preferred_dates' do
+    let(:appt_no_req_periods) do
+      { id: '12345', requestedPeriods: [{ start: nil, end: nil }] }
+    end
+
+    it 'does not extract when requested period start is nil' do
+      subject.send(:extract_request_preferred_dates, appt_no_req_periods)
+      expect(appt_no_req_periods[:preferred_dates]).to be_nil
+    end
+
+    it 'extracts when requested period start is present' do
+      appt = FactoryBot.build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
+      subject.send(:extract_request_preferred_dates, appt)
+      expect(appt[:preferred_dates]).not_to be_nil
     end
   end
 end

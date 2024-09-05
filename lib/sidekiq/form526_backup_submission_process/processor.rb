@@ -9,7 +9,7 @@ require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/non_breakered_service'
 require 'form526_backup_submission/service'
 require 'decision_review_v1/utilities/form_4142_processor'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/filler'
 require 'logging/third_party_transaction'
 require 'simple_forms_api_submission/metadata_validator'
@@ -330,7 +330,8 @@ module Sidekiq
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
 
-        if submission.claims_api?
+        form_version = submission.saved_claim.parsed_form['startedFormVersion']
+        if form_version.present?
           resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json)
           content = resp.env.response_body
         else
@@ -449,7 +450,9 @@ module Sidekiq
         form_json = submission.form[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
-        if submission.claims_api?
+
+        form_version = submission.saved_claim.parsed_form['startedFormVersion']
+        if form_version.present?
           resp = get_from_non_breakered_service(headers, ApiProviderFactory::API_PROVIDER[:lighthouse],
                                                 form_json.to_json)
           content = resp.env.response_body

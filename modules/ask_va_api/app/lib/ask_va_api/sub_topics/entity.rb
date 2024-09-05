@@ -10,7 +10,8 @@ module AskVAApi
                   :requires_authentication,
                   :allow_attachments,
                   :rank_order,
-                  :display_name
+                  :display_name,
+                  :topic_type
 
       def initialize(info)
         @id = info[:Id]
@@ -20,6 +21,7 @@ module AskVAApi
         @requires_authentication = info[:RequiresAuthentication]
         @allow_attachments = info[:AllowAttachments]
         @rank_order = info[:RankOrder]
+        @topic_type = info[:TopicType]
         @display_name = info[:DisplayName]
       end
     end

@@ -6,6 +6,14 @@ require 'debt_management_center/statement_identifier_service'
 RSpec.describe DebtManagementCenter::StatementIdentifierService, :skip_vet360,
                type: :service do
   describe '#get_mpi_data' do
+    let(:cassette_path) do
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        'va_profile/v2/contact_information'
+      else
+        'va_profile/contact_information'
+      end
+    end
+
     context 'given edipi statement' do
       edipi = '492031291'
       let(:verification) { build(:dslogon_user_verification) }
@@ -65,7 +73,7 @@ RSpec.describe DebtManagementCenter::StatementIdentifierService, :skip_vet360,
         end
 
         it 'returns an icn' do
-          VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette("#{cassette_path}/person_full", VCR::MATCH_EVERYTHING) do
             service = described_class.new(edipi_statement)
             details = service.get_mpi_data
             expect(details).to eq({ icn: mpi_profile.icn, first_name: mpi_profile.given_names.first })

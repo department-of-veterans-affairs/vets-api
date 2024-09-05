@@ -5,6 +5,12 @@ require 'lighthouse/facilities/facility'
 FactoryBot.define do
   factory :facilities_api_v2_lighthouse_facility, class: 'FacilitiesApi::V2::Lighthouse::Facility' do
     transient do
+      access do
+        {
+          health: [],
+          effective_date: ''
+        }
+      end
       address do
         {
           physical: {

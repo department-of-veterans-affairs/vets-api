@@ -45,6 +45,12 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-7959C Current User LOA', current_user_loa:)
     end
 
+    def track_email_usage
+      email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
+      StatsD.increment("#{STATS_KEY}.#{email_used}")
+      Rails.logger.info('IVC ChampVA Forms - 10-7959C Email Used', email_used:)
+    end
+
     # rubocop:disable Naming/BlockForwarding,Style/HashSyntax
     def method_missing(method_name, *args, &block)
       super unless respond_to_missing?(method_name)

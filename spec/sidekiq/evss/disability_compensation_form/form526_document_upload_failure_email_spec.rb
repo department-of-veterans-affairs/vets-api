@@ -110,6 +110,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
       {
         'jid' => 123,
         'error_class' => 'JennyNotFound',
+        'error_message' => 'I tried to call you before but I lost my nerve',
         'args' => [form526_submission.id, form_attachment.guid]
       }
     end
@@ -128,6 +129,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
             {
               job_id: 123,
               error_class: 'JennyNotFound',
+              error_message: 'I tried to call you before but I lost my nerve',
               timestamp: exhaustion_time,
               form526_submission_id: form526_submission.id,
               supporting_evidence_attachment_guid: form_attachment.guid

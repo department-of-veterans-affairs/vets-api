@@ -21,7 +21,12 @@ module Forms
       end
 
       def format_data
-        @formatter.format_data(@dataset)
+        results = @formatter.format_data(@dataset)
+
+        OpenStruct.new(
+          submission_statuses: results,
+          errors: @dataset.errors
+        )
       end
     end
   end
