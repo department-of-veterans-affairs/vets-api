@@ -40,7 +40,7 @@ class DumpSubmissionToPdf
     log_info("Processing submission ID: #{submission.id}")
     process_submission_files
     output_directory_path
-  rescue StandardError => e
+  rescue => e
     handle_run_error(e)
   end
 
@@ -75,7 +75,7 @@ class DumpSubmissionToPdf
   def write_pdf
     encoded_pdf = generate_pdf_content
     save_file_to_s3("#{output_directory_path}/form.pdf", Base64.decode64(encoded_pdf))
-  rescue StandardError => e
+  rescue => e
     quiet_pdf_failures ? write_pdf_error(e) : raise(e)
   end
 
@@ -109,7 +109,7 @@ class DumpSubmissionToPdf
     log_info("Moving #{user_uploads.count} user uploads")
     user_uploads.each { |upload| process_user_upload(upload) }
     write_failure_report if user_upload_failures.present?
-  rescue StandardError => e
+  rescue => e
     handle_upload_error(e)
   end
 
@@ -164,11 +164,11 @@ class DumpSubmissionToPdf
     zip = [address['zipFirstFive'], address['zipLastFour']].join('-') if address.present?
     pii = JSON.parse(submission.auth_headers['va_eauth_authorization'])['authorizationResponse']
     pii.merge({
-      fileNumber: pii['va_eauth_pnid'],
-      zipCode: zip || '00000',
-      claimDate: submission.created_at.iso8601,
-      formsIncluded: map_form_inclusion
-    })
+                fileNumber: pii['va_eauth_pnid'],
+                zipCode: zip || '00000',
+                claimDate: submission.created_at.iso8601,
+                formsIncluded: map_form_inclusion
+              })
   end
 
   def map_form_inclusion
@@ -199,4 +199,3 @@ class DumpSubmissionToPdf
     @user_upload_path ||= "#{output_directory_path}/user_uploads"
   end
 end
-
