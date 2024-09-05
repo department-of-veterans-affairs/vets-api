@@ -47,7 +47,8 @@ class ClaimsApiSubmissionReportMailerPreview < ActionMailer::Preview
   def ews_totals
     [
       { 'consumer 1' => { totals: 10, updated: 5, errored: 2, pending: 1, uploaded: 2 } },
-      { 'consumer 2' => { totals: 8, updated: 3, errored: 2, pending: 1, uploaded: 2 } }
+      { 'consumer 2' => { totals: 8, updated: 3, errored: 2, pending: 1, uploaded: 2 } },
+      { 'Totals' => { totals: 18, updated: 8, errored: 4, pending: 2, uploaded: 4 } }
     ]
   end
 
@@ -61,7 +62,8 @@ class ClaimsApiSubmissionReportMailerPreview < ActionMailer::Preview
   def itf_totals
     [
       { 'consumer 1' => { totals: 2, submitted: 1, errored: 1 } },
-      { 'consumer 2' => { totals: 1, submitted: 1, errored: 0 } }
+      { 'consumer 2' => { totals: 1, submitted: 1, errored: 0 } },
+      { 'Totals' => { totals: 3, submitted: 2, errored: 1 } }
     ]
   end
 end

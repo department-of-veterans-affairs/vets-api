@@ -29,8 +29,8 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
                                     []
                                   end,
           poa_totals: defined?(expected_poa_totals) ? match_array(expected_poa_totals) : [],
-          ews_totals: [],
-          itf_totals: []
+          itf_totals: defined?(expected_itf_totals) ? match_array(expected_itf_totals) : [],
+          ews_totals: defined?(expected_ews_totals) ? match_array(expected_ews_totals) : []
         ).and_return(double.tap do |mailer|
                        expect(mailer).to receive(:deliver_now).once
                      end)
@@ -130,6 +130,36 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
     end
 
     it_behaves_like 'sends mail with expected totals'
+  end
+
+  context 'three ITFs' do
+    let(:claim_setup) { :setup_three_itfs }
+    let(:expected_itf_totals) do
+      [{ 'VA TurboClaim' => { submitted: 1, errored: 1, totals: 2 } },
+       { 'VA.gov' => { submitted: 1, totals: 1 } },
+       { 'Totals' => { submitted: 2, errored: 1, totals: 3 } }]
+    end
+
+    def setup_three_itfs
+      create(:intent_to_file, cid: '0oa9uf05lgXYk6ZXn297')
+      create(:intent_to_file, status: 'errored', cid: '0oa9uf05lgXYk6ZXn297')
+      create(:intent_to_file, cid: '0oagdm49ygCSJTp8X297')
+    end
+  end
+
+  context 'three EWSs' do
+    let(:claim_setup) { :setup_three_ews }
+    let(:expected_ews_totals) do
+      [{ 'VA TurboClaim' => { submitted: 1, errored: 1, totals: 2 } },
+       { 'VA.gov' => { submitted: 1, totals: 1 } },
+       { 'Totals' => { submitted: 2, errored: 1, totals: 3 } }]
+    end
+
+    def setup_three_ews
+      create(:evidence_waiver_submission, cid: '0oa9uf05lgXYk6ZXn297')
+      create(:evidence_waiver_submission, status: 'errored', cid: '0oa9uf05lgXYk6ZXn297')
+      create(:evidence_waiver_submission, cid: '0oagdm49ygCSJTp8X297')
+    end
   end
 
   context 'shared reporting behavior' do
