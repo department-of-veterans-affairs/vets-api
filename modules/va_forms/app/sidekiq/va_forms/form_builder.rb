@@ -11,6 +11,8 @@ module VAForms
 
     STATSD_KEY_PREFIX = 'api.va_forms.form_builder'
 
+    NON_RETRYABLE_ERROR_CODES = [403, 404].freeze
+
     sidekiq_options retry: 7
 
     sidekiq_retries_exhausted do |msg, _ex|
@@ -89,7 +91,7 @@ module VAForms
     # and sends Slack notifications; if response is unsuccessful, raises an error
     def check_form_validity(form, attrs, url)
       response = fetch_form(url)
-      if response.success? || response.status == 404 # 404s are non-recoverable and should not be retried
+      if response.success? || NON_RETRYABLE_ERROR_CODES.include?(response.status)
         attrs[:valid_pdf] = response.success?
         attrs[:sha256] = response.success? ? Digest::SHA256.hexdigest(response.body) : nil
         attrs[:url] = url
