@@ -2,20 +2,10 @@
 
 module SimpleFormsApi
   class BenefitsIntakeSubmissionHandler
-    FORM_NUMBER_MAP = {
-      '20-10206' => 'vba_20_10206',
-      '20-10207' => 'vba_20_10207',
-      '21-0845' => 'vba_21_0845',
-      '21-0966' => 'vba_21_0966',
-      '21-0972' => 'vba_21_0972',
-      '21-10210' => 'vba_21_10210',
-      '21-4138' => 'vba_21_4138',
-      '21-4142' => 'vba_21_4142',
-      '21P-0847' => 'vba_21p_0847',
-      '26-4555' => 'vba_26_4555',
-      '40-0247' => 'vba_40_0247',
-      '40-10007' => 'vba_40_10007'
-    }.freeze
+    VALID_FORMS = %w[
+      20-10206 20-10207 21-0845 21-0966 21-0972 21-10210
+      21-4138 21-4142 21P-0847 26-4555 40-0247 40-10007
+    ].freeze
 
     def initialize(current_user, **kwargs)
       @current_user = current_user
@@ -47,7 +37,9 @@ module SimpleFormsApi
     end
 
     def fetch_form_id
-      FORM_NUMBER_MAP.fetch(form_number) { raise ArgumentError, "Invalid form_number: #{form_number}" }
+      raise ArgumentError, "Invalid form_number: #{form_number}" unless VALID_FORMS.include? form_number
+
+      "vba_#{form_number.downcase.tr('-', '_')}"
     end
 
     def parse_and_assign_form_data
@@ -60,8 +52,8 @@ module SimpleFormsApi
       Rails.logger.info('PDF was successfully uploaded to benefits intake', { form_number: form_id, status:, uuid: })
     end
 
-    def send_confirmation_email(parsed_form_data, confirmation_number, status)
-      return unless status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
+    def send_confirmation_email(parsed_form_data, confirmation_number)
+      return unless Flipper.enabled?(:simple_forms_email_confirmations)
 
       SimpleFormsApi::ConfirmationEmail.new(
         form_data: parsed_form_data,
