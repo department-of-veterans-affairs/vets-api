@@ -2,11 +2,29 @@
 
 module FormAttachmentCreate
   extend ActiveSupport::Concern
+  include SentryLogging
 
   def create
-    validate_file_upload_class!
-    save_attachment_to_cloud!
-    save_attachment_to_db!
+    begin
+      validate_file_upload_class!
+    rescue => e
+      log_exception_to_sentry(e, { context: 'FAC_validate', class: filtered_params[:file_data].class.name })
+      raise e
+    end
+
+    begin
+      save_attachment_to_cloud!
+    rescue => e
+      log_exception_to_sentry(e, { context: 'FAC_cloud' })
+      raise e
+    end
+
+    begin
+      save_attachment_to_db!
+    rescue => e
+      log_exception_to_sentry(e, { context: 'FAC_db', errors: form_attachment.errors })
+      raise e
+    end
 
     render json: serializer_klass.new(form_attachment)
   end
