@@ -8,7 +8,7 @@ RSpec.describe Lighthouse::CreateIntentToFileJob do
   let(:user) { create(:user) }
   let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
   let(:user_account) { create(:user_account, icn: user.icn, user_verifications: [user_verification]) }
-  let(:pension_ipf) { create(:in_progress_527_form, user_account: user_account) }
+  let(:pension_ipf) { create(:in_progress_527_form, user_account:) }
   let(:service) { double('service') }
   let(:monitor) { double('monitor') }
 

@@ -24,7 +24,7 @@ module Lighthouse
     # exhausted attempts will be logged in intent_to_file_queue_exhaustions table
     sidekiq_options retry: 14, queue: 'low'
     sidekiq_retries_exhausted do |msg, error|
-      in_progress_form_id, veteran_icn, participant_id = msg['args']
+      in_progress_form_id, veteran_icn = msg['args']
       in_progress_form = InProgressForm.find(in_progress_form_id)
       itf_log_monitor = BenefitsClaims::IntentToFile::Monitor.new
       form_type = in_progress_form.form_id
@@ -61,7 +61,7 @@ module Lighthouse
       @itf_log_monitor.track_create_itf_begun(@itf_type, @form_start_date, @user_account&.id)
       @service.create_intent_to_file(@itf_type, '')
       @itf_log_monitor.track_create_itf_success(@itf_type, @form_start_date, @user_account&.id)
-    rescue MissingICNError, MissingParticipantIDError => e
+    rescue MissingICNError, MissingParticipantIDError
       if veteran_icn.blank?
         @itf_log_monitor.track_missing_user_icn(@in_progress_form)
       elsif participant_id.blank?
