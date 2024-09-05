@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CompleteDumpRunner
+class SubmissionDumpHandler
   attr_reader :submission_ids, :parent_dir, :successes, :failures,
               :bundle_by_user, :run_quiet, :quiet_upload_failures, :quiet_pdf_failures
 
