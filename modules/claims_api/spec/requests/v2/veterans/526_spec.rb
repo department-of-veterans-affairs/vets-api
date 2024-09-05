@@ -3434,7 +3434,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  "The serviceRelevance is required if disabilityActionType' is NEW."
+                  "The serviceRelevance is required if disabilityActionType' is NEW for disabilities/0/serviceRelevance."
                 )
               end
             end
