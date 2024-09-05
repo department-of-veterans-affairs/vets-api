@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
-RSpec.describe Vye::V1::DirectDepositChangesController, type: :request do
+RSpec.describe 'Vye::V1::DirectDeposit#create', type: :request do
   let!(:current_user) { create(:user, :accountable) }
 
   let(:headers) { { 'Content-Type' => 'application/json', 'X-Key-Inflection' => 'camel' } }
