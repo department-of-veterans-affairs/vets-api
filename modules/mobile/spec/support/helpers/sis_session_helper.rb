@@ -2,7 +2,7 @@
 
 module SISSessionHelper
   def sis_access_token
-    @sis_access_token ||= create(:access_token)
+    @sis_access_token ||= create(:access_token, audience: ['vamobile'])
   end
 
   def sis_bearer_token

@@ -91,7 +91,7 @@
           "to": "2004-01-04"
         },
         "title10Activation": {
-          "anticipatedSeparationDate": "2020-01-01",
+          "anticipatedSeparationDate": "2024-10-01",
           "title10ActivationDate": "1999-03-04"
         },
         "unitName": "Seal Team Six",
@@ -144,6 +144,103 @@
         ]
       }
     ],
+    "startedFormVersion": "2022",
+    "toxicExposure": {
+      "conditions": {
+        "arthritis": true
+      },
+      "gulfWar1990": {
+        "afghanistan": true,
+        "bahrain": true,
+        "jordan": true,
+        "kuwait": true,
+        "iraq": true,
+        "qatar": true
+      },
+      "gulfWar2001": {
+        "djibouti": true,
+        "lebanon": true,
+        "uzbekistan": true,
+        "airspace": true
+      },
+      "gulfWar1990Details": {
+        "iraq": {
+          "startDate": "1991-03-01",
+          "endDate": "1992-01-01"
+        },
+        "qatar": {
+          "startDate": "1991-02-12",
+          "endDate": "1991-06-01"
+        },
+        "kuwait": {
+          "startDate": "1991-03-15"
+        }
+      },
+      "gulfWar2001Details": {
+        "airspace": {
+          "endDate": "1992-09-01"
+        },
+        "uzbekistan": {
+          "startDate": "1993-06-01"
+        },
+        "djibouti": {
+          "startDate": "1992-01-01",
+          "endDate": "1992-11-01"
+        }
+      },
+      "herbicide": {
+        "cambodia": true,
+        "guam": true,
+        "laos": true
+      },
+      "herbicideDetails": {
+        "cambodia": {
+          "startDate": "1991-03-01",
+          "endDate": "1992-01-01"
+        },
+        "guam": {
+          "startDate": "1991-02-12",
+          "endDate": "1991-06-01"
+        },
+        "laos": {
+          "startDate": "1991-03-15"
+        }
+      },
+      "otherHerbicideLocations": {
+        "description": "other location 1, other location 2 etc",
+        "startDate": "1991-03-01",
+        "endDate": "1992-01-01"
+      },
+      "otherExposures": {
+        "asbestos": true,
+        "chemical": true,
+        "mos": true,
+        "mustardgas": true,
+        "radiation": true,
+        "water": true
+      },
+      "otherExposuresDetails": {
+        "asbestos": {
+          "startDate": "1991-03-01",
+          "endDate": "1992-01-01"
+        },
+        "radiation": {
+          "startDate": "1991-03-01",
+          "endDate": "1992-01-01"
+        },
+        "chemical": {
+          "startDate": "1991-03-01"
+        },
+        "mos": {
+          "endDate": "1991-03-01"
+        }
+      },
+      "specifyOtherExposures": {
+        "description": "Lead, burn pits",
+        "startDate": "1991-03-01",
+        "endDate": "1992-01-01"
+      }
+    },
     "waiveRetirementPay": false,
     "waiveTrainingPay": true,
     "hasTrainingPay": true

@@ -4,7 +4,7 @@ module Common
   module Client
     module Middleware
       module Response
-        class GIDSErrors < Faraday::Response::Middleware
+        class GIDSErrors < Faraday::Middleware
           # TODO: Consider consolidating this with caseflow_errors middleware
           # into a common json_api_errors middleware
           def on_complete(env)

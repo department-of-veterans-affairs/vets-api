@@ -22,5 +22,11 @@ module V0
         user_uuid: %i[current_user account_uuid]
       }
     )
+
+    private
+
+    def serializer_klass
+      SupportingEvidenceAttachmentSerializer
+    end
   end
 end

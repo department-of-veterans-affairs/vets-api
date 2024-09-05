@@ -3,8 +3,16 @@
 module Sidekiq
   module Form526JobStatusTracker
     module BackupSubmission
+      # rubocop:disable Metrics/MethodLength
       def send_backup_submission_if_enabled(form526_submission_id:, job_class:, job_id:, error_class:,
                                             error_message:)
+        submission_obj = Form526Submission.find(form526_submission_id)
+        if Flipper.enabled?(:disability_compensation_production_tester,
+                            OpenStruct.new({ flipper_id: submission_obj.user_uuid }))
+          ::Rails.logger.info("send_backup_submission_if_enabled call skipped for submission #{form526_submission_id}")
+          return
+        end
+
         backup_job_jid = nil
         flipper_sym = :form526_backup_submission_temp_killswitch
         # Entry-point for backup 526 CMP submission
@@ -18,9 +26,7 @@ module Sidekiq
         # Does not have additional birls it is going to try and submit with
         send_backup_submission = Settings.form526_backup.enabled && Flipper.enabled?(flipper_sym) &&
                                  job_class == 'SubmitForm526AllClaim' &&
-                                 (submission_obj ||=
-                                    Form526Submission.find(form526_submission_id)
-                                 ).submitted_claim_id.nil? &&
+                                 submission_obj.submitted_claim_id.nil? &&
                                  (additional_birls = submission_obj.birls_ids_that_havent_been_tried_yet).empty? &&
                                  submission_obj.backup_submitted_claim_id.nil? &&
                                  submission_obj.submitted_claim_id.nil?
@@ -36,6 +42,7 @@ module Sidekiq
         log_message['backup_job_id'] = backup_job_jid unless backup_job_jid.nil?
         ::Rails.logger.error('Form526 Exhausted or Errored (retryable-error-path)', log_message)
       end
+      # rubocop:enable Metrics/MethodLength
     end
   end
 end

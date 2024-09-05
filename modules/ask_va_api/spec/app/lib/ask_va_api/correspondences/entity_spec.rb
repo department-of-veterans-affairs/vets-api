@@ -7,14 +7,14 @@ RSpec.describe AskVAApi::Correspondences::Entity do
 
   let(:info) do
     {
-      inquiryId: '1',
-      id: '1',
-      modifiedon: '1/2/23',
-      status_reason: 'Completed/Sent',
-      description: 'Your claim is still In Progress',
-      message_type: '722310001: Response from VA',
-      enable_reply: true,
-      attachmentNames: [
+      Id: '1',
+      CreatedOn: '1/2/23 4:45:45 PM',
+      ModifiedOn: '1/2/23 5:45:45 PM',
+      StatusReason: 'Completed/Sent',
+      Description: 'Your claim is still In Progress',
+      MessageType: '722310001: Response from VA',
+      EnableReply: true,
+      AttachmentNames: [
         {
           id: '12',
           name: 'correspondence_1_attachment.pdf'
@@ -26,17 +26,16 @@ RSpec.describe AskVAApi::Correspondences::Entity do
 
   it 'creates an correspondence' do
     expect(correspondence).to have_attributes(
-      inquiry_id: info[:inquiryId],
-      id: info[:id],
-      modified_on: info[:modifiedon],
-      status_reason: info[:status_reason],
-      description: info[:description],
-      message_type: info[:message_type],
+      id: info[:Id],
+      modified_on: info[:ModifiedOn],
+      status_reason: info[:StatusReason],
+      description: info[:Description],
+      message_type: info[:MessageType],
       enable_reply: true,
       attachments: [
         {
-          id: info[:attachmentNames].first[:id],
-          name: info[:attachmentNames].first[:name]
+          id: info[:AttachmentNames].first[:id],
+          name: info[:AttachmentNames].first[:name]
         }
       ]
     )

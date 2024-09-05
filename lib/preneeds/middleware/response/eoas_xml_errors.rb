@@ -6,7 +6,7 @@ module Preneeds
       # Faraday response middleware that checks the EOAS service response for errors and raises the appropirate
       # exception for our application.
       #
-      class EoasXmlErrors < Faraday::Response::Middleware
+      class EoasXmlErrors < Faraday::Middleware
         include SentryLogging
         attr_reader :status, :fault, :code, :detail
 

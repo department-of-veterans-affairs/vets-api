@@ -1,19 +1,20 @@
 # frozen_string_literal: true
 
 require 'terms_of_use/exceptions'
+require 'sidekiq/attr_package'
 
 module TermsOfUse
   class Acceptor
     include ActiveModel::Validations
 
-    attr_reader :user_account, :icn, :common_name, :version
+    attr_reader :user_account, :icn, :version, :sync
 
-    validates :user_account, :icn, :common_name, :version, presence: true
+    validates :user_account, :icn, :version, presence: true
 
-    def initialize(user_account:, common_name:, version:)
+    def initialize(user_account:, version:, sync: false)
       @user_account = user_account
-      @common_name = common_name
       @version = version
+      @sync = sync
       @icn = user_account&.icn
 
       validate!
@@ -23,12 +24,12 @@ module TermsOfUse
 
     def perform!
       terms_of_use_agreement.accepted!
-      update_sign_up_service
 
+      update_sign_up_service
       Logger.new(terms_of_use_agreement:).perform
 
       terms_of_use_agreement
-    rescue ActiveRecord::RecordInvalid => e
+    rescue ActiveRecord::RecordInvalid, StandardError => e
       log_and_raise_acceptor_error(e)
     end
 
@@ -39,16 +40,13 @@ module TermsOfUse
     end
 
     def update_sign_up_service
-      SignUpServiceUpdaterJob.perform_async(attr_package_key)
+      Rails.logger.info('[TermsOfUse] [Acceptor] update_sign_up_service', { icn: })
+      SignUpServiceUpdaterJob.set(sync:).perform_async(user_account.id, version)
     end
 
     def log_and_raise_acceptor_error(error)
       Rails.logger.error("[TermsOfUse] [Acceptor] Error: #{error.message}", { user_account_id: user_account&.id })
       raise Errors::AcceptorError, error.message
-    end
-
-    def attr_package_key
-      Sidekiq::AttrPackage.create(icn:, signature_name: common_name, version:, expires_in: 2.days)
     end
   end
 end

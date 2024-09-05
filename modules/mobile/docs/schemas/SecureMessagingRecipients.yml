@@ -15,6 +15,7 @@ properties:
         id:
           type: string
           example: 855912
+          description: Upstream identifier
         type: 
           type: string
           example: "triage_teams"

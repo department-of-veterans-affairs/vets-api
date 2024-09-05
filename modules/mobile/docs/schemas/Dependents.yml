@@ -17,6 +17,7 @@ properties:
         id:
           type: string
           example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+          description: Randomly generated UUID
         attributes:
           type: object
           required:
@@ -33,35 +34,35 @@ properties:
             - veteranIndicator
           properties:
             awardIndicator:
-              type: string
+              type: [string, null]
               example: 'N'
             dateOfBirth:
-              type: string
+              type: [string, null]
               example: '01/02/1960'
             emailAddress:
-              type: string
+              type: [string, null]
               example: 'emailAddress'
             firstName:
-              type: string
+              type: [string, null]
               example: 'JANE'
             lastName:
-              type: string
+              type: [string, null]
               example: 'WEBB'
             middleName:
-              type: string
+              type: [string, null]
               example: 'M'
             proofOfDependency:
-              type: string
+              type: [string, null]
               example: 'N'
             ptcpntId:
-              type: string
+              type: [string, null]
               example: '600280661'
             relatedToVet:
-              type: string
+              type: [string, null]
               example: 'Y'
             relationship:
-              type: string
+              type: [string, null]
               example: 'Spouse'
             veteranIndicator:
-              type: string
+              type: [string, null]
               example: 'N'

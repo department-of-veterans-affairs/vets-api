@@ -57,7 +57,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     end
 
     it 'the claim should still be established on a successful BD submission' do
-      VCR.use_cassette('bd/upload') do
+      VCR.use_cassette('claims_api/bd/upload') do
         expect(claim.status).to eq('pending') # where we start
 
         service.perform(claim.id)
@@ -74,6 +74,54 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
 
       claim.reload
       expect(claim.uploader.blank?).to eq(false)
+    end
+  end
+
+  context 'when the pdf is mocked' do
+    it 'uploads to BD' do
+      with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
+        subject.perform_async(claim.id)
+
+        claim.reload
+        expect(claim.uploader).to be_a(ClaimsApi::SupportingDocumentUploader)
+      end
+    end
+  end
+
+  describe '#get_file_body' do
+    service = described_class.new
+    it 'returns the file body correctly' do
+      subject.perform_async(claim.id)
+
+      expect(service.send(:get_file_body, claim).blank?).to eq(false)
+      claim.reload
+      expect(claim.uploader).to be_a(ClaimsApi::SupportingDocumentUploader)
+    end
+  end
+
+  describe 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred from the BD Uploader Job'
+      msg = { 'args' => [claim.id],
+              'class' => subject,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: claim.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: error_msg
+        )
+      end
+    end
+  end
+
+  describe 'when an errored job has a time limitation' do
+    it 'logs to the ClaimsApi Logger' do
+      described_class.within_sidekiq_retries_exhausted_block do
+        expect(subject).to be_expired_in 48.hours
+      end
     end
   end
 end

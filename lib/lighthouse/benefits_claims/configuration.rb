@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
+require 'faraday/multipart'
 require 'lighthouse/auth/client_credentials/jwt_generator'
 require 'lighthouse/auth/client_credentials/service'
 
@@ -10,9 +11,9 @@ module BenefitsClaims
   # sets the base path, the base request headers, and a service name for breakers and metrics.
   #
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.lighthouse.benefits_claims.timeout || 20
+    self.read_timeout = Settings.lighthouse.benefits_claims.timeout || 30
 
-    API_SCOPES = %w[system/claim.read system/claim.write].freeze
+    API_SCOPES = %w[system/claim.read system/claim.write system/526-pdf.override system/526.override].freeze
     CLAIMS_PATH = 'services/claims/v2/veterans'
     TOKEN_PATH = 'oauth2/claims/system/v1/token'
 

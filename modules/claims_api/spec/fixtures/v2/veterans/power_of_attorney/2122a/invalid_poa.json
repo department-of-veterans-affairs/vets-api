@@ -1,16 +1,24 @@
 {
   "data": {
     "attributes": {
+      "veteran": {
+        "address": {
+          "addressLine1": "123",
+          "city": "city",
+          "stateCode": "OR",
+          "country": "US",
+          "zipCode": "12345"
+        }
+      },
       "representative": {
         "poaCode": "aaa",
-        "firstName": "my",
-        "lastName": "name",
+        "registrationNumber": "999999999999",
         "type": "ATTORNEY",
         "address": {
-          "numberAndStreet":  "123",
+          "addressLine1":  "123",
           "city": "city",
           "country":  "US",
-          "zipFirstFive": "12345"
+          "zipCode": "12345"
         }
       }
     }

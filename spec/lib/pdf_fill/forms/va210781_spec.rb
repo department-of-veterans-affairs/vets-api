@@ -26,6 +26,30 @@ describe PdfFill::Forms::Va210781 do
     end
   end
 
+  describe '#expand_signature' do
+    let(:form_data) do
+      { 'signatureDate' => '2017-02-14',
+        'veteranFullName' => { 'first' => 'Foo',
+                               'last' => 'Bar' } }
+    end
+    let(:new_form_class) { described_class.new(form_data) }
+
+    it 'expands the Signature and Signature Date correctly' do
+      new_form_class.expand_signature(form_data['veteranFullName'], form_data['signatureDate'])
+
+      expect(
+        JSON.parse(new_form_class.instance_variable_get(:@form_data).to_json)
+      ).to eq(
+        { 'signature' => 'Foo Bar',
+          'veteranFullName' => {
+            'first' => 'Foo',
+            'last' => 'Bar'
+          },
+          'signatureDate' => '2017-02-14' }
+      )
+    end
+  end
+
   # rubocop:disable Layout/LineLength
   describe '#format_persons_involved' do
     it 'handles no data' do

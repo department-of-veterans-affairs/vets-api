@@ -85,14 +85,14 @@ class FormProfile
   include Virtus.model
   include SentryLogging
 
-  MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
+  MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }
 
   ALL_FORMS = {
     edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
     hca: %w[1010ez 10-10EZR],
-    pension_burial: %w[21P-530 21P-527EZ],
+    pension_burial: %w[21P-530 21P-527EZ 21P-530V2],
     dependents: ['686C-674'],
     decision_review: %w[20-0995 20-0996 10182],
     mdot: ['MDOT'],
@@ -100,13 +100,19 @@ class FormProfile
     vre_counseling: ['28-8832'],
     vre_readiness: ['28-1900'],
     coe: ['26-1880'],
-    adapted_housing: ['26-4555']
+    adapted_housing: ['26-4555'],
+    intent_to_file: ['21-0966'],
+    ivc_champva: ['10-7959C'],
+    form_upload_flow: ['FORM-UPLOAD-FLOW'],
+    acc_rep_management: %w[21-22 21-22A],
+    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS']
   }.freeze
 
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
     '1010EZ' => ::FormProfiles::VA1010ez,
     '10-10EZR' => ::FormProfiles::VA1010ezr,
+    '10-7959C' => ::FormProfiles::VHA107959c,
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
@@ -120,6 +126,7 @@ class FormProfile
     '22-5490E' => ::FormProfiles::VA5490e,
     '22-5495' => ::FormProfiles::VA5495,
     '21P-530' => ::FormProfiles::VA21p530,
+    '21P-530V2' => ::FormProfiles::VA21p530v2,
     '21-686C' => ::FormProfiles::VA21686c,
     '686C-674' => ::FormProfiles::VA686c674,
     '40-10007' => ::FormProfiles::VA4010007,
@@ -135,7 +142,12 @@ class FormProfile
     '28-1900' => ::FormProfiles::VA281900,
     '22-1990EZ' => ::FormProfiles::VA1990ez,
     '26-1880' => ::FormProfiles::VA261880,
-    '26-4555' => ::FormProfiles::VA264555
+    '26-4555' => ::FormProfiles::VA264555,
+    '21-0966' => ::FormProfiles::VA210966,
+    'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
+    '21-22' => ::FormProfiles::VA2122,
+    '21-22A' => ::FormProfiles::VA2122a,
+    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -169,6 +181,8 @@ class FormProfile
 
   def self.mappings_for_form(form_id)
     @mappings ||= {}
+    # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
+    form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
     @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
   end
 
@@ -269,9 +283,10 @@ class FormProfile
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
+    Rails.logger.info("User Vet360 Contact Info, Address? #{opt[:address].present?}
+      Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
 
     opt[:address] ||= user_address_hash
-
     opt[:email] ||= extract_pciu_data(:pciu_email)
     if opt[:home_phone].nil?
       opt[:home_phone] = pciu_primary_phone
@@ -290,6 +305,8 @@ class FormProfile
     @vet360_contact_info_retrieved = true
     if VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
+    else
+      Rails.logger.info('Vet360 Contact Info Null')
     end
     @vet360_contact_info
   end

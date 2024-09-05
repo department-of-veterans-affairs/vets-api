@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/RORoutingServiceWS/RORoutingService?WSDL
+    uri: <BGS_BASE_URL>/RORoutingServiceWS/RORoutingService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Fri, 02 Oct 2020 23:34:42 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/RORoutingServiceWS/RORoutingService
+    uri: <BGS_BASE_URL>/RORoutingServiceWS/RORoutingService
     body:
       encoding: UTF-8
       string: |-

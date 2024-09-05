@@ -7,12 +7,8 @@ module CovidVaccine
     class RegistrationSubmission < ApplicationRecord
       scope :for_user, ->(user) { where(account_id: user.account_uuid).order(created_at: :asc) }
 
-      after_initialize do |reg|
-        reg.form_data&.symbolize_keys!
-      end
-
-      serialize :form_data, JsonMarshal::Marshaller
-      serialize :raw_form_data, JsonMarshal::Marshaller
+      serialize :form_data, coder: JsonMarshal::Marshaller
+      serialize :raw_form_data, coder: JsonMarshal::Marshaller
       has_kms_key
       has_encrypted :form_data, :raw_form_data, key: :kms_key, **lockbox_options
     end

@@ -1,124 +1,135 @@
 {
-  "data": [
+  "Data": [
     {
-      "inquiryId": "1",
-      "id": "1",
-      "modifiedon": "1/2/23",
-      "status_reason": "Completed/Sent",
-      "description": "Your claim is still In Progress",
-      "message_type": "722310001: Response from VA",
-      "enable_reply": true,
-      "attachmentNames": [
+      "InquiryId": "A-1",
+      "Id": "1",
+      "ModifiedOn": "1/2/23 5:45:45 PM",
+      "CreatedOn": "1/2/23 4:45:45 PM",
+      "StatusReason": "Completed/Sent",
+      "Description": "Your claim is still In Progress",
+      "MessageType": "722310001: Response from VA",
+      "EnableReply": true,
+      "AttachmentNames": [
         {
-          "id": "12",
-          "name": "correspondence_1_attachment.pdf"
+          "Id": "12",
+          "Name": "correspondence_1_attachment.pdf"
         }
       ]
     },
     {
-      "inquiryId": "2",
-      "id": "2",
-      "modifiedon": "1/21/23",
-      "status_reason": "Completed/Sent",
-      "description": "You can yours our website in your profile or call us.",
-      "message_type": "722310001: Response from VA",
-      "enable_reply": true,
-      "attachmentNames": [
+      "InquiryId": "A-2",
+      "Id": "2",
+      "ModifiedOn": "1/21/23 5:45:45 PM",
+      "CreatedOn": "1/2/23 4:45:45 PM",
+      "StatusReason": "Completed/Sent",
+      "Description": "You can edit yours our website in your profile or call us.",
+      "Message_type": "722310001: Response from VA",
+      "Enable_reply": true,
+      "AttachmentNames": [
         {
-          "id": "13",
-          "name": "correspondence_2_attachment.pdf"
+          "Id": "13",
+          "Name": "correspondence_2_attachment.pdf"
         }
       ]
     },
     {
-      "inquiryId": "2",
-      "id": "3",
-      "modifiedon": "1/22/23",
-      "status_reason": "Completed/Sent",
-      "description": "Which number can I call?",
-      "message_type": "722310000: Reply to VA",
-      "enable_reply": true,
-      "attachmentNames": []
+      "InquiryId": "A-2",
+      "Id": "3",
+      "ModifiedOn": "1/22/23 5:45:45 PM",
+      "CreatedOn": "1/2/23 4:45:45 PM",
+      "StatusReason": "Completed/Sent",
+      "Description": "Which number can I call?",
+      "Message_type": "722310000: Reply to VA",
+      "Enable_reply": true,
+      "AttachmentNames": []
     },
     {
-      "inquiryId": "2",
-      "id": "4",
-      "modifiedon": "1/23/23",
-      "status_reason": "Completed/Sent",
-      "description": "Which number can I call?",
-      "message_type": "722310000: Reply to VA",
-      "enable_reply": true,
-      "attachmentNames": []
+      "InquiryId": "A-2",
+      "Id": "4",
+      "ModifiedOn": "1/23/23 5:45:45 PM",
+      "CreatedOn": "1/2/23 4:45:45 PM",
+      "StatusReason": "Completed/Sent",
+      "Description": "Which number can I call?",
+      "Message_type": "722310000: Reply to VA",
+      "Enable_reply": true,
+      "AttachmentNames": []
     },
     {
-      "inquiryId": "9",
-      "id": "5",
-      "modifiedon": "8/23/23",
-      "status_reason": "Completed/Sent",
-      "description": "Your claim is currently under review. We expect to complete processing within the next two weeks. No additional documents needed.",
-      "message_type": "722310001: Response from VA",
-      "enable_reply": true,
-      "attachmentNames": []
+      "InquiryId": "A-9",
+      "Id": "5",
+      "ModifiedOn": "8/23/23 5:45:45 PM",
+      "CreatedOn": "1/2/23 4:45:45 PM",
+      "StatusReason": "Completed/Sent",
+      "Description": "Your claim is currently under review. We expect to complete processing within the next two weeks. No additional documents needed.",
+      "Message_type": "722310001: Response from VA",
+      "Enable_reply": true,
+      "AttachmentNames": []
     },
     {
-      "inquiryId": "9",
-      "id": "6",
-      "modifiedon": "8/24/23",
-      "status_reason": "Completed/Sent",
-      "description": "I appreciate the update. Can you confirm if all my submitted documents have been received and are in order?",
-      "message_type": "722310000: Reply to VA",
-      "enable_reply": true,
-      "attachmentNames": []
+      "InquiryId": "A-9",
+      "Id": "6",
+      "ModifiedOn": "8/24/23 5:45:45 PM",
+      "CreatedOn": "1/2/23 4:45:45 PM",
+      "StatusReason": "Completed/Sent",
+      "Description": "I appreciate the update. Can you confirm if all my submitted documents have been received and are in order?",
+      "Message_type": "722310000: Reply to VA",
+      "Enable_reply": true,
+      "AttachmentNames": []
     },
     {
-      "inquiryId": "9",
-      "id": "7",
-      "modifiedon": "8/24/23",
-      "status_reason": "Completed/Sent",
-      "description": "Yes, all your documents are received and complete. Your application is progressing without any issues at this stage.",
-      "message_type": "722310001: Response from VA",
-      "enable_reply": true,
-      "attachmentNames": []
+      "InquiryId": "A-9",
+      "Id": "7",
+      "ModifiedOn": "8/24/23 5:45:45 PM",
+      "CreatedOn": "1/2/23 4:45:45 PM",
+      "StatusReason": "Completed/Sent",
+      "Description": "Yes, all your documents are received and complete. Your application is progressing without any issues at this stage.",
+      "Message_type": "722310001: Response from VA",
+      "Enable_reply": true,
+      "AttachmentNames": []
     },
     {
-      "inquiryId": "9",
-      "id": "7",
-      "modifiedon": "8/25/23",
-      "status_reason": "Completed/Sent",
-      "description": "Great to hear! Could you advise on the potential outcomes of this process and any impact on my benefits?",
-      "message_type": "722310000: Reply to VA",
-      "enable_reply": true,
-      "attachmentNames": []
+      "InquiryId": "A-9",
+      "Id": "7",
+      "ModifiedOn": "8/25/23 5:45:45 PM",
+      "CreatedOn": "1/2/23 4:45:45 PM",
+      "StatusReason": "Completed/Sent",
+      "Description": "Great to hear! Could you advise on the potential outcomes of this process and any impact on my benefits?",
+      "Message_type": "722310000: Reply to VA",
+      "Enable_reply": true,
+      "AttachmentNames": []
     },
     {
-      "inquiryId": "9",
-      "id": "8",
-      "modifiedon": "8/26/23",
-      "status_reason": "Completed/Sent",
-      "description": "The claim review may result in increased benefits, continuation at current level, or an adjustment. We'll notify you.",
-      "message_type": "722310001: Response from VA",
-      "enable_reply": true,
-      "attachmentNames": []
+      "InquiryId": "A-9",
+      "Id": "8",
+      "ModifiedOn": "8/26/23 5:45:45 PM",
+      "CreatedOn": "1/2/23 4:45:45 PM",
+      "StatusReason": "Completed/Sent",
+      "Description": "The claim review may result in increased benefits, continuation at current level, or an adjustment. We'll notify you.",
+      "Message_type": "722310001: Response from VA",
+      "Enable_reply": true,
+      "AttachmentNames": []
     },
     {
-      "inquiryId": "9",
-      "id": "8",
-      "modifiedon": "8/26/23",
-      "status_reason": "Completed/Sent",
-      "description": "Understood. In case of an adjustment, is there an option to appeal or provide additional supporting evidence?",
-      "message_type": "722310000: Reply to VA",
-      "enable_reply": true,
-      "attachmentNames": []
+      "InquiryId": "A-9",
+      "Id": "8",
+      "ModifiedOn": "8/26/23 5:45:45 PM",
+      "CreatedOn": "1/2/23 4:45:45 PM",
+      "StatusReason": "Completed/Sent",
+      "Description": "Understood. In case of an adjustment, is there an option to appeal or provide additional supporting evidence?",
+      "Message_type": "722310000: Reply to VA",
+      "Enable_reply": true,
+      "AttachmentNames": []
     },
     {
-      "inquiryId": "9",
-      "id": "9",
-      "modifiedon": "8/28/23",
-      "status_reason": "Completed/Sent",
-      "description": "Absolutely. You'll have the option to appeal and submit further evidence if needed. We'll guide you through the process.",
-      "message_type": "722310001: Response from VA",
-      "enable_reply": true,
-      "attachmentNames": []
+      "InquiryId": "A-9",
+      "Id": "9",
+      "ModifiedOn": "8/28/23 5:45:45 PM",
+      "CreatedOn": "1/2/23 4:45:45 PM",
+      "StatusReason": "Completed/Sent",
+      "Description": "Absolutely. You'll have the option to appeal and submit further evidence if needed. We'll guide you through the process.",
+      "Message_type": "722310001: Response from VA",
+      "Enable_reply": true,
+      "AttachmentNames": []
     }
   ]
 }

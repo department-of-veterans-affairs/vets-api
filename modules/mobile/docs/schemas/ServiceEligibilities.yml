@@ -14,7 +14,8 @@ properties:
         example: "va_eligibility"
       id:
         type: string
-        example: "3097e489-ad75-5746-ab1a-e0aabc1b426a"
+        example: "6260ab13-177f-583d-b2dc-1b350404abb7"
+        description: user UUID
       attributes:
         type: object
         required:

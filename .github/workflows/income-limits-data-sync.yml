@@ -2,7 +2,7 @@ name: Income Limits Data Sync
 on:
   workflow_dispatch: null
   schedule:
-    - cron: "35 0 1 * *"
+    - cron: "35 0 28 * *"
 env:
   BUCKET_NAME: "sitewide-public-websites-income-limits-data"
   AWS_REGION: "us-gov-west-1"
@@ -15,7 +15,7 @@ jobs:
   income_limits_data_sync:
     runs-on: self-hosted
     container:
-      image: public.ecr.aws/docker/library/ruby:3.2.2-bullseye
+      image: public.ecr.aws/docker/library/ruby:3.3.3-bullseye
       env:
         SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
         NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4.0.1
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
@@ -100,4 +100,4 @@ jobs:
 
       - name: Copy files to the S3 bucket
         run: |
-          aws s3 sync ${{ env.TEMP_FOLDER }} s3://${{ env.BUCKET_NAME }}
+          aws s3 sync ${{ env.TEMP_FOLDER }} s3://${{ env.BUCKET_NAME }} --acl public-read

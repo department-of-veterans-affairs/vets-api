@@ -30,7 +30,7 @@ describe VaNotify::Service do
     }
   end
 
-  describe 'service initialization', test_service: true do
+  describe 'service initialization', :test_service do
     let(:notification_client) { double('Notifications::Client') }
 
     it 'api key based on service and client is called with expected parameters' do

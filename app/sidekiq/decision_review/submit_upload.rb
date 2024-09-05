@@ -10,7 +10,7 @@ module DecisionReview
 
     STATSD_KEY_PREFIX = 'worker.decision_review.submit_upload'
 
-    sidekiq_options retry: 5
+    sidekiq_options retry: 13
 
     sidekiq_retries_exhausted do |_msg, _ex|
       StatsD.increment("#{STATSD_KEY_PREFIX}.permanent_error")
@@ -31,7 +31,7 @@ module DecisionReview
                      when 'NOD'
                        handle_notice_of_disagreement(appeal_submission_upload, file_number_or_ssn, sanitized_file)
                      when 'SC'
-                       handle_supplemental_claim(appeal_submission, file_number_or_ssn, sanitized_file)
+                       handle_supplemental_claim(appeal_submission_upload, file_number_or_ssn, sanitized_file)
                      else
                        raise "Unknown appeal type (#{type})"
                      end.body.dig('data', 'id')
@@ -53,10 +53,10 @@ module DecisionReview
       appeal_submission = appeal_submission_upload.appeal_submission
       # For now, I'm limiting our new `log_formatted` style of logging to the NOD form. In the near future, we will
       # expand this style of logging to every Decision Review form.
-      is_nod_submission = appeal_submission.type_of_appeal == 'NOD'
+      form_id = appeal_submission.type_of_appeal == 'NOD' ? '10182' : '995'
       common_log_params = {
         key: :evidence_upload_retrieval,
-        form_id: '10182',
+        form_id:,
         user_uuid: appeal_submission.user_uuid,
         upstream_system: 'AWS S3',
         params: {
@@ -67,10 +67,10 @@ module DecisionReview
 
       begin
         sanitized_file = form_attachment.get_file
-        log_formatted(**common_log_params.merge(is_success: true)) if is_nod_submission
+        log_formatted(**common_log_params.merge(is_success: true))
         sanitized_file
       rescue => e
-        log_formatted(**common_log_params.merge(is_success: false, response_error: e)) if is_nod_submission
+        log_formatted(**common_log_params.merge(is_success: false, response_error: e))
         raise e
       end
     end
@@ -104,16 +104,30 @@ module DecisionReview
       upload_url_response
     end
 
-    def handle_supplemental_claim(appeal_submission, file_number_or_ssn, sanitized_file)
+    # Handle supplemental claims appeal type. Make a request to Lighthouse to get the URL where we can upload the
+    # file, then get the file from S3 and send it to Lighthouse
+    #
+    # @param appeal_submission_upload [AppealSubmissionUpload]
+    # @param file_number_or_ssn [String] Veteran's SSN or File #
+    # @param sanitized_file [CarrierWave::SanitizedFile] The sanitized file from S3
+    # @return [Faraday::Env] The response from Lighthouse
+    def handle_supplemental_claim(appeal_submission_upload, file_number_or_ssn, sanitized_file)
       Sentry.set_tags(source: '20-0995-supplemental-claim')
+      appeal_submission = appeal_submission_upload.appeal_submission
+      user_uuid = appeal_submission.user_uuid
+      appeal_submission_upload_id = appeal_submission_upload.id
       upload_url_response = get_dr_svc.get_supplemental_claim_upload_url(
         sc_uuid: appeal_submission.submitted_appeal_uuid,
-        file_number: file_number_or_ssn
+        file_number: file_number_or_ssn,
+        user_uuid:,
+        appeal_submission_upload_id:
       )
       upload_url = upload_url_response.body.dig('data', 'attributes', 'location')
       get_dr_svc.put_supplemental_claim_upload(upload_url:,
                                                file_upload: sanitized_file,
-                                               metadata_string: appeal_submission.upload_metadata)
+                                               metadata_string: appeal_submission.upload_metadata,
+                                               user_uuid:,
+                                               appeal_submission_upload_id:)
       upload_url_response
     end
   end

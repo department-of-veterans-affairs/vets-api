@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class ClaimantSerializer < ActiveModel::Serializer
-  attribute :claimant_id
+class ClaimantSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  set_id { '' }
+
+  attribute :claimant_id
 end

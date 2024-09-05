@@ -60,7 +60,7 @@ module MHVLogging
           # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
           conn.response :snakecase
-          conn.response :raise_error, error_prefix: 'MHV'
+          conn.response :raise_custom_error, error_prefix: 'MHV'
           conn.response :mhv_errors
           conn.response :mhv_xml_html_errors
           conn.response :json_parser

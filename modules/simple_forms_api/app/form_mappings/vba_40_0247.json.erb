@@ -1,5 +1,5 @@
 {
-  "form1[0].#subform[0].TextField1[0]": "<%= form.data.dig('veteran_full_name', 'first') + ' ' + (form.data.dig('veteran_full_name', 'middle') || '') + ' ' + form.data.dig('veteran_full_name', 'last') %>",
+  "form1[0].#subform[0].TextField1[0]": "<%= form.veteran_name %>",
   "form1[0].#subform[0].TextField1[1]": "<%= form.data.dig('veteran_id', 'ssn') || form.data.dig('veteran_id', 'va_file_number') %>",
   "form1[0].#subform[0].CheckBox5[0]": "",
   "form1[0].#subform[0].CheckBox5[1]": "",
@@ -13,8 +13,8 @@
   "form1[0].#subform[0].CheckBox5[9]": "",
   "form1[0].#subform[0].Date1[0]": "<%= form.data['veteran_date_of_birth'] %>",
   "form1[0].#subform[0].Date1[1]": "<%= form.data['veteran_date_of_death'] %>",
-  "form1[0].#subform[0].TextField1[2]": "<%= form.data.dig('applicant_full_name', 'first') + ' ' + (form.data.dig('applicant_full_name', 'middle') || '') + ' ' + form.data.dig('applicant_full_name', 'last') %>",
-  "form1[0].#subform[0].TextField4[0]": "<%= form.data.dig('applicant_address', 'street') + ', ' + (form.data.dig('applicant_address', 'street2') || '') + '\n' + form.data.dig('applicant_address', 'city') + ', ' + form.data.dig('applicant_address', 'state') + ' ' + form.data.dig('applicant_address', 'postal_code') + '\n' + form.data.dig('applicant_address', 'country') %>",
+  "form1[0].#subform[0].TextField1[2]": "<%= form.applicant_name %>",
+  "form1[0].#subform[0].TextField4[0]": "<%= form.applicant_address %>",
   "form1[0].#subform[0].TextField1[3]": "<%= form.data['applicant_phone'] %>",
   "form1[0].#subform[0].TextField1[4]": "<%= form.data['applicant_email'] %>",
   "form1[0].#subform[0].TextField2[0]": "<%= form.data['certificates'] %>",

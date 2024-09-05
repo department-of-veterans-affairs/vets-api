@@ -56,7 +56,7 @@ module Veteran
           state: vso_rep['Org State']
         }
       end.compact.uniq
-      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_ignore: true)
+      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state])
 
       vso_reps
     end
@@ -80,9 +80,14 @@ module Veteran
     end
 
     def find_or_create_vso(vso)
-      first_name = vso['Representative'].split&.second
-      last_name = vso['Representative'].split(',')&.first
-      middle_initial = vso['Representative'].split&.third
+      unless vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/)
+        ClaimsApi::Logger.log('VSO',
+                              detail: "Rep name not in expected format: #{vso['Registration Num']}")
+        return
+      end
+
+      last_name, first_name, middle_initial = vso['Representative']
+                                              .match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures
 
       rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: vso['Registration Num'],
                                                                    first_name:,

@@ -22,6 +22,9 @@
     "diagnosticCode": {
       "type": "integer"
     },
+    "hyphenatedDiagnosticCode": {
+      "type": ["integer", "null"]
+    },
     "name": {
       "type": "string"
     },

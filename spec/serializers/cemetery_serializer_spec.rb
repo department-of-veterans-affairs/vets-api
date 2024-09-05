@@ -9,19 +9,23 @@ RSpec.describe CemeterySerializer do
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
-  it 'includes id' do
+  it 'includes :id' do
     expect(data['id']).to eq(cemetery.id)
   end
 
-  it 'includes the cemetery_id' do
+  it 'includes :type' do
+    expect(data['type']).to eq('preneeds_cemeteries')
+  end
+
+  it 'includes :cemetery_id' do
     expect(attributes['cemetery_id']).to eq(cemetery.id)
   end
 
-  it 'includes the num' do
+  it 'includes :num' do
     expect(attributes['num']).to eq(cemetery.num)
   end
 
-  it 'includes the cemetery_type' do
+  it 'includes :cemetery_type' do
     expect(attributes['cemetery_type']).to eq(cemetery.cemetery_type)
   end
 end

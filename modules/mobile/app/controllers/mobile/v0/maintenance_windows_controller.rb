@@ -11,7 +11,6 @@ module Mobile
       SERVICE_GRAPH = Mobile::V0::ServiceGraph.new(
         %i[bgs lighthouse],
         %i[mpi lighthouse],
-        %i[evss lighthouse],
         %i[bgs caseflow],
         %i[bgs payment_history],
         %i[arcgis facility_locator],
@@ -20,14 +19,16 @@ module Mobile
         %i[vbms evss],
         %i[vbms lighthouse],
         %i[lighthouse claims],
-        %i[lighthouse direct_deposit_benefits],
-        %i[lighthouse disability_rating],
-        %i[lighthouse letters_and_documents],
+        %i[lighthouse_direct_deposit direct_deposit_benefits],
+        %i[evss disability_rating],
+        %i[evss letters_and_documents],
         %i[lighthouse immunizations],
-        %i[mhv secure_messaging],
+        %i[mhv_platform mhv_sm],
+        %i[mhv_platform mhv_meds],
+        %i[mhv_sm secure_messaging],
+        %i[mhv_meds rx_refill],
         %i[vaos appointments],
         %i[vet360 user_profile_update],
-        %i[mhv rx_refill],
         %i[eoas preneed_burial]
       )
 

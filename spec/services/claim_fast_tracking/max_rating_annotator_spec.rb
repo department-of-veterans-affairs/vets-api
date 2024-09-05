@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'disability_compensation/providers/rated_disabilities/lighthouse_rated_disabilities_provider'
 
 RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
   describe 'annotate_disabilities' do
@@ -14,49 +15,71 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
     end
     let(:disabilities_data) do
       [
-        { name: 'Hypertension', diagnostic_code: 7101, rating_percentage: 20 },
         { name: 'Tinnitus', diagnostic_code: 6260, rating_percentage: 10 },
+        { name: 'Hypertension', diagnostic_code: 7101, rating_percentage: 20 },
         { name: 'Vertigo', diagnostic_code: 6204, rating_percentage: 30 }
       ]
     end
 
-    context 'with disability_526_maximum_rating_api disabled' do
-      before { Flipper.disable(:disability_526_maximum_rating_api) }
+    context 'with disability_526_maximum_rating_api_all_conditions disabled' do
+      before { Flipper.disable(:disability_526_maximum_rating_api_all_conditions) }
 
-      it 'mutates just the tinnitus disability with hardcoded max rating' do
-        subject
-        max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
-        expect(max_ratings).to eq([nil, 10, nil])
+      it 'mutates just the tinnitus disability max rating from VRO' do
+        VCR.use_cassette('virtual_regional_office/max_ratings') do
+          subject
+          max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
+          expect(max_ratings).to eq([10, nil, nil])
+        end
       end
-    end
 
-    context 'with disability_526_maximum_rating_api enabled' do
-      before { Flipper.enable(:disability_526_maximum_rating_api) }
-      after { Flipper.disable(:disability_526_maximum_rating_api) }
+      context 'when a disabilities response has two rated disabilities with same diagnostic code' do
+        let(:disabilities_data) do
+          [
+            { name: 'Tinnitus', diagnostic_code: 6260, rating_percentage: 10 },
+            { name: 'Tinnitus', diagnostic_code: 6260, rating_percentage: 10 }
+          ]
+        end
 
-      context 'when a disabilities response contains rating for a disability' do
-        it 'mutates just the rated disability with a max rating' do
+        it 'mutates both rated disabilities with max ratings from VRO' do
           VCR.use_cassette('virtual_regional_office/max_ratings') do
             subject
             max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
-            expect(max_ratings).to eq([nil, 10, nil])
+            expect(max_ratings).to eq([10, 10])
+          end
+        end
+      end
+    end
+
+    context 'with disability_526_maximum_rating_api_all_conditions enabled' do
+      before { Flipper.enable(:disability_526_maximum_rating_api_all_conditions) }
+      after { Flipper.disable(:disability_526_maximum_rating_api_all_conditions) }
+
+      context 'when a disabilities response does not contains rating any disability' do
+        it 'mutates none of the disabilities with a max rating' do
+          VCR.use_cassette('virtual_regional_office/max_ratings_none') do
+            subject
+            max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
+            expect(max_ratings).to eq([nil, nil, nil])
           end
         end
       end
 
-      context 'when a disabilities response does not contains rating any disability' do
-        let(:disabilities_data) do
-          [
-            { name: 'Hypertension', diagnostic_code: 7101, rating_percentage: 20 },
-            { name: 'Vertigo', diagnostic_code: 6204, rating_percentage: 30 }
-          ]
-        end
-
-        it 'mutates none of the disabilities with a max rating' do
+      context 'when a disabilities response contains rating for a single disability' do
+        it 'mutates just the rated disability with a max rating' do
           VCR.use_cassette('virtual_regional_office/max_ratings') do
             subject
             max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
-            expect(max_ratings).to eq([nil, nil])
+            expect(max_ratings).to eq([10, nil, nil])
+          end
+        end
+      end
+
+      context 'when a disabilities response contains rating for a multiple disabilities' do
+        it 'mutates just the rated disabilities with a max rating' do
+          VCR.use_cassette('virtual_regional_office/max_ratings_multiple') do
+            subject
+            max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
+            expect(max_ratings).to eq([10, 60, nil])
           end
         end
       end
@@ -66,11 +89,9 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
           let(:rated_disabilities) { nil }
 
           it 'mutates only the valid disability with a max rating' do
-            VCR.use_cassette('virtual_regional_office/max_ratings') do
-              subject
-              max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
-              expect(max_ratings).to eq([])
-            end
+            subject
+            max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
+            expect(max_ratings).to eq([])
           end
         end
 
@@ -118,6 +139,103 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
           end
         end
       end
+    end
+  end
+
+  describe 'log_hyphenated_diagnostic_codes' do
+    subject { described_class.log_hyphenated_diagnostic_codes(rated_disabilities) }
+
+    before { allow(Rails.logger).to receive(:info) }
+
+    let(:rated_disabilities) do
+      disabilities_data.map { |dis| DisabilityCompensation::ApiProvider::RatedDisability.new(**dis) }
+    end
+    let(:disabilities_data) do
+      [
+        { name: 'Tinnitus', diagnostic_code: 6260, rating_percentage: 10 },
+        { name: 'Pancreatitis, chronic', diagnostic_code: 7347, rating_percentage: 30 },
+        { name: 'Postop tonsillectomy', diagnostic_code: 6516, hyphenated_diagnostic_code: 6599, rating_percentage: 30 }
+      ]
+    end
+
+    it 'sends the correct output to Rails log' do
+      subject
+      expect(Rails.logger).to have_received(:info).with(
+        'Max CFI rated disability',
+        { diagnostic_code: 6260, diagnostic_code_type: :primary_max_rating, hyphenated_diagnostic_code: nil }
+      )
+      expect(Rails.logger).to have_received(:info).with(
+        'Max CFI rated disability',
+        { diagnostic_code: 7347, diagnostic_code_type: :digestive_system, hyphenated_diagnostic_code: nil }
+      )
+      expect(Rails.logger).to have_received(:info).with(
+        'Max CFI rated disability',
+        { diagnostic_code: 6516, diagnostic_code_type: :analogous_code, hyphenated_diagnostic_code: 6599 }
+      )
+    end
+  end
+
+  describe 'diagnostic_code_type' do
+    subject { described_class.diagnostic_code_type(rated_disability) }
+
+    let(:rated_disability) do
+      DisabilityCompensation::ApiProvider::RatedDisability.new(diagnostic_code:, hyphenated_diagnostic_code:)
+    end
+    let(:hyphenated_diagnostic_code) { nil }
+
+    context 'when diagnostic code is nil' do
+      let(:diagnostic_code) { nil }
+
+      it { is_expected.to eq(:missing_diagnostic_code) }
+    end
+
+    context 'when diagnostic code is in the digestive system range' do
+      let(:diagnostic_code) { 7329 }
+
+      it { is_expected.to eq(:digestive_system) }
+    end
+
+    context 'when diagnostic code is in the infectious disease range' do
+      let(:diagnostic_code) { 6354 }
+
+      it { is_expected.to eq(:infectious_disease) }
+    end
+
+    context 'when diagnostic code is for an unlisted condition requiring an analogous code' do
+      let(:hyphenated_diagnostic_code) { 6599 }
+      let(:diagnostic_code) { 6516 }
+
+      it { is_expected.to eq(:analogous_code) }
+    end
+
+    context 'when diagnostic code does not invoke any hyphenated logic' do
+      let(:diagnostic_code) { 6260 }
+
+      it { is_expected.to eq(:primary_max_rating) }
+    end
+  end
+
+  describe 'eligible_for_request?' do
+    subject { described_class.eligible_for_request?(rated_disability) }
+
+    let(:rated_disability) { DisabilityCompensation::ApiProvider::RatedDisability.new(**rd_hash) }
+
+    context 'when rated disability is for an infectious disease' do
+      let(:rd_hash) { { diagnostic_code: 6354 } }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when rated disability is for an excluded digestive condition' do
+      let(:rd_hash) { { diagnostic_code: 7346 } }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when rated disability is for a non-excluded digestive condition' do
+      let(:rd_hash) { { diagnostic_code: 7347 } }
+
+      it { is_expected.to be_truthy }
     end
   end
 end

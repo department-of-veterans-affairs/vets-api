@@ -1,15 +1,26 @@
 # frozen_string_literal: true
 
+require 'brd/brd'
+
 module AskVAApi
   module V0
     class StaticDataController < ApplicationController
       skip_before_action :authenticate
-      around_action :handle_exceptions, except: %i[index]
+      around_action :handle_exceptions, except: %i[test_endpoint]
 
-      def index
-        service = Crm::Service.new(icn: 'a')
-        data = service.call(endpoint: 'topics')
+      def test_endpoint
+        data = Crm::Service.new(icn: nil).call(endpoint: params[:endpoint], payload: params[:payload] || {})
         render json: data.to_json, status: :ok
+      end
+
+      def announcements
+        get_resource('announcements', user_mock_data: params[:user_mock_data])
+        render_result(@announcements)
+      end
+
+      def branch_of_service
+        get_resource('branch_of_service', user_mock_data: params[:user_mock_data])
+        render_result(@branch_of_service)
       end
 
       def categories
@@ -17,9 +28,9 @@ module AskVAApi
         render_result(@categories)
       end
 
-      def provinces
-        get_resource('provinces', service: mock_service)
-        render_result(@provinces)
+      def optionset
+        get_resource('optionset', user_mock_data: params[:user_mock_data], name: params[:name])
+        render_result(@optionset)
       end
 
       def states
@@ -55,7 +66,6 @@ module AskVAApi
         data = retriever_class.new(**options).call
 
         serialized_data = serializer_class.new(data).serializable_hash
-
         instance_variable_set("@#{resource_type}", Result.new(payload: serialized_data, status: :ok))
       end
 
@@ -64,7 +74,7 @@ module AskVAApi
       end
 
       def mock_service
-        DynamicsMockService.new(icn: nil, logger: nil) if params[:mock]
+        DynamicsMockService.new(icn: nil, logger: nil) if params[:user_mock_data]
       end
 
       def render_result(resource)

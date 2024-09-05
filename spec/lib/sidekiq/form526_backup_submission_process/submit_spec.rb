@@ -4,12 +4,14 @@ require 'rails_helper'
 
 require 'evss/disability_compensation_auth_headers' # required to build a Form526Submission
 require 'sidekiq/form526_backup_submission_process/submit'
+require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   subject { described_class }
 
   before do
     Sidekiq::Job.clear_all
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -40,7 +42,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
-        subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
+        args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
+        subject.within_sidekiq_retries_exhausted_block(args) do
           expect(StatsD).to receive(:increment).with("#{subject::STATSD_KEY_PREFIX}.exhausted")
           expect(Rails).to receive(:logger).and_call_original
         end
@@ -53,8 +56,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   %w[single multi].each do |payload_method|
     describe ".perform_async, enabled, #{payload_method} payload" do
       before do
-        allow(Settings.form526_backup).to receive(:submission_method).and_return(payload_method)
-        allow(Settings.form526_backup).to receive(:enabled).and_return(true)
+        allow(Settings.form526_backup).to receive_messages(submission_method: payload_method, enabled: true)
       end
 
       let!(:submission) { create :form526_submission, :with_everything }
@@ -75,6 +77,10 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
         end
 
         it 'submits' do
+          new_form_data = submission.saved_claim.parsed_form
+          new_form_data['startedFormVersion'] = nil
+          submission.saved_claim.form = new_form_data.to_json
+          submission.saved_claim.save
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
             VCR.use_cassette('form526_backup/200_evss_get_pdf') do
               VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
@@ -111,6 +117,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                 expect(job_status.status).to eq('success')
                 submission = Form526Submission.last
                 expect(submission.backup_submitted_claim_id).not_to be(nil)
+                expect(submission.submit_endpoint).to eq('benefits_intake_api')
               end
             end
           end
@@ -159,8 +166,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
   describe '.perform_async, enabled, and converts non-pdf evidence to pdf' do
     before do
-      allow(Settings.form526_backup).to receive(:submission_method).and_return('single')
-      allow(Settings.form526_backup).to receive(:enabled).and_return(true)
+      allow(Settings.form526_backup).to receive_messages(submission_method: 'single', enabled: true)
     end
 
     let!(:submission) { create :form526_submission, :with_non_pdf_uploads }
@@ -179,6 +185,10 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       end
 
       it 'converts and submits' do
+        new_form_data = submission.saved_claim.parsed_form
+        new_form_data['startedFormVersion'] = nil
+        submission.saved_claim.form = new_form_data.to_json
+        submission.saved_claim.save
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
           VCR.use_cassette('form526_backup/200_evss_get_pdf') do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do

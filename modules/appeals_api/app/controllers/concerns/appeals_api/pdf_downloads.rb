@@ -79,7 +79,7 @@ module AppealsApi
     end
 
     def expired?(appeal)
-      appeal.class.pii_expunge_policy.exists?(appeal.id) || appeal.form_data.blank?
+      appeal.class.with_expired_pii.exists?(appeal.id) || appeal.form_data.blank?
     end
 
     def render_pdf_download_not_ready(appeal)

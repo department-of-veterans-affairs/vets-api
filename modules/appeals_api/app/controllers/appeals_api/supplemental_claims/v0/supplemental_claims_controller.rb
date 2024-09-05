@@ -16,7 +16,7 @@ module AppealsApi::SupplementalClaims::V0
     skip_before_action :authenticate
     before_action :validate_json_body, if: -> { request.post? }
     before_action :validate_json_schema, only: %i[create validate]
-    before_action :validate_icn_parameter, only: %i[index download]
+    before_action :validate_icn_parameter!, only: %i[index download]
 
     API_VERSION = 'V0'
     FORM_NUMBER = '200995'
@@ -31,24 +31,19 @@ module AppealsApi::SupplementalClaims::V0
 
     # NOTE: index route is disabled until questions around claimant vs. veteran privacy are resolved
     def index
-      veteran_scs = AppealsApi::SupplementalClaim.where(veteran_icn: params[:icn]).order(created_at: :desc)
+      veteran_scs = AppealsApi::SupplementalClaim.where(veteran_icn:).order(created_at: :desc)
       render_supplemental_claim(veteran_scs)
     end
 
     def schema
       response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(form_schema)
-
-      unless Flipper.enabled?(:decision_review_sc_pact_act_boolean)
-        response.tap do |s|
-          s.dig(*%w[definitions scCreate properties data properties attributes properties])&.delete('potentialPactAct')
-        end
-      end
-
       render json: response
     end
 
     def show
       sc = AppealsApi::SupplementalClaim.find(params[:id])
+      validate_token_icn_access!(sc.veteran_icn)
+
       sc = with_status_simulation(sc) if status_requested_and_allowed?
 
       render_supplemental_claim(sc)
@@ -68,13 +63,16 @@ module AppealsApi::SupplementalClaims::V0
     end
 
     def create
+      submitted_icn = @json_body.dig('data', 'attributes', 'veteran', 'icn')
+      validate_token_icn_access!(submitted_icn)
+
       sc = AppealsApi::SupplementalClaim.new(
         auth_headers: request_headers,
         form_data: @json_body,
         source: request_headers['X-Consumer-Username'].presence&.strip,
         evidence_submission_indicated: evidence_submission_indicated?,
         api_version: self.class::API_VERSION,
-        veteran_icn: @json_body.dig('data', 'attributes', 'veteran', 'icn')
+        veteran_icn: submitted_icn
       )
 
       return render_model_errors(sc) unless sc.validate
@@ -85,30 +83,19 @@ module AppealsApi::SupplementalClaims::V0
     end
 
     def download
-      id = params[:id]
-      supplemental_claim = AppealsApi::SupplementalClaim.find(id)
-
-      render_appeal_pdf_download(supplemental_claim, "#{FORM_NUMBER}-supplemental-claim-#{id}.pdf", params[:icn])
+      render_appeal_pdf_download(
+        AppealsApi::SupplementalClaim.find(params[:id]),
+        "#{FORM_NUMBER}-supplemental-claim-#{params[:id]}.pdf",
+        veteran_icn
+      )
     rescue ActiveRecord::RecordNotFound
-      render_supplemental_claim_not_found(id)
+      render_supplemental_claim_not_found(params[:id])
     end
 
     private
 
     def evidence_submission_indicated?
       @json_body.dig('data', 'attributes', 'evidenceSubmission', 'evidenceType').include?('upload')
-    end
-
-    def validate_icn_parameter
-      detail = nil
-
-      if params[:icn].blank?
-        detail = "'icn' parameter is required"
-      elsif !ICN_REGEX.match?(params[:icn])
-        detail = "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}"
-      end
-
-      raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
     end
 
     def validate_json_schema

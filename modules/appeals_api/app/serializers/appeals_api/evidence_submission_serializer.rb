@@ -1,40 +1,36 @@
 # frozen_string_literal: true
 
 module AppealsApi
-  class EvidenceSubmissionSerializer < ActiveModel::Serializer
+  class EvidenceSubmissionSerializer
+    include JSONAPI::Serializer
+
     MAX_DETAIL_DISPLAY_LENGTH = 100
 
-    type 'evidence_submission'
+    set_id(&:guid)
+    set_key_transform(:camel_lower)
+    set_type(:evidence_submission)
 
-    attributes :id, :status, :code, :detail, :appeal_type, :appeal_id, :location, :created_at, :updated_at
+    attributes :status, :code, :detail, :location
 
-    delegate :status, to: :object
-    delegate :code, to: :object
+    attribute :appeal_id, &:supportable_id
 
-    def id
-      object.guid
-    end
-
-    def detail
-      return unless object.detail
-
-      details = object.detail.to_s
-      details = "#{details[0..MAX_DETAIL_DISPLAY_LENGTH - 1]}..." if details.length > MAX_DETAIL_DISPLAY_LENGTH
-      details
-    end
-
-    def appeal_type
+    attribute :appeal_type do |object|
       object.supportable_type.to_s.demodulize
     end
 
-    def appeal_id
-      object.supportable_id
+    attribute :create_date, &:created_at
+    attribute :update_date, &:updated_at
+
+    attribute :detail do |object|
+      if object.detail
+        value = object.detail.to_s
+        value = "#{value[0..MAX_DETAIL_DISPLAY_LENGTH - 1]}..." if value.length > MAX_DETAIL_DISPLAY_LENGTH
+        value
+      end
     end
 
-    def location
-      return nil unless @instance_options[:render_location]
-
-      object.upload_submission.get_location
+    attribute :location do |object, params|
+      object.upload_submission.get_location if params[:render_location]
     rescue => e
       raise Common::Exceptions::InternalServerError, e
     end

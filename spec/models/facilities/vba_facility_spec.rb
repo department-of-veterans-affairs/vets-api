@@ -38,18 +38,18 @@ RSpec.describe Facilities::VBAFacility do
 
       it 'parses hours correctly' do
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
-          expect(facility.hours.values).to match_array(
-            ['8:00AM-4:30PM', '8:00AM-4:30PM', '8:00AM-4:30PM', '8:00AM-4:30PM',
-             '8:00AM-7:30PM', 'Closed', 'Please Call for Hours']
-          )
+          expect(facility.hours.values)
+            .to contain_exactly('8:00AM-4:30PM', '8:00AM-4:30PM', '8:00AM-4:30PM',
+                                '8:00AM-4:30PM', '8:00AM-7:30PM', 'Closed', 'Please Call for Hours')
         end
       end
 
       it 'parses hours correctly 2' do
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
-          expect(facility_2.hours.values).to match_array(
-            %w[Closed Closed Closed Closed Closed Closed Closed]
-          )
+          expect(facility_2.hours.values)
+            .to match_array(
+              %w[Closed Closed Closed Closed Closed Closed Closed]
+            )
         end
       end
 
@@ -81,7 +81,7 @@ RSpec.describe Facilities::VBAFacility do
 
       it 'parses services' do
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
-          expect(facility.services.keys).to match_array(['benefits'])
+          expect(facility.services.keys).to contain_exactly('benefits')
         end
       end
 
@@ -93,7 +93,7 @@ RSpec.describe Facilities::VBAFacility do
 
       it 'parses benefits values' do
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
-          expect(facility.services['benefits'].values).to match_array(['Readjustment Counseling only', []])
+          expect(facility.services['benefits'].values).to contain_exactly('Readjustment Counseling only', [])
         end
       end
 

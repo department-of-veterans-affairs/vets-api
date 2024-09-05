@@ -1,0 +1,5 @@
+apiVersion: v2
+name: "vets-api"
+description: the vets-api helm for for Kubernetes deployment
+type: application
+version: 0.0.1

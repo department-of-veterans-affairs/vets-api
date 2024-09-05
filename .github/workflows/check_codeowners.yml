@@ -16,12 +16,20 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 2
 
+    - name: Remove Review label
+      if:  github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
+      uses: actions-ecosystem/action-remove-labels@v1
+      with:
+        number: ${{ github.event.pull_request.number }}
+        labels: |
+          ready-for-backend-review
+
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1-node16
+      uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
         aws-access-key-id: ${{ secrets.aws_access_key_id }}
         aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
@@ -41,10 +49,26 @@ jobs:
 
     - name: Respond to PR if check CODEOWNERS exists for new files fails
       if: ${{ failure() }}
-      uses: thollander/actions-comment-pull-request@dadb7667129e23f12ca3925c90dc5cd7121ab57e # v2.4.0
+      uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6 # v2.5.0
       with:
         message: 'Error: A file (or its parent directories) does not have a CODEOWNERS entry. Please update the .github/CODEOWNERS file and add the entry for the Offending file: ${{ env.offending_file }}'
         GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
+    - name: Add Failure label
+      uses: actions-ecosystem/action-add-labels@v1
+      if: ${{ failure() }}
+      with:
+        number: ${{ github.event.pull_request.number }}
+        labels: |
+          codeowners-addition-failure
+
+    - name: Remove Failure label
+      uses: actions-ecosystem/action-remove-labels@v1
+      if: ${{ success() }}
+      with:
+        number: ${{ github.event.pull_request.number }}
+        labels: |
+          codeowners-addition-failure
 
   check-deletions:
     name: Check Codeowners Deletions
@@ -52,12 +76,20 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 2
 
+    - name: Remove Review label
+      if:  github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
+      uses: actions-ecosystem/action-remove-labels@v1
+      with:
+        number: ${{ github.event.pull_request.number }}
+        labels: |
+          ready-for-backend-review
+
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1-node16
+      uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
         aws-access-key-id: ${{ secrets.aws_access_key_id }}
         aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
@@ -77,7 +109,23 @@ jobs:
 
     - name: Respond to PR if check CODEOWNERS exists for deleted files fails
       if: ${{ failure() }}
-      uses: thollander/actions-comment-pull-request@dadb7667129e23f12ca3925c90dc5cd7121ab57e # v2.4.0
+      uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6 # v2.5.0
       with:
         message: 'Error: A file (or its parent directories) was deleted but its reference still exists in CODEOWNERS. Please update the .github/CODEOWNERS file and delete the entry for the Offending file: ${{ env.offending_file }}'
         GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
+    - name: Add Failure label
+      uses: actions-ecosystem/action-add-labels@v1
+      if: ${{ failure() }}
+      with:
+        number: ${{ github.event.pull_request.number }}
+        labels: |
+          codeowners-delete-failure
+
+    - name: Remove Failure label
+      uses: actions-ecosystem/action-remove-labels@v1
+      if: ${{ success() }}
+      with:
+        number: ${{ github.event.pull_request.number }}
+        labels: |
+          codeowners-delete-failure

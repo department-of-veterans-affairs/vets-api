@@ -1,0 +1,520 @@
+{
+  "personalIdentification": {
+    "ssn": "3018",
+    "fileNumber": "3018",
+    "fsrReason": "Waiver, Extended monthly payments, Compromise"
+  },
+  "personalData": {
+    "veteranFullName": {
+      "first": "Travis",
+      "middle": "D",
+      "last": "Jones"
+    },
+    "address": {
+      "addresslineOne": "1200 Park Ave",
+      "addresslineTwo": "c/o Pixar",
+      "addresslineThree": "",
+      "city": "Emeryville",
+      "stateOrProvince": "CA",
+      "zipOrPostalCode": "94608",
+      "countryName": "US"
+    },
+    "telephoneNumber": "(510) 922-4444",
+    "dateOfBirth": "09/06/1950",
+    "married": true,
+    "spouseFullName": {
+      "first": "bim bim",
+      "middle": "",
+      "last": "boop"
+    },
+    "agesOfOtherDependents": [
+      "12",
+      "17"
+    ],
+    "employmentHistory": [
+      {
+        "veteranOrSpouse": "VETERAN",
+        "occupationName": "Full time",
+        "from": "06/2024",
+        "to": "",
+        "present": true,
+        "employerName": "fart",
+        "employerAddress": {
+          "addresslineOne": "",
+          "addresslineTwo": "",
+          "addresslineThree": "",
+          "city": "",
+          "stateOrProvince": "",
+          "zipOrPostalCode": "",
+          "countryName": ""
+        }
+      },
+      {
+        "veteranOrSpouse": "SPOUSE",
+        "occupationName": "Part time",
+        "from": "12/2023",
+        "to": "",
+        "present": true,
+        "employerName": "snortch",
+        "employerAddress": {
+          "addresslineOne": "",
+          "addresslineTwo": "",
+          "addresslineThree": "",
+          "city": "",
+          "stateOrProvince": "",
+          "zipOrPostalCode": "",
+          "countryName": ""
+        }
+      },
+      {
+        "veteranOrSpouse": "SPOUSE",
+        "occupationName": "Seasonal",
+        "from": "07/2023",
+        "to": "08/2023",
+        "present": false,
+        "employerName": "apple place",
+        "employerAddress": {
+          "addresslineOne": "",
+          "addresslineTwo": "",
+          "addresslineThree": "",
+          "city": "",
+          "stateOrProvince": "",
+          "zipOrPostalCode": "",
+          "countryName": ""
+        }
+      }
+    ]
+  },
+  "income": [
+    {
+      "veteranOrSpouse": "VETERAN",
+      "monthlyGrossSalary": "500.00",
+      "deductions": {
+        "taxes": "33.00",
+        "retirement": "16.00",
+        "socialSecurity": "17.00",
+        "otherDeductions": {
+          "name": "Garnishment, Health insurance, Life insurance, Allotment, Other",
+          "amount": "79.00"
+        }
+      },
+      "totalDeductions": "145.00",
+      "netTakeHomePay": "355.00",
+      "otherIncome": {
+        "name": "Social Security, Alimony, Child support, Caretaker income, Unemployment income, Rental income, Investment income, Irregular or “gig” income, Retirement or non-VA pension payments, Employment bonus, Software Developer",
+        "amount": "5883.00"
+      },
+      "totalMonthlyNetIncome": "6238.00"
+    },
+    {
+      "veteranOrSpouse": "SPOUSE",
+      "monthlyGrossSalary": "200.00",
+      "deductions": {
+        "taxes": "0.00",
+        "retirement": "0.00",
+        "socialSecurity": "0.00",
+        "otherDeductions": {
+          "name": "",
+          "amount": "0.00"
+        }
+      },
+      "totalDeductions": "0.00",
+      "netTakeHomePay": "200.00",
+      "otherIncome": {
+        "name": "Disability Compensation, Education",
+        "amount": "43.00"
+      },
+      "totalMonthlyNetIncome": "243.00"
+    }
+  ],
+  "expenses": {
+    "rentOrMortgage": "9999.00",
+    "food": "103.00",
+    "utilities": "579.00",
+    "otherLivingExpenses": {
+      "name": "Clothing, Entertainment, Family and child care, Homeowner's Association (HOA) fees, Health expenses, Household maintenance, Legal fees, Pet care, Renters insurance, Transportation and car expenses (including insurance), made it up",
+      "amount": "1077.00"
+    },
+    "expensesInstallmentContractsAndOtherDebts": "633.00",
+    "totalMonthlyExpenses": "12391.00"
+  },
+  "discretionaryIncome": {
+    "netMonthlyIncomeLessExpenses": "-5910.00",
+    "amountCanBePaidTowardDebt": "2.00"
+  },
+  "assets": {
+    "cashInBank": "2000.00",
+    "cashOnHand": "2000.00",
+    "automobiles": [
+      {
+        "make": "tooyoota",
+        "model": "go-fast",
+        "year": "2020",
+        "resaleValue": "2000"
+      }
+    ],
+    "trailersBoatsCampers": "200",
+    "usSavingsBonds": "10.00",
+    "stocksAndOtherBonds": "54.00",
+    "realEstateOwned": "5000.00",
+    "otherAssets": [
+      {
+        "name": "Antiques",
+        "amount": "99"
+      },
+      {
+        "name": "Collectibles, or collection(s)",
+        "amount": "98"
+      },
+      {
+        "name": "Fine art",
+        "amount": "97"
+      },
+      {
+        "name": "Jewelry and gems",
+        "amount": "96"
+      },
+      {
+        "name": "Precious metals and coins",
+        "amount": "94"
+      },
+      {
+        "name": "Specialty equipment or technology",
+        "amount": "95"
+      },
+      {
+        "name": "I made it up!",
+        "amount": "99"
+      }
+    ],
+    "totalAssets": "11942.00"
+  },
+  "installmentContractsAndOtherDebts": [
+    {
+      "purpose": "bad guy debt",
+      "creditorName": "Bad Guy",
+      "originalAmount": "1000",
+      "unpaidBalance": "999",
+      "amountDueMonthly": "333",
+      "dateStarted": "01/2023",
+      "amountPastDue": "998",
+      "creditorAddress": {
+        "addresslineOne": "",
+        "addresslineTwo": "",
+        "addresslineThree": "",
+        "city": "",
+        "stateOrProvince": "",
+        "zipOrPostalCode": "",
+        "countryName": ""
+      }
+    },
+    {
+      "purpose": "Credit card payment",
+      "creditorName": "",
+      "originalAmount": "",
+      "unpaidBalance": "3000",
+      "amountDueMonthly": "300",
+      "amountPastDue": "998",
+      "creditorAddress": {
+        "addresslineOne": "",
+        "addresslineTwo": "",
+        "addresslineThree": "",
+        "city": "",
+        "stateOrProvince": "",
+        "zipOrPostalCode": "",
+        "countryName": ""
+      }
+    }
+  ],
+  "totalOfInstallmentContractsAndOtherDebts": {
+    "originalAmount": "1000.00",
+    "unpaidBalance": "3999.00",
+    "amountDueMonthly": "633.00",
+    "amountPastDue": "1996.00"
+  },
+  "additionalData": {
+    "bankruptcy": {
+      "hasBeenAdjudicatedBankrupt": true,
+      "dateDischarged": "02/2023",
+      "courtLocation": "Boston, MA",
+      "docketNumber": "1234"
+    },
+    "additionalComments": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent tincidunt, ante id vulputate varius, tellus lectus rhoncus magna, non vulputate elit enim vulputate dolor. Suspendisse dolor ex, convallis sed dapibus ut, vehicula vitae ipsum. Nunc efficitur nulla a elit euismod, id euismod turpis porta. Morbi id diam sem.\nIndividual expense amount: Clothing ($100.00), Entertainment ($102.00), Family and child care ($101.00), Homeowner's Association (HOA) fees ($105.00), Health expenses ($104.00), Household maintenance ($106.00), Legal fees ($107.00), Pet care ($109.00), Renters insurance ($108.00), Transportation and car expenses (including insurance) ($110.00), made it up ($25.00)"
+  },
+  "applicantCertifications": {
+    "veteranSignature": "Travis D Jones",
+    "veteranDateSigned": "06/10/2024"
+  },
+  "selectedDebtsAndCopays": [
+    {
+      "resolutionWaiverCheck": true,
+      "resolutionOption": "waiver",
+      "fileNumber": "796123018",
+      "payeeNumber": "00",
+      "personEntitled": "TJONES",
+      "deductionCode": "72",
+      "benefitType": "CH33 Housing EDU",
+      "diaryCode": "608",
+      "diaryCodeDescription": "Full C&P Benefit Offset Notifi",
+      "amountOverpaid": "0.00",
+      "amountWithheld": "94.34",
+      "originalAr": "321.76",
+      "currentAr": "227.42",
+      "debtHistory": [
+        {
+          "date": "08/08/2018",
+          "letterCode": "608.00",
+          "description": "Full C&P Benefit Offset Notifi"
+        },
+        {
+          "date": "07/19/2018",
+          "letterCode": "100.00",
+          "description": "First Demand Letter - Inactive Benefits - Due Process"
+        }
+      ],
+      "id": "0.00",
+      "debtType": "DEBT",
+      "resolutionComment": ""
+    },
+    {
+      "resolutionComment": "1",
+      "resolutionOption": "monthly",
+      "fileNumber": "796123018",
+      "payeeNumber": "00",
+      "personEntitled": "TJONES",
+      "deductionCode": "71",
+      "benefitType": "CH33 Books, Supplies/MISC EDU",
+      "diaryCode": "100",
+      "diaryCodeDescription": "First Demand Letter - Inactive Benefits - Due Process",
+      "amountOverpaid": "0.00",
+      "amountWithheld": "0.00",
+      "originalAr": "166.67",
+      "currentAr": "120.40",
+      "debtHistory": [
+        {
+          "date": "10/18/2020",
+          "letterCode": "100",
+          "description": "First Demand Letter - Inactive Benefits - Due Process"
+        }
+      ],
+      "id": "1.00",
+      "debtType": "DEBT",
+      "resolutionWaiverCheck": false
+    },
+    {
+      "resolutionComment": "1",
+      "resolutionOption": "compromise",
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "pSSeqNum": "1.00",
+      "pSTotSeqNum": "1.00",
+      "pSFacilityNum": "757",
+      "pSFacPhoneNum": null,
+      "pSTotStatement": "3.00",
+      "pSStatementVal": "0000037953E",
+      "pSStatementDate": "05242023",
+      "pSStatementDateOutput": "05/24/2023",
+      "pSProcessDate": "12102020",
+      "pSProcessDateOutput": "12/10/2020",
+      "pHPatientLstNme": "HHUFHYULSEHU",
+      "pHPatientFstNme": "CDAA",
+      "pHPatientMidNme": "A",
+      "pHAddress1": "7780 RED MAPLE CT",
+      "pHAddress2": null,
+      "pHAddress3": null,
+      "pHCity": "HUBER HEIGHTS",
+      "pHState": "OH",
+      "pHZipCde": "45424",
+      "pHZipCdeOutput": "45424",
+      "pHCtryNme": null,
+      "pHAmtDue": "107.24",
+      "pHAmtDueOutput": "107.24&nbsp;&nbsp;",
+      "pHPrevBal": "103.21",
+      "pHPrevBalOutput": "103.21&nbsp;&nbsp;",
+      "pHTotCharges": "2.03",
+      "pHTotChargesOutput": "2.03&nbsp;&nbsp;",
+      "pHTotCredits": "0.00",
+      "pHTotCreditsOutput": ".00&nbsp;&nbsp;",
+      "pHNewBalance": "107.24",
+      "pHNewBalanceOutput": "107.24&nbsp;&nbsp;",
+      "pHSpecialNotes": null,
+      "pHroParaCdes": "0125304050556065708085",
+      "pHNumOfLines": "2.00",
+      "pHDfnNumber": "197750.00",
+      "pHCernerStatementNumber": "0.00",
+      "pHCernerPatientId": "                ",
+      "pHCernerAccountNumber": "                ",
+      "pHIcnNumber": "                 ",
+      "pHAccountNumber": "7570000000197750",
+      "pHLargeFontIndcator": "0.00",
+      "details": [
+        {
+          "pDDatePosted": null,
+          "pDDatePostedOutput": "",
+          "pDTransDesc": "INTEREST/ADM. CHARGE (Int:0.10 Adm:1.93 Other:0.00",
+          "pDTransDescOutput": "INTEREST/ADM. CHARGE (Int:0.10 Adm:1.93 Other:0.00",
+          "pDTransAmt": "2.03",
+          "pDTransAmtOutput": "2.03&nbsp;&nbsp;",
+          "pDRefNo": null
+        },
+        {
+          "pDDatePosted": null,
+          "pDDatePostedOutput": "",
+          "pDTransDesc": "Please refer to previous statement of rights.",
+          "pDTransDescOutput": "&nbsp;&nbsp;&nbsp;Please refer to previous statement of rights.",
+          "pDTransAmt": "0.00",
+          "pDTransAmtOutput": ".00&nbsp;&nbsp;",
+          "pDRefNo": null
+        }
+      ],
+      "station": {
+        "facilitYNum": "757",
+        "visNNum": "10",
+        "facilitYDesc": "CHALMERS P WYLIE VA ACC (757)",
+        "cyclENum": "004",
+        "remiTToFlag": "L",
+        "maiLInsertFlag": "0",
+        "staTAddress1": "420 N JAMES RD",
+        "staTAddress2": null,
+        "staTAddress3": null,
+        "city": "Columbus",
+        "state": "OH",
+        "ziPCde": "432191834",
+        "ziPCdeOutput": "43219-1834",
+        "baRCde": "*432191834203*",
+        "teLNumFlag": "S",
+        "teLNum": "1-866-812-0318",
+        "teLNum2": null,
+        "contacTInfo": null,
+        "dM2TelNum": null,
+        "contacTInfo2": null,
+        "toPTelNum": null,
+        "lbXFedexAddress1": null,
+        "lbXFedexAddress2": null,
+        "lbXFedexAddress3": null,
+        "lbXFedexCity": null,
+        "lbXFedexState": null,
+        "lbXFedexZipCde": null,
+        "lbXFedexBarCde": null,
+        "lbXFedexContact": null,
+        "lbXFedexContactTelNum": null,
+        "facilityName": "Chalmers P. Wylie Veterans Outpatient Clinic"
+      },
+      "debtType": "COPAY",
+      "resolutionWaiverCheck": false
+    },
+    {
+      "resolutionWaiverCheck": true,
+      "resolutionOption": "waiver",
+      "id": "4fa85f65-6718-5563-b3fc-3c963f66afa7",
+      "pSSeqNum": "506.00",
+      "pSTotSeqNum": "588.00",
+      "pSFacilityNum": "534",
+      "pSFacPhoneNum": null,
+      "pSTotStatement": "27.00",
+      "pSStatementVal": "0000018255H",
+      "pSStatementDate": "11152021",
+      "pSStatementDateOutput": "11/15/2021",
+      "pSProcessDate": "11112019",
+      "pSProcessDateOutput": "11/11/2019",
+      "pHPatientLstNme": "JONES",
+      "pHPatientFstNme": "TRAVIS",
+      "pHPatientMidNme": "D",
+      "pHAddress1": "1885 SHORE DR S APT 327",
+      "pHAddress2": null,
+      "pHAddress3": null,
+      "pHCity": "SAVANNAH",
+      "pHState": "FL",
+      "pHZipCde": "314104413",
+      "pHZipCdeOutput": "31410-4413",
+      "pHCtryNme": null,
+      "pHAmtDue": "15.00",
+      "pHAmtDueOutput": "15.00&nbsp;&nbsp;",
+      "pHPrevBal": "135.00",
+      "pHPrevBalOutput": "135.00&nbsp;&nbsp;",
+      "pHTotCharges": "15.00",
+      "pHTotChargesOutput": "15.00&nbsp;&nbsp;",
+      "pHTotCredits": "-135.00",
+      "pHTotCreditsOutput": "135.00-&nbsp;",
+      "pHNewBalance": "15.00",
+      "pHNewBalanceOutput": "15.00&nbsp;&nbsp;",
+      "pHSpecialNotes": "To pay your statement online, go to www.pay.gov or call 1-888-827-4817.",
+      "pHroParaCdes": "304050556065708085",
+      "pHNumOfLines": "10.00",
+      "pHDfnNumber": "346310.00",
+      "pHCernerStatementNumber": "1005154223.00",
+      "pHCernerPatientId": "1005154223",
+      "pHCernerAccountNumber": "5341001005154223",
+      "pHIcnNumber": "039219581V969512 ",
+      "pHAccountNumber": "0",
+      "pHLargeFontIndcator": "0.00",
+      "details": [
+        {
+          "pDDatePosted": null,
+          "pDDatePostedOutput": "",
+          "pDTransDesc": "Outpatient-Family Medicine",
+          "pDTransDescOutput": "Outpatient-Family Medicine",
+          "pDTransAmt": "15.00",
+          "pDTransAmtOutput": "15.00&nbsp;&nbsp;",
+          "pDRefNo": "17604638"
+        },
+        {
+          "pDDatePosted": null,
+          "pDDatePostedOutput": "",
+          "pDTransDesc": "INTEREST/ADM. CHARGE (Int:0.10 Adm:1.93 Other:0.00",
+          "pDTransDescOutput": "INTEREST/ADM. CHARGE (Int:0.10 Adm:1.93 Other:0.00",
+          "pDTransAmt": "2.03",
+          "pDTransAmtOutput": "2.03&nbsp;&nbsp;",
+          "pDRefNo": null
+        },
+        {
+          "pDDatePosted": null,
+          "pDDatePostedOutput": "",
+          "pDTransDesc": "Please refer to previous statement of rights.",
+          "pDTransDescOutput": "&nbsp;&nbsp;&nbsp;Please refer to previous statement of rights.",
+          "pDTransAmt": "0.00",
+          "pDTransAmtOutput": ".00&nbsp;&nbsp;",
+          "pDRefNo": null
+        }
+      ],
+      "station": {
+        "facilitYNum": "668",
+        "visNNum": "20",
+        "facilitYDesc": "VAMC SPOKANE (668)",
+        "cyclENum": "003",
+        "remiTToFlag": "L",
+        "maiLInsertFlag": "0",
+        "staTAddress1": "4815 N ASSEMBLY ST",
+        "staTAddress2": null,
+        "staTAddress3": null,
+        "city": "Spokane",
+        "state": "WA",
+        "ziPCde": "992056185",
+        "ziPCdeOutput": "99205-6185",
+        "baRCde": "*992056185159*",
+        "teLNumFlag": "P",
+        "teLNum": "1-866-290-4618",
+        "teLNum2": null,
+        "contacTInfo": null,
+        "dM2TelNum": null,
+        "contacTInfo2": null,
+        "toPTelNum": null,
+        "lbXFedexAddress1": null,
+        "lbXFedexAddress2": null,
+        "lbXFedexAddress3": null,
+        "lbXFedexCity": null,
+        "lbXFedexState": null,
+        "lbXFedexZipCde": null,
+        "lbXFedexBarCde": null,
+        "lbXFedexContact": null,
+        "lbXFedexContactTelNum": null,
+        "facilityName": "Mann-Grandstaff Department of Veterans Affairs Medical Center"
+      },
+      "debtType": "COPAY",
+      "resolutionComment": ""
+    }
+  ],
+  "streamlined": {
+    "value": false,
+    "type": "none"
+  }
+}

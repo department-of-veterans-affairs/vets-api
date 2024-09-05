@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/RatingServiceBean/RatingService?WSDL
+    uri: <BGS_BASE_URL>/RatingServiceBean/RatingService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -103,7 +103,7 @@ http_interactions:
   recorded_at: Wed, 06 May 2020 13:51:14 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/RatingServiceBean/RatingService
+    uri: <BGS_BASE_URL>/RatingServiceBean/RatingService
     body:
       encoding: UTF-8
       string: |-

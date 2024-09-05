@@ -1,0 +1,34 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - type
+      - id
+      - attributes
+    properties:
+      type:
+        type: string
+        example: "pensions"
+      id:
+        type: string
+        example: "f26bc1f0-c389-4f3c-86e0-7712fb08fbe6"
+        description: Upstream veteran id field
+      attributes:
+        type: object
+        required:
+          - isEligibleForPension
+          - isInReceiptOfPension
+          - netWorthLimit
+        properties:
+          isEligibleForPension:
+            type: boolean
+            example: true
+          isInReceiptOfPension:
+            type: boolean
+            example: true
+          netWorthLimit:
+            type: decimal
+            example: 129094

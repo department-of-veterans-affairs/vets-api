@@ -10,7 +10,6 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
   end
 
   describe '#perform' do
-    let(:icn) { '1234' }
     let(:statement) do
       {
         'veteranIdentifier' => '492031291',
@@ -20,18 +19,29 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
         'statementDate' => '01/01/2023'
       }
     end
+    let(:personalisation) do
+      {
+        'icn' => '1234',
+        'first_name' => 'Guy'
+      }
+    end
 
     before do
       allow_any_instance_of(DebtManagementCenter::StatementIdentifierService)
-        .to receive(:get_icn).and_return(icn)
+        .to receive(:get_mpi_data).and_return(personalisation)
     end
 
     it 'sends a new mcp notification email job frome edipi' do
       job = described_class.new
+
+      # pausing until further notice
       expect { job.perform(statement) }
-        .to change { DebtManagementCenter::VANotifyEmailJob.jobs.size }
+        .not_to change { DebtManagementCenter::VANotifyEmailJob.jobs.size }
         .from(0)
-        .to(1)
+      # expect { job.perform(statement) }
+      #   .to change { DebtManagementCenter::VANotifyEmailJob.jobs.size }
+      #   .from(0)
+      #   .to(1)
     end
 
     context 'veteran identifier is a vista id' do
@@ -46,17 +56,17 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
         }
       end
 
-      before do
-        allow_any_instance_of(DebtManagementCenter::StatementIdentifierService)
-          .to receive(:get_icn).and_return(icn)
-      end
-
       it 'sends a new mcp notification email job frome facility and vista id' do
         job = described_class.new
+
+        # pausing until further notice
         expect { job.perform(statement) }
-          .to change { DebtManagementCenter::VANotifyEmailJob.jobs.size }
+          .not_to change { DebtManagementCenter::VANotifyEmailJob.jobs.size }
           .from(0)
-          .to(1)
+        # expect { job.perform(statement) }
+        #   .to change { DebtManagementCenter::VANotifyEmailJob.jobs.size }
+        #   .from(0)
+        #   .to(1)
       end
     end
 
@@ -85,6 +95,39 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
 
       it 'sends job to retry queue' do
         expect(config.sidekiq_retry_in_block.call(0, exception, nil)).to eq(10)
+      end
+    end
+
+    context 'with retries exhausted' do
+      subject(:config) { described_class }
+
+      let(:error) { OpenStruct.new(message: 'oh shoot') }
+      let(:exception) do
+        e = DebtManagementCenter::StatementIdentifierService::RetryableError.new(error)
+        allow(e).to receive(:backtrace).and_return(['line 1', 'line 2', 'line 3'])
+        e
+      end
+      let(:msg) do
+        {
+          'class' => 'YourJobClassName',
+          'args' => [statement],
+          'jid' => '12345abcde',
+          'retry_count' => 5
+        }
+      end
+
+      it 'logs the error' do
+        expected_log_message = <<~LOG
+          NewStatementNotificationJob retries exhausted:
+          Exception: #{exception.class} - #{exception.message}
+          Backtrace: #{exception.backtrace.join("\n")}
+        LOG
+
+        expect(StatsD).to receive(:increment).with(
+          "#{CopayNotifications::NewStatementNotificationJob::STATSD_KEY_PREFIX}.failure"
+        )
+        expect(Rails.logger).to receive(:error).with(expected_log_message)
+        config.sidekiq_retries_exhausted_block.call(msg, exception)
       end
     end
 

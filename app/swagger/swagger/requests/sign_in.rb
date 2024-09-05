@@ -178,24 +178,6 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/sign_in/introspect' do
-        operation :get do
-          key :description, 'Sign in Service user introspection.'
-          key :operationId, 'getSignInIntrospect'
-          key :tags, %w[authentication]
-
-          key :produces, ['application/json']
-          key :consumes, ['application/json']
-
-          parameter :optional_authorization
-
-          response 200 do
-            key :description, 'Access token validated, user attributes are serialized and rendered to client.'
-            schema { key :$ref, :UserAttributesResponse }
-          end
-        end
-      end
-
       swagger_path '/v0/sign_in/revoke' do
         operation :post do
           key :description, 'Sign in Service session destruction.'

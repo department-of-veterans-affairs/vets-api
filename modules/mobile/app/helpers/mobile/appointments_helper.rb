@@ -13,30 +13,18 @@ module Mobile
       backfill_location(appointment)
     end
 
-    def get_clinic(location_id, clinic_id)
-      vaos_mobile_facility_service.get_clinic_with_cache(station_id: location_id, clinic_id:)
-    rescue Common::Exceptions::BackendServiceException
-      nil
-    end
-
-    def get_facility(location_id)
-      vaos_mobile_facility_service.get_facility_with_cache(location_id)
-    rescue Common::Exceptions::BackendServiceException
-      nil
-    end
-
     private
 
     def backfill_location(appointment)
       unless appointment[:clinic].nil?
-        clinic = get_clinic(appointment[:location_id], appointment[:clinic])
+        clinic = vaos_mobile_facility_service.get_clinic(appointment[:location_id], appointment[:clinic])
         appointment[:service_name] = clinic&.[](:service_name)
         appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
       end
 
       unless appointment[:location_id].nil?
         appointment[:location] =
-          get_facility(appointment[:location_id])
+          vaos_mobile_facility_service.get_facility(appointment[:location_id])
       end
       appointment
     end

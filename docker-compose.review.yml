@@ -1,55 +1,70 @@
 version: '3.4'
+
+x-app: &common
+  build:
+    args:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
+      USER_ID: ${VETS_API_USER_ID}
+    context: .
+  environment:
+    RAILS_ENV: development
+    BUNDLE_ENTERPRISE__CONTRIBSYS__COM: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
+    "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
+    "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
+    "Settings.redis.app_data.url": "redis://redis:6379"
+    "Settings.redis.sidekiq.url": "redis://redis:6379"
+    "Settings.redis.rails_cache.url": "redis://redis:6379"
+    "Settings.saml_ssoe.idp_metadata_file": "config/ssoe_idp_sqa_metadata_isam.xml"
+    "Settings.betamocks.cache_dir": "config/vets-api-mockdata"
+  image: vets-api:${DOCKER_IMAGE:-latest}
+  restart: unless-stopped
+  volumes:
+    - "../vets-api-mockdata:/cache"
+    - ../.secret:/srv/vets-api/secret:cached
+    - ../.pki:/srv/vets-api/pki:cached
+    - shared-vol:/tmp
+  working_dir: /app
+  depends_on:
+    - clamav
+    - postgres
+    - redis
+  links:
+    - clamav
+    - postgres
+    - redis
+
 services:
+  clamav:
+    image: clamav/clamav
+    restart: unless-stopped
+    ports:
+      - 3310:3310
+    volumes:
+     - shared-vol:/vets-api
   redis:
-    image: redis:5.0-alpine
+    image: redis:6.2-alpine
     restart: unless-stopped
+    ports:
+      - 6379:6379
   postgres:
-    image: mdillon/postgis:11-alpine
+    command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
-    volumes:
-      - db-data:/var/lib/postgresql/data:cached
+      PGDATA: /tmp
+    image: postgis/postgis:14-3.3-alpine
     ports:
-      - "54320:5432"
-    restart: unless-stopped
-  vets-api:
-    build:
-      context: .
-      target: development
-      args:
-        sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
-        userid: "${VETS_API_USER_ID}"
-    command: >
-      bash -c "bundle exec rake db:migrate || bundle exec rake db:setup db:migrate
-      && touch tmp/caching-dev.txt && foreman start -m all=1,clamd=0,freshclam=0"
-    image: "vets-api:${DOCKER_IMAGE:-latest}"
+      - 5432:5432
     volumes:
-      - .:/srv/vets-api/src:cached
-      - dev_bundle:/usr/local/bundle
-      - ../.secret:/srv/vets-api/secret:cached
-      - ../.pki:/srv/vets-api/pki:cached
+      - ./data:/var/lib/postgresql/data:cached
+  web:
+    <<: *common
+    command: bash -c "bundle exec rake db:migrate || bundle exec rake db:reset db:migrate && bundle exec rails s -b 0.0.0.0"
     ports:
-      - "3000:3000"
-    environment:
-      "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
-      "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}?pool=4"
-      "Settings.redis.app_data.url": "redis://redis:6379"
-      "Settings.redis.sidekiq.url": "redis://redis:6379"
-      "Settings.redis.rails_cache.url": "redis://redis:6379"
-      "Settings.binaries.clamdscan": "clamscan" # Not running a separate process within the container for clamdscan, so we use clamscan which requires no daemon
-      POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
-      POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
-      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
-      PUMA_THREADS: "${PUMA_THREADS:-4}"
-    depends_on:
-      - postgres
-      - redis
-    links:
-      - postgres
-      - redis
-    restart: unless-stopped
+      - 3000:3000
+  worker:
+    <<: *common
+    command: bundle exec sidekiq -q critical,4 -q tasker,3 -q default,2 -q low,1
+
 volumes:
-  db-data:
-  dev_bundle:
+ shared-vol:

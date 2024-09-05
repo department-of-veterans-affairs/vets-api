@@ -3,7 +3,7 @@
 require 'common/convert_to_pdf'
 
 # Persistent backing of a Shrine file upload, primarily used by SavedClaim
-# at the moment. Current subclasses are PensionBurial
+# at the moment.
 
 class PersistentAttachment < ApplicationRecord
   include SetGuid

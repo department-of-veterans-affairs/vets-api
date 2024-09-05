@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data","meta"],
+  "properties": {
+    "data": {
+      "$ref": "debt_record.json"
+    },
+    "meta": {
+      "type": "object",
+      "required": ["hasDependentDebts"],
+      "properties": {
+        "hasDependentDebts": { "type": "boolean" }
+      }
+    }
+  }
+}

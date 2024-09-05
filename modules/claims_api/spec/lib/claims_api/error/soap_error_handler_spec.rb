@@ -11,7 +11,7 @@ describe ApplicationController, type: :controller do
     skip_before_action :authenticate
 
     def raise_not_found
-      raise Common::Exceptions::ResourceNotFound.new(detail: 'The BGS server did not find the resource.')
+      raise Common::Exceptions::ResourceNotFound.new(detail: 'The resource was not found.')
     end
 
     def raise_unprocessable
@@ -46,7 +46,7 @@ describe ApplicationController, type: :controller do
       parsed_body = JSON.parse(response.body)
       expect(parsed_body['errors'].size).to eq(1)
       expect(parsed_body['errors'][0]['title']).to eq('Resource not found')
-      expect(parsed_body['errors'][0]['detail']).to eq('The BGS server did not find the resource.')
+      expect(parsed_body['errors'][0]['detail']).to eq('The resource was not found.')
     end
   end
 

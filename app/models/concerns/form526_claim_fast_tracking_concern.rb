@@ -13,10 +13,27 @@ module Form526ClaimFastTrackingConcern
   MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
   EP_MERGE_STATSD_KEY_PREFIX = 'worker.ep_merge'
 
-  DISABILITIES_WITH_MAX_CFI = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
-  EP_MERGE_BASE_CODES = %w[010 110 020 030 040].freeze
-  EP_MERGE_SPECIAL_ISSUE = 'EP400 Merge Project'
-  OPEN_STATUSES = ['CLAIM RECEIVED', 'UNDER REVIEW', 'GATHERING OF EVIDENCE', 'REVIEW OF EVIDENCE'].freeze
+  EP_MERGE_BASE_CODES = %w[010 110 020].freeze
+  EP_MERGE_SPECIAL_ISSUE = 'EMP'
+  OPEN_STATUSES = [
+    'CLAIM RECEIVED',
+    'UNDER REVIEW',
+    'GATHERING OF EVIDENCE',
+    'REVIEW OF EVIDENCE',
+    'CLAIM_RECEIVED',
+    'INITIAL_REVIEW'
+  ].freeze
+  CLAIM_REVIEW_BASE_CODES = %w[030 040].freeze
+  CLAIM_REVIEW_TYPES = %w[higherLevelReview supplementalClaim].freeze
+
+  def claim_age_in_days(pending_ep)
+    date = if pending_ep.respond_to?(:claim_date)
+             Date.strptime(pending_ep.claim_date, '%Y-%m-%d')
+           else
+             Date.strptime(pending_ep['date'], '%m/%d/%Y')
+           end
+    (Time.zone.today - date).round
+  end
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
     RrdAlertMailer.build(self, subject, message, error, to).deliver_now
@@ -85,6 +102,10 @@ module Form526ClaimFastTrackingConcern
     form.dig('form526', 'form526', 'disabilities')
   end
 
+  def increase_disabilities
+    disabilities.select { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
+  end
+
   def increase_only?
     disabilities.all? { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
   end
@@ -99,14 +120,23 @@ module Form526ClaimFastTrackingConcern
     disabilities.pluck('diagnosticCode')
   end
 
+  def eligible_for_ep_merge?
+    user = User.find(user_uuid)
+    return true if Flipper.enabled?(:disability_526_ep_merge_multi_contention, user)
+    return false unless disabilities.count == 1
+
+    Flipper.enabled?(:disability_526_ep_merge_new_claims, user) ? increase_or_new? : increase_only?
+  end
+
   def prepare_for_evss!
     begin
-      classification_updated = update_classification!
+      is_claim_fully_classified = update_classification!
     rescue => e
-      Rails.logger.error "Contention Classification failed #{e.message}.", backtrace: e.backtrace
+      Rails.logger.error "Contention Classification failed #{e.message}."
+      Rails.logger.error e.backtrace.join('\n')
     end
 
-    prepare_for_ep_merge! if disabilities.count == 1 && increase_only? && classification_updated
+    prepare_for_ep_merge! if eligible_for_ep_merge? && is_claim_fully_classified
 
     return if pending_eps? || disabilities_not_service_connected?
 
@@ -117,14 +147,22 @@ module Form526ClaimFastTrackingConcern
     pending_eps = open_claims.select do |claim|
       EP_MERGE_BASE_CODES.include?(claim['base_end_product_code']) && OPEN_STATUSES.include?(claim['status'])
     end
-    StatsD.distribution("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_count", pending_eps.count)
+    Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
     return unless pending_eps.count == 1
 
-    date = Date.strptime(pending_eps.first['date'], '%m/%d/%Y')
-    days_ago = (Time.zone.today - date).round
-    StatsD.distribution("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_age", days_ago)
-    save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
-    add_ep_merge_special_issue! if Flipper.enabled?(:disability_526_ep_merge_api)
+    feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
+    open_claim_review = open_claim_review?
+    Rails.logger.info(
+      'EP Merge open EP eligibility',
+      { id:, feature_enabled:, open_claim_review:,
+        pending_ep_age: claim_age_in_days(pending_eps.first), pending_ep_status: pending_eps.first['status'] }
+    )
+    if feature_enabled && !open_claim_review
+      save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
+      add_ep_merge_special_issue!
+    end
+  rescue => e
+    Rails.logger.error("EP400 Merge eligibility failed #{e.message}.", backtrace: e.backtrace)
   end
 
   def get_claim_type
@@ -136,7 +174,85 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  # Contact the VRO classifier service to classify the contentions on this form
+  # update the form with the classification codes
+  # returns true if all of form's contentions were classified
   def update_classification!
+    if Flipper.enabled?(:disability_526_classifier_multi_contention)
+      update_contention_classification_all!
+    else
+      update_contention_classification_single_contention!
+    end
+  end
+
+  def update_form_with_classification_codes(classified_contentions)
+    classified_contentions.each_with_index do |classified_contention, index|
+      if classified_contention['classification_code'].present?
+        classification_code = classified_contention['classification_code']
+        disabilities[index]['classificationCode'] = classification_code
+      end
+    end
+
+    update!(form_json: form.to_json)
+    invalidate_form_hash
+  end
+
+  def classify_vagov_contentions(params)
+    vro_client = VirtualRegionalOffice::Client.new
+    response = vro_client.classify_vagov_contentions(params)
+    response.body
+  end
+
+  def format_contention_for_vro(disability)
+    contention = {
+      contention_text: disability['name'],
+      contention_type: disability['disabilityActionType']
+    }
+    contention['diagnostic_code'] = disability['diagnosticCode'] if disability['diagnosticCode']
+    contention
+  end
+
+  def log_claim_level_metrics(response_body)
+    response_body['is_multi_contention_claim'] = disabilities.count > 1
+    Rails.logger.info('classifier response for 526Submission', payload: response_body)
+  end
+
+  # Submits contention information to the VRO contention classification service
+  # adds classification to the form for each contention provided a classification
+  def update_contention_classification_all! # rubocop:disable Metrics/MethodLength
+    contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
+    params = {
+      claim_id: saved_claim_id,
+      form526_submission_id: id,
+      contentions: contentions_array
+    }
+    classifier_response = classify_vagov_contentions(params)
+    log_claim_level_metrics(classifier_response)
+    classifier_response['contentions'].each do |contention|
+      classification = nil
+      if contention.key?('classification_code') && contention.key?('classification_name')
+        classification = {
+          classification_code: contention['classification_code'],
+          classification_name: contention['classification_name']
+        }
+      end
+      # NOTE: claim_type is actually type of contention, but formatting
+      # preserved in order to match existing datadog dashboard
+      Rails.logger.info('Classified 526Submission',
+                        id:, saved_claim_id:, classification:,
+                        claim_type: contention['contention_type'])
+    end
+    update_form_with_classification_codes(classifier_response['contentions'])
+    classifier_response['is_fully_classified']
+  end
+
+  # Submits contention information to the VRO contention classification
+  # service for single-contention claims.
+  #
+  # note: this method is only used for single-contention claims and is
+  # deprecated in favor of update_contention_classification_all, which handles
+  # both single and multi-contention claims
+  def update_contention_classification_single_contention!
     return unless increase_or_new?
     return unless disabilities.count == 1
 
@@ -176,18 +292,20 @@ module Form526ClaimFastTrackingConcern
   end
 
   def log_max_cfi_metrics_on_submit
-    DISABILITIES_WITH_MAX_CFI.intersection(diagnostic_codes).each do |diagnostic_code|
-      next unless disabilities.any? do |dis|
-        diagnostic_code == dis['diagnosticCode']
-      end
+    user = User.find(user_uuid)
+    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
+    ClaimFastTracking::DiagnosticCodesForMetrics::DC.each do |diagnostic_code|
+      next unless max_rated_diagnostic_codes_from_ipf.include?(diagnostic_code)
 
-      next unless max_rated_disabilities_from_ipf.any? do |dis|
-        diagnostic_code == dis['diagnostic_code']
-      end
+      disability_claimed = diagnostic_codes.include?(diagnostic_code)
 
-      user = User.find(user_uuid)
-      max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
-      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
+      if disability_claimed
+        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
+      end
+      Rails.logger.info('Max CFI form526 submission',
+                        id:, max_cfi_enabled:, disability_claimed:, diagnostic_code:,
+                        cfi_checkbox_was_selected: cfi_checkbox_was_selected?,
+                        total_increase_conditions: increase_disabilities.count)
     end
   rescue => e
     # Log the exception but but do not fail, otherwise form will not be submitted
@@ -209,6 +327,13 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  # return whether the associated InProgressForm ever logged that the CFI checkbox was selected
+  def cfi_checkbox_was_selected?
+    return false if in_progress_form.nil?
+
+    ClaimFastTracking::MaxCfiMetrics.new(in_progress_form, {}).create_or_load_metadata['cfiLogged']
+  end
+
   def add_ep_merge_special_issue!
     disabilities.each do |disability|
       disability['specialIssues'] ||= []
@@ -219,8 +344,11 @@ module Form526ClaimFastTrackingConcern
 
   private
 
+  def in_progress_form
+    @in_progress_form ||= InProgressForm.find_by(form_id: '21-526EZ', user_uuid:)
+  end
+
   def max_rated_disabilities_from_ipf
-    in_progress_form = InProgressForm.find_by(form_id: '21-526EZ', user_uuid:)
     return [] if in_progress_form.nil?
 
     fd = in_progress_form.form_data
@@ -230,6 +358,10 @@ module Form526ClaimFastTrackingConcern
     rated_disabilities.select do |dis|
       dis['maximum_rating_percentage'].present? && dis['maximum_rating_percentage'] == dis['rating_percentage']
     end
+  end
+
+  def max_rated_diagnostic_codes_from_ipf
+    max_rated_disabilities_from_ipf.pluck('diagnostic_code')
   end
 
   # Fetch and memoize all of the veteran's open EPs. Establishing a new EP will make the memoized
@@ -248,6 +380,30 @@ module Form526ClaimFastTrackingConcern
       all_claims = api_provider.all_claims
       all_claims['open_claims']
     end
+  end
+
+  # Check both Benefits Claim service and Caseflow Appeals status APIs for open 030 or 040
+  # Offramps EP 400 Merge process if any are found, or if anything fails
+  def open_claim_review?
+    open_claim_review = open_claims.any? do |claim|
+      CLAIM_REVIEW_BASE_CODES.include?(claim['base_end_product_code']) && OPEN_STATUSES.include?(claim['status'])
+    end
+    if open_claim_review
+      StatsD.increment("#{EP_MERGE_STATSD_KEY_PREFIX}.open_claim_review")
+      return true
+    end
+
+    ssn = User.find(user_uuid)&.ssn
+    ssn ||= auth_headers['va_eauth_pnid'] if auth_headers['va_eauth_pnidtype'] == 'SSN'
+    decision_reviews = Caseflow::Service.new.get_appeals(OpenStruct.new({ ssn: })).body['data']
+    StatsD.increment("#{EP_MERGE_STATSD_KEY_PREFIX}.caseflow_api_called")
+    decision_reviews.any? do |review|
+      CLAIM_REVIEW_TYPES.include?(review['type']) && review['attributes']['active']
+    end
+  rescue => e
+    Rails.logger.error('EP Merge failed open claim review check', backtrace: e.backtrace)
+    Rails.logger.error(e.backtrace.join('\n'))
+    true
   end
 
   # fetch, memoize, and return all of the veteran's rated disabilities from EVSS
@@ -299,7 +455,7 @@ module Form526ClaimFastTrackingConcern
 
   def conditionally_merge_ep
     pending_claim_id = read_metadata(:ep_merge_pending_claim_id)
-    return unless pending_claim_id.present? && Flipper.enabled?(:disability_526_ep_merge_api)
+    return if pending_claim_id.blank?
 
     vro_client = VirtualRegionalOffice::Client.new
     vro_client.merge_end_products(pending_claim_id:, ep400_id: submitted_claim_id)

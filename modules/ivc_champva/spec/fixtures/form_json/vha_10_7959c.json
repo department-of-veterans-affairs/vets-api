@@ -1,0 +1,74 @@
+{
+  "form_number": "10-7959C",
+  "primary_contact_info": {
+    "name": {
+      "first": "Veteran",
+      "last": "Surname"
+    },
+    "email": false
+  },
+  "applicant_ssn": "234234234",
+  "applicant_name": {
+    "first": "Veteran",
+    "middle": "I",
+    "last": "Surname"
+  },
+  "applicant_address": {
+    "country": "USA",
+    "street": "456 Street Circle",
+    "city": "Anyburg",
+    "state": "AK",
+    "postal_code": "12323"
+  },
+  "has_other_health_insurance": true,
+  "applicant_phone": "3331233456",
+  "applicant_medicare_status": true,
+  "applicant_medicare_part_a_carrier": "Test A Carrier",
+  "applicant_medicare_part_b_carrier": "Test B Carrier",
+  "applicant_medicare_part_a_effective_date": "2010-01-01",
+  "applicant_medicare_part_b_effective_date": "2010-01-01",
+  "applicant_medicare_pharmacy_benefits": false,
+  "applicant_medicare_advantage": true,
+  "applicant_medicare_status_d": true,
+  "applicant_medicare_part_d_carrier": "Test D Carrier",
+  "applicant_medicare_part_d_effective_date": "2010-01-01",
+  "applicant_has_primary": true,
+  "applicant_primary_provider": "Primary Provider",
+  "applicant_primary_effective_date": "2010-01-01",
+  "applicant_primary_expiration_date": "2010-01-01",
+  "applicant_primary_through_employer": false,
+  "applicant_primary_has_prescription": true,
+  "applicant_primary_eob": "noEob",
+  "applicant_primary_insurance_type": "medigap",
+  "primary_medigap_plan": "A",
+  "primary_additional_comments": "Additional primary comment",
+  "applicant_has_secondary": true,
+  "applicant_secondary_provider": "Secondary Provider",
+  "applicant_secondary_effective_date": "2010-01-01",
+  "applicant_secondary_expiration_date": "2010-01-01",
+  "applicant_secondary_through_employer": true,
+  "applicant_secondary_has_prescription": true,
+  "applicant_secondary_eob": "hasEob",
+  "applicant_secondary_insurance_type": "medigap",
+  "secondary_medigap_plan": "M",
+  "secondary_additional_comments": "Additional secondary comment",
+  "certifier_relationship": {
+    "relationship_to_applicants": "other",
+    "other_relationship_to_applicants": "Another relationship"
+  },
+  "certifier_name": { "first": "Certifier", "last": "Jones" },
+  "certifier_phone": "5551231234",
+  "certifier_email": "certifier@email.gov",
+  "certifier_address": {
+    "country": "USA",
+    "street": "123 Street Lane",
+    "city": "Anytown",
+    "state": "AL",
+    "postal_code": "12345"
+  },
+  "certifier_role": "other",
+  "certification_date": "2010-01-01",
+  "consent_to_mail_missing_required_files": true,
+  "statement_of_truth_certified": true,
+  "statement_of_truth_signature": "Certifier Jones"
+}

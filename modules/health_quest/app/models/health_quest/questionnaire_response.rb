@@ -21,8 +21,8 @@ module HealthQuest
   class QuestionnaireResponse < ApplicationRecord
     attr_accessor :user
 
-    serialize :questionnaire_response_data, JsonMarshal::Marshaller
-    serialize :user_demographics_data, JsonMarshal::Marshaller
+    serialize :questionnaire_response_data, coder: JsonMarshal::Marshaller
+    serialize :user_demographics_data, coder: JsonMarshal::Marshaller
     has_kms_key
     has_encrypted :questionnaire_response_data, :user_demographics_data, key: :kms_key, **lockbox_options
 

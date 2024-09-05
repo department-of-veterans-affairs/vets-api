@@ -883,9 +883,125 @@ describe HCA::EnrollmentSystem do
             radiationExposureInd: true
           }
         }.deep_stringify_keys
+      ],
+      [
+        {
+          hasTeraResponse: true,
+          combatOperationService: true
+        }.deep_stringify_keys,
+        {
+          'eligibleForMedicaid' => false,
+          'noseThroatRadiumInfo' => {
+            'receivingTreatment' => false
+          },
+          'serviceConnectionAward' => {
+            'serviceConnectedIndicator' => false
+          },
+          'specialFactors' => {
+            'agentOrangeInd' => false,
+            'envContaminantsInd' => false,
+            'campLejeuneInd' => false,
+            'radiationExposureInd' => false,
+            'supportOperationsInd' => true
+          }
+        }
       ]
     ]
   )
+
+  describe '#veteran_to_tera' do
+    test_method(
+      described_class,
+      'veteran_to_tera',
+      [
+        [
+          { 'hasTeraResponse' => false },
+          {}
+        ],
+        [
+          {
+            'hasTeraResponse' => true
+          },
+          {
+            'supportOperationsInd' => false
+          }
+        ],
+        [
+          {
+            'hasTeraResponse' => true,
+            'combatOperationService' => true
+          },
+          {
+            'supportOperationsInd' => true
+          }
+        ],
+        [
+          {
+            'hasTeraResponse' => true,
+            'gulfWarService' => true,
+            'gulfWarStartDate' => '1993-16-08',
+            'gulfWarEndDate' => '1994-16-07'
+          },
+          {
+            'supportOperationsInd' => false,
+            'gulfWarHazard' => {
+              'gulfWarHazardInd' => true,
+              'fromDate' => '08/16/1993',
+              'toDate' => '07/16/1994'
+            }
+          }
+        ]
+      ]
+    )
+  end
+
+  describe '#veteran_to_toxic_exposure' do
+    test_method(
+      described_class,
+      'veteran_to_toxic_exposure',
+      [
+        [
+          {},
+          {}
+        ],
+        [
+          {
+            'exposureToAirPollutants' => 'true',
+            'toxicExposureStartDate' => '1980-16-08',
+            'toxicExposureEndDate' => '1989-13-08'
+          },
+          {
+            'toxicExposure' => {
+              'exposureCategories' => {
+                'exposureCategory' => ['Air Pollutants']
+              },
+              'otherText' => nil,
+              'fromDate' => '08/16/1980',
+              'toDate' => '08/13/1989'
+            }
+          }
+        ],
+        [
+          {
+            'exposureToOther' => 'true',
+            'otherToxicExposure' => 'other exposure text value here',
+            'toxicExposureStartDate' => '1980-16-08',
+            'toxicExposureEndDate' => '1989-13-08'
+          },
+          {
+            'toxicExposure' => {
+              'exposureCategories' => {
+                'exposureCategory' => ['Other']
+              },
+              'otherText' => 'other exposure text value here',
+              'fromDate' => '08/16/1980',
+              'toDate' => '08/13/1989'
+            }
+          }
+        ]
+      ]
+    )
+  end
 
   test_method(
     described_class,
@@ -1463,10 +1579,45 @@ describe HCA::EnrollmentSystem do
     end
 
     context 'with attachments' do
-      it 'creates the right result', run_at: '2019-01-11 14:19:04 -0800' do
-        health_care_application = build(:hca_app_with_attachment)
-        result = described_class.veteran_to_save_submit_form(health_care_application.parsed_form, nil, '10-10EZ')
-        expect(result.to_json).to eq(get_fixture('hca/result_with_attachment').to_json)
+      context 'HCA attachment' do
+        it 'creates the right result', run_at: '2019-01-11 14:19:04 -0800' do
+          health_care_application = build(:hca_app_with_attachment)
+          result = described_class.veteran_to_save_submit_form(health_care_application.parsed_form, nil, '10-10EZ')
+          expect(result.to_json).to eq(get_fixture('hca/result_with_attachment').to_json)
+        end
+      end
+
+      context 'Form1010Ezr attachment' do
+        it 'creates the right result', run_at: '2024-06-27 18:22:17 -0800' do
+          parsed_form = get_fixture('form1010_ezr/valid_form').merge(
+            'attachments' => [
+              {
+                'confirmationCode' => create(:form1010_ezr_attachment).guid
+              }
+            ]
+          )
+          result = described_class.veteran_to_save_submit_form(parsed_form, nil, '10-10EZR')
+          expect(result.to_json).to eq(get_fixture('form1010_ezr/result_with_attachment').to_json)
+        end
+      end
+
+      context 'when a form attachment is not found based on the guid provided in the params' do
+        it 'does not add an attachment', run_at: '2024-06-27 18:22:17 -0800' do
+          parsed_form = get_fixture('form1010_ezr/valid_form').merge(
+            'attachments' => [
+              {
+                'confirmationCode' => create(:form1010_ezr_attachment).guid
+              },
+              {
+                # Bad guid that will not return an HCAAttachment nor a Form1010EzrAttachment
+                'confirmationCode' => 'some-random-guid'
+              }
+            ]
+          )
+          result = described_class.veteran_to_save_submit_form(parsed_form, nil, '10-10EZR')
+          expect(result['va:form']['va:attachments'].length).to eq(1)
+          expect(result.to_json).to eq(get_fixture('form1010_ezr/result_with_attachment').to_json)
+        end
       end
     end
 

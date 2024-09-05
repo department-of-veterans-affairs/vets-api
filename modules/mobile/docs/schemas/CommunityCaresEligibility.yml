@@ -14,7 +14,8 @@ properties:
         example: "community_care_eligibility"
       id:
         type: string
-        example: "600117255"
+        example: "PrimaryCare"
+        description: Service Type
       attributes:
         type: object
         required:

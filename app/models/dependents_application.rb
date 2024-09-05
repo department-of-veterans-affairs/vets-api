@@ -139,34 +139,53 @@ class DependentsApplication < Common::RedisStore
     }
   end
 
-  # rubocop:disable Metrics/MethodLength
   def self.set_child_attrs!(dependent, home_address, child = {})
     child.merge!(convert_name(dependent['fullName']))
 
+    set_child_address!(dependent, home_address, child)
+    set_place_of_birth!(dependent['childPlaceOfBirth'], child)
+    set_guardian!(dependent['personWhoLivesWithChild'], child)
+    set_ssn_info!(dependent, child)
+    set_relationship_type!(dependent, child)
+    set_boolean_attrs!(dependent, child)
+    set_date_attrs!(dependent, child)
+
+    child
+  end
+
+  def self.set_child_address!(dependent, home_address, child)
     if dependent['childInHousehold']
       child.merge!(home_address)
     else
       child.merge!(convert_address(dependent['childAddress']))
     end
+  end
 
-    dependent['childPlaceOfBirth'].tap do |place_of_birth|
-      next if place_of_birth.blank?
+  def self.set_place_of_birth!(place_of_birth, child)
+    return if place_of_birth.blank?
 
-      child['countryOfBirth'] = convert_country(place_of_birth)
-      child['cityOfBirth'] = place_of_birth['city']
-      child['stateOfBirth'] = place_of_birth['state']
-    end
+    child['countryOfBirth'] = convert_country(place_of_birth)
+    child['cityOfBirth'] = place_of_birth['city']
+    child['stateOfBirth'] = place_of_birth['state']
+  end
 
-    (dependent['personWhoLivesWithChild'] || {}).tap do |guardian|
-      child['guardianFirstName'] = guardian['first']
-      child['guardianMiddleName'] = guardian['middle']
-      child['guardianLastName'] = guardian['last']
-    end
+  def self.set_guardian!(guardian, child)
+    guardian ||= {}
+    child['guardianFirstName'] = guardian['first']
+    child['guardianMiddleName'] = guardian['middle']
+    child['guardianLastName'] = guardian['last']
+  end
 
+  def self.set_ssn_info!(dependent, child)
     child.merge!(convert_no_ssn(dependent['childHasNoSsn'], dependent['childHasNoSsnReason']))
     child.merge!(convert_ssn(dependent['childSocialSecurityNumber']))
-    child['childRelationshipType'] = dependent['childRelationship']&.upcase
+  end
 
+  def self.set_relationship_type!(dependent, child)
+    child['childRelationshipType'] = dependent['childRelationship']&.upcase
+  end
+
+  def self.set_boolean_attrs!(dependent, child)
     [
       %w[attendedSchool attendingCollege],
       %w[disabled disabled],
@@ -177,7 +196,9 @@ class DependentsApplication < Common::RedisStore
 
       child[attrs[0]] = val
     end
+  end
 
+  def self.set_date_attrs!(dependent, child)
     [
       %w[dateOfBirth childDateOfBirth],
       %w[marriedDate marriedDate]
@@ -187,33 +208,45 @@ class DependentsApplication < Common::RedisStore
 
       child[attrs[0]] = convert_evss_date(val)
     end
-
-    child
   end
 
-  # rubocop:enable Metrics/MethodLength
-  # rubocop:disable Metrics/MethodLength
   def self.transform_form(parsed_form, evss_form)
-    dependents = parsed_form['dependents'] || []
     transformed = {}
+    transformed['spouse'] = transform_spouse(parsed_form, evss_form)
+    transformed['children'] = transform_children(parsed_form, evss_form)
+    transformed['marriageType'] = parsed_form['maritalStatus']
 
-    transformed['spouse'] = convert_marriage(
+    previous_marriages = separate_previous_marriages(parsed_form['marriages'])
+    transformed['previousMarriages'] = convert_previous_marriages(previous_marriages)
+
+    evss_form['submitProcess']['veteran'].merge!(transformed)
+
+    Common::HashHelpers.deep_compact(evss_form)
+  end
+
+  def self.transform_spouse(parsed_form, evss_form)
+    spouse = convert_marriage(
       parsed_form['currentMarriage'],
       parsed_form['marriages']&.last,
       parsed_form['spouseMarriages']
     )
-    home_address = evss_form['submitProcess']['veteran'].slice('address')
-    transformed['spouse'].merge!(home_address) if parsed_form['currentMarriage'].try(:[], 'liveWithSpouse')
 
+    home_address = evss_form['submitProcess']['veteran'].slice('address')
+    spouse.merge!(home_address) if parsed_form['currentMarriage']&.dig('liveWithSpouse')
+
+    spouse
+  end
+
+  def self.transform_children(parsed_form, evss_form)
+    dependents = parsed_form['dependents'] || []
+    home_address = evss_form['submitProcess']['veteran'].slice('address')
     children = filter_children(
       dependents,
       evss_form['submitProcess']['veteran']['children']
     )
 
-    parsed_form['dependents'].each do |dependent|
-      child = children.find do |c|
-        c['ssn'] == dependent['childSocialSecurityNumber']
-      end
+    dependents.each do |dependent|
+      child = children.find { |c| c['ssn'] == dependent['childSocialSecurityNumber'] }
 
       if child
         set_child_attrs!(dependent, home_address, child)
@@ -221,19 +254,9 @@ class DependentsApplication < Common::RedisStore
         children << set_child_attrs!(dependent, home_address)
       end
     end
-    transformed['children'] = children
 
-    transformed['marriageType'] = parsed_form['maritalStatus']
-
-    transformed['previousMarriages'] = convert_previous_marriages(
-      separate_previous_marriages(parsed_form['marriages'])
-    )
-
-    evss_form['submitProcess']['veteran'].merge!(transformed)
-
-    Common::HashHelpers.deep_compact(evss_form)
+    children
   end
-  # rubocop:enable Metrics/MethodLength
 
   def self.separate_previous_marriages(marriages)
     marriages&.find_all do |marriage|

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class ClaimStatusSerializer < ActiveModel::Serializer
-  attributes :claimant_id, :claim_service_id, :claim_status, :received_date
+class ClaimStatusSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  set_id { '' }
+
+  attributes :claimant_id, :claim_service_id, :claim_status, :received_date
 end

@@ -12,6 +12,7 @@ module VBADocuments
     include Webhooks
     send(:validates_uniqueness_of, :guid)
     before_save :record_status_change, if: :status_changed?
+    before_save :clear_resolved_error
     after_save :report_errors
     after_find :set_initial_status
     attr_reader :current_status
@@ -255,6 +256,15 @@ module VBADocuments
       StatsD.increment key, tags: ["status:#{code}"] if saved_change_to_attribute?(:status) && status == 'error'
     end
 
+    def clear_resolved_error
+      # before persisting, check if the upload is moving from an error state to
+      # to a non-error state and clear out the old error fields
+      if status_changed?(from: 'error')
+        self.code = nil
+        self.detail = nil
+      end
+    end
+
     def set_initial_status
       @current_status = status
     end
@@ -289,5 +299,3 @@ module VBADocuments
     end
   end
 end
-
-# load './modules/vba_documents/app/models/vba_documents/upload_submission.rb'

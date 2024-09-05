@@ -87,7 +87,7 @@ module V2
 
         raw_data =
           if token.present?
-            chip_service.refresh_appointments if appointment_identifiers.present?
+            chip_service.refresh_appointments if refresh_appointments?
 
             lorota_client.data(token:)
           end
@@ -101,14 +101,15 @@ module V2
         patient_check_in.approved
       end
 
-      def appointment_identifiers
-        Rails.cache.read(
+      private
+
+      def refresh_appointments?
+        appointment_identifiers = Rails.cache.read(
           "check_in_lorota_v2_appointment_identifiers_#{check_in.uuid}",
           namespace: 'check-in-lorota-v2-cache'
         )
+        appointment_identifiers.present? && !'oh'.casecmp?(check_in.facility_type)
       end
-
-      private
 
       def error_message_handler(e)
         case Oj.load(e.original_body).fetch('error').strip.downcase

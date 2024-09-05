@@ -5,7 +5,7 @@ module Swagger
     class FinancialStatusReports
       include Swagger::Blocks
 
-      swagger_path '/v0/financial_status_reports' do
+      swagger_path '/debts_api/v0/financial_status_reports' do
         operation :post do
           key :summary, 'Submits Form VA-5655 data to the Debt Management Center'
           key :description, "Submits Form VA-5655 to the Debt Management Center.
@@ -32,7 +32,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/financial_status_reports/download_pdf' do
+      swagger_path '/debts_api/v0/financial_status_reports/download_pdf' do
         operation :get do
           key :summary, 'Downloads the filled copy of VA-5655 Financial Status Report'
           key :operationId, 'getFinancialStatusReport'

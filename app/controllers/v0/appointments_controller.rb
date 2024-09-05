@@ -8,7 +8,7 @@ module V0
     def index
       response = service.appointments
 
-      render json: response, serializer: AppointmentSerializer
+      render json: AppointmentSerializer.new(response)
     end
 
     private

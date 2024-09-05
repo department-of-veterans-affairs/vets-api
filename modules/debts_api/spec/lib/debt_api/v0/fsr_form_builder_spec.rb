@@ -22,8 +22,8 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       let(:builder) { described_class.new(combined_form_data, '123', user) }
 
       it 'aggregates fsr reasons' do
-        expect(builder.sanitized_form['personalIdentification']['fsrReason']).to eq('waiver')
-        expect(builder.user_form.form_data['personalIdentification']['fsrReason']).to eq('monthly, waiver')
+        expect(builder.sanitized_form['personalIdentification']['fsrReason']).to eq('waiver, compromise, monthly')
+        expect(builder.user_form.form_data['personalIdentification']['fsrReason']).to eq('waiver, compromise, monthly')
       end
     end
 
@@ -47,6 +47,21 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       it 'updates vha form\'s additionalComments' do
         comments = builder.vha_forms.first.form_data.dig('additionalData', 'additionalComments')
         expect(comments.include?('Combined FSR')).to eq(true)
+      end
+
+      it 'adds an element for station type' do
+        station_types = builder.vha_forms.map { |form| form.form_data['station_type'] }
+        expect(station_types).to eq(%w[vista vista])
+      end
+
+      it 'does not give vha form vba form\'s reasons' do
+        vha_reasons = builder.vha_forms.first.form_data.dig('personalIdentification', 'fsrReason')
+        expect(vha_reasons).to eq('waiver')
+      end
+
+      it 'does not give vba form vha form\'s reasons' do
+        vba_reasons = builder.vba_form.form_data.dig('personalIdentification', 'fsrReason')
+        expect(vba_reasons).to eq('compromise, monthly')
       end
     end
 
@@ -122,6 +137,15 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       it 'does not have a vba form' do
         expect(builder.vba_form).to eq(nil)
       end
+
+      it 'knows when it has both cerner and vista copays' do
+        dfn_numbers = vha_form_data['selected_debts_and_copays'].pluck('p_h_dfn_number').uniq
+        expect(dfn_numbers).to eq([123_456, 0])
+        cerner_ids = vha_form_data['selected_debts_and_copays'].pluck('p_h_cerner_patient_id').uniq
+        expect(cerner_ids).to eq(['                ', '123456789'])
+        station_types = builder.vha_forms.map { |form| form.form_data['station_type'] }
+        expect(station_types).to eq(%w[both vista])
+      end
     end
 
     context 'given a streamlined fsr' do
@@ -170,9 +194,10 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
         expect(form_builder.sanitized_form['streamlined']).to eq(nil)
       end
 
-      it 'makes streamlined the last key in the form hash' do
+      it 'makes streamlined the 2nd to last and station_type the last key in the form hash' do
         vha_form = form_builder.vha_forms.first.form_data
-        expect(vha_form.keys.last).to eq('streamlined')
+        expect(vha_form.keys[-2]).to eq('streamlined')
+        expect(vha_form.keys.last).to eq('station_type')
       end
     end
 
@@ -186,6 +211,30 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
         expect do
           described_class.new(busted_form, '123', user)
         end.to raise_error(DebtsApi::V0::FsrFormBuilder::FSRInvalidRequest)
+      end
+    end
+  end
+
+  describe '#destroy_related_form' do
+    let(:combined_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/combined_fsr_form') }
+    let(:user) { build(:user, :loa3) }
+    let(:user_data) { build(:user_profile_attributes) }
+    let(:in_progress_form) { create(:in_progress_5655_form, user_uuid: user.uuid) }
+
+    context 'when IPF has already been deleted' do
+      it 'does not throw an error' do
+        expect(InProgressForm.all.length).to eq(0)
+        described_class.new(combined_form_data, '123', user).destroy_related_form
+        expect(InProgressForm.all.length).to eq(0)
+      end
+    end
+
+    context 'when IPF is present' do
+      it 'deletes related In Progress Form' do
+        in_progress_form
+        expect(InProgressForm.all.length).to eq(1)
+        described_class.new(combined_form_data, '123', user).destroy_related_form
+        expect(InProgressForm.all.length).to eq(0)
       end
     end
   end

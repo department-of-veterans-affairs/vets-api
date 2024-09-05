@@ -5,6 +5,7 @@ require 'evss/disability_compensation_form/gateway_timeout'
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 require 'sentry_logging'
 require 'logging/third_party_transaction'
+require 'sidekiq/form526_job_status_tracker/job_tracker'
 
 module EVSS
   module DisabilityCompensationForm
@@ -75,12 +76,23 @@ module EVSS
       #
       # @param submission_id [Integer] The {Form526Submission} id
       #
-      # rubocop:disable Metrics/MethodLength
-      def perform(submission_id)
+      def perform(submission_id) # rubocop:disable Metrics/MethodLength
         send_notifications = true
         @submission_id = submission_id
 
         Sentry.set_tags(source: '526EZ-all-claims')
+        super(submission_id)
+
+        if Flipper.enabled?(:disability_compensation_fail_submission,
+                            OpenStruct.new({ flipper_id: submission.user_uuid }))
+          with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
+            Rails.logger.info("disability_compensation_fail_submission enabled for submission #{submission.id}")
+            throw StandardError
+          rescue => e
+            handle_errors(submission, e)
+            return
+          end
+        end
 
         # This instantiates the service as defined by the inheriting object
         # TODO: this meaningless variable assignment is required for the specs to pass, which
@@ -89,23 +101,23 @@ module EVSS
         service = service(submission.auth_headers)
 
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
+          submission.mark_birls_id_as_tried!
+
           begin
-            super(submission_id)
             submission.prepare_for_evss!
           rescue => e
             handle_errors(submission, e)
             return
           end
 
-          begin
-            submission.mark_birls_id_as_tried!
+          user_account = UserAccount.find_by(id: submission.user_account_id) ||
+                         Account.lookup_by_user_uuid(submission.user_uuid)
 
+          begin
             # send submission data to either EVSS or Lighthouse (LH)
-            response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration)
+            response = if submission.claims_api? # not needed once fully migrated to LH
                          # submit 526 through LH API
                          # 1. get user's ICN
-                         user_account = UserAccount.find_by(id: submission.user_account_id) ||
-                                        Account.find_by(idme_uuid: submission.user_uuid)
                          icn = user_account.icn
                          # 2. transform submission data to LH format
                          transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
@@ -113,9 +125,16 @@ module EVSS
                          # 3. send transformed submission data to LH endpoint
                          service = BenefitsClaims::Service.new(icn)
                          raw_response = service.submit526(body)
+                         raw_response_body = if raw_response.body.is_a? String
+                                               JSON.parse(raw_response.body)
+                                             else
+                                               raw_response.body
+                                             end
                          # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
+                         # parse claimId from LH response
+                         submitted_claim_id = raw_response_body.dig('data', 'attributes', 'claimId').to_i
                          raw_response_struct = OpenStruct.new({
-                                                                body: { claim_id: raw_response.body },
+                                                                body: { claim_id: submitted_claim_id },
                                                                 status: raw_response.status
                                                               })
                          EVSS::DisabilityCompensationForm::FormSubmitResponse
@@ -130,10 +149,14 @@ module EVSS
             handle_errors(submission, e)
           end
 
-          send_post_evss_notifications(submission) if send_notifications
+          if Flipper.enabled?(:disability_compensation_production_tester,
+                              OpenStruct.new({ flipper_id: submission.user_uuid }))
+            Rails.logger.info("send_post_evss_notifications call skipped for submission #{submission.id}")
+          elsif send_notifications
+            send_post_evss_notifications(submission)
+          end
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -175,10 +198,15 @@ module EVSS
       def non_retryable_error_handler(submission, error)
         # update JobStatus, log and metrics in JobStatus#non_retryable_error_handler
         super(error)
-        submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
-          silence_errors_and_log_to_sentry: true,
-          extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }
-        )
+        unless Flipper.enabled?(:disability_compensation_production_tester,
+                                OpenStruct.new({ flipper_id: submission.user_uuid })) ||
+               Flipper.enabled?(:disability_compensation_fail_submission,
+                                OpenStruct.new({ flipper_id: submission.user_uuid }))
+          submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
+            silence_errors_and_log_to_sentry: true,
+            extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }
+          )
+        end
       end
 
       def send_rrd_alert(submission, error, subtitle)

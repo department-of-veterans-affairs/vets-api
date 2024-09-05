@@ -30,7 +30,11 @@ module TravelClaim
     end
 
     def initialize(opts)
-      @settings = Settings.check_in.travel_reimbursement_api
+      @settings = if Flipper.enabled?('check_in_experience_travel_api_v2_cutover')
+                    Settings.check_in.travel_reimbursement_api_v2
+                  else
+                    Settings.check_in.travel_reimbursement_api
+                  end
       @check_in = opts[:check_in]
     end
 
@@ -58,11 +62,65 @@ module TravelClaim
     #
     def submit_claim(token:, patient_icn:, appointment_date:)
       connection(server_url: claims_url).post("/#{claims_base_path}/api/ClaimIngest/submitclaim") do |req|
-        req.options.timeout = 120 if Flipper.enabled?(:check_in_experience_travel_claim_increase_timeout)
+        req.options.timeout = 120
         req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
-        req.body = claims_data.merge({ ClaimantID: patient_icn, Appointment:
-          { AppointmentDateTime: appointment_date } }).to_json
+        req.body = submit_claim_data.merge({
+                                             ClaimantID: patient_icn,
+                                             Appointment: {
+                                               AppointmentDateTime: appointment_date
+                                             }
+                                           }).to_json
       end
+    rescue Faraday::TimeoutError
+      Rails.logger.error(message: 'BTSSS Timeout Error', uuid: check_in.uuid)
+      Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408)
+    rescue => e
+      log_message_to_sentry(e.original_body, :error,
+                            { uuid: check_in.uuid },
+                            { external_service: service_name, team: 'check-in' })
+      Faraday::Response.new(response_body: e.original_body, status: e.original_status)
+    end
+
+    ##
+    # HTTP POST call to the BTSSS Claim Status endpoint to check the status of an existing claim
+    #
+    # @return [Faraday::Response]
+    #
+    def claim_status(token:, patient_icn:, start_range_date:, end_range_date:)
+      connection(server_url: claims_url).post("/#{claims_base_path}/api/ClaimIngest/V1/GetClaimsStatus") do |req|
+        req.options.timeout = 120
+        req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
+        req.body = claim_status_data.merge({
+                                             vetId: patient_icn,
+                                             startRangeDate: start_range_date,
+                                             endRangeDate: end_range_date
+                                           }).to_json
+      end
+    rescue Faraday::TimeoutError
+      Rails.logger.error(message: 'BTSSS Timeout Error', uuid: check_in.uuid)
+      Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408)
+    rescue => e
+      log_message_to_sentry(e.original_body, :error,
+                            { uuid: check_in.uuid },
+                            { external_service: service_name, team: 'check-in' })
+      Faraday::Response.new(response_body: e.original_body, status: e.original_status)
+    end
+
+    def submit_claim_v2(token, opts)
+      patient_identifier_type = opts.fetch(:patient_identifier_type, 'icn')
+
+      connection(server_url: claims_url).post("/#{claims_base_path}/api/ClaimIngest/submitclaim") do |req|
+        req.options.timeout = 120
+        req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
+        req.body = submit_claim_data.merge({
+                                             ClaimantID: opts[:patient_identifier],
+                                             ClaimantIDType: patient_identifier_type,
+                                             Appointment: { AppointmentDateTime: opts[:appointment_date] }
+                                           }).to_json
+      end
+    rescue Faraday::TimeoutError
+      Rails.logger.error(message: 'BTSSS Timeout Error', uuid: check_in.uuid)
+      Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408)
     rescue => e
       log_message_to_sentry(e.original_body, :error,
                             { uuid: check_in.uuid },
@@ -81,7 +139,7 @@ module TravelClaim
     def connection(server_url:)
       Faraday.new(url: server_url) do |conn|
         conn.use :breakers
-        conn.response :raise_error, error_prefix: service_name
+        conn.response :raise_custom_error, error_prefix: service_name
         conn.response :betamocks if mock_enabled?
 
         conn.adapter Faraday.default_adapter
@@ -123,7 +181,7 @@ module TravelClaim
       }
     end
 
-    def claims_data
+    def submit_claim_data
       {
         ClientNumber: client_number,
         ClaimantIDType: CLAIMANT_ID_TYPE,
@@ -131,6 +189,33 @@ module TravelClaim
           TripType: TRIP_TYPE
         }
       }
+    end
+
+    def claim_status_data
+      {
+        clientNumber: client_number,
+        vetIdType: CLAIMANT_ID_TYPE
+      }
+    end
+
+    def auth_url
+      if btsss_ssm_urls_enabled? && settings.auth_url_v2.present?
+        settings.auth_url_v2
+      else
+        settings.auth_url
+      end
+    end
+
+    def claims_url
+      if btsss_ssm_urls_enabled? && settings.claims_url_v2.present?
+        settings.claims_url_v2
+      else
+        settings.claims_url
+      end
+    end
+
+    def btsss_ssm_urls_enabled?
+      Flipper.enabled?('check_in_experience_travel_btsss_ssm_urls_enabled') || false
     end
 
     def mock_enabled?

@@ -1,10 +1,20 @@
 # frozen_string_literal: true
 
-require_relative '../../../../rails_helper'
+require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
-RSpec.describe Vye::V1::AddressChangesController, type: :request do
-  let!(:current_user) { create(:user, :loa3) }
-  let(:params) { FactoryBot.attributes_for(:vye_address_change) }
+RSpec.describe 'Vye::V1::Address#create', type: :request do
+  let!(:current_user) { create(:user, :accountable) }
+
+  let(:headers) { { 'Content-Type' => 'application/json', 'X-Key-Inflection' => 'camel' } }
+
+  let(:params) do
+    FactoryBot
+      .attributes_for(:vye_address_change)
+      .deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+      .slice('veteranName', 'address1', 'address2', 'address3', 'address4', 'city', 'state', 'zipCode')
+      .to_json
+  end
 
   before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
@@ -25,14 +35,9 @@ RSpec.describe Vye::V1::AddressChangesController, type: :request do
   describe 'POST /vye/v1/address with flag turned on' do
     before do
       Flipper.enable :vye_request_allowed
-      allow_any_instance_of(described_class).to receive(:load_user_info).and_return(true)
     end
 
     describe 'where current_user is not in VYE' do
-      before do
-        allow_any_instance_of(described_class).to receive(:user_info).and_return(nil)
-      end
-
       it 'does not accept the request' do
         post('/vye/v1/address', params:)
         expect(response).to have_http_status(:forbidden)
@@ -40,29 +45,11 @@ RSpec.describe Vye::V1::AddressChangesController, type: :request do
     end
 
     describe 'where current_user is in VYE' do
-      let(:user_info) { FactoryBot.create(:vye_user_info, icn: current_user.icn, ssn: current_user.ssn) }
-
-      before do
-        s =
-          Struct.new(:settings, :scrypt_config) do
-            include Vye::GenDigest
-            settings =
-              Config.load_files(
-                Rails.root / 'config/settings.yml',
-                Vye::Engine.root / 'config/settings/test.yml'
-              )
-            scrypt_config = extract_scrypt_config settings
-            new(settings, scrypt_config)
-          end
-
-        allow_any_instance_of(Vye::GenDigest::Common)
-          .to receive(:scrypt_config)
-          .and_return(s.scrypt_config)
-        allow_any_instance_of(described_class).to receive(:user_info).and_return(user_info)
-      end
+      let!(:user_profile) { FactoryBot.create(:vye_user_profile, icn: current_user.icn) }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
 
       it 'creates a new address' do
-        post('/vye/v1/address', params:)
+        post('/vye/v1/address', headers:, params:)
         expect(response).to have_http_status(:no_content)
       end
     end

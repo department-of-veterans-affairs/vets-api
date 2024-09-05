@@ -3,41 +3,75 @@
 require 'rails_helper'
 
 RSpec.describe DebtsApi::V0::Form5655Submission do
-  describe 'namespace portability' do
-    let!(:some_record) do
-      create(:form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => true } })
-    end
-
-    it 'shares data with the old model scope' do
-      expect(described_class.last.form).to eq(some_record.form)
-      expect(Form5655Submission.last.form).to eq(some_record.form)
-    end
-  end
-
   describe 'scopes' do
     let!(:first_record) do
-      create(:form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => true } })
+      create(
+        :debts_api_form5655_submission,
+        public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => true } }
+      )
     end
     let!(:second_record) do
-      create(:form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => false } })
+      create(
+        :debts_api_form5655_submission,
+        public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => false } }
+      )
     end
-    let!(:third_record) { create(:form5655_submission, public_metadata: {}) }
+    let!(:third_record) { create(:debts_api_form5655_submission, public_metadata: {}) }
     let!(:fourth_record) do
-      create(:form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => nil } })
+      create(
+        :debts_api_form5655_submission,
+        public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => nil } }
+      )
     end
 
     it 'includes records within scope' do
-      expect(Form5655Submission.streamlined).to include(first_record)
-      expect(Form5655Submission.streamlined.length).to eq(1)
+      expect(DebtsApi::V0::Form5655Submission.streamlined).to include(first_record)
+      expect(DebtsApi::V0::Form5655Submission.streamlined.length).to eq(1)
 
-      expect(Form5655Submission.not_streamlined).to include(second_record)
-      expect(Form5655Submission.not_streamlined.length).to eq(1)
+      expect(DebtsApi::V0::Form5655Submission.not_streamlined).to include(second_record)
+      expect(DebtsApi::V0::Form5655Submission.not_streamlined.length).to eq(1)
 
-      expect(Form5655Submission.streamlined_unclear).to include(third_record)
-      expect(Form5655Submission.streamlined_unclear.length).to eq(1)
+      expect(DebtsApi::V0::Form5655Submission.streamlined_unclear).to include(third_record)
+      expect(DebtsApi::V0::Form5655Submission.streamlined_unclear.length).to eq(1)
 
-      expect(Form5655Submission.streamlined_nil).to include(fourth_record)
-      expect(Form5655Submission.streamlined_nil.length).to eq(1)
+      expect(DebtsApi::V0::Form5655Submission.streamlined_nil).to include(fourth_record)
+      expect(DebtsApi::V0::Form5655Submission.streamlined_nil.length).to eq(1)
+    end
+  end
+
+  describe '.upsert_in_progress_form' do
+    let(:user) { create(:form5655_submission) }
+    let(:form5655_submission) { create(:debts_api_form5655_submission, user_uuid: 'b2fab2b56af045e1a9e2394347af91ef') }
+    let(:in_progress_form) { create(:in_progress_5655_form, user_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
+
+    context 'without a related InProgressForm' do
+      it 'updates the related form' do
+        in_progress_form.destroy!
+        form = InProgressForm.find_by(form_id: '5655', user_uuid: form5655_submission.user_uuid)
+        expect(form).to be_nil
+
+        data = '{"its":"me"}'
+        form5655_submission.ipf_data = data
+        form5655_submission.upsert_in_progress_form
+        form = InProgressForm.find_by(form_id: '5655', user_uuid: form5655_submission.user_uuid)
+        expect(form&.form_data).to eq(data)
+      end
+    end
+
+    context 'with a related InProgressForm' do
+      it 'updates the related form' do
+        data = '{"its":"me"}'
+        form5655_submission
+        in_progress_form
+        form = InProgressForm.find_by(form_id: '5655', user_uuid: form5655_submission.user_uuid)
+        expect(form).to be_present
+        expect(form&.form_data).not_to eq(data)
+
+        form5655_submission.ipf_data = data
+        form5655_submission.upsert_in_progress_form
+        form = InProgressForm.find_by(form_id: '5655', user_uuid: form5655_submission.user_uuid)
+        expect(form&.form_data).to eq(data)
+      end
     end
   end
 
@@ -65,7 +99,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
   end
 
   describe '.user_cache_id' do
-    let(:form5655_submission) { create(:form5655_submission) }
+    let(:form5655_submission) { create(:debts_api_form5655_submission) }
     let(:user) { build(:user, :loa3) }
 
     it 'creates a new User profile attribute' do
@@ -81,7 +115,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       end
 
       it 'returns an error' do
-        expect { form5655_submission.user_cache_id }.to raise_error(Form5655Submission::StaleUserError)
+        expect { form5655_submission.user_cache_id }.to raise_error(DebtsApi::V0::Form5655Submission::StaleUserError)
       end
     end
   end

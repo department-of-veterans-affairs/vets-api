@@ -3,7 +3,7 @@
 module VBADocuments
   module V1
     class UploadSerializer < VBADocuments::UploadSerializer
-      delegate :status, to: :object
+      attribute :status
     end
   end
 end

@@ -66,7 +66,7 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
 
   describe '#upload' do
     let(:form_content) { { 'foo' => 'bar' } }
-    let(:form_submission) { create(:form5655_submission) }
+    let(:form_submission) { create(:debts_api_form5655_submission) }
     let(:station_id) { '123' }
     let(:file_path) { ::Rails.root.join(*'/spec/fixtures/dmc/5655.pdf'.split('/')).to_s }
     let(:body) do
@@ -87,6 +87,13 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
       allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
       allow(File).to receive(:delete).and_return(nil)
       allow(DateTime).to receive(:now).and_return(upload_time)
+      allow_any_instance_of(subject.class).to receive(:set_user_data).and_return(
+        {
+          ssn: '123456598',
+          first_name: 'xxx',
+          last_name: 'Beer'
+        }
+      )
     end
 
     it 'uploads a pdf file to SharePoint' do

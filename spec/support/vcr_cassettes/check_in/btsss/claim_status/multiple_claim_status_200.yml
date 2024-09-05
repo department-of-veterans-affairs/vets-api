@@ -1,0 +1,43 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://dev.integration.d365.va.gov/EC/ClaimIngestSvc/api/ClaimIngest/V1/GetClaimsStatus
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Server:
+          - Server
+        Date:
+          - Mon, 29 Jun 2020 15:46:52 GMT
+        Content-Type:
+          - application/json
+      body:
+        encoding: UTF-8
+        string: |-
+          [
+            {
+              "aptDateTime": "2024-05-30T18:44:22.733Z",
+              "aptId": "test-apt-id-1",
+              "aptSourceSystem": "test-apt-source",
+              "aptSourceSystemId": "test-apt-system-id-2",
+              "claimNum": "TC202207000011666",
+              "claimStatus": "ApprovedForPayment",
+              "claimLastModDateTime": "2024-05-30T18:44:22.733Z",
+              "facilityStationNum": "test-facility-station-num-2"
+            },
+                      {
+              "aptDateTime": "2024-05-30T20:44:22.733Z",
+              "aptId": "test-apt-id-2",
+              "aptSourceSystem": "test-apt-source-2",
+              "aptSourceSystemId": "test-apt-system-id-2",
+              "claimNum": "TC202207000011633",
+              "claimStatus": "ApprovedForPayment",
+              "claimLastModDateTime": "2024-05-30T18:44:22.733Z",
+              "facilityStationNum": "test-facility-station-num-2"
+            }
+          ]
+    recorded_at: Thu, 19 Nov 2020 16:45:03 GMT
+recorded_with: VCR 6.0.0

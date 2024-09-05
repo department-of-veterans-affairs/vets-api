@@ -2,11 +2,11 @@
 
 module AskVAApi
   module Categories
-    class Retriever < Crm::BaseRetriever
+    class Retriever < BaseRetriever
       private
 
       def filter_data(data)
-        data[:Topics].select { |t| t[:parentId].nil? }
+        data[:Topics].select { |t| t[:ParentId].nil? }.sort_by { |cat| cat[:RankOrder] }
       end
     end
   end

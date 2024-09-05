@@ -1,10 +1,23 @@
-fullName: [identity_information, full_name]
-email: [contact_information, email]
-phone: [contact_information, us_phone]
-address: [contact_information, address]
-veteranServiceInformation:
-  dateOfBirth: [identity_information, date_of_birth]
+personalInformation:
+  first: [personal_information, first]
+  middle: [personal_information, middle]
+  last: [personal_information, last]
+  suffix: [personal_information, suffix]
+  preferred_name: [personal_information, preferred_name]
   socialSecurityNumber: [identity_information, ssn]
+  serviceNumber: [personal_information, service_number]
+  dateOfBirth: [identity_information, date_of_birth]
+contactInformation:
+  email: [contact_information, email]
+  phone: [contact_information, us_phone]
+  address: [contact_information, address]
+avaProfile:
+  schoolInfo:
+    schoolFacilityCode: [ava_profile, school_facility_code]
+    schoolName: [ava_profile, school_name]
+  businessPhone: [ava_profile, business_phone]
+  businessEmail: [ava_profile, business_email]
+veteranServiceInformation:
   branchOfService: [military_information, last_service_branch]
   serviceDateRange:
     from: [military_information, last_entry_date]

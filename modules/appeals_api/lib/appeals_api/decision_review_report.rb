@@ -2,13 +2,25 @@
 
 module AppealsApi
   class DecisionReviewReport
-    attr_reader :from, :to
+    attr_reader :from, :to, :unidentified_mail_error_from
 
     FAULTY_STATUSES = %w[error].freeze
+
+    # error "detail" for appeals who's identity is not recoginized in caseflow, nothing we nor they can do with these
+    UNIDENTIFIED_MAIL_ERROR_DETAIL = 'Downstream status: Unidentified Mail: We could not associate part or all of ' \
+                                     'this submission with a Veteran. Please verify the identifying information ' \
+                                     'and resubmit.'
+
+    # surpress reporting appeals that hit the caseflow Unidentified Mail error that are older than
+    UNIDENTIFIED_MAIL_MAX_AGE = 1.month
 
     def initialize(from: nil, to: nil)
       @from = from
       @to = to
+      # Unidentified Mail errors should only show for 1 month at the most,
+      # use the user provided 'from' if it's less than 1 month ago
+      time_1_month_ago = (Time.zone.now - UNIDENTIFIED_MAIL_MAX_AGE.seconds).to_time
+      @unidentified_mail_error_from = [Time.zone.at(from.to_i), time_1_month_ago].max
     end
 
     # HLR
@@ -17,7 +29,12 @@ module AppealsApi
     end
 
     def faulty_hlr
-      @faulty_hlr ||= HigherLevelReview.where(created_at: from..to, status: FAULTY_STATUSES).order(created_at: :desc)
+      @faulty_hlr ||= HigherLevelReview.where(created_at: from..to, status: FAULTY_STATUSES)
+                                       .where('detail != ? OR detail IS NULL', UNIDENTIFIED_MAIL_ERROR_DETAIL)
+                                       .or(HigherLevelReview.where(created_at: unidentified_mail_error_from..to,
+                                                                   status: FAULTY_STATUSES,
+                                                                   detail: UNIDENTIFIED_MAIL_ERROR_DETAIL))
+                                       .order(created_at: :desc)
     end
 
     def total_hlr_successes
@@ -35,7 +52,12 @@ module AppealsApi
     end
 
     def faulty_nod
-      @faulty_nod ||= NoticeOfDisagreement.where(created_at: from..to, status: FAULTY_STATUSES).order(created_at: :desc)
+      @faulty_nod ||= NoticeOfDisagreement.where(created_at: from..to, status: FAULTY_STATUSES)
+                                          .where('detail != ? OR detail IS NULL', UNIDENTIFIED_MAIL_ERROR_DETAIL)
+                                          .or(NoticeOfDisagreement.where(created_at: unidentified_mail_error_from..to,
+                                                                         status: FAULTY_STATUSES,
+                                                                         detail: UNIDENTIFIED_MAIL_ERROR_DETAIL))
+                                          .order(created_at: :desc)
     end
 
     def total_nod_successes
@@ -48,7 +70,12 @@ module AppealsApi
     end
 
     def faulty_sc
-      @faulty_sc ||= SupplementalClaim.where(created_at: from..to, status: FAULTY_STATUSES).order(created_at: :desc)
+      @faulty_sc ||= SupplementalClaim.where(created_at: from..to, status: FAULTY_STATUSES)
+                                      .where('detail != ? OR detail IS NULL', UNIDENTIFIED_MAIL_ERROR_DETAIL)
+                                      .or(SupplementalClaim.where(created_at: unidentified_mail_error_from..to,
+                                                                  status: FAULTY_STATUSES,
+                                                                  detail: UNIDENTIFIED_MAIL_ERROR_DETAIL))
+                                      .order(created_at: :desc)
     end
 
     def total_sc_successes

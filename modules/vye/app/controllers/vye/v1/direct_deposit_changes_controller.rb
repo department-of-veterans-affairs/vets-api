@@ -3,9 +3,6 @@
 module Vye
   module Vye::V1
     class Vye::V1::DirectDepositChangesController < Vye::V1::ApplicationController
-      include Pundit::Authorization
-      service_tag 'vye'
-
       def create
         authorize user_info, policy_class: Vye::UserInfoPolicy
 
@@ -15,10 +12,10 @@ module Vye
       private
 
       def create_params
-        params.permit(%i[
-                        rpo ben_type full_name phone phone2 email acct_no
-                        acct_type routing_no chk_digit bank_name bank_phone
-                      ])
+        params
+          .permit(
+            %i[full_name phone email acct_no acct_type routing_no bank_name bank_phone]
+          )
       end
     end
   end

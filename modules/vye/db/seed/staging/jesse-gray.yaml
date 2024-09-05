@@ -1,0 +1,78 @@
+---
+:profile:
+  :ssn: '796378881'
+  :file_number: '796378881'
+  :icn: 1012666073V986297
+:info:
+  :file_number: '796378881'
+  :dob: 1995-08-02
+  :stub_nm: JGRAY
+  :mr_status: A
+  :rem_ent: '1469429'
+  :cert_issue_date: 2016-06-21
+  :del_date: 2024-11-26
+  :date_last_certified: 2024-02-27
+  :rpo_code: 3819
+  :fac_code: adipisci
+  :payment_amt: 5589.61
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Jesse Gray
+  :address1: 9880 Maximo Keys
+  :city: North Willowhaven
+  :state: KS
+  :zip_code: 29501-5241
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2023-12-27
+  :award_end_date: 2024-01-20
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2024-01-23
+  :award_end_date: 2024-03-25
+  :training_time: 3
+  :payment_date:
+  :monthly_rate: 1176.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: F
+  :award_begin_date: 2024-03-25
+  :award_end_date: 2024-05-16
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: F
+  :award_begin_date: 2024-05-16
+  :award_end_date: 2024-05-18
+  :training_time: 1
+  :payment_date:
+  :monthly_rate: 725.09
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: recusandae
+  :queue_date: 2024-05-09
+  :rpo: impedit
+- :doc_type: nulla
+  :queue_date: 2024-05-10
+  :rpo: esse

@@ -34,14 +34,6 @@ module Form1010cg
       [claim_pdf_path, poa_attachment_path]
     end
 
-    def_delegator self, :carma_client # make accessible as instance method
-
-    def self.carma_client
-      client = CARMA::Client::MuleSoftClient.new
-      Rails.logger.info "[10-10CG] Using #{client.class} for submissions"
-      client
-    end
-
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.
@@ -53,16 +45,12 @@ module Form1010cg
       # The Form1010cg::Submission
       @submission   = submission
 
-      # Store for the search results we will run on MVI and eMIS
+      # Store for the search results we will run on MPI
       @cache = {
         # [form_subject]: String          - The person's ICN
-        # [form_subject]: NOT_FOUND       - This person could not be found in MVI
-        # [form_subject]: nil             - An MVI search has not been conducted for this person
-        icns: {},
-        # [form_subject]: true            - This person is a veteran
-        # [form_subject]: false           - This person's veteran status cannot be confirmed
-        # [form_subject]: nil             - An eMIS search has not been conducted for this person
-        veteran_statuses: {}
+        # [form_subject]: NOT_FOUND       - This person could not be found in MPI
+        # [form_subject]: nil             - An MPI search has not been conducted for this person
+        icns: {}
       }
     end
 
@@ -75,6 +63,9 @@ module Form1010cg
       [claim_pdf_path, poa_attachment_path].each { |p| File.delete(p) if p.present? }
 
       CARMA::Client::MuleSoftClient.new.create_submission_v2(payload)
+    rescue => e
+      log_exception_to_sentry(e, { form: '10-10CG', claim_guid: claim.guid })
+      raise e
     end
 
     # Will raise an error unless the veteran specified on the claim's data can be found in MVI
@@ -108,9 +99,9 @@ module Form1010cg
         }
       end
 
-      # Disabling the veteran status search since there is an issue with searching emis
+      # Disabling the veteran status search since there is an issue with searching
       # for a veteran status using an ICN. Only edipi works. Consider adding this back in
-      # once ICN searches work or we refactor our veteran status serach to use the edipi.
+      # once ICN searches work or we refactor our veteran status search to use the edipi.
       metadata[:veteran][:is_veteran] = false
       metadata
     end
@@ -184,10 +175,6 @@ module Form1010cg
 
     def mpi_service
       @mpi_service ||= MPI::Service.new
-    end
-
-    def emis_service
-      @emis_service ||= EMIS::VeteranStatusService.new
     end
 
     def log_mpi_search_result(form_subject, result)

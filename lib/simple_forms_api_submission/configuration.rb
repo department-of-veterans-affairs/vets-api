@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
+require 'faraday/multipart'
 
 module SimpleFormsApiSubmission
   class Configuration < Common::Client::Configuration::REST

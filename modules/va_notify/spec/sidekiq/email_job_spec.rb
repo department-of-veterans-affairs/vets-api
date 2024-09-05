@@ -31,6 +31,24 @@ RSpec.describe VANotify::EmailJob, type: :worker do
       described_class.new.perform(email, template_id)
     end
 
+    it 'can use non-default api key' do
+      client = double
+      api_key = 'test-yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy-zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz'
+      expect(VaNotify::Service).to receive(:new).with(api_key).and_return(client)
+
+      expect(client).to receive(:send_email).with(
+        {
+          email_address: email,
+          template_id:,
+          personalisation: {}
+        }
+      )
+
+      personalization = {}
+
+      described_class.new.perform(email, template_id, personalization, api_key)
+    end
+
     context 'when vanotify returns a 400 error' do
       it 'rescues and logs the error' do
         VCR.use_cassette('va_notify/bad_request') do
@@ -50,6 +68,31 @@ RSpec.describe VANotify::EmailJob, type: :worker do
 
           job.perform(email, template_id)
         end
+      end
+    end
+  end
+
+  describe 'when job has failed' do
+    let(:error) { RuntimeError.new('an error occurred!') }
+    let(:msg) do
+      {
+        'jid' => 123,
+        'class' => described_class.to_s,
+        'error_class' => 'RuntimeError',
+        'error_message' => 'an error occurred!'
+      }
+    end
+
+    it 'logs an error to the Rails console' do
+      described_class.within_sidekiq_retries_exhausted_block(msg, error) do
+        expect(Rails.logger).to receive(:error).with(
+          'VANotify::EmailJob retries exhausted',
+          {
+            job_id: 123,
+            error_class: 'RuntimeError',
+            error_message: 'an error occurred!'
+          }
+        )
       end
     end
   end

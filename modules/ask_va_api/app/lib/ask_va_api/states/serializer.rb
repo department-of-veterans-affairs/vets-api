@@ -2,7 +2,7 @@
 
 module AskVAApi
   module States
-    class Serializer < ActiveModel::Serializer
+    class Serializer
       include JSONAPI::Serializer
       set_type :states
 

@@ -15,11 +15,38 @@ FactoryBot.define do
     form_json do
       File.read("#{submissions_path}/only_526.json")
     end
+    backup_submitted_claim_status { nil }
+  end
+
+  trait :backup_path do
+    backup_submitted_claim_id {
+      "#{SecureRandom.hex(8)}-#{SecureRandom.hex(4)}-" \
+        "#{SecureRandom.hex(4)}-#{SecureRandom.hex(4)}-" \
+        "#{SecureRandom.hex(12)}"
+    }
+  end
+
+  trait :backup_accepted do
+    backup_submitted_claim_status { 'accepted' }
+  end
+
+  trait :backup_rejected do
+    backup_submitted_claim_status { 'rejected' }
+  end
+
+  trait :paranoid_success do
+    backup_submitted_claim_status { 'paranoid_success' }
   end
 
   trait :with_everything do
     form_json do
       File.read("#{submissions_path}/with_everything.json")
+    end
+  end
+
+  trait :with_everything_toxic_exposure do
+    form_json do
+      File.read("#{submissions_path}/with_everything_toxic_exposure.json")
     end
   end
 
@@ -38,6 +65,12 @@ FactoryBot.define do
   trait :with_non_pdf_uploads do
     form_json do
       File.read("#{submissions_path}/with_non_pdf_uploads.json")
+    end
+  end
+
+  trait :with_non_us_address do
+    form_json do
+      File.read("#{submissions_path}/with_non_us_address.json")
     end
   end
 
@@ -168,6 +201,12 @@ FactoryBot.define do
     end
   end
 
+  trait :with_mixed_action_disabilities_and_free_text do
+    form_json do
+      File.read("#{submissions_path}/only_526_mixed_action_disabilities_and_free_text.json")
+    end
+  end
+
   trait :with_pact_related_disabilities do
     form_json do
       json_string = File.read("#{submissions_path}/only_526.json")
@@ -195,6 +234,7 @@ FactoryBot.define do
     end
   end
 
+  # TODO: fix spelling mistakes
   trait :with_one_succesful_job do
     after(:create) do |submission|
       create(:form526_job_status, form526_submission: submission)
@@ -221,6 +261,36 @@ FactoryBot.define do
     end
   end
 
+  trait :with_failed_primary_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :non_retryable_error, form526_submission: submission)
+    end
+  end
+
+  trait :with_exhausted_primary_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :pif_in_use_error, form526_submission: submission)
+    end
+  end
+
+  trait :with_failed_backup_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :backup_path_job, :non_retryable_error, form526_submission: submission)
+    end
+  end
+
+  trait :with_exhausted_backup_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :exhausted_backup_job, form526_submission: submission)
+    end
+  end
+
+  trait :with_successful_backup_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :backup_path_job, form526_submission: submission)
+    end
+  end
+
   trait :with_pif_in_use_error do
     after(:create) do |submission|
       create(:form526_job_status, :pif_in_use_error, form526_submission: submission)
@@ -229,5 +299,28 @@ FactoryBot.define do
 
   trait :with_empty_auth_headers do
     auth_headers_json { { bogus: nil }.to_json }
+  end
+
+  trait :with_submitted_claim_id do
+    submitted_claim_id { SecureRandom.rand(900_000_000) }
+  end
+
+  trait :created_more_than_3_weeks_ago do
+    created_at { (3.weeks + 1.day).ago }
+  end
+
+  trait :remediated do
+    after(:create) do |submission|
+      create(:form526_submission_remediation, form526_submission: submission, lifecycle: ['i have been remediated'])
+    end
+  end
+
+  trait :no_longer_remediated do
+    after(:create) do |submission|
+      create(:form526_submission_remediation,
+             form526_submission: submission,
+             lifecycle: ['i am no longer remediated'],
+             success: false)
+    end
   end
 end

@@ -2,8 +2,9 @@
 
 require 'central_mail/service'
 require 'benefits_intake_service/service'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 require 'pdf_info'
+require 'simple_forms_api_submission/metadata_validator'
 
 module CentralMail
   class SubmitCentralForm686cJob
@@ -13,6 +14,8 @@ module CentralMail
     FOREIGN_POSTALCODE = '00000'
     FORM_ID = '686C-674'
     FORM_ID_674 = '21-674'
+    STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
+    RETRY = 14
 
     sidekiq_options retry: false
 
@@ -22,6 +25,15 @@ module CentralMail
 
     def extract_uuid_from_central_mail_message(data)
       data.body[/(?<=\[).*?(?=\])/].split(': ').last if data.body.present?
+    end
+
+    sidekiq_options retry: RETRY
+
+    sidekiq_retries_exhausted do |msg, _ex|
+      Rails.logger.error(
+        "Failed all retries on CentralMail::SubmitCentralForm686cJob, last error: #{msg['error_message']}"
+      )
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
 
     def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
@@ -35,15 +47,13 @@ module CentralMail
       claim.add_veteran_info(vet_info)
 
       get_files_from_claim
-      use_lighthouse = Flipper.enabled?(:dependents_central_submission_lighthouse)
-      result = use_lighthouse ? upload_to_lh : CentralMail::Service.new.upload(create_request_body)
+      result = upload_to_lh
       check_success(result, saved_claim_id, user_struct)
     rescue => e
       # if we fail, update the associated central mail record to failed and send the user the failure email
       Rails.logger.warn('CentralMail::SubmitCentralForm686cJob failed!',
                         { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'], error: e.message })
       update_submission('failed')
-      DependentsApplicationFailureMailer.build(OpenStruct.new(user_struct)).deliver_now if user_struct['email'].present?
       raise
     ensure
       cleanup_file_paths
@@ -93,33 +103,18 @@ module CentralMail
       attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     end
 
-    # rubocop:disable Metrics/MethodLength #Temporary disable until flipper removed
     def check_success(response, saved_claim_id, user_struct)
-      if Flipper.enabled?(:dependents_central_submission_lighthouse)
-        if response.success?
-          Rails.logger.info('CentralMail::SubmitCentralForm686cJob succeeded!',
-                            { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
-          update_submission('success')
-          send_confirmation_email(OpenStruct.new(user_struct))
-        else
-          Rails.logger.info('CentralMail::SubmitCentralForm686cJob Unsuccessful',
-                            { response: response['message'].presence || response['errors'] })
-          raise CentralMailResponseError
-        end
-      elsif response.success?
+      if response.success?
         Rails.logger.info('CentralMail::SubmitCentralForm686cJob succeeded!',
-                          { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'],
-                            centralmail_uuid: extract_uuid_from_central_mail_message(response) })
+                          { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
         update_submission('success')
         send_confirmation_email(OpenStruct.new(user_struct))
       else
         Rails.logger.info('CentralMail::SubmitCentralForm686cJob Unsuccessful',
-                          { response: response.body })
+                          { response: response['message'].presence || response['errors'] })
         raise CentralMailResponseError
       end
     end
-
-    # rubocop:enable Metrics/MethodLength
 
     def create_request_body
       body = {
@@ -149,15 +144,15 @@ module CentralMail
 
     # rubocop:disable Metrics/MethodLength
     def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
-      stamped_path2 = CentralMail::DatestampPdf.new(stamped_path1).run(
+      stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
+      stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
         y: 770,
         text_only: true
       )
       if form_id.present?
-        CentralMail::DatestampPdf.new(stamped_path2).run(
+        PDFUtilities::DatestampPdf.new(stamped_path2).run(
           text: 'Application Submitted on va.gov',
           x: form_id == '686C-674' ? 400 : 300,
           y: form_id == '686C-674' ? 675 : 775,
@@ -185,20 +180,24 @@ module CentralMail
       form_pdf_metadata = get_hash_and_pages(form_path)
       address = form['veteran_contact_information']['veteran_address']
       receive_date = claim.created_at.in_time_zone('Central Time (US & Canada)')
+      is_usa = address['country_name'] == 'USA'
       metadata = {
         'veteranFirstName' => form['veteran_information']['full_name']['first'],
         'veteranLastName' => form['veteran_information']['full_name']['last'],
         'fileNumber' => form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => claim.guid,
-        'zipCode' => address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
+        'zipCode' => is_usa ? address['zip_code'] : FOREIGN_POSTALCODE,
         'source' => 'va.gov',
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => attachment_paths.size,
         'docType' => claim.form_id,
         'numberPages' => form_pdf_metadata[:pages]
       }
-      metadata.merge(generate_attachment_metadata(attachment_paths))
+
+      validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: is_usa)
+
+      validated_metadata.merge(generate_attachment_metadata(attachment_paths))
     end
 
     def generate_metadata_lh
@@ -210,7 +209,9 @@ module CentralMail
         file_number: form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
         zip: address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
         doc_type: claim.form_id,
-        claim_date: claim.created_at
+        claim_date: claim.created_at,
+        source: 'va.gov backup dependent claim submission',
+        business_line: 'CMP'
       }
     end
 

@@ -1,0 +1,66 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/3188782/messagesforthread?requiresOHMessages=1"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Token: "<SESSION_TOKEN>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Fri, 28 Jun 2024 13:46:09 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - "1305"
+        X-Amzn-Requestid:
+          - d2ef1c8d-e432-4349-b04d-91e9b894b4d8
+        X-Xss-Protection:
+          - 1; mode=block
+        X-Frame-Options:
+          - DENY
+        X-Amzn-Remapped-Connection:
+          - keep-alive
+        X-Amz-Apigw-Id:
+          - aFK5TEouvHMFaCQ=
+        Cache-Control:
+          - no-cache, no-store, max-age=0, must-revalidate
+        Expires:
+          - "0"
+        X-Content-Type-Options:
+          - nosniff
+        Pragma:
+          - no-cache
+        X-Amzn-Remapped-Date:
+          - Fri, 28 Jun 2024 13:46:09 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: ASCII-8BIT
+        string:
+          '[{"messageId":3719192,"threadId":3719179,"senderId":2570050,"senderName":"MHVTP,
+          GREEN  G","recipientId":2513134,"recipientName":"John Triage","sentDate":null,"draftDate":"2024-06-25T14:15:23.000+00:00","triageGroupName":"John
+          Triage","hasAttachments":false,"subject":"OH THREAD 001","category":"OTHER","folderId":-2,"messageBody":"OH
+          REPLY DRAFT MESSAGE ","proxySenderName":null,"readReceipt":null,"readReceiptDate":null},{"messageId":3719187,"threadId":3719179,"senderId":2444644,"senderName":"DOE,
+          JOHN","recipientId":2570050,"recipientName":"MHVTP, GREEN G","sentDate":"2024-06-25T14:14:51.000+00:00","draftDate":null,"triageGroupName":"John
+          Triage","hasAttachments":true,"subject":"OH THREAD 001","category":"OTHER","folderId":0,"messageBody":"PCP
+          REPLIES 01 T PATIENT","proxySenderName":null,"readReceipt":"READ","readReceiptDate":"2024-06-25T10:15:06"},{"messageId":3719180,"threadId":3719179,"senderId":2570050,"senderName":"MHVTP,
+          GREEN  G","recipientId":2513134,"recipientName":"John Triage","sentDate":"2024-06-25T14:14:03.000+00:00","draftDate":null,"triageGroupName":"John
+          Triage","hasAttachments":true,"subject":"OH THREAD 001","category":"OTHER","folderId":-1,"messageBody":"Patient
+          sends message to PCP OH","proxySenderName":null,"readReceipt":"READ","readReceiptDate":null}]'
+    recorded_at: Fri, 28 Jun 2024 13:46:09 GMT
+recorded_with: VCR 6.2.0

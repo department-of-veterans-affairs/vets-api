@@ -10,7 +10,7 @@ class VANotifyDdEmailJob
   STATSD_ERROR_NAME = 'worker.direct_deposit_confirmation_email.error'
   STATSD_SUCCESS_NAME = 'worker.direct_deposit_confirmation_email.success'
 
-  def self.send_to_emails(user_emails, dd_type)
+  def self.send_to_emails(user_emails, dd_type = nil)
     if user_emails.present?
       user_emails.each do |email|
         perform_async(email, dd_type)
@@ -25,9 +25,9 @@ class VANotifyDdEmailJob
     end
   end
 
-  def perform(email, dd_type)
+  def perform(email, dd_type = nil)
     notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
-    template_type = "direct_deposit_#{dd_type.to_sym == :ch33 ? 'edu' : 'comp_pen'}"
+    template_type = template_type(dd_type)
     template_id = Settings.vanotify.services.va_gov.template_id.public_send(template_type)
 
     notify_client.send_email(
@@ -37,6 +37,13 @@ class VANotifyDdEmailJob
     StatsD.increment(STATSD_SUCCESS_NAME)
   rescue => e
     handle_errors(e)
+  end
+
+  def template_type(dd_type)
+    return 'direct_deposit_edu' if dd_type&.to_sym == :ch33
+    return 'direct_deposit_comp_pen' if %i[comp_pen comp_and_pen].include? dd_type&.to_sym
+
+    'direct_deposit'
   end
 
   def handle_errors(ex)

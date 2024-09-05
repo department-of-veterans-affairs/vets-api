@@ -42,6 +42,7 @@ class LighthouseRatedDisabilitiesProvider
           decision_code: decision_code_transform(rated_disability['decision']),
           decision_text: rated_disability['decision'],
           diagnostic_code: rated_disability['diagnostic_type_code'].to_i,
+          hyphenated_diagnostic_code: rated_disability['hyph_diagnostic_type_code'].presence&.to_i,
           effective_date: rated_disability['effective_date'],
           rated_disability_id: rated_disability['disability_rating_id'],
           rating_decision_id: 0,

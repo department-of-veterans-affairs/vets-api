@@ -4,7 +4,79 @@ require 'disability_compensation/requests/form526_request_body'
 
 module EVSS
   module DisabilityCompensationForm
-    class Form526ToLighthouseTransform
+    class Form526ToLighthouseTransform # rubocop:disable Metrics/ClassLength
+      TOXIC_EXPOSURE_CAUSE_MAP = {
+        NEW: 'My condition was caused by an injury or exposure during my military service.',
+        WORSENED: 'My condition existed before I served in the military, but it got worse because of my military ' \
+                  'service.',
+        VA: 'My condition was caused by an injury or event that happened when I was receiving VA care.',
+        SECONDARY: 'My condition was caused by another service-connected disability I already have.'
+      }.freeze
+
+      GULF_WAR_LOCATIONS = {
+        afghanistan: 'Afghanistan',
+        bahrain: 'Bahrain',
+        egypt: 'Egypt',
+        iraq: 'Iraq',
+        israel: 'Israel',
+        jordan: 'Jordan',
+        kuwait: 'Kuwait',
+        neutralzone: 'Neutral zone between Iraq and Saudi Arabia',
+        oman: 'Oman',
+        qatar: 'Qatar',
+        saudiarabia: 'Saudi Arabia',
+        somalia: 'Somalia',
+        syria: 'Syria',
+        uae: 'The United Arab Emirates (UAE)',
+        turkey: 'Turkey',
+        djibouti: 'Djibouti',
+        lebanon: 'Lebanon',
+        uzbekistan: 'Uzbekistan',
+        yemen: 'Yemen',
+        waters:
+        'The waters of the Arabian Sea, Gulf of Aden, Gulf of Oman, Persian Gulf, and Red Sea',
+        airspace: 'The airspace above any of these locations',
+        none: 'None of these locations'
+      }.freeze
+
+      HERBICIDE_LOCATIONS = {
+        cambodia: 'Cambodia at Mimot or Krek, Kampong Cham Province',
+        guam: 'Guam, American Samoa, or their territorial waters',
+        koreandemilitarizedzone: 'In or near the Korean demilitarized zone',
+        johnston: 'Johnston Atoll or on a ship that called at Johnston Atoll',
+        laos: 'Laos',
+        c123: 'Somewhere you had contact with C-123 airplanes while serving in the Air Force or the Air Force Reserves',
+        thailand: 'A U.S. or Royal Thai military base in Thailand',
+        vietnam: 'Vietnam or the waters in or off of Vietnam ',
+        none: 'None of these locations '
+      }.freeze
+
+      HAZARDS = {
+        asbestos: 'Asbestos',
+        chemical: 'SHAD - Shipboard Hazard and Defense',
+        mos: 'Military Occupational Specialty-Related Toxin',
+        mustardgas: 'Mustard Gas',
+        radiation: 'Radiation',
+        water: 'Contaminated Water At Camp Lejeune',
+        none: 'None of these'
+      }.freeze
+
+      HAZARDS_LH_ENUM = {
+        asbestos: 'ASBESTOS',
+        chemical: 'SHIPBOARD_HAZARD_AND_DEFENSE',
+        mos: 'MILITARY_OCCUPATIONAL_SPECIALTY_RELATED_TOXIN',
+        mustardgas: 'MUSTARD_GAS',
+        radiation: 'RADIATION',
+        water: 'CONTAMINATED_WATER_AT_CAMP_LEJEUNE',
+        other: 'OTHER'
+      }.freeze
+
+      MULTIPLE_EXPOSURES_TYPE = {
+        gulf_war: 'gulf_war',
+        herbicide: 'herbicide',
+        hazard: 'hazard'
+      }.freeze
+
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
       # evss_data will look like JSON.parse(form526_submission.form_data)
       def transform(evss_data)
@@ -13,16 +85,14 @@ module EVSS
         lh_request_body.claimant_certification = true
         lh_request_body.claim_process_type = evss_claims_process_type(form526) # basic_info[:claim_process_type]
 
-        veteran = form526['veteran']
-        lh_request_body.veteran_identification = transform_veteran(veteran)
-        lh_request_body.change_of_address = transform_change_of_address(veteran) if veteran['changeOfAddress'].present?
-        lh_request_body.homeless = transform_homeless(veteran) if veteran['homelessness'].present?
+        transform_veteran_section(form526, lh_request_body)
 
         service_information = form526['serviceInformation']
-        lh_request_body.service_information = transform_service_information(service_information)
+        if service_information.present?
+          lh_request_body.service_information = transform_service_information(service_information)
+        end
 
-        disabilities = form526['disabilities']
-        lh_request_body.disabilities = transform_disabilities(disabilities)
+        transform_disabilities_section(form526, lh_request_body)
 
         direct_deposit = form526['directDeposit']
         lh_request_body.direct_deposit = transform_direct_deposit(direct_deposit) if direct_deposit.present?
@@ -33,8 +103,14 @@ module EVSS
         service_pay = form526['servicePay']
         lh_request_body.service_pay = transform_service_pay(service_pay) if service_pay.present?
 
+        toxic_exposure = form526['toxicExposure']
+        lh_request_body.toxic_exposure = transform_toxic_exposure(toxic_exposure) if toxic_exposure.present?
+
+        lh_request_body.claim_notes = form526['overflowText']
         lh_request_body
       end
+
+      private
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
       # based off of a few attributes in the evss data
@@ -74,9 +150,9 @@ module EVSS
         change_of_address.address_line_2 = change_of_address_source['addressLine2']
         change_of_address.address_line_3 = change_of_address_source['addressLine3']
 
-        change_of_address.zip_first_five = change_of_address_source['internationalPostalCode'] ||
-                                           change_of_address_source['zipFirstFive']
+        change_of_address.zip_first_five = change_of_address_source['zipFirstFive']
         change_of_address.zip_last_four = change_of_address_source['zipLastFour']
+        change_of_address.international_postal_code = change_of_address_source['internationalPostalCode']
         change_of_address.type_of_address_change = change_of_address_source['addressChangeType']
         change_of_address.dates = Requests::Dates.new
 
@@ -98,22 +174,25 @@ module EVSS
 
       def transform_service_information(service_information_source)
         service_information = Requests::ServiceInformation.new
+
         transform_service_periods(service_information_source, service_information)
         if service_information_source['confinements']
           transform_confinements(service_information_source, service_information)
         end
-        if service_information_source['alternateName']
+        if service_information_source['alternateNames']
           transform_alternate_names(service_information_source, service_information)
         end
         if service_information_source['reservesNationalGuardService']
           transform_reserves_national_guard_service(service_information_source, service_information)
           reserves_national_guard_service_source =
             service_information_source['reservesNationalGuardService']['title10Activation']
-          # Title10Activation == FederalActivation
-          service_information.federal_activation = Requests::FederalActivation.new(
-            anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
-            activation_date: reserves_national_guard_service_source['title10ActivationDate']
-          )
+          if reserves_national_guard_service_source.present?
+            # Title10Activation == FederalActivation
+            service_information.federal_activation = Requests::FederalActivation.new(
+              anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
+              activation_date: reserves_national_guard_service_source['title10ActivationDate']
+            )
+          end
         end
 
         service_information
@@ -124,16 +203,19 @@ module EVSS
       def transform_treatments(treatments_source)
         treatments_source.map do |treatment|
           center = treatment['center']
-          Requests::Treatment.new(
+          request_treatment = Requests::Treatment.new(
             treated_disability_names: treatment['treatedDisabilityNames'],
             center: Requests::Center.new(
               name: center['name'],
               state: center['state'],
               city: center['city']
-            ),
-            # LH spec says YYYY-DD or YYYY date format
-            begin_date: convert_approximate_date(treatment['startDate'], short: true)
+            )
           )
+          if treatment['startDate'].present?
+            # LH spec says YYYY-DD or YYYY date format
+            request_treatment.begin_date = convert_approximate_date(treatment['startDate'], short: true)
+          end
+          request_treatment
         end
       end
 
@@ -157,7 +239,171 @@ module EVSS
         service_pay_target
       end
 
-      private
+      def transform_toxic_exposure(toxic_exposure_source) # rubocop:disable Metrics/MethodLength
+        toxic_exposure_target = Requests::ToxicExposure.new
+
+        gulf_war1990 = toxic_exposure_source['gulfWar1990']
+        gulf_war2001 = toxic_exposure_source['gulfWar2001']
+        herbicide = toxic_exposure_source['herbicide']
+        other_herbicide_locations = toxic_exposure_source['otherHerbicideLocations']
+        other_exposures = toxic_exposure_source['otherExposures']
+        specify_other_exposures = toxic_exposure_source['specifyOtherExposures']
+
+        if gulf_war1990.present? || gulf_war2001.present?
+          toxic_exposure_target.gulf_war_hazard_service =
+            transform_gulf_war(gulf_war1990, gulf_war2001)
+        end
+
+        if herbicide.present? || other_herbicide_locations.present?
+          toxic_exposure_target.herbicide_hazard_service = transform_herbicide(herbicide,
+                                                                               other_herbicide_locations)
+        end
+
+        if other_exposures.present? || specify_other_exposures.present?
+          toxic_exposure_target.additional_hazard_exposures = transform_other_exposures(other_exposures,
+                                                                                        specify_other_exposures)
+        end
+
+        # create an Array[Requests::MultipleExposures]
+        multiple_exposures = []
+        if toxic_exposure_source['gulfWar1990Details'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar1990Details'])
+        end
+        if toxic_exposure_source['gulfWar2001Details'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar2001Details'])
+        end
+        if toxic_exposure_source['herbicideDetails'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['herbicideDetails'],
+                                                             MULTIPLE_EXPOSURES_TYPE[:herbicide])
+        end
+        if values_present(toxic_exposure_source['otherHerbicideLocations'])
+          multiple_exposures +=
+            transform_multiple_exposures_other_details(toxic_exposure_source['otherHerbicideLocations'],
+                                                       MULTIPLE_EXPOSURES_TYPE[:herbicide])
+        end
+        if toxic_exposure_source['otherExposuresDetails'].present?
+          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposuresDetails'],
+                                                             MULTIPLE_EXPOSURES_TYPE[:hazard])
+        end
+        if values_present(toxic_exposure_source['specifyOtherExposures'])
+          multiple_exposures +=
+            transform_multiple_exposures_other_details(toxic_exposure_source['specifyOtherExposures'],
+                                                       MULTIPLE_EXPOSURES_TYPE[:hazard])
+        end
+
+        toxic_exposure_target.multiple_exposures = multiple_exposures
+
+        toxic_exposure_target
+      end
+
+      # @param details [Hash] the object with the exposure information of {location/hazard: {startDate, endDate}}
+      # @param multiple_exposures_type [String] vets-website sends the key to be used as
+      #   both a location and a hazard in different objects
+      # @return Array[Requests::MultipleExposures] array of MultipleExposures or nil
+      def transform_multiple_exposures(details, multiple_exposures_type = MULTIPLE_EXPOSURES_TYPE[:gulf_war])
+        details&.map do |k, v|
+          obj = Requests::MultipleExposures.new(
+            exposure_dates: Requests::Dates.new
+          )
+
+          obj.exposure_dates.begin_date = convert_date_no_day(v['startDate']) if v['startDate'].present?
+          obj.exposure_dates.end_date = convert_date_no_day(v['endDate']) if v['endDate'].present?
+
+          if multiple_exposures_type == MULTIPLE_EXPOSURES_TYPE[:hazard]
+            obj.hazard_exposed_to = HAZARDS[k.to_sym]
+          elsif multiple_exposures_type == MULTIPLE_EXPOSURES_TYPE[:herbicide]
+            obj.exposure_location = HERBICIDE_LOCATIONS[k.to_sym]
+          else
+            obj.exposure_location = GULF_WAR_LOCATIONS[k.to_sym]
+          end
+
+          obj
+        end
+      end
+
+      def transform_multiple_exposures_other_details(details, multiple_exposures_type)
+        obj = Requests::MultipleExposures.new(
+          exposure_dates: Requests::Dates.new
+        )
+
+        obj.exposure_dates.begin_date = convert_date_no_day(details['startDate']) if details['startDate'].present?
+        obj.exposure_dates.end_date = convert_date_no_day(details['endDate']) if details['endDate'].present?
+        if details['description'].present?
+          if multiple_exposures_type == MULTIPLE_EXPOSURES_TYPE[:hazard]
+            obj.hazard_exposed_to = details['description']
+          else
+            obj.exposure_location = details['description']
+          end
+        end
+
+        [obj]
+      end
+
+      def transform_gulf_war(gulf_war1990, gulf_war2001)
+        filtered_results1990 = gulf_war1990&.filter { |k| k != 'notsure' }
+        gulf_war1990_value = filtered_results1990&.values&.any?(&:present?) && !none_of_these(filtered_results1990)
+        filtered_results2001 = gulf_war2001&.filter { |k| k != 'notsure' }
+        gulf_war2001_value = filtered_results2001&.values&.any?(&:present?) && !none_of_these(filtered_results2001)
+
+        gulf_war_hazard_service = Requests::GulfWarHazardService.new
+        gulf_war_hazard_service.served_in_gulf_war_hazard_locations =
+          gulf_war1990_value || gulf_war2001_value ? 'YES' : 'NO'
+
+        gulf_war_hazard_service
+      end
+
+      def transform_herbicide(herbicide, other_herbicide_locations)
+        filtered_results_herbicide = herbicide&.filter { |k| k != 'notsure' }
+        herbicide_value = (values_present(filtered_results_herbicide) ||
+                          values_present(other_herbicide_locations)) &&
+                          !none_of_these(filtered_results_herbicide)
+
+        herbicide_service = Requests::HerbicideHazardService.new
+        herbicide_service.served_in_herbicide_hazard_locations = herbicide_value ? 'YES' : 'NO'
+
+        herbicide_service
+      end
+
+      def transform_other_exposures(other_exposures, specify_other_exposures)
+        return nil if none_of_these(other_exposures) && !values_present(specify_other_exposures)
+
+        filtered_results_other_exposures = other_exposures&.filter { |k, v| k != 'notsure' && v }
+        additional_hazard_exposures_service = Requests::AdditionalHazardExposures.new
+        unless none_of_these(filtered_results_other_exposures)
+          additional_hazard_exposures_service.additional_exposures = filtered_results_other_exposures&.map do |k, _v|
+            HAZARDS_LH_ENUM[k.to_sym]
+          end
+        end
+        other = HAZARDS_LH_ENUM[:other] if values_present(specify_other_exposures)
+        additional_hazard_exposures_service.additional_exposures << other if other.present?
+        return nil if additional_hazard_exposures_service.additional_exposures == []
+
+        additional_hazard_exposures_service
+      end
+
+      def values_present(obj)
+        obj.present? && obj.values&.any?(&:present?)
+      end
+
+      def none_of_these(options)
+        return false if options.blank?
+
+        none_of_these = options['none']
+        none_of_these.present?
+      end
+
+      def transform_disabilities_section(form526, lh_request_body)
+        disabilities = form526['disabilities']
+        toxic_exposure_conditions = form526['toxicExposure']['conditions'] if form526['toxicExposure'].present?
+        lh_request_body.disabilities = transform_disabilities(disabilities, toxic_exposure_conditions)
+      end
+
+      def transform_veteran_section(form526, lh_request_body)
+        veteran = form526['veteran']
+        lh_request_body.veteran_identification = transform_veteran(veteran)
+        lh_request_body.change_of_address = transform_change_of_address(veteran) if veteran['changeOfAddress'].present?
+        lh_request_body.homeless = transform_homeless(veteran) if veteran['homelessness'].present?
+      end
 
       def transform_separation_pay(service_pay_source, service_pay_target)
         separation_pay_source = service_pay_source['separationPay']
@@ -171,10 +417,13 @@ module EVSS
         separation_pay_payment_source = separation_pay_source['payment'] if separation_pay_source.present?
         if separation_pay_payment_source.present?
           service_pay_target.separation_severance_pay = Requests::SeparationSeverancePay.new(
-            date_payment_received: convert_approximate_date(separation_pay_source['receivedDate']),
             branch_of_service: separation_pay_payment_source['serviceBranch'],
             pre_tax_amount_received: separation_pay_payment_source['amount']
           )
+          if separation_pay_source['receivedDate']
+            service_pay_target.separation_severance_pay.date_payment_received =
+              convert_approximate_date(separation_pay_source['receivedDate'])
+          end
         end
       end
 
@@ -227,7 +476,7 @@ module EVSS
 
       def initialize_reserves_national_guard_service(reserves_national_guard_service_source, service_information)
         service_information.reserves_national_guard_service = Requests::ReservesNationalGuardService.new(
-          obligation_term_of_service: Requests::ObligationTermsOfService.new(
+          obligation_terms_of_service: Requests::ObligationTermsOfService.new(
             begin_date: reserves_national_guard_service_source['obligationTermOfServiceFromDate'],
             end_date: reserves_national_guard_service_source['obligationTermOfServiceToDate']
           ),
@@ -246,7 +495,7 @@ module EVSS
 
       def transform_mailing_address(veteran, veteran_identification)
         veteran_identification.mailing_address = Requests::MailingAddress.new
-        veteran_identification.mailing_address.address_line_1 = veteran['currentMailingAddress']['addressLine1']
+        veteran_identification.mailing_address.address_line_1 = veteran['currentMailingAddress']['addressLine1']&.strip
         veteran_identification.mailing_address.address_line_2 = veteran['currentMailingAddress']['addressLine2']
         veteran_identification.mailing_address.address_line_3 = veteran['currentMailingAddress']['addressLine3']
 
@@ -255,10 +504,11 @@ module EVSS
         veteran_identification.mailing_address.state = veteran['currentMailingAddress']['militaryStateCode'] ||
                                                        veteran['currentMailingAddress']['state']
         veteran_identification.mailing_address.zip_first_five =
-          veteran['currentMailingAddress']['internationalPostalCode'] ||
           veteran['currentMailingAddress']['zipFirstFive']
         veteran_identification.mailing_address.zip_last_four = veteran['currentMailingAddress']['zipLastFour']
         veteran_identification.mailing_address.country = veteran['currentMailingAddress']['country']
+        veteran_identification.mailing_address.international_postal_code =
+          veteran['currentMailingAddress']['internationalPostalCode']
       end
 
       def transform_service_periods(service_information_source, service_information)
@@ -307,11 +557,14 @@ module EVSS
         approximate_date
       end
 
-      def transform_disabilities(disabilities_source)
+      def transform_disabilities(disabilities_source, toxic_exposure_conditions)
         disabilities_source.map do |disability_source|
           dis = Requests::Disability.new
           dis.disability_action_type = disability_source['disabilityActionType']
           dis.name = disability_source['name']
+          if toxic_exposure_conditions.present? && toxic_exposure_conditions.any?
+            dis.is_related_to_toxic_exposure = is_related_to_toxic_exposure(dis.name, toxic_exposure_conditions)
+          end
           dis.classification_code = disability_source['classificationCode'] if disability_source['classificationCode']
           dis.service_relevance = disability_source['serviceRelevance'] || ''
           dis.rated_disability_id = disability_source['ratedDisabilityId'] if disability_source['ratedDisabilityId']
@@ -319,9 +572,21 @@ module EVSS
           if disability_source['secondaryDisabilities']
             dis.secondary_disabilities = transform_secondary_disabilities(disability_source)
           end
+          if disability_source['cause'].present?
+            dis.exposure_or_event_or_injury = TOXIC_EXPOSURE_CAUSE_MAP[disability_source['cause'].upcase.to_sym]
+          end
+
           dis
         end
       end
+
+      # rubocop:disable Naming/PredicateName
+      def is_related_to_toxic_exposure(condition_name, toxic_exposure_conditions)
+        regex_non_word = /[^\w]/
+        normalized_condition_name = condition_name.gsub(regex_non_word, '').downcase
+        toxic_exposure_conditions[normalized_condition_name].present?
+      end
+      # rubocop:enable Naming/PredicateName
 
       def transform_secondary_disabilities(disability_source)
         disability_source['secondaryDisabilities'].map do |secondary_disability_source|
@@ -342,8 +607,8 @@ module EVSS
           direct_deposit.financial_institution_name = direct_deposit_source['bankName']
         end
         direct_deposit.account_type = direct_deposit_source['accountType'] if direct_deposit_source['accountType']
-        direct_deposit.account_number = direct_deposit_source['accountNumber'] if direct_deposit_source['accountNumber']
-        direct_deposit.routing_number = direct_deposit_source['routingNumber'] if direct_deposit_source['routingNumber']
+        direct_deposit.account_number = direct_deposit_source['accountNumber']&.strip
+        direct_deposit.routing_number = direct_deposit_source['routingNumber']&.strip
 
         direct_deposit
       end
@@ -408,6 +673,10 @@ module EVSS
 
       def convert_date(date)
         Date.parse(date).strftime('%Y-%m-%d')
+      end
+
+      def convert_date_no_day(date)
+        Date.parse(date).strftime('%Y-%m')
       end
     end
   end

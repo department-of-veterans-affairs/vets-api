@@ -2,7 +2,7 @@
     "personal_identification": {
         "ssn": "1234",
         "file_number": "5678",
-        "fsr_reason": "waiver"
+        "fsr_reason": "waiver, compromise, monthly"
     },
     "personal_data": {
         "veteran_full_name": {
@@ -207,36 +207,45 @@
     "selected_debts_and_copays":[ 
         {
             "debt_type": "COPAY",
+            "resolution_option": "waiver",
             "p_h_amt_due": "100",
+            "p_h_dfn_number": 123456,
+            "p_h_cerner_patient_id": "                ",
             "station": {"facilit_y_num": "123"}
         },
         {
             "debt_type": "COPAY",
+            "resolution_option": "waiver",
             "p_h_amt_due": "200",
+            "p_h_dfn_number": 123456,
+            "p_h_cerner_patient_id": "                ",
             "station": {
                 "facilit_y_num": "123"
             }
         },
         {
             "debt_type": "COPAY",
+            "resolution_option": "compromise",
             "p_h_amt_due": "300",
+            "p_h_dfn_number": 123456,
+            "p_h_cerner_patient_id": "                ",
             "station": {
                 "facilit_y_num": "999"
             }
         },
         {
-            "current_ar":"541.67",
             "debt_type":"DEBT",
+            "resolution_option": "compromise",
+            "current_ar": "541.67",
             "deduction_code":"71",
-            "resolution_comment":"50",
-            "resolution_option": "monthly"
+            "resolution_comment":"50"
         },
         {
-            "current_ar":"1134.22",
             "debt_type":"DEBT",
+            "resolution_option": "monthly",
+            "current_ar": "1134.22",
             "deduction_code":"72",
-            "resolution_comment":"",
-            "resolution_option": "waiver"
+            "resolution_comment":""
         }
     ]
 }

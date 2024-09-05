@@ -14,7 +14,7 @@ module V0
         response    = VAProfile::Person::Service.new(@current_user).init_vet360_id
         transaction = AsyncTransaction::VAProfile::InitializePersonTransaction.start(@current_user, response)
 
-        render json: transaction, serializer: AsyncTransaction::BaseSerializer
+        render json: AsyncTransaction::BaseSerializer.new(transaction).serializable_hash
       end
 
       def status

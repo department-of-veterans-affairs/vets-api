@@ -13,10 +13,9 @@ module MyHealth
         resource = resource.sort(params[:sort])
         resource = resource.paginate(**pagination_params) if pagination_params[:per_page] != '-1'
 
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: MessagesSerializer,
-               meta: resource.metadata
+        links = pagination_links(resource)
+        options = { meta: resource.metadata, links: }
+        render json: MessagesSerializer.new(resource.data, options)
       end
 
       def show
@@ -25,10 +24,8 @@ module MyHealth
 
         raise Common::Exceptions::RecordNotFound, message_id if response.blank?
 
-        render json: response,
-               serializer: MessageSerializer,
-               include: 'attachments',
-               meta: response.metadata
+        options = { meta: response.metadata }
+        render json: MessageSerializer.new(response, options)
       end
 
       def create
@@ -45,10 +42,9 @@ module MyHealth
                             client.post_create_message(message_params_h)
                           end
 
-        render json: client_response,
-               serializer: MessageSerializer,
-               include: 'attachments',
-               meta: {}
+        options = { meta: {} }
+        options[:include] = [:attachments] if client_response.attachment
+        render json: MessageSerializer.new(client_response, options)
       end
 
       def destroy
@@ -60,16 +56,14 @@ module MyHealth
         message_id = params[:id].try(:to_i)
         resource = if params[:full_body] == 'true'
                      # returns full body of message including attachments attributes
-                     client.get_full_messages_for_thread(message_id)
+                     client.get_full_messages_for_thread(message_id, params[:requires_oh_messages].to_s)
                    else
-                     client.get_messages_for_thread(message_id)
+                     client.get_messages_for_thread(message_id, params[:requires_oh_messages].to_s)
                    end
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
-        render json: resource,
-               serializer: CollectionSerializer,
-               each_serializer: MessageDetailsSerializer,
-               meta: resource.metadata
+        options = { meta: resource.metadata, is_collection: true }
+        render json: MessageDetailsSerializer.new(resource, options)
       end
 
       def reply
@@ -86,17 +80,15 @@ module MyHealth
                             client.post_create_message_reply(params[:id], message_params_h)
                           end
 
-        render json: client_response,
-               serializer: MessageSerializer,
-               include: 'attachments',
-               status: :created
+        options = { meta: {} }
+        options[:include] = [:attachments] if client_response.attachment
+        render json: MessageSerializer.new(client_response, options), status: :created
       end
 
       def categories
         resource = client.get_categories
 
-        render json: resource,
-               serializer: CategorySerializer
+        render json: CategorySerializer.new(resource)
       end
 
       def signature
@@ -105,7 +97,8 @@ module MyHealth
           resource[:data] =
             { signature_name: nil, include_signature: false, signature_title: nil }
         end
-        render json: resource, each_serializer: MessageSignatureSerializer
+        # see MessageSignatureSerializer for more information
+        render json: resource
       end
 
       def move

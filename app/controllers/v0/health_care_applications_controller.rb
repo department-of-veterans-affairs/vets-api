@@ -3,6 +3,7 @@
 require 'hca/service'
 require 'bgs/service'
 require 'pdf_fill/filler'
+require 'lighthouse/facilities/v1/client'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
@@ -11,7 +12,7 @@ module V0
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
 
-    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck download_pdf])
+    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck facilities])
 
     before_action :record_submission_attempt, only: :create
     before_action :load_user, only: %i[create enrollment_status]
@@ -20,12 +21,9 @@ module V0
     def rating_info
       service = BGS::Service.new(current_user)
       disability_rating = service.find_rating_data[:disability_rating_record][:service_connected_combined_degree]
-      render(
-        json: {
-          user_percent_of_disability: disability_rating
-        },
-        serializer: HCARatingInfoSerializer
-      )
+
+      hca_rating_info = { user_percent_of_disability: disability_rating }
+      render json: HCARatingInfoSerializer.new(hca_rating_info)
     end
 
     def create
@@ -41,11 +39,16 @@ module V0
 
       clear_saved_form(FORM_ID)
 
-      render(json: result)
+      if result[:id]
+        render json: HealthCareApplicationSerializer.new(result)
+      else
+        render json: result
+      end
     end
 
     def show
-      render(json: HealthCareApplication.find(params[:id]))
+      application = HealthCareApplication.find(params[:id])
+      render json: HealthCareApplicationSerializer.new(application)
     end
 
     def enrollment_status
@@ -68,25 +71,44 @@ module V0
       render(json: HCA::Service.new.health_check)
     end
 
-    def download_pdf
-      source_file_path = PdfFill::Filler.fill_form(health_care_application, SecureRandom.uuid, sign: false)
-      file_contents = File.read(source_file_path)
-      File.delete(source_file_path)
+    def facilities
+      lighthouse_facilities = lighthouse_facilities_service.get_facilities(lighthouse_facilities_params)
 
-      send_data file_contents, filename: file_name_for_pdf, type: 'application/pdf', disposition: 'attachment'
+      render(json: active_facilities(lighthouse_facilities))
     end
 
     private
+
+    def active_facilities(lighthouse_facilities)
+      active_ids = StdInstitutionFacility.active.pluck(:station_number).compact
+
+      lighthouse_facilities.select { |facility| active_ids.include?(facility.unique_id) }
+    end
 
     def health_care_application
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))
     end
 
-    def file_name_for_pdf
-      veteran_name = health_care_application.parsed_form.try(:[], 'veteranFullName')
-      first_name = veteran_name.try(:[], 'first') || 'First'
-      last_name = veteran_name.try(:[], 'last') || 'Last'
-      "10-10EZ_#{first_name}_#{last_name}.pdf"
+    def lighthouse_facilities_service
+      @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
+    end
+
+    def lighthouse_facilities_params
+      params.permit(
+        :zip,
+        :state,
+        :lat,
+        :long,
+        :radius,
+        :bbox,
+        :visn,
+        :type,
+        :services,
+        :mobile,
+        :page,
+        :per_page,
+        facilityIds: []
+      )
     end
 
     def record_submission_attempt

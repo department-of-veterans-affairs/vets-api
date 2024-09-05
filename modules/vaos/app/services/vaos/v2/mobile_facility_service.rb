@@ -6,6 +6,8 @@ require 'common/client/errors'
 module VAOS
   module V2
     class MobileFacilityService < VAOS::SessionService
+      extend Memoist
+
       # Retrieves information about a VA clinic from the VAOS Service.
       #
       # @param station_id [String] the ID of the VA facility where the clinic is located
@@ -13,7 +15,7 @@ module VAOS
       #
       # @return [OpenStruct] An OpenStruct object containing information about the clinic.
       #
-      def get_clinic(station_id:, clinic_id:)
+      def get_clinic!(station_id:, clinic_id:)
         params = { clinicIds: clinic_id }
         parent_site_id = station_id[0, 3]
         with_monitoring do
@@ -32,9 +34,31 @@ module VAOS
       #
       def get_clinic_with_cache(station_id:, clinic_id:)
         Rails.cache.fetch("vaos_clinic_#{station_id}_#{clinic_id}", expires_in: 12.hours) do
-          get_clinic(station_id:, clinic_id:)
+          get_clinic!(station_id:, clinic_id:)
         end
       end
+
+      # Retrieves a clinic from the cache if it exists, otherwise retrieves the clinic from the VAOS Service.
+      # Returns nil on error.
+      #
+      # @param station_id [String] the ID of the VA facility where the clinic is located
+      # @param clinic_id [String] the ID of the clinic to retrieve
+      #
+      # @return [OpenStruct] an OpenStruct containing information about the clinic,
+      #         retrieved from either the cache or the VAOS Service.
+      #
+      def get_clinic(location_id, clinic_id)
+        get_clinic_with_cache(station_id: location_id, clinic_id:)
+      rescue Common::Exceptions::BackendServiceException => e
+        Rails.logger.error(
+          "Error fetching clinic #{clinic_id} for location #{location_id}",
+          clinic_id:,
+          location_id:,
+          vamf_msg: e.original_body
+        )
+        nil
+      end
+      memoize :get_clinic
 
       # Get clinic details for a given station and clinic ids from the VAOS Service
       #
@@ -126,7 +150,7 @@ module VAOS
       #
       # @return [OpenStruct] An OpenStruct object containing information about the facility.
       #
-      def get_facility(facility_id)
+      def get_facility!(facility_id)
         params = {}
         with_monitoring do
           response = perform(:get, facilities_url_with_id(facility_id), params, headers)
@@ -143,9 +167,27 @@ module VAOS
       #
       def get_facility_with_cache(facility_id)
         Rails.cache.fetch("vaos_facility_#{facility_id}", expires_in: 12.hours) do
-          get_facility(facility_id)
+          get_facility!(facility_id)
         end
       end
+
+      # Retrieves a VA facility from the cache if it exists, otherwise retrieves the facility
+      # from the Mobile Facility Service. Returns nil on error.
+      #
+      # @param facility_id [String] the ID of the VA facility to retrieve
+      #
+      # @return [OpenStruct] An OpenStruct object containing information about the facility
+      #
+      def get_facility(location_id)
+        get_facility_with_cache(location_id)
+      rescue Common::Exceptions::BackendServiceException
+        Rails.logger.error(
+          "VAOS Error fetching facility details for location_id #{location_id}",
+          location_id:
+        )
+        nil
+      end
+      memoize :get_facility
 
       # Retrieves scheduling configurations for VA facilities based on the provided parameters.
       #

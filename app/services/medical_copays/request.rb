@@ -71,15 +71,31 @@ module MedicalCopays
     # @return [Faraday::Connection]
     #
     def connection
-      Faraday.new(url:, headers:) do |conn|
+      Faraday.new(url:, headers:, request: request_options) do |conn|
         conn.request :json
         conn.use :breakers
         conn.use Faraday::Response::RaiseError
-        conn.response :raise_error, error_prefix: service_name
+        conn.response :raise_custom_error, error_prefix: service_name
         conn.response :json
         conn.response :betamocks if mock_enabled?
         conn.adapter Faraday.default_adapter
       end
+    end
+
+    ##
+    # Request options can be passed to the connection constructor
+    # and will be applied to all requests. This is the Common::Client config
+    # see: lib/common/client/configuration/base.rb
+    #
+    # open_timeout: The max number of seconds to wait for the connection to be established.
+    # time_out: The max number of seconds to wait for the request to complete.
+    #
+    # @return [Hash]
+    def request_options
+      {
+        open_timeout: 15,
+        timeout: 50
+      }
     end
 
     ##

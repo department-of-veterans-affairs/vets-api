@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
+RSpec.describe StructuredData::ProcessDataJob, :uploader_helpers do
   stub_virus_scan
   let(:pension_burial) { create(:pension_burial) }
   let(:claim) { pension_burial.saved_claim }
@@ -12,7 +12,7 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
     let(:bip_claims) { instance_double(BipClaims::Service) }
 
     before do
-      allow_any_instance_of(CentralMail::SubmitSavedClaimJob).to receive(:perform)
+      allow_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform)
       allow(BipClaims::Service).to receive(:new).and_return(bip_claims)
       allow(bip_claims).to receive(:lookup_veteran_from_mpi).and_return(
         OpenStruct.new(participant_id: 123)
@@ -26,8 +26,8 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
       job.perform(claim.id)
     end
 
-    it 'calls Central Mail processing job' do
-      expect_any_instance_of(CentralMail::SubmitSavedClaimJob).to receive(:perform)
+    it 'calls Benefits Intake processing job' do
+      expect_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform)
       job.perform(claim.id)
     end
 

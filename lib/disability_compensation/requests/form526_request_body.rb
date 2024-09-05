@@ -42,6 +42,7 @@ module Requests
     attribute :zip_first_five, String
     attribute :zip_last_four, String
     attribute :state, String
+    attribute :international_postal_code, String
   end
 
   class EmailAddress
@@ -272,7 +273,7 @@ module Requests
     attribute :gulf_war_hazard_service, GulfWarHazardService
     attribute :herbicide_hazard_service, HerbicideHazardService
     attribute :additional_hazard_exposures, AdditionalHazardExposures
-    attribute :multiple_exposures, MultipleExposures
+    attribute :multiple_exposures, Array[MultipleExposures]
   end
 
   class ChangeOfAddress
@@ -291,6 +292,7 @@ module Requests
     attribute :zip_last_four, String
     attribute :state, String
     attribute :country, String
+    attribute :international_postal_code, String
   end
 
   class ServicePay
@@ -325,5 +327,6 @@ module Requests
     attribute :service_information, ServiceInformation
     attribute :service_pay, ServicePay
     attribute :direct_deposit, DirectDeposit
+    attribute :claim_notes, String
   end
 end

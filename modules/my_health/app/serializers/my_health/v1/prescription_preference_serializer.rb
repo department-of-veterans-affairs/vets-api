@@ -2,7 +2,9 @@
 
 module MyHealth
   module V1
-    class PrescriptionPreferenceSerializer < ActiveModel::Serializer
+    class PrescriptionPreferenceSerializer
+      include JSONAPI::Serializer
+
       attributes :email_address, :rx_flag
     end
   end

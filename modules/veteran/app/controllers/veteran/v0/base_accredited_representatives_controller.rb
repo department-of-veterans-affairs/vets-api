@@ -9,21 +9,19 @@ module Veteran
       before_action :verify_sort
       before_action :verify_long
       before_action :verify_lat
+      before_action :verify_distance
 
       DEFAULT_PAGE = 1
       DEFAULT_PER_PAGE = 10
       DEFAULT_SORT = 'distance_asc'
+      PERMITTED_MAX_DISTANCES = [5, 10, 25, 50, 100, 200].freeze # in miles, no distance provided will default to "all"
       PERMITTED_REPRESENTATIVE_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc
                                           last_name_desc].freeze
 
       def index
         collection = Common::Collection.new(Veteran::Service::Representative, data: representative_query)
         resource = collection.paginate(**pagination_params)
-
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: serializer_class,
-               meta: resource.metadata
+        render json: serializer_class.new(resource.data, { meta: resource.metadata })
       end
 
       private
@@ -33,13 +31,20 @@ module Veteran
       end
 
       def base_query
-        Veteran::Service::Representative.find_within_max_distance(search_params[:long],
-                                                                  search_params[:lat]).order(sort_query_string)
+        query = if search_params[:distance]
+                  Veteran::Service::Representative.find_within_max_distance(search_params[:long],
+                                                                            search_params[:lat],
+                                                                            max_distance)
+                else
+                  Veteran::Service::Representative.where.not(location: nil)
+                end
+
+        query.order(sort_query_string)
       end
 
       def search_params
         params.require(%i[lat long type])
-        params.permit(:lat, :long, :name, :page, :per_page, :sort, :type)
+        params.permit(:distance, :lat, :long, :name, :page, :per_page, :sort, :type)
       end
 
       def pagination_params
@@ -65,8 +70,11 @@ module Veteran
       def sort_query_string
         case sort_param
         when 'distance_asc'
-          [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, veteran_representatives.location) ASC'), # rubocop:disable Layout/LineLength
-           search_params[:long], search_params[:lat]]
+          ActiveRecord::Base.sanitize_sql_for_order(
+            [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, veteran_representatives.location) ASC'), # rubocop:disable Layout/LineLength
+             search_params[:long],
+             search_params[:lat]]
+          )
         when 'name_asc' then 'name ASC'
         when 'name_desc' then 'name DESC'
         when 'first_name_asc' then 'first_name ASC'
@@ -74,6 +82,10 @@ module Veteran
         when 'last_name_asc' then 'last_name ASC'
         when 'last_name_desc' then 'last_name DESC'
         end
+      end
+
+      def max_distance
+        Veteran::Service::Constants::METERS_PER_MILE * Integer(search_params[:distance])
       end
 
       def feature_enabled
@@ -101,6 +113,19 @@ module Veteran
         raise Common::Exceptions::InvalidFieldValue.new('lat', search_params[:lat])
       else
         raise Common::Exceptions::InvalidFieldValue.new('lat', search_params[:lat]) unless (-90..90).cover?(lat)
+      end
+
+      def verify_distance
+        return unless search_params[:distance]
+
+        distance = Integer(search_params[:distance])
+      rescue ArgumentError
+        raise Common::Exceptions::InvalidFieldValue.new('distance', search_params[:distance])
+      else
+        unless PERMITTED_MAX_DISTANCES.include?(distance)
+          raise Common::Exceptions::InvalidFieldValue.new('distance',
+                                                          search_params[:distance])
+        end
       end
     end
   end

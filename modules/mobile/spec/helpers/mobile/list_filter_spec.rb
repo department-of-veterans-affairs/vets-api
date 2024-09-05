@@ -15,7 +15,7 @@ class PetResource < Common::Resource
   attribute :fully_vaccinated, Types::Bool.optional
 end
 
-describe Mobile::ListFilter, aggregate_failures: true do
+describe Mobile::ListFilter, :aggregate_failures do
   let(:dog) do
     PetResource.new(species: 'dog', age: 5, fully_vaccinated: true)
   end

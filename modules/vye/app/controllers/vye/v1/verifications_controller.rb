@@ -3,45 +3,45 @@
 module Vye
   module Vye::V1
     class Vye::V1::VerificationsController < Vye::V1::ApplicationController
-      include Pundit::Authorization
-      service_tag 'vye'
+      class EmptyAwards < StandardError; end
+      class AwardsMismatch < StandardError; end
 
-      skip_before_action :authenticate, if: -> { ivr_key? }
+      rescue_from EmptyAwards, with: -> { head :unprocessable_entity }
+      rescue_from AwardsMismatch, with: -> { head :unprocessable_entity }
+
+      delegate :pending_verifications, to: :user_info
 
       def create
-        authorize user_info, policy_class: Vye::UserInfoPolicy
+        authorize user_info, policy_class: UserInfoPolicy
 
-        user_info.awards.each do |award|
-          user_info.verifications.create!(create_params.merge(award:))
+        validate_award_ids!
+
+        transact_date = Time.zone.today
+        pending_verifications.each do |verification|
+          verification.update!(transact_date:, source_ind:)
         end
+
+        head :no_content
       end
 
       private
 
-      def create_params
-        params.permit(%i[
-                        change_flag rpo_code rpo_flag act_begin act_end source_ind
-                      ])
+      def award_ids
+        params.fetch(:award_ids, []).map(&:to_i)
       end
 
-      def ivr_params
-        params.permit(%i[
-                        ivr_key ssn
-                      ])
+      def matching_awards?
+        given = award_ids.sort
+        actual = pending_verifications.pluck(:award_id).sort
+        given == actual
       end
 
-      def ivr_key?
-        ivr_params[:ivr_key].present? && ivr_params[:ivr_key] == Settings.vye.ivr_key
+      def validate_award_ids!
+        raise EmptyAwards if award_ids.blank?
+        raise AwardsMismatch unless matching_awards?
       end
 
-      def load_user_info
-        case ivr_key?
-        when true
-          @user_info = Vye::UserInfo.find_from_digested_ssn(ivr_params[:ssn])
-        else
-          super
-        end
-      end
+      def source_ind = :web
     end
   end
 end

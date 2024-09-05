@@ -4,10 +4,14 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::BurialClaimsController, type: :controller do
+  before do
+    Flipper.enable(:va_burial_v2)
+  end
+
   describe 'with a user' do
-    let(:form) { build(:burial_claim) }
+    let(:form) { build(:burial_claim_v2) }
     let(:param_name) { :burial_claim }
-    let(:form_id) { '21P-530' }
+    let(:form_id) { '21P-530V2' }
     let(:user) { create(:user) }
 
     def send_create
@@ -30,12 +34,25 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
   end
 
   describe '#show' do
-    it 'returns the submission status' do
-      claim = create(:burial_claim)
+    it 'returns the submission status when the claim uses central mail' do
+      claim = create(:burial_claim_v2)
       claim.central_mail_submission.update!(state: 'success')
       get(:show, params: { id: claim.guid })
 
       expect(JSON.parse(response.body)['data']['attributes']['state']).to eq('success')
+    end
+
+    it 'returns the submission status when the claim uses benefits intake' do
+      claim = create(:burial_claim_v2)
+      claim.form_submissions << create(:form_submission, :pending, form_type: '21P-530V2')
+      get(:show, params: { id: claim.guid })
+
+      expect(JSON.parse(response.body)['data']['attributes']['state']).to eq('success')
+    end
+
+    it 'returns an error if the claim is not found' do
+      get(:show, params: { id: '12345' })
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

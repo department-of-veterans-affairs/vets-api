@@ -1,0 +1,21 @@
+{
+  "form_number": "21-0966",
+  "preparer_identification": "VETERAN",
+  "full_name": {
+    "first": "Veteran",
+    "last": "Eteranvay"
+  },
+  "address": {
+    "country": "CAN",
+    "street": "867 Five St",
+    "city": "Threeoh",
+    "postal_code": "99999"
+  },
+  "date_of_birth": "1990-03-12",
+  "ssn": "246813579",
+  "benefit_selection": {
+    "compensation": true
+  },
+  "statement_of_truth_signature": "Veteran Eteranvay",
+  "statement_of_truth_certified": true
+}

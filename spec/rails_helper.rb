@@ -30,7 +30,8 @@ require 'support/pdf_fill_helper'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
-require 'support/service_account_authorization_context'
+require 'support/sign_in/certifiable_shared_examples'
+require 'support/sign_in/service_account_authorization_context'
 require 'super_diff/rspec-rails'
 require 'super_diff/active_support'
 require './spec/support/default_configuration_helper'
@@ -104,7 +105,7 @@ end
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  config.fixture_path = Rails.root.join('spec', 'fixtures')
+  config.fixture_paths = Array(Rails.root / 'spec/fixtures')
 
   config.include(ValidationHelpers, type: :model)
   %i[controller model].each do |type|
@@ -187,7 +188,7 @@ RSpec.configure do |config|
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
   config.after(:all) do
-    FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', "uploads#{ENV['TEST_ENV_NUMBER']}")]) if Rails.env.test?
+    FileUtils.rm_rf(Rails.root.glob("spec/support/uploads#{ENV['TEST_ENV_NUMBER']}")) if Rails.env.test?
   end
 end
 

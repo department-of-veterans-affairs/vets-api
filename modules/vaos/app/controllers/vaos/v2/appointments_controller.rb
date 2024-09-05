@@ -1,38 +1,30 @@
 # frozen_string_literal: true
 
 require 'common/exceptions'
-require 'memoist'
 
 module VAOS
   module V2
     class AppointmentsController < VAOS::BaseController
-      extend Memoist
-
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
-      NPI_NOT_FOUND_MSG = "We're sorry, we can't display your provider's information right now."
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
-      PID = 'PID'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
-      APPT_INDEX = "GET '/vaos/v1/patients/<icn>/appointments'"
-      APPT_SHOW = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
-      APPT_CREATE = "POST '/vaos/v1/patients/<icn>/appointments'"
+      APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
+      APPT_INDEX_VPG = "GET '/vpg/v1/patients/<icn>/appointments'"
+      APPT_SHOW_VAOS = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
+      APPT_SHOW_VPG = "GET '/vpg/v1/patients/<icn>/appointments/<id>'"
+      APPT_CREATE_VAOS = "POST '/vaos/v1/patients/<icn>/appointments'"
+      APPT_CREATE_VPG = "POST '/vpg/v1/patients/<icn>/appointments'"
       REASON = 'reason'
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
 
       def index
-        appointments
-
         appointments[:data].each do |appt|
-          find_and_merge_provider_name(appt) if appt[:kind] == 'cc' && appt[:status] == 'proposed'
-        end
-
-        _include&.include?('clinics') && merge_clinics(appointments[:data])
-        _include&.include?('facilities') && merge_facilities(appointments[:data])
-
-        appointments[:data].each do |appt|
-          scrape_appt_comments_and_log_details(appt, APPT_INDEX, PAP_COMPLIANCE_TELE)
-          scrape_appt_comments_and_log_details(appt, APPT_INDEX, PID)
+          if include_params[:facilities] && appt[:location_id].present? && appt[:location].nil?
+            appt[:location] = FACILITY_ERROR_MSG
+          end
+          scrape_appt_comments_and_log_details(appt, index_method_logging_name, PAP_COMPLIANCE_TELE)
+          log_appt_creation_time(appt)
         end
 
         serializer = VAOS::V2::VAOSSerializer.new
@@ -50,19 +42,17 @@ module VAOS
       def show
         appointment
 
-        find_and_merge_provider_name(appointment) if appointment[:kind] == 'cc' && appointment[:status] == 'proposed'
-
         unless appointment[:clinic].nil? || appointment[:location_id].nil?
-          clinic = get_clinic_memoized(appointment[:location_id], appointment[:clinic])
+          clinic = mobile_facility_service.get_clinic(appointment[:location_id], appointment[:clinic])
           appointment[:service_name] = clinic&.[](:service_name)
           appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
           appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        appointment[:location] = get_facility_memoized(appointment[:location_id]) unless appointment[:location_id].nil?
+        add_location(appointment)
 
-        scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PAP_COMPLIANCE_TELE)
-        scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PID)
+        scrape_appt_comments_and_log_details(appointment, show_method_logging_name, PAP_COMPLIANCE_TELE)
+        log_appt_creation_time(appointment)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointment, 'appointments')
@@ -72,21 +62,16 @@ module VAOS
       def create
         new_appointment
 
-        find_and_merge_provider_name(new_appointment) if new_appointment[:kind] == 'cc'
-
         unless new_appointment[:clinic].nil? || new_appointment[:location_id].nil?
-          clinic = get_clinic_memoized(new_appointment[:location_id], new_appointment[:clinic])
+          clinic = mobile_facility_service.get_clinic(new_appointment[:location_id], new_appointment[:clinic])
           new_appointment[:service_name] = clinic&.[](:service_name)
           new_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
           new_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        unless new_appointment[:location_id].nil?
-          new_appointment[:location] = get_facility_memoized(new_appointment[:location_id])
-        end
+        add_location(new_appointment)
 
-        scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PAP_COMPLIANCE_TELE)
-        scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PID)
+        scrape_appt_comments_and_log_details(new_appointment, create_method_logging_name, PAP_COMPLIANCE_TELE)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(new_appointment, 'appointments')
@@ -96,15 +81,13 @@ module VAOS
       def update
         updated_appointment
         unless updated_appointment[:clinic].nil? || updated_appointment[:location_id].nil?
-          clinic = get_clinic_memoized(updated_appointment[:location_id], updated_appointment[:clinic])
+          clinic = mobile_facility_service.get_clinic(updated_appointment[:location_id], updated_appointment[:clinic])
           updated_appointment[:service_name] = clinic&.[](:service_name)
           updated_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
           updated_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
-        unless updated_appointment[:location_id].nil?
-          updated_appointment[:location] = get_facility_memoized(updated_appointment[:location_id])
-        end
+        add_location(updated_appointment)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(updated_appointment, 'appointments')
@@ -123,14 +106,15 @@ module VAOS
           VAOS::V2::MobileFacilityService.new(current_user)
       end
 
-      def mobile_ppms_service
-        @mobile_ppms_service ||=
-          VAOS::V2::MobilePPMSService.new(current_user)
+      def add_location(appointment)
+        return if appointment[:location_id].nil?
+
+        appointment[:location] = mobile_facility_service.get_facility(appointment[:location_id]) || FACILITY_ERROR_MSG
       end
 
       def appointments
         @appointments ||=
-          appointments_service.get_appointments(start_date, end_date, statuses, pagination_params)
+          appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_params)
       end
 
       def appointment
@@ -147,132 +131,30 @@ module VAOS
           appointments_service.update_appointment(update_appt_id, status_update)
       end
 
-      # uses find_npi helper method to extract npi from appointment response,
-      # then uses the npi to look up the provider name via mobile_ppms_service
-      #
-      # will memoize provider name to avoid duplicate get_provider_with_cache calls
-      def find_and_merge_provider_name(appt)
-        found_npi = find_npi(appt)
-
-        appt[:preferred_provider_name] = get_provider_name_memoized(found_npi) if found_npi
-      end
-
-      def find_npi(appt)
-        appt[:practitioners]&.each do |a|
-          a[:identifier]&.each do |i|
-            return i[:value] if i[:system].include? 'us-npi'
-          end
-        end
-        nil
-      end
-
-      def get_provider_name_memoized(npi)
-        provider_response = mobile_ppms_service.get_provider_with_cache(npi)
-        provider_response[:name]
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.warn(
-          "VAOS Error fetching provider name for npi #{npi}",
-          npi:,
-          vamf_msg: e.original_body
-        )
-        NPI_NOT_FOUND_MSG
-      end
-      memoize :get_provider_name_memoized
-
       # Makes a call to the VAOS service to create a new appointment.
       def get_new_appointment
-        if create_params[:kind] == 'clinic' && create_params[:status] == 'booked' # a direct scheduled appointment
-          modify_desired_date(create_params, get_facility_timezone(create_params[:location_id]))
-        end
-
         appointments_service.post_appointment(create_params)
       end
 
-      # Modifies params so that the facility timezone offset is included in the desired date.
-      # The desired date is sent in this format: 2019-12-31T00:00:00-00:00
-      # This modifies the params in place. If params does not contain a desired date, it is not modified.
+      # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
+      # contains cerner. If it does, it returns true. Otherwise, it returns false.
       #
-      # @param [ActionController::Parameters] create_params - the params to be modified
-      # @param [String] timezone - the facility timezone id
-      def modify_desired_date(create_params, timezone)
-        desired_date = create_params[:extension]&.[](:desired_date)
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is associated with cerner, false otherwise
+      def cerner?(appt)
+        return false if appt.nil?
 
-        return create_params if desired_date.nil?
+        identifiers = appt[:identifier]
 
-        create_params[:extension][:desired_date] = add_timezone_offset(desired_date, timezone)
-      end
+        return false if identifiers.nil?
 
-      # Returns a [DateTime] object with the timezone offset added. Given a desired date of 2019-12-31T00:00:00-00:00
-      # and a timezone of America/New_York, the returned date will be 2019-12-31T00:00:00-05:00.
-      #
-      # @param [DateTime] date - the date to be modified,  required
-      # @param [String] tz - the timezone id, if nil, the offset is not added
-      # @return [DateTime] date with timezone offset
-      #
-      def add_timezone_offset(date, tz)
-        raise Common::Exceptions::ParameterMissing, 'date' if date.nil?
-
-        utc_date = date.to_time.utc
-        timezone_offset = utc_date.in_time_zone(tz).formatted_offset
-        utc_date.change(offset: timezone_offset).to_datetime
-      end
-
-      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
-      def get_facility_timezone(facility_location_id)
-        facility_info = get_facility_memoized(facility_location_id)
-        if facility_info == FACILITY_ERROR_MSG
-          nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
-        else
-          facility_info[:timezone]&.[](:time_zone_id)
+        identifiers.each do |identifier|
+          system = identifier[:system]
+          return true if system.include?('cerner')
         end
-      end
 
-      def merge_clinics(appointments)
-        appointments.each do |appt|
-          unless appt[:clinic].nil? || appt[:location_id].nil?
-            clinic = get_clinic_memoized(appt[:location_id], appt[:clinic])
-            if clinic&.[](:service_name)
-              appt[:service_name] = clinic[:service_name]
-              # In VAOS Service there is no dedicated clinic friendlyName field.
-              # If the clinic is configured with a patient-friendly name then that will be the value
-              # in the clinic service name; otherwise it will be the internal clinic name.
-              appt[:friendly_name] = clinic[:service_name]
-            end
-
-            appt[:physical_location] = clinic[:physical_location] if clinic&.[](:physical_location)
-          end
-        end
+        false
       end
-
-      def merge_facilities(appointments)
-        appointments.each do |appt|
-          appt[:location] = get_facility_memoized(appt[:location_id]) unless appt[:location_id].nil?
-        end
-      end
-
-      def get_clinic_memoized(location_id, clinic_id)
-        mobile_facility_service.get_clinic_with_cache(station_id: location_id, clinic_id:)
-      rescue Common::Exceptions::BackendServiceException => e
-        Rails.logger.error(
-          "Error fetching clinic #{clinic_id} for location #{location_id}",
-          clinic_id:,
-          location_id:,
-          vamf_msg: e.original_body
-        )
-        nil # on error log and return nil, calling code will handle nil
-      end
-      memoize :get_clinic_memoized
-
-      def get_facility_memoized(location_id)
-        mobile_facility_service.get_facility_with_cache(location_id)
-      rescue Common::Exceptions::BackendServiceException
-        Rails.logger.error(
-          "VAOS Error fetching facility details for location_id #{location_id}",
-          location_id:
-        )
-        FACILITY_ERROR_MSG
-      end
-      memoize :get_facility_memoized
 
       def scrape_appt_comments_and_log_details(appt, appt_method, comment_key)
         if appt&.[](:reason)&.include? comment_key
@@ -289,6 +171,16 @@ module VAOS
                                                                                                      comment_content,
                                                                                                      field_name) }
         Rails.logger.info("Details for #{comment_key} appointment", appt_comment_data_entry.to_json)
+      end
+
+      def log_appt_creation_time(appt)
+        if appt.nil? || appt[:created].nil?
+          Rails.logger.info('VAOS::V2::AppointmentsController appointment creation time: unknown')
+        else
+          creation_time = appt[:created]
+          Rails.logger.info("VAOS::V2::AppointmentsController appointment creation time: #{creation_time}",
+                            { created: creation_time }.to_json)
+        end
       end
 
       def appt_comment_log_details(appt, appt_method, comment_content, field_name)
@@ -404,8 +296,12 @@ module VAOS
         raise Common::Exceptions::InvalidFieldValue.new('end', params[:end])
       end
 
-      def _include
-        appointment_params[:_include]&.split(',')
+      def include_params
+        included = appointment_params[:_include]&.split(',')
+        {
+          clinics: ActiveModel::Type::Boolean.new.deserialize(included&.include?('clinics')),
+          facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities'))
+        }
       end
 
       def statuses
@@ -415,6 +311,30 @@ module VAOS
 
       def appointment_id
         params[:appointment_id]
+      end
+
+      def index_method_logging_name
+        if Flipper.enabled?(:va_online_scheduling_use_vpg)
+          APPT_INDEX_VPG
+        else
+          APPT_INDEX_VAOS
+        end
+      end
+
+      def show_method_logging_name
+        if Flipper.enabled?(:va_online_scheduling_use_vpg)
+          APPT_SHOW_VPG
+        else
+          APPT_SHOW_VAOS
+        end
+      end
+
+      def create_method_logging_name
+        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_enable_OH_requests)
+          APPT_CREATE_VPG
+        else
+          APPT_CREATE_VAOS
+        end
       end
     end
   end

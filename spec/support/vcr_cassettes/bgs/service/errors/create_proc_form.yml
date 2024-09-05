@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -148,7 +148,7 @@ http_interactions:
   recorded_at: Thu, 16 Jul 2020 18:20:42 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService
     body:
       encoding: UTF-8
       string: |-
@@ -204,7 +204,7 @@ http_interactions:
   recorded_at: Thu, 16 Jul 2020 18:20:42 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -350,7 +350,7 @@ http_interactions:
   recorded_at: Thu, 16 Jul 2020 18:20:43 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService
     body:
       encoding: UTF-8
       string: |-
@@ -406,7 +406,7 @@ http_interactions:
   recorded_at: Thu, 16 Jul 2020 18:20:44 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -552,7 +552,7 @@ http_interactions:
   recorded_at: Thu, 16 Jul 2020 18:20:45 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService
+    uri: <BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService
     body:
       encoding: UTF-8
       string: |-

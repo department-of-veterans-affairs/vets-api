@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'va_profile/contact_information/person_response'
+require 'va_profile/v2/contact_information/person_response'
 require 'va_profile/contact_information/service'
+require 'va_profile/v2/contact_information/service'
 require 'va_profile/models/address'
 require 'va_profile/models/telephone'
 require 'va_profile/models/permission'
@@ -140,7 +142,11 @@ module VAProfileRedis
     # @return [Integer <> String] the status of the last VAProfile::ContactInformation::Service response
     #
     def status
-      return VAProfile::ContactInformation::PersonResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        return VAProfile::V2::ContactInformation::PersonResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
+      else
+        return VAProfile::ContactInformation::PersonResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
+      end
 
       response.status
     end
@@ -187,7 +193,11 @@ module VAProfileRedis
     end
 
     def contact_info_service
-      @service ||= VAProfile::ContactInformation::Service.new(@user)
+      @service ||= if Flipper.enabled?(:va_v3_contact_information_service, @user)
+                     VAProfile::V2::ContactInformation::Service.new @user
+                   else
+                     VAProfile::ContactInformation::Service.new @user
+                   end
     end
   end
 end

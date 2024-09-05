@@ -21,7 +21,7 @@ module CheckIn
       end
 
       attribute :icn do |object|
-        object.payload.dig(:demographics, :icn)
+        object.payload.dig(:demographics, :icn) || object.payload[:appointments].first[:icn]
       end
 
       attribute :mobilePhone do |object|
@@ -30,6 +30,14 @@ module CheckIn
 
       attribute :patientCellPhone do |object|
         object.payload[:patientCellPhone]
+      end
+
+      attribute :facilityType do |object|
+        object.payload[:facilityType]
+      end
+
+      attribute :edipi do |object|
+        object.payload[:appointments].first[:edipi]
       end
     end
   end

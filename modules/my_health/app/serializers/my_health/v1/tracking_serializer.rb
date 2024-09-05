@@ -2,14 +2,21 @@
 
 module MyHealth
   module V1
-    class TrackingSerializer < ActiveModel::Serializer
-      def id
-        object.tracking_number
+    class TrackingSerializer
+      include JSONAPI::Serializer
+
+      set_id :tracking_number
+      set_type :trackings
+
+      link :self do |object|
+        MyHealth::UrlHelper.new.v1_prescription_trackings_url(object.prescription_id)
       end
 
-      link(:self) { MyHealth::UrlHelper.new.v1_prescription_trackings_url(object.prescription_id) }
-      link(:prescription) { MyHealth::UrlHelper.new.v1_prescription_url(object.prescription_id) }
-      link(:tracking_url) do
+      link :prescription do |object|
+        MyHealth::UrlHelper.new.v1_prescription_url(object.prescription_id)
+      end
+
+      link :tracking_url do |object|
         case object.delivery_service.upcase
         when 'UPS'
           "https://wwwapps.ups.com/WebTracking/track?track=yes&trackNums=#{object.tracking_number}"

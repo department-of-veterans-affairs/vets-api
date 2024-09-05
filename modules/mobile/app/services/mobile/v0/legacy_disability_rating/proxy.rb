@@ -28,20 +28,16 @@ module Mobile
         rescue EVSS::DisabilityCompensationForm::ServiceUnavailableException
           raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
         rescue => e
-          if e.respond_to?('response')
-            Rails.logger.info('LEGACY DR ERRORS WITH RESPONSE', error: e)
-            case e.response[:status]
-            when 400
-              raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
-            when 502
-              raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
-            when 403
-              raise Common::Exceptions::BackendServiceException, 'MOBL_403_rating_forbidden'
-            else
-              raise e
-            end
+          raise e unless e.respond_to?('response')
+
+          case e.response&.dig(:status)
+          when 400
+            raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
+          when 502
+            raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
+          when 403
+            raise Common::Exceptions::BackendServiceException, 'MOBL_403_rating_forbidden'
           else
-            Rails.logger.info('LEGACY DR ERRORS WITHOUT RESPONSE', error: e)
             raise e
           end
         end

@@ -7,6 +7,7 @@ RSpec.describe SignIn::ClientConfig, type: :model do
     create(:client_config,
            client_id:,
            authentication:,
+           shared_sessions:,
            anti_csrf:,
            redirect_uri:,
            logout_redirect_uri:,
@@ -16,12 +17,15 @@ RSpec.describe SignIn::ClientConfig, type: :model do
            certificates:,
            access_token_attributes:,
            enforced_terms:,
-           terms_of_use_url:)
+           terms_of_use_url:,
+           service_levels:,
+           credential_service_providers:)
   end
   let(:client_id) { 'some-client-id' }
   let(:authentication) { SignIn::Constants::Auth::API }
   let(:certificates) { [] }
   let(:anti_csrf) { false }
+  let(:shared_sessions) { false }
   let(:redirect_uri) { 'some-redirect-uri' }
   let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
   let(:access_token_duration) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
@@ -30,6 +34,14 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   let(:access_token_attributes) { [] }
   let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
   let(:terms_of_use_url) { 'some-terms-of-use-url' }
+  let(:service_levels) { %w[loa1 loa3 ial1 ial2 min] }
+  let(:credential_service_providers) { %w[idme logingov dslogon mhv] }
+
+  describe 'concerns' do
+    subject { client_config }
+
+    it_behaves_like 'implements certifiable concern'
+  end
 
   describe 'validations' do
     subject { client_config }
@@ -177,6 +189,18 @@ RSpec.describe SignIn::ClientConfig, type: :model do
       end
     end
 
+    describe '#shared_sessions' do
+      context 'when shared_sessions is nil' do
+        let(:shared_sessions) { nil }
+        let(:expected_error_message) { 'Validation failed: Shared sessions is not included in the list' }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+    end
+
     describe '#access_token_attributes' do
       context 'when access_token_attributes is empty' do
         it 'does not raise a validation error' do
@@ -198,6 +222,66 @@ RSpec.describe SignIn::ClientConfig, type: :model do
         let(:access_token_attributes) { SignIn::Constants::AccessToken::USER_ATTRIBUTES }
 
         it 'does not raise a validation error' do
+          expect { subject }.not_to raise_error
+        end
+      end
+    end
+
+    describe '#credential_service_providers' do
+      context 'when credential_service_providers is empty' do
+        let(:credential_service_providers) { [] }
+        let(:expected_error_message) { "Validation failed: Credential service providers can't be blank" }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when credential_service_providers contain values not included in CSP_TYPES constant' do
+        let(:credential_service_providers) { %w[idme logingov dslogon mhv bad_csp] }
+        let(:expected_error_message) { 'Validation failed: Credential service providers is not included in the list' }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when all credential_service_providers values are included in CSP_TYPES constant' do
+        let(:credential_service_providers) { SignIn::Constants::Auth::CSP_TYPES }
+
+        it 'does not raise validation error' do
+          expect { subject }.not_to raise_error
+        end
+      end
+    end
+
+    describe '#service_levels' do
+      context 'when service_levels is empty' do
+        let(:service_levels) { [] }
+        let(:expected_error_message) { "Validation failed: Service levels can't be blank" }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when service_levels contain values not included in ACR_VALUES constant' do
+        let(:service_levels) { %w[loa1 loa3 ial1 ial2 min bad_acr] }
+        let(:expected_error_message) { 'Validation failed: Service levels is not included in the list' }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when all service_levels values are included in ACR_VALUES constant' do
+        let(:service_levels) { SignIn::Constants::Auth::ACR_VALUES }
+
+        it 'does not raise validation error' do
           expect { subject }.not_to raise_error
         end
       end
@@ -271,20 +355,6 @@ RSpec.describe SignIn::ClientConfig, type: :model do
       it 'returns false' do
         expect(subject).to be(false)
       end
-    end
-  end
-
-  describe '#client_assertion_public_keys' do
-    subject { client_config.client_assertion_public_keys }
-
-    let(:certificate) do
-      OpenSSL::X509::Certificate.new(File.read('spec/fixtures/sign_in/sample_client.crt'))
-    end
-    let(:certificates) { [certificate.to_s] }
-    let(:client_assertion_public_keys) { [certificate.public_key] }
-
-    it 'expands all certificates in the client config to an array of public keys' do
-      expect(subject.first.to_s).to eq(client_assertion_public_keys.first.to_s)
     end
   end
 
@@ -364,6 +434,46 @@ RSpec.describe SignIn::ClientConfig, type: :model do
     end
   end
 
+  describe '#valid_credential_service_provider?' do
+    subject { client_config.valid_credential_service_provider?(type) }
+
+    context 'when type is included in csps' do
+      let(:type) { 'idme' }
+
+      it 'returns true' do
+        expect(subject).to be(true)
+      end
+    end
+
+    context 'when type is not included in csps' do
+      let(:type) { 'bad_csp' }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+  end
+
+  describe '#valid_service_level?' do
+    subject { client_config.valid_service_level?(acr) }
+
+    context 'when acr is included in acrs' do
+      let(:acr) { 'loa1' }
+
+      it 'returns true' do
+        expect(subject).to be(true)
+      end
+    end
+
+    context 'when acr is not included in acrs' do
+      let(:acr) { 'bad_acr' }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+  end
+
   describe '#mock_auth?' do
     subject { client_config.mock_auth? }
 
@@ -415,6 +525,46 @@ RSpec.describe SignIn::ClientConfig, type: :model do
 
     context 'when authentication method is set to cookie' do
       let(:authentication) { SignIn::Constants::Auth::COOKIE }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+  end
+
+  describe '#device_sso_enabled?' do
+    subject { client_config.device_sso_enabled? }
+
+    context 'when authentication method is set to API' do
+      let(:authentication) { SignIn::Constants::Auth::API }
+
+      context 'and shared_sessions is set to true' do
+        let(:shared_sessions) { true }
+
+        it 'returns true' do
+          expect(subject).to be(true)
+        end
+      end
+
+      context 'and shared_sessions is set to false' do
+        let(:shared_sessions) { false }
+
+        it 'returns false' do
+          expect(subject).to be(false)
+        end
+      end
+    end
+
+    context 'when authentication method is set to COOKIE' do
+      let(:authentication) { SignIn::Constants::Auth::COOKIE }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+
+    context 'when authentication method is set to MOCK' do
+      let(:authentication) { SignIn::Constants::Auth::MOCK }
 
       it 'returns false' do
         expect(subject).to be(false)

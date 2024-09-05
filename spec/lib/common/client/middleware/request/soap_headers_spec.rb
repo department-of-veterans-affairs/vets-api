@@ -13,8 +13,7 @@ describe Common::Client::Middleware::Request::SOAPHeaders do
       now = Time.current
       Timecop.freeze(now)
       subject.instance_variable_set('@app', app)
-      allow(env).to receive(:request_headers).and_return(request_headers)
-      allow(env).to receive(:body).and_return('<xml></xml>')
+      allow(env).to receive_messages(request_headers:, body: '<xml></xml>')
       subject.call(env)
       expect(env.request_headers).to eq(
         'Content-Length' => '11',

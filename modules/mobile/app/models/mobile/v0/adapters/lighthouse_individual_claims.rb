@@ -4,17 +4,6 @@ module Mobile
   module V0
     module Adapters
       class LighthouseIndividualClaims
-        PHASE_TYPE_TO_NUMBER = {
-          CLAIM_RECEIVED: 1,
-          UNDER_REVIEW: 2,
-          GATHERING_OF_EVIDENCE: 3,
-          REVIEW_OF_EVIDENCE: 4,
-          PREPARATION_FOR_DECISION: 5,
-          PENDING_DECISION_APPROVAL: 6,
-          PREPARATION_FOR_NOTIFICATION: 7,
-          COMPLETE: 8
-        }.freeze
-
         # Order of EVENT_DATE_FIELDS determines which date trumps in timeline sorting.
         EVENT_DATE_FIELDS = %i[
           closed_date
@@ -71,7 +60,7 @@ module Mobile
               documents_needed: attributes['documentsNeeded'],
               development_letter_sent: attributes['developmentLetterSent'],
               decision_letter_sent: attributes['decisionLetterSent'],
-              phase: phase(attributes.dig('claimPhaseDates', 'latestPhaseType')),
+              phase: Mobile::ClaimsHelper.phase_to_number(attributes.dig('claimPhaseDates', 'latestPhaseType')),
               ever_phase_back: nil,
               current_phase_back: attributes.dig('claimPhaseDates', 'currentPhaseBack'),
               requested_decision: attributes['evidenceWaiverSubmitted5103'],
@@ -79,17 +68,14 @@ module Mobile
               contention_list: attributes['contentions'].pluck('name'),
               va_representative: nil,
               events_timeline:,
-              updated_at: nil
+              updated_at: nil,
+              claim_type_code: attributes['claimTypeCode']
             }
           )
         end
         # rubocop:enable Metrics/MethodLength
 
         private
-
-        def phase(latest_phase)
-          PHASE_TYPE_TO_NUMBER[latest_phase.to_sym]
-        end
 
         def events_timeline(attributes)
           events = [
@@ -112,12 +98,11 @@ module Mobile
 
           # sort to put events with uploaded == false on top and then by date
           events.compact.sort_by do |event|
-            upload_priority = if event[:uploaded] || !event.key?(:uploaded)
-                                0 # Lower priority for uploaded == true or key not present
+            upload_priority = if event[:uploaded] || event[:uploaded].nil?
+                                0 # Lower priority for uploaded == true or value nil
                               else
                                 1 # Higher priority for uploaded == false
                               end
-
             event_date = event[:date] || DEFAULT_DATE
 
             [upload_priority, event_date]
@@ -127,10 +112,10 @@ module Mobile
         def create_event_from_string_date(type, date)
           return nil unless date
 
-          {
+          ClaimEventTimeline.new(
             type:,
             date: Date.strptime(date, '%Y-%m-%d')
-          }
+          )
         end
 
         def create_events_for_tracked_items(attributes)
@@ -144,10 +129,14 @@ module Mobile
 
         def create_events_for_documents(attributes)
           untracked_documents = attributes['supportingDocuments'].select { |document| document['trackedItemId'].nil? }
-          documents_hash = create_documents(untracked_documents)
-          documents_hash.map do |document|
-            date = document[:upload_date] ? Date.strptime(document[:upload_date], '%Y-%m-%d') : nil
-            document.merge(type: :other_documents_list, date:)
+          untracked_documents.map do |document|
+            ClaimEventTimeline.new(
+              type: :other_documents_list,
+              tracked_item_id: document['trackedItemId'],
+              upload_date: document['uploadDate'],
+              file_type: document['documentTypeLabel'],
+              filename: document['originalFileName']
+            )
           end
         end
 
@@ -171,13 +160,14 @@ module Mobile
             documents:,
             upload_date: latest_upload_date(documents)
           }
+
           event[:date] = Date.strptime(event.slice(*EVENT_DATE_FIELDS).values.compact.first, '%Y-%m-%d')
-          event
+          ClaimEventTimeline.new(event)
         end
 
         def create_documents(documents)
           documents.map do |document|
-            {
+            document_hash = {
               tracked_item_id: document['trackedItemId'],
               file_type: document['documentTypeLabel'],
               # no document type field available
@@ -185,6 +175,7 @@ module Mobile
               filename: document['originalFileName'],
               upload_date: document['uploadDate']
             }
+            ClaimDocument.new(document_hash)
           end
         end
 

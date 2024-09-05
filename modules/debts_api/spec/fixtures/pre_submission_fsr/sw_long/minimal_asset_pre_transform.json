@@ -1,0 +1,348 @@
+{
+  "view:enhanced_financial_status_report": true,
+  "view:streamlined_waiver": true,
+  "view:streamlined_waiver_asset_update": true,
+  "questions": {
+    "has_repayments": false,
+    "has_credit_card_bills": false,
+    "has_recreational_vehicle": false,
+    "has_vehicle": false,
+    "has_real_estate": false,
+    "has_dependents": "2",
+    "is_married": false
+  },
+  "view:components": {
+    "view:real_estate_additional_info": {},
+    "view:marital_status": {},
+    "view:veteran_info": {},
+    "view:va_benefits_on_file": {},
+    "view:vehicle_info": {},
+    "view:rec_vehicle_info": {},
+    "view:asset_info": {}
+  },
+  "personal_data": {
+    "veteran_full_name": {
+      "first": "Mark",
+      "last": "Webb",
+      "middle": "",
+      "suffix": "Jr."
+    },
+    "date_of_birth": "1950-10-04",
+    "address": {
+      "lives_on_military_base_info": {},
+      "country": "USA",
+      "street": "123 Faker Street",
+      "city": "Bogusville",
+      "state": "GA",
+      "postal_code": "30058"
+    },
+    "telephone_number": "4445551212",
+    "email_address": "test2@test1.net",
+    "veteran_contact_information": {
+      "email": "test@user.com",
+      "mobile_phone": {
+        "area_code": "510",
+        "country_code": "1",
+        "created_at": "2020-06-12T16:56:37.000+00:00",
+        "extension": "",
+        "effective_end_date": null,
+        "effective_start_date": "2020-07-14T19:07:45.000+00:00",
+        "id": 146766,
+        "is_international": false,
+        "is_textable": null,
+        "is_text_permitted": null,
+        "is_tty": null,
+        "is_voicemailable": null,
+        "phone_number": "9224444",
+        "phone_type": "HOME",
+        "source_date": "2020-07-14T19:07:45.000+00:00",
+        "source_system_user": null,
+        "transaction_id": "92c49d39-22b2-4bd6-92b4-0b7e7c63c6a9",
+        "updated_at": "2020-07-14T19:07:46.000+00:00",
+        "vet360_id": "1273780"
+      },
+      "address": {
+        "address_line1": "1200 Park Ave",
+        "address_line2": "c/o Pixar",
+        "address_pou": "CORRESPONDENCE",
+        "address_type": "DOMESTIC",
+        "city": "Emeryville",
+        "country_name": "United States",
+        "country_code_iso2": "US",
+        "country_code_iso3": "USA",
+        "country_code_fips": null,
+        "county_code": null,
+        "county_name": null,
+        "created_at": "2020-05-30T03:57:20.000+00:00",
+        "effective_end_date": null,
+        "effective_start_date": "2020-07-10T20:10:45.000+00:00",
+        "id": 173917,
+        "province": null,
+        "source_date": "2020-07-10T20:10:45.000+00:00",
+        "source_system_user": null,
+        "state_code": "CA",
+        "transaction_id": "7139aa82-fd06-45ea-a217-9654869924bd",
+        "updated_at": "2020-07-10T20:10:46.000+00:00",
+        "validation_key": null,
+        "vet360_id": "1273780",
+        "zip_code": "94608",
+        "zip_code_suffix": null
+      }
+    },
+    "spouse_full_name": {},
+    "dependents": [
+      {
+        "dependent_age": "12"
+      },
+      {
+        "dependent_age": "17"
+      }
+    ],
+    "employment_history": {
+      "veteran": {},
+      "spouse": {}
+    }
+  },
+  "personal_identification": {
+    "ssn": "4437",
+    "file_number": "4437"
+  },
+  "selected_debts_and_copays": [
+    {
+      "id": "f4385298-08a6-42f8-a86f-50e97033fb85",
+      "p_s_seq_num": 506,
+      "p_s_tot_seq_num": 588,
+      "p_s_facility_num": "534",
+      "p_s_fac_phone_num": null,
+      "p_s_tot_statement": 27,
+      "p_s_statement_val": "0000018255H",
+      "p_s_statement_date": "11152019",
+      "p_s_statement_date_output": "11/15/2019",
+      "p_s_process_date": "11112019",
+      "p_s_process_date_output": "11/11/2019",
+      "p_h_patient_lst_nme": "JONES",
+      "p_h_patient_fst_nme": "TRAVIS",
+      "p_h_patient_mid_nme": "D",
+      "p_h_address1": "1885 SHORE DR S APT 327",
+      "p_h_address2": null,
+      "p_h_address3": null,
+      "p_h_city": "SAVANNAH",
+      "p_h_state": "FL",
+      "p_h_zip_cde": "314104413",
+      "p_h_zip_cde_output": "31410-4413",
+      "p_h_ctry_nme": null,
+      "p_h_amt_due": 15,
+      "p_h_amt_due_output": "15.00&nbsp;&nbsp;",
+      "p_h_prev_bal": 135,
+      "p_h_prev_bal_output": "135.00&nbsp;&nbsp;",
+      "p_h_tot_charges": 15,
+      "p_h_tot_charges_output": "15.00&nbsp;&nbsp;",
+      "p_h_tot_credits": -135,
+      "p_h_tot_credits_output": "135.00-&nbsp;",
+      "p_h_new_balance": 15,
+      "p_h_new_balance_output": "15.00&nbsp;&nbsp;",
+      "p_h_special_notes": "To pay your statement online, go to www.pay.gov or call 1-888-827-4817.",
+      "p_hro_para_cdes": "304050556065708085",
+      "p_h_num_of_lines": 10,
+      "p_h_dfn_number": 346310,
+      "p_h_cerner_statement_number": 1005154223,
+      "p_h_cerner_patient_id": "1005154223",
+      "p_h_cerner_account_number": "1005154223",
+      "p_h_icn_number": "1012845638V677813",
+      "p_h_account_number": 0,
+      "p_h_large_font_indcator": 0,
+      "details": [
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10072019",
+          "p_d_date_posted_output": "10/07/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC)",
+          "p_d_trans_desc_output": "OUTPATIENT CARE",
+          "p_d_trans_amt": -15,
+          "p_d_trans_amt_output": "15.00-&nbsp;",
+          "p_d_ref_no": "534-K90HEWN"
+        },
+        {
+          "p_d_date_posted": "10152019",
+          "p_d_date_posted_output": "10/15/2019",
+          "p_d_trans_desc": "OUTPATIENT CARE(NSC) VISIT DATE: 09/07/2018",
+          "p_d_trans_desc_output": "OUTPATIENT CARE VISIT DATE: 09/07/2018",
+          "p_d_trans_amt": 15,
+          "p_d_trans_amt_output": "15.00&nbsp;&nbsp;",
+          "p_d_ref_no": "534-K009FK8"
+        }
+      ],
+      "station": {
+        "facilit_y_num": "534",
+        "vis_n_num": "07",
+        "facilit_y_desc": "RALPH H. JOHNSON VA MEDICAL CENTER (534)",
+        "cycl_e_num": "012",
+        "remi_t_to_flag": "L",
+        "mai_l_insert_flag": "0",
+        "sta_t_address1": "ACCOUNTS RECEIVABLE (04AR)",
+        "sta_t_address2": "109 BEE ST",
+        "sta_t_address3": null,
+        "city": "Charleston",
+        "state": "SC",
+        "zi_p_cde": "294015703",
+        "zi_p_cde_output": "29401-5703",
+        "ba_r_cde": "*294015703090*",
+        "te_l_num_flag": "P",
+        "te_l_num": "1-866-258-2772",
+        "te_l_num2": null,
+        "contac_t_info": null,
+        "d_m2_tel_num": null,
+        "contac_t_info2": null,
+        "to_p_tel_num": null,
+        "lb_x_fedex_address1": null,
+        "lb_x_fedex_address2": null,
+        "lb_x_fedex_address3": null,
+        "lb_x_fedex_city": null,
+        "lb_x_fedex_state": null,
+        "lb_x_fedex_zip_cde": null,
+        "lb_x_fedex_bar_cde": null,
+        "lb_x_fedex_contact": null,
+        "lb_x_fedex_contact_tel_num": null,
+        "facility_name": "Ralph H. Johnson Department of Veterans Affairs Medical Center"
+      },
+      "debt_type": "COPAY"
+    }
+  ],
+  "social_security": {
+    "spouse": {}
+  },
+  "additional_income": {
+    "addl_inc_records": [
+      {
+        "name": "Social Security",
+        "amount": "4639.90"
+      }
+    ],
+    "spouse": {}
+  },
+  "benefits": {
+    "spouse_benefits": {}
+  },
+  "assets": {
+    "monetary_assets": [
+      {
+        "name": "Cash on hand (not in bank)",
+        "amount": "125"
+      },
+      {
+        "name": "Cash in a bank (savings and checkings)",
+        "amount": "329.12"
+      },
+      {
+        "name": "U.S. Savings Bonds",
+        "amount": "135"
+      },
+      {
+        "name": "Retirement accounts (401k, IRAs, 403b, TSP)",
+        "amount": "3500"
+      }
+    ]
+  },
+  "expenses": {},
+  "other_expenses": [
+    {
+      "name": "Clothing",
+      "amount": "6759"
+    }
+  ],
+  "additional_data": {
+    "bankruptcy": {}
+  },
+  "income": [
+    {
+      "veteran_or_spouse": "VETERAN",
+      "compensation_and_pension": "3261.1",
+      "education": "50"
+    }
+  ],
+  "gmt_data": {
+    "is_eligible_for_streamlined": true,
+    "pension_threshold": 21001,
+    "national_threshold": 47818,
+    "gmt_threshold": 60400,
+    "income_upper_threshold": 90600,
+    "asset_threshold": 3926,
+    "discretionary_income_threshold": 755,
+    "error": null,
+    "income_below_gmt": false,
+    "income_below_one_fifty_gmt": true,
+    "liquid_assets_below_gmt": true,
+    "discretionary_below": true
+  }
+}

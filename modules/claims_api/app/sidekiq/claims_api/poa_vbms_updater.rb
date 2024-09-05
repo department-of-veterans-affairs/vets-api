@@ -1,31 +1,27 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require 'bgs'
-require 'claims_api/claim_logger'
 
 module ClaimsApi
-  class PoaVBMSUpdater
-    include Sidekiq::Job
-
+  class PoaVBMSUpdater < ClaimsApi::ServiceBase
     def perform(power_of_attorney_id) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       service = BGS::Services.new(
         external_uid: poa_form.external_uid,
         external_key: poa_form.external_key
       )
+      poa_code = extract_poa_code(poa_form.form_data)
 
       ClaimsApi::Logger.log(
         'poa_vbms_updater',
         poa_id: power_of_attorney_id,
         detail: 'Updating Access',
-        poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode')
+        poa_code:
       )
-
       # allow_poa_c_add reports 'No Data' if sent lowercase
       response = service.corporate_update.update_poa_access(
         participant_id: poa_form.auth_headers['va_eauth_pid'],
-        poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode'),
+        poa_code:,
         allow_poa_access: 'y',
         allow_poa_c_add: allow_address_change?(poa_form, power_of_attorney_id) ? 'Y' : 'N'
       )

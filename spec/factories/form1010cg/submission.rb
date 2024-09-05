@@ -5,5 +5,9 @@ FactoryBot.define do
     claim_guid { SecureRandom.uuid }
     carma_case_id { "#{Faker::Alphanumeric.alphanumeric(number: 15)}CAK" }
     accepted_at { DateTime.now }
+
+    trait :with_claim do
+      association :claim, factory: :caregivers_assistance_claim
+    end
   end
 end

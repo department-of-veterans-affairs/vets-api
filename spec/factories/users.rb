@@ -58,7 +58,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -163,7 +163,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -184,7 +184,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -205,7 +205,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -221,7 +221,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -237,7 +237,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -256,7 +256,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -344,8 +344,7 @@ FactoryBot.define do
       icn { '82836359962678900' }
 
       after(:build) do
-        allow(BGS.configuration).to receive(:env).and_return('prepbepbenefits')
-        allow(BGS.configuration).to receive(:client_ip).and_return('10.247.35.119')
+        allow(BGS.configuration).to receive_messages(env: 'prepbepbenefits', client_ip: '10.247.35.119')
       end
     end
 
@@ -393,7 +392,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::MHV_ORIGINAL_CSID,
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 
@@ -432,7 +431,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::DSLOGON_CSID,
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
         }
       end
 

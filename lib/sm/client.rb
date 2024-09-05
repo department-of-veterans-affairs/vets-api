@@ -80,10 +80,13 @@ module SM
     #
     # @return [Common::Collection[Folder]]
     #
-    def get_folders(user_uuid, use_cache)
+    def get_folders(user_uuid, use_cache, requires_oh_messages = nil)
+      path = 'folder'
+      path = append_requires_oh_messages_query(path, requires_oh_messages)
+
       cache_key = "#{user_uuid}-folders"
       get_cached_or_fetch_data(use_cache, cache_key, Folder) do
-        json = perform(:get, 'folder', nil, token_headers).body
+        json = perform(:get, path, nil, token_headers).body
         data = Common::Collection.new(Folder, **json)
         Folder.set_cached(cache_key, data)
         data
@@ -95,8 +98,11 @@ module SM
     #
     # @return [Folder]
     #
-    def get_folder(id)
-      json = perform(:get, "folder/#{id}", nil, token_headers).body
+    def get_folder(id, requires_oh_messages = nil)
+      path = "folder/#{id}"
+      path = append_requires_oh_messages_query(path, requires_oh_messages)
+
+      json = perform(:get, path, nil, token_headers).body
       Folder.new(json)
     end
 
@@ -171,12 +177,18 @@ module SM
     #
     # @return [Common::Collection]
     #
-    def get_folder_threads(folder_id, page_size, page_number, sort_field, sort_order)
-      path = "folder/threadlistview/#{folder_id}"
+    def get_folder_threads(folder_id, params)
+      base_path = "folder/threadlistview/#{folder_id}"
+      query_params = [
+        "pageSize=#{params[:page_size]}",
+        "pageNumber=#{params[:page_number]}",
+        "sortField=#{params[:sort_field]}",
+        "sortOrder=#{params[:sort_order]}"
+      ].join('&')
+      path = "#{base_path}?#{query_params}"
+      path = append_requires_oh_messages_query(path, params[:requires_oh_messages])
 
-      params = "?pageSize=#{page_size}&pageNumber=#{page_number}&sortField=#{sort_field}&sortOrder=#{sort_order}"
-
-      json = perform(:get, path + params, nil, token_headers).body
+      json = perform(:get, path, nil, token_headers).body
 
       Common::Collection.new(MessageThread, **json)
     end
@@ -190,12 +202,15 @@ module SM
     # @param args [Hash] arguments for the message search
     # @return [Common::Collection]
     #
-    def post_search_folder(folder_id, page_num, page_size, args = {})
+    def post_search_folder(folder_id, page_num, page_size, args = {}, requires_oh_messages = nil)
       page_num ||= 1
       page_size ||= MHV_MAXIMUM_PER_PAGE
 
+      path = "folder/#{folder_id}/searchMessage/page/#{page_num}/pageSize/#{page_size}"
+      path = append_requires_oh_messages_query(path, requires_oh_messages)
+
       json_data = perform(:post,
-                          "folder/#{folder_id}/searchMessage/page/#{page_num}/pageSize/#{page_size}",
+                          path,
                           args.to_h,
                           token_headers).body
       Common::Collection.new(Message, **json_data)
@@ -286,8 +301,10 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThread]]
     #
-    def get_messages_for_thread(id)
+    def get_messages_for_thread(id, requires_oh_messages = nil)
       path = "message/#{id}/messagesforthread"
+      path = append_requires_oh_messages_query(path, requires_oh_messages)
+
       json = perform(:get, path, nil, token_headers).body
       Common::Collection.new(MessageThreadDetails, **json)
     end
@@ -298,8 +315,9 @@ module SM
     # @param id [Fixnum] message id
     # @return [Common::Collection[MessageThreadDetails]]
     #
-    def get_full_messages_for_thread(id)
+    def get_full_messages_for_thread(id, requires_oh_messages = nil)
       path = "message/#{id}/allmessagesforthread/1"
+      path = append_requires_oh_messages_query(path, requires_oh_messages)
       json = perform(:get, path, nil, token_headers).body
       Common::Collection.new(MessageThreadDetails, **json)
     end
@@ -386,7 +404,6 @@ module SM
     def post_move_thread(id, folder_id)
       custom_headers = token_headers.merge('Content-Type' => 'application/json')
       response = perform(:post, "message/#{id}/movethreadmessages/tofolder/#{folder_id}", nil, custom_headers)
-
       response&.status
     end
 
@@ -443,14 +460,33 @@ module SM
     #
     # @return [Common::Collection[AllTriageTeams]]
     #
-    def get_all_triage_teams(user_uuid, use_cache)
+    def get_all_triage_teams(user_uuid, use_cache, requires_oh = nil)
       cache_key = "#{user_uuid}-all-triage-teams"
       get_cached_or_fetch_data(use_cache, cache_key, AllTriageTeams) do
-        json = perform(:get, 'alltriageteams', nil, token_headers).body
+        path = 'alltriageteams'
+        if requires_oh == '1'
+          separator = path.include?('?') ? '&' : '?'
+          path += "#{separator}requiresOHTriageGroup=#{requires_oh}"
+        end
+        json = perform(:get, path, nil, token_headers).body
         data = Common::Collection.new(AllTriageTeams, **json)
         AllTriageTeams.set_cached(cache_key, data)
         data
       end
+    end
+    # @!endgroup
+
+    ##
+    # Update preferredTeam value for a patient's list of triage teams
+    #
+    # @param updated_triage_teams_list [Array] an array of objects
+    # with triage_team_id and preferred_team values
+    # @return [Fixnum] the response status code
+    #
+    def update_triage_team_preferences(updated_triage_teams_list)
+      custom_headers = token_headers.merge('Content-Type' => 'application/json')
+      response = perform(:post, 'preferences/patientpreferredtriagegroups', updated_triage_teams_list, custom_headers)
+      response&.status
     end
     # @!endgroup
 
@@ -493,6 +529,14 @@ module SM
         draft.errors.add(:base, 'attempted to use reply draft in send message')
         raise Common::Exceptions::ValidationErrors, draft
       end
+    end
+
+    def append_requires_oh_messages_query(path, requires_oh_messages = nil)
+      if requires_oh_messages == '1'
+        separator = path.include?('?') ? '&' : '?'
+        path += "#{separator}requiresOHMessages=#{requires_oh_messages}"
+      end
+      path
     end
 
     def validate_reply_context(args)

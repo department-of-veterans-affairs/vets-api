@@ -21,7 +21,7 @@ paths:
                 type: object
                 description: >
                   FHIR Bundle containing AllergyIntolerance objects. The schema can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
           description: OK
         "401":
           content:
@@ -48,7 +48,7 @@ paths:
                 type: object
                 description: >
                   FHIR AllergyIntolerance. The schema can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
           description: OK
         "401":
           content:
@@ -75,7 +75,7 @@ paths:
                 type: object
                 description: >
                   FHIR Bundle containing DocumentReference objects. The schema can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
           description: OK
         "401":
           content:
@@ -102,7 +102,7 @@ paths:
                 type: object
                 description: >
                   FHIR DocumentReference. The schema can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
           description: OK
         "401":
           content:
@@ -129,7 +129,7 @@ paths:
                 type: object
                 description: >
                   FHIR Bundle containing Condition objects. The schema can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
           description: OK
         "401":
           content:
@@ -156,7 +156,7 @@ paths:
                 type: object
                 description: >
                   FHIR Condition. The schema can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
           description: OK
         "401":
           content:
@@ -185,10 +185,10 @@ paths:
                 type: object
                 description: >
                   FHIR Bundle containing DiagnosticReport and DocumentReference objects. The schemas can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>,
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>,
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>,
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>,
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>,
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>,
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
           description: OK
         "401":
           content:
@@ -217,8 +217,8 @@ paths:
                 type: object
                 description: >
                   FHIR DiagnosticReport. The schemas can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>,
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>,
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>
           description: OK
         "401":
           content:
@@ -246,8 +246,8 @@ paths:
                 type: object
                 description: >
                   FHIR DocumentReference. The schema can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>,
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>,
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
           description: OK
         "401":
           content:
@@ -274,7 +274,7 @@ paths:
                 type: object
                 description: >
                   FHIR Bundle containing Immunization objects. The schema can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
           description: OK
         "401":
           content:
@@ -301,7 +301,7 @@ paths:
                 type: object
                 description: >
                   FHIR Immunization. The schema can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
           description: OK
         "401":
           content:
@@ -328,7 +328,7 @@ paths:
                 type: object
                 description: >
                   FHIR Bundle containing Observation objects. The schema can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
           description: OK
         "401":
           content:
@@ -355,7 +355,7 @@ paths:
                 type: object
                 description: >
                   FHIR Observation. The schema can be found at
-                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
+                  <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
           description: OK
         "401":
           content:
@@ -397,6 +397,15 @@ paths:
       summary: /v1/messaging/folders
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
+        - name: requires_oh_messages
+          in: query
+          description: Count of folder messages includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
   /v1/messaging/folders/{id}:
     get:
       description: Get a secure messaging folder
@@ -423,6 +432,15 @@ paths:
       summary: /v1/messaging/folders/{id}
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
+        - name: requires_oh_messages
+          in: query
+          description: Count of folder messages includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
     put:
       description: Rename an existing folder
       operationId: post_rename_folder
@@ -522,6 +540,15 @@ paths:
           schema:
             type: string
             enum: [ASC, DESC]
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health threads if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
       responses:
         "200":
@@ -568,6 +595,15 @@ paths:
           schema:
             type: integer
             default: 250
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health messages in search results if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
       requestBody:
         content:
@@ -1138,6 +1174,15 @@ paths:
           required: false
           schema:
             type: boolean
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
         - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/recipients:
     get:
@@ -1191,6 +1236,15 @@ paths:
       summary: /v1/messaging/allrecipients
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
+        - name: requires_oh
+          in: query
+          description: Includes Oracle Health recipients if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
   /v1/messaging/threads/{id}/move:
     patch:
       description:
@@ -1227,6 +1281,241 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/threads/{id}/move
+  /v1/messaging/preferences/recipients:
+    post:
+      description: Update recipients `preferredTeam` value
+      operationId: update_triage_team_preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/SecureMessagingUpdateTriageTeamRequest.yml
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              type: string
+              example: "Success"
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/recipients
+  /v1/prescriptions:
+    get:
+      description: List medications.
+      operationId: get_prescriptions
+      parameters:
+        - description: One refill status to filter on
+          in: query
+          name: refill_status
+          required: false
+          schema:
+            type: string
+        - description: The page number to get based on your page size
+          in: query
+          name: page
+          required: false
+          schema:
+            type: string
+        - description: The size of the pagination you want
+          in: query
+          name: per_page
+          required: false
+          schema:
+            type: string
+        - description: The attribute to sort on, negated for descending
+          in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PrescriptionList.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions
+  /v1/prescriptions/{id}:
+    get:
+      description: Get prescription.
+      operationId: get_prescription
+      parameters:
+        - description: prescription id
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Prescription.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/{id}
+  /v1/prescriptions/{id}/refill:
+    patch:
+      description: Refill the prescription
+      operationId: patch_refill_prescription
+      parameters:
+        - description: The id of the prescription
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "204":
+          description: Success
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/{id}/refill
+  /v1/prescriptions/list_refillable_prescriptions:
+    get:
+      description: List refillable medications.
+      operationId: get_list_refillable_prescriptions
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PrescriptionList.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/list_refillable_prescriptions
+  /v1/prescriptions/refill_prescriptions:
+    patch:
+      description: Refill the prescriptions
+      operationId: patch_refill_prescription
+      parameters:
+        - description: Array of the prescription ids
+          in: query
+          name: ids
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "204":
+          description: Success
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/refill_prescriptions
+  /v1/prescriptions/get_prescription_image/{cmopNdcNumber}:
+    get:
+      description: Get prescription image.
+      operationId: get_prescription_image
+      parameters:
+        - description: cmopNdcNumber
+          in: path
+          name: cmopNdcNumber
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    description: base64-encoded file contents
+                    type: string
+                    format: byte
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/list_refillable_prescriptions
 
 components:
   securitySchemes:
@@ -1244,5 +1533,14 @@ components:
         type: string
         enum: [camel, snake]
       description: Instructs the API to return camelCase keys rather than snake_case
+    RequiresOHMessages:
+      name: requires_oh_messages
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - "0"
+          - "1"
 security:
   - CookieAuth: []

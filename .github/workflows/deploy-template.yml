@@ -1,0 +1,105 @@
+name: Release and Update Manifests
+
+on:
+  workflow_call:
+    inputs:
+      ecr_repository:
+        required: true
+        type: string
+      manifests_directory:
+        required: true
+        type: string
+      auto_deploy_envs:
+        required: true
+        type: string
+      commit_sha:  # #${{ github.sha }}
+        required: true
+        type: string
+    secrets:
+      aws_access_key_id: #${{ secrets.AWS_ACCESS_KEY_ID }}
+        required: true
+      aws_secret_access_key: #${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        required: true
+
+jobs:
+  prepare-values:
+    runs-on: ubuntu-20.04
+    outputs:
+      environments: ${{ steps.set-environments.outputs.environments }}
+    steps:
+      - name: Set to auto deploy environments on push to master
+        run: |
+          echo "triggered via schedule"
+          echo "environments=${{inputs.auto_deploy_envs}}" >> $GITHUB_ENV
+      - name: Set output
+        id: set-environments
+        run: |
+          echo "environments=${{ env.environments }}" >> $GITHUB_OUTPUT
+  release:
+    needs: [prepare-values]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Log into ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get bot token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Install yq if needed
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
+          sudo add-apt-repository ppa:rmescandon/yq
+          sudo apt update
+          sudo apt install yq -y
+
+      - name: Check out Manifest Repo
+        uses: actions/checkout@v4
+        with:
+          repository: department-of-veterans-affairs/vsp-infra-application-manifests
+          token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          fetch-depth: 1
+          path: vsp-infra-application-manifests
+          ref: refs/heads/main
+
+      - name: Update vets-api image and version name in Manifest repo for parent helm
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
+        run: |
+          cd vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
+          envs=( ${{ needs.prepare-values.outputs.environments }} )
+          for env in ${envs[*]};
+          do
+            yq e -i '(."vets-api".image.tag) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_GIT_COMMIT_SHA").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_GIT_COMMIT_SHA").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_GIT_COMMIT_SHA").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+          done
+          git diff
+
+      - name: Add and Commit file
+        uses: EndBug/add-and-commit@v9
+        with:
+          new_branch: main
+          add: "*"
+          cwd: vsp-infra-application-manifests/apps
+          author_name: va-vsp-bot
+          author_email: devops@va.gov
+          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}} : ${{ inputs.commit_sha }}."

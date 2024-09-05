@@ -25,6 +25,7 @@ module SignIn
         iat: access_token.created_time.to_i,
         session_handle: access_token.session_handle,
         refresh_token_hash: access_token.refresh_token_hash,
+        device_secret_hash: access_token.device_secret_hash,
         parent_refresh_token_hash: access_token.parent_refresh_token_hash,
         anti_csrf_token: access_token.anti_csrf_token,
         last_regeneration_time: access_token.last_regeneration_time.to_i,

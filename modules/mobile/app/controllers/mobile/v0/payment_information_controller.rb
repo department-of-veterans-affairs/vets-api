@@ -22,13 +22,14 @@ module Mobile
 
       def index
         payment_information = if lighthouse?
-                                lighthouse_adapter.parse(lighthouse_service.get_payment_info)
+                                data = lighthouse_service.get_payment_info
+                                adapted_data = lighthouse_adapter.parse(data, current_user.uuid)
+                                Mobile::V0::PaymentInformation.new(adapted_data)
                               else
-                                evss_proxy.get_payment_information
+                                data = evss_proxy.get_payment_information
+                                Mobile::V0::PaymentInformation.legacy_create_from_upstream(data, current_user.uuid)
                               end
-        render json: Mobile::V0::PaymentInformationSerializer.new(@current_user,
-                                                                  payment_information.payment_account,
-                                                                  payment_information.control_information)
+        render json: Mobile::V0::PaymentInformationSerializer.new(payment_information)
       end
 
       def update
@@ -36,28 +37,29 @@ module Mobile
 
         payment_information = if lighthouse?
                                 begin
-                                  lighthouse_adapter.parse(lighthouse_service.update_payment_info(pay_info))
+                                  data = lighthouse_service.update_payment_info(pay_info)
+                                  adapted_data = lighthouse_adapter.parse(data, current_user.uuid)
+                                  Mobile::V0::PaymentInformation.new(adapted_data)
                                 rescue Common::Exceptions::BaseError => e
                                   error = { status: e.status_code, body: e.errors.first }
                                   lh_error_response = Mobile::V0::Adapters::LighthouseDirectDepositError.parse(error)
                                 end
                               else
-                                evss_proxy.update_payment_information(pay_info)
+                                data = evss_proxy.update_payment_information(pay_info)
+                                Mobile::V0::PaymentInformation.legacy_create_from_upstream(data, current_user.uuid)
                               end
 
         if lh_error_response
           render status: lh_error_response.status, json: lh_error_response.body
         else
-          render json: Mobile::V0::PaymentInformationSerializer.new(@current_user,
-                                                                    payment_information.payment_account,
-                                                                    payment_information.control_information)
+          render json: Mobile::V0::PaymentInformationSerializer.new(payment_information)
         end
       end
 
       private
 
       def evss_proxy
-        @evss_proxy ||= Mobile::V0::PaymentInformation::Proxy.new(@current_user)
+        @evss_proxy ||= Mobile::V0::LegacyPaymentInformation::Proxy.new(@current_user)
       end
 
       def evss_ppiu_params
@@ -104,7 +106,7 @@ module Mobile
       end
 
       def send_lighthouse_confirmation_email
-        VANotifyDdEmailJob.send_to_emails(@current_user.all_emails, :comp_and_pen)
+        VANotifyDdEmailJob.send_to_emails(@current_user.all_emails, 'comp_and_pen')
       end
     end
   end

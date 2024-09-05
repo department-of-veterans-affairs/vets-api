@@ -5,12 +5,12 @@ module Veteran
     class OtherAccreditedRepresentativesController < BaseAccreditedRepresentativesController
       before_action :verify_type
 
-      PERMITTED_TYPE = %w[attorney].freeze
+      PERMITTED_TYPE = %w[claim_agents attorney].freeze
 
       private
 
       def serializer_class
-        'Veteran::Accreditation::BaseRepresentativeSerializer'.constantize
+        Veteran::Accreditation::BaseRepresentativeSerializer
       end
 
       def representative_query

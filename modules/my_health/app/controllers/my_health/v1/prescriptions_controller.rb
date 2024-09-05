@@ -4,6 +4,7 @@ module MyHealth
   module V1
     class PrescriptionsController < RxController
       include Filterable
+      include MyHealth::PrescriptionHelper::Filtering
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
       # @param refill_status - one refill status to filter on
@@ -14,22 +15,15 @@ module MyHealth
       def index
         resource = collection_resource
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
-        sorting_key_primary = params[:sort]&.first
         resource.data = filter_non_va_meds(resource.data)
-        resource = if sorting_key_primary == 'prescription_name'
-                     sort_by_prescription_name(resource)
-                   elsif sorting_key_primary == '-dispensed_date'
-                     last_refill_date_filter(resource)
-                   else
-                     resource.sort(params[:sort])
-                   end
+        resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: PrescriptionDetailsSerializer,
-               meta: resource.metadata
+
+        options = { meta: resource.metadata }
+        options[:links] = pagination_links(resource) if is_using_pagination
+        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
 
       def show
@@ -37,14 +31,35 @@ module MyHealth
         resource = client.get_rx_details(id)
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
-        render json: resource,
-               serializer: PrescriptionDetailsSerializer,
-               meta: resource.metadata
+        options = { meta: resource.metadata }
+        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource, options)
       end
 
       def refill
         client.post_refill_rx(params[:id])
         head :no_content
+      end
+
+      def refill_prescriptions
+        ids = params[:ids]
+        successful_ids = []
+        failed_ids = []
+        ids.each do |id|
+          client.post_refill_rx(id)
+          successful_ids << id
+        rescue => e
+          puts "Error refilling prescription with ID #{id}: #{e.message}"
+          failed_ids << id
+        end
+        render json: { successful_ids:, failed_ids: }
+      end
+
+      def list_refillable_prescriptions
+        resource = collection_resource
+        resource.data = filter_data_by_refill_and_renew(resource.data)
+
+        options = { meta: resource.metadata }
+        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
 
       def get_prescription_image
@@ -113,40 +128,6 @@ module MyHealth
         when 'active'
           client.get_active_rxs_with_details
         end
-      end
-
-      def filter_non_va_meds(data)
-        data.reject { |item| item[:prescription_source] == 'NV' && item[:disp_status] != 'Active: Non-VA' }
-      end
-
-      def last_refill_date_filter(resource)
-        sorted_data = resource.data.sort_by { |r| r[:sorted_dispensed_date] }.reverse
-        sort_metadata = {
-          'dispensed_date' => 'DESC',
-          'prescription_name' => 'ASC'
-        }
-        new_metadata = resource.metadata.merge('sort' => sort_metadata)
-        Common::Collection.new(PrescriptionDetails, data: sorted_data, metadata: new_metadata)
-      end
-
-      def sort_by_prescription_name(resource)
-        sorted_data = resource.data.sort_by do |item|
-          sorting_key_primary = if item.disp_status == 'Active: Non-VA' && !item.prescription_name
-                                  item.orderable_item
-                                elsif !item.prescription_name.nil?
-                                  item.prescription_name
-                                else
-                                  '~'
-                                end
-          sorting_key_secondary = item.sorted_dispensed_date
-          [sorting_key_primary, sorting_key_secondary]
-        end
-        sort_metadata = {
-          'prescription_name' => 'ASC',
-          'dispensed_date' => 'ASC'
-        }
-        new_metadata = resource.metadata.merge('sort' => sort_metadata)
-        Common::Collection.new(PrescriptionDetails, data: sorted_data, metadata: new_metadata)
       end
     end
   end

@@ -17,6 +17,7 @@ module Avs
     attribute :diagnoses, Array
     attribute :vitals, Array
     attribute :orders, Array
+    attribute :procedures, Array
     attribute :immunizations, Array
     attribute :appointments, Array
     attribute :patient_instructions, String
@@ -27,10 +28,12 @@ module Avs
     attribute :primary_care_team_members, Array
     attribute :problems, Array
     attribute :clinical_reminders, Array
+    attribute :clinical_services, Array
     attribute :allergies_reactions, Object
     attribute :clinic_medications, Array
     attribute :va_medications, Array
     attribute :nonva_medications, Array
+    attribute :med_changes_summary, Object
     attribute :lab_results, Array
     attribute :radiology_reports1_yr, String
     attribute :discrete_data, Object
@@ -46,6 +49,7 @@ module Avs
       self.meta = {
         generated_date: data['generatedDate'],
         station_no: data.dig('data', 'header', 'stationNo'),
+        page_header: sanitize_html(data.dig('data', 'header', 'pageHeader')),
         time_zone: data.dig('data', 'header', 'timeZone')
       }
       self.patient_info = {
@@ -54,6 +58,16 @@ module Avs
     end
 
     private
+
+    def sanitize_html(html)
+      if html
+        Sanitize.fragment(html, Sanitize::Config.merge(Sanitize::Config::BASIC,
+                                                       elements: [],
+                                                       whitespace_elements: {
+                                                         'div' => { before: '', after: "\n" }
+                                                       })).strip
+      end
+    end
 
     def set_attributes(data)
       data.each_key do |key|

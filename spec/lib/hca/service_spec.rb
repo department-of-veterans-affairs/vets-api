@@ -27,6 +27,10 @@ describe HCA::Service do
   let(:current_user) { FactoryBot.build(:user, :loa3, icn: nil) }
 
   describe '#submit_form' do
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
     it 'doesnt convert validation error to another error' do
       error = HCA::SOAPParser::ValidationError
       expect(service.send(:connection)).to receive(:post).and_raise(error)
@@ -34,6 +38,23 @@ describe HCA::Service do
       expect do
         service.submit_form(build(:health_care_application).parsed_form)
       end.to raise_error(error)
+
+      expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
+                                                        'Body size of 12.5 KB with 0 attachment(s)')
+    end
+
+    context 'logs submission payload size' do
+      it 'works', run_at: 'Wed, 16 Mar 2022 20:01:14 GMT' do
+        VCR.use_cassette(
+          'hca/short_form',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
+          expect(result[:success]).to eq(true)
+          expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
+                                                            'Body size of 5.16 KB with 0 attachment(s)')
+        end
+      end
     end
 
     it 'increments statsd' do
@@ -122,6 +143,20 @@ describe HCA::Service do
       end
     end
 
+    context 'submitting tera questions' do
+      it 'works', run_at: 'Fri, 23 Feb 2024 19:47:28 GMT' do
+        VCR.use_cassette(
+          'hca/tera',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          form = get_fixture('hca/tera')
+          expect(HealthCareApplication.new(form: form.to_json).valid?).to eq(true)
+          result = HCA::Service.new.submit_form(form)
+          expect(result[:success]).to eq(true)
+        end
+      end
+    end
+
     context 'submitting short form' do
       it 'works', run_at: 'Wed, 16 Mar 2022 20:01:14 GMT' do
         VCR.use_cassette(
@@ -147,18 +182,23 @@ describe HCA::Service do
     end
 
     context 'submitting with attachment' do
-      it 'works', run_at: 'Mon, 28 Mar 2022 20:27:06 GMT' do
+      it 'works', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
         VCR.use_cassette(
           'hca/submit_with_attachment',
           VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
           result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
           expect(result[:success]).to eq(true)
+          expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
+                                                            'Body size of 16 KB with 2 attachment(s)')
+          expect(Rails.logger).to have_received(:info).with(
+            'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
+          )
         end
       end
 
       context 'with a non-pdf attachment' do
-        it 'works', run_at: 'Mon, 28 Mar 2022 20:43:21 GMT' do
+        it 'works', run_at: 'Wed, 17 Jul 2024 18:04:51 GMT' do
           hca_attachment = build(:hca_attachment)
           hca_attachment.set_file_data!(
             Rack::Test::UploadedFile.new(
@@ -225,7 +265,7 @@ describe HCA::Service do
           response = subject.health_check
           expect(response).to eq(
             formSubmissionId: ::HCA::Configuration::HEALTH_CHECK_ID,
-            timestamp: '2016-12-12T08:06:08.423-06:00'
+            timestamp: '2024-08-20T11:38:44.535-05:00'
           )
         end
       end

@@ -21,6 +21,24 @@ describe V2::Lorota::RedisClient do
   let(:redis_expiry_time) { 12.hours }
   let(:retry_attempt_expiry) { 7.days }
 
+  let(:uuid) { '755f64db-336f-4614-a3eb-15f732d48de1' }
+  let(:patient_icn) { '2113957154V785237' }
+  let(:mobile_phone) { '7141234567' }
+  let(:station_number) { '500' }
+  let(:patient_cell_phone) { '1234567890' }
+  let(:facility_type) { 'abc' }
+
+  let(:appointment_identifiers) do
+    {
+      data: {
+        id: uuid,
+        type: :appointment_identifier,
+        attributes: { patientDFN: '123', stationNo: station_number, icn: patient_icn, mobilePhone: mobile_phone,
+                      patientCellPhone: patient_cell_phone, facilityType: facility_type }
+      }
+    }
+  end
+
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
 
@@ -170,6 +188,46 @@ describe V2::Lorota::RedisClient do
         namespace: 'check-in-lorota-v2-cache'
       )
       expect(val).to eq(retry_count)
+    end
+  end
+
+  describe '#icn' do
+    context 'when cache does not exist' do
+      it 'returns nil' do
+        expect(redis_client.icn(uuid:)).to eq(nil)
+      end
+    end
+
+    context 'when cache exists' do
+      before do
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: redis_expiry_time
+        )
+      end
+
+      it 'returns the cached value' do
+        expect(redis_client.icn(uuid:)).to eq(patient_icn)
+      end
+    end
+
+    context 'when cache has expired' do
+      before do
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: redis_expiry_time
+        )
+      end
+
+      it 'returns nil' do
+        Timecop.travel(redis_expiry_time.from_now) do
+          expect(redis_client.icn(uuid:)).to eq(nil)
+        end
+      end
     end
   end
 end

@@ -5,8 +5,8 @@ require 'rx/medications_client'
 
 module MyHealth
   class RxController < ApplicationController
-    include ActionController::Serialization
     include MyHealth::MHVControllerConcerns
+    include JsonApiPaginationLinks
     service_tag 'mhv-medications'
 
     protected

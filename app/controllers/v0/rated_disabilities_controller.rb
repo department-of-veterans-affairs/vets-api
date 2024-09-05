@@ -15,17 +15,23 @@ module V0
         remove_inactive_ratings!(response['data']['attributes']['individual_ratings'])
       end
 
+      # LH returns the ICN of the Veteran in the data.id field
+      # We want to scrub it out before sending to the FE
+      response['data']['id'] = ''
+
       render json: response
     end
 
     private
 
-    def remove_inactive_ratings!(ratings)
-      ratings.select! { |rating| active?(rating) }
+    def active?(rating)
+      end_date = rating['rating_end_date']
+
+      end_date.nil? || Date.parse(end_date).future?
     end
 
-    def active?(rating)
-      rating['rating_end_date'].nil?
+    def remove_inactive_ratings!(ratings)
+      ratings.select! { |rating| active?(rating) }
     end
 
     def service

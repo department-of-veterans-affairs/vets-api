@@ -71,9 +71,7 @@ describe AppealsApi::CentralMailUpdater do
 
   context 'when central mail response is unsuccessful' do
     before do
-      allow(faraday_response).to receive(:success?).and_return(false)
-      allow(faraday_response).to receive(:body).and_return('error body')
-      allow(faraday_response).to receive(:status).and_return('error status')
+      allow(faraday_response).to receive_messages(success?: false, body: 'error body', status: 'error status')
     end
 
     # rubocop:disable RSpec/SubjectStub

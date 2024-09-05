@@ -1179,22 +1179,6 @@ RSpec.describe User, type: :model do
       end
     end
 
-    describe '#inherited_proof_verified' do
-      context 'when Inherited Proof Verified User Account exists and matches current user_account' do
-        let!(:inherited_proof_verified) { create(:inherited_proof_verified_user_account, user_account:) }
-
-        it 'returns true' do
-          expect(user.inherited_proof_verified).to be true
-        end
-      end
-
-      context 'when no Inherited Proof Verified User Account is found' do
-        it 'returns false' do
-          expect(user.inherited_proof_verified).to be false
-        end
-      end
-    end
-
     describe '#credential_lock' do
       context 'when the user has a UserVerification' do
         let(:user) { build(:user, :loa3, icn: user_account.icn) }
@@ -1223,6 +1207,35 @@ RSpec.describe User, type: :model do
         it 'returns nil' do
           expect(user.credential_lock).to eq(nil)
         end
+      end
+    end
+  end
+
+  describe '#onboarding' do
+    let(:user) { create(:user) }
+
+    before do
+      Flipper.enable(:veteran_onboarding_beta_flow, user)
+      Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
+      create(:user_verification, idme_uuid: user.idme_uuid)
+    end
+
+    context "when feature toggle is enabled, show onboarding flow depending on user's preferences" do
+      it 'show_onboarding_flow_on_login returns true when flag is enabled and display_onboarding_flow is true' do
+        expect(user.show_onboarding_flow_on_login).to be true
+      end
+
+      it 'show_onboarding_flow_on_login returns false when flag is enabled but display_onboarding_flow is false' do
+        user.onboarding.display_onboarding_flow = false
+        expect(user.show_onboarding_flow_on_login).to be false
+      end
+    end
+
+    context 'when feature toggle is disabled, never show onboarding flow' do
+      it 'show_onboarding_flow_on_login returns false when flag is disabled, even if display_onboarding_flow is true' do
+        Flipper.disable(:veteran_onboarding_beta_flow)
+        Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
+        expect(user.show_onboarding_flow_on_login).to be_falsey
       end
     end
   end

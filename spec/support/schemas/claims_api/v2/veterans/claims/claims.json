@@ -48,6 +48,21 @@
                     "type": "string",
                     "description": "The date that the claim changed to its current phase",
                     "example": "2017-10-18"
+                  },
+                  "phaseType": {
+                  "type": "string",
+                  "enum": [
+                    "CLAIM_RECEIVED",
+                    "UNDER_REVIEW",
+                    "GATHERING_OF_EVIDENCE",
+                    "REVIEW_OF_EVIDENCE",
+                    "PREPARATION_FOR_DECISION",
+                    "PENDING_DECISION_APPROVAL",
+                    "PREPARATION_FOR_NOTIFICATION",
+                    "COMPLETE"
+                  ],
+                  "description": "The most current phase for the claim",
+                  "example": "UNDER_REVIEW"
                   }
                 }
               },

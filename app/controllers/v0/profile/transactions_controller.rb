@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_profile/contact_information/service'
+require 'va_profile/v2/contact_information/service'
 
 module V0
   module Profile
@@ -18,8 +19,7 @@ module V0
 
       def statuses
         transactions = AsyncTransaction::VAProfile::Base.refresh_transaction_statuses(@current_user, service)
-
-        render json: transactions, each_serializer: AsyncTransaction::BaseSerializer
+        render json: AsyncTransaction::BaseSerializer.new(transactions).serializable_hash
       end
 
       private
@@ -29,7 +29,11 @@ module V0
       end
 
       def service
-        VAProfile::ContactInformation::Service.new(@current_user)
+        if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+          VAProfile::V2::ContactInformation::Service.new @current_user
+        else
+          VAProfile::ContactInformation::Service.new @current_user
+        end
       end
     end
   end

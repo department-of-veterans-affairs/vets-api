@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'lib/vets-api/commands/test'
+require 'rake'
+
+VALID_OPTIONS = ['--parallel', '--coverage', '--log'].freeze
+
+# rubocop:disable Metrics/MethodLength
+def help_message
+  puts <<~HELP
+    Usage:
+      bin/test [options] [files|folders]
+    Options:
+      --help, -h            Display help message for 'setup'
+      --ci                  Run the tests exactly like the CI (requires docker to be setup)
+      --parallel         Run the tests in parallel
+      --coverage            Include test coverage report
+      --log                 Output pending/failures to log/rspec.log instead of STDOUT
+    Examples:
+      bin/test spec modules
+      bin/test --parallel spec/models/account_spec.rb
+      bin/test spec/models/account_spec.rb
+      bin/test --parallel --log spec/models/account_spec.rb
+      bin/test --ci
+    Defaults:
+      - Only run tests in './spec' folder
+      - No parallel
+      - No coverage or log
+    Notes:
+      If you are running the full suite, it's recommended to run with `--log`
+      to more easily see the pending and failing examples
+  HELP
+end
+# rubocop:enable Metrics/MethodLength
+
+def ci_test_command
+  docker = 'docker compose run web bash -c'
+  runtime_variables = 'CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true'
+  spec = "bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'"
+  "#{docker} \"#{runtime_variables} #{spec}\""
+end
+
+# rubocop:disable Rails/NegateInclude
+invalid_options = ARGV.select { |o| o.start_with?('--', '-') && !VALID_OPTIONS.include?(o) }
+# rubocop:enable Rails/NegateInclude
+if ARGV.include?('--help') || ARGV.include?('-h')
+  help_message
+elsif ARGV.include?('--ci')
+  puts 'WARNING: --ci ignores all other options and inputs'
+  puts "running: #{ci_test_command}"
+  system(ci_test_command)
+elsif invalid_options.empty?
+  VetsApi::Commands::Test.run(ARGV)
+else
+  puts "Invalid option(s) found: #{invalid_options.join(', ')}"
+  help_message
+end

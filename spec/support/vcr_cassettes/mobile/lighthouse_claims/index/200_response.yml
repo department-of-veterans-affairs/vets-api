@@ -86,11 +86,14 @@ http_interactions:
                        "id":"600383363",
                        "type":"claim",
                        "attributes":{
+                          "baseEndProductCode": "400",
                           "claimDate":"2022-09-27",
                           "claimPhaseDates":{
-                             "phaseChangeDate":"2022-09-30"
+                             "phaseChangeDate":"2022-09-30",
+                             "phaseType": "REVIEW_OF_EVIDENCE"
                           },
                           "claimType":"Compensation",
+                          "claimTypeCode": "400PREDSCHRG",
                           "closeDate":null,
                           "decisionLetterSent":false,
                           "developmentLetterSent":true,
@@ -105,11 +108,14 @@ http_interactions:
                        "id":"600323434",
                        "type":"claim",
                        "attributes":{
+                          "baseEndProductCode": "400",
                           "claimDate":"2022-07-19",
                           "claimPhaseDates":{
-                             "phaseChangeDate":"2022-08-10"
+                             "phaseChangeDate":"2022-08-10",
+                             "phaseType": "CLAIM_RECEIVED"
                           },
                           "claimType":"Compensation",
+                          "claimTypeCode": "400PREDSCHRG",
                           "closeDate":null,
                           "decisionLetterSent":true,
                           "developmentLetterSent":false,
@@ -124,11 +130,14 @@ http_interactions:
                        "id":"600323223",
                        "type":"claim",
                        "attributes":{
+                          "baseEndProductCode": "400",
                           "claimDate":"2022-05-01",
                           "claimPhaseDates":{
-                             "phaseChangeDate":"2022-08-10"
+                             "phaseChangeDate":"2022-08-10",
+                             "phaseType": "REVIEW_OF_EVIDENCE"
                           },
                           "claimType":"Compensation",
+                          "claimTypeCode": "400PREDSCHRG",
                           "closeDate":null,
                           "decisionLetterSent":false,
                           "developmentLetterSent":false,
@@ -143,11 +152,14 @@ http_interactions:
                        "id":"600323403",
                        "type":"claim",
                        "attributes":{
+                          "baseEndProductCode": "400",
                           "claimDate":"2022-01-01",
                           "claimPhaseDates":{
-                             "phaseChangeDate":"2022-08-10"
+                             "phaseChangeDate":"2022-08-10",
+                             "phaseType": "CLAIM_RECEIVED"
                           },
                           "claimType":"Compensation",
+                          "claimTypeCode": "400PREDSCHRG",
                           "closeDate":null,
                           "decisionLetterSent":false,
                           "developmentLetterSent":false,
@@ -162,11 +174,14 @@ http_interactions:
                        "id":"600229968",
                        "type":"claim",
                        "attributes":{
+                          "baseEndProductCode": "400",
                           "claimDate":"2021-03-22",
                           "claimPhaseDates":{
-                             "phaseChangeDate":"2021-03-22"
+                             "phaseChangeDate":"2021-03-22",
+                             "phaseType": "COMPLETE"
                           },
                           "claimType":"Compensation",
+                          "claimTypeCode": "400PREDSCHRG",
                           "closeDate":"2023-03-22",
                           "decisionLetterSent":false,
                           "developmentLetterSent":false,
@@ -181,11 +196,14 @@ http_interactions:
                        "id":"600229123",
                        "type":"claim",
                        "attributes":{
+                          "baseEndProductCode": "400",
                           "claimDate":null,
                           "claimPhaseDates":{
-                             "phaseChangeDate":null
+                             "phaseChangeDate":null,
+                             "phaseType": "COMPLETE"
                           },
                           "claimType":"Compensation",
+                          "claimTypeCode": "400PREDSCHRG",
                           "closeDate":"2023-03-22",
                           "decisionLetterSent":false,
                           "developmentLetterSent":false,

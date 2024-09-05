@@ -6,10 +6,9 @@ module V0
       resource = client.get_folders(@current_user.uuid, use_cache? || true)
       resource = resource.paginate(**pagination_params)
 
-      render json: resource.data,
-             serializer: CollectionSerializer,
-             each_serializer: FolderSerializer,
-             meta: resource.metadata
+      links = pagination_links(resource)
+      options = { meta: resource.metadata, links: }
+      render json: FolderSerializer.new(resource.data, options)
     end
 
     def show
@@ -17,9 +16,8 @@ module V0
       resource = client.get_folder(id)
       raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
-      render json: resource,
-             serializer: FolderSerializer,
-             meta: resource.metadata
+      options = { meta: resource.metadata }
+      render json: FolderSerializer.new(resource, options)
     end
 
     def create
@@ -28,10 +26,8 @@ module V0
 
       resource = client.post_create_folder(folder.name)
 
-      render json: resource,
-             serializer: FolderSerializer,
-             meta: resource.metadata,
-             status: :created
+      options = { meta: resource.metadata }
+      render json: FolderSerializer.new(resource, options), status: :created
     end
 
     def destroy

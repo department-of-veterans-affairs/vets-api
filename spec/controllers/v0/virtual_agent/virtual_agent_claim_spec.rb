@@ -19,14 +19,9 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
   end
 
   describe 'GET /v0/virtual_agent/claim' do
-    let!(:claim) do
-      FactoryBot.create(:evss_claim, id: 11, evss_id: 600_118_854,
-                                     user_uuid: user.uuid)
-      FactoryBot.create(:evss_claim, id: 22, evss_id: 600_118_855,
-                                     user_uuid: user.uuid)
-      FactoryBot.create(:evss_claim, id: 33, evss_id: 600_118_851,
-                                     user_uuid: user.uuid)
-    end
+    let!(:claim1) { FactoryBot.create(:evss_claim, evss_id: 600_118_854, user_uuid: user.uuid) }
+    let!(:claim2) { FactoryBot.create(:evss_claim, evss_id: 600_118_855, user_uuid: user.uuid) }
+    let!(:claim3) { FactoryBot.create(:evss_claim, evss_id: 600_118_851, user_uuid: user.uuid) }
 
     it 'returns information on multiple open compensation claims in descending chronological order by updated date' do
       sign_in_as(user)
@@ -41,13 +36,13 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
         EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
       end
       VCR.use_cassette('evss/claims/claim_with_docs1') do
-        EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, 11)
+        EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, claim1.id)
       end
       VCR.use_cassette('evss/claims/claim_with_docs2') do
-        EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, 22)
+        EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, claim2.id)
       end
       VCR.use_cassette('evss/claims/claim_with_docs3') do
-        EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, 33)
+        EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, claim3.id)
       end
 
       get '/v0/virtual_agent/claim'
@@ -81,10 +76,7 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
     end
 
     describe 'for a single claim' do
-      let!(:claim) do
-        FactoryBot.create(:evss_claim, id: 3, evss_id: 600_118_851,
-                                       user_uuid: user.uuid)
-      end
+      let!(:claim) { FactoryBot.create(:evss_claim, evss_id: 600_118_851, user_uuid: user.uuid) }
 
       it 'returns information on single open compensation claim' do
         sign_in_as(user)
@@ -99,7 +91,7 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
           EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
         end
         VCR.use_cassette('evss/claims/claim_with_docs1') do
-          EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, 3)
+          EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, claim.id)
         end
 
         get '/v0/virtual_agent/claim'
@@ -183,10 +175,7 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
     end
 
     describe 'for a user who has non-compensation and compensation claims' do
-      let!(:claim) do
-        FactoryBot.create(:evss_claim, id: 3, evss_id: 600_114_693,
-                                       user_uuid: user.uuid)
-      end
+      let!(:claim) { FactoryBot.create(:evss_claim, evss_id: 600_114_693, user_uuid: user.uuid) }
 
       it 'returns information when there is a more recent non-compensation open claim' do
         sign_in_as(user)
@@ -200,7 +189,7 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
           EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
         end
         VCR.use_cassette('evss/claims/claim_with_docs4') do
-          EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, 3)
+          EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, claim.id)
         end
 
         get '/v0/virtual_agent/claim'
@@ -218,10 +207,7 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
   end
 
   describe 'GET /v0/virtual_agent/claim/{EVSS_ID}' do
-    let!(:claim) do
-      FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255,
-                                     user_uuid: user.uuid)
-    end
+    let!(:claim) { FactoryBot.create(:evss_claim, evss_id: 600_117_255, user_uuid: user.uuid) }
 
     it 'returns claims details of a specific claim' do
       sign_in_as(user)

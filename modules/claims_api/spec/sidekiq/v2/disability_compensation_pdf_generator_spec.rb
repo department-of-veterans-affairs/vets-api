@@ -64,7 +64,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
           expect(errored_claim.status).to eq('errored')
 
           service.perform(errored_claim.id, middle_initial)
-
           errored_claim.reload
           expect(errored_claim.status).to eq('pending')
         end
@@ -93,6 +92,32 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
           expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
           expect(service).not_to receive(:start_docker_container_job)
         end
+      end
+    end
+  end
+
+  describe 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred from the PDF Generator Job'
+      msg = { 'args' => [claim.id, ''],
+              'class' => subject,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: claim.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: error_msg
+        )
+      end
+    end
+  end
+
+  describe 'when an errored job has a time limitation' do
+    it 'logs to the ClaimsApi Logger' do
+      described_class.within_sidekiq_retries_exhausted_block do
+        expect(subject).to be_expired_in 48.hours
       end
     end
   end

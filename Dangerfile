@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ostruct'
+
 module VSPDanger
   HEAD_SHA = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
   BASE_SHA = 'origin/master'
@@ -12,7 +14,8 @@ module VSPDanger
         SidekiqEnterpriseGaurantor.new.run,
         ChangeLimiter.new.run,
         MigrationIsolator.new.run,
-        CodeownersCheck.new.run
+        CodeownersCheck.new.run,
+        GemfileLockPlatformChecker.new.run
       ]
     end
 
@@ -48,9 +51,9 @@ module VSPDanger
 
   class ChangeLimiter
     EXCLUSIONS = %w[
-      *.csv *.json *.tsv *.txt Gemfile.lock app/swagger modules/mobile/docs spec/fixtures/ spec/support/vcr_cassettes/
+      *.csv *.json *.tsv *.txt *.md Gemfile.lock app/swagger modules/mobile/docs spec/fixtures/ spec/support/vcr_cassettes/
       modules/mobile/spec/support/vcr_cassettes/ db/seeds modules/vaos/app/docs modules/meb_api/app/docs
-      modules/appeals_api/app/swagger/ *.bru
+      modules/appeals_api/app/swagger/ *.bru *.pdf
     ].freeze
     PR_SIZE = { recommended: 200, maximum: 500 }.freeze
 
@@ -116,13 +119,34 @@ module VSPDanger
     end
 
     def changes
-      @changes ||= `#{files_command}`.split("\n").map do |line|
-        insertions, deletions, file_name = line.split "\t"
+      @changes ||= `#{files_command}`.split("\n").map do |file_changes|
+        insertions, deletions, file_name = file_changes.split "\t"
         insertions = insertions.to_i
         deletions = deletions.to_i
 
         next if insertions.zero? && deletions.zero?   # Skip unchanged files
-        next if insertions == '-' && deletions == '-' # Skip Binary files
+        next if insertions == '-' && deletions == '-' # Skip Binary files (should be caught by `to_i` and `zero?`)
+
+        # rename or copy - use the reported changes from earlier instead - `file_name` will not exist
+        # eg: {lib => modules/pensions/lib}/pdf_fill/forms/va21p527ez.rb
+        unless file_name.include?(' => ')
+          lines = file_git_diff(file_name).split("\n")
+          changed = { '+' => 0, '-' => 0 }
+          lines.each do |line|
+            next if (line =~ /^(\+[^\+]|-[^\-])/).nil? # Only changed lines, exclude metadata
+
+            action = line[0].to_s
+            clean_line = line[1..].strip # Remove leading '+' or '-'
+
+            # Skip comments and empty lines
+            next if clean_line.start_with?('#') || clean_line.empty?
+
+            changed[action] += 1
+          end
+
+          # the actual count of changed lines
+          insertions, deletions = changed.values
+        end
 
         OpenStruct.new(
           total_changes: insertions + deletions,
@@ -139,6 +163,10 @@ module VSPDanger
 
     def exclusions
       EXCLUSIONS.map { |exclusion| "':!#{exclusion}'" }.join ' '
+    end
+
+    def file_git_diff(file_name)
+      `git diff #{BASE_SHA}...#{HEAD_SHA} -- #{file_name}`
     end
   end
 
@@ -190,11 +218,11 @@ module VSPDanger
   end
 
   class MigrationIsolator
+    DB_PATHS = ['db/migrate/', 'db/schema.rb'].freeze
+    SEEDS_PATHS = ['db/seeds/', 'db/seeds.rb'].freeze
+
     def run
-      if files.any? { |file| file.include? 'db/' } && !files.all? { |file| file.include? 'db/' }
-        # one of the changed files was in 'db/' but not all of them
-        return Result.error(error_message)
-      end
+      return Result.error(error_message) if db_files.any? && app_files.any?
 
       Result.success('All set.')
     end
@@ -203,7 +231,7 @@ module VSPDanger
 
     def error_message
       <<~EMSG
-        Modified files in `db/` should be the only files checked into this PR.
+        Modified files in `db/migrate` or `db/schema.rb` changes should be the only files checked into this PR.
 
         <details>
           <summary>File Summary</summary>
@@ -217,24 +245,96 @@ module VSPDanger
           - #{app_files.join "\n- "}
         </details>
 
-        Database migrations do not run automatically with vets-api deployments. Application code must always be
-        backwards compatible with the DB, both before and after migrations have been run. For more info:
+        Application code must always be backwards compatible with the DB,
+        both before and after migrations have been run. For more info:
 
-        - [`vets-api` Database Migrations](https://depo-platform-documentation.scrollhelp.site/developer-docs/Vets-API-Database-Migrations.689832034.html)
-        - [`vets-api` Deployment Process](https://depo-platform-documentation.scrollhelp.site/infrastructure/Deployment-process.590970953.html)
+        - [vets-api Database Migrations](https://depo-platform-documentation.scrollhelp.site/developer-docs/Vets-API-Database-Migrations.689832034.html)
       EMSG
     end
 
     def app_files
-      files - db_files
+      files - db_files - seed_files
     end
 
     def db_files
-      files.select { |file| file.include? 'db/' }
+      files.select { |file| DB_PATHS.any? { |db_path| file.include?(db_path) } }
+    end
+
+    def seed_files
+      files.select { |file| SEEDS_PATHS.any? { |seed_path| file.include?(seed_path) } }
     end
 
     def files
       @files ||= `git diff #{BASE_SHA}...#{HEAD_SHA} --name-only`.split("\n")
+    end
+  end
+
+  class GemfileLockPlatformChecker
+    def run
+      errors = []
+
+      errors << "#{ruby_error_message}\n#{ruby_resolution_message}" if ruby_platform_removed?
+
+      if (darwin_platform = darwin_platform_added)
+        errors << "#{darwin_error_message(darwin_platform)}\n#{darwin_resolution_message(darwin_platform)}"
+      end
+
+      return Result.success('Gemfile.lock platform checks passed.') if errors.empty?
+
+      errors << redownload_message
+
+      Result.error(errors.join("\n\n"))
+    end
+
+    private
+
+    def ruby_platform_removed?
+      !platforms_section.include?('ruby')
+    end
+
+    def darwin_platform_added
+      platforms_section[/.*-darwin-\d+/]
+    end
+
+    def ruby_error_message
+      "You've removed the `ruby` platform from the Gemfile.lock! You must restore it before merging this PR."
+    end
+
+    def ruby_resolution_message
+      <<~TEXT
+        ```
+        bundle lock --add-platform ruby
+        ```
+      TEXT
+    end
+
+    def darwin_error_message(darwin_platform)
+      "You've added a Darwin platform to the Gemfile.lock: `#{darwin_platform.strip}`. You must remove it before merging this PR."
+    end
+
+    def darwin_resolution_message(darwin_platform)
+      <<~TEXT
+        ```
+        bundle lock --remove-platform #{darwin_platform.strip}
+        ```
+      TEXT
+    end
+
+    def redownload_message
+      <<~TEXT
+        Redownload your gems after making the necessary changes:
+        ```
+        bundle install --redownload
+        ```
+      TEXT
+    end
+
+    def platforms_section
+      @platforms_section ||= gemfile_lock.match(/^PLATFORMS$(.*?)^\n/m)[1]
+    end
+
+    def gemfile_lock
+      File.read('Gemfile.lock')
     end
   end
 

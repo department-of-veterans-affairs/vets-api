@@ -4,14 +4,15 @@ require 'rails_helper'
 require 'carma/client/mule_soft_configuration'
 
 describe CARMA::Client::MuleSoftConfiguration do
+  subject { described_class.instance }
+
   describe 'id and secret' do
     before do
-      allow(Settings.form_10_10cg.carma.mulesoft).to receive(:client_id).and_return(fake_id)
-      allow(Settings.form_10_10cg.carma.mulesoft).to receive(:client_secret).and_return(fake_secret)
+      allow(Settings.form_10_10cg.carma.mulesoft).to receive_messages(client_id: fake_id, client_secret: fake_secret)
     end
 
     context 'have values' do
-      subject { described_class.instance.base_request_headers }
+      subject { super().base_request_headers }
 
       let(:fake_id) { 'BEEFCAFE1234' }
       let(:fake_secret) { 'C0FFEEFACE4321' }
@@ -26,7 +27,7 @@ describe CARMA::Client::MuleSoftConfiguration do
   end
 
   describe 'timeout' do
-    subject { described_class.instance.timeout }
+    subject { super().timeout }
 
     context 'has a configured value' do
       before do
@@ -49,9 +50,19 @@ describe CARMA::Client::MuleSoftConfiguration do
     end
   end
 
-  describe 'base_path' do
-    subject { described_class.instance }
+  describe 'settings' do
+    let(:expected_settings) { 'my_fake_settings_value' }
 
+    before do
+      allow(Settings.form_10_10cg.carma).to receive(:mulesoft).and_return(expected_settings)
+    end
+
+    it 'returns expected settings path' do
+      expect(subject.settings).to eq(expected_settings)
+    end
+  end
+
+  describe 'base_path' do
     let(:host) { 'https://www.somesite.gov' }
 
     before do

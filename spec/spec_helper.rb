@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'fakeredis/rspec'
 require 'i18n'
 require 'support/spec_builders'
 require 'support/matchers'
@@ -15,6 +14,7 @@ require 'pundit/rspec'
 require 'rspec/its'
 require 'rspec/retry'
 require 'aasm/rspec'
+require 'mock_redis'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -25,8 +25,6 @@ unless ENV['NOCOVERAGE']
 
     add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'app/models/in_progress_disability_compensation_form.rb'
-    add_filter 'app/serializers/appeal_serializer.rb'
-    add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/apps/configuration.rb'
     add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
@@ -46,10 +44,12 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/claims_api/app/swagger/*'
     add_filter 'modules/health_quest/lib/health_quest.rb'
     add_filter 'modules/health_quest/lib/health_quest/engine.rb'
+    add_filter 'modules/pensions/app/swagger'
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
 
     # Modules
+    add_group 'AccreditedRepresentativePortal', 'modules/accredited_representative_portal/'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'AppsApi', 'modules/apps_api'
     add_group 'AskVAApi', 'modules/ask_va_api/'
@@ -61,12 +61,15 @@ unless ENV['NOCOVERAGE']
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'IvcChampva', 'modules/ivc_champva/'
+    add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
     add_group 'HealthQuest', 'modules/health_quest/'
     add_group 'IncomeLimits', 'modules/income_limits/'
     add_group 'MebApi', 'modules/meb_api/'
     add_group 'Mobile', 'modules/mobile/'
     add_group 'MyHealth', 'modules/my_health/'
+    add_group 'Pensions', 'modules/pensions/'
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
     add_group 'Services', 'app/services'
@@ -80,6 +83,7 @@ unless ENV['NOCOVERAGE']
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
+    add_group 'Pensions', 'modules/pensions/'
     # End Modules
 
     if ENV['CI']
@@ -118,6 +122,7 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 
   config.filter_run focus: true
+  config.filter_run_excluding skip: true unless ENV['PENDING'] == 'true'
   config.run_all_when_everything_filtered = true
   config.example_status_persistence_file_path = 'tmp/specs.txt'
 
@@ -189,5 +194,9 @@ RSpec.configure do |config|
 
   config.after do
     Timecop.return
+  end
+
+  config.before do
+    $redis.flushdb
   end
 end

@@ -1,0 +1,241 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VDC/VeteranRepresentativeService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8" ?>
+        <env:Envelope
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          xmlns:tns="http://gov.va.vba.benefits.vdc/services"
+          xmlns:data="http://gov.va.vba.benefits.vdc/data"
+        >
+          <env:Header>
+            <wsse:Security
+              xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+            >
+              <wsse:UsernameToken>
+                <wsse:Username>VAgovAPI</wsse:Username>
+              </wsse:UsernameToken>
+              <vaws:VaServiceHeaders
+                xmlns:vaws="http://vbawebservices.vba.va.gov/vawss"
+              >
+                <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+                <vaws:STN_ID>281</vaws:STN_ID>
+                <vaws:applicationName>VAgovAPI</vaws:applicationName>
+                <vaws:ExternalUid>xUid</vaws:ExternalUid>
+                <vaws:ExternalKey>xKey</vaws:ExternalKey>
+              </vaws:VaServiceHeaders>
+            </wsse:Security>
+          </env:Header>
+          <env:Body>
+            <tns:readAllVeteranRepresentatives>
+              <data:CorpPtcpntIdFormTypeCode>
+                <formTypeCode>21-22</formTypeCode>
+                <veteranCorpPtcpntId>600082980</veteranCorpPtcpntId>
+              </data:CorpPtcpntIdFormTypeCode>
+            </tns:readAllVeteranRepresentatives>
+          </env:Body>
+        </env:Envelope>
+    headers:
+      User-Agent:
+      - <FARADAY_VERSION>
+      Soapaction:
+      - '"readAllVeteranRepresentatives"'
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 25 Jun 2024 16:45:03 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version='1.0' encoding='UTF-8' ?>
+        <S:Envelope
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"
+        >
+          <env:Header />
+          <S:Body>
+            <ns0:readAllVeteranRepresentativesResponse
+              xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
+              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
+              xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
+            >
+              <ns2:VeteranRepresentativeReturnList>
+                <addressLine1>VVA, Alabama Dept of Vets. Affairs</addressLine1>
+                <addressLine2 />
+                <addressLine3 />
+                <changeAddressAuth>true</changeAddressAuth>
+                <city>Linden</city>
+                <claimantRelationship />
+                <formTypeCode>21-22</formTypeCode>
+                <insuranceNumbers>123456789</insuranceNumbers>
+                <limitationAlcohol>false</limitationAlcohol>
+                <limitationDrugAbuse>false</limitationDrugAbuse>
+                <limitationHIV>false</limitationHIV>
+                <limitationSCA>false</limitationSCA>
+                <organizationName>AMERICAN LEGION</organizationName>
+                <otherServiceBranch />
+                <phoneNumber>3342952243</phoneNumber>
+                <poaCode>074</poaCode>
+                <postalCode>36748</postalCode>
+                <procId>3848768</procId>
+                <representativeFirstName />
+                <representativeLastName />
+                <representativeLawFirmOrAgencyName />
+                <representativeTitle />
+                <representativeType>Recognized Veterans Service Organization</representativeType>
+                <section7332Auth>true</section7332Auth>
+                <serviceBranch />
+                <serviceNumber />
+                <state>AL</state>
+                <submittedDate>2023-01-31T15:35:55-06:00</submittedDate>
+                <vdcStatus>Submitted</vdcStatus>
+                <veteranPtcpntId>174691</veteranPtcpntId>
+                <acceptedBy />
+                <claimantFirstName />
+                <claimantLastName />
+                <claimantMiddleName />
+                <declinedBy />
+                <declinedReason />
+                <secondaryStatus>Pending</secondaryStatus>
+                <veteranFirstName>JEROME</veteranFirstName>
+                <veteranLastName>STEWART</veteranLastName>
+                <veteranMiddleName>ALLEN</veteranMiddleName>
+                <veteranSSN>796098273</veteranSSN>
+                <veteranVAFileNumber>796098273</veteranVAFileNumber>
+              </ns2:VeteranRepresentativeReturnList>
+            </ns0:readAllVeteranRepresentativesResponse>
+          </S:Body>
+        </S:Envelope>
+  recorded_at: Thu, 13 Jun 2024 19:31:03 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VDC/ManageRepresentativeService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8" ?>
+        <env:Envelope
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          xmlns:tns="http://gov.va.vba.benefits.vdc/services"
+          xmlns:data="http://gov.va.vba.benefits.vdc/data"
+        >
+          <env:Header>
+            <wsse:Security
+              xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+            >
+              <wsse:UsernameToken>
+                <wsse:Username>VAgovAPI</wsse:Username>
+              </wsse:UsernameToken>
+              <vaws:VaServiceHeaders
+                xmlns:vaws="http://vbawebservices.vba.va.gov/vawss"
+              >
+                <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+                <vaws:STN_ID>281</vaws:STN_ID>
+                <vaws:applicationName>VAgovAPI</vaws:applicationName>
+                <vaws:ExternalUid>xUid</vaws:ExternalUid>
+                <vaws:ExternalKey>xKey</vaws:ExternalKey>
+              </vaws:VaServiceHeaders>
+            </wsse:Security>
+          </env:Header>
+          <env:Body>
+            <tns:updatePOARequest>
+              <data:POARequestUpdate>
+                <procId>3848768</procId>
+                <secondaryStatus>Accepted</secondaryStatus>
+                <declinedReason />
+                <dateRequestActioned>2024-06-13T19:31:03Z</dateRequestActioned>
+                <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
+                <VSOUserFirstName>BEATRICE</VSOUserFirstName>
+                <VSOUserLastName>STROUD</VSOUserLastName>
+              </data:POARequestUpdate>
+            </tns:updatePOARequest>
+          </env:Body>
+        </env:Envelope>
+    headers:
+      User-Agent:
+      - <FARADAY_VERSION>
+      Soapaction:
+      - '"updatePOARequest"'
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 25 Jun 2024 16:45:04 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version='1.0' encoding='UTF-8' ?>
+        <S:Envelope
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"
+        >
+          <env:Header />
+          <S:Body>
+            <ns0:updatePOARequestResponse
+              xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault"
+              xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
+              xmlns:ns2="http://gov.va.vba.benefits.vdc/data"
+            >
+              <ns2:POARequestUpdate>
+                <VSOUserEmail>Beatrice.Stroud44@va.gov</VSOUserEmail>
+                <VSOUserFirstName>BEATRICE</VSOUserFirstName>
+                <VSOUserLastName>STROUD</VSOUserLastName>
+                <dateRequestActioned>2024-06-13T14:31:03-05:00</dateRequestActioned>
+                <declinedReason />
+                <procId>3848768</procId>
+                <secondaryStatus>ACC</secondaryStatus>
+              </ns2:POARequestUpdate>
+            </ns0:updatePOARequestResponse>
+          </S:Body>
+        </S:Envelope>
+  recorded_at: Thu, 13 Jun 2024 19:31:03 GMT
+recorded_with: VCR 6.2.0

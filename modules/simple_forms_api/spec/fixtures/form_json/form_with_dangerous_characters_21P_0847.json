@@ -30,5 +30,6 @@
     "relationship_to_veteran": "other",
     "otherRelationship_to_veteran": "friend of a friend"
   },
-  "additional_information": "Lots of \"extra\" stuff here"
+  "additional_information": "Lots of \"extra\" stuff here",
+  "statement_of_truth_signature": "John Veteran"
 }

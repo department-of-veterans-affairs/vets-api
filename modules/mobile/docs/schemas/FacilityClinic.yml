@@ -10,6 +10,7 @@ properties:
   id:
     type: string
     example: "12345"
+    description: Upstream identifier
   attributes:
     type: object
     required:

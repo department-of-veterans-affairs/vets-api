@@ -2,64 +2,55 @@
 
 module Vye
   class Vye::UserInfo < ApplicationRecord
-    class Vye::UserInfo::DobSerializer
-      def self.load(v)
-        Date.parse(v) if v.present?
-      end
-
-      def self.dump(v)
-        v.to_s if v.present?
-      end
-    end
-
-    include GenDigest
+    include NeedsEnrollmentVerification
+    belongs_to :user_profile
+    belongs_to :bdn_clone
 
     has_many :address_changes, dependent: :destroy
     has_many :awards, dependent: :destroy
     has_many :direct_deposit_changes, dependent: :destroy
-    has_many :pending_documents, dependent: :destroy,
-                                 primary_key: :ssn_digest,
-                                 foreign_key: :ssn_digest,
-                                 inverse_of: :user_info
-    has_many :verifications, dependent: :destroy
+    has_many :queued_verifications, class_name: 'Verification', inverse_of: :user_info, dependent: :nullify
 
-    ENCRYPTED_ATTRIBUTES = %i[
-      address_line2 address_line3 address_line4 address_line5 address_line6 dob file_number full_name ssn stub_nm zip
-    ].freeze
+    scope :with_bdn_clone_active, -> { where(bdn_clone_active: true) }
+
+    delegate :icn, to: :user_profile, allow_nil: true
+    delegate :ssn, to: :mpi_profile, allow_nil: true
+    delegate :pending_documents, to: :user_profile
+    delegate :verifications, to: :user_profile
+    delegate :veteran_name, to: :backend_address
 
     has_kms_key
-    has_encrypted(*ENCRYPTED_ATTRIBUTES, key: :kms_key, **lockbox_options)
 
-    REQUIRED_ATTRIBUTES = [
-      *ENCRYPTED_ATTRIBUTES,
-      *%i[
-        cert_issue_date date_last_certified del_date fac_code indicator
-        mr_status payment_amt rem_ent rpo_code ssn_digest suffix
-      ].freeze
-    ].freeze
+    has_encrypted(:dob, :file_number, :stub_nm, key: :kms_key, **lockbox_options)
 
-    validates(*REQUIRED_ATTRIBUTES, presence: true)
+    serialize :dob, coder: DateAttributeSerializer
 
-    serialize :dob, DobSerializer
+    validates(
+      :fac_code, :indicator, :mr_status, :rem_ent, :rpo_code, :stub_nm,
+      presence: true
+    )
 
-    before_validation :digest_ssn
-
-    def self.find_and_update_icn(user:) =
-      if user.blank?
-        nil
-      else
-        find_by(icn: user.icn) || find_from_digested_ssn(user.ssn).tap do |user_info|
-          user_info&.update!(icn: user.icn)
-        end
-      end
-
-    def self.find_from_digested_ssn(ssn) =
-      find_by(ssn_digest: gen_digest(ssn))
+    def backend_address = address_changes.backend.first
+    def latest_address = address_changes.latest.first
+    def zip_code = backend_address&.zip_code&.slice(0, 5)
+    def queued_verifications? = queued_verifications.exists?
 
     private
 
-    def digest_ssn
-      self.ssn_digest = gen_digest(ssn) if ssn_changed?
+    def mpi_profile
+      return @mpi_profile if defined?(@mpi_profile)
+
+      @mpi_profile =
+        if icn.blank?
+          nil
+        else
+          MPI::Service
+            .new
+            .find_profile_by_identifier(
+              identifier_type: 'ICN',
+              identifier: icn
+            )&.profile
+        end
     end
   end
 end

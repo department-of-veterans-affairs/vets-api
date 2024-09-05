@@ -9,10 +9,6 @@ properties:
       - claims
       - appeals
   errorDetails:
-    type: array
-    items:
-      type: array
-      description: Array of arrays from failing upstream services. Used for debugging only.
-      items:
-        type: object
-        description: error details object from failing upstream service. Used for debugging only.
+    type: string
+    description: List of errors encountered concatenated with semicolon delimiter.
+    example: Error 1 details; Error 2 details

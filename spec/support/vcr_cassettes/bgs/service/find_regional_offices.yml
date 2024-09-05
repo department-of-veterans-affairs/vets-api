@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/StandardDataWebServiceBean/StandardDataWebService?WSDL
+    uri: <BGS_BASE_URL>/StandardDataWebServiceBean/StandardDataWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -876,7 +876,7 @@ http_interactions:
   recorded_at: Wed, 28 Oct 2020 19:13:47 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/StandardDataWebServiceBean/StandardDataWebService
+    uri: <BGS_BASE_URL>/StandardDataWebServiceBean/StandardDataWebService
     body:
       encoding: UTF-8
       string: |-

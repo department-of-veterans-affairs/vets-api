@@ -75,14 +75,6 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  describe '#carma_client' do
-    it 'gets a mulesoft client' do
-      service = described_class.new(build(:caregivers_assistance_claim))
-
-      expect(service.send(:carma_client)).to be_an_instance_of(CARMA::Client::MuleSoftClient)
-    end
-  end
-
   describe '::collect_attachments' do
     let(:claim_pdf_path) { 'tmp/10-10cg-application.pdf' }
     let(:poa_attachment_path) { 'tmp/poa_file.jpg' }
@@ -443,7 +435,7 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'with claim pdf' do
-      let(:claim_pdf_path) { Common::FileHelpers.generate_temp_file('foo', 'claim.pdf') }
+      let(:claim_pdf_path) { Common::FileHelpers.generate_clamav_temp_file('foo', 'claim.pdf') }
 
       after do
         File.delete(claim_pdf_path)
@@ -461,7 +453,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'with poa pdf' do
-        let(:poa_pdf_path) { Common::FileHelpers.generate_temp_file('foo', 'poa.pdf') }
+        let(:poa_pdf_path) { Common::FileHelpers.generate_clamav_temp_file('foo', 'poa.pdf') }
 
         after do
           File.delete(poa_pdf_path)
@@ -488,42 +480,70 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#process_claim_v2!' do
-    it 'submits to mulesoft', run_at: 'Thu, 04 Aug 2022 20:44:29 GMT' do
-      allow(SecureRandom).to receive(:uuid).and_return('884f6e51-027f-4cf1-a164-b95efbfb59f2')
-      claim_with_mpi_veteran.save!
-      allow(claim_with_mpi_veteran).to receive(:id).and_return(2)
+    subject do
+      service.process_claim_v2!
+    end
 
-      allow(SecureRandom).to receive(:uuid).and_return('6484da2a-dd58-4227-ac76-9dab3e2f1a98')
+    let(:service) { described_class.new(claim_with_mpi_veteran) }
+    let(:mule_soft_client) { instance_double(CARMA::Client::MuleSoftClient) }
+    let(:mule_soft_payload) { { fake_payload: 'value' } }
 
-      VCR.use_cassette('mulesoft/submit_v2_no_poa', VCR::MATCH_EVERYTHING) do
-        res = described_class.new(claim_with_mpi_veteran).process_claim_v2!
-        expect(res['data']['carmacase']['id']).to eq('aB93R0000000erZSAQ')
+    before do
+      profile = double(:profile, icn: 'something')
+      profile_response = double(:mpi_response, ok?: true, profile:)
+      allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(profile_response)
+
+      from_claim_result = double(:from_claim_result)
+      allow(CARMA::Models::Submission).to receive(:from_claim).and_return(from_claim_result)
+      allow(from_claim_result).to receive(:to_request_payload).and_return(mule_soft_payload)
+
+      allow(CARMA::Client::MuleSoftClient).to receive(:new).and_return(mule_soft_client)
+    end
+
+    context 'success' do
+      before do
+        allow(mule_soft_client).to receive(:create_submission_v2)
+      end
+
+      it 'submits to mulesoft' do
+        subject
+        expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
+      end
+
+      context 'with a poa attachment' do
+        it 'submits to mulesoft' do
+          claim_with_mpi_veteran.parsed_form['poaAttachmentId'] = create(:form1010cg_attachment, :with_attachment).guid
+
+          expect_any_instance_of(Form1010cg::Attachment).to receive(:to_local_file).and_return(
+            'spec/fixtures/files/doctors-note.jpg'
+          )
+
+          allow(File).to receive(:delete).with('spec/fixtures/files/doctors-note.jpg')
+
+          subject
+
+          expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
+          expect(File).to have_received(:delete).with('spec/fixtures/files/doctors-note.jpg')
+        end
       end
     end
 
-    context 'with a poa attachment' do
-      it 'submits to mulesoft', run_at: 'Thu, 04 Aug 2022 20:37:35 GMT' do
-        allow(SecureRandom).to receive(:uuid).and_return('6e53ebe5-b1d8-4228-bc3b-f05dce4184fe')
-        claim_with_mpi_veteran
+    context 'handles errors' do
+      let(:exception) { Common::Client::Errors::ClientError.new(message: 'something happened') }
 
-        allow(SecureRandom).to receive(:uuid).and_return('ada9fedd-8196-4bb6-95fc-91139e395b57')
-        claim_with_mpi_veteran.parsed_form['poaAttachmentId'] = create(:form1010cg_attachment, :with_attachment).guid
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(mule_soft_client).to receive(:create_submission_v2).and_raise(exception)
+      end
 
-        claim_with_mpi_veteran.save!
-        allow(claim_with_mpi_veteran).to receive(:id).and_return(4)
+      it 'logs claim_guid for any exceptions and raises error' do
+        expect(service).to receive(:log_exception_to_sentry)
+          .with(exception, {
+                  form: '10-10CG',
+                  claim_guid: claim_with_mpi_veteran.guid
+                })
 
-        allow(SecureRandom).to receive(:uuid).and_return('6c777349-0824-43e1-b2aa-3a94cd8d0a30')
-
-        expect_any_instance_of(Form1010cg::Attachment).to receive(:to_local_file).and_return(
-          'spec/fixtures/files/doctors-note.jpg'
-        )
-
-        allow(File).to receive(:delete).with('spec/fixtures/files/doctors-note.jpg')
-
-        VCR.use_cassette('mulesoft/submit_v2', VCR::MATCH_EVERYTHING) do
-          res = described_class.new(claim_with_mpi_veteran).process_claim_v2!
-          expect(res['data']['carmacase']['id']).to eq('aB93R0000000es3SAA')
-        end
+        expect { subject }.to raise_error(exception)
       end
     end
   end

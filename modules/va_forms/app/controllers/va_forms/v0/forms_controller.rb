@@ -20,31 +20,26 @@ module VAForms
       end
 
       def search_by_form_number
-        render json: Form.search_by_form_number(params[:query]),
-               serializer: ActiveModel::Serializer::CollectionSerializer,
-               each_serializer: VAForms::FormListSerializer
+        forms = Form.search_by_form_number(params[:query])
+        render json: VAForms::FormListSerializer.new(forms)
       end
 
       def search_by_text(query)
-        render json: Form.search(query),
-               serializer: ActiveModel::Serializer::CollectionSerializer,
-               each_serializer: VAForms::FormListSerializer
+        forms = Form.search(query)
+        render json: VAForms::FormListSerializer.new(forms)
       end
 
       def return_all
-        render json: Form.return_all,
-               serializer: ActiveModel::Serializer::CollectionSerializer,
-               each_serializer: VAForms::FormListSerializer
+        forms = Form.return_all
+        render json: VAForms::FormListSerializer.new(forms)
       end
 
       def show
         forms = Form.find_by form_name: params[:id]
         if forms.present?
-          render json: forms,
-                 serializer: VAForms::FormDetailSerializer
+          render json: VAForms::FormDetailSerializer.new(forms)
         else
-          render json: { errors: [{ detail: 'Form not found' }] },
-                 status: :not_found
+          render json: { errors: [{ detail: 'Form not found' }] }, status: :not_found
         end
       end
     end

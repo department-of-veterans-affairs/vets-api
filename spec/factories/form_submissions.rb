@@ -17,5 +17,9 @@ FactoryBot.define do
     trait :failure do
       form_submission_attempts { create_list(:form_submission_attempt, 1, :failure) }
     end
+
+    trait :stale do
+      form_submission_attempts { create_list(:form_submission_attempt, 1, :stale) }
+    end
   end
 end

@@ -7,8 +7,12 @@ inherit_from:
 require:
   - rubocop-rails
   - rubocop-rspec
-  - rubocop-thread_safety
+  - rubocop-capybara
   - rubocop-factory_bot
+  - rubocop-rspec_rails
+  - rubocop-thread_safety
+  - './lib/rubocop/cops/ams_serializer.rb'
+
 
 AllCops:
   NewCops: disable
@@ -26,6 +30,7 @@ AllCops:
     - db/migrate/*.rb
     - 'vendor/**/*'
     - modules/**/db/migrate/*.rb
+    - 'tmp/**/*'
 
 Style/Documentation:
   Enabled: false
@@ -79,10 +84,13 @@ Layout/LineLength:
 
 Rails:
   Enabled: true
+  Exclude:
+    - 'Dangerfile'
 
 Rails/Output:
   Exclude:
     - 'lib/tasks/**/*'
+    - 'bin/lib/vets-api/**/*'
 
 Metrics/MethodLength:
   Max: 20
@@ -90,14 +98,11 @@ Metrics/MethodLength:
     - 'spec/support/form1010cg_helpers/build_claim_data_for.rb'
     - 'spec/simplecov_helper.rb'
     - 'app/sidekiq/education_form/create_daily_spool_files.rb'
+    - 'lib/map/security_token/service.rb'
     - 'Dangerfile'
 
 Metrics/ClassLength:
   Max: 400
-
-# removing rule because get_session implies HTTP GET, and informs method
-Naming/AccessorMethodName:
-  Enabled: false
 
 Rails/LexicallyScopedActionFilter:
   Exclude:
@@ -193,10 +198,6 @@ RSpec/SpecFilePathFormat:
 RSpec/SpecFilePathSuffix:
   Enabled: true
 
-# This can be false if we have RSpec/SpecFilePathSuffix and RSpec/SpecFilePathFormat enabled.
-RSpec/FilePath:
-  Enabled: false
-
 # Was determined that using described_class makes the code less readable.
 RSpec/DescribedClass:
   Enabled: false
@@ -224,7 +225,24 @@ RSpec/BeforeAfterAll:
   Enabled: false
 
 # Determined to be too benign and/or numerous to justify changing
+RSpec/ExpectInLet:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/IndexedLet:
+  Enabled: false
+
+RSpec/RemoveConst:
+    Exclude:
+      - 'spec/sidekiq/kms_key_rotation/batch_initiator_job_spec.rb'
+      - 'modules/vba_documents/spec/mailers/unsuccessful_report_mailer_spec.rb'
+
+# Determined to be too benign and/or numerous to justify changing
 RSpec/ContextWording:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
+RSpec/MissingExpectationTargetMethod:
   Enabled: false
 
 # Determined to be too benign and/or numerous to justify changing
@@ -289,7 +307,6 @@ RSpec/MultipleDescribes:
   Exclude:
     - 'spec/sidekiq/evss/document_upload_spec.rb'
     - 'spec/sidekiq/evss/request_decision_spec.rb'
-    - 'spec/lib/emis/veteran_status_service_spec.rb'
     - 'spec/requests/swagger_spec.rb'
     - 'spec/sidekiq/cypress_viewport_updater/existing_github_file_spec.rb'
 
@@ -335,8 +352,6 @@ RSpec/SubjectStub:
     - 'spec/lib/evss/disability_compensation_form/data_translation_spec.rb'
     - 'spec/lib/mpi/service_spec.rb'
     - 'spec/lib/sm/client/folders_spec.rb'
-    - 'spec/models/emis_redis/military_information_spec.rb'
-    - 'spec/models/emis_redis/military_information_v2_spec.rb'
     - 'spec/models/session_spec.rb'
     - 'spec/services/evss_claim_service_spec.rb'
     - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
@@ -354,3 +369,6 @@ Lint/EmptyBlock:
 
 Layout/EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
+
+Cops/AmsSerializer:
+  Enabled: true

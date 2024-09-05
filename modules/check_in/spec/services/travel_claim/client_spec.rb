@@ -10,7 +10,8 @@ describe TravelClaim::Client do
 
   before do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_increase_timeout).and_return(true)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_btsss_ssm_urls_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_api_v2_cutover').and_return(false)
   end
 
   describe '.build' do
@@ -182,6 +183,206 @@ describe TravelClaim::Client do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
 
         response = subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+
+    context 'when call to claims service times out' do
+      let(:resp) { Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408) }
+      let(:err_msg) { { message: 'BTSSS Timeout Error', uuid: } }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(Faraday::TimeoutError)
+      end
+
+      it 'logs message and raises exception' do
+        expect(Rails.logger).to receive(:error).with(err_msg)
+
+        response = subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+  end
+
+  describe '#claim_status' do
+    let(:token) { 'test-token' }
+    let(:patient_icn) { 'test-patient-icn' }
+    let(:start_range_date) { '2022-09-01' }
+    let(:end_range_date) { '2022-09-01' }
+
+    context 'when claims status returns a success response' do
+      let(:status_response) do
+        [
+          {
+            aptDateTime: '2022-09-01',
+            aptId: '7d53abcf-a916-ef11-aa8a-001cc83064a6',
+            aptSourceSystem: 'VISTA',
+            aptSourceSystemId: 'A;3240606.093;4204',
+            claimNum: 'TC2024061234567890',
+            claimStatus: 'ClaimSubmitted',
+            claimLastModDateTime: '2022-09-01',
+            facilityStationNum: '679'
+          }
+        ]
+      end
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(status_response)
+      end
+
+      it 'returns status response' do
+        expect(subject.claim_status(token:, patient_icn:, start_range_date:, end_range_date:)).to eq(status_response)
+      end
+    end
+
+    context 'when claims status returns an error response' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Internal server error' }, status: 500) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and returns original error' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+
+        response = subject.claim_status(token:, patient_icn:, start_range_date:, end_range_date:)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+
+    context 'when call to claims status times out' do
+      let(:resp) { Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408) }
+      let(:err_msg) { { message: 'BTSSS Timeout Error', uuid: } }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(Faraday::TimeoutError)
+      end
+
+      it 'logs message and returns an timeout error response' do
+        expect(Rails.logger).to receive(:error).with(err_msg)
+
+        response = subject.claim_status(token:, patient_icn:, start_range_date:, end_range_date:)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+  end
+
+  describe '#submit_claim_v2' do
+    let(:token) { 'test-token' }
+    let(:patient_identifier) { '123ABC456' }
+    let(:patient_identifier_type) { 'edipi' }
+    let(:appointment_date) { '2022-09-01' }
+    let(:opts) { { patient_identifier:, patient_identifier_type:, appointment_date: } }
+
+    context 'when claims service returns success response' do
+      let(:claim_response) do
+        {
+          value: {
+            claimNumber: 'TC202207000011666'
+          },
+          statusCode: 200
+        }
+      end
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(claim_response)
+      end
+
+      it 'returns claims number' do
+        expect(subject.submit_claim_v2(token, opts)).to eq(claim_response)
+      end
+    end
+
+    context 'when claims service returns a 500 error response' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Internal server error' }, status: 500) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and returns original error' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+
+        response = subject.submit_claim_v2(token, opts)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+
+    context 'when claims service returns a 400 error response' do
+      let(:resp) do
+        Faraday::Response.new(
+          body: { error: { currentDate: '[07/29/2022 01:05:41 PM]',
+                           message: '07/29/2022 : There were multiple appointments for that date' } }, status: 400
+        )
+      end
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and returns original error' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+
+        response = subject.submit_claim_v2(token, opts)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+
+    context 'when claims service returns a 401 error response' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Unauthorized' }, status: 401) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and returns original error' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+
+        response = subject.submit_claim_v2(token, opts)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+
+    context 'when claims service returns a 404 error response' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Not Found' }, status: 404) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and raises exception' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+
+        response = subject.submit_claim_v2(token, opts)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+
+    context 'when call to claims service times out' do
+      let(:resp) { Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408) }
+      let(:err_msg) { { message: 'BTSSS Timeout Error', uuid: } }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(Faraday::TimeoutError)
+      end
+
+      it 'logs message and raises exception' do
+        expect(Rails.logger).to receive(:error).with(err_msg)
+
+        response = subject.submit_claim_v2(token, opts)
         expect(response.status).to eq(resp.status)
         expect(response.body).to eq(resp.body)
       end

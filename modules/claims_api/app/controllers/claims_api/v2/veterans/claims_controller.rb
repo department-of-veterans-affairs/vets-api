@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
 require 'claims_api/bgs_claim_status_mapper'
-require 'claims_api/v2/mock_documents_service'
 
 module ClaimsApi
   module V2
     module Veterans
-      class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
+      class ClaimsController < ClaimsApi::V2::ApplicationController
+        include ClaimsApi::V2::ClaimsRequests::TrackedItems
+        include ClaimsApi::V2::ClaimsRequests::SupportingDocuments
+        include ClaimsApi::V2::ClaimsRequests::TrackedItemsAssistance
+        include ClaimsApi::V2::ClaimsRequests::ClaimValidation
+
         def index
           bgs_claims = find_bgs_claims!
 
@@ -38,42 +42,15 @@ module ClaimsApi
 
         private
 
-        def evss_docs_service
-          EVSS::DocumentsService.new(auth_headers)
-        end
-
         def bgs_phase_status_mapper
           ClaimsApi::BGSClaimStatusMapper.new
-        end
-
-        def validate_id_with_icn(bgs_claim, lighthouse_claim, request_icn)
-          if bgs_claim&.dig(:benefit_claim_details_dto).present?
-            clm_prtcpnt_vet_id = bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_vet_id)
-            clm_prtcpnt_clmnt_id = bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_clmant_id)
-          end
-
-          veteran_icn = if lighthouse_claim.present? && lighthouse_claim['veteran_icn'].present?
-                          lighthouse_claim['veteran_icn']
-                        end
-
-          if clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id) && veteran_icn != request_icn
-            raise ::Common::Exceptions::ResourceNotFound.new(
-              detail: 'Invalid claim ID for the veteran identified.'
-            )
-          end
-        end
-
-        def clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id)
-          return true if clm_prtcpnt_vet_id.nil? || clm_prtcpnt_clmnt_id.nil?
-
-          # if either of these is false then we have a match and can show the record
-          clm_prtcpnt_vet_id != target_veteran.participant_id && clm_prtcpnt_clmnt_id != target_veteran.participant_id
         end
 
         def generate_show_output(bgs_claim:, lighthouse_claim:) # rubocop:disable Metrics/MethodLength
           if lighthouse_claim.present? && bgs_claim.present?
             bgs_details = bgs_claim[:benefit_claim_details_dto]
             structure = build_claim_structure(
+              'show',
               data: bgs_details,
               lighthouse_id: lighthouse_claim.id,
               upstream_id: bgs_details[:benefit_claim_id]
@@ -86,14 +63,14 @@ module ClaimsApi
             }
           else
             bgs_details = bgs_claim[:benefit_claim_details_dto]
-            structure = build_claim_structure(data: bgs_details,
+            structure = build_claim_structure('show',
+                                              data: bgs_details,
                                               lighthouse_id: nil,
                                               upstream_id: bgs_details[:benefit_claim_id])
           end
           structure.merge!(errors: get_errors(lighthouse_claim))
           structure.merge!(supporting_documents: build_supporting_docs(bgs_claim))
           structure.merge!(tracked_items: map_bgs_tracked_items(bgs_claim))
-          structure.merge!(build_claim_phase_attributes(bgs_claim, 'show'))
         end
 
         def map_claims(bgs_claims:, lighthouse_claims:)
@@ -116,8 +93,8 @@ module ClaimsApi
           @unmatched_lighthouse_claims = @unmatched_lighthouse_claims.where.not(id: matching_claim.id) if matching_claim
 
           # We either want the ID or nil for the lighthouse_id
-          build_claim_structure(data: bgs_claim, lighthouse_id: matching_claim&.id,
-                                upstream_id: bgs_claim[:benefit_claim_id])
+          build_claim_structure('index', data: bgs_claim, lighthouse_id: matching_claim&.id,
+                                         upstream_id: bgs_claim[:benefit_claim_id])
         end
 
         def handle_remaining_lh_claims(mapped_claims, lighthouse_claims)
@@ -167,22 +144,16 @@ module ClaimsApi
           )
         end
 
-        def find_tracked_items!(claim_id)
-          return if claim_id.blank?
-
-          local_bgs_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
-        end
-
         def looking_for_lighthouse_claim?(claim_id:)
           claim_id.to_s.include?('-')
         end
 
-        def build_claim_structure(data:, lighthouse_id:, upstream_id:) # rubocop:disable Metrics/MethodLength
+        def build_claim_structure(view, data:, lighthouse_id:, upstream_id:) # rubocop:disable Metrics/MethodLength
           {
             base_end_prdct_type_cd: data[:base_end_prdct_type_cd],
             claim_date: date_present(data[:claim_dt]),
             claim_id: upstream_id,
-            claim_phase_dates: build_claim_phase_attributes(data, 'index'),
+            claim_phase_dates: build_claim_phase_attributes(data, view),
             claim_type_code: data[:bnft_claim_type_cd],
             claim_type: data[:claim_status_type],
             close_date: data[:claim_complete_dt].present? ? format_bgs_date(data[:claim_complete_dt]) : nil,
@@ -216,7 +187,7 @@ module ClaimsApi
         end
 
         def current_phase_back(data)
-          lc_status_array = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten
+          lc_status_array = [data&.dig(:bnft_claim_lc_status)].flatten
           return false if lc_status_array.nil?
 
           return false if lc_status_array.first&.dig(:phase_type_change_ind).nil?
@@ -228,13 +199,15 @@ module ClaimsApi
         end
 
         def latest_phase_type_change_indicator(data)
-          [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type_change_ind)
+          [data&.dig(:bnft_claim_lc_status)].flatten.first&.dig(:phase_type_change_ind)
         end
 
         def latest_phase_type(data)
-          return if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).nil?
-
-          latest = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type)
+          if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).present?
+            latest = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type)
+          elsif data&.dig(:bnft_claim_lc_status).present?
+            latest = [data&.dig(:bnft_claim_lc_status)].flatten.first&.dig(:phase_type)
+          end
           return bgs_phase_status_mapper.get_phase_type_from_dictionary(latest.downcase) unless latest.nil?
 
           indicator = latest_phase_type_change_indicator(data).split('')
@@ -261,12 +234,17 @@ module ClaimsApi
         end
 
         def get_bgs_phase_completed_dates(data)
-          lc_status_array =
-            [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.compact
-          return {} if lc_status_array.first.nil?
+          if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).present?
+            lc_status_array =
+              [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten&.compact
+          elsif data&.dig(:bnft_claim_lc_status).present?
+            lc_status_array =
+              [data&.dig(:bnft_claim_lc_status)].flatten&.compact
+          end
+          return {} if lc_status_array&.first&.nil?
 
-          max_completed_phase = lc_status_array.first[:phase_type_change_ind].split('').last
-          return {} if max_completed_phase.downcase.eql?('n')
+          max_completed_phase = lc_status_array&.first&.[](:phase_type_change_ind)&.split('')&.last
+          return {} if max_completed_phase&.downcase.eql?('n') || max_completed_phase.nil?
 
           {}.tap do |phase_date|
             lc_status_array.reverse.map do |phase|
@@ -280,19 +258,6 @@ module ClaimsApi
 
         def extract_date(bgs_details)
           bgs_details.is_a?(Array) ? bgs_details.first[:phase_chngd_dt] : bgs_details[:phase_chngd_dt]
-        end
-
-        ### called from inside of format_bgs_phase_date & format_bgs_phase_chng_dates
-        ### calls format_bgs_date
-        def date_present(date)
-          return unless date.is_a?(Date) || date.is_a?(String)
-
-          date.present? ? format_bgs_date(date) : nil
-        end
-
-        def format_bgs_date(phase_change_date)
-          d = Date.parse(phase_change_date.to_s)
-          d.strftime('%Y-%m-%d')
         end
 
         def format_bgs_phase_date(data)
@@ -323,12 +288,12 @@ module ClaimsApi
             return 'NO_STATUS_PROVIDED'
           end
 
-          phase_data = if data[:phase_type].present?
-                         data[:phase_type]
-                       elsif data[:bnft_claim_lc_status].present?
-                         data[:bnft_claim_lc_status]
-                       else
+          phase_data = if data[:claim_status] == 'CAN'
                          data[:claim_status]
+                       elsif data[:phase_type].present?
+                         data[:phase_type]
+                       else
+                         data[:bnft_claim_lc_status]
                        end
 
           return bgs_phase_status_mapper.name(phase_data) if phase_data.is_a?(String)
@@ -377,79 +342,11 @@ module ClaimsApi
           filed5103_waiver_ind.present? ? filed5103_waiver_ind.downcase == 'y' : false
         end
 
-        def map_bgs_tracked_items(bgs_claim)
-          return [] if bgs_claim.nil?
-
-          claim_id = bgs_claim.dig(:benefit_claim_details_dto, :benefit_claim_id)
-          return [] if claim_id.nil?
-
-          @tracked_items = find_tracked_items!(claim_id)
-
-          return [] if @tracked_items.blank?
-
-          @ebenefits_details = bgs_claim[:benefit_claim_details_dto]
-
-          (build_wwsnfy_items | build_wwd_items | build_wwr_items | build_no_longer_needed_items).sort_by do |list_item|
-            list_item[:id]
-          end
-        end
-
         def map_status(item_id, unique_status)
           if supporting_document?(item_id)
             'SUBMITTED_AWAITING_REVIEW'
           else
             unique_status
-          end
-        end
-
-        def build_wwsnfy_items
-          # wwsnfy What We Still Need From You
-          wwsnfy = [@ebenefits_details[:wwsnfy]].flatten.compact
-          return [] if wwsnfy.empty?
-
-          wwsnfy.map do |item|
-            status = map_status(item[:dvlpmt_item_id], 'NEEDED_FROM_YOU')
-
-            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item, wwsnfy: true)
-          end
-        end
-
-        def build_wwd_items
-          # wwd What We Still Need From Others
-          wwd = [@ebenefits_details[:wwd]].flatten.compact
-          return [] if wwd.empty?
-
-          wwd.map do |item|
-            status = map_status(item[:dvlpmt_item_id], 'NEEDED_FROM_OTHERS')
-
-            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item)
-          end
-        end
-
-        def build_wwr_items
-          # wwr What We Received From You and Others
-          wwr = [@ebenefits_details[:wwr]].flatten.compact
-          return [] if wwr.empty?
-
-          claim_status_type = [@ebenefits_details[:bnft_claim_lc_status]].flatten.first[:phase_type]
-
-          wwr.map do |item|
-            status = accepted?(claim_status_type) ? 'ACCEPTED' : 'INITIAL_REVIEW_COMPLETE'
-
-            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item)
-          end
-        end
-
-        def build_no_longer_needed_items
-          no_longer_needed = [@tracked_items].flatten.compact.select do |item|
-            item[:accept_dt].present? && item[:dvlpmt_tc] == 'CLMNTRQST'
-          end
-          return [] if no_longer_needed.empty?
-
-          no_longer_needed.map do |tracked_item|
-            status = 'NO_LONGER_REQUIRED'
-
-            build_tracked_item(tracked_item, status, {})
           end
         end
 
@@ -470,22 +367,6 @@ module ClaimsApi
           false
         end
 
-        def build_tracked_item(tracked_item, status, item, wwsnfy: false)
-          uploads_allowed = uploads_allowed?(status)
-          {
-            closed_date: date_present(tracked_item[:accept_dt]),
-            description: item[:items],
-            display_name: tracked_item[:short_nm],
-            overdue: overdue?(tracked_item, wwsnfy),
-            received_date: date_present(tracked_item[:receive_dt]),
-            requested_date: tracked_item_req_date(tracked_item, item),
-            status:,
-            suspense_date: date_present(tracked_item[:suspns_dt]),
-            id: tracked_item[:dvlpmt_item_id].to_i,
-            uploads_allowed:
-          }
-        end
-
         def supporting_document?(id)
           @supporting_documents.find { |doc| doc[:tracked_item_id] == id.to_i }.present?
         end
@@ -494,105 +375,23 @@ module ClaimsApi
           [@tracked_items].flatten.compact.find { |item| item[:dvlpmt_item_id] == id }
         end
 
-        def tracked_item_req_date(tracked_item, item)
-          date_present(item[:date_open] || tracked_item[:req_dt] || tracked_item[:create_dt])
-        end
-
-        def get_evss_documents(claim_id)
-          evss_docs_service.get_claim_documents(claim_id).body
-        rescue => e
-          claims_v2_logging('evss_doc_service', level: 'error',
-                                                message: "getting docs failed in claims controller with e.message: ' \
-                            '#{e.message}, rid: #{request.request_id}")
-          {}
-        end
-
-        # rubocop:disable Metrics/MethodLength
-        def build_supporting_docs(bgs_claim)
-          return [] if bgs_claim.nil?
-
-          @supporting_documents = []
-
-          docs = if benefits_documents_enabled?
-                   file_number = local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
-
-                   if file_number.nil?
-                     claims_v2_logging('benefits_documents',
-                                       message: "calling benefits documents api for claim_id: #{params[:id]} " \
-                                                'returned a nil file number in claims controller v2')
-
-                     return []
-                   end
-
-                   claims_v2_logging('benefits_documents',
-                                     message: "calling benefits documents api for claim_id #{params[:id]} " \
-                                              'in claims controller v2')
-                   supporting_docs_list = benefits_doc_api.search(params[:id],
-                                                                  file_number)&.dig(:data)
-                   # add with_indifferent_access so ['documents'] works below
-                   # we can remove when EVSS is gone and access it via it's symbol
-                   supporting_docs_list.with_indifferent_access if supporting_docs_list.present?
-                 elsif sandbox?
-                   { documents: ClaimsApi::V2::MockDocumentsService.new.generate_documents }.with_indifferent_access
-                 else
-                   get_evss_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id])
-                 end
-          return [] if docs.nil? || docs&.dig('documents').blank?
-
-          @supporting_documents = docs['documents'].map do |doc|
-            doc = doc.transform_keys(&:underscore) if benefits_documents_enabled?
-            upload_date = upload_date(doc['upload_date']) || bd_upload_date(doc['uploaded_date_time'])
-            {
-              document_id: doc['document_id'],
-              document_type_label: doc['document_type_label'],
-              original_file_name: doc['original_file_name'],
-              tracked_item_id: doc['tracked_item_id'],
-              upload_date:
-            }
-          end
-        end
-        # rubocop:enable Metrics/MethodLength
-
-        # duplicating temporarily to bd_upload_date. remove when EVSS call is gone
-        def upload_date(upload_date)
-          return if upload_date.nil?
-
-          Time.zone.at(upload_date / 1000).strftime('%Y-%m-%d')
-        end
-
-        def bd_upload_date(upload_date)
-          return if upload_date.nil?
-
-          Date.parse(upload_date).strftime('%Y-%m-%d')
-        end
-
         def build_claim_phase_attributes(bgs_claim, view)
           return {} if bgs_claim.nil?
 
           case view
           when 'show'
             {
-              claim_phase_dates:
-                {
-                  phase_change_date: format_bgs_phase_chng_dates(bgs_claim[:benefit_claim_details_dto]),
-                  current_phase_back: current_phase_back(bgs_claim),
-                  latest_phase_type: latest_phase_type(bgs_claim),
-                  previous_phases: get_bgs_phase_completed_dates(bgs_claim)
-                }
+              phase_change_date: format_bgs_phase_chng_dates(bgs_claim),
+              current_phase_back: current_phase_back(bgs_claim),
+              latest_phase_type: latest_phase_type(bgs_claim),
+              previous_phases: get_bgs_phase_completed_dates(bgs_claim)
             }
           when 'index'
             {
-              phase_change_date: format_bgs_phase_chng_dates(bgs_claim)
+              phase_change_date: format_bgs_phase_chng_dates(bgs_claim),
+              phase_type: bgs_phase_status_mapper.get_phase_type_from_dictionary(bgs_claim[:phase_type].downcase)
             }
           end
-        end
-
-        def sandbox?
-          Settings.claims_api.claims_error_reporting.environment_name&.downcase.eql? 'sandbox'
-        end
-
-        def benefits_documents_enabled?
-          Flipper.enabled? :claims_status_v2_lh_benefits_docs_service_enabled
         end
       end
     end

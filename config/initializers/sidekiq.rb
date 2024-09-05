@@ -13,6 +13,7 @@ Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
 
   Sidekiq.configure_server do |config|
+    config.health_check('0.0.0.0:7433') if config.respond_to? :health_check
     config.redis = REDIS_CONFIG[:sidekiq]
     # super_fetch! is only available in sidekiq-pro and will cause
     #   "undefined method `super_fetch!'"
@@ -59,6 +60,8 @@ Rails.application.reloader.to_prepare do
     end
 
     # Remove the default error handler
-    config.error_handlers.delete_if { |handler| handler.is_a?(Sidekiq::ExceptionHandler::Logger) }
+    config.error_handlers.delete(Sidekiq::Config::ERROR_HANDLER)
   end
+
+  Sidekiq.strict_args!(false)
 end

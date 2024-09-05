@@ -3,6 +3,7 @@
     "type": "form/526",
     "attributes": {
       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+      "claimNotes": "Some things that are important to know, and are not included in any other place.",
       "veteranIdentification": {
         "serviceNumber": "123456789",
         "veteranNumber": {
@@ -41,10 +42,12 @@
         }
       },
       "homeless": {
+        "isCurrentlyHomeless": true,
         "currentlyHomeless": {
           "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
           "otherDescription": "ABCDEFGHIJKLM"
         },
+        "isAtRiskOfBecomingHomeless": false,
         "pointOfContact": "john stewart",
         "pointOfContactNumber": {
           "telephone": "5555555555",
@@ -174,7 +177,7 @@
         },
         "federalActivation": {
           "activationDate": "2023-10-01",
-          "anticipatedSeparationDate": "2023-10-31"
+          "anticipatedSeparationDate": "2024-10-31"
         },
         "confinements": [
           {
@@ -193,7 +196,7 @@
         "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
         "militaryRetiredPay": {
           "branchOfService": "Army",
-          "monthlyAmount": 840.75
+          "monthlyAmount": 840
         },
         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
         "favorMilitaryRetiredPay": false,
@@ -201,7 +204,7 @@
         "separationSeverancePay": {
           "datePaymentReceived": "2022-03-12",
           "branchOfService": "Naval Academy",
-          "preTaxAmountReceived": 379.25
+          "preTaxAmountReceived": 379
         },
         "favorTrainingPay": true
       },

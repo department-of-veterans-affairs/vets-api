@@ -9,10 +9,9 @@ module V0
 
     def index
       claims, synchronized = service.all
-      render json: claims,
-             serializer: ActiveModel::Serializer::CollectionSerializer,
-             each_serializer: EVSSClaimListSerializer,
-             meta: { sync_status: synchronized }
+
+      options = { meta: { sync_status: synchronized } }
+      render json: EVSSClaimListSerializer.new(claims, options)
     end
 
     def show
@@ -35,8 +34,8 @@ module V0
       end
 
       claim, synchronized = service.update_from_remote(claim)
-      render json: claim, serializer: EVSSClaimDetailSerializer,
-             meta: { sync_status: synchronized }
+      options = { meta: { sync_status: synchronized } }
+      render json: EVSSClaimDetailSerializer.new(claim, options)
     end
 
     private

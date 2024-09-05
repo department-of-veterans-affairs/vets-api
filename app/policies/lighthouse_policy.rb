@@ -5,10 +5,16 @@ LighthousePolicy = Struct.new(:user, :lighthouse) do
     user.icn.present? && user.participant_id.present?
   end
 
-  def access_disability_compensations?
+  def direct_deposit_access?
     user.loa3? &&
       allowed_providers.include?(user.identity.sign_in[:service_name]) &&
       user.icn.present? && user.participant_id.present?
+  end
+
+  def itf_access?
+    # Need to check for first name as Lighthouse will check for it
+    # and throw an error if it's nil
+    user.participant_id.present? && user.ssn.present? && user.last_name.present? && user.first_name
   end
 
   def access_update?

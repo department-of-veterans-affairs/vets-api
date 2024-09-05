@@ -14,103 +14,60 @@ module VBADocuments
     include VBADocuments::UploadValidations
 
     STATSD_DUPLICATE_UUID_KEY = 'api.vba.document_upload.duplicate_uuid'
-    STATSD_TIMING = 'api.vba.document_upload_perf_timing'
 
     # Ensure that multiple jobs for the same GUID aren't spawned,
     # to avoid race condition when parsing the multipart file
     sidekiq_options unique_for: 30.days
 
     def perform(guid, caller_data, retries = 0)
-      return if cancelled?
-
+      # @retries variable used via the CentralMail::Utilities which is included via VBADocuments::UploadValidations
+      @retries = retries
+      @cause = caller_data.nil? ? { caller: 'unknown' } : caller_data['caller']
       response = nil
-      brt = Benchmark.realtime do
-        # @retries variable used via the CentralMail::Utilities which is included via VBADocuments::UploadValidations
-        @retries = retries
-        @cause = caller_data.nil? ? { caller: 'unknown' } : caller_data['caller']
-        response = nil
-        VBADocuments::UploadSubmission.with_advisory_lock(guid) do
-          @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid:)
-          if @upload
-            tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.as_json)
-            Rails.logger.info('VBADocuments: Start Processing.', tracking_hash)
-            response = download_and_process
-            tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.reload.as_json)
-            Rails.logger.info('VBADocuments: Stop Processing.', tracking_hash)
-          end
+
+      VBADocuments::UploadSubmission.with_advisory_lock(guid) do
+        @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid:)
+        if @upload
+          tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.as_json)
+          Rails.logger.info('VBADocuments: Start Processing.', tracking_hash)
+          response = download_and_process
+          tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.reload.as_json)
+          Rails.logger.info('VBADocuments: Stop Processing.', tracking_hash)
         end
       end
-      StatsD.increment(STATSD_TIMING, tags: ["jid: #{jid}", "guid: #{@upload&.guid}", 'step: perform_complete',
-                                             "time: #{brt.round(5)}}"])
 
       response&.success? ? true : false
-    end
-
-    def cancelled?
-      Sidekiq.redis do |c|
-        if c.respond_to? :exists?
-          c.exists?("cancelled-#{jid}")
-        else
-          c.exists("cancelled-#{jid}")
-        end
-      end
-    end
-
-    def self.cancel!(jid)
-      Sidekiq.redis { |c| c.setex("cancelled-#{jid}", 86_400, 1) }
     end
 
     private
 
     # rubocop:disable Metrics/MethodLength
     def download_and_process
-      tempfile, timestamp = nil
-      brt = Benchmark.realtime do
-        tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
-      end
-      StatsD.increment(STATSD_TIMING, tags: ["jid: #{jid}", "guid: #{@upload.guid}", 'step: download_raw_file',
-                                             "raw_file_size: #{tempfile.size}", "time: #{brt.round(5)}}"])
-
+      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
       response = nil
+
       begin
-        parts, inspector = nil
-        brt = Benchmark.realtime do
-          @upload.update(metadata: @upload.metadata.merge(original_file_metadata(tempfile)))
+        @upload.update(metadata: @upload.metadata.merge(original_file_metadata(tempfile)))
 
-          validate_payload_size(tempfile)
+        validate_payload_size(tempfile)
 
-          parts = VBADocuments::MultipartParser.parse(tempfile.path)
-          inspector = VBADocuments::PDFInspector.new(pdf: parts)
-          @upload.update(uploaded_pdf: inspector.pdf_data)
-        end
-        StatsD.increment(STATSD_TIMING, tags: ["jid: #{jid}", "guid: #{@upload.guid}", 'step: parse_parts',
-                                               "time: #{brt.round(5)}}"])
+        parts = VBADocuments::MultipartParser.parse(tempfile.path)
+        inspector = VBADocuments::PDFInspector.new(pdf: parts)
+        @upload.update(uploaded_pdf: inspector.pdf_data)
 
-        metadata = nil
-        brt = Benchmark.realtime do
-          # Validations
-          validate_parts(@upload, parts)
-          validate_metadata(parts[META_PART_NAME], submission_version: @upload.metadata['version'].to_i)
-          metadata = perfect_metadata(@upload, parts, timestamp)
+        # Validations
+        validate_parts(@upload, parts)
+        validate_metadata(parts[META_PART_NAME], @upload.consumer_id, @upload.guid,
+                          submission_version: @upload.metadata['version'].to_i)
+        metadata = perfect_metadata(@upload, parts, timestamp)
 
-          pdf_validator_options = VBADocuments::DocumentRequestValidator.pdf_validator_options
-          validate_documents(parts, pdf_validator_options)
-        end
-        StatsD.increment(STATSD_TIMING, tags: ["jid: #{jid}", "guid: #{@upload.guid}", 'step: validate',
-                                               "time: #{brt.round(5)}}"])
+        pdf_validator_options = VBADocuments::DocumentRequestValidator.pdf_validator_options
+        validate_documents(parts, pdf_validator_options)
 
-        brt = Benchmark.realtime do
-          response = submit(metadata, parts)
-        end
-        StatsD.increment(STATSD_TIMING, tags: ["jid: #{jid}", "guid: #{@upload.guid}", 'step: cm_upload',
-                                               "time: #{brt.round(5)}}"])
+        response = submit(metadata, parts)
 
-        brt = Benchmark.realtime do
-          process_response(response)
-          log_submission(@upload, metadata)
-        end
-        StatsD.increment(STATSD_TIMING, tags: ["jid: #{jid}", "guid: #{@upload.guid}", 'step: process_resp',
-                                               "time: #{brt.round(5)}}"])
+        process_response(response)
+        log_submission(@upload, metadata)
       rescue Common::Exceptions::GatewayTimeout => e
         handle_gateway_timeout(e)
       rescue VBADocuments::UploadError => e

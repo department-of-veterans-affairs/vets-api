@@ -1,26 +1,29 @@
-<%= header %>
-<%= form_type %>
+<%= parse_with_template_path('header_1995') %>
+<%= @applicant.benefitAppliedFor&.titleize %>
 *START*
 VA Form 22-1995
-<% if Settings.vsp_environment.eql?('production') -%>
-DEC 2016
-<% else -%>
 OMB Control #: 2900-0074
-<% end -%>
 
 
-            REQUEST FOR CHANGE OF PROGRAM OR PLACE OF TRAINING
-<% if Settings.vsp_environment.eql?('production') -%>
-      FOR VETERANS, SERVICEPERSONS & MEMBERS OF THE SELECTED RESERVE
-<% else -%>
+        REQUEST FOR CHANGE OF BENEFIT, PROGRAM OR PLACE OF TRAINING
 FOR VETERANS, SERVICEPERSONS, DEPENDENTS & MEMBERS OF THE SELECTED RESERVE
-<% end -%>
                     -------------------------------------
 
                             APPLICANT INFORMATION
                             ---------------------
 
 SSN: <%= value_or_na(@applicant.veteranSocialSecurityNumber) %>    VA File Number: <%= value_or_na(@applicant.vaFileNumber) %>
+<% if @applicant.minorHighSchoolQuestions -%>
+
+Applicant has graduated high school or received GED? <%= @applicant.minorHighSchoolQuestions.minorHighSchoolQuestion %>
+
+<% grad_date = @applicant.minorHighSchoolQuestions.highSchoolGedGradDate if @applicant.minorHighSchoolQuestions.highSchoolGedGradDate -%>
+<% grad_date = @applicant.minorHighSchoolQuestions.highSchoolGedExpectedGradDate unless @applicant.minorHighSchoolQuestions.highSchoolGedGradDate -%>
+<% date_label = @applicant.minorHighSchoolQuestions.highSchoolGedGradDate ? "Date graduated:" : "Date expected to graduate:" -%>
+<%= date_label %> <%= grad_date %>
+<% end -%>
+
+Sex: <%= @applicant.applicantGender %>  Date of Birth: <%= @applicant.dateOfBirth %>
 
 Name:   <%= full_name(@applicant.veteranFullName) %>
 
@@ -32,76 +35,83 @@ Address:
 Email Address:  <%= @applicant.email %>
 Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
-<% if Settings.vsp_environment.eql?('production') -%>
-<%= parse_with_template_path('bank_account') %>
-<% else -%>
 <%= parse_with_template_path('bank_account_no_stop') %>
+<% if @applicant.benefitUpdate.eql?('chapter35') || @applicant.benefitAppliedFor.eql?('chapter35') -%>
+
+                 DEA, CH35 SPONSOR/SERVICE MEMBER INFORMATION
+                 --------------------------------------------
+
+Name:   <%= full_name(@applicant.sponsorFullName) %>
+
+SSN:   <%= @applicant.sponsorSocialSecurityNumber %>
+
+VA File Number: <%= value_or_na(@applicant.vaFileNumber) %>
 <% end -%>
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Benefit You Are Receiving: <%= form_benefit %>
-<% if Settings.vsp_environment.eql?('production') -%>
-Type of Education or Training: <%= @applicant.educationType&.titleize %>
-<% else %>
+Benefit Most Recently Received: <%= form_benefit %>
+
+Select Another Benefit: <%= @applicant.changeAnotherBenefit %>
+
+Benefit Being Applied For: <%= @applicant.benefitAppliedFor&.titleize %>
+
 Type of Education or Training: <%= @applicant.educationTypeUpdate&.titleize %>
-<% end -%>
 Education or Career Goal: <%= @applicant.educationObjective %>
 
 New School or Training Establishment:
 <%= school_name_and_addr(@applicant.newSchool) %>
 
-Current/Prior School or Training Establishment:
-<%= school_name_and_addr(@applicant.oldSchool) %>
+                  APPLICANT ACTIVE DUTY SERVICE INFORMATION
+                  -----------------------------------------
 
-Date You Stopped Training: <%= @applicant.trainingEndDate %>
-Reason for Change: <%= @applicant.reasonForChange %>
+Served in the armed forces?: <%= @applicant.applicantServed %>
 
+Are You Now On Active Duty?: <%= yesno(@applicant.isActiveDuty) %>
 
-                       ACTIVE DUTY SERVICE INFORMATION
-                       -------------------------------
+Do you have any new periods of service to record since you last applied for
+education benefits? <%= yesno(@applicant.toursOfDuty.present?) %>
 
 Date Entered   Date Separated     Service Component
 <% @applicant&.toursOfDuty&.each do |tour| -%>
 <%= to_date(tour.dateRange&.from) %>     <%= to_date(tour.dateRange&.to) %>         <%= tour.serviceBranch %>
-<% end %>
-
-<% if Settings.vsp_environment.eql?('production') %>
-          ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
-          ----------------------------------------------------------
-
-For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.nonVaAssistance) %>
-
-For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
-<% end %>
-<% if Settings.vsp_environment.eql?('production') -%>
-                        MARITAL AND DEPENDENCY STATUS
-           (For Applicants with Military Service Before Jan 1, 1977)
-           ---------------------------------------------------------
-
-
-<% if @applicant.serviceBefore1977 -%>
-Married: <%= yesno(@applicant.serviceBefore1977.married) %>
-Has Dependents: <%= yesno(@applicant.serviceBefore1977.haveDependents) %>
-Parent Dependent: <%= yesno(@applicant.serviceBefore1977.parentDependent) %>
-<% else -%>
-N/A
 <% end -%>
-<% end -%>
-<% if Settings.vsp_environment.eql?('production') -%>
-      Certification and Signature of Applicant
-Signature of Applicant                                               Date
 
-      Certification for Persons on Active Duty
-Signature/Title/Branch of Armed Forces Education Service Officer     Date
-<% else -%>
+<% if @applicant.minorHighSchoolQuestions -%>
+          GUARDIAN INFORMATION
+          --------------------
+First name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianFirstName %>
+
+Middle name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianMiddleName %>
+
+Last name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianLastName %>
+
+Suffix of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianSuffix %>
+
+Address of Parent, Guardian or Custodian:
+  Country: <%= @applicant.minorQuestions.guardianAddress.country %>
+  Street: <%= @applicant.minorQuestions.guardianAddress.street %>
+  Street address line 2: <%= @applicant.minorQuestions.guardianAddress.street2 %>
+  City: <%= @applicant.minorQuestions.guardianAddress.city %>
+  State: <%= @applicant.minorQuestions.guardianAddress.state %>
+  Postal code: <%= @applicant.minorQuestions.guardianAddress.postalCode %>
+  Mobile phone number: <%= @applicant.minorQuestions.guardianMobilePhone %>
+  Home phone number: <%= @applicant.minorQuestions.guardianHomePhone %>
+  Email address: <%= @applicant.minorQuestions.guardianEmail %>
+
+<% end -%>
+
 <% if @applicant.isActiveDuty -%>
-As an active-duty service member, you have consulted with an Education Service Officer (ESO) regarding your education program.
+As an active-duty service member, you have consulted with an Education Service
+Officer (ESO) regarding your education program.
+<% else -%>
+<% if @applicant.minorHighSchoolQuestions -%>
+      You are the parent, guardian, or custodian of the applicant
 <% else -%>
       Certification and Signature of Applicant
-Signature of Applicant                                               Date
 <% end -%>
+Signature of Applicant                                               Date
 <% end -%>
 
 <%= parse_with_template_path('footer') %>

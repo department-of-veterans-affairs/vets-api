@@ -9,9 +9,11 @@ require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/non_breakered_service'
 require 'form526_backup_submission/service'
 require 'decision_review_v1/utilities/form_4142_processor'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/filler'
 require 'logging/third_party_transaction'
+require 'simple_forms_api_submission/metadata_validator'
+require 'disability_compensation/factories/api_provider_factory'
 
 module Sidekiq
   module Form526BackupSubmissionProcess
@@ -67,6 +69,8 @@ module Sidekiq
       def initialize(submission_id, docs = [], get_upload_location_on_instantiation: true, ignore_expiration: false)
         @submission_id = submission_id
         @submission = Form526Submission.find(submission_id)
+        @user_account = UserAccount.find_by(id: submission.user_uuid) ||
+                        Account.lookup_by_user_uuid(submission.user_uuid)
         @docs = docs
         @docs_gathered = false
         @initial_upload_fetched = false
@@ -117,8 +121,6 @@ module Sidekiq
         zipname = "#{submission.id}.zip"
         generate_zip_and_upload(params_docs, zipname, metadata, return_url, url_life_length)
       end
-
-      private
 
       def instantiate_upload_info_from_lighthouse
         initial_upload = @lighthouse_service.get_location_and_uuid
@@ -188,18 +190,18 @@ module Sidekiq
       # Generate metadata for metadata.json file for the lighthouse benefits intake API to send along to Central Mail
       def get_meta_data(doc_type)
         auth_info = submission.auth_headers
-        md = {
-          veteranFirstName: auth_info['va_eauth_firstName'],
-          veteranLastName: auth_info['va_eauth_lastName'],
-          fileNumber: auth_info['va_eauth_pnid'],
-          zipCode: zip,
-          source: 'va.gov backup submission',
-          docType: doc_type,
-          businessLine: 'CMP',
-          claimDate: submission.created_at.iso8601
+        metadata = {
+          'veteranFirstName' => auth_info['va_eauth_firstName'],
+          'veteranLastName' => auth_info['va_eauth_lastName'],
+          'fileNumber' => auth_info['va_eauth_pnid'],
+          'zipCode' => zip,
+          'source' => 'va.gov backup submission',
+          'docType' => doc_type,
+          'businessLine' => 'CMP',
+          'claimDate' => submission.created_at.iso8601,
+          'forceOfframp' => 'true'
         }
-        md[:forceOfframp] = 'true' if Flipper.enabled?(:form526_backup_submission_force_offramp)
-        md
+        SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
       end
 
       def send_to_central_mail_through_lighthouse_claims_intake_api!
@@ -301,10 +303,8 @@ module Sidekiq
       end
 
       def determine_zip
-        # TODO: Figure out if I need to use currentMailingAddress or changeOfAddress zip?
-        # TODO: I dont think it matters too much though
         z = submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress')
-        if z.nil?
+        if z.nil? || z['country']&.downcase != 'usa'
           @zip = '00000'
         else
           z_final = z['zipFirstFive']
@@ -326,21 +326,29 @@ module Sidekiq
       def get_form526_pdf
         headers = submission.auth_headers
         submission_create_date = submission.created_at.iso8601
-        form_json = JSON.parse(submission.form_json)[FORM_526]
+        form_json = submission.form[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
-        resp = get_form_from_external_api(headers, form_json.to_json)
-        b64_enc_body = resp.body['pdf']
-        content = Base64.decode64(b64_enc_body)
+
+        form_version = submission.saved_claim.parsed_form['startedFormVersion']
+        if form_version.present?
+          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json)
+          content = resp.env.response_body
+        else
+          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:evss], form_json.to_json)
+          b64_enc_body = resp.body['pdf']
+          content = Base64.decode64(b64_enc_body)
+        end
         file = write_to_tmp_file(content)
-        docs << {
-          type: FORM_526_DOC_TYPE,
-          file:
-        }
+        docs << { type: FORM_526_DOC_TYPE, file: }
       end
 
-      def get_form_from_external_api(headers, form_json)
-        EVSS::DisabilityCompensationForm::Service.new(headers).get_form526(form_json)
+      # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
+      def get_form_from_external_api(headers, provider, form_json)
+        # get the "breakered" version
+        service = choose_provider(headers, provider, breakered: true)
+
+        service.generate_526_pdf(form_json)
       end
 
       def get_uploads
@@ -403,7 +411,6 @@ module Sidekiq
           'Complete 526 PDF Generating for Backup Submission',
           { submission_id:, initial_upload_uuid: }
         )
-
         result
       end
 
@@ -422,18 +429,38 @@ module Sidekiq
           Common::FileHelpers.delete_file_if_exists(actual_path_to_file) if ::Rails.env.production?
         end
       end
+
+      # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
+      def choose_provider(headers, provider, breakered: true)
+        ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:generate_pdf],
+          provider:,
+          # this sends the auth headers and if we want the "breakered" or "non-breakered" version
+          options: { auth_headers: headers, breakered: },
+          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: @user_account.icn }),
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
+        )
+      end
     end
 
     class NonBreakeredProcessor < Processor
       def get_form526_pdf
         headers = submission.auth_headers
         submission_create_date = submission.created_at.iso8601
-        form_json = JSON.parse(submission.form_json)[FORM_526]
+        form_json = submission.form[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
-        resp = get_from_non_breakered_service(headers, form_json.to_json)
-        b64_enc_body = resp.body['pdf']
-        content = Base64.decode64(b64_enc_body)
+
+        form_version = submission.saved_claim.parsed_form['startedFormVersion']
+        if form_version.present?
+          resp = get_from_non_breakered_service(headers, ApiProviderFactory::API_PROVIDER[:lighthouse],
+                                                form_json.to_json)
+          content = resp.env.response_body
+        else
+          resp = get_from_non_breakered_service(headers, ApiProviderFactory::API_PROVIDER[:evss], form_json.to_json)
+          b64_enc_body = resp.body['pdf']
+          content = Base64.decode64(b64_enc_body)
+        end
         file = write_to_tmp_file(content)
         docs << {
           type: FORM_526_DOC_TYPE,
@@ -442,8 +469,12 @@ module Sidekiq
       end
     end
 
-    def get_from_non_breakered_service(headers, form_json)
-      EVSS::DisabilityCompensationForm::NonBreakeredService.new(headers).get_form526(form_json)
+    # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
+    def get_from_non_breakered_service(headers, provider, form_json)
+      # get the "non-breakered" version
+      service = choose_provider(headers, provider, breakered: false)
+
+      service.get_form526(form_json)
     end
 
     class NonBreakeredForm526BackgroundLoader

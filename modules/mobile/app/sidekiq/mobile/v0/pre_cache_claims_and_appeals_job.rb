@@ -10,17 +10,10 @@ module Mobile
       class MissingUserError < StandardError; end
 
       def perform(uuid)
-        user = IAMUser.find(uuid) || ::User.find(uuid)
-        raise MissingUserError, uuid unless user
+        @user = IAMUser.find(uuid) || ::User.find(uuid)
+        raise MissingUserError, uuid unless @user
 
-        data, errors = claims_proxy(user).get_claims_and_appeals
-
-        if errors.size.positive?
-          Rails.logger.warn('mobile claims pre-cache fetch errors', user_uuid: uuid,
-                                                                    errors:)
-        else
-          Mobile::V0::ClaimOverview.set_cached(user, data)
-        end
+        claims_index_interface.get_accessible_claims_appeals(false)
       rescue => e
         Rails.logger.warn('mobile claims pre-cache job failed',
                           user_uuid: uuid,
@@ -30,8 +23,8 @@ module Mobile
 
       private
 
-      def claims_proxy(user)
-        Mobile::V0::Claims::Proxy.new(user)
+      def claims_index_interface
+        @claims_index_interface ||= Mobile::V0::LighthouseClaims::ClaimsIndexInterface.new(@user)
       end
     end
   end

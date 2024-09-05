@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicalService=badservice&pageSize=0
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicalService=badservice&enableStopCodeFilter=true&pageSize=0
     body:
       encoding: US-ASCII
       string: ''

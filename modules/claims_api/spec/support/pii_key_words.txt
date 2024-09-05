@@ -1,0 +1,38 @@
+ssn
+secret
+password
+security
+private key
+id
+login
+ssn
+name
+Mailing
+Phone
+Email
+Address
+Social 
+security
+Drivers license
+Passport
+Alien registration
+Financial information
+Biometric
+DNA
+Citizenship documentation
+Medical
+Ethnic
+affiliation
+identification
+Sexual orientation
+Account
+passwords
+birthdate
+Criminal
+history
+Mother's maiden name
+Mother's maiden
+Mother
+father
+Credit card
+icn

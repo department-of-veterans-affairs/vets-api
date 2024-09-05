@@ -10,30 +10,33 @@ module V0
       before_action { authorize :communication_preferences, :access? }
 
       def index
-        render(
-          json: { communication_groups: service.get_items_and_permissions },
-          serializer: CommunicationGroupsSerializer
-        )
+        items_and_permissions = service.get_items_and_permissions
+        render json: CommunicationGroupsSerializer.new({ communication_groups: items_and_permissions })
       end
 
       def create
-        communication_item = build_communication_item
-        raise Common::Exceptions::ValidationErrors, communication_item unless communication_item.valid?
+        if communication_item.valid?
+          log_request_complete('create')
 
-        Rails.logger.info('CommunicationPreferencesController#create request completed', sso_logging_info)
+          response = service.update_communication_permission(communication_item)
 
-        render(json: service.update_communication_permission(communication_item))
+          render json: response
+        else
+          raise Common::Exceptions::ValidationErrors, communication_item
+        end
       end
 
       def update
-        communication_item = build_communication_item
-        raise Common::Exceptions::ValidationErrors, communication_item unless communication_item.valid?
+        if communication_item.valid?
+          log_request_complete('update')
 
-        Rails.logger.info('CommunicationPreferencesController#update request completed', sso_logging_info)
+          communication_item.communication_channel.communication_permission.id = params[:id]
+          response = service.update_communication_permission(communication_item)
 
-        communication_item.communication_channel.communication_permission.id = params[:id]
-
-        render(json: service.update_communication_permission(communication_item))
+          render json: response
+        else
+          raise Common::Exceptions::ValidationErrors, communication_item
+        end
       end
 
       private
@@ -42,16 +45,18 @@ module V0
         VAProfile::Communication::Service.new(current_user)
       end
 
-      def build_communication_item
-        VAProfile::Models::CommunicationItem.new(
-          params.require(:communication_item).permit(
-            :id,
-            communication_channel: [
-              :id,
-              { communication_permission: :allowed }
-            ]
-          )
-        )
+      def communication_item_params
+        communication_channel = [:id, { communication_permission: :allowed }]
+        params.require(:communication_item).permit(:id, communication_channel:)
+      end
+
+      def communication_item
+        @communication_item ||= VAProfile::Models::CommunicationItem.new(communication_item_params)
+      end
+
+      def log_request_complete(action)
+        message = "CommunicationPreferencesController##{action} request completed"
+        Rails.logger.info(message, sso_logging_info)
       end
     end
   end

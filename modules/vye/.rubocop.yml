@@ -1,6 +1,17 @@
 inherit_from:
   - ../../.rubocop.yml
 
+require:
+  - rubocop-rspec_rails
+
+Metrics/ModuleLength:
+  Max: 500
+  CountAsOne: ['array', 'hash', 'heredoc', 'method_call']
+
+Metrics/MethodLength:
+  Max: 50
+  CountAsOne: ['array', 'hash', 'heredoc', 'method_call']
+
 AllCops:
   Exclude:
     - lib/tasks/local.rake

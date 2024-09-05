@@ -5,8 +5,9 @@ require 'bd/bd'
 
 module ClaimsApi
   module V2
-    class DisabilityCompensationBenefitsDocumentsUploader < DisabilityCompensationClaimServiceBase
+    class DisabilityCompensationBenefitsDocumentsUploader < ClaimsApi::ServiceBase
       LOG_TAG = '526_v2_Benefits_Documents_Uploader_job'
+      sidekiq_options expires_in: 48.hours, retry: true
 
       def perform(claim_id)
         log_job_progress(claim_id,
@@ -17,9 +18,7 @@ module ClaimsApi
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
-        uploader = auto_claim.uploader
-        uploader.retrieve_from_store!(auto_claim.file_data['filename'])
-        file_body = uploader.read
+        file_body = get_file_body(auto_claim)
 
         bd_upload_body(auto_claim:, file_body:)
 
@@ -40,6 +39,16 @@ module ClaimsApi
       end
 
       private
+
+      def get_file_body(auto_claim)
+        if Settings.claims_api.benefits_documents.use_mocks
+          File.read('modules/claims_api/lib/claims_api/v2/mock_526.pdf')
+        else
+          uploader = auto_claim.uploader
+          uploader.retrieve_from_store!(auto_claim.file_data['filename'])
+          uploader.read
+        end
+      end
 
       def bd_upload_body(auto_claim:, file_body:)
         fh = Tempfile.new(['pdf_path', '.pdf'], binmode: true)

@@ -11,13 +11,29 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
 
   let(:ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara) }
 
-  describe 'generating the filled and signed pdf' do
-    it 'generates the pdf to match example' do
-      allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-      expect(ClaimsApi::EvidenceWaiver).to receive(:new).and_call_original
-      expect_any_instance_of(ClaimsApi::EvidenceWaiver).to receive(:construct).and_call_original
+  describe 'when an errored job has a 48 hour time limitation' do
+    it 'expires in 48 hours' do
+      described_class.within_sidekiq_retries_exhausted_block do
+        expect(subject).to be_expired_in 48.hours
+      end
+    end
+  end
 
-      subject.new.perform(ews.id)
+  describe 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred from the Evidence Waiver Builder Job'
+      msg = { 'args' => [ews.id],
+              'class' => described_class,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: ews.id,
+          detail: "Job retries exhausted for #{described_class}",
+          error: error_msg
+        )
+      end
     end
   end
 end

@@ -613,27 +613,102 @@ RSpec.describe SAML::PostURLService do
             let(:expected_log_message) { 'Redirecting to /terms-of-use' }
             let(:expected_log_payload) { { type: :ssoe } }
 
-            context 'when tracker application is within TERMS_OF_USE_ENABLED_CLIENTS' do
-              let(:application) { SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS.first }
+            context 'when associated terms of use redirect user cache object exists' do
+              let(:cache_key) { "terms_of_use_redirect_user_#{user.uuid}" }
+              let(:enabled_clients) { application }
+              let(:cache_expiration) { 5.minutes }
 
-              context 'and authentication is occuring on a review instance' do
-                let(:review_instance_slug) { 'some-review-instance-slug' }
-                let(:review_instance_url) { "#{review_instance_slug}.review.vetsgov-internal" }
+              before do
+                allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(enabled_clients)
+                allow(Rails.cache).to receive(:read).with(cache_key).and_return(application)
+              end
 
-                before { allow(Settings).to receive(:review_instance_slug).and_return(review_instance_slug) }
+              context 'and application is within Settings.terms_of_use.enabled_clients' do
+                let(:enabled_clients) { application }
 
-                it 'has a login redirect url as a parameter embedded in review instance terms of use page' do
-                  expect(subject.terms_of_use_redirect_url)
-                    .to eq("http://#{review_instance_url}/terms-of-use?#{expected_redirect_url_param}")
+                context 'and authentication is occuring on a review instance' do
+                  let(:review_instance_slug) { 'some-review-instance-slug' }
+                  let(:review_instance_url) { "#{review_instance_slug}.review.vetsgov-internal" }
+
+                  before { allow(Settings).to receive(:review_instance_slug).and_return(review_instance_slug) }
+
+                  it 'has a login redirect url as a parameter embedded in review instance terms of use page' do
+                    expect(subject.terms_of_use_redirect_url)
+                      .to eq("http://#{review_instance_url}/terms-of-use?#{expected_redirect_url_param}")
+                  end
+
+                  it 'logs expected message and payload' do
+                    expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+                    subject.terms_of_use_redirect_url
+                  end
                 end
 
-                it 'logs expected message and payload' do
-                  expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
-                  subject.terms_of_use_redirect_url
+                context 'and authentication is not occurring on a review instance' do
+                  it 'has a login redirect url as a parameter embedded in terms of use page with success' do
+                    expect(subject.terms_of_use_redirect_url)
+                      .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
+                  end
+
+                  it 'logs expected message and payload' do
+                    expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+                    subject.terms_of_use_redirect_url
+                  end
                 end
               end
 
-              context 'and authentication is not occurring on a review instance' do
+              context 'and stored application is not within Settings.terms_of_use.enabled_clients' do
+                let(:enabled_clients) { '' }
+
+                it 'has a login redirect url with success not embedded in a terms of use page' do
+                  expect(subject.terms_of_use_redirect_url).to eq(expected_login_redirect_url)
+                end
+              end
+
+              it 'deletes the cached terms of use redirect user object' do
+                expect(Rails.cache).to receive(:delete).with(cache_key)
+                subject.terms_of_use_redirect_url
+              end
+            end
+
+            context 'when associated terms of use redirect user cache object does not exist' do
+              context 'when tracker application is within Settings.terms_of_use.enabled_clients' do
+                before do
+                  allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+                end
+
+                context 'and authentication is occuring on a review instance' do
+                  let(:review_instance_slug) { 'some-review-instance-slug' }
+                  let(:review_instance_url) { "#{review_instance_slug}.review.vetsgov-internal" }
+
+                  before { allow(Settings).to receive(:review_instance_slug).and_return(review_instance_slug) }
+
+                  it 'has a login redirect url as a parameter embedded in review instance terms of use page' do
+                    expect(subject.terms_of_use_redirect_url)
+                      .to eq("http://#{review_instance_url}/terms-of-use?#{expected_redirect_url_param}")
+                  end
+
+                  it 'logs expected message and payload' do
+                    expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+                    subject.terms_of_use_redirect_url
+                  end
+                end
+
+                context 'and authentication is not occurring on a review instance' do
+                  it 'has a login redirect url as a parameter embedded in terms of use page with success' do
+                    expect(subject.terms_of_use_redirect_url)
+                      .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
+                  end
+
+                  it 'logs expected message and payload' do
+                    expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+                    subject.terms_of_use_redirect_url
+                  end
+                end
+              end
+
+              context 'when tracker application is nil' do
+                let(:application) { nil }
+
                 it 'has a login redirect url as a parameter embedded in terms of use page with success' do
                   expect(subject.terms_of_use_redirect_url)
                     .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
@@ -644,28 +719,16 @@ RSpec.describe SAML::PostURLService do
                   subject.terms_of_use_redirect_url
                 end
               end
-            end
 
-            context 'when tracker application is nil' do
-              let(:application) { nil }
+              context 'when tracker application is not within Settings.terms_of_use.enabled_clients' do
+                before do
+                  allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+                end
 
-              it 'has a login redirect url as a parameter embedded in terms of use page with success' do
-                expect(subject.terms_of_use_redirect_url)
-                  .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
-              end
-
-              it 'logs expected message and payload' do
-                expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
-                subject.terms_of_use_redirect_url
-              end
-            end
-
-            context 'when tracker application is not within TERMS_OF_USE_ENABLED_CLIENTS' do
-              let(:application) { 'some-application' }
-
-              it 'has a login redirect url with success not embedded in a terms of use page' do
-                expect(subject.terms_of_use_redirect_url)
-                  .to eq(expected_login_redirect_url)
+                it 'has a login redirect url with success not embedded in a terms of use page' do
+                  expect(subject.terms_of_use_redirect_url)
+                    .to eq(expected_login_redirect_url)
+                end
               end
             end
           end

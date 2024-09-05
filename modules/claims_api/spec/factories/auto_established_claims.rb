@@ -246,4 +246,22 @@ FactoryBot.define do
     claim_status_type { 'Compensation' }
     bnft_claim_lc_status { [(association :bnft_claim_lc_status_one).to_h] }
   end
+
+  factory :auto_established_claim_v2, class: 'ClaimsApi::AutoEstablishedClaim' do
+    id { SecureRandom.uuid }
+    status { 'pending' }
+    source { 'oddball' }
+    evss_id { nil }
+    auth_headers { { test: ('a'..'z').to_a.shuffle.join } }
+    form_data do
+      json = JSON.parse(File
+             .read(
+               ::Rails.root.join(
+                 *'/modules/claims_api/spec/fixtures/v2/veterans/disability_compensation/form_526_json_api.json'
+                 .split('/')
+               ).to_s
+             ))
+      json['data']['attributes']
+    end
+  end
 end

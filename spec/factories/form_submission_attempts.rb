@@ -5,6 +5,7 @@ FactoryBot.define do
     form_submission
 
     trait :pending do
+      created_at { Time.zone.now }
       aasm_state { 'pending' }
     end
 
@@ -18,6 +19,11 @@ FactoryBot.define do
 
     trait :failure do
       aasm_state { 'failure' }
+    end
+
+    trait :stale do
+      created_at { 99.days.ago }
+      aasm_state { 'pending' }
     end
   end
 end

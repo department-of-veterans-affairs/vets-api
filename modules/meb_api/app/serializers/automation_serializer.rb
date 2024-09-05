@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-class AutomationSerializer < ActiveModel::Serializer
-  attribute :claimant
-  attribute :service_data
+class AutomationSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  set_id { '' }
+  attributes :claimant, :service_data
 end

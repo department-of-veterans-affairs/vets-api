@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
-class HealthCareApplicationSerializer < ActiveModel::Serializer
-  attributes :id, :state, :form_submission_id, :timestamp
+class HealthCareApplicationSerializer
+  include JSONAPI::Serializer
+
+  set_type :health_care_applications
+
+  attributes :state, :form_submission_id, :timestamp
 end

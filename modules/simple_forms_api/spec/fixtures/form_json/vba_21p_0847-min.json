@@ -22,5 +22,6 @@
   "veteran_ssn": "999442222",
   "relationship_to_deceased_claimant": {
     "relationship_to_veteran": "spouse"
-  }
+  },
+  "statement_of_truth_signature": "Arthur C Preparer"
 }

@@ -9,6 +9,22 @@
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/ping" %>
       :file_path: "/ask_va/dynamics_api"
       :response_delay: 15
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1/Sample/ping"
+      :file_path: "/travel_pay/ping/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1/Sample/authorized-ping"
+      :file_path: "/travel_pay/ping/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1/Auth/access-token"
+      :file_path: "/travel_pay/btsss_token/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1/claims"
+      :file_path: "/travel_pay/claims/default"
+      :response_delay: 0.3
     - :method: :post
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
       :file_path: "/ask_va/crm_api/post_inquiries/default"
@@ -21,6 +37,10 @@
     - :method: :post
       :path: <%= "/#{Settings.ask_va_api.crm_api.tenant_id}/oauth2/v2.0/token" %>
       :file_path: "/ask_va/token/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: <%= "/#{Settings.travel_pay.veis.tenant_id}/oauth2/token" %>
+      :file_path: "/travel_pay/token/default"
       :response_delay: 0.3
 
 - :name: 'carma'
@@ -378,14 +398,6 @@
       :uid_location: "url"
       :uid_locator: "\/wss-lettergenerator-services-web/rest/letters/v1\/(.+)\/generate"
 
-  # GIBS
-  - :method: :get
-    :path: "/wss-education-services-web/rest/education/chapter33/v1"
-    :file_path: "evss/gibs"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-
   # Claims
   - :method: :get
     :path: <%= "/wss-claims-services-web-#{Settings.evss.versions.claims}/rest/vbaClaimStatusService/getClaims" %>
@@ -520,129 +532,6 @@
       :uid_locator: 'id (?:root="2.16.840.1.113883.3.42.10001.100001.12" )?extension="(.*)\^NI\^200DOD\^USDOD\^A"(?:root="2.16.840.1.113883.3.42.10001.100001.12")?'
       :optional_code_locator: 'PRPA_IN201302UV02'
 
-# EMIS
-- :name: 'EMIS'
-  :base_uri: <%= "#{URI(Settings.emis.host).host}:#{URI(Settings.emis.host).port}" %>
-  :endpoints:
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/VeteranStatusService"
-    :file_path: "emis/veteran_status/by_edipi"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>\s*<v13:inputType>EDIPI</v13:inputType>'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/VeteranStatusService"
-    :file_path: "emis/veteran_status/by_icn"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v13:edipiORicnValue>([V0-9]*)<\/v13:edipiORicnValue>\s*<v13:inputType>ICN</v13:inputType>'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
-    :file_path: "emis/military_service_episodes"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISserviceEpisodeRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
-    :file_path: "emis/deployment"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISdeploymentRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v2/MilitaryInformationService"
-    :file_path: "emis/v2/military_service_episodes"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISserviceEpisodeRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v2/MilitaryInformationService"
-    :file_path: "emis/v2/guard_reserve_service_periods"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISguardReserveServicePeriodsRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v2/MilitaryInformationService"
-    :file_path: "emis/v2/deployment"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISdeploymentRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/PaymentService"
-    :file_path: "emis/combat_pay"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMIScombatPayRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
-    :file_path: "emis/disabilities"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISdisabilitiesRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
-    :file_path: "emis/guard_reserve_service_periods"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISguardReserveServicePeriodsRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
-    :file_path: "emis/military_occupation"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISmilitaryOccupationRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
-    :file_path: "emis/military_service_eligibility_info"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISmilitaryServiceEligibilityRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/PaymentService"
-    :file_path: "emis/reserve_drill_days"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISreserveDrillDaysRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
-    :file_path: "emis/retirement"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISretirementRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/PaymentService"
-    :file_path: "emis/retirement_pay"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISretirementPayRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/PaymentService"
-    :file_path: "emis/separation_pay"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISseparationPayRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
-  - :method: :post
-    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
-    :file_path: "emis/unit_information"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: '<v11:eMISunitInformationRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-
 # Appeals
 - :name: 'Caseflow'
   :base_uri: <%= "#{URI(Settings.caseflow.host).host}:#{URI(Settings.caseflow.host).port}" %>
@@ -747,6 +636,32 @@
     :path: "/appointments/v1/patients/*/appointments/*"
     :file_path: "hqva_mobile/appointments/default"
 
+#VAOS Appointments Service
+- :name: "VAOS Appointments"
+  :base_uri: <%= "#{URI(Settings.va_mobile.url).host}:#{URI(Settings.va_mobile.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/vaos/v1/patients/*/appointments"
+      :file_path: "vaos/appointments"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments'
+    - :method: :get
+      :path: "/facilities/v2/facilities/*"
+      :file_path: "vaos/facilities"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$'
+    - :method: :get
+      :path: "/facilities/v2/facilities/*/clinics/*"
+      :file_path: "vaos/clinics"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$\/clinics\/^[0-9]+$'
+
 #LoROTA (CheckIn)
 - :name: "LoROTA"
   :base_uri: <%= "#{URI(Settings.check_in.lorota_v2.url).host}:#{URI(Settings.check_in.lorota_v2.url).port}" %>
@@ -783,6 +698,10 @@
       :path: <%= "/#{Settings.check_in.travel_reimbursement_api.claims_base_path}/api/ClaimIngest/submitclaim" %>
       :file_path: "/travel_claim/submitclaim/default"
       :response_delay: 15
+    - :method: :post
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.claims_base_path}/api/ClaimIngest/V1/GetClaimsStatus" %>
+      :file_path: "/travel_claim/claimstatus/default"
+      :response_delay: 1
 
 #CHIP
 - :name: "CHIP"
@@ -884,6 +803,17 @@
         :uid_location: 'query'
         :uid_locator: 'edipi'
 
+# Lighthouse Benefits Education API (GI Bill Statement of Benefits - GIBS)
+- :name: "Lighthouse Benefits Education"
+  :base_uri: <%= "#{URI(Settings.lighthouse.benefits_education.host).host}:#{URI(Settings.lighthouse.benefits_education.host).port}" %>
+  :endpoints:
+  - :method: :get
+    :path: '/services/benefits-education/v1/education/chapter33'
+    :file_path: "/lighthouse/benefits_education"
+    :cache_multiple_responses:
+      :uid_location: "query"
+      :uid_locator: "icn"
+
 # Lighthouse Benefits Claims API
 - :name: "Lighthouse Benefits Claims"
   :base_uri: <%= "#{URI(Settings.lighthouse.benefits_claims.host).host}:#{URI(Settings.lighthouse.benefits_claims.host).port}" %>
@@ -913,6 +843,13 @@
     - :method: :post
       :path: "/services/benefits-documents/v1/documents/search"
       :file_path: "/lighthouse/claims_api/benefits_documents/search/default"
+    # Service History and Eligibility API V2
+    - :method: :get
+      :path: "/services/veteran_verification/v2/disability_rating/*"
+      :file_path: "/lighthouse/veteran_verification/rated_disabilities"
+      :cache_multiple_responses:
+        :uid_location: "url"
+        :uid_locator: "\/services/veteran_verification/v2/disability_rating\/(.+)"
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
@@ -975,3 +912,14 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/provisioning\/cerner'
+
+# VA Profile / Vet360
+- :name: "VA Profile"
+  :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/demographics/demographics/v1/*/*"
+      :file_path: "vet360/demographics/default"
+    - :method: :post
+      :path: "/profile-service/profile/v3/*/*"
+      :file_path: "vet360/profile-service/default"

@@ -10,6 +10,9 @@ development: &defaults
   user_b_store:
     namespace: users_b
     each_ttl: 1800
+  representative_user_store:
+    namespace: representative_users
+    each_ttl: 1800
   user_identity_store:
     namespace: user_identities
     each_ttl: 1800
@@ -44,11 +47,17 @@ development: &defaults
   medical_records_store:
     namespace: mr-service
     each_ttl: 1200
+  bb_internal_store:
+    namespace: bb-internal-service
+    each_ttl: 3600
   mhv_mr_fhir_session_lock:
     namespace: mhv-mr-fhir-session-lock
     each_ttl: 10
   mhv_session_lock:
     namespace: mhv-session-lock
+    each_ttl: 10
+  mhv_mr_bb_session_lock:
+    namespace: mhv-mr-bb-session-lock
     each_ttl: 10
   mdot:
     namespace: mdot
@@ -57,9 +66,6 @@ development: &defaults
     namespace: mpi-profile-response
     each_ttl: 86400
     failure_ttl: 1800
-  emis_response:
-    namespace: emis-response
-    each_ttl: 86400
   okta_response:
     namespace: okta-response
     each_ttl: 3600
@@ -178,9 +184,6 @@ development: &defaults
   mhv_identity_data:
     namespace: mhv_identity_data
     each_ttl: 5400
-  inherited_proofing_audit:
-    namespace: inherited_proofing_audit
-    each_ttl: 10800
   transaction_notification:
     namespace: transaction_notification
     each_ttl: 2592000
@@ -193,10 +196,16 @@ development: &defaults
   sidekiq_attr_package:
     namespace: sidekiq_attr_package
     each_ttl: 604800
+  brd_response_store:
+    namespace: brd_response_store
+    each_ttl: 82800
 test:
   <<: *defaults
   redis:
     inherit_socket: true
+    url: <%= Settings.redis.app_data.url %>
+  sidekiq:
+    url: <%= Settings.redis.sidekiq.url %>
 
 production:
   <<: *defaults

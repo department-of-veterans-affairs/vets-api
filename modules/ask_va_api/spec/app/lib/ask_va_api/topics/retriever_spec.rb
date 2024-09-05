@@ -7,8 +7,8 @@ RSpec.describe AskVAApi::Topics::Retriever do
     described_class.new(category_id: '75524deb-d864-eb11-bb24-000d3a579c45', user_mock_data:, entity_class:)
   end
 
-  let(:parsed_data) { { Topics: [{ id: 1, name: 'Category 1', parentId: nil }] } }
-  let(:static_data_service) { instance_double(Crm::StaticData) }
+  let(:parsed_data) { { Topics: [{ Id: 1, Name: 'Category 1', ParentId: nil }] } }
+  let(:cache_data_service) { instance_double(Crm::CacheData) }
   let(:entity_class) { AskVAApi::Topics::Entity }
   let(:user_mock_data) { true }
 
@@ -23,17 +23,21 @@ RSpec.describe AskVAApi::Topics::Retriever do
       let(:user_mock_data) { false }
 
       before do
-        allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
-        allow(static_data_service).to receive(:call).and_return(parsed_data)
+        allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
+        allow(cache_data_service).to receive(:call).with(endpoint: 'Topics',
+                                                         cache_key: 'categories_topics_subtopics')
+                                                   .and_return(parsed_data)
       end
 
-      it 'fetches data using Crm::StaticData service and returns an array of Entity instances' do
+      it 'fetches data using Crm::CacheData service and returns an array of Entity instances' do
         expect(retriever.call).to all(be_a(AskVAApi::Topics::Entity))
       end
 
       context 'when an error occurs during data retrieval' do
         before do
-          allow(static_data_service).to receive(:call).and_raise(StandardError)
+          allow(cache_data_service).to receive(:call).with(endpoint: 'Topics',
+                                                           cache_key: 'categories_topics_subtopics')
+                                                     .and_raise(StandardError)
           allow(ErrorHandler).to receive(:handle_service_error)
         end
 
@@ -45,7 +49,9 @@ RSpec.describe AskVAApi::Topics::Retriever do
 
       context 'when JSON parsing fails' do
         before do
-          allow(static_data_service).to receive(:call).and_return('invalid json')
+          allow(cache_data_service).to receive(:call).with(endpoint: 'Topics',
+                                                           cache_key: 'categories_topics_subtopics')
+                                                     .and_return('invalid json')
           allow(ErrorHandler).to receive(:handle_service_error).and_raise(ErrorHandler::ServiceError,
                                                                           "unexpected token at 'invalid json'")
         end

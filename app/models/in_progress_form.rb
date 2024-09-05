@@ -16,6 +16,14 @@ class InProgressForm < ApplicationRecord
   attr_accessor :skip_exipry_update, :real_user_uuid
 
   RETURN_URL_SQL = "CAST(metadata -> 'returnUrl' AS text)"
+  attribute :user_uuid, CleanUUID.new
+
+  has_kms_key
+  has_encrypted :form_data, key: :kms_key, **lockbox_options
+
+  enum :status, %w[pending processing], prefix: :submission, default: :pending
+  scope :submission_pending, -> { where(status: [nil, 'pending']) } # override to include nil
+
   scope :has_attempted_submit, lambda {
                                  where("(metadata -> 'submission' ->> 'hasAttemptedSubmit')::boolean or "\
                                        "(metadata -> 'submission' ->> 'has_attempted_submit')::boolean")
@@ -31,19 +39,24 @@ class InProgressForm < ApplicationRecord
   scope :for_form, ->(form_id) { where(form_id:) }
   scope :not_submitted, -> { where.not("metadata -> 'submission' ->> 'status' = ?", 'applicationSubmitted') }
   scope :unsubmitted_fsr, -> { for_form('5655').not_submitted }
-  attribute :user_uuid, CleanUUID.new
-  serialize :form_data, JsonMarshal::Marshaller
-  has_kms_key
-  has_encrypted :form_data, key: :kms_key, **lockbox_options
+
+  serialize :form_data, coder: JsonMarshal::Marshaller
+
   validates(:form_data, presence: true)
   validates(:user_uuid, presence: true)
   validate(:id_me_user_uuid)
-  before_save :serialize_form_data
-  before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ].include?(form.form_id) }
-  before_save :set_expires_at, unless: :skip_exipry_update
-  after_save :log_hca_email_diff
 
-  has_many :form_submissions, dependent: :nullify
+  # https://guides.rubyonrails.org/active_record_callbacks.html
+  before_save :serialize_form_data
+  before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ 5655].include?(form.form_id) }
+  before_save :set_expires_at, unless: :skip_exipry_update
+  after_create ->(ipf) { StatsD.increment('in_progress_form.create', tags: ["form_id:#{ipf.form_id}"]) }
+  after_destroy ->(ipf) { StatsD.increment('in_progress_form.destroy', tags: ["form_id:#{ipf.form_id}"]) }
+  after_destroy lambda { |ipf|
+                  StatsD.measure('in_progress_form.lifespan', Time.current - ipf.created_at,
+                                 tags: ["form_id:#{ipf.form_id}"])
+                }
+  after_save :log_hca_email_diff
 
   def self.form_for_user(form_id, user)
     user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
@@ -129,7 +142,7 @@ class InProgressForm < ApplicationRecord
 
   def default_expires_after
     case form_id
-    when '21-526EZ', '21P-527EZ'
+    when '21-526EZ', '21P-527EZ', '21P-530V2'
       1.year
     else
       60.days

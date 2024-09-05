@@ -2,14 +2,12 @@
   "data": {
     "attributes": {
       "representative": {
-        "firstName": "my",
-        "lastName": "name",
         "type": "ATTORNEY",
         "address": {
-          "numberAndStreet":  "123",
+          "addressLine1": "123",
           "city": "city",
           "country":  "US",
-          "zipFirstFive": "12345"
+          "zipCode": "12345"
         }
       }
     }

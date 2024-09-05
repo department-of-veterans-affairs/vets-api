@@ -32,8 +32,7 @@ describe PdfInfo::Metadata do
     wait_thr = double
     value = double
     allow(wait_thr).to receive(:value).and_return(value)
-    allow(value).to receive(:success?).and_return(true)
-    allow(value).to receive(:exitstatus).and_return(0)
+    allow(value).to receive_messages(success?: true, exitstatus: 0)
     wait_thr
   end
 
@@ -41,8 +40,7 @@ describe PdfInfo::Metadata do
     wait_thr = double
     value = double
     allow(wait_thr).to receive(:value).and_return(value)
-    allow(value).to receive(:success?).and_return(false)
-    allow(value).to receive(:exitstatus).and_return(1)
+    allow(value).to receive_messages(success?: false, exitstatus: 1)
     wait_thr
   end
 

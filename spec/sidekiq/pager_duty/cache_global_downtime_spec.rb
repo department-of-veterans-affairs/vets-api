@@ -11,10 +11,8 @@ RSpec.describe PagerDuty::CacheGlobalDowntime, type: %i[job aws_helpers] do
 
   before do
     allow(Settings.maintenance).to receive(:services).and_return({ global: 'ABCDEF' })
-    allow(Settings.maintenance.aws).to receive(:access_key_id).and_return('key')
-    allow(Settings.maintenance.aws).to receive(:secret_access_key).and_return('secret')
-    allow(Settings.maintenance.aws).to receive(:bucket).and_return('bucket')
-    allow(Settings.maintenance.aws).to receive(:region).and_return('region')
+    allow(Settings.maintenance.aws).to receive_messages(access_key_id: 'key', secret_access_key: 'secret',
+                                                        bucket: 'bucket', region: 'region')
     allow(PagerDuty::MaintenanceClient).to receive(:new) { client_stub }
   end
 

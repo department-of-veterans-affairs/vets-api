@@ -1,11 +1,11 @@
 version: '3.4'
 services:
   redis:
-    image: redis:5.0-alpine
+    image: redis:6.2-alpine
     ports:
       - "63790:6379"
   postgres:
-    image: mdillon/postgis:11-alpine
+    image: postgis/postgis:14-3.3-alpine
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
@@ -13,4 +13,11 @@ services:
       - ./data:/var/lib/postgresql/data:cached
     ports:
       - "54320:5432"
-
+  clamav:
+    volumes:
+     - shared-vol:/vets-api
+    image: clamav/clamav
+    ports:
+      - 33100:3310
+volumes:
+ shared-vol:

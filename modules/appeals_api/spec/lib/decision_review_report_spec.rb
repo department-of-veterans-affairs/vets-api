@@ -30,20 +30,44 @@ describe AppealsApi::DecisionReviewReport do
     })
   end
 
+  it 'correctly limits unidentified mail errored appeals from query date to a 1 month ago max' do
+    subject = described_class.new(from: 5.years.ago, to: Time.now.utc)
+
+    expect(subject.unidentified_mail_error_from).to be_within(1.second).of(
+      (Time.zone.now - AppealsApi::DecisionReviewReport::UNIDENTIFIED_MAIL_MAX_AGE.seconds).to_time
+    )
+  end
+
+  it 'allows unidentified mail errored appeals from query date to be less than the 1 month max' do
+    subject = described_class.new(from: 15.days.ago, to: Time.now.utc)
+    expect(subject.unidentified_mail_error_from).to be_within(1.second).of((Time.zone.now - 15.days.seconds).to_time)
+  end
+
   describe '#faulty_hlr' do
-    let(:old_error) { create(:higher_level_review_v2, status: 'error', created_at: 1.year.ago) }
-    let(:recent_error) { create(:higher_level_review_v2, status: 'error', created_at: 1.day.ago) }
+    let!(:old_error) { create(:higher_level_review_v2, status: 'error', created_at: 1.year.ago) }
+    let!(:old_unident_error) do
+      create(:higher_level_review_v2,
+             status: 'error',
+             created_at: 1.year.ago,
+             detail: AppealsApi::DecisionReviewReport::UNIDENTIFIED_MAIL_ERROR_DETAIL)
+    end
+
+    let!(:recent_error) { create(:higher_level_review_v2, status: 'error', created_at: 1.day.ago) }
+    let!(:recent_unident_error) do
+      create(:higher_level_review_v2,
+             status: 'error',
+             created_at: 25.hours.ago,
+             detail: AppealsApi::DecisionReviewReport::UNIDENTIFIED_MAIL_ERROR_DETAIL)
+    end
 
     it 'retrieves recent errored records if dates are provided' do
       subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
-
-      expect(subject.faulty_hlr).to eq([recent_error])
+      expect(subject.faulty_hlr).to eq([recent_error, recent_unident_error])
     end
 
-    it 'retrieves all errored records if no dates are provided' do
+    it 'retrieves expected errored records if no dates are provided' do
       subject = described_class.new(from: nil, to: nil)
-
-      expect(subject.faulty_hlr).to eq([recent_error, old_error])
+      expect(subject.faulty_hlr).to eq([recent_error, recent_unident_error, old_error])
     end
   end
 
@@ -79,19 +103,32 @@ describe AppealsApi::DecisionReviewReport do
   end
 
   describe '#faulty_nod' do
-    let(:old_error) { create(:notice_of_disagreement, :status_error, created_at: 1.year.ago) }
-    let(:recent_error) { create(:notice_of_disagreement, :status_error, created_at: 1.day.ago) }
+    let!(:old_error) { create(:notice_of_disagreement, :status_error, created_at: 1.year.ago) }
+    let!(:old_unident_error) do
+      create(:notice_of_disagreement,
+             status: 'error',
+             created_at: 1.year.ago,
+             detail: AppealsApi::DecisionReviewReport::UNIDENTIFIED_MAIL_ERROR_DETAIL)
+    end
+
+    let!(:recent_error) { create(:notice_of_disagreement, :status_error, created_at: 1.day.ago) }
+    let!(:recent_unident_error) do
+      create(:notice_of_disagreement,
+             status: 'error',
+             created_at: 25.hours.ago,
+             detail: AppealsApi::DecisionReviewReport::UNIDENTIFIED_MAIL_ERROR_DETAIL)
+    end
 
     it 'retrieves recent errored records if dates are provided' do
       subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
-      expect(subject.faulty_nod).to eq([recent_error])
+      expect(subject.faulty_nod).to eq([recent_error, recent_unident_error])
     end
 
     it 'retrieves all errored records if no dates are provided' do
       subject = described_class.new(from: nil, to: nil)
 
-      expect(subject.faulty_nod).to eq([recent_error, old_error])
+      expect(subject.faulty_nod).to eq([recent_error, recent_unident_error, old_error])
     end
   end
 
@@ -124,19 +161,32 @@ describe AppealsApi::DecisionReviewReport do
   end
 
   describe '#faulty_sc' do
-    let(:old_error) { create(:supplemental_claim, :status_error, created_at: 1.year.ago) }
-    let(:recent_error) { create(:supplemental_claim, :status_error, created_at: 1.day.ago) }
+    let!(:old_error) { create(:supplemental_claim, :status_error, created_at: 1.year.ago) }
+    let!(:old_unident_error) do
+      create(:supplemental_claim,
+             status: 'error',
+             created_at: 1.year.ago,
+             detail: AppealsApi::DecisionReviewReport::UNIDENTIFIED_MAIL_ERROR_DETAIL)
+    end
+
+    let!(:recent_error) { create(:supplemental_claim, :status_error, created_at: 1.day.ago) }
+    let!(:recent_unident_error) do
+      create(:supplemental_claim,
+             status: 'error',
+             created_at: 25.hours.ago,
+             detail: AppealsApi::DecisionReviewReport::UNIDENTIFIED_MAIL_ERROR_DETAIL)
+    end
 
     it 'retrieves recent errored records if dates are provided' do
       subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
-      expect(subject.faulty_sc).to eq([recent_error])
+      expect(subject.faulty_sc).to eq([recent_error, recent_unident_error])
     end
 
     it 'retrieves all errored records if no dates are provided' do
       subject = described_class.new(from: nil, to: nil)
 
-      expect(subject.faulty_sc).to eq([recent_error, old_error])
+      expect(subject.faulty_sc).to eq([recent_error, recent_unident_error, old_error])
     end
   end
 

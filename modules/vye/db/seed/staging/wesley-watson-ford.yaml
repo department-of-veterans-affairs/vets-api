@@ -1,0 +1,56 @@
+---
+:profile:
+  :ssn: '796043735'
+  :file_number: '796043735'
+  :icn: 1012832025V743496
+:info:
+  :file_number: '796043735'
+  :dob: 1995-05-20
+  :stub_nm: WWFORD
+  :mr_status: A
+  :rem_ent: '0542803'
+  :cert_issue_date: 2019-09-25
+  :del_date: 2026-02-17
+  :date_last_certified: 2024-03-05
+  :rpo_code: 4455
+  :fac_code: deleniti
+  :payment_amt: 5494.58
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Wesley Watson Ford
+  :address1: 745 Aide Orchard
+  :city: Hermanstad
+  :state: VA
+  :zip_code: '49202'
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2023-10-01
+  :award_end_date: 2023-12-08
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2024-01-16
+  :award_end_date: 2024-05-03
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 1488.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: ea
+  :queue_date: 2024-05-10
+  :rpo: nisi
+- :doc_type: molestiae
+  :queue_date: 2024-05-06
+  :rpo: alias

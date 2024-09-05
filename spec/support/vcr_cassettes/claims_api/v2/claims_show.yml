@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService?WSDL
+    uri: <BGS_BASE_URL>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -24,7 +24,7 @@ http_interactions:
   recorded_at: Tue, 08 Aug 2023 20:49:10 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
+    uri: <BGS_BASE_URL>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
     body:
       encoding: UTF-8
       string: |
@@ -62,7 +62,7 @@ http_interactions:
   recorded_at: Tue, 08 Aug 2023 20:49:10 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PersonWebServiceBean/PersonWebService?WSDL
+    uri: <BGS_BASE_URL>/PersonWebServiceBean/PersonWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Tue, 08 Aug 2023 20:49:37 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PersonWebServiceBean/PersonWebService
+    uri: <BGS_BASE_URL>/PersonWebServiceBean/PersonWebService
     body:
       encoding: UTF-8
       string: |
@@ -137,7 +137,7 @@ http_interactions:
   recorded_at: Tue, 08 Aug 2023 20:49:49 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/TrackedItemService/TrackedItemService?WSDL
+    uri: <BGS_BASE_URL>/TrackedItemService/TrackedItemService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -159,7 +159,7 @@ http_interactions:
   recorded_at: Tue, 08 Aug 2023 20:49:50 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/TrackedItemService/TrackedItemService
+    uri: <BGS_BASE_URL>/TrackedItemService/TrackedItemService
     body:
       encoding: UTF-8
       string: |

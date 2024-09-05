@@ -1,30 +1,50 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
+  digit = proc { rand(0..9).to_s }
+
   factory :vye_user_info, class: 'Vye::UserInfo' do
-    Faker::Number.number(digits: 9).tap do |v|
-      v = v.to_s
-      ssn { v }
-      file_number { v }
-    end
-    suffix { Faker::Name.suffix }
-    full_name { Faker::Name.name }
-    address_line2 { Faker::Address.secondary_address }
-    address_line3 { Faker::Address.community }
-    address_line4 { Faker::Address.city }
-    address_line5 { Faker::Address.state }
-    address_line6 { Faker::Address.zip }
-    zip { Faker::Address.zip }
+    association :bdn_clone, factory: :vye_bdn_clone
+    association :user_profile, factory: :vye_user_profile
+
+    file_number { (1..9).map(&digit).join }
     dob { Faker::Date.birthday }
-    stub_nm { Faker::Name.name }
-    mr_status { Faker::Lorem.word }
-    rem_ent { Faker::Lorem.word }
-    cert_issue_date { Faker::Date.between(from: 10.years.ago, to: Time.zone.today) }
-    del_date { Faker::Date.between(from: 10.years.ago, to: Time.zone.today) }
-    date_last_certified { Faker::Date.between(from: 10.years.ago, to: Time.zone.today) }
+    stub_nm { format("#{Faker::Name.first_name[0, 1].upcase} #{Faker::Name.last_name[0, 3].upcase}") }
+    mr_status { 'A' }
+    rem_ent do
+      months = (36 * rand).floor
+      days = (rand * 100_000).floor
+      format('%02<months>u%05<days>u', months:, days:)
+    end
+    cert_issue_date { Faker::Date.between(from: 10.years.ago, to: 2.years.ago) }
+    del_date { Faker::Date.between(from: 4.months.since, to: 2.years.since) }
+    date_last_certified { Faker::Date.between(from: 3.months.ago, to: 5.days.ago) }
     rpo_code { Faker::Number.number(digits: 4) }
     fac_code { Faker::Lorem.word }
     payment_amt { Faker::Number.decimal(l_digits: 4, r_digits: 2) }
-    indicator { Faker::Lorem.word }
+    indicator { 'A' }
+    bdn_clone_active { true }
+
+    after(:create) do |user_info|
+      create_list(:vye_address_backend, 1, user_info:)
+    end
+
+    trait :with_address_changes do
+      after(:create) do |user_info|
+        create_list(:vye_address_change, 2, user_info:, origin: 'frontend')
+      end
+    end
+
+    trait :with_verified_awards do
+      after(:create) do |user_info|
+        create_list(:vye_award, 4, :with_verifications, user_info:)
+      end
+    end
+
+    trait :with_direct_deposit_changes do
+      after(:create) do |user_info|
+        create_list(:vye_direct_deposit_change, 2, user_info:)
+      end
+    end
   end
 end

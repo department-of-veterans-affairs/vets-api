@@ -26,6 +26,11 @@ saml_ssoe:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
 
+clamav:
+  mock: true
+  host: 0.0.0.0
+  port: '33100'
+
 sign_in:
   jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
 
@@ -107,14 +112,12 @@ bgs:
   client_station_id: 281
   client_username: VAgovAPI
   url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447
-  # To create a new VCR cassette:
-  # 1. Uncomment these lines
-  # 2. Create an empty cassette file
-  # 3. Run the test against that file, VCR should fill it
-  # 4. Replace localhost in the file with the url above
-  # 5. Re-comment these lines:
-  # url: https://localhost:4447
-  # ssl_verify_mode: "none"
+  external_uid: xUid
+  external_key: xKey
+# You can use this in `config/settings/test.local.yml`.
+# bgs:
+#   url: https://localhost:4447
+#   ssl_verify_mode: "none"
 
 flipper:
   github_organization: "organization"
@@ -137,11 +140,23 @@ vanotify:
         disconnection_template: fake_template_id
     check_in:
       api_key: check-in_aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
-      sms_sender_id: fake_sms_sender_id
+      sms_sender_id: cie_fake_sms_sender_id
       template_id:
-        claim_submission_success_text: fake_success_template_id
-        claim_submission_duplicate_text: fake_duplicate_template_id
-        claim_submission_error_text: fake_error_template_id
+        claim_submission_success_text: cie_fake_success_template_id
+        claim_submission_duplicate_text: cie_fake_duplicate_template_id
+        claim_submission_timeout_text: cie_fake_timeout_template_id
+        claim_submission_error_text: cie_fake_error_template_id
+    oracle_health:
+      sms_sender_id: oh_fake_sms_sender_id
+      template_id:
+        claim_submission_success_text: oh_fake_success_template_id
+        claim_submission_duplicate_text: oh_fake_duplicate_template_id
+        claim_submission_timeout_text: oh_fake_timeout_template_id
+        claim_submission_error_text: oh_fake_error_template_id
+
+res:
+  base_url: https://fake_url.com
+  api_key: fake_auth
 
 veteran_readiness_and_employment:
   base_url: https://fake_url.com
@@ -225,6 +240,14 @@ lighthouse:
         client_id: abc123456
         rsa_key: path/to/key
       use_mocks: false
+  benefits_education:
+      host: https://sandbox-api.va.gov
+      use_mocks: true
+      access_token:
+        client_id: ~
+        rsa_key: ~
+  benefits_intake:
+      api_key: fake_api_key
 
 rrd:
   alerts:
@@ -402,3 +425,22 @@ ask_va:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days
+
+nod_vanotify_status_callback:
+  bearer_token: bearer_token_secret
+
+travel_pay:
+  veis:
+    client_id: 'client_id'
+    client_secret: 'client_secret'
+    resource: 'resource_id'
+    tenant_id: 'tenant_id'
+    auth_url: 'https://auth.veis.gov'
+  mock: false
+  subscription_key: 'api_key'
+  base_url: 'https://btsss.gov'
+  client_number: '12345'
+  service_name: 'BTSSS-API'
+
+pension_ipf_vanotify_status_callback:
+  bearer_token: bearer_token_secret

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Form1010cg::PoaUploader, uploader_helpers: true do
+describe Form1010cg::PoaUploader, :uploader_helpers do
   let(:form_attachment_guid) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
   let(:subject) { described_class.new(form_attachment_guid) }
   let(:source_file_name) { 'doctors-note.jpg' }
@@ -95,7 +95,7 @@ describe Form1010cg::PoaUploader, uploader_helpers: true do
       let(:source_file) { Rack::Test::UploadedFile.new('spec/fixtures/files/doctors-note.jpg', 'image/jpg') }
 
       before do
-        expect(subject).to receive(:size_range).and_return(1.byte...3.byte) # rubocop:disable RSpec/SubjectStub
+        expect(subject).to receive(:size_range).and_return(1.byte...3.bytes) # rubocop:disable RSpec/SubjectStub
       end
 
       it 'raises an error' do

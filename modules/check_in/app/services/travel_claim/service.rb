@@ -58,7 +58,7 @@ module TravelClaim
     #
     # @see TravelClaim::Client#submit_claim
     #
-    # @return [Response] claimNumber
+    # @return [Hash] response hash
     def submit_claim
       resp = if token.present?
                client.submit_claim(token:, patient_icn:, appointment_date:)
@@ -66,6 +66,22 @@ module TravelClaim
                Faraday::Response.new(response_body: { message: 'Unauthorized' }, status: 401)
              end
       response.build(response: resp).handle
+    end
+
+    # Check claim status for the given patient_icn and start and end date range.
+    #
+    # @see TravelClaim::Client#claim_status
+    #
+    # @return [Hash] response hash
+    def claim_status
+      start_range_date = end_range_date = appointment_date
+
+      resp = if token.present?
+               client.claim_status(token:, patient_icn:, start_range_date:, end_range_date:)
+             else
+               Faraday::Response.new(response_body: { message: 'Unauthorized' }, status: 401)
+             end
+      response.build(response: resp).handle_claim_status_response
     end
 
     private

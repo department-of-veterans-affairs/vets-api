@@ -132,11 +132,11 @@
                 "example": {
                   "data": [
                     {
-                      "id": "600106271",
+                      "id": "600354175",
                       "type": "evss_claims",
                       "attributes": {
-                        "evss_id": 600106271,
-                        "date_filed": "2017-07-06",
+                        "evss_id": 600354175,
+                        "date_filed": "2022-12-01",
                         "min_est_date": null,
                         "max_est_date": null,
                         "open": false,
@@ -145,7 +145,79 @@
                         "development_letter_sent": false,
                         "decision_letter_sent": false,
                         "requested_decision": false,
-                        "claim_type": "Dependency",
+                        "claim_type": "Compensation",
+                        "status": "Complete"
+                      }
+                    },
+                    {
+                      "id": "600354178",
+                      "type": "evss_claims",
+                      "attributes": {
+                        "evss_id": 600354178,
+                        "date_filed": "2022-12-01",
+                        "min_est_date": null,
+                        "max_est_date": null,
+                        "open": false,
+                        "waiver_submitted": false,
+                        "documents_needed": false,
+                        "development_letter_sent": false,
+                        "decision_letter_sent": false,
+                        "requested_decision": false,
+                        "claim_type": "Compensation",
+                        "status": "Complete"
+                      }
+                    },
+                    {
+                      "id": "600311927",
+                      "type": "evss_claims",
+                      "attributes": {
+                        "evss_id": 600311927,
+                        "date_filed": "2022-06-23",
+                        "min_est_date": null,
+                        "max_est_date": null,
+                        "open": false,
+                        "waiver_submitted": false,
+                        "documents_needed": false,
+                        "development_letter_sent": false,
+                        "decision_letter_sent": true,
+                        "requested_decision": false,
+                        "claim_type": "Compensation",
+                        "status": "Complete"
+                      }
+                    },
+                    {
+                      "id": "600309680",
+                      "type": "evss_claims",
+                      "attributes": {
+                        "evss_id": 600309680,
+                        "date_filed": "2022-06-09",
+                        "min_est_date": null,
+                        "max_est_date": null,
+                        "open": false,
+                        "waiver_submitted": false,
+                        "documents_needed": false,
+                        "development_letter_sent": false,
+                        "decision_letter_sent": true,
+                        "requested_decision": false,
+                        "claim_type": "Compensation",
+                        "status": "Complete"
+                      }
+                    },
+                    {
+                      "id": "600308831",
+                      "type": "evss_claims",
+                      "attributes": {
+                        "evss_id": 600308831,
+                        "date_filed": "2022-06-06",
+                        "min_est_date": null,
+                        "max_est_date": null,
+                        "open": false,
+                        "waiver_submitted": false,
+                        "documents_needed": false,
+                        "development_letter_sent": false,
+                        "decision_letter_sent": true,
+                        "requested_decision": false,
+                        "claim_type": "Compensation",
                         "status": "Complete"
                       }
                     }
@@ -358,7 +430,7 @@
                   "errors": [
                     {
                       "title": "Resource not found",
-                      "detail": "Claims not found",
+                      "detail": "The Resource was not found.",
                       "code": "404",
                       "status": "404"
                     }
@@ -497,14 +569,14 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "59c18b59-1737-408a-8614-25465297f26d",
+                    "id": "253ff9b7-c0f1-491d-863b-93474895e2df",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
                       "date_filed": "2017-12-08",
                       "min_est_date": null,
                       "max_est_date": null,
-                      "open": true,
+                      "open": false,
                       "waiver_submitted": false,
                       "documents_needed": false,
                       "development_letter_sent": false,
@@ -512,9 +584,9 @@
                       "requested_decision": false,
                       "claim_type": "Compensation",
                       "contention_list": [
-                        "abscess kidney (New)"
+
                       ],
-                      "va_representative": "DALE M BOETTCHER",
+                      "va_representative": "AMERICAN LEGION",
                       "events_timeline": [
                         {
                           "type": "phase7",
@@ -529,14 +601,14 @@
                           "date": "2017-12-08"
                         }
                       ],
-                      "status": "Initial review",
+                      "status": "Complete",
                       "supporting_documents": [
                         {
-                          "id": "2e3250f6-635e-4adf-a636-f4365b5169b6",
+                          "id": "94450987-37eb-4fbf-ac41-7b58c05ba283",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2023-06-09T14:26:43.379Z"
+                          "uploaded_at": "2024-06-18T14:03:55.000Z"
                         }
                       ]
                     }
@@ -2430,7 +2502,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9828bfed-9fc4-4aee-832d-e0197e9f0765",
+                    "id": "15727189-a3bf-4fba-8b2b-69552c7f7589",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2448,13 +2520,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2023-06-09T14:26:44.734Z",
+                      "updated_at": "2024-06-18T14:03:56.993Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "9828bfed-9fc4-4aee-832d-e0197e9f0765",
+                      "token": "15727189-a3bf-4fba-8b2b-69552c7f7589",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4307,7 +4379,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d45b75ce-4f1b-4a33-ac47-6f99cbe2a019",
+                    "id": "effb561d-806b-4153-988e-0e72c7e0f778",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4325,13 +4397,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2023-06-09T14:26:45.520Z",
+                      "updated_at": "2024-06-18T14:03:57.694Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "d45b75ce-4f1b-4a33-ac47-6f99cbe2a019",
+                      "token": "effb561d-806b-4153-988e-0e72c7e0f778",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4646,7 +4718,7 @@
                   "errors": [
                     {
                       "title": "Unprocessable Entity",
-                      "detail": "              Claim submission requires that the \"autoCestPDFGenerationDisabled\" field\n              must be set to \"true\" in order to allow a 526 PDF to be uploaded\n",
+                      "detail": "            Claim submission requires that the \"autoCestPDFGenerationDisabled\" field\n            must be set to \"true\" in order to allow a 526 PDF to be uploaded\n",
                       "code": "422",
                       "status": "422"
                     }
@@ -6565,7 +6637,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "10d28285-cda4-4cd4-8765-f4d19a3543b7",
+                    "id": "81ae6b92-0158-4677-9e71-9052d2b0de26",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6579,7 +6651,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2023-06-09T14:26:47.422Z",
+                      "updated_at": "2024-06-18T14:04:00.288Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6588,7 +6660,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "a9e81cfe-1cab-410b-9cca-6545964ecb6b",
+                          "id": "f3b54df3-2c83-4009-bd06-8f638399ee6a",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8070,9 +8142,7 @@
                           "type": "object",
                           "additionalProperties": false,
                           "required": [
-                            "address",
-                            "phone",
-                            "email"
+                            "address"
                           ],
                           "properties": {
                             "address": {
@@ -8092,7 +8162,14 @@
                                   "maxLength": 30
                                 },
                                 "aptUnitNumber": {
-                                  "type": "integer"
+                                  "oneOf": [
+                                    {
+                                      "type": "integer"
+                                    },
+                                    {
+                                      "type": "string"
+                                    }
+                                  ]
                                 },
                                 "city": {
                                   "description": "City for the address.",
@@ -8190,8 +8267,6 @@
                             "firstName",
                             "lastName",
                             "address",
-                            "phone",
-                            "email",
                             "relationship"
                           ],
                           "properties": {
@@ -8227,7 +8302,14 @@
                                   "maxLength": 30
                                 },
                                 "aptUnitNumber": {
-                                  "type": "integer"
+                                  "oneOf": [
+                                    {
+                                      "type": "integer"
+                                    },
+                                    {
+                                      "type": "string"
+                                    }
+                                  ]
                                 },
                                 "city": {
                                   "description": "City for the address.",
@@ -8356,7 +8438,14 @@
                                   "maxLength": 30
                                 },
                                 "aptUnitNumber": {
-                                  "type": "integer"
+                                  "oneOf": [
+                                    {
+                                      "type": "integer"
+                                    },
+                                    {
+                                      "type": "string"
+                                    }
+                                  ]
                                 },
                                 "city": {
                                   "description": "City for the address.",
@@ -8526,11 +8615,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3cd90e85-398c-400d-8bff-0cc602f4a5ba",
+                    "id": "fe3281c1-504f-44c3-944d-a66e9c412909",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2023-06-09",
+                      "date_request_accepted": "2024-06-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8772,9 +8861,7 @@
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "address",
-                              "phone",
-                              "email"
+                              "address"
                             ],
                             "properties": {
                               "address": {
@@ -8794,7 +8881,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",
@@ -8892,8 +8986,6 @@
                               "firstName",
                               "lastName",
                               "address",
-                              "phone",
-                              "email",
                               "relationship"
                             ],
                             "properties": {
@@ -8929,7 +9021,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",
@@ -9058,7 +9157,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",
@@ -9241,11 +9347,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0d1b5729-b0b5-4722-bf5d-a122b43d48b0",
+                    "id": "69c427f2-3dc2-40b5-aaf1-155772e41e3f",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2023-06-09",
+                      "date_request_accepted": "2024-06-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9476,7 +9582,7 @@
                   "errors": [
                     {
                       "title": "Unprocessable Entity",
-                      "detail": "Unable to locate Veteran's File Number in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
+                      "detail": "The SSN provided does not match Master Person Index (MPI). Please correct the SSN or submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
                       "code": "422",
                       "status": "422"
                     }
@@ -9759,11 +9865,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "42c14557-00bf-4531-92eb-e4a506d36deb",
+                    "id": "ef7059c8-6cf9-432c-b9b8-b20f1a1967ed",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2023-06-09",
+                      "date_request_accepted": "2024-06-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -10585,9 +10691,7 @@
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "address",
-                              "phone",
-                              "email"
+                              "address"
                             ],
                             "properties": {
                               "address": {
@@ -10607,7 +10711,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",
@@ -10705,8 +10816,6 @@
                               "firstName",
                               "lastName",
                               "address",
-                              "phone",
-                              "email",
                               "relationship"
                             ],
                             "properties": {
@@ -10742,7 +10851,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",
@@ -10871,7 +10987,14 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "oneOf": [
+                                      {
+                                        "type": "integer"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
                                   },
                                   "city": {
                                     "description": "City for the address.",

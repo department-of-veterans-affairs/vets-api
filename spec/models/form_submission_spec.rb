@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe FormSubmission, type: :model do
   describe 'associations' do
-    it { is_expected.to belong_to(:in_progress_form).optional }
     it { is_expected.to belong_to(:saved_claim).optional }
     it { is_expected.to belong_to(:user_account).optional }
   end

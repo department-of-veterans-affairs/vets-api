@@ -35,7 +35,15 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
 
   def create
     @higher_level_review.save
-    AppealsApi::PdfSubmitJob.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview', 'v3')
+
+    if Flipper.enabled?(:decision_review_hlr_form_v4_enabled)
+      AppealsApi::PdfSubmitJob.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview', 'v4')
+    else
+      AppealsApi::PdfSubmitJob.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview', 'v3')
+    end
+
+    # if create request did not include ICN, fire off a sidekiq job to lookup icn
+    #  and populate veteran_icn field in this appeals HLR tracking table record
     if @higher_level_review.veteran_icn.blank?
       AppealsApi::AddIcnUpdater.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview')
     end

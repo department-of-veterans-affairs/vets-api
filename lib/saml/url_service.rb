@@ -25,7 +25,6 @@ module SAML
     WEB_CLIENT_ID = 'web'
     MOBILE_CLIENT_ID = 'mobile'
     UNIFIED_SIGN_IN_CLIENTS = %w[vaweb mhv myvahealth ebenefits vamobile vaoccmobile].freeze
-    TERMS_OF_USE_ENABLED_CLIENTS = %w[vaweb mhv].freeze
     TERMS_OF_USE_DECLINED_PATH = '/terms-of-use/declined'
 
     attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :tracker
@@ -239,7 +238,7 @@ module SAML
       type = previous&.payload_attr(:type) || params[:type]
       transaction_id = previous&.payload_attr(:transaction_id) || SecureRandom.uuid
       redirect = previous&.payload_attr(:redirect) || params[:redirect]
-      application = previous&.payload_attr(:application) || params[:application]
+      application = previous&.payload_attr(:application) || params[:application] || 'vaweb'
       post_login = previous&.payload_attr(:post_login) || params[:postLogin]
 
       # if created_at is set to nil (meaning no previous tracker to use), it

@@ -6,7 +6,7 @@ module ClaimsApi
       def store(file_data)
         sleep(sleep_interval)
         ClaimsApi::Logger.log('526 Skipping upload to s3 via claims_load_testing flipper ' \
-                              "for filename=#{file_data.original_filename}")
+                              "for filename=#{file_data&.original_filename}")
       end
 
       private

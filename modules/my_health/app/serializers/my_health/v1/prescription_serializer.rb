@@ -2,14 +2,17 @@
 
 module MyHealth
   module V1
-    class PrescriptionSerializer < ActiveModel::Serializer
-      def id
-        object.prescription_id
+    class PrescriptionSerializer
+      include JSONAPI::Serializer
+
+      set_id :prescription_id
+
+      link :self do |object|
+        MyHealth::UrlHelper.new.v1_prescription_url(object.prescription_id)
       end
 
-      link(:self) { MyHealth::UrlHelper.new.v1_prescription_url(object.prescription_id) }
-      link(:tracking) do
-        MyHealth::UrlHelper.new.v1_prescription_trackings_url(object.prescription_id) if object.trackable?
+      link :tracking do |object|
+        object.trackable? ? MyHealth::UrlHelper.new.v1_prescription_trackings_url(object.prescription_id) : ''
       end
 
       attribute :prescription_id
@@ -20,7 +23,11 @@ module MyHealth
       attribute :refill_submit_date
       attribute :refill_date
       attribute :refill_remaining
-      attribute :facility_name
+
+      attribute :facility_name do |object|
+        object.facility_api_name.presence || object.facility_name
+      end
+
       attribute :ordered_date
       attribute :quantity
       attribute :expiration_date

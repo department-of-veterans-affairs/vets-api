@@ -19,6 +19,12 @@ RSpec.describe SignIn::ServiceAccountConfig, type: :model do
            certificates:)
   end
 
+  describe 'concerns' do
+    subject { service_account_config }
+
+    it_behaves_like 'implements certifiable concern'
+  end
+
   describe 'validations' do
     let(:expected_error) { ActiveRecord::RecordInvalid }
 
@@ -137,20 +143,6 @@ RSpec.describe SignIn::ServiceAccountConfig, type: :model do
           end
         end
       end
-    end
-  end
-
-  describe '#assertion_public_keys' do
-    subject { service_account_config.assertion_public_keys }
-
-    let(:certificate) do
-      OpenSSL::X509::Certificate.new(File.read('spec/fixtures/sign_in/sample_client.crt'))
-    end
-    let(:certificates) { [certificate.to_s] }
-    let(:assertion_public_keys) { [certificate.public_key] }
-
-    it 'expands all certificates in the service account config to an array of public keys' do
-      expect(subject.first.to_s).to eq(assertion_public_keys.first.to_s)
     end
   end
 end

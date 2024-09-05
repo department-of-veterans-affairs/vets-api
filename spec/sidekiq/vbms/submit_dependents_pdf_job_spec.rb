@@ -69,11 +69,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
   context 'with an invalid submission' do
     it 'sends an error message if no claim exists' do
       job = described_class.new
-
-      expect(job).to receive(:send_error_to_sentry).with(
-        ActiveRecord::RecordNotFound,
-        'non-existent-claim'
-      )
+      expect(Rails.logger).to receive(:warn)
 
       expect do
         job.perform('non-existent-claim', encrypted_vet_info, true, false)
@@ -87,10 +83,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
 
       job = described_class.new
 
-      expect(job).to receive(:send_error_to_sentry).with(
-        an_instance_of(VBMS::SubmitDependentsPdfJob::Invalid686cClaim),
-        an_instance_of(Integer)
-      )
+      expect(Rails.logger).to receive(:warn)
 
       vet_info['veteran_information'].delete('ssn')
       expect do

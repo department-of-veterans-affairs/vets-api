@@ -22,7 +22,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing AllergyIntolerance objects. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
+                  FHIR Bundle containing AllergyIntolerance objects. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
           description: OK
         '401':
           content:
@@ -48,7 +48,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR AllergyIntolerance. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
+                  FHIR AllergyIntolerance. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
           description: OK
         '401':
           content:
@@ -74,7 +74,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing DocumentReference objects. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
+                  FHIR Bundle containing DocumentReference objects. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
           description: OK
         '401':
           content:
@@ -100,7 +100,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR DocumentReference. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
+                  FHIR DocumentReference. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
           description: OK
         '401':
           content:
@@ -126,7 +126,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing Condition objects. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
+                  FHIR Bundle containing Condition objects. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
           description: OK
         '401':
           content:
@@ -152,7 +152,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Condition. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
+                  FHIR Condition. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
           description: OK
         '401':
           content:
@@ -179,7 +179,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing DiagnosticReport and DocumentReference objects. The schemas can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>, <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>, <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>, <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
+                  FHIR Bundle containing DiagnosticReport and DocumentReference objects. The schemas can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
           description: OK
         '401':
           content:
@@ -207,7 +207,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR DiagnosticReport. The schemas can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>, <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>
+                  FHIR DiagnosticReport. The schemas can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>
           description: OK
         '401':
           content:
@@ -234,7 +234,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR DocumentReference. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>, <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
+                  FHIR DocumentReference. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
           description: OK
         '401':
           content:
@@ -260,7 +260,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing Immunization objects. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
+                  FHIR Bundle containing Immunization objects. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
           description: OK
         '401':
           content:
@@ -286,7 +286,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Immunization. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
+                  FHIR Immunization. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
           description: OK
         '401':
           content:
@@ -312,7 +312,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Bundle containing Observation objects. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
+                  FHIR Bundle containing Observation objects. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
           description: OK
         '401':
           content:
@@ -338,7 +338,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR Observation. The schema can be found at <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
+                  FHIR Observation. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
           description: OK
         '401':
           content:
@@ -379,6 +379,15 @@ paths:
       summary: /v1/messaging/folders
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - name: requires_oh_messages
+          in: query
+          description: Count of folder messages includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
   /v1/messaging/folders/{id}:
     get:
       description: Get a secure messaging folder
@@ -405,6 +414,15 @@ paths:
       summary: /v1/messaging/folders/{id}
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - name: requires_oh_messages
+          in: query
+          description: Count of folder messages includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
     put:
       description: Rename an existing folder
       operationId: post_rename_folder
@@ -510,6 +528,15 @@ paths:
             enum:
               - ASC
               - DESC
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health threads if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
@@ -556,6 +583,15 @@ paths:
           schema:
             type: integer
             default: 250
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health messages in search results if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
@@ -1121,6 +1157,15 @@ paths:
           required: false
           schema:
             type: boolean
+        - name: requires_oh_messages
+          in: query
+          description: Includes Oracle Health messages if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
         - $ref: '#/components/parameters/InflectionHeader'
   /v1/messaging/recipients:
     get:
@@ -1174,6 +1219,15 @@ paths:
       summary: /v1/messaging/allrecipients
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - name: requires_oh
+          in: query
+          description: Includes Oracle Health recipients if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
   /v1/messaging/threads/{id}/move:
     patch:
       description: Moves all received messages in a secure message thread to a specified folder. Sent messages, draft messages, and deleted messages will not be moved.
@@ -1208,6 +1262,239 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
       summary: /v1/messaging/threads/{id}/move
+  /v1/messaging/preferences/recipients:
+    post:
+      description: Update recipients `preferredTeam` value
+      operationId: update_triage_team_preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureMessagingUpdateTriageTeamRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              type: string
+              example: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/recipients
+  /v1/prescriptions:
+    get:
+      description: List medications.
+      operationId: get_prescriptions
+      parameters:
+        - description: One refill status to filter on
+          in: query
+          name: refill_status
+          required: false
+          schema:
+            type: string
+        - description: The page number to get based on your page size
+          in: query
+          name: page
+          required: false
+          schema:
+            type: string
+        - description: The size of the pagination you want
+          in: query
+          name: per_page
+          required: false
+          schema:
+            type: string
+        - description: The attribute to sort on, negated for descending
+          in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionList'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions
+  /v1/prescriptions/{id}:
+    get:
+      description: Get prescription.
+      operationId: get_prescription
+      parameters:
+        - description: prescription id
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prescription'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/{id}
+  /v1/prescriptions/{id}/refill:
+    patch:
+      description: Refill the prescription
+      operationId: patch_refill_prescription
+      parameters:
+        - description: The id of the prescription
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '204':
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/{id}/refill
+  /v1/prescriptions/list_refillable_prescriptions:
+    get:
+      description: List refillable medications.
+      operationId: get_list_refillable_prescriptions
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionList'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/list_refillable_prescriptions
+  /v1/prescriptions/refill_prescriptions:
+    patch:
+      description: Refill the prescriptions
+      operationId: patch_refill_prescription
+      parameters:
+        - description: Array of the prescription ids
+          in: query
+          name: ids
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '204':
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/refill_prescriptions
+  /v1/prescriptions/get_prescription_image/{cmopNdcNumber}:
+    get:
+      description: Get prescription image.
+      operationId: get_prescription_image
+      parameters:
+        - description: cmopNdcNumber
+          in: path
+          name: cmopNdcNumber
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    description: base64-encoded file contents
+                    type: string
+                    format: byte
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/list_refillable_prescriptions
 components:
   securitySchemes:
     CookieAuth:
@@ -1226,6 +1513,15 @@ components:
           - camel
           - snake
       description: Instructs the API to return camelCase keys rather than snake_case
+    RequiresOHMessages:
+      name: requires_oh_messages
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - '0'
+          - '1'
   schemas:
     Error:
       type: object
@@ -2332,3 +2628,582 @@ components:
             associatedBlockedTriageGroups:
               type: integer
               example: 1
+    SecureMessagingUpdateTriageTeamRequest:
+      type: object
+      properties:
+        updated_triage_teams:
+          type: array
+          items:
+            type: object
+            required:
+              - triage_team_id
+              - preferred_team
+            properties:
+              triage_team_id:
+                type: string
+                description: The ID of the triage team
+              preferred_team:
+                type: boolean
+                description: Indicates if the team is preferred (displayed in contact list if `true`)
+    PrescriptionTrackingItem:
+      type: object
+      properties:
+        carrier:
+          type: string
+        completeDateTime:
+          type: string
+          format: datetime
+          example: '2023-07-24T15:48:49.000Z'
+        dateLoaded:
+          type: string
+          format: datetime
+          example: '2023-07-24T15:48:49.000Z'
+        dialDivisionPhone:
+          type: string
+        divisionPhone:
+          type: string
+        id:
+          type: integer
+        isLocalTracking:
+          type: boolean
+        ndc:
+          type: string
+        othersInSamePackage:
+          type: boolean
+        rxNumber:
+          type: integer
+        stationNumber:
+          type: integer
+        trackingNumber:
+          type: string
+        viewImageDisplayed:
+          type: boolean
+      example:
+        carrier: UPS
+        completeDateTime: '2023-03-28T04:39:11-04:00'
+        dateLoaded: '2023-06-21T13:05:19-04:00'
+        dialDivisionPhone: '3082719803'
+        divisionPhone: (308)271-9803
+        id: 3974
+        isLocalTracking: false
+        ndc: '00113002239'
+        othersInSamePackage: false
+        rxNumber: 2719799
+        stationNumber: 994
+        trackingNumber: '772980271979930000002254'
+        viewImageDisplayed: true
+    RxRfRecord:
+      type: object
+      properties:
+        refillStatus:
+          type: string
+        refillSubmitDate:
+          type: string
+          format: date-time
+        refillDate:
+          type: string
+          format: date-time
+        refillRemaining:
+          type: integer
+        facilityName:
+          type: string
+        facilityApiName:
+          type: string
+        isRefillable:
+          type: boolean
+        isTrackable:
+          type: boolean
+        prescriptionId:
+          type: integer
+        sig:
+          type: string
+        orderedDate:
+          type: string
+          format: date-time
+        quantity:
+          type: integer
+        expirationDate:
+          type: string
+          format: date-time
+        prescriptionNumber:
+          type: string
+        prescriptionName:
+          type: string
+        dispensedDate:
+          type: string
+          format: date-time
+        stationNumber:
+          type: string
+        inCernerTransition:
+          type: boolean
+        notRefillableDisplayMessage:
+          type: string
+        cmopDivisionPhone:
+          type: string
+        cmopNdcNumber:
+          type: string
+        id:
+          type: integer
+        userId:
+          type: integer
+        providerFirstName:
+          type: string
+        providerLastName:
+          type: string
+        remarks:
+          type: string
+        divisionName:
+          type: string
+        modifiedDate:
+          type: string
+          format: date-time
+        institutionId:
+          type: string
+        dialCmopDivisionPhone:
+          type: string
+        dispStatus:
+          type: string
+        ndc:
+          type: string
+        reason:
+          type: string
+        prescriptionNumberIndex:
+          type: string
+        prescriptionSource:
+          type: string
+        disclaimer:
+          type: string
+        indicationForUse:
+          type: string
+        indicationForUseFlag:
+          type: string
+        category:
+          type: string
+        orderableItem:
+          type: string
+        shape:
+          type: string
+        color:
+          type: string
+        frontImprint:
+          type: string
+        backImprint:
+          type: string
+        rxRfRecords:
+          type: 'null'
+        dataSourceSystem:
+          type: string
+        trackingList:
+          type: array
+          items:
+            type: object
+        tracking:
+          type: boolean
+      example:
+        - refillStatus: suspended
+          refillSubmitDate: Wed, 20 Mar 2024 13:43:06 EDT
+          refillDate: Mon, 11 Mar 2024 00:00:00 EDT
+          refillRemaining: 4
+          facilityName: SLC10 TEST LAB
+          facilityApiName: null
+          isRefillable: false
+          isTrackable: false
+          prescriptionId: 23301817
+          sig: null
+          orderedDate: Sun, 31 Mar 2024 00:00:00 EDT
+          quantity: null
+          expirationDate: null
+          prescriptionNumber: '3637019'
+          prescriptionName: SALMETEROL 50MCG/BLSTR PO INHL DISKUS 60
+          dispensedDate: Mon, 18 Mar 2024 00:00:00 EDT
+          stationNumber: '979'
+          inCernerTransition: false
+          notRefillableDisplayMessage: null
+          cmopDivisionPhone: (410)999-7019
+          cmopNdcNumber: '00093721410'
+          id: 23301817
+          userId: 16955936
+          providerFirstName: null
+          providerLastName: null
+          remarks: null
+          divisionName: null
+          modifiedDate: null
+          institutionId: null
+          dialCmopDivisionPhone: '4109997019'
+          dispStatus: Suspended
+          ndc: 00173-0521-00
+          reason: null
+          prescriptionNumberIndex: RF1
+          prescriptionSource: RF
+          disclaimer: null
+          indicationForUse: null
+          indicationForUseFlag: null
+          category: Rx Medication
+          orderableItem: null
+          shape: OVAL
+          color: WHITE
+          frontImprint: 9,3
+          backImprint: 72,14
+          dataSourceSystem: VISTA
+          trackingList: null
+          rxRfRecords: null
+          tracking: false
+    PrescriptionDetail:
+      type: object
+      required:
+        - type
+        - id
+        - attributes
+        - links
+      properties:
+        type:
+          type: string
+          example: prescription_details
+        id:
+          type: string
+          example: '22332759'
+        attributes:
+          type: object
+          required:
+            - prescriptionId
+            - prescriptionNumber
+            - prescriptionName
+            - refillStatus
+            - refillDate
+            - refillRemaining
+            - facilityName
+            - orderedDate
+            - quantity
+            - expirationDate
+            - stationNumber
+            - isRefillable
+            - isTrackable
+            - inCernerTransition
+            - userId
+            - dispStatus
+            - ndc
+            - prescriptionNumberIndex
+            - prescriptionSource
+            - category
+            - trackingList
+            - rxRfRecords
+            - tracking
+          properties:
+            prescriptionId:
+              type: integer
+              example: 22510594
+            prescriptionNumber:
+              type: string
+              example: 3636929A
+            prescriptionName:
+              type: string
+              example: DANAZOL 200MG CAP
+            refillStatus:
+              type: string
+              example: active
+            refillSubmitDate:
+              type: string
+              nullable: true
+              format: datetime
+              example: '2023-07-24T15:48:49.000Z'
+            refillDate:
+              type: string
+              format: datetime
+              example: '2023-08-04T04:00:00.000Z'
+            refillRemaining:
+              type: integer
+              example: 4
+            facilityName:
+              type: string
+              example: DAYT29
+            orderedDate:
+              type: string
+              format: datetime
+              example: '2023-08-04T04:00:00.000Z'
+            quantity:
+              type: integer
+              example: 30
+            expirationDate:
+              type: string
+              format: datetime
+              example: '2023-08-04T04:00:00.000Z'
+            dispensedDate:
+              type: string
+              nullable: true
+              format: datetime
+              example: '2023-08-04T04:00:00.000Z'
+            stationNumber:
+              type: string
+              example: '989'
+            isRefillable:
+              type: boolean
+              example: true
+            isTrackable:
+              type: boolean
+              example: false
+            cmopNdcNumber:
+              type: string
+              nullable: true
+              example: '00013264681'
+            inCernerTransition:
+              type: boolean
+              example: false
+            notRefillableDisplayMessage:
+              type: string
+              nullable: true
+              example: A refill request cannot be submitted at this time.
+            sig:
+              type: string
+              nullable: true
+              example: TAKE ONE TABLET BY MOUTH DAILY FOR 30 DAYS
+            cmopDivisionPhone:
+              type: string
+              nullable: true
+              example: (178)636-6871
+            userId:
+              type: integer
+              example: 16955936
+            providerFirstName:
+              type: string
+              nullable: true
+              example: MOHAMMAD
+            providerLastName:
+              type: string
+              nullable: true
+              example: ISLAM
+            remarks:
+              type: string
+              nullable: true
+              example: TEST RE
+            divisionName:
+              type: string
+              nullable: true
+              example: DAYTON
+            modifiedDate:
+              type: string
+              nullable: true
+              format: datetime
+              example: '2023-08-04T04:00:00.000Z'
+            institutionId:
+              type: string
+              nullable: true
+              example: institutionId
+            dialCmopDivisionPhone:
+              type: string
+              nullable: true
+              example: '1786366871'
+            dispStatus:
+              type: string
+              example: Active
+            ndc:
+              type: string
+              nullable: true
+              example: 00597-0030-01
+            reason:
+              type: string
+              nullable: true
+              example: reason
+            prescriptionNumberIndex:
+              type: string
+              example: RX
+            prescriptionSource:
+              type: string
+              example: RX
+            disclaimer:
+              type: string
+              nullable: true
+              example: TEST DISCLAIMER 02222022
+            indicationForUse:
+              type: string
+              nullable: true
+              example: indicationForUse
+            indicationForUseFlag:
+              type: string
+              nullable: true
+              example: indicationForUseFlag
+            category:
+              type: string
+              example: Rx Medication
+            trackingList:
+              type: array
+              items:
+                $ref: '#/components/schemas/PrescriptionTrackingItem'
+            rxRfRecords:
+              type: array
+              items:
+                $ref: '#/components/schemas/RxRfRecord'
+            tracking:
+              type: boolean
+              example: false
+            color:
+              type: string
+              nullable: true
+              example: WHITE
+            shape:
+              type: string
+              nullable: true
+              example: OVAL
+            frontImprint:
+              type: string
+              nullable: true
+              example: 9,3
+            backImprint:
+              type: string
+              nullable: true
+              example: 1,1
+        links:
+          type: object
+          required:
+            - self
+          properties:
+            self:
+              type: string
+              example: https://api.va.gov/my_health/v1/prescriptions/22377949
+    PrescriptionList:
+      type: object
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PrescriptionDetail'
+        links:
+          type: object
+          nullable: true
+          properties:
+            self:
+              type: string
+              example: https://api.va.gov/my_health/v1/prescriptions?page=1&per_page=20&sort%5B%5D=disp_status&sort%5B%5D=prescription_name&sort%5B%5D=dispensed_date"
+            first:
+              type: string
+              example: https://api.va.gov/my_health/v1/prescriptions?page=1&per_page=20&sort%5B%5D=disp_status&sort%5B%5D=prescription_name&sort%5B%5D=dispensed_date"
+            prev:
+              type: string
+              nullable: true
+              example: https://api.va.gov/my_health/v1/prescriptions?page=2&per_page=20&sort%5B%5D=disp_status&sort%5B%5D=prescription_name&sort%5B%5D=dispensed_date"
+            next:
+              type: string
+              nullable: true
+              example: https://api.va.gov/my_health/v1/prescriptions?page=2&per_page=20&sort%5B%5D=disp_status&sort%5B%5D=prescription_name&sort%5B%5D=dispensed_date"
+            last:
+              type: string
+              example: https://api.va.gov/my_health/v1/prescriptions?page=9&per_page=20&sort%5B%5D=disp_status&sort%5B%5D=prescription_name&sort%5B%5D=dispensed_date"
+        meta:
+          type: object
+          required:
+            - sort
+            - pagination
+          properties:
+            sort:
+              type: object
+              required:
+                - dispStatus
+                - dispensedDate
+                - prescriptionName
+              properties:
+                dispStatus:
+                  type: string
+                  enum:
+                    - DESC
+                    - ASC
+                dispensedDate:
+                  type: string
+                  enum:
+                    - DESC
+                    - ASC
+                prescriptionName:
+                  type: string
+                  enum:
+                    - DESC
+                    - ASC
+            pagination:
+              type: object
+              required:
+                - currentPage
+                - perPage
+                - totalPages
+                - totalEntries
+              properties:
+                currentPage:
+                  type: integer
+                  example: 1
+                perPage:
+                  type: integer
+                  example: 10
+                totalPages:
+                  type: integer
+                  example: 2
+                totalEntries:
+                  type: integer
+                  example: 15
+            updatedAt:
+              type: string
+              example: Wed, 28 Feb 2024 09:58:42 EST
+            failedStationList:
+              type: string
+              nullable: true
+    Prescription:
+      type: object
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: object
+          $ref: '#/components/schemas/PrescriptionDetail'
+        meta:
+          type: object
+          required:
+            - sort
+            - pagination
+          properties:
+            sort:
+              type: object
+              required:
+                - dispStatus
+                - dispensedDate
+                - prescriptionName
+              properties:
+                dispStatus:
+                  type: string
+                  enum:
+                    - DESC
+                    - ASC
+                dispensedDate:
+                  type: string
+                  enum:
+                    - DESC
+                    - ASC
+                prescriptionName:
+                  type: string
+                  enum:
+                    - DESC
+                    - ASC
+            pagination:
+              type: object
+              required:
+                - currentPage
+                - perPage
+                - totalPages
+                - totalEntries
+              properties:
+                currentPage:
+                  type: integer
+                  example: 1
+                perPage:
+                  type: integer
+                  example: 10
+                totalPages:
+                  type: integer
+                  example: 2
+                totalEntries:
+                  type: integer
+                  example: 15
+            updatedAt:
+              type: string
+              example: Wed, 28 Feb 2024 09:58:42 EST
+            failedStationList:
+              type: string
+              nullable: true

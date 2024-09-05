@@ -1,23 +1,15 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
-require 'sidekiq/monitored_worker'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/service'
-require 'evss_service/base' # docker container
-require 'sentry_logging'
-require 'claims_api/claim_logger'
+require 'evss_service/base'
 
 module ClaimsApi
-  class ClaimEstablisher
-    include Sidekiq::Job
-    include SentryLogging
-    include Sidekiq::MonitoredWorker
-
+  class ClaimEstablisher < ClaimsApi::ServiceBase
     def perform(auto_claim_id) # rubocop:disable Metrics/MethodLength
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
-      orig_form_data = auto_claim.form_data
+      orig_form_data = preserve_original_form_data(auto_claim.form_data)
       form_data = auto_claim.to_internal
       auth_headers = auto_claim.auth_headers
 
@@ -50,27 +42,16 @@ module ClaimsApi
 
       queue_flash_updater(auto_claim.flashes, auto_claim_id)
       queue_special_issues_updater(auto_claim.special_issues, auto_claim)
-    rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = e.messages
-      auto_claim.form_data = orig_form_data
-      auto_claim.save
-      log_exception_to_sentry(e)
     rescue ::Common::Exceptions::BackendServiceException => e
-      ClaimsApi::Logger.log('claims_establisher',
-                            retry: false,
-                            detail: "/submit failure for claimId #{auto_claim&.id}: #{e.original_body}, #{e.class}")
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = [{ 'key' => e.status_code, 'severity' => 'FATAL', 'text' => e.original_body }]
+      auto_claim.evss_response = get_errors(e)
       auto_claim.form_data = orig_form_data
       auto_claim.save
-      log_exception_to_sentry(e)
     rescue => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = e.detailed_message
+      auto_claim.evss_response = get_errors(e)
       auto_claim.form_data = orig_form_data
       auto_claim.save
-      log_exception_to_sentry(e)
       raise e
     end
 
@@ -122,6 +103,10 @@ module ClaimsApi
       else
         EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       end
+    end
+
+    def get_errors(error)
+      error&.errors if error.methods.include?(:errors)
     end
   end
 end

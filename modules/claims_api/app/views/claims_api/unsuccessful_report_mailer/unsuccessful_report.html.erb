@@ -52,37 +52,37 @@
     <h2>526EZ Claim Submissions</h2>
 
     <h3><span class="title">Per Consumer Status Counts</span></h3>
-    <%= render partial: 'claims_status_table', locals: {claims_consumers: @consumer_claims_totals } unless @consumer_claims_totals.count.zero? %>
+    <%= render partial: 'claims_api/claims_status_table', locals: {claims_consumers: @consumer_claims_totals } unless @consumer_claims_totals.count.zero? %>
 
     <h3>
       <%= @unsuccessful_claims_submissions.count %>
       <span class="title">526 Errored Submissions</span>
     </h3>
-    <%= render partial: 'submission_table', locals: { claims: @unsuccessful_claims_submissions } unless @unsuccessful_claims_submissions.count.zero? %>
+    <%= render partial: 'claims_api/submission_table', locals: { claims: @unsuccessful_claims_submissions } unless @unsuccessful_claims_submissions.count.zero? %>
 
     <hr>
     <h2>Power of Attorney Submissions</h2>
 
     <h3><span class="title">Per Consumer Status Counts</span></h3>
-    <%= render partial: 'poa_status_table', locals: { poa_consumers: @poa_totals } unless @poa_totals.blank? %>
+    <%= render partial: 'claims_api/poa_status_table', locals: { poa_consumers: @poa_totals } unless @poa_totals.blank? %>
 
     <h3>
       <%= @unsuccessful_poa_submissions.count %>
       <span class="title">POA Errored Submissions</span>
     </h3>
-    <%= render partial: 'poa_errors_table', locals: { poa_errors: @unsuccessful_poa_submissions } unless @unsuccessful_poa_submissions.count.zero? %>
+    <%= render partial: 'claims_api/poa_errors_table', locals: { poa_errors: @unsuccessful_poa_submissions } unless @unsuccessful_poa_submissions.count.zero? %>
 
     <hr>
     <h2>Evidence Waiver Submissions</h2>
 
     <h3><span class="title">Per Consumer Status Counts</span></h3>
-    <%= render partial: 'ews_status_table', locals: { ews_consumers: @ews_totals } unless @ews_totals.blank? %>
+    <%= render partial: 'claims_api/ews_status_table', locals: { ews_consumers: @ews_totals } unless @ews_totals.blank? %>
 
     <h3>
       <%= @unsuccessful_evidence_waiver_submissions.count %>
       <span class="title">EWS Errored Submissions</span>
     </h3>
-    <%= render partial: 'ews_errors_table', locals: { ews_errors: @unsuccessful_evidence_waiver_submissions } unless @unsuccessful_evidence_waiver_submissions.count.zero? %>
+    <%= render partial: 'claims_api/ews_errors_table', locals: { ews_errors: @unsuccessful_evidence_waiver_submissions } unless @unsuccessful_evidence_waiver_submissions.count.zero? %>
 
     <hr>
 
@@ -95,7 +95,7 @@
       </h3>
     <% else %>
       <h3><span class="title">Per Consumer Status Counts</span></h3>
-      <%= render partial: 'itf_status_table', locals: { itf_consumers: @itf_totals } unless @itf_totals.blank? %>
+      <%= render partial: 'claims_api/itf_status_table', locals: { itf_consumers: @itf_totals } unless @itf_totals.blank? %>
     <% end %>
     <hr>
 

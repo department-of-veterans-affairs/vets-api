@@ -1,0 +1,10 @@
+= AccreditedRepresentativePortal
+The API that powers the Accredited Representative Portal.
+
+== Installation
+Ensure the following line is in the root project's Gemfile:
+
+  gem 'accredited_representative_portal', path: 'modules/accredited_representative_portal'
+
+== License
+This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

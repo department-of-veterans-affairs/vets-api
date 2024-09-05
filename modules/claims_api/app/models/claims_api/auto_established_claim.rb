@@ -10,11 +10,11 @@ require 'claims_api/claim_logger'
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
     include FileData
-    serialize :auth_headers, JsonMarshal::Marshaller
-    serialize :bgs_flash_responses, JsonMarshal::Marshaller
-    serialize :bgs_special_issue_responses, JsonMarshal::Marshaller
-    serialize :form_data, JsonMarshal::Marshaller
-    serialize :evss_response, JsonMarshal::Marshaller
+    serialize :auth_headers, coder: JsonMarshal::Marshaller
+    serialize :bgs_flash_responses, coder: JsonMarshal::Marshaller
+    serialize :bgs_special_issue_responses, coder: JsonMarshal::Marshaller
+    serialize :form_data, coder: JsonMarshal::Marshaller
+    serialize :evss_response, coder: JsonMarshal::Marshaller
     has_kms_key
     has_encrypted :auth_headers, :bgs_flash_responses, :bgs_special_issue_responses, :evss_response, :form_data,
                   key: :kms_key, **lockbox_options
@@ -68,9 +68,9 @@ module ClaimsApi
       form_data['servicePay']['separationPay']['receivedDate'] = transform_separation_pay_received_date if separation_pay_received_date? # rubocop:disable Layout/LineLength
       form_data['veteran']['changeOfAddress'] = transform_change_of_address_type_case if change_of_address_provided?
       form_data['veteran']['changeOfAddress'] = transform_change_of_address_ending_date if invalid_change_of_address_ending_date? # rubocop:disable Layout/LineLength
-      form_data['disabilites'] = transform_disability_approximate_begin_dates
-      form_data['disabilites'] = massage_invalid_disability_names
-      form_data['disabilites'] = remove_special_issues_from_secondary_disabilities
+      form_data['disabilities'] = transform_disability_approximate_begin_dates
+      form_data['disabilities'] = massage_invalid_disability_names
+      form_data['disabilities'] = remove_special_issues_from_secondary_disabilities
       form_data['treatments'] = transform_treatment_dates if treatments?
       form_data['treatments'] = transform_treatment_center_names if treatments?
       form_data['serviceInformation'] = transform_service_branch
@@ -79,6 +79,7 @@ module ClaimsApi
       resolve_special_issue_mappings!
       resolve_homelessness_situation_type_mappings!
       resolve_homelessness_risk_situation_type_mappings!
+      transform_homelessness_point_of_contact_primary_phone!
       transform_address_lines_length!
 
       {
@@ -165,6 +166,7 @@ module ClaimsApi
 
         disability
       end
+      disabilities
     end
 
     def resolve_special_issue_mappings!
@@ -210,6 +212,13 @@ module ClaimsApi
         # Transform to meet EVSS requirements of minLength 1
         form_data['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'] = ' '
       end
+    end
+
+    def transform_homelessness_point_of_contact_primary_phone!
+      return if form_data['veteran']['homelessness'].blank?
+
+      phone_number = form_data&.dig('veteran', 'homelessness', 'pointOfContact', 'primaryPhone', 'phoneNumber')
+      phone_number.delete!('-') if phone_number.present? && phone_number.include?('-')
     end
 
     def cast_claim_date!
@@ -341,6 +350,7 @@ module ClaimsApi
 
         disability
       end
+      disabilities
     end
 
     def truncate_disability_name(name:)
@@ -421,7 +431,13 @@ module ClaimsApi
       end
 
       form_data['serviceInformation']['servicePeriods'] = transformed_service_periods
+      transformed_reserves_national_guard_service
       form_data['serviceInformation']
+    end
+
+    def transformed_reserves_national_guard_service
+      unit_phone = form_data&.dig('serviceInformation', 'reservesNationalGuardService', 'unitPhone')
+      unit_phone['phoneNumber'].delete!('-') if unit_phone.present? && unit_phone['phoneNumber'].include?('-')
     end
 
     # Legacy claimsApi code previously allowed servicePay-related service branch
@@ -447,7 +463,7 @@ module ClaimsApi
     # Rather than break the API by removing 'specialIssues' from the 'secondaryDisabilities' schema,
     # just detect the invalid case and remove the 'specialIssues' before sending to EVSS.
     def remove_special_issues_from_secondary_disabilities
-      disabilities = form_data['disabilites']
+      disabilities = form_data['disabilities']
 
       disabilities.map do |disability|
         next if disability['secondaryDisabilities'].blank?
@@ -458,6 +474,7 @@ module ClaimsApi
           secondary
         end
       end
+      disabilities
     end
 
     def change_of_address_provided?

@@ -2,24 +2,43 @@
 
 require 'rails_helper'
 
-RSpec.describe PersonalInformationLog do
-  let(:pi_log) do
-    PersonalInformationLog.create(error_class: 'my_type', data: { cool: 'stuff' })
-  end
+RSpec.describe PersonalInformationLog, type: :model do
+  let(:personal_information_log) { build(:personal_information_log) }
 
-  describe '#decoded_data' do
-    it 'simply returns data when not a logged request/response' do
-      expect(pi_log.decoded_data).to eq(pi_log.data)
+  describe 'validations' do
+    context 'when all attributes are valid' do
+      it 'is valid' do
+        expect(personal_information_log).to be_valid
+      end
     end
 
-    it 'returns decoded request/response values when present' do
-      pi_log.data.merge!('request_body' => Base64.encode64('special request'),
-                         'response_body' => Base64.encode64('nominal response'))
-      expect(pi_log.data['request_body']).not_to eq('special request')
-      expect(pi_log.decoded_data['request_body']).to eq('special request')
+    context 'when error class is missing' do
+      it 'is invalid' do
+        personal_information_log.error_class = nil
+        expect(personal_information_log).not_to be_valid
+        expect(personal_information_log.errors.attribute_names).to include(:error_class)
+        expect(personal_information_log.errors.full_messages).to include("Error class can't be blank")
+      end
+    end
+  end
 
-      expect(pi_log.data['response_body']).not_to eq('nominal response')
-      expect(pi_log.decoded_data['response_body']).to eq('nominal response')
+  describe '#data' do
+    context 'when data is missing' do
+      let(:pi_log) { build(:personal_information_log, data: nil) }
+
+      it 'does not raise error' do
+        expect { pi_log.save }.not_to raise_error
+      end
+    end
+
+    context 'when all attributes are present' do
+      it 'simply returns data' do
+        expect(personal_information_log.data).to eq({ 'foo' => 1 })
+      end
+
+      it 'populates the data_ciphertext' do
+        expect(personal_information_log.data_ciphertext).to be_present
+      end
     end
   end
 end

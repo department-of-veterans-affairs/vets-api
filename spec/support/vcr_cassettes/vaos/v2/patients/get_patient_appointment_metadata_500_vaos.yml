@@ -1,0 +1,50 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/eligibility?clinicalServiceId=primaryCare&facilityId=100&type=direct
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Referer:
+          - https://review-instance.va.gov
+        X-Vamf-Jwt:
+          - stubbed_token
+        X-Request-Id:
+          - ""
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 500
+        message: Internal Server Error
+      headers:
+        Date:
+          - Fri, 30 Apr 2021 18:20:59 GMT
+        Content-Type:
+          - text/html; charset=UTF-8
+        Content-Length:
+          - "1293"
+        Connection:
+          - keep-alive
+        Etag:
+          - '"5fa5087d-3d6"'
+        Set-Cookie:
+          - TS016f4012=stubbed_cookie;
+            Max-Age=900; Path=/
+          - vamfjwtv3=stubbed_token;
+            path=/; SameSite=Lax; HttpOnly
+          - vamftimeoutv1=1619807759; SameSite=Lax; path=/
+      body:
+        encoding: UTF-8
+        string: '<html>\r\n<head><title>500 Internal Server Error</title></head>\r\n<body>\r\n<center><h1>500 Internal Server Error/html>\r\n'
+        http_version:
+    recorded_at: Fri, 30 Apr 2021 18:21:00 GMT
+recorded_with: VCR 6.0.0

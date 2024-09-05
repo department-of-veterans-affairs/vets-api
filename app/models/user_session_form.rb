@@ -18,37 +18,27 @@ class UserSessionForm
 
   attr_reader :user, :user_identity, :session, :saml_uuid
 
-  # rubocop:disable Metrics/MethodLength
   def initialize(saml_response)
     @saml_uuid = saml_response.in_response_to
     saml_user = SAML::User.new(saml_response)
-    normalized_attributes = normalize_saml(saml_user)
-    existing_user = User.find(normalized_attributes[:uuid])
-    @user_identity = UserIdentity.new(normalized_attributes)
+    saml_attributes = normalize_saml(saml_user)
+    existing_user = User.find(saml_attributes[:uuid])
+    @user_identity = UserIdentity.new(saml_attributes)
     @user = User.new(uuid: @user_identity.attributes[:uuid])
     @user.instance_variable_set(:@identity, @user_identity)
+
     if saml_user.changing_multifactor?
-      if existing_user.present?
-        @user.mhv_last_signed_in = existing_user.last_signed_in
-        @user.last_signed_in = existing_user.last_signed_in
-      else
-        @user.last_signed_in = Time.current.utc
-        @user.mhv_last_signed_in = Time.current.utc
-        log_message_to_sentry(
-          "Couldn't locate exiting user after MFA establishment",
-          :warn,
-          { saml_uuid: normalized_attributes[:uuid], saml_icn: normalized_attributes[:mhv_icn] }
-        )
-      end
+      last_signed_in = existing_user&.last_signed_in || Time.current.utc
+      @user.mhv_last_signed_in = last_signed_in
+      @user.last_signed_in = last_signed_in
+      log_existing_user_warning(saml_attributes[:uuid], saml_attributes[:mhv_icn]) unless existing_user
     else
       @user.last_signed_in = Time.current.utc
     end
-    @session = Session.new(
-      uuid: @user.uuid,
-      ssoe_transactionid: saml_user.user_attributes.try(:transactionid)
-    )
+
+    ssoe_transactionid = saml_user.user_attributes.try(:transactionid)
+    @session = Session.new(uuid: @user.uuid, ssoe_transactionid:)
   end
-  # rubocop:enable Metrics/MethodLength
 
   def normalize_saml(saml_user)
     saml_user.validate!
@@ -159,5 +149,12 @@ class UserSessionForm
 
   def error_instrumentation_code
     "error:#{errors_hash[:tag]}" if errors.any?
+  end
+
+  private
+
+  def log_existing_user_warning(saml_uuid, saml_icn)
+    message = "Couldn't locate exiting user after MFA establishment"
+    log_message_to_sentry(message, :warn, { saml_uuid:, saml_icn: })
   end
 end

@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/DiagnosticReport?_count=9999&category=LAB&patient=2952"
+      uri: "<MHV_MR_HOST>/fhir/DiagnosticReport?_count=9999&patient=2952&status:not=entered-in-error"
       body:
         encoding: US-ASCII
         string: ""
@@ -60,343 +60,231 @@ http_interactions:
             ],
             "entry": [
               {
-                "resourceType": "DiagnosticReport",
-                "id": "ex-MHV-chReport-1",
-                "meta": {
-                  "lastUpdated": "2021-01-21T13:23:48-05:00",
-                  "profile": [
-                    "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.chReport"
-                  ]
+                "resourceType" : "DiagnosticReport",
+                "id" : "9952",
+                "meta" : {
+                  "versionId" : "19",
+                  "lastUpdated" : "2024-05-16T18:08:59.215-04:00",
+                  "source" : "#reWo6V0WdeyFTR19",
+                  "profile" : ["https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.chReport"]
                 },
-                "text": {
-                  "status": "generated",
-                  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h2><span title=\"Codes: \">CH</span> (<span title=\"Codes: {http://terminology.hl7.org/CodeSystem/v2-0074 LAB}\">Laboratory</span>, <span title=\"Codes: {http://loinc.org 2823-3}\">POTASSIUM:SCNC:PT:SER/PLAS:QN:</span>, <span title=\"Codes: {http://loinc.org 2951-2}\">SODIUM:SCNC:PT:SER/PLAS:QN:</span>) </h2><table class=\"grid\"><tr><td>Subject</td><td><b>L TESTFIVE MHVSYSTEST </b> unknown, DoB Unknown ( id:\u00a0942104\u00a0(use:\u00a0OFFICIAL))</td></tr><tr><td>When For</td><td>2021-01-21 11:32:47-0500</td></tr><tr><td>Reported</td><td>2021-01-21 11:32:47-0500</td></tr><tr><td>Identifier:</td><td> id:\u00a01110200002\u00a0(use:\u00a0USUAL)</td></tr></table><p><b>Report Details</b></p><table class=\"grid\"><tr><td><b>Code</b></td><td><b>Value</b></td><td><b>Reference Range</b></td><td><b>Flags</b></td><td><b>Note</b></td></tr><tr><td colspan=\"5\"><i>This Observation could not be resolved</i></td></tr><tr><td colspan=\"5\"><i>This Observation could not be resolved</i></td></tr><tr><td colspan=\"5\"><i>This Observation could not be resolved</i></td></tr><tr><td colspan=\"5\"><i>This Observation could not be resolved</i></td></tr></table><p>Lisa's Test 1/20/2021 - Second lab\nAdded Potassium test</p></div>"
+                "text" : {
+                  "status" : "generated",
+                  "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h2><span title=\"Codes: \">CH</span> (<span title=\"Codes: {http://terminology.hl7.org/CodeSystem/v2-0074 LAB}\">Laboratory</span>, <span title=\"Codes: {http://terminology.hl7.org/CodeSystem/v2-0074 CH}\">Chemistry</span>, <span title=\"Codes: {http://loinc.org 12293-7}\">COTININE:THRESHOLD:PT:URINE:ORD:</span>) </h2><table class=\"grid\"><tr><td>Subject</td><td><b>L MHVSYSTEST </b> unknown, DoB: 1000-01-01 ( <code>urn:oid:2.16.840.1.113883.4.349</code>/942104\u00a0(use:\u00a0usual))</td></tr><tr><td>When For</td><td>2017-04-17 17:18:32-0400</td></tr><tr><td>Reported</td><td>2017-04-17 17:19:53-0400</td></tr><tr><td>Identifier:</td><td> <code>urn:fdc:TEST.DAYTON.MED.VA.GOV:LR</code>/3771070001\u00a0(use:\u00a0usual)</td></tr></table><p><b>Report Details</b></p><table class=\"grid\"><tr><td><b>Code</b></td><td><b>Value</b></td><td><b>Reference Range</b></td><td><b>Note</b></td><td><b>When For</b></td></tr><tr><td colspan=\"5\"><i>This Observation could not be resolved</i></td></tr></table></div>"
                 },
-                "contained": [
-                  {
-                    "resourceType": "Observation",
-                    "id": "ex-MHV-chPanel-1a",
-                    "meta": {
-                      "profile": [
-                        "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.chPanel"
-                      ]
-                    },
-                    "status": "final",
-                    "category": [
-                      {
-                        "coding": [
-                          {
-                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
-                            "code": "laboratory"
-                          }
-                        ]
-                      }
-                    ],
-                    "code": {
-                      "coding": [
-                        {
-                          "system": "http://va.gov/systems/99VA64",
-                          "code": "84140.0000"
-                        },
-                        {
-                          "system": "http://va.gov/systems/99VA60",
-                          "code": "177",
-                          "display": "POTASSIUM"
-                        }
-                      ],
-                      "text": "Potassium"
-                    },
-                    "subject": {
-                      "reference": "Patient/ex-MHV-patient-942104"
-                    },
-                    "hasMember": [
-                      {
-                        "reference": "#ex-MHV-chTest-1a"
-                      }
-                    ]
+                "contained" : [{
+                  "resourceType" : "Specimen",
+                  "id" : "Specimen-0",
+                  "meta" : {
+                    "profile" : ["https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.chSpecimen"]
                   },
-                  {
-                    "resourceType": "Observation",
-                    "id": "ex-MHV-chTest-1a",
-                    "meta": {
-                      "profile": [
-                        "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.chTest"
-                      ]
+                  "status" : "available",
+                  "type" : {
+                    "coding" : [{
+                      "system" : "http://terminology.hl7.org/CodeSystem/v2-0487",
+                      "code" : "UR",
+                      "display" : "Urine"
                     },
-                    "status": "final",
-                    "category": [
-                      {
-                        "coding": [
-                          {
-                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
-                            "code": "laboratory"
-                          }
-                        ]
-                      }
-                    ],
-                    "code": {
-                      "coding": [
-                        {
-                          "system": "http://loinc.org",
-                          "version": "2.68",
-                          "code": "2823-3"
-                        },
-                        {
-                          "system": "http://va.gov/systems/99VA95.3",
-                          "version": "2.68",
-                          "code": "4670505"
-                        }
-                      ],
-                      "text": "POTASSIUM"
-                    },
-                    "subject": {
-                      "reference": "Patient/ex-MHV-patient-942104"
-                    },
-                    "performer": [
-                      {
-                        "reference": "Organization/ex-MHV-organization-552"
-                      }
-                    ],
-                    "valueQuantity": {
-                      "value": 3.5,
-                      "unit": "mEq/L",
-                      "system": "http://unitsofmeasure.org"
-                    },
-                    "interpretation": [
-                      {
-                        "coding": [
-                          {
-                            "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
-                            "code": "L"
-                          }
-                        ],
-                        "text": "L"
-                      }
-                    ],
-                    "note": [
-                      {
-                        "text": "Normal Range Prior to 8-22-02 was: 3.6 - 5.0 mEq/L."
-                      }
-                    ],
-                    "referenceRange": [
-                      {
-                        "text": "3.6-5.1"
-                      }
-                    ]
+                    {
+                      "system" : "http://va.gov/terminology/vistaDefinedTerms/61",
+                      "version" : "5.2",
+                      "code" : "71",
+                      "display" : "URINE"
+                    }],
+                    "text" : "URINE"
                   },
-                  {
-                    "resourceType": "Observation",
-                    "id": "ex-MHV-chPanel-1b",
-                    "meta": {
-                      "profile": [
-                        "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.chPanel"
-                      ]
-                    },
-                    "status": "final",
-                    "category": [
-                      {
-                        "coding": [
-                          {
-                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
-                            "code": "laboratory"
-                          }
-                        ]
-                      }
-                    ],
-                    "code": {
-                      "coding": [
-                        {
-                          "system": "http://va.gov/systems/99VA64",
-                          "code": "84295.0000"
-                        },
-                        {
-                          "system": "http://va.gov/systems/99VA60",
-                          "code": "176",
-                          "display": "SODIUM"
-                        }
-                      ],
-                      "text": "Sodium"
-                    },
-                    "subject": {
-                      "reference": "Patient/ex-MHV-patient-942104"
-                    },
-                    "hasMember": [
-                      {
-                        "reference": "#ex-MHV-chTest-1b"
-                      }
-                    ]
-                  },
-                  {
-                    "resourceType": "Observation",
-                    "id": "ex-MHV-chTest-1b",
-                    "meta": {
-                      "profile": [
-                        "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.chTest"
-                      ]
-                    },
-                    "status": "final",
-                    "category": [
-                      {
-                        "coding": [
-                          {
-                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
-                            "code": "laboratory"
-                          }
-                        ]
-                      }
-                    ],
-                    "code": {
-                      "coding": [
-                        {
-                          "system": "http://loinc.org",
-                          "version": "2.68",
-                          "code": "2951-2"
-                        },
-                        {
-                          "system": "http://va.gov/systems/99VA95.3",
-                          "version": "2.68",
-                          "code": "4671912"
-                        }
-                      ],
-                      "text": "SODIUM:SCNC:PT:SER/PLAS:QN:"
-                    },
-                    "subject": {
-                      "reference": "Patient/ex-MHV-patient-942104"
-                    },
-                    "performer": [
-                      {
-                        "reference": "Organization/ex-MHV-organization-552"
-                      }
-                    ],
-                    "valueQuantity": {
-                      "value": 138,
-                      "unit": "mEq/L",
-                      "system": "http://unitsofmeasure.org"
-                    },
-                    "interpretation": [
-                      {
-                        "coding": [
-                          {
-                            "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
-                            "code": "L"
-                          }
-                        ],
-                        "text": "L"
-                      }
-                    ],
-                    "referenceRange": [
-                      {
-                        "text": "136-145"
-                      }
-                    ]
-                  },
-                  {
-                    "resourceType": "Specimen",
-                    "id": "ex-MHV-chSpecimen-1",
-                    "meta": {
-                      "profile": [
-                        "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.chSpecimen"
-                      ]
-                    },
-                    "status": "available",
-                    "type": {
-                      "coding": [
-                        {
-                          "system": "http://va.gov/systems/HL70070",
-                          "code": "SER",
-                          "display": "Serum"
-                        },
-                        {
-                          "system": "http://va.gov/systems/99VA61",
-                          "version": "5.2",
-                          "code": "72",
-                          "display": "SERUM"
-                        }
-                      ],
-                      "text": "SERUM"
-                    },
-                    "collection": {
-                      "collectedDateTime": "2021-01-20T16:38:59-05:00"
-                    }
+                  "request" : [{
+                    "reference" : "#ServiceRequest-1"
+                  }],
+                  "collection" : {
+                    "collectedDateTime" : "2017-04-17T17:18:32-04:00"
                   }
-                ],
-                "identifier": [
-                  {
-                    "use": "usual",
-                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
-                    "value": "1110200002"
-                  }
-                ],
-                "status": "final",
-                "category": [
-                  {
-                    "coding": [
-                      {
-                        "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
-                        "code": "LAB"
-                      }
-                    ]
-                  },
-                  {
-                    "coding": [
-                      {
-                        "system": "http://loinc.org",
-                        "version": "2.68",
-                        "code": "2823-3"
-                      }
-                    ],
-                    "text": "POTASSIUM:SCNC:PT:SER/PLAS:QN:"
-                  },
-                  {
-                    "coding": [
-                      {
-                        "system": "http://loinc.org",
-                        "version": "2.68",
-                        "code": "2951-2"
-                      }
-                    ],
-                    "text": "SODIUM:SCNC:PT:SER/PLAS:QN:"
-                  }
-                ],
-                "code": {
-                  "text": "CH"
                 },
-                "subject": {
-                  "reference": "Patient/ex-MHV-patient-942104"
+                {
+                  "resourceType" : "Practitioner",
+                  "id" : "Provider-1",
+                  "identifier" : [{
+                    "system" : "http://va.gov/terminology/vistaDefinedTerms/4",
+                    "value" : "14934-VA552"
+                  }],
+                  "name" : [{
+                    "family" : "DOE",
+                    "given" : ["JANE",
+                    "A"]
+                  }]
                 },
-                "effectiveDateTime": "2021-01-21T11:32:47-05:00",
-                "issued": "2021-01-21T11:32:47-05:00",
-                "performer": [
-                  {
-                    "reference": "Organization/ex-MHV-organization-552"
+                {
+                  "resourceType" : "Organization",
+                  "id" : "Organization-552",
+                  "meta" : {
+                    "profile" : ["https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.organization"]
                   },
-                  {
-                    "reference": "Practitioner/ex-MHV-practitioner-14934-VA552"
+                  "identifier" : [{
+                    "use" : "usual",
+                    "type" : {
+                      "text" : "FI"
+                    },
+                    "system" : "urn:oid:2.16.840.1.113883.4.349",
+                    "value" : "552"
+                  }],
+                  "active" : true,
+                  "name" : "DAYTON, OH VAMC",
+                  "address" : [{
+                    "line" : ["4100 W. THIRD STREET"],
+                    "city" : "DAYTON",
+                    "state" : "OH",
+                    "postalCode" : "45428",
+                    "country" : "USA"
+                  }]
+                },
+                {
+                  "resourceType" : "Organization",
+                  "id" : "OrgPerformer-989",
+                  "meta" : {
+                    "profile" : ["https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.organization"]
                   },
-                  {
-                    "reference": "Organization/ex-MHV-organization-989"
-                  }
-                ],
-                "specimen": [
-                  {
-                    "reference": "#ex-MHV-chSpecimen-1"
-                  }
-                ],
-                "result": [
-                  {
-                    "reference": "#ex-MHV-chPanel-1a"
+                  "identifier" : [{
+                    "use" : "usual",
+                    "system" : "urn:oid:2.16.840.1.113883.4.349",
+                    "value" : "989"
+                  }],
+                  "active" : true,
+                  "name" : "DAYT29.FO-BAYPINES.MED.VA.GOV"
+                },
+                {
+                  "resourceType" : "ServiceRequest",
+                  "id" : "ServiceRequest-1",
+                  "meta" : {
+                    "profile" : ["https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.chOrder"]
                   },
-                  {
-                    "reference": "#ex-MHV-chTest-1a"
+                  "status" : "unknown",
+                  "intent" : "order",
+                  "category" : [{
+                    "coding" : [{
+                      "system" : "http://snomed.info/sct",
+                      "code" : "108252007",
+                      "display" : "Laboratory procedure"
+                    }]
+                  }],
+                  "code" : {
+                    "coding" : [{
+                      "system" : "http://va.gov/terminology/vistaDefinedTerms/64",
+                      "code" : "81818.0000"
+                    },
+                    {
+                      "system" : "http://va.gov/terminology/vistaDefinedTerms/60",
+                      "code" : "951",
+                      "display" : "NICOTINE"
+                    }],
+                    "text" : "Nicotine"
                   },
-                  {
-                    "reference": "#ex-MHV-chPanel-1b"
+                  "subject" : {
+                    "reference" : "Patient/ex-MHV-patient-942104"
                   },
-                  {
-                    "reference": "#ex-MHV-chTest-1b"
-                  }
-                ],
-                "conclusion": "Lisa's Test 1/20/2021 - Second lab\nAdded Potassium test"
+                  "requester" : {
+                    "reference" : "#Provider-1"
+                  },
+                  "performer" : [{
+                    "reference" : "#Organization-552"
+                  }]
+                },
+                {
+                  "resourceType" : "Observation",
+                  "id" : "ChemistryResult-1.1",
+                  "meta" : {
+                    "profile" : ["https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.chTest"]
+                  },
+                  "basedOn" : [{
+                    "reference" : "#ServiceRequest-1"
+                  }],
+                  "status" : "final",
+                  "category" : [{
+                    "coding" : [{
+                      "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+                      "code" : "laboratory"
+                    }]
+                  }],
+                  "code" : {
+                    "coding" : [{
+                      "system" : "http://loinc.org",
+                      "version" : "2.52",
+                      "code" : "12293-7"
+                    },
+                    {
+                      "system" : "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                      "version" : "2.52",
+                      "code" : "4653679"
+                    }],
+                    "text" : "NICOTINE"
+                  },
+                  "subject" : {
+                    "reference" : "Patient/ex-MHV-patient-942104"
+                  },
+                  "effectiveDateTime" : "2017-04-17T17:18:32-04:00",
+                  "performer" : [{
+                    "reference" : "#Organization-552"
+                  }],
+                  "valueString" : "NEG",
+                  "note" : [{
+                    "text" : "NORMAL=NEGATIVE.  A POSITIVE RESULT MAY NOT BE CLINICALLY SIGNIFICANT."
+                  }],
+                  "specimen" : {
+                    "reference" : "#Specimen-0"
+                  },
+                  "referenceRange" : [{
+                    "text" : "NEGATIVE"
+                  }]
+                }],
+                "extension" : [{
+                  "url" : "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/Notes",
+                  "valueString" : "Jane's test 4/17/17"
+                }],
+                "identifier" : [{
+                  "use" : "usual",
+                  "system" : "urn:fdc:TEST.DAYTON.MED.VA.GOV:LR",
+                  "value" : "3771070001"
+                }],
+                "basedOn" : [{
+                  "reference" : "#ServiceRequest-1"
+                }],
+                "status" : "final",
+                "category" : [{
+                  "coding" : [{
+                    "system" : "http://terminology.hl7.org/CodeSystem/v2-0074",
+                    "code" : "LAB"
+                  }]
+                },
+                {
+                  "coding" : [{
+                    "system" : "http://terminology.hl7.org/CodeSystem/v2-0074",
+                    "code" : "CH"
+                  }]
+                },
+                {
+                  "coding" : [{
+                    "system" : "http://loinc.org",
+                    "version" : "2.52",
+                    "code" : "12293-7"
+                  }],
+                  "text" : "COTININE:THRESHOLD:PT:URINE:ORD:"
+                }],
+                "code" : {
+                  "text" : "CH"
+                },
+                "subject" : {
+                  "reference" : "Patient/ex-MHV-patient-942104"
+                },
+                "effectiveDateTime" : "2017-04-17T17:18:32-04:00",
+                "issued" : "2017-04-17T17:19:53.000-04:00",
+                "performer" : [{
+                  "reference" : "#OrgPerformer-989"
+                }],
+                "specimen" : [{
+                  "reference" : "#Specimen-0"
+                }],
+                "result" : [{
+                  "reference" : "#ChemistryResult-1.1"
+                }]
               }
             ]
           }

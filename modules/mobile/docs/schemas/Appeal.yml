@@ -13,6 +13,7 @@ properties:
         type: string
       id:
         type: string
+        description: Upstream identifier. Same as provided id.
       attributes:
         type: object
         required:

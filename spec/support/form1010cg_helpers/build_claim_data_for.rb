@@ -18,7 +18,8 @@ module Form1010cgHelpers
         'street' => Faker::Address.street_address,
         'city' => Faker::Address.city,
         'state' => Faker::Address.state_abbr,
-        'postalCode' => Faker::Address.postcode
+        'postalCode' => Faker::Address.postcode,
+        'county' => 'Adams County'
       },
       'primaryPhoneNumber' => Faker::Number.number(digits: 10).to_s
     }
@@ -26,12 +27,9 @@ module Form1010cgHelpers
     # Required properties for all caregivers
     data['vetRelationship'] = 'Daughter' if form_subject != :veteran
 
-    # Required properties for :primaryCaregiver
-    data['hasHealthInsurance'] = true if form_subject == :primaryCaregiver
-
     # Required property for :veteran
     if form_subject == :veteran
-      data['ssnOrTin'] = Faker::IDNumber.valid.remove('-')
+      data['ssnOrTin'] = Faker::IdNumber.valid.remove('-')
       data['plannedClinic'] = '568A4'
     end
 

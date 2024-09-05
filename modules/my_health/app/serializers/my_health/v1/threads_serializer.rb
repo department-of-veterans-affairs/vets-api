@@ -2,10 +2,12 @@
 
 module MyHealth
   module V1
-    class ThreadsSerializer < ActiveModel::Serializer
-      def id
-        object.thread_id
-      end
+    class ThreadsSerializer
+      include JSONAPI::Serializer
+
+      set_id :thread_id
+
+      set_type :message_threads
 
       attribute :thread_id
       attribute :folder_id
@@ -21,12 +23,14 @@ module MyHealth
       attribute :sender_name
       attribute :recipient_name
       attribute :recipient_id
-      attribute :proxySender_name
-      attribute :has_attachment
+      attribute :proxy_sender_name, &:proxySender_name
+      attribute :has_attachment, &:thread_has_attachment
       attribute :unsent_drafts
       attribute :unread_messages
 
-      link(:self) { MyHealth::UrlHelper.new.v1_thread_url(object.thread_id) }
+      link :self do |object|
+        MyHealth::UrlHelper.new.v1_thread_url(object.thread_id)
+      end
     end
   end
 end

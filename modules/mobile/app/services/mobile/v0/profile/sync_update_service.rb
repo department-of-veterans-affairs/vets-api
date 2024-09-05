@@ -88,7 +88,6 @@ module Mobile
             #
             next_try_seconds = Float(2**try) / 10
             elapsed = seconds_elapsed_since(start)
-            log_incomplete(elapsed, next_try_seconds, try)
 
             # raise gateway timeout if we're at try number 10 or if the next retry would fall outside the timeout window
             raise_timeout_error(elapsed, try) if tries_or_time_exhausted?(next_try_seconds, elapsed, try)
@@ -119,31 +118,19 @@ module Mobile
           raise Common::Exceptions::RecordNotFound, transaction unless transaction
           raise IncompleteTransaction unless transaction.finished?
 
-          Rails.logger.info(
-            'mobile syncronous profile update complete',
-            transaction_id: @transaction_id
-          )
-
           transaction
         end
 
         def contact_information_service
-          VAProfile::ContactInformation::Service.new @user
+          if Flipper.enabled?(:va_v3_contact_information_service, @user)
+            VAProfile::V2::ContactInformation::Service.new @user
+          else
+            VAProfile::ContactInformation::Service.new @user
+          end
         end
 
-        def raise_timeout_error(elapsed, try)
-          Rails.logger.error(
-            'mobile syncronous profile update timeout',
-            transaction_id: @transaction_id, try:, elapsed:
-          )
+        def raise_timeout_error(_elapsed, _try)
           raise Common::Exceptions::GatewayTimeout
-        end
-
-        def log_incomplete(elapsed, next_try_seconds, try)
-          Rails.logger.info(
-            'mobile syncronous profile update not yet complete',
-            transaction_id: @transaction_id, try:, seconds_until_retry: next_try_seconds, elapsed:
-          )
         end
       end
     end

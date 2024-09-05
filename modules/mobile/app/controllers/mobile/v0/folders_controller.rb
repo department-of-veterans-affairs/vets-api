@@ -5,12 +5,10 @@ module Mobile
     class FoldersController < MessagingController
       def index
         resource = client.get_folders(@current_user.uuid, use_cache?)
+        links = pagination_links(resource)
         resource = resource.paginate(**pagination_params)
-
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: Mobile::V0::FolderSerializer,
-               meta: resource.metadata
+        options = { meta: resource.metadata, links: }
+        render json: Mobile::V0::FolderSerializer.new(resource.data, options)
       end
 
       def show
@@ -18,9 +16,8 @@ module Mobile
         resource = client.get_folder(id)
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
-        render json: resource,
-               serializer: Mobile::V0::FolderSerializer,
-               meta: resource.metadata
+        options = { meta: resource.metadata }
+        render json: Mobile::V0::FolderSerializer.new(resource, options)
       end
 
       def create
@@ -29,10 +26,8 @@ module Mobile
 
         resource = client.post_create_folder(folder.name)
 
-        render json: resource,
-               serializer: Mobile::V0::FolderSerializer,
-               meta: resource.metadata,
-               status: :created
+        options = { meta: resource.metadata }
+        render json: Mobile::V0::FolderSerializer.new(resource, options), status: :created
       end
 
       def destroy

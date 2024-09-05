@@ -81,8 +81,7 @@ describe HealthQuest::Shared::IdentityMetaInfo do
 
   describe '#identifier_type' do
     it 'returns a hash' do
-      allow(resource).to receive(:identifier_code).and_return('RESOURCEID')
-      allow(resource).to receive(:codeable_concept).and_return(FHIR::CodeableConcept.new)
+      allow(resource).to receive_messages(identifier_code: 'RESOURCEID', codeable_concept: FHIR::CodeableConcept.new)
 
       expect(resource.identifier_type).to eq(identifier_type_hash)
     end
@@ -102,9 +101,8 @@ describe HealthQuest::Shared::IdentityMetaInfo do
         'value' => '123456'
       }
 
-      allow(resource).to receive(:identifier).and_return(FHIR::Identifier.new)
-      allow(resource).to receive(:identifier_value).and_return('123456')
-      allow(resource).to receive(:identifier_type).and_return(identifier_type_hash)
+      allow(resource).to receive_messages(identifier: FHIR::Identifier.new, identifier_value: '123456',
+                                          identifier_type: identifier_type_hash)
 
       expect(resource.set_identifiers.to_hash).to eq(set_identifiers_hash)
     end

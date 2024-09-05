@@ -1,0 +1,53 @@
+---
+:profile:
+  :ssn: '796012476'
+  :file_number: '796012476'
+  :icn: 1012659372V317896
+:info:
+  :file_number: '796012476'
+  :dob: 1960-09-18
+  :stub_nm: AMARMST
+  :mr_status: A
+  :rem_ent: '0077877'
+  :cert_issue_date: 2019-11-11
+  :del_date: 2025-03-20
+  :date_last_certified: 2020-12-03 
+  :rpo_code: 5117
+  :fac_code: nesciunt
+  :payment_amt: 2429.48
+  :indicator: E
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Alfredo M Armstrong
+  :address1: 97136 Lavone Lakes
+  :city: North Marybellemouth
+  :state: AZ
+  :zip_code: 92050-6051
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2020-09-21
+  :award_end_date: 2020-10-01
+  :training_time: 2
+  :payment_date:
+  :monthly_rate: 195.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2020-10-01
+  :award_end_date: 2020-12-03
+  :training_time: 2
+  :payment_date:
+  :monthly_rate: 198.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: LAC
+  :queue_date: 2024-03-29
+  :rpo: ducimus

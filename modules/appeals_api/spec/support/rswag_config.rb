@@ -246,7 +246,7 @@ class AppealsApi::RswagConfig
     when 'appeals_status'
       merge_schemas(
         appeals_status_response_schemas,
-        generic_schemas.slice(*(version == 'v0' ? %i[errorModel X-VA-SSN X-VA-User] : %i[errorModel X-VA-User])),
+        generic_schemas.slice(*(version == 'v0' ? %i[errorModel X-VA-SSN X-VA-User] : %i[errorModel])),
         shared_schemas.slice(*(version == 'v0' ? nil : %w[icn]))
       )
     when 'decision_reviews'
@@ -866,25 +866,11 @@ class AppealsApi::RswagConfig
   end
 
   def decision_reviews_sc_create_schemas
-    sc_schema = parse_create_schema('decision_reviews', 'v2', '200995.json')
-    return sc_schema if wip_doc_enabled?(:sc_v2_potential_pact_act)
-
-    # Removes 'potentialPactAct' from schema for production docs
-    sc_schema.tap do |s|
-      s.dig(*%w[scCreate properties data properties attributes properties])&.delete('potentialPactAct')
-    end
+    parse_create_schema('decision_reviews', 'v2', '200995.json')
   end
 
   def sc_create_schemas
     sc_schema = parse_create_schema('supplemental_claims', 'v0', '200995.json', return_raw: true)
-
-    # Removes 'potentialPactAct' from schema for production docs
-    unless wip_doc_enabled?(:sc_v2_potential_pact_act)
-      sc_schema.tap do |s|
-        s.dig(*%w[properties data properties attributes properties])&.delete('potentialPactAct')
-      end
-    end
-
     {
       scCreate: { type: 'object' }.merge!(sc_schema.slice(*%w[description properties required])),
       scEvidenceSubmissionCreate: parse_create_schema('supplemental_claims', 'v0', 'evidence_submission.json', return_raw: true)

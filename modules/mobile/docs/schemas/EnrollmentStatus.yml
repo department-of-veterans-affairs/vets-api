@@ -1,0 +1,27 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - type
+      - id
+      - attributes
+    properties:
+      type:
+        type: string
+        example: enrollment_status
+      id:
+        type: string
+        example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+        description: user uuid
+      attributes:
+        type: object
+        required:
+          - status
+        properties:
+          status:
+            type: string
+            example: enrolled
+            description: one of enrolled, pending, or other

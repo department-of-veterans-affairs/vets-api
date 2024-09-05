@@ -3,9 +3,11 @@
 module Veteran
   module Accreditation
     class VSORepresentativeSerializer < BaseRepresentativeSerializer
+      include JSONAPI::Serializer
+
       attribute :organization_names
 
-      delegate :organization_names, to: :object
+      attribute :phone, &:phone_number
     end
   end
 end

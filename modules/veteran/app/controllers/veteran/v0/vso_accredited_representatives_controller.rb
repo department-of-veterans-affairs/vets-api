@@ -10,7 +10,7 @@ module Veteran
       private
 
       def serializer_class
-        'Veteran::Accreditation::VSORepresentativeSerializer'.constantize
+        Veteran::Accreditation::VSORepresentativeSerializer
       end
 
       def representative_query
@@ -29,8 +29,8 @@ module Veteran
         fuzzy_search_threshold = Veteran::Service::Constants::FUZZY_SEARCH_THRESHOLD
 
         wrapped_query = Veteran::Service::Representative.from("(#{query.to_sql}) as veteran_representatives")
-        wrapped_query.where('word_similarity(?, veteran_representatives.full_name) >= ? OR EXISTS (SELECT 1 FROM unnest(veteran_representatives.organization_names) AS org_name WHERE word_similarity(?, org_name) >= ?)', # rubocop:disable Layout/LineLength
-                            search_phrase, fuzzy_search_threshold, search_phrase, fuzzy_search_threshold)
+        wrapped_query.where('word_similarity(?, veteran_representatives.full_name) >= ?', search_phrase,
+                            fuzzy_search_threshold)
       end
 
       def verify_type

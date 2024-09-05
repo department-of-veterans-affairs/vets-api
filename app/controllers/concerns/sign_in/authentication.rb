@@ -15,7 +15,6 @@ module SignIn
     protected
 
     def authenticate
-      @access_token = authenticate_access_token
       @current_user = load_user_object
       validate_request_ip
       @current_user.present?
@@ -26,7 +25,6 @@ module SignIn
     end
 
     def load_user(skip_expiration_check: false)
-      @access_token = authenticate_access_token
       @current_user = load_user_object
       validate_request_ip
       @current_user.present?
@@ -36,7 +34,19 @@ module SignIn
       nil
     end
 
+    def access_token_authenticate(skip_error_handling: false)
+      access_token.present?
+    rescue Errors::AccessTokenExpiredError => e
+      render json: { errors: e }, status: :forbidden unless skip_error_handling
+    rescue Errors::StandardError => e
+      handle_authenticate_error(e) unless skip_error_handling
+    end
+
     private
+
+    def access_token
+      @access_token ||= authenticate_access_token
+    end
 
     def bearer_token
       header = request.authorization
@@ -55,17 +65,21 @@ module SignIn
     end
 
     def load_user_object
-      UserLoader.new(access_token: @access_token, request_ip: request.remote_ip).perform
+      UserLoader.new(access_token:, request_ip: request.remote_ip).perform
     end
 
     def handle_authenticate_error(error, access_token_cookie_name: Constants::Auth::ACCESS_TOKEN_COOKIE_NAME)
       context = {
-        access_token_authorization_header: bearer_token,
+        access_token_authorization_header: scrub_bearer_token,
         access_token_cookie: cookie_access_token(access_token_cookie_name:)
       }.compact
 
-      log_message_to_sentry(error.message, :error, context)
+      log_message_to_sentry(error.message, :error, context) if context.present?
       render json: { errors: error }, status: :unauthorized
+    end
+
+    def scrub_bearer_token
+      bearer_token == 'undefined' ? nil : bearer_token
     end
 
     def validate_request_ip

@@ -18,7 +18,7 @@ describe Veteran::User do
     let(:ows) { ClaimsApi::LocalBGS }
 
     it 'initializes from a user' do
-      VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
+      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
         allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({ person_poa_history: { person_poa: [{ begin_dt: Time.zone.now, legacy_poa_cd: '033' }] } })
         veteran = Veteran::User.new(user)
@@ -28,7 +28,7 @@ describe Veteran::User do
     end
 
     it 'does not bomb out if poa is missing' do
-      VCR.use_cassette('bgs/claimant_web_service/not_find_poa_by_participant_id') do
+      VCR.use_cassette('claims_api/bgs/claimant_web_service/not_find_poa_by_participant_id') do
         allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({ person_poa_history: nil })
         veteran = Veteran::User.new(user)
@@ -38,7 +38,7 @@ describe Veteran::User do
     end
 
     it 'provides most recent previous poa' do
-      VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
+      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
         allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({
                         person_poa_history: {
@@ -55,7 +55,7 @@ describe Veteran::User do
     end
 
     it 'does not bomb out if poa history contains a single record' do
-      VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
+      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
         allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({ person_poa_history: { person_poa: { begin_dt: Time.zone.now, legacy_poa_cd: '033' } } })
         veteran = Veteran::User.new(user)

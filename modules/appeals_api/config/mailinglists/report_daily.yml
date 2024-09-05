@@ -1,15 +1,16 @@
 common:
    - michael.hobson@adhocteam.us
    - michel.mcdonald@adhocteam.us
-   - casey.williams@adhocteam.us
    - kristen.brown@adhocteam.us
    - matt.kelly@adhocteam.us
+   - gia.antoniades@adhocteam.us
 development:
 staging:
 sandbox:
 production:
   - annie.tran@coforma.io
   - cory.sohrakoff@va.gov
+  - derek.fong@adhocteam.us
   - drew.fisher@adhocteam.us
   - eugene.lynch@coforma.io
   - jacob.worrell@va.gov
@@ -20,5 +21,6 @@ production:
   - robin.garrison@adhocteam.us
   - rocio.de-santiago@coforma.io
   - sade@coforma.io
+  - shaun.burdick@coforma.io
   - steve.albers@va.gov
   - zachary.goldfine@va.gov

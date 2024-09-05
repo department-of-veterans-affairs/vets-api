@@ -7,10 +7,8 @@ module MyHealth
         resource = fetch_folder_threads
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: ThreadsSerializer,
-               meta: resource.metadata
+        options = { meta: resource.metadata }
+        render json: ThreadsSerializer.new(resource.data, options)
       end
 
       def move
@@ -22,13 +20,14 @@ module MyHealth
       private
 
       def fetch_folder_threads
-        client.get_folder_threads(
-          params[:folder_id].to_s,
-          params[:page_size],
-          params[:page_number],
-          params[:sort_field],
-          params[:sort_order]
-        )
+        options = {
+          page_size: params[:page_size],
+          page_number: params[:page_number],
+          sort_field: params[:sort_field],
+          sort_order: params[:sort_order],
+          requires_oh_messages: params[:requires_oh_messages].to_s
+        }
+        client.get_folder_threads(params[:folder_id].to_s, options)
       rescue => e
         handle_error(e)
       end

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PaymentHistoryWebServiceBean/PaymentHistoryWebService?WSDL
+    uri: <BGS_BASE_URL>/PaymentHistoryWebServiceBean/PaymentHistoryWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -102,7 +102,7 @@ http_interactions:
   recorded_at: Thu, 27 Aug 2020 22:06:32 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/PaymentHistoryWebServiceBean/PaymentHistoryWebService
+    uri: <BGS_BASE_URL>/PaymentHistoryWebServiceBean/PaymentHistoryWebService
     body:
       encoding: UTF-8
       string: |-

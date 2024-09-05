@@ -14,34 +14,23 @@ module HCA
 
     configuration HCA::Configuration
 
-    # @param [Hash] user_identifier
-    def initialize(user_identifier = nil)
-      @user_identifier = user_identifier
+    # @param [Hash] user
+    def initialize(user = nil)
+      @user = user
     end
 
     # @param [HashWithIndifferentAccess] form JSON form data
     def submit_form(form)
-      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form, @user_identifier, '10-10EZ')
-      content = Gyoku.xml(formatted)
-      submission = soap.build_request(:save_submit_form, message: content)
-
       is_short_form = HealthCareApplication.new(form: form.to_json).short_form?
 
-      response = with_monitoring do
-        perform(:post, '', submission.body)
+      with_monitoring do
+        es_submit(form, @user, '10-10EZ')
       rescue => e
         increment_failure('submit_form_short_form', e) if is_short_form
         raise e
       ensure
         increment_total('submit_form_short_form') if is_short_form
       end
-
-      root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
-      {
-        success: true,
-        formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
-        timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
-      }
     end
 
     def health_check

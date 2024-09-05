@@ -11,9 +11,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "address",
-        "phone",
-        "email"
+        "address"
       ],
       "properties": {
         "address": {
@@ -32,7 +30,12 @@
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber":   { "type": "integer" },
+            "aptUnitNumber": {
+              "oneOf": [
+                { "type": "integer" },
+                { "type":"string" }
+              ]
+            },
             "city": {
               "description": "City for the address.",
               "type": "string",
@@ -121,8 +124,6 @@
         "firstName",
         "lastName",
         "address",
-        "phone",
-        "email",
         "relationship"
       ],
       "properties": {
@@ -157,7 +158,12 @@
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber":   { "type": "integer" },
+            "aptUnitNumber": {
+              "oneOf": [
+                { "type": "integer" },
+                { "type":"string" }
+              ]
+            },
             "city": {
               "description": "City for the address.",
               "type": "string",
@@ -274,7 +280,12 @@
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber":   { "type": "integer" },
+            "aptUnitNumber": {
+              "oneOf": [
+                { "type": "integer" },
+                { "type":"string" }
+              ]
+            },
             "city": {
               "description": "City for the address.",
               "type": "string",

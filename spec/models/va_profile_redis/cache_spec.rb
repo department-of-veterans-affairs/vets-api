@@ -2,9 +2,16 @@
 
 require 'rails_helper'
 
-describe VAProfileRedis::Cache, skip_vet360: true do
+describe VAProfileRedis::Cache, :skip_vet360 do
   let(:user) { build :user, :loa3 }
   let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
+  let(:cassette_path) do
+    if Flipper.enabled?(:va_v3_contact_information_service)
+      'va_profile/v2/contact_information'
+    else
+      'va_profile/contact_information'
+    end
+  end
 
   before do
     allow(user).to receive(:vet360_id).and_return('1')
@@ -14,7 +21,7 @@ describe VAProfileRedis::Cache, skip_vet360: true do
   describe '.invalidate' do
     context 'when user.vet360_contact_info is present' do
       it 'invalidates the va-profile-contact-info-response cache' do
-        VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette("#{cassette_path}/person_full", VCR::MATCH_EVERYTHING) do
           contact_info
         end
         expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(true)

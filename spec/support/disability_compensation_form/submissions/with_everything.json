@@ -59,8 +59,8 @@
       "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
       "directDeposit": {
         "accountType": "CHECKING",
-        "accountNumber": "123123123123",
-        "routingNumber": "123123123",
+        "accountNumber": " 123123123123 ",
+        "routingNumber": " 123123123 ",
         "bankName": "SomeBank"
       },
       "servicePay": {
@@ -191,7 +191,73 @@
             }
           ]
         }
-      ]
+      ],
+      "toxicExposure": {
+        "gulfWar1990": {
+          "iraq": true,
+          "kuwait": true,
+          "qatar": true
+        },
+        "gulfWar1990Details": {
+          "iraq": {
+            "startDate": "1991-03-01",
+            "endDate": "1992-01-01"
+          },
+          "qatar": {
+            "startDate": "1991-02-12",
+            "endDate": "1991-06-01"
+          },
+          "kuwait": {
+            "startDate": "1991-03-15"
+          }
+        },
+        "herbicide": {
+          "cambodia": true,
+          "guam": true,
+          "laos": true
+        },
+        "herbicideDetails": {
+          "cambodia": {
+            "startDate": "1991-03-01",
+            "endDate": "1992-01-01"
+          },
+          "guam": {
+            "startDate": "1991-02-12",
+            "endDate": "1991-06-01"
+          },
+          "laos": {
+            "startDate": "1991-03-15"
+          }
+        },
+        "otherHerbicideLocations": {
+          "description": "other location 1, other location 2 etc",
+          "startDate": "1991-03-01",
+          "endDate": "1992-01-01"
+        },
+        "otherExposures": {
+          "asbestos": true,
+          "radiation": true,
+          "mustardgas": false
+        },
+        "otherExposuresDetails": {
+          "asbestos": {
+            "startDate": "1991-03-01",
+            "endDate": "1992-01-01"
+          },
+          "radiation": {
+            "startDate": "1991-03-01",
+            "endDate": "1992-01-01"
+          }
+        },
+        "specifyOtherExposures": {
+          "description": "Lead, burn pits",
+          "startDate": "1991-03-01",
+          "endDate": "1992-01-01"
+        },
+        "conditions": {
+          "deviatedseptum": true
+        }
+      }
     }
   },
   "form526_uploads": [

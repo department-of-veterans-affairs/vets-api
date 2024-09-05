@@ -6,31 +6,37 @@ module AskVAApi
       attr_reader :id,
                   :inquiry_number,
                   :attachments,
+                  :category_name,
+                  :created_on,
                   :correspondences,
-                  :has_attachments,
                   :has_been_split,
+                  :inquiry_topic,
                   :level_of_authentication,
                   :last_update,
+                  :queue_id,
+                  :queue_name,
                   :status,
                   :submitter_question,
                   :school_facility_code,
-                  :topic,
                   :veteran_relationship
 
       def initialize(info, correspondences = nil)
-        @id = info[:id]
-        @inquiry_number = info[:inquiryNumber]
-        @attachments = info[:attachmentNames]
+        @id = info[:Id]
+        @inquiry_number = info[:InquiryNumber]
+        @attachments = info[:AttachmentNames]
+        @category_name = info[:CategoryName]
+        @created_on = info[:CreatedOn]
         @correspondences = correspondences
-        @has_attachments = info[:inquiryHasAttachments]
-        @has_been_split = info[:inquiryHasBeenSplit]
-        @level_of_authentication = info[:inquiryLevelOfAuthentication]
-        @last_update = info[:lastUpdate]
-        @status = info[:inquiryStatus]
-        @school_facility_code = info[:schoolFacilityCode]
-        @submitter_question = info[:submitterQuestion]
-        @topic = info[:inquiryTopic]
-        @veteran_relationship = info[:veteranRelationship]
+        @has_been_split = info[:InquiryHasBeenSplit]
+        @inquiry_topic = info[:InquiryTopic]
+        @level_of_authentication = info[:InquiryLevelOfAuthentication]
+        @last_update = info[:LastUpdate]
+        @queue_id = info[:QueueId]
+        @queue_name = info[:QueueName]
+        @status = info[:InquiryStatus]
+        @school_facility_code = info[:SchoolFacilityCode]
+        @submitter_question = info[:SubmitterQuestion]
+        @veteran_relationship = info[:VeteranRelationship]
       end
     end
   end

@@ -5,8 +5,6 @@ module MyHealth
     class VitalsController < MrController
       def index
         resource = client.list_vitals
-        raise Common::Exceptions::InternalServerError if resource.blank?
-
         render json: resource.to_json
       end
     end

@@ -109,6 +109,7 @@ describe MockedAuthentication::Credential::Service do
     let(:birth_date) { 'some-birth-date' }
     let(:ssn) { 'some-ssn' }
     let(:email) { 'some-email' }
+    let(:all_emails) { [email] }
     let(:user_uuid) { 'some-user-uuid' }
     let(:street) { "some-street\nsome-second-line-street" }
     let(:postal_code) { 'some-postal-code' }
@@ -128,6 +129,7 @@ describe MockedAuthentication::Credential::Service do
                          sub: user_uuid,
                          iss:,
                          email:,
+                         all_emails:,
                          email_verified: true,
                          given_name: first_name,
                          family_name: last_name,
@@ -155,6 +157,7 @@ describe MockedAuthentication::Credential::Service do
           max_ial: IAL::TWO,
           service_name: type,
           csp_email: email,
+          all_csp_emails: all_emails,
           multifactor:,
           authn_context:,
           auto_uplevel:

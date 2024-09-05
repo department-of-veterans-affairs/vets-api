@@ -54,6 +54,8 @@ module VAForms
     end
 
     def perform
+      return unless enabled?
+
       all_forms_data.each { |form| VAForms::FormBuilder.perform_async(form) }
 
       # append new tags for pg_search
@@ -72,10 +74,9 @@ module VAForms
     end
 
     def connection
-      basic_auth_class = Faraday::Request::BasicAuthentication
       @connection ||= Faraday.new(Settings.va_forms.drupal_url, faraday_options) do |faraday|
         faraday.request :url_encoded
-        faraday.use basic_auth_class, Settings.va_forms.drupal_username, Settings.va_forms.drupal_password
+        faraday.request :authorization, :basic, Settings.va_forms.drupal_username, Settings.va_forms.drupal_password
         faraday.adapter faraday_adapter
       end
     end
@@ -88,6 +89,12 @@ module VAForms
       options = { ssl: { verify: false } }
       options[:proxy] = { uri: URI.parse('socks://localhost:2001') } unless Rails.env.production?
       options
+    end
+
+    private
+
+    def enabled?
+      Settings.va_forms.form_reloader.enabled
     end
   end
 end

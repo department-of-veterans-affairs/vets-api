@@ -1,0 +1,116 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://dev-api.va.gov/oauth2/benefits-documents/system/v1/token
+      body:
+        encoding: US-ASCII
+        string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FwMThxb2Z1Y2NhV1FVUjJwNyIsInN1YiI6IjBvYXAxOHFvZnVjY2FXUVVSMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzaTN1aTgzZkxhNjhJSnYycDcvdjEvdG9rZW4iLCJpYXQiOjE3MTEzOTMwNjAsImV4cCI6MTcxMTM5MzM2MH0.bsn5STMs0wg6UthC6wBvJZXl_K8Qb_Mzosu1doVRvAPQYRxUajustj3YQFS_7pCDVtKEBjclYxky4HeWZlGn7shxL5z14wpaJQ3WexbX3IuKGJlR9zYdNqy9WOt6jlYMXVeOOspNefJqG9VIRL7468cTEx70Z4kr14vWG8Q775NZ8Pz-70ycLYjdP3iZwBnv_N6R4JzWP5enJ6v0FgK7JZCURmU9u4Fxbt42yG-0guMkDfVmjHXFbB9vwCLYMtgn-sl3sSNpHl0lpEUn3Z13_gzZw6aSnY16fM78TQaxltOgU_jU1WDvqdgYm7XDUJFoLpeRGq3MnkiwxoiQ7jb4Fg&scope=documents.read+documents.write
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/x-www-form-urlencoded
+        User-Agent:
+          - Vets.gov Agent
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Mon, 25 Mar 2024 18:57:41 GMT
+        Content-Type:
+          - application/json; charset=utf-8
+        Connection:
+          - keep-alive
+        X-Ratelimit-Remaining-Minute:
+          - "59"
+        Ratelimit-Limit:
+          - "60"
+        Ratelimit-Remaining:
+          - "59"
+        Ratelimit-Reset:
+          - "19"
+        X-Ratelimit-Limit-Minute:
+          - "60"
+        Vary:
+          - Origin
+        Cache-Control:
+          - no-cache, no-store
+        Pragma:
+          - no-cache
+        Etag:
+          - W/"406-LdhZ7Go5KkK8vIUxCwvlAbMIxWg"
+        Access-Control-Allow-Origin:
+          - "*"
+        Transfer-Encoding:
+          - chunked
+      body:
+        encoding: ASCII-8BIT
+        string:
+          '{"access_token":"removed","token_type":"Bearer","scope":"documents.write
+          documents.read","expires_in":600,"state":null}'
+    recorded_at: Mon, 25 Mar 2024 18:57:41 GMT
+  - request:
+      method: post
+      uri: https://dev-api.va.gov/services/benefits-documents/v1/uploads/status
+      body:
+        encoding: UTF-8
+        string: '{"data":{"requestIds":["16819"]}}'
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Authorization: Bearer <TOKEN>
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: ""
+      headers:
+        Date:
+          - Mon, 25 Mar 2024 18:57:42 GMT
+        Content-Type:
+          - application/json
+        Connection:
+          - keep-alive
+        X-Ratelimit-Remaining-Minute:
+          - "59"
+        Ratelimit-Limit:
+          - "60"
+        Ratelimit-Remaining:
+          - "59"
+        Ratelimit-Reset:
+          - "18"
+        X-Ratelimit-Limit-Minute:
+          - "60"
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+          - max-age=31536000; includeSubDomains; preload
+        Access-Control-Allow-Origin:
+          - "*"
+        Cache-Control:
+          - ""
+          - no-cache, no-store
+        X-Frame-Options:
+          - SAMEORIGIN
+        Pragma:
+          - no-cache
+        Transfer-Encoding:
+          - chunked
+      body:
+        encoding: ASCII-8BIT
+        string:
+          '{"data":{"statuses":[{"requestId":16819,"time":{"startTime":1704824509436,"endTime":1704856371167},"status":"FAILED","steps":[{"name":"CLAIMS_EVIDENCE","nextStepName":"BENEFITS_GATEWAY_SERVICE","description":"The
+          workflow step that uploads the document to Claims Evidence","status":"FAILED"},{"name":"BENEFITS_GATEWAY_SERVICE","description":"The
+          workflow step that uploads the document to Benefits Gateway Service","status":"NOT_STARTED"}],"error":{"detail":"Workflow
+          maximum step attempts exceeded for the current step","step":"CLAIMS_EVIDENCE"}}]}}'
+    recorded_at: Mon, 25 Mar 2024 18:57:42 GMT
+recorded_with: VCR 6.2.0

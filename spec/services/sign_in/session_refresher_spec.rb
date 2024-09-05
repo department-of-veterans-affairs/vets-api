@@ -42,7 +42,7 @@ RSpec.describe SignIn::SessionRefresher do
       let(:client_config) do
         create(:client_config, anti_csrf:, refresh_token_duration:, access_token_attributes:, enforced_terms:)
       end
-      let(:access_token_attributes) { %w[first_name last_name email] }
+      let(:access_token_attributes) { %w[first_name last_name email all_emails] }
       let(:anti_csrf) { false }
       let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
       let(:enforced_terms) { nil }

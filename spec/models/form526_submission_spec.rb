@@ -9,7 +9,9 @@ RSpec.describe Form526Submission do
       user_uuid: user.uuid,
       saved_claim_id: saved_claim.id,
       auth_headers_json: auth_headers.to_json,
-      form_json:
+      form_json:,
+      submit_endpoint:,
+      backup_submitted_claim_status:
     )
   end
 
@@ -21,6 +23,246 @@ RSpec.describe Form526Submission do
   let(:saved_claim) { FactoryBot.create(:va526ez) }
   let(:form_json) do
     File.read('spec/support/disability_compensation_form/submissions/only_526.json')
+  end
+  let(:submit_endpoint) { nil }
+  let(:backup_submitted_claim_status) { nil }
+
+  before do
+    Flipper.disable(:disability_compensation_production_tester)
+  end
+
+  describe 'associations' do
+    it { is_expected.to have_many(:form526_submission_remediations) }
+  end
+
+  describe 'submit_endpoint enum' do
+    context 'when submit_endpoint is evss' do
+      let(:submit_endpoint) { 'evss' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when submit_endpoint is claims_api' do
+      let(:submit_endpoint) { 'claims_api' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when submit_endpoint is benefits_intake_api' do
+      let(:submit_endpoint) { 'benefits_intake_api' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when submit_endpoint is not evss, claims_api or benefits_intake_api' do
+      it 'is invalid' do
+        expect do
+          subject.submit_endpoint = 'other_value'
+        end.to raise_error(ArgumentError, "'other_value' is not a valid submit_endpoint")
+      end
+    end
+  end
+
+  describe 'backup_submitted_claim_status enum' do
+    context 'when backup_submitted_claim_status is nil' do
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when backup_submitted_claim_status is accepted' do
+      let(:backup_submitted_claim_status) { 'accepted' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when backup_submitted_claim_status is rejected' do
+      let(:backup_submitted_claim_status) { 'rejected' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when backup_submitted_claim_status is paranoid_success' do
+      let(:backup_submitted_claim_status) { 'paranoid_success' }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'when backup_submitted_claim_status is neither accepted, rejected nor nil' do
+      it 'is invalid' do
+        expect do
+          subject.backup_submitted_claim_status = 'other_value'
+        end.to raise_error(ArgumentError, "'other_value' is not a valid backup_submitted_claim_status")
+      end
+    end
+  end
+
+  describe 'scopes' do
+    let!(:in_process) { create(:form526_submission) }
+    let!(:expired) { create(:form526_submission, :created_more_than_3_weeks_ago) }
+    let!(:happy_path_success) { create(:form526_submission, :with_submitted_claim_id) }
+    let!(:pending_backup) { create(:form526_submission, :backup_path) }
+    let!(:accepted_backup) { create(:form526_submission, :backup_path, :backup_accepted) }
+    let!(:rejected_backup) { create(:form526_submission, :backup_path, :backup_rejected) }
+    let!(:remediated) { create(:form526_submission, :remediated) }
+    let!(:remediated_and_expired) { create(:form526_submission, :remediated, :created_more_than_3_weeks_ago) }
+    let!(:remediated_and_rejected) { create(:form526_submission, :remediated, :backup_path, :backup_rejected) }
+    let!(:new_no_longer_remediated) { create(:form526_submission, :no_longer_remediated) }
+    let!(:old_no_longer_remediated) do
+      Timecop.freeze(3.months.ago) do
+        create(:form526_submission, :no_longer_remediated)
+      end
+    end
+    let!(:paranoid_success) { create(:form526_submission, :backup_path, :paranoid_success) }
+    let!(:success_by_age) do
+      Timecop.freeze((1.year + 1.day).ago) do
+        create(:form526_submission, :backup_path, :paranoid_success)
+      end
+    end
+    let!(:failed_primary) { create(:form526_submission, :with_failed_primary_job) }
+    let!(:exhausted_primary) { create(:form526_submission, :with_exhausted_primary_job) }
+    let!(:failed_backup) { create(:form526_submission, :with_failed_backup_job) }
+    let!(:exhausted_backup) { create(:form526_submission, :with_exhausted_backup_job) }
+
+    describe 'with_exhausted_primary_jobs' do
+      it 'returns submissions associated to failed or exhausted primary jobs' do
+        expect(Form526Submission.with_exhausted_primary_jobs).to contain_exactly(
+          failed_primary,
+          exhausted_primary
+        )
+      end
+    end
+
+    describe 'with_exhausted_backup_jobs' do
+      it 'returns submissions associated to failed or exhausted backup jobs' do
+        expect(Form526Submission.with_exhausted_backup_jobs).to contain_exactly(
+          failed_backup,
+          exhausted_backup
+        )
+      end
+    end
+
+    describe 'paranoid_success_type' do
+      it 'returns records less than a year old with paranoid_success backup status' do
+        expect(Form526Submission.paranoid_success_type).to contain_exactly(
+          paranoid_success
+        )
+      end
+    end
+
+    describe 'success_by_age' do
+      it 'returns records more than a year old with paranoid_success backup status' do
+        expect(Form526Submission.success_by_age).to contain_exactly(
+          success_by_age
+        )
+      end
+    end
+
+    describe 'pending_backup' do
+      it 'returns records submitted to the backup path but lacking a decisive state' do
+        expect(Form526Submission.pending_backup).to contain_exactly(
+          pending_backup
+        )
+      end
+    end
+
+    describe 'in_process' do
+      it 'only returns submissions that are still in process' do
+        expect(Form526Submission.in_process).to contain_exactly(
+          in_process,
+          new_no_longer_remediated,
+          exhausted_primary,
+          failed_primary
+        )
+      end
+    end
+
+    describe 'incomplete_type' do
+      it 'only returns submissions that are still in process' do
+        expect(Form526Submission.incomplete_type).to contain_exactly(
+          in_process,
+          pending_backup,
+          new_no_longer_remediated,
+          exhausted_primary,
+          failed_primary
+        )
+      end
+    end
+
+    describe 'accepted_to_primary_path' do
+      it 'returns submissions with a submitted_claim_id' do
+        expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
+          happy_path_success
+        )
+      end
+    end
+
+    describe 'accepted_to_backup_path' do
+      it 'returns submissions with a backup_submitted_claim_id that have been explicitly accepted' do
+        expect(Form526Submission.accepted_to_backup_path).to contain_exactly(
+          accepted_backup,
+          paranoid_success,
+          success_by_age
+        )
+      end
+    end
+
+    describe 'rejected_from_backup_path' do
+      it 'returns submissions with a backup_submitted_claim_id that have been explicitly rejected' do
+        expect(Form526Submission.rejected_from_backup_path).to contain_exactly(
+          rejected_backup,
+          remediated_and_rejected
+        )
+      end
+    end
+
+    describe 'remediated' do
+      it 'returns everything with a successful remediation' do
+        expect(Form526Submission.remediated).to contain_exactly(
+          remediated,
+          remediated_and_expired,
+          remediated_and_rejected
+        )
+      end
+    end
+
+    describe 'success_type' do
+      it 'returns all submissions on which no further action is required' do
+        expect(Form526Submission.success_type).to contain_exactly(
+          remediated,
+          remediated_and_expired,
+          remediated_and_rejected,
+          happy_path_success,
+          accepted_backup,
+          paranoid_success,
+          success_by_age
+        )
+      end
+    end
+
+    describe 'failure_type' do
+      it 'returns anything not explicitly successful or still in process' do
+        expect(Form526Submission.failure_type).to contain_exactly(
+          rejected_backup,
+          expired,
+          old_no_longer_remediated,
+          failed_backup,
+          exhausted_backup
+        )
+      end
+    end
   end
 
   shared_examples '#start_evss_submission' do
@@ -58,7 +300,16 @@ RSpec.describe Form526Submission do
 
       before do
         allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:info)
         Flipper.disable(:disability_526_maximum_rating)
+      end
+
+      def expect_max_cfi_logged(max_cfi_enabled, disability_claimed, diagnostic_code, total_increase_conditions)
+        expect(Rails.logger).to have_received(:info).with(
+          'Max CFI form526 submission',
+          { id: subject.id, max_cfi_enabled:, disability_claimed:, diagnostic_code:, total_increase_conditions:,
+            cfi_checkbox_was_selected: false }
+        )
       end
 
       context 'the submission is for tinnitus' do
@@ -84,6 +335,7 @@ RSpec.describe Form526Submission do
             it 'logs CFI metric upon submission' do
               subject.start
               expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
+              expect_max_cfi_logged('on', true, 6260, 1)
             end
           end
 
@@ -104,6 +356,7 @@ RSpec.describe Form526Submission do
             it 'logs CFI metric upon submission' do
               subject.start
               expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
+              expect_max_cfi_logged('off', true, 6260, 1)
             end
           end
 
@@ -143,6 +396,127 @@ RSpec.describe Form526Submission do
           it 'does not log CFI metric upon submission' do
             subject.start
             expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+          end
+        end
+      end
+
+      context 'the submission is from a Veteran with rated tinnitus and hypertension' do
+        let(:form_json) do
+          File.read('spec/support/disability_compensation_form/submissions/only_526_two_cfi_with_max_ratings.json')
+        end
+        let(:rated_disabilities) do
+          [
+            { name: 'Tinnitus',
+              diagnostic_code: ClaimFastTracking::DiagnosticCodes::TINNITUS,
+              rating_percentage: rating_percentage_tinnitus,
+              maximum_rating_percentage: 10 },
+            { name: 'Hypertension',
+              diagnostic_code: ClaimFastTracking::DiagnosticCodes::HYPERTENSION,
+              rating_percentage: rating_percentage_hypertension,
+              maximum_rating_percentage: 60 }
+          ]
+        end
+        let(:rating_percentage_tinnitus) { 0 }
+        let(:rating_percentage_hypertension) { 0 }
+
+        context 'Max rating education enabled' do
+          before { Flipper.enable(:disability_526_maximum_rating, user) }
+
+          context 'Rated Disabilities are not at maximum' do
+            it 'does not log CFI metric upon submission' do
+              subject.start
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
+            end
+          end
+
+          context 'Rated Disabilities are at maximum' do
+            let(:rating_percentage_tinnitus) { 10 }
+            let(:rating_percentage_hypertension) { 60 }
+
+            it 'logs CFI metric upon submission only for tinnitus' do
+              subject.start
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
+              expect_max_cfi_logged('on', true, 6260, 2)
+            end
+
+            context 'when the submission omits tinnitus' do
+              let(:form_json) do
+                File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
+              end
+
+              it 'logs CFI metric upon submission for tinnitus being omitted' do
+                subject.start
+                expect_max_cfi_logged('on', false, 6260, 1)
+              end
+            end
+          end
+
+          context 'Only Tinnitus is rated at the maximum' do
+            let(:rating_percentage_tinnitus) { 10 }
+
+            it 'logs CFI metric upon submission only for tinnitus' do
+              subject.start
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
+              expect_max_cfi_logged('on', true, 6260, 2)
+            end
+          end
+
+          context 'Only Hypertension is rated at the maximum' do
+            let(:rating_percentage_hypertension) { 60 }
+
+            it 'does not log CFI metric upon submission' do
+              subject.start
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
+            end
+          end
+        end
+
+        context 'Max rating education disabled' do
+          before { Flipper.disable(:disability_526_maximum_rating, user) }
+
+          context 'Rated Disabilities are not at maximum' do
+            it 'does not log CFI metric upon submission' do
+              subject.start
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+            end
+          end
+
+          context 'Rated Disabilities are at maximum' do
+            let(:rating_percentage_tinnitus) { 10 }
+            let(:rating_percentage_hypertension) { 60 }
+
+            it 'logs CFI metric upon submission only for tinnitus' do
+              subject.start
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+              expect_max_cfi_logged('off', true, 6260, 2)
+            end
+          end
+
+          context 'Only Tinnitus is rated at the maximum' do
+            let(:rating_percentage_tinnitus) { 10 }
+
+            it 'logs CFI metric upon submission only for tinnitus' do
+              subject.start
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+              expect_max_cfi_logged('off', true, 6260, 2)
+            end
+          end
+
+          context 'Only Hypertension is rated at the maximum' do
+            let(:rating_percentage_hypertension) { 60 }
+
+            it 'does not log CFI metric upon submission' do
+              subject.start
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+            end
           end
         end
       end
@@ -392,10 +766,10 @@ RSpec.describe Form526Submission do
       it 'adds the current BIRLS ID to birls_ids_tried array (turns birls_ids_tried into an array if nil)' do
         expect(JSON.parse(subject.birls_ids_tried)).to eq birls_ids_tried
         subject.mark_birls_id_as_tried
-        expect(subject.birls_ids_tried_hash.keys).to match_array [birls_id, *birls_ids_tried.keys]
+        expect(subject.birls_ids_tried_hash.keys).to contain_exactly(birls_id, *birls_ids_tried.keys)
         subject.save
         subject.reload
-        expect(subject.birls_ids_tried_hash.keys).to match_array [birls_id, *birls_ids_tried.keys]
+        expect(subject.birls_ids_tried_hash.keys).to contain_exactly(birls_id, *birls_ids_tried.keys)
       end
     end
   end
@@ -623,6 +997,36 @@ RSpec.describe Form526Submission do
         expect do
           subject.perform_ancillary_jobs(first_name)
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
+      end
+    end
+
+    context 'with Lighthouse document upload polling' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
+      end
+
+      context 'when feature enabled' do
+        before { Flipper.enable(:disability_526_toxic_exposure_document_upload_polling) }
+
+        it 'queues polling job' do
+          expect do
+            form = subject.saved_claim.parsed_form
+            form['startedFormVersion'] = '2022'
+            subject.update(submitted_claim_id: 1)
+            subject.saved_claim.update(form: form.to_json)
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
+        end
+      end
+
+      context 'when feature disabled' do
+        before { Flipper.disable(:disability_526_toxic_exposure_document_upload_polling) }
+
+        it 'does not queue polling job' do
+          expect do
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(0)
+        end
       end
     end
   end
@@ -957,6 +1361,219 @@ RSpec.describe Form526Submission do
         it 'returns false' do
           expect(subject).to be_falsey
         end
+      end
+    end
+  end
+
+  describe '#cfi_checkbox_was_selected?' do
+    subject { form_526_submission.cfi_checkbox_was_selected? }
+
+    let!(:in_progress_form) { create(:in_progress_526_form, user_uuid: user.uuid) }
+    let(:form_526_submission) do
+      Form526Submission.create(
+        user_uuid: user.uuid,
+        user_account: user.user_account,
+        saved_claim_id: saved_claim.id,
+        auth_headers_json: auth_headers.to_json,
+        form_json: File.read('spec/support/disability_compensation_form/submissions/only_526_tinnitus.json')
+      )
+    end
+
+    context 'when associated with a default InProgressForm' do
+      it 'returns false' do
+        expect(subject).to be_falsey
+      end
+    end
+
+    context 'when associated with a InProgressForm that went through CFI being selected' do
+      let(:params) do
+        { form_data: { 'view:claim_type' => { 'view:claiming_increase' => true } } }
+      end
+
+      it 'returns true' do
+        ClaimFastTracking::MaxCfiMetrics.log_form_update(in_progress_form, params)
+        in_progress_form.update!(params)
+        expect(subject).to be_truthy
+      end
+    end
+  end
+
+  describe '#eligible_for_ep_merge?' do
+    subject { Form526Submission.create(form_json: File.read(path)).eligible_for_ep_merge? }
+
+    before { Flipper.disable(:disability_526_ep_merge_multi_contention) }
+
+    context 'when there are multiple contentions' do
+      let(:path) { 'spec/support/disability_compensation_form/submissions/only_526_mixed_action_disabilities.json' }
+
+      context 'when multi-contention claims are not eligible' do
+        it { is_expected.to be_falsey }
+      end
+
+      context 'when multi-contention claims are eligible' do
+        before { Flipper.enable(:disability_526_ep_merge_multi_contention) }
+
+        it { is_expected.to be_truthy }
+      end
+    end
+
+    context 'when there is a single new contention' do
+      let(:path) { 'spec/support/disability_compensation_form/submissions/only_526_new_disability.json' }
+
+      context 'when new claims are eligible' do
+        before { Flipper.enable(:disability_526_ep_merge_new_claims) }
+        after { Flipper.disable(:disability_526_ep_merge_new_claims) }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context 'when new claims are not eligible' do
+        before { Flipper.disable(:disability_526_ep_merge_new_claims) }
+        after { Flipper.enable(:disability_526_ep_merge_new_claims) }
+
+        it { is_expected.to be_falsey }
+      end
+    end
+  end
+
+  describe '#remediated?' do
+    context 'when there are no form526_submission_remediations' do
+      it 'returns false' do
+        expect(subject).not_to be_remediated
+      end
+    end
+
+    context 'when there are form526_submission_remediations' do
+      let(:remediation) do
+        FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+      end
+
+      it 'returns true if the most recent remediation was successful' do
+        remediation.update(success: true)
+        expect(subject).to be_remediated
+      end
+
+      it 'returns false if the most recent remediation was not successful' do
+        remediation.update(success: false)
+        expect(subject).not_to be_remediated
+      end
+    end
+  end
+
+  describe '#duplicate?' do
+    context 'when there are no form526_submission_remediations' do
+      it 'returns false' do
+        expect(subject).not_to be_duplicate
+      end
+    end
+
+    context 'when there are form526_submission_remediations' do
+      let(:remediation) do
+        FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+      end
+
+      it 'returns true if the most recent remediation ignored_as_duplicate value is true' do
+        remediation.update(ignored_as_duplicate: true)
+        expect(subject).to be_duplicate
+      end
+
+      it 'returns false if the most recent remediation ignored_as_duplicate value is false' do
+        remediation.update(ignored_as_duplicate: false)
+        expect(subject).not_to be_duplicate
+      end
+    end
+  end
+
+  describe '#success_type?' do
+    let(:remediation) do
+      FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+    end
+
+    context 'when submitted_claim_id is present and backup_submitted_claim_status is nil' do
+      subject { create(:form526_submission, :with_submitted_claim_id) }
+
+      it 'returns true' do
+        expect(subject).to be_success_type
+      end
+    end
+
+    context 'when backup_submitted_claim_id is present and backup_submitted_claim_status is accepted' do
+      subject { create(:form526_submission, :backup_path, :backup_accepted) }
+
+      it 'returns true' do
+        expect(subject).to be_success_type
+      end
+    end
+
+    context 'when the most recent remediation is successful' do
+      it 'returns true' do
+        remediation.update(success: true)
+        expect(subject).to be_success_type
+      end
+    end
+
+    context 'when none of the success conditions are met' do
+      it 'returns false' do
+        remediation.update(success: false)
+        expect(subject).not_to be_success_type
+      end
+    end
+  end
+
+  describe '#in_process?' do
+    context 'when submitted_claim_id and backup_submitted_claim_status are both nil' do
+      context 'and the record was created within the last 3 days' do
+        it 'returns true' do
+          expect(subject).to be_in_process
+        end
+      end
+
+      context 'and the record was created more than 3 weeks ago' do
+        subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
+
+        it 'returns false' do
+          expect(subject).not_to be_in_process
+        end
+      end
+    end
+
+    context 'when submitted_claim_id is not nil' do
+      subject { create(:form526_submission, :with_submitted_claim_id) }
+
+      it 'returns false' do
+        expect(subject).not_to be_in_process
+      end
+    end
+
+    context 'when backup_submitted_claim_status is not nil' do
+      subject { create(:form526_submission, :backup_path, :backup_accepted) }
+
+      it 'returns false' do
+        expect(subject).not_to be_in_process
+      end
+    end
+  end
+
+  describe '#failure_type?' do
+    context 'when the submission is a success type' do
+      subject { create(:form526_submission, :with_submitted_claim_id) }
+
+      it 'returns true' do
+        expect(subject).not_to be_failure_type
+      end
+    end
+
+    context 'when the submission is in process' do
+      it 'returns false' do
+        expect(subject).not_to be_failure_type
+      end
+    end
+
+    context 'when the submission is neither a success type nor in process' do
+      subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
+
+      it 'returns true' do
+        expect(subject).to be_failure_type
       end
     end
   end

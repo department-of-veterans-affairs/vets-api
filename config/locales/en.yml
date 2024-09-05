@@ -23,10 +23,15 @@ en:
   time:
     formats:
       pdf_stamp: "%Y-%m-%d"
+      pdf_stamp4010007: "%m/%d/%Y"
+      pdf_stamp_utc: "%Y-%m-%d %I:%M %p %Z"
+  date:
+    formats:
+      pdf_stamp4010007: "%m/%d/%Y"
   dependency_claim_failure_mailer:
-    subject: We can't process your dependents application
+    subject: We can’t process your dependents application
     body_html: >
-      <p>We're sorry. Something went wrong when we tried to submit your application to add or remove a dependent on your VA benefits (VA Forms 21-686c and 21-674).</p>
+      <p>We’re sorry. Something went wrong when we tried to submit your application to add or remove a dependent on your VA benefits (VA Forms 21-686c and 21-674).</p>
       <p>Your online application didn’t go through because of a technical problem and we aren’t able to access your application.</p>
       <p>If you have general questions about adding or removing a dependent, you can call Veteran Benefits Assistance at 800-827-1000. We’re here Monday through Friday, 8:00 a.m. to 9:00 p.m. ET.</p>
       <p>We’re sorry for the extra work, <b>but after 24 hours</b>, you may need to go back and apply again at https://www.va.gov/view-change-dependents/add-remove-form-21-686c/.</p>
@@ -52,11 +57,12 @@ en:
       # end carrierwave messages
 
       uploads:
-        document_type_unknown:  'We couldn’t upload your file because it’s not a known document type.'
-        encrypted: 'We couldn’t upload your PDF because it’s encrypted. Save your file without a password and try uploading it again'
-        malformed_pdf: 'We couldn’t upload your PDF because the file is corrupted'
+        content_type_mismatch: "We couldn’t upload your file because the content doesn’t match the extension."
+        document_type_unknown: "We couldn’t upload your file because it’s not a known document type."
+        encrypted: "We couldn’t upload your PDF because it’s encrypted. Save your file without a password and try uploading it again"
+        malformed_pdf: "We couldn’t upload your PDF because the file is corrupted"
         ascii_encoded: "We couldn’t upload your file because we can’t read its characters. Text files must be ASCII-encoded."
         pdf:
           locked: We couldn’t upload your PDF because it’s encrypted. Save your file without a password and try uploading it again.
           invalid: We couldn’t open your PDF. Please save it and try uploading it again.
-          incorrect_password: We can’t unlock your PDF. Save your file without a password and try uploading it again.
+          incorrect_password: We couldn’t unlock your PDF. Save the PDF without a password and try again.

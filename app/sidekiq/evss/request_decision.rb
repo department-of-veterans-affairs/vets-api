@@ -3,6 +3,8 @@
 class EVSS::RequestDecision
   include Sidekiq::Job
 
+  sidekiq_options retry: 14
+
   def perform(auth_headers, evss_id)
     client = EVSS::ClaimsService.new(auth_headers)
     client.request_decision(evss_id)

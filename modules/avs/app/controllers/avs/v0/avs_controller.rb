@@ -88,7 +88,7 @@ module Avs
       end
 
       def validate_sid?(sid)
-        /^([A-F0-9]){32}$/.match(sid)
+        /^[[:xdigit:]]{30,40}$/.match(sid)
       end
 
       def normalize_icn(icn)

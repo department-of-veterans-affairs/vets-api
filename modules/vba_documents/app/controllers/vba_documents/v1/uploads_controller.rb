@@ -18,10 +18,8 @@ module VBADocuments
         )
         submission.metadata['version'] = 1
         submission.save!
-        render status: :accepted,
-               json: submission,
-               serializer: VBADocuments::V1::UploadSerializer,
-               render_location: true
+        options = { params: { render_location: true } }
+        render json: VBADocuments::V1::UploadSerializer.new(submission, options), status: :accepted
       end
 
       def show
@@ -42,9 +40,8 @@ module VBADocuments
           end
         end
 
-        render json: submission,
-               serializer: VBADocuments::V1::UploadSerializer,
-               render_location: false
+        options = { params: { render_location: false } }
+        render json: VBADocuments::V1::UploadSerializer.new(submission, options)
       end
 
       def download

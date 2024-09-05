@@ -15,6 +15,7 @@ module ClaimsApi
       robert.perea-martinez@adhocteam.us
       rockwell.rice@oddball.io
       stone_christopher@bah.com
+      tyler.coleman@oddball.io
       zachary.goldfine@va.gov
     ].freeze
 

@@ -10,7 +10,8 @@ describe VAProfile::Models::ServiceHistory do
       "branch_of_service_text": "National Guard",
       "period_of_service_begin_date": "2010-01-01",
       "period_of_service_end_date": "2015-12-31",
-      "period_of_service_type_code": "N"
+      "period_of_service_type_code": "N",
+      "period_of_service_type_text": "National Guard member"
     }'
   end
 
@@ -24,7 +25,10 @@ describe VAProfile::Models::ServiceHistory do
       expect(model.branch_of_service).to eq('National Guard')
       expect(model.begin_date).to eq('2010-01-01')
       expect(model.end_date).to eq('2015-12-31')
+      expect(model.period_of_service_type_code).to eq('N')
+      expect(model.period_of_service_type_text).to eq('National Guard member')
       expect(model.personnel_category_type_code).to eq('N')
+      expect(model.personnel_category_type_text).to eq('National Guard member')
     end
   end
 

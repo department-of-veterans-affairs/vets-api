@@ -71,6 +71,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
     c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
     c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
     c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
+    c.filter_sensitive_data('<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>') { Settings.lighthouse.direct_deposit.host }
     c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
     c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
     c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
@@ -196,7 +197,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
         end
       end
 
-      # This method will capture all external requests made to hosts such as MVI or EMIS
+      # This method will capture all external requests made to hosts such as MVI
       def capture_external_interactions
         result = nil
         VCR.use_cassette(feature_settings[:external_cassette], record: :new_episodes) do

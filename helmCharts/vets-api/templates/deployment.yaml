@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vets-api
+  labels:
+    app: vets-api
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: vets-api
+  template:
+    metadata:
+      labels:
+        app: vets-api
+    spec:
+      initContainers:
+        - name: db-create
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: [ "bash" ]
+          args: [ "-c", "bundle exec rake db:migrate || bundle exec rake db:setup db:migrate" ]
+          env:
+            - name: "Settings.database_url"
+              value: "{{ .Values.databaseUrl }}"
+            - name: "BUNDLE_ENTERPRISE__CONTRIBSYS__COM"
+              value: "{{ .Values.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}"
+            - name: "KMS_KEY_ID"
+              value: "insecure-test-key"
+          volumeMounts:
+            - name: settings-local-yml
+              mountPath: /app/config/settings
+              readOnly: true
+      containers:
+        - name: vets-api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: "Settings.database_url"
+              value: "{{ .Values.databaseUrl }}"
+            - name: "BUNDLE_ENTERPRISE__CONTRIBSYS__COM"
+              value: "{{ .Values.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}"
+            - name: "KMS_KEY_ID"
+              value: "insecure-test-key"
+            - name: "GIT_REVISION"
+              value: "{{ .Chart.Version }}"
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          startupProbe:
+            tcpSocket:
+              port: http
+            failureThreshold: 40
+            periodSeconds: 10
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - name: settings-local-yml
+              mountPath: /app/config/settings
+              readOnly: true
+      volumes:
+        - name: settings-local-yml
+          configMap:
+            name: settings-local-yml
+            items:
+              - key: "settings.local.yml"
+                path: "production.yml"
+

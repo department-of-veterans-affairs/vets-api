@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'bgs/power_of_attorney_verifier'
-
 module ClaimsApi
   module PoaVerification
     extend ActiveSupport::Concern
@@ -67,9 +65,12 @@ module ClaimsApi
       # @param poa_code [String] poa code to match to @current_user
       #
       # @return [Boolean] True if valid poa code, False if not
-      def valid_poa_code_for_current_user?(poa_code)
+      def valid_poa_code_for_current_user?(poa_code) # rubocop:disable Metrics/MethodLength
+        return false if @current_user.first_name.nil? || @current_user.last_name.nil?
+
         reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
                                                                last_name: @current_user.last_name)
+
         return false if reps.blank?
 
         if reps.count > 1
@@ -80,6 +81,12 @@ module ClaimsApi
             reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
                                                                    last_name: @current_user.last_name,
                                                                    middle_initial:)
+
+            if reps.blank? || reps.count > 1
+              reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
+                                                                     last_name: @current_user.last_name,
+                                                                     poa_code:)
+            end
 
             raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?
             raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
@@ -96,17 +103,13 @@ module ClaimsApi
       def verify_power_of_attorney!
         return if token.client_credentials_token?
 
-        logged_in_representative_user = @current_user
-        target_veteran_to_be_verified = target_veteran
-        verify_representative_and_veteran(logged_in_representative_user, target_veteran_to_be_verified)
+        target_veteran_to_verify = ::Veteran::User.new(target_veteran)
+        poa_code_to_verify = target_veteran_to_verify.power_of_attorney.try(:code)
+        valid_poa_code_for_current_user?(poa_code_to_verify)
+      rescue ::Common::Exceptions::UnprocessableEntity
+        raise
       rescue
         raise ::Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
-      end
-
-      def verify_representative_and_veteran(logged_in_representative_user, target_veteran_to_be_verified)
-        verifying_bgs_service = BGS::PowerOfAttorneyVerifier.new(target_veteran_to_be_verified)
-        verifying_bgs_service.verify(logged_in_representative_user)
-        true
       end
 
       def poa_code_in_organization?(poa_code)

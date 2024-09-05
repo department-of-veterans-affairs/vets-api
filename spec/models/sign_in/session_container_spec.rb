@@ -9,13 +9,15 @@ RSpec.describe SignIn::SessionContainer, type: :model do
            refresh_token:,
            access_token:,
            anti_csrf_token:,
-           client_config:)
+           client_config:,
+           device_secret:)
   end
 
   let(:session) { create(:oauth_session) }
   let(:refresh_token) { create(:refresh_token) }
   let(:access_token) { create(:access_token) }
   let(:anti_csrf_token) { SecureRandom.hex }
+  let(:device_secret) { SecureRandom.hex }
   let(:client_config) { create(:client_config) }
 
   describe 'validations' do
@@ -87,6 +89,24 @@ RSpec.describe SignIn::SessionContainer, type: :model do
           expect { subject }.to raise_error(expected_error, expected_error_message)
         end
       end
+    end
+  end
+
+  describe '#context' do
+    subject { session_container.context }
+
+    let(:expected_context) do
+      {
+        user_uuid: session_container.access_token.user_uuid,
+        session_handle: session_container.session.handle,
+        client_id: session_container.session.client_id,
+        type: session.user_verification.credential_type,
+        icn: session.user_account.icn
+      }
+    end
+
+    it 'returns serialized access_token context details' do
+      expect(subject).to eq(expected_context)
     end
   end
 end

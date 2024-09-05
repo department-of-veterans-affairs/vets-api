@@ -101,7 +101,8 @@ module Login
       UserVerification.create!(type => identifier,
                                user_account: existing_user_account || UserAccount.new(icn:),
                                backing_idme_uuid:,
-                               verified_at:)
+                               verified_at:,
+                               locked:)
     end
 
     def user_verification_needs_to_be_updated?
@@ -113,7 +114,8 @@ module Login
     end
 
     def set_new_user_log
-      @new_user_log = "[Login::UserVerifier] New VA.gov user, type=#{login_type}, broker=#{auth_broker}"
+      @new_user_log = '[Login::UserVerifier] New VA.gov user, ' \
+                      "type=#{login_type}, broker=#{auth_broker}, identifier=#{identifier}, locked=#{locked}"
     end
 
     def post_transaction_message_logs
@@ -134,7 +136,13 @@ module Login
       @identifier = idme_uuid
       raise Errors::UserVerificationNotCreatedError if identifier.nil?
 
-      Rails.logger.info("[Login::UserVerifier] Attempting alternate type=#{type}  identifier=#{identifier}")
+      Rails.logger.info("[Login::UserVerifier] Attempting alternate type=#{type} identifier=#{identifier}")
+    end
+
+    def locked
+      return false unless existing_user_account
+
+      @locked ||= existing_user_account.user_verifications.send(login_type).where(locked: true).present?
     end
 
     def existing_user_account

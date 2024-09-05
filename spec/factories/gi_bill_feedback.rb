@@ -58,5 +58,9 @@ FactoryBot.define do
         issueResolution: 'issueResolution'
       }.to_json
     }
+
+    trait :with_response do
+      response { '{"parsed_response":{"response_number":"600142587"}}' }
+    end
   end
 end

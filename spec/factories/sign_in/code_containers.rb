@@ -6,10 +6,12 @@ FactoryBot.define do
     code { SecureRandom.hex }
     client_id { create(:client_config).client_id }
     user_verification_id { create(:user_verification).id }
+    device_sso { false }
     user_attributes do
       { first_name: Faker::Name.first_name,
         last_name: Faker::Name.last_name,
-        email: Faker::Internet.email }
+        email: Faker::Internet.email,
+        all_emails: [Faker::Internet.email] }
     end
   end
 end

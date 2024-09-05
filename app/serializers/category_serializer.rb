@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-class CategorySerializer < ActiveModel::Serializer
-  def id
-    object.category_id
-  end
+class CategorySerializer
+  include JSONAPI::Serializer
 
-  attribute(:message_category_type)
+  set_id :category_id
+  set_type :categories
+
+  attribute :message_category_type
 end

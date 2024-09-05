@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
-class CommunicationGroupsSerializer < ActiveModel::Serializer
-  attributes :communication_groups
+class CommunicationGroupsSerializer
+  include JSONAPI::Serializer
 
-  def communication_groups
+  set_id { '' }
+  set_type :hashes
+
+  attribute :communication_groups do |object|
     object[:communication_groups]
-  end
-
-  def id
-    nil
   end
 end

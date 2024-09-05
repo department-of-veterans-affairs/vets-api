@@ -8,11 +8,15 @@ require 'va_profile/models/service_history'
 require_relative 'configuration'
 require_relative 'service_history_response'
 
+##
+# @see https://qa.vaprofile.va.gov:7005/profile-service/swagger-ui/index.html?urls.primaryName=ProfileServiceV3
+# Swagger docs can only be accessed over VA network
 module VAProfile
   module MilitaryPersonnel
     class Service < VAProfile::Service
       include Common::Client::Concerns::Monitoring
 
+      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.military_personnel".freeze
       configuration VAProfile::MilitaryPersonnel::Configuration
 
       OID = '2.16.840.1.113883.3.42.10001.100001.12'

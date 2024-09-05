@@ -8,5 +8,11 @@ module V0
     skip_before_action(:authenticate, raise: false)
 
     FORM_ATTACHMENT_MODEL = HCAAttachment
+
+    private
+
+    def serializer_klass
+      HCAAttachmentSerializer
+    end
   end
 end

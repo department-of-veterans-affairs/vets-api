@@ -12,6 +12,14 @@ require 'disability_compensation/providers/ppiu_direct_deposit/lighthouse_ppiu_p
 require 'disability_compensation/providers/claims_service/claims_service_provider'
 require 'disability_compensation/providers/claims_service/evss_claims_service_provider'
 require 'disability_compensation/providers/claims_service/lighthouse_claims_service_provider'
+require 'disability_compensation/providers/brd/brd_provider'
+require 'disability_compensation/providers/brd/evss_brd_provider'
+require 'disability_compensation/providers/brd/lighthouse_brd_provider'
+require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
+require 'disability_compensation/providers/generate_pdf/evss_generate_pdf_provider'
+require 'disability_compensation/providers/generate_pdf/lighthouse_generate_pdf_provider'
+require 'disability_compensation/providers/document_upload/lighthouse_supplemental_document_upload_provider'
+require 'disability_compensation/providers/document_upload/evss_supplemental_document_upload_provider'
 require 'logging/third_party_transaction'
 
 class ApiProviderFactory
@@ -27,7 +35,10 @@ class ApiProviderFactory
     rated_disabilities: :rated_disabilities,
     intent_to_file: :intent_to_file,
     ppiu: :ppiu,
-    claims: :claims
+    claims: :claims,
+    brd: :brd,
+    generate_pdf: :generate_pdf,
+    supplemental_document_upload: :supplemental_document_upload
   }.freeze
 
   # Splitting the rated disabilities functionality into two use cases:
@@ -42,6 +53,10 @@ class ApiProviderFactory
 
   # PPIU calls out to Direct Deposit APIs in Lighthouse
   FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT = 'disability_compensation_lighthouse_ppiu_direct_deposit_provider'
+  FEATURE_TOGGLE_BRD = 'disability_compensation_lighthouse_brd'
+  FEATURE_TOGGLE_GENERATE_PDF = 'disability_compensation_lighthouse_generate_pdf'
+
+  FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT = 'disability_compensation_lighthouse_upload_supplemental_document'
 
   attr_reader :type
 
@@ -50,6 +65,9 @@ class ApiProviderFactory
     :intent_to_file_service_provider,
     :ppiu_service_provider,
     :claims_service_provider,
+    :brd_service_provider,
+    :generate_pdf_service_provider,
+    :supplemental_document_upload_service_provider,
     additional_class_logs: {
       action: 'disability compensation factory choosing API Provider'
     },
@@ -83,6 +101,12 @@ class ApiProviderFactory
       ppiu_service_provider
     when FACTORIES[:claims]
       claims_service_provider
+    when FACTORIES[:brd]
+      brd_service_provider
+    when FACTORIES[:generate_pdf]
+      generate_pdf_service_provider
+    when FACTORIES[:supplemental_document_upload]
+      supplemental_document_upload_service_provider
     else
       raise UndefinedFactoryTypeError
     end
@@ -131,6 +155,45 @@ class ApiProviderFactory
       LighthouseClaimsServiceProvider.new(@options[:icn])
     else
       raise NotImplementedError, 'No known Claims Service Api Provider type provided'
+    end
+  end
+
+  def brd_service_provider
+    case api_provider
+    when API_PROVIDER[:evss]
+      EvssBRDProvider.new(@current_user)
+    when API_PROVIDER[:lighthouse]
+      LighthouseBRDProvider.new(@current_user)
+    else
+      raise NotImplementedError, 'No known BRD Api Provider type provided'
+    end
+  end
+
+  def generate_pdf_service_provider
+    case api_provider
+    when API_PROVIDER[:evss]
+      if @options[:auth_headers].nil? || @options[:auth_headers]&.empty?
+        raise StandardError, 'options[:auth_headers] is required to create a generate an EVSS pdf provider'
+      end
+
+      # provide options[:breakered] = false if this needs to use the non-breakered configuration
+      # for instance, in the backup process
+      EvssGeneratePdfProvider.new(@options[:auth_headers], breakered: @options[:breakered])
+    when API_PROVIDER[:lighthouse]
+      LighthouseGeneratePdfProvider.new(@current_user[:icn])
+    else
+      raise NotImplementedError, 'No known Generate Pdf Api Provider type provided'
+    end
+  end
+
+  def supplemental_document_upload_service_provider
+    case api_provider
+    when API_PROVIDER[:evss]
+      EVSSSupplementalDocumentUploadProvider.new(@options[:form526_submission])
+    when API_PROVIDER[:lighthouse]
+      LighthouseSupplementalDocumentUploadProvider.new(@options[:form526_submission])
+    else
+      raise NotImplementedError, 'No known Supplemental Document Upload Api Provider type provided'
     end
   end
 

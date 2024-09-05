@@ -1,17 +1,16 @@
 # frozen_string_literal: true
 
-class LighthouseRatingInfoSerializer < ActiveModel::Serializer
-  attributes :user_percent_of_disability, :source_system
+class LighthouseRatingInfoSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
+  set_id { '' }
+
+  attribute :user_percent_of_disability do |object|
+    attr = :user_percent_of_disability
+    object.respond_to?(attr) ? object.send(attr) : object[attr]
   end
 
-  def source_system
+  attribute :source_system do |_|
     'Lighthouse'
-  end
-
-  def read_attribute_for_serialization(attr)
-    respond_to?(attr) ? send(attr) : object[attr]
   end
 end

@@ -24,6 +24,7 @@ class LighthouseClaimsServiceProvider
       DisabilityCompensation::ApiProvider::Claim.new(
         id: open_claim['id'],
         base_end_product_code: open_claim['attributes']['baseEndProductCode'],
+        claim_date: open_claim['attributes']['claimDate'],
         claim_phase_dates: open_claim['attributes']['claimPhaseDates'],
         development_letter_sent: open_claim['attributes']['developmentLetterSent'],
         status: open_claim['attributes']['status'] # make sure words/strings syntax is perfect match

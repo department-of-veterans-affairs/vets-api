@@ -6,13 +6,16 @@ envs = %w[development staging sandbox production]
 
 Datadog.configure do |c|
   if envs.include? Settings.vsp_environment
-    # Talk to DD agent in neighboring container
-    c.agent.host = 'datadog-agent'
-    c.agent.port = 8126
-
     # Namespace our app
     c.service = 'vets-api'
     c.env = Settings.vsp_environment unless ENV['DD_ENV']
+    c.version = AppInfo::GIT_REVISION unless ENV['DD_VERSION']
+    unless ENV['DD_TAGS']
+      c.tags = {
+        'kube_deployment' => ENV['KUBE_DEPLOYMENT'].presence,
+        'pod_name' => ENV['POD_NAME'].presence
+      }
+    end
 
     # Enable instruments
     c.tracing.instrument :rails

@@ -4,23 +4,23 @@ module AskVAApi
   module Correspondences
     class Entity
       attr_reader :id,
-                  :inquiry_id,
-                  :message_type,
+                  :created_on,
                   :modified_on,
                   :status_reason,
                   :description,
+                  :message_type,
                   :enable_reply,
                   :attachments
 
       def initialize(info)
-        @id = info[:id]
-        @inquiry_id = info[:inquiryId]
-        @message_type = info[:message_type]
-        @modified_on = info[:modifiedon]
-        @status_reason = info[:status_reason]
-        @description = info[:description]
-        @enable_reply = info[:enable_reply]
-        @attachments = info[:attachmentNames]
+        @id = info[:Id]
+        @created_on = info[:CreatedOn]
+        @modified_on = info[:ModifiedOn]
+        @status_reason = info[:StatusReason]
+        @description = info[:Description]
+        @message_type = info[:MessageType]
+        @enable_reply = info[:EnableReply]
+        @attachments = info[:AttachmentNames]
       end
     end
   end

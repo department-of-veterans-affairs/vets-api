@@ -1,24 +1,38 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vye/batch_transfer/egress_files'
 
-RSpec.describe VYE::BatchTransfer::EgressFiles do
-  describe '#address_changes_filename' do
-    it 'returns a string' do
-      expect(VYE::BatchTransfer::EgressFiles.address_changes_filename).to be_a(String)
-    end
+RSpec.describe Vye::BatchTransfer::EgressFiles do
+  let(:file) { instance_double(Pathname) }
+  let(:io) { instance_double(IO) }
+
+  it 'sends address changes to AWS' do
+    expect(described_class).to receive(:address_changes_filename)
+    expect(described_class).to receive(:tmp_path).and_return(file)
+    expect(file).to receive(:open).and_yield(io)
+    expect(described_class).to receive(:upload).with(file)
+    expect(file).to receive(:delete)
+
+    described_class.address_changes_upload
   end
 
-  describe '#direct_deposit_filename' do
-    it 'returns a string' do
-      expect(VYE::BatchTransfer::EgressFiles.direct_deposit_filename).to be_a(String)
-    end
+  it 'sends direct deposit changes to AWS' do
+    expect(described_class).to receive(:direct_deposit_filename)
+    expect(described_class).to receive(:tmp_path).and_return(file)
+    expect(file).to receive(:open).and_yield(io)
+    expect(described_class).to receive(:upload).with(file)
+    expect(file).to receive(:delete)
+
+    described_class.direct_deposit_upload
   end
 
-  describe '#no_change_enrollment_filename' do
-    it 'returns a string' do
-      expect(VYE::BatchTransfer::EgressFiles.no_change_enrollment_filename).to be_a(String)
-    end
+  it 'sends verifications to AWS' do
+    expect(described_class).to receive(:verification_filename)
+    expect(described_class).to receive(:tmp_path).and_return(file)
+    expect(file).to receive(:open).and_yield(io)
+    expect(described_class).to receive(:upload).with(file)
+    expect(file).to receive(:delete)
+
+    described_class.verification_upload
   end
 end

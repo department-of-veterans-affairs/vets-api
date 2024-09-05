@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'emis/service'
 require 'va_profile/military_personnel/service'
 
 module V0
@@ -11,8 +10,6 @@ module V0
 
       # Fetches the service history for the current user.
       # This is an array of select military service episode data.
-      # Data source is moving from eMIS to VA Profile.
-      # Feature toggle will be used until transition is complete.
       #
       # @return [Response] Sample response.body:
       #   {
@@ -25,7 +22,8 @@ module V0
       #             "branch_of_service" => "Air Force",
       #             "begin_date"        => "2007-04-01",
       #             "end_date"          => "2016-06-01",
-      #             "personnel_category_type_code" => "V"
+      #             "period_of_service_type_code" => "V",
+      #             "period_of_service_type_text" => "Reserve member"
       #           }
       #         ]
       #       }
@@ -45,11 +43,10 @@ module V0
         handle_errors!(response.episodes)
         report_results(response.episodes)
 
-        json = JSON.parse(response.episodes.to_json, symbolize_names: true)
+        service_history_json = JSON.parse(response.episodes.to_json, symbolize_names: true)
+        options = { is_collection: false }
 
-        render status: response.status,
-               json:,
-               serializer: ServiceHistorySerializer
+        render json: ServiceHistorySerializer.new(service_history_json, options), status: response.status
       end
 
       def check_authorization

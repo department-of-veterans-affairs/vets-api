@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_error'
 require 'lighthouse/auth/client_credentials/jwt_generator'
 require 'lighthouse/auth/client_credentials/service'
 
@@ -34,7 +34,7 @@ module Lighthouse
           faraday.request :json
 
           faraday.response :betamocks if use_mocks?
-          faraday.response :json, { content_type: /\bjson/ }
+          faraday.response :json, content_type: /\bjson/
           faraday.adapter Faraday.default_adapter
         end
       end

@@ -19,7 +19,7 @@ module ClaimsApi
           claim_document = @claim.supporting_documents.build
           claim_document.set_file_data!(document, EVSS_DOCUMENT_TYPE, @params[:description])
           claim_document.save!
-          ClaimsApi::ClaimUploader.perform_async(claim_document.id)
+          ClaimsApi::ClaimUploader.perform_async(claim_document.id) unless Flipper.enabled? :claims_load_testing
         end
       end
 

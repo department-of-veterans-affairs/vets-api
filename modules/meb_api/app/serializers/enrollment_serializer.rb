@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-class EnrollmentSerializer < ActiveModel::Serializer
-  attribute :enrollment_verifications
-  attribute :last_certified_through_date
-  attribute :payment_on_hold
+class EnrollmentSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  attributes :enrollment_verifications, :last_certified_through_date, :payment_on_hold
+
+  set_id { '' }
 end

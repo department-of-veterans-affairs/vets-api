@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class SubmissionSerializer < ActiveModel::Serializer
+class SubmissionSerializer
+  include JSONAPI::Serializer
+
   attribute :education_benefit
 
-  def id
-    nil
-  end
+  set_id { '' }
 end

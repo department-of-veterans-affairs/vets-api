@@ -7,7 +7,7 @@ FactoryBot.define do
     session_handle { create(:oauth_session).handle }
     client_id { create(:client_config).client_id }
     user_uuid { create(:user_account).id }
-    audience { 'some-audience' }
+    audience { ['some-audience'] }
     refresh_token_hash { SecureRandom.hex }
     parent_refresh_token_hash { SecureRandom.hex }
     anti_csrf_token { SecureRandom.hex }
@@ -15,6 +15,7 @@ FactoryBot.define do
     version { SignIn::Constants::AccessToken::CURRENT_VERSION }
     expiration_time { Time.zone.now + SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
     created_time { Time.zone.now }
+    device_secret_hash { SecureRandom.hex }
     user_attributes do
       { 'first_name' => Faker::Name.first_name,
         'last_name' => Faker::Name.last_name,
@@ -33,7 +34,8 @@ FactoryBot.define do
           version:,
           expiration_time:,
           created_time:,
-          user_attributes:)
+          user_attributes:,
+          device_secret_hash:)
     end
   end
 end

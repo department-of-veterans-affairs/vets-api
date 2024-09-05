@@ -8,6 +8,8 @@ module V0
     class AddressValidationController < ApplicationController
       service_tag 'profile'
 
+      skip_before_action :authenticate, only: [:create]
+
       def create
         address = VAProfile::Models::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?

@@ -3,7 +3,7 @@
 require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/response/json_parser'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_error'
 require 'common/client/middleware/response/mhv_errors'
 require 'common/client/middleware/response/snakecase'
 require 'common/client/middleware/response/mhv_xml_html_errors'
@@ -62,7 +62,7 @@ module BB
         conn.response :betamocks if Settings.mhv.bb.mock
         conn.response :bb_parser
         conn.response :snakecase
-        conn.response :raise_error, error_prefix: service_name
+        conn.response :raise_custom_error, error_prefix: service_name
         conn.response :mhv_errors
         conn.response :mhv_xml_html_errors
         conn.response :json_parser

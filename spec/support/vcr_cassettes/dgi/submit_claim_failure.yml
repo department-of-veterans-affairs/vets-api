@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/Chapter33/claimsubmission
+    body:
+      encoding: UTF-8
+      string: '{"educationBenefit":{"claimant":{"firstName":"Herbert","middleName":"Hoover","lastName":"Hoover","dateOfBirth":"1980-03-11","contactInfo":{"addressLine1":"503
+        upper park","addressLine2":"","city":"falls church","zipcode":"22046","emailAddress":"hhover@test.com","addressType":"DOMESTIC","mobilePhoneNumber":"4409938894","countryCode":"US","stateCode":"VA"},"notificationMethod":"EMAIL"}},"relinquishedBenefit":{"effRelinquishDate":"2021-10-15","relinquishedBenefit":"Chapter30"},"additionalConsiderations":{"activeDutyKicker":"N/A","academyRotcScholarship":"YES","reserveKicker":"N/A","seniorRotcScholarship":"YES","activeDutyDodRepayLoan":"YES"},"comments":{"disagreeWithServicePeriod":"false"},"directDeposit":{"accountNumber":"********3123","accountType":"savings","routingNumber":"*******3123"},"format":"json","controller":"meb_api/v0/education_benefits","action":"submit_claim","claimant":null}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Server:
+      - nginx/1.21.6
+      Date:
+      - Thu, 28 Mar 2024 17:42:51 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+    body:
+      encoding: UTF-8
+      string: '{"timestamp":"2024-03-28 01:42:50","status":400,"error":"Exception
+        while parsing a JSON Object"}'
+  recorded_at: Thu, 28 Mar 2024 17:42:51 GMT
+recorded_with: VCR 6.2.0

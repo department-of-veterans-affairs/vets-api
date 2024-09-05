@@ -17,6 +17,7 @@ module SignIn
         user_uuid: decoded_token.sub,
         audience: decoded_token.aud,
         refresh_token_hash: decoded_token.refresh_token_hash,
+        device_secret_hash: decoded_token.device_secret_hash,
         anti_csrf_token: decoded_token.anti_csrf_token,
         last_regeneration_time: Time.zone.at(decoded_token.last_regeneration_time),
         parent_refresh_token_hash: decoded_token.parent_refresh_token_hash,
@@ -31,7 +32,7 @@ module SignIn
     def jwt_decode_access_token(with_validation)
       decoded_jwt = JWT.decode(
         access_token_jwt,
-        private_key,
+        decode_key_array,
         with_validation,
         {
           verify_expiration: with_validation,
@@ -47,8 +48,18 @@ module SignIn
       raise Errors::AccessTokenMalformedJWTError.new message: 'Access token JWT is malformed'
     end
 
-    def private_key
-      OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key))
+    def decode_key_array
+      [public_key, public_key_old].compact
+    end
+
+    def public_key
+      OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key)).public_key
+    end
+
+    def public_key_old
+      return unless Settings.sign_in.jwt_old_encode_key
+
+      OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_old_encode_key)).public_key
     end
   end
 end

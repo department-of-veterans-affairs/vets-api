@@ -31,35 +31,8 @@ module AppealsApi
         @ssn ||= icn_to_ssn!(veteran_icn)
       end
 
-      def va_user
-        required_header('X-VA-User')
-      end
-
-      def caseflow_request_headers
-        { 'Consumer' => request.headers['X-Consumer-Username'], 'VA-User' => required_header('X-VA-User') }
-      end
-
-      def log_caseflow_request_details
-        hashed_ssn = Digest::SHA2.hexdigest(ssn)
-        Rails.logger.info('Caseflow Request', 'va_user' => va_user, 'lookup_identifier' => hashed_ssn)
-      end
-
-      def log_caseflow_response(res)
-        Rails.logger.info(
-          'Caseflow Response',
-          {
-            'va_user' => va_user,
-            'first_appeal_id' => res.body.dig('data', 0, 'id'),
-            'appeal_count' => res.body['data'].length
-          }
-        )
-      end
-
       def get_caseflow_response
-        log_caseflow_request_details
-        res = Caseflow::Service.new.get_appeals(OpenStruct.new(ssn:), caseflow_request_headers)
-        log_caseflow_response(res)
-        res
+        Caseflow::Service.new.get_appeals(OpenStruct.new(ssn:))
       end
 
       def token_validation_api_key

@@ -5,15 +5,21 @@ require 'pdf_generator_service/pdf_client'
 
 module ClaimsApi
   module V2
-    class DisabilityCompensationPdfGenerator < DisabilityCompensationClaimServiceBase
+    class DisabilityCompensationPdfGenerator < ClaimsApi::ServiceBase
       EVSS_DOCUMENT_TYPE = 'L023'
       LOG_TAG = '526_v2_PDF_Generator_job'
+      sidekiq_options expires_in: 48.hours, retry: true
 
       def perform(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
         log_job_progress(claim_id,
                          "526EZ PDF generator started for claim #{claim_id}")
 
         auto_claim = get_claim(claim_id)
+
+        if Settings.claims_api.benefits_documents.use_mocks
+          start_docker_container_job(auto_claim&.id, perform_async)
+          return
+        end
 
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
@@ -32,7 +38,7 @@ module ClaimsApi
                            '526EZ PDF generator PDF string returned')
 
           file_name = "#{SecureRandom.hex}.pdf"
-          path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
+          path = ::Common::FileHelpers.generate_clamav_temp_file(pdf_string, file_name)
           upload = ActionDispatch::Http::UploadedFile.new({
                                                             filename: file_name,
                                                             type: 'application/pdf',
@@ -50,30 +56,30 @@ module ClaimsApi
 
         log_job_progress(claim_id,
                          '526EZ PDF generator job finished')
-
         start_docker_container_job(auto_claim&.id) if auto_claim.status != errored_state_value
       rescue Faraday::ParsingError, Faraday::TimeoutError => e
         set_errored_state_on_claim(auto_claim)
-        error_message = get_error_message(e)
+        set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
 
         log_job_progress(claim_id,
-                         "526EZ PDF generator faraday error #{e.class}: #{error_status} #{error_message}")
+                         "526EZ PDF generator faraday error #{e.class}: #{error_status} #{auto_claim&.evss_response}")
         log_exception_to_sentry(e)
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
         set_errored_state_on_claim(auto_claim)
-        error_message = get_error_message(e)
+        set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
 
         log_job_progress(claim_id,
-                         "526EZ PDF generator errored #{e.class}: #{error_status} #{error_message}")
+                         "526EZ PDF generator errored #{e.class}: #{error_status} #{auto_claim&.evss_response}")
         log_exception_to_sentry(e)
 
         raise e
       rescue => e
         set_errored_state_on_claim(auto_claim)
+        set_evss_response(auto_claim, e)
 
         log_job_progress(claim_id,
                          "526EZ PDF generator errored #{e.class}: #{e}")
@@ -85,10 +91,10 @@ module ClaimsApi
       private
 
       def start_docker_container_job(auto_claim)
-        docker_contaner_service.perform_async(auto_claim)
+        docker_container_service.perform_async(auto_claim)
       end
 
-      def docker_contaner_service
+      def docker_container_service
         ClaimsApi::V2::DisabilityCompensationDockerContainerUpload
       end
 

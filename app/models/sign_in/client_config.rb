@@ -2,6 +2,8 @@
 
 module SignIn
   class ClientConfig < ApplicationRecord
+    include SignIn::Concerns::Certifiable
+
     attribute :access_token_duration, :interval
     attribute :refresh_token_duration, :interval
 
@@ -16,20 +18,18 @@ module SignIn
     validates :authentication,
               presence: true,
               inclusion: { in: Constants::Auth::AUTHENTICATION_TYPES, allow_nil: false }
+    validates :shared_sessions, inclusion: [true, false]
     validates :enforced_terms, inclusion: { in: Constants::Auth::ENFORCED_TERMS, allow_nil: true }
     validates :terms_of_use_url, presence: true, if: :enforced_terms
     validates :client_id, presence: true, uniqueness: true
     validates :logout_redirect_uri, presence: true, if: :cookie_auth?
     validates :access_token_attributes, inclusion: { in: Constants::AccessToken::USER_ATTRIBUTES }
+    validates :service_levels, presence: true, inclusion: { in: Constants::Auth::ACR_VALUES, allow_nil: false }
+    validates :credential_service_providers, presence: true,
+                                             inclusion: { in: Constants::Auth::CSP_TYPES, allow_nil: false }
 
     def self.valid_client_id?(client_id:)
       find_by(client_id:).present?
-    end
-
-    def client_assertion_public_keys
-      @client_assertion_public_keys ||= certificates.compact.map do |certificate|
-        OpenSSL::X509::Certificate.new(certificate).public_key
-      end
     end
 
     def cookie_auth?
@@ -46,6 +46,18 @@ module SignIn
 
     def va_terms_enforced?
       enforced_terms == Constants::Auth::VA_TERMS
+    end
+
+    def valid_credential_service_provider?(type)
+      credential_service_providers.include?(type)
+    end
+
+    def valid_service_level?(acr)
+      service_levels.include?(acr)
+    end
+
+    def device_sso_enabled?
+      api_auth? && shared_sessions
     end
 
     private

@@ -2,7 +2,7 @@
 
 module AskVAApi
   module SubTopics
-    class Retriever < Crm::BaseRetriever
+    class Retriever < BaseRetriever
       attr_reader :topic_id
 
       def initialize(topic_id:, user_mock_data:, entity_class:)
@@ -13,7 +13,7 @@ module AskVAApi
       private
 
       def filter_data(data)
-        data[:Topics].select { |t| t[:parentId] == topic_id }
+        data[:Topics].select { |t| t[:ParentId] == topic_id }.sort_by { |sub| sub[:Name] }
       end
     end
   end

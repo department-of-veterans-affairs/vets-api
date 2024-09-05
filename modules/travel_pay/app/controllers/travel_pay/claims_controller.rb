@@ -3,7 +3,28 @@
 module TravelPay
   class ClaimsController < ApplicationController
     def index
-      render json: { data: 'Data!' }, status: 418
+      begin
+        claims = service.get_claims(@current_user)
+      rescue Faraday::Error => e
+        TravelPay::ServiceError.raise_mapped_error(e)
+      end
+
+      render json: claims, status: :ok
+    end
+
+    private
+
+    def service
+      @service ||= TravelPay::Service.new
+    end
+
+    def common_exception(e)
+      case e
+      when Faraday::ResourceNotFound
+        Common::Exceptions::ResourceNotFound.new
+      else
+        Common::Exceptions::InternalServerError.new
+      end
     end
   end
 end

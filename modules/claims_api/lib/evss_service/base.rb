@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'claims_api/v2/benefits_documents/service'
+require 'claims_api/claim_logger'
+require 'common/client/errors'
+require 'custom_error'
 
 module ClaimsApi
   ##
@@ -16,24 +19,23 @@ module ClaimsApi
         @use_mock = Settings.evss.mock_claims || false
       end
 
-      def submit(claim, data)
+      def submit(claim, data, async = true) # rubocop:disable Style/OptionalBooleanParameter
         @auth_headers = claim.auth_headers
 
         begin
           resp = client.post('submit', data)&.body&.deep_symbolize_keys
-          log_outcome_for_claims_api('submit', 'success', resp, claim)
+          log_outcome_for_claims_api('submit', 'success', resp, claim) # return is for v1 Sidekiq worker
 
-          resp # return is for v1 Sidekiq worker
+          resp
         rescue => e
-          detail = e.respond_to?(:original_body) ? e.original_body : e
+          detail = get_error_message(e)
           log_outcome_for_claims_api('submit', 'error', detail, claim)
-          ClaimsApi::Logger.log('526',
-                                detail: "EVSS DOCKER CONTAINER submit error: #{detail}", claim_id: claim&.id)
-          raise e
+
+          error_handler(e, detail, async)
         end
       end
 
-      def validate(claim, data)
+      def validate(claim, data, async = true) # rubocop:disable Style/OptionalBooleanParameter
         @auth_headers = claim.auth_headers
 
         begin
@@ -42,11 +44,10 @@ module ClaimsApi
 
           resp
         rescue => e
-          detail = e.respond_to?(:original_body) ? e.original_body : e
+          detail = get_error_message(e)
           log_outcome_for_claims_api('validate', 'error', detail, claim)
 
-          formatted_err = handle_error(e) # for v1 controller reporting
-          raise formatted_err
+          error_handler(e, detail, async)
         end
       end
 
@@ -64,7 +65,7 @@ module ClaimsApi
                     headers:) do |f|
           f.request :json
           f.response :betamocks if @use_mock
-          f.response :raise_error
+          f.response :raise_custom_error
           f.response :json, parser_options: { symbolize_names: true }
           f.adapter Faraday.default_adapter
         end
@@ -88,26 +89,27 @@ module ClaimsApi
         @auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
       end
 
-      def handle_error(e)
-        # if orignal_body we have a Docker Container error
-        if e.respond_to?(:original_body)
-          errors = format_docker_container_error_for_v1(e.original_body[:messages])
-          e.original_body[:messages] = errors
-        end
-        e
-      end
-
-      # v1/disability_compenstaion_controller expects different values then the docker container provides
-      def format_docker_container_error_for_v1(errors)
-        errors.each do |err|
-          # need to add a :detail key v1 looks for in it's error reporting, get :text key from docker container
-          err.merge!(detail: err[:text]).stringify_keys!
-        end
-      end
-
       def log_outcome_for_claims_api(action, status, response, claim)
-        ClaimsApi::Logger.log('526_docker_container',
-                              detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
+        ClaimsApi::Logger.log('526_docker_container', detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}",
+                                                      claim: claim&.id, transaction_id: claim&.transaction_id)
+      end
+
+      def error_handler(error, detail, async = true) # rubocop:disable Style/OptionalBooleanParameter
+        ClaimsApi::CustomError.new(error, detail, async).build_error
+      end
+
+      def get_error_message(error)
+        if error.respond_to? :original_body
+          error.original_body
+        elsif error.respond_to? :message
+          error.message
+        elsif error.respond_to? :errors
+          error.errors
+        elsif error.respond_to? :detailed_message
+          error.detailed_message
+        else
+          error
+        end
       end
     end
   end

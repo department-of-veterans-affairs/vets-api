@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/caseflow_errors'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_error'
 require 'common/client/middleware/response/snakecase'
 require 'common/client/errors'
 
@@ -11,7 +11,7 @@ describe Common::Client::Middleware::Response do
   subject(:appeals_client) do
     Faraday.new do |conn|
       conn.response :snakecase
-      conn.response :raise_error, error_prefix: 'CaseflowStatus'
+      conn.response :raise_custom_error, error_prefix: 'CaseflowStatus'
       conn.response :caseflow_errors
       conn.response :json_parser
 

@@ -5,7 +5,9 @@ require 'sign_in/logger'
 module V0
   class SignInController < SignIn::ApplicationController
     skip_before_action :authenticate,
-                       only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
+                       only: %i[authorize callback token refresh revoke revoke_all_sessions logout
+                                logingov_logout_proxy]
+    before_action :access_token_authenticate, only: :revoke_all_sessions
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -15,6 +17,7 @@ module V0
       client_id = params[:client_id].presence
       acr = params[:acr].presence
       operation = params[:operation].presence || SignIn::Constants::Auth::AUTHORIZE
+      scope = params[:scope].presence
 
       validate_authorize_params(type, client_id, acr, operation)
 
@@ -26,7 +29,8 @@ module V0
                                                  acr:,
                                                  client_config: client_config(client_id),
                                                  type:,
-                                                 client_state:).perform
+                                                 client_state:,
+                                                 scope:).perform
       context = { type:, client_id:, acr:, operation: }
 
       sign_in_logger.info('authorize', context)
@@ -85,23 +89,12 @@ module V0
     end
 
     def token
-      code = params[:code].presence
-      code_verifier = params[:code_verifier].presence
-      grant_type = params[:grant_type].presence
-      client_assertion = params[:client_assertion].presence
-      client_assertion_type = params[:client_assertion_type].presence
-      assertion = params[:assertion].presence
+      SignIn::TokenParamsValidator.new(params: token_params).perform
+      response_body = SignIn::TokenResponseGenerator.new(params: token_params, cookies: token_cookies).perform
 
-      validate_token_params(grant_type)
-
-      response_body =
-        if grant_type == SignIn::Constants::Auth::JWT_BEARER
-          generate_service_account_token(assertion)
-        else
-          generate_client_tokens(code, code_verifier, client_assertion, client_assertion_type)
-        end
-
+      sign_in_logger.info('token')
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
+
       render json: response_body, status: :ok
     rescue SignIn::Errors::StandardError => e
       sign_in_logger.info('token error', { errors: e.message })
@@ -121,7 +114,7 @@ module V0
       serializer_response = SignIn::TokenSerializer.new(session_container:,
                                                         cookies: token_cookies).perform
 
-      sign_in_logger.info('refresh', session_container.access_token.to_s)
+      sign_in_logger.info('refresh', session_container.context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
 
       render json: serializer_response, status: :ok
@@ -138,11 +131,12 @@ module V0
     def revoke
       refresh_token = params[:refresh_token].presence
       anti_csrf_token = params[:anti_csrf_token].presence
+      device_secret = params[:device_secret].presence
 
       raise SignIn::Errors::MalformedParamsError.new message: 'Refresh token is not defined' unless refresh_token
 
       decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
-      SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token, anti_csrf_token:).perform
+      SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token, anti_csrf_token:, device_secret:).perform
 
       sign_in_logger.info('revoke', decrypted_refresh_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS)
@@ -161,7 +155,10 @@ module V0
     end
 
     def revoke_all_sessions
-      SignIn::RevokeSessionsForUser.new(user_account: @current_user.user_account).perform
+      session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
+      raise SignIn::Errors::SessionNotFoundError.new message: 'Session not found' if session.blank?
+
+      SignIn::RevokeSessionsForUser.new(user_account: session.user_account).perform
 
       sign_in_logger.info('revoke all sessions', @access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
@@ -181,9 +178,14 @@ module V0
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
 
-      unless load_user(skip_expiration_check: true)
-        raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to Authorize User'
+      unless access_token_authenticate(skip_error_handling: true)
+        raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to authorize access token'
       end
+
+      session = SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
+      raise SignIn::Errors::SessionNotFoundError.new message: 'Session not found' if session.blank?
+
+      credential_type = session.user_verification.credential_type
 
       SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
       delete_cookies if token_cookies
@@ -191,16 +193,15 @@ module V0
       sign_in_logger.info('logout', @access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
 
-      logout_redirect = SignIn::LogoutRedirectGenerator.new(user: @current_user,
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type:,
                                                             client_config: client_config(client_id)).perform
-
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
-    rescue SignIn::Errors::LogoutAuthorizationError, SignIn::Errors::SessionNotAuthorizedError => e
+    rescue SignIn::Errors::LogoutAuthorizationError,
+           SignIn::Errors::SessionNotAuthorizedError,
+           SignIn::Errors::SessionNotFoundError => e
       sign_in_logger.info('logout error', { errors: e.message })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
-
-      logout_redirect = SignIn::LogoutRedirectGenerator.new(user: @current_user,
-                                                            client_config: client_config(client_id)).perform
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(client_config: client_config(client_id)).perform
 
       logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
     rescue => e
@@ -223,25 +224,19 @@ module V0
       render json: { errors: e }, status: :bad_request
     end
 
-    def introspect
-      render json: @current_user, serializer: SignIn::IntrospectSerializer, status: :ok
-    rescue SignIn::Errors::StandardError => e
-      render json: { errors: e }, status: :unauthorized
-    end
-
     private
 
     def validate_authorize_params(type, client_id, acr, operation)
       if client_config(client_id).blank?
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
-      unless SignIn::Constants::Auth::CSP_TYPES.include?(type)
+      unless client_config(client_id).valid_credential_service_provider?(type)
         raise SignIn::Errors::MalformedParamsError.new message: 'Type is not valid'
       end
       unless SignIn::Constants::Auth::OPERATION_TYPES.include?(operation)
         raise SignIn::Errors::MalformedParamsError.new message: 'Operation is not valid'
       end
-      unless SignIn::Constants::Auth::ACR_VALUES.include?(acr)
+      unless client_config(client_id).valid_service_level?(acr)
         raise SignIn::Errors::MalformedParamsError.new message: 'ACR is not valid'
       end
     end
@@ -251,27 +246,9 @@ module V0
       raise SignIn::Errors::MalformedParamsError.new message: 'State is not defined' unless state
     end
 
-    def validate_token_params(grant_type)
-      unless SignIn::Constants::Auth::GRANT_TYPES.include?(grant_type)
-        raise SignIn::Errors::MalformedParamsError.new message: 'Grant Type is not valid'
-      end
-    end
-
-    def generate_service_account_token(assertion)
-      service_account_access_token = SignIn::AssertionValidator.new(assertion:).perform
-      sign_in_logger.info('token', service_account_access_token.to_s)
-      serialized_access_token = SignIn::ServiceAccountAccessTokenJwtEncoder.new(service_account_access_token:).perform
-      { data: { access_token: serialized_access_token } }
-    end
-
-    def generate_client_tokens(code, code_verifier, client_assertion, client_assertion_type)
-      validated_credential = SignIn::CodeValidator.new(code:,
-                                                       code_verifier:,
-                                                       client_assertion:,
-                                                       client_assertion_type:).perform
-      session_container = SignIn::SessionCreator.new(validated_credential:).perform
-      sign_in_logger.info('token', session_container.access_token.to_s)
-      SignIn::TokenSerializer.new(session_container:, cookies: token_cookies).perform
+    def token_params
+      params.permit(:grant_type, :code, :code_verifier, :client_assertion, :client_assertion_type,
+                    :assertion, :subject_token, :subject_token_type, :actor_token, :actor_token_type, :client_id)
     end
 
     def handle_pre_login_error(error, client_id)
@@ -318,17 +295,17 @@ module V0
       user_attributes = auth_service(state_payload.type,
                                      state_payload.client_id).normalized_attributes(user_info, credential_level)
       verified_icn = SignIn::AttributeValidator.new(user_attributes:).perform
-      user_code_map = SignIn::UserCreator.new(user_attributes:,
-                                              state_payload:,
-                                              verified_icn:,
-                                              request_ip: request.ip).perform
+      user_code_map = SignIn::UserCodeMapCreator.new(
+        user_attributes:, state_payload:, verified_icn:, request_ip: request.remote_ip
+      ).perform
+
       context = {
         type: state_payload.type,
         client_id: state_payload.client_id,
         ial: credential_level.current_ial,
         acr: state_payload.acr,
         icn: verified_icn,
-        uuid: user_info.sub,
+        user_uuid: user_info.sub,
         authentication_time: Time.zone.now.to_i - state_payload.created_at
       }
       sign_in_logger.info('callback', context)
@@ -360,7 +337,7 @@ module V0
     end
 
     def delete_cookies
-      cookies.delete(SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME)
+      cookies.delete(SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME, domain: :all)
       cookies.delete(SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME, domain: Settings.sign_in.info_cookie_domain)
@@ -375,7 +352,8 @@ module V0
     end
 
     def client_config(client_id)
-      @client_config ||= SignIn::ClientConfig.find_by(client_id:)
+      @client_config ||= {}
+      @client_config[client_id] ||= SignIn::ClientConfig.find_by(client_id:)
     end
 
     def sign_in_logger

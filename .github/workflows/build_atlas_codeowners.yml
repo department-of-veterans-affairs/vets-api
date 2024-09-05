@@ -13,15 +13,15 @@ jobs:
   copy-codeowners:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # 2.2.0
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: "us-gov-west-1"
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Get bot token from Parameter Store
         uses: department-of-veterans-affairs/action-inject-ssm-secrets@latest
         with:
@@ -30,7 +30,7 @@ jobs:
 
       - name:  Check codeowner changes
         id: check-codeowner-changes
-        uses: tj-actions/changed-files@v41 # v36.3.0
+        uses: tj-actions/changed-files@v45 # v36.3.0
         with:
           files: |
             .github/CODEOWNERS
@@ -48,4 +48,3 @@ jobs:
           user_email: 'devops@va.gov'
           user_name: 'va-vsp-bot'
           commit_message: 'Auto update Atlas with Vets-API CODEOWNERS'
-

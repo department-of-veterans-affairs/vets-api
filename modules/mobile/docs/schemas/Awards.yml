@@ -11,7 +11,7 @@ properties:
     properties:
       type:
         type: string
-        example: "claim"
+        example: "awards"
       id:
         type: string
         example: "f26bc1f0-c389-4f3c-86e0-7712fb08fbe6"
@@ -54,14 +54,11 @@ properties:
           - ptcptVetId
           - reasonOneTxt
           - spouseTxt
-          - veteranId
-          - isEligibleForPension
-          - isInReceiptOfPension
-          - netWorthLimit
         properties:
           id:
             type: string
             example: "f26bc1f0-c389-4f3c-86e0-7712fb08fbe6"
+            description: user UUID
           aportnRecipId:
             type: integer
             example: 2810777
@@ -167,15 +164,3 @@ properties:
           spouseTxt:
             type: string
             example: "Spouse"
-          veteranId:
-            type: integer
-            example: 600061742
-          isEligibleForPension:
-            type: boolean
-            example: true
-          isInReceiptOfPension:
-            type: boolean
-            example: true
-          netWorthLimit:
-            type: decimal
-            example: 129094

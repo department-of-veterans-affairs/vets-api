@@ -159,6 +159,7 @@ describe V2::Lorota::Service do
   let(:approved_response) do
     {
       payload: {
+        address: nil,
         demographics: {
           mailingAddress: {
             street1: '123 Turtle Trail',
@@ -679,6 +680,10 @@ describe V2::Lorota::Service do
         .and_return(Faraday::Response.new(response_body: appointment_data.to_json, status: 200))
     end
 
+    it 'returns approved data' do
+      expect(subject.build(check_in: valid_check_in).check_in_data).to eq(approved_response)
+    end
+
     context 'when check_in_type is preCheckIn' do
       let(:opts) { { data: { check_in_type: 'preCheckIn' } } }
       let(:pre_check_in) { CheckIn::V2::Session.build(opts) }
@@ -701,8 +706,30 @@ describe V2::Lorota::Service do
       end
     end
 
-    it 'returns approved data' do
-      expect(subject.build(check_in: valid_check_in).check_in_data).to eq(approved_response)
+    context 'when appt identifiers are not present' do
+      it 'does not call refresh_appts' do
+        expect_any_instance_of(::V2::Chip::Service).not_to receive(:refresh_appointments)
+
+        expect(subject.build(check_in: valid_check_in).check_in_data).to eq(approved_response)
+      end
+    end
+
+    context 'when appt identifiers are present and facility type is OH' do
+      let(:valid_check_in_oh) { CheckIn::V2::Session.build(opts.deep_merge!({ data: { facility_type: 'oh' } })) }
+
+      before do
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{id}",
+          '123',
+          namespace: 'check-in-lorota-v2-cache'
+        )
+      end
+
+      it 'does not call refresh_appts' do
+        expect_any_instance_of(::V2::Chip::Service).not_to receive(:refresh_appointments)
+
+        expect(subject.build(check_in: valid_check_in_oh).check_in_data).to eq(approved_response)
+      end
     end
   end
 end

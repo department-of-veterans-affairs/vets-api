@@ -3,6 +3,9 @@
 module CheckIn
   module V0
     class TravelClaimsController < CheckIn::ApplicationController
+      before_action :before_logger, only: %i[show create]
+      after_action :after_logger, only: %i[show create]
+
       def create
         check_in_session = CheckIn::V2::Session.build(data: { uuid: permitted_params[:uuid] }, jwt: low_auth_token)
 
@@ -12,11 +15,13 @@ module CheckIn
 
         TravelClaimSubmissionWorker.perform_async(permitted_params[:uuid], permitted_params[:appointment_date])
 
+        logger.info({ message: 'Submitted travel claim to background worker' }.merge(permitted_params))
+
         render nothing: true, status: :accepted
       end
 
       def permitted_params
-        params.require(:travel_claims).permit(:uuid, :appointment_date)
+        params.require(:travel_claims).permit(:uuid, :appointment_date, :facility_type, :time_to_complete)
       end
 
       def authorize

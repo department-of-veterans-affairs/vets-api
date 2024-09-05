@@ -8,12 +8,13 @@ describe ClaimStatusTool::ClaimLetterDownloader do
   let(:current_user) do
     create(:evss_user)
   end
+  let(:allowed_doctypes) { %w[184] }
+
+  before do
+    @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes)
+  end
 
   describe '#get_letters' do
-    before do
-      @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user)
-    end
-
     it 'retrieves letters in descending order according to received_at date' do
       letters = @downloader.get_letters
 
@@ -24,15 +25,11 @@ describe ClaimStatusTool::ClaimLetterDownloader do
       letters = @downloader.get_letters
       doc_types = letters.pluck(:doc_type).uniq
 
-      expect(doc_types).to match_array(@downloader.allowed_doctypes)
+      expect(doc_types).to match_array(allowed_doctypes)
     end
   end
 
   describe '#get_letter' do
-    before do
-      @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user)
-    end
-
     it 'retrieves a single letter based on document id' do
       @downloader.get_letter(doc_id) do |data, mime_type, _disposition, _filename|
         expect(data).not_to be_nil
@@ -59,13 +56,11 @@ describe ClaimStatusTool::ClaimLetterDownloader do
   end
 
   describe 'Board Of Appeals Letter functionality' do
-    before do
-      @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user)
-    end
-
     context 'BOA Letters enabled' do
+      let(:allowed_doctypes) { %w[27 184] }
+
       before do
-        Flipper.enable(:cst_include_ddl_boa_letters)
+        @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes)
       end
 
       it 'only shows BOA letters older than 2 days' do
@@ -76,8 +71,10 @@ describe ClaimStatusTool::ClaimLetterDownloader do
     end
 
     context 'BOA Letters disabled' do
+      let(:allowed_doctypes) { %w[184] }
+
       before do
-        Flipper.disable(:cst_include_ddl_boa_letters)
+        @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user, allowed_doctypes)
       end
 
       it 'does not show BOA letters' do

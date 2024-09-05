@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-class LettersSerializer < ActiveModel::Serializer
+class LettersSerializer
+  include JSONAPI::Serializer
+
+  set_id { '' }
+
   attribute :letters
   attribute :full_name
-
-  def id
-    nil
-  end
 end

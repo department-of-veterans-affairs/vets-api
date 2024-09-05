@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Form1010cg
-  class ClaimSerializer < ActiveModel::Serializer
+  class ClaimSerializer
+    include JSONAPI::Serializer
   end
 end

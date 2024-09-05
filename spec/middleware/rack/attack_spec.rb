@@ -120,18 +120,18 @@ RSpec.describe Rack::Attack do
     end
   end
 
-  describe 'facilities_va/ip' do
-    let(:endpoint) { '/facilities_api/v1/va' }
+  describe 'facilities_api/v2/va/ip' do
+    let(:endpoint) { '/facilities_api/v2/va' }
     let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
     let(:limit) { 30 }
 
     before do
       limit.times do
-        get endpoint, nil, headers
+        post endpoint, nil, headers
         expect(last_response.status).not_to eq(429)
       end
 
-      get endpoint, nil, other_headers
+      post endpoint, nil, other_headers
     end
 
     context 'response status for repeated requests from the same IP' do
@@ -151,8 +151,8 @@ RSpec.describe Rack::Attack do
     end
   end
 
-  describe 'facility_locator/ip' do
-    let(:endpoint) { '/facilities_api/v1/ccp/provider' }
+  describe 'facilities_api/v2/ccp/ip' do
+    let(:endpoint) { '/facilities_api/v2/ccp/provider' }
     let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
     let(:limit) { 8 }
 

@@ -1,29 +1,20 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative 'shared_examples_evss_claim_spec'
 
-RSpec.describe EVSSClaimListSerializer do
-  subject { serialize(evss_claim, serializer_class: EVSSClaimListSerializer) }
+RSpec.describe EVSSClaimListSerializer, type: :serializer do
+  subject { serialize(evss_claim, serializer_class: described_class) }
 
   let(:evss_claim) { build(:evss_claim) }
   let(:data) { JSON.parse(subject)['data'] }
+  let(:object_data) { evss_claim.list_data }
   let(:attributes) { data['attributes'] }
 
-  it 'includes id' do
-    expect(data['id']).to eq(evss_claim.evss_id.to_s)
-  end
+  it_behaves_like 'shared_evss_claim'
 
-  context 'with different data and list_data' do
-    let(:evss_claim) do
-      FactoryBot.build(:evss_claim, data: {
-                         waiver5103_submitted: false
-                       }, list_data: {
-                         waiver5103_submitted: true
-                       })
-    end
-
-    it 'does not use object.data' do
-      expect(attributes['waiver_submitted']).to eq true
-    end
+  it 'includes :phase' do
+    phase = evss_claim.list_data['status']&.downcase
+    expect(attributes['phase']).to eq EVSSClaimBaseHelper::PHASE_MAPPING[phase]
   end
 end

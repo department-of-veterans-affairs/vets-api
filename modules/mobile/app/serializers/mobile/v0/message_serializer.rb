@@ -3,7 +3,11 @@
 module Mobile
   module V0
     class MessageSerializer < MessagesSerializer
-      has_many :attachments, each_serializer: AttachmentSerializer
+      include JSONAPI::Serializer
+
+      set_type :messages
+
+      has_many :attachments, serializer: Mobile::V0::AttachmentSerializer, &:attachments
     end
   end
 end

@@ -9,9 +9,61 @@ describe ClaimsApi::LocalBGS do
 
   let(:soap_error_handler) { ClaimsApi::SoapErrorHandler.new }
 
+  before do
+    Flipper.disable(:lighthouse_claims_api_hardcode_wsdl)
+  end
+
   describe '#find_poa_by_participant_id' do
+    context 'hardcoded WSDL' do
+      before do
+        Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
+      end
+
+      it 'response with the correct namespace' do
+        VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
+          result = subject.find_poa_by_participant_id('does-not-matter')
+          expect(result).to be_a Hash
+          expect(result[:end_date]).to eq '08/26/2020'
+        end
+      end
+
+      it 'falls back to WSDL' do
+        allow(ClaimsApi::LocalBGSRefactored::FindDefinition).to receive(:for_service).and_raise(
+          ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+        )
+
+        VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
+          result = subject.find_poa_by_participant_id('does-not-matter')
+          expect(result).to be_a Hash
+          expect(result[:end_date]).to eq '08/26/2020'
+        end
+      end
+
+      context 'invalid cached value' do
+        it 'raises an error' do
+          service = ClaimsApi::BGSClient::Definitions::Service.new(
+            bean: ClaimsApi::BGSClient::Definitions::Bean.new(
+              path: 'PersonWebServiceBean',
+              namespaces: ClaimsApi::BGSClient::Definitions::Namespaces.new(
+                target: 'http://services.share.benefits.vba.va.gov/',
+                data: nil
+              )
+            ),
+            path: 'PersonWebService'
+          )
+          allow(ClaimsApi::LocalBGSRefactored::FindDefinition).to receive(:for_service).and_return(service)
+
+          VCR.use_cassette('claims_api/bgs/bad_namespace') do
+            expect do
+              subject.find_poa_by_participant_id('does-not-matter')
+            end.to raise_error Common::Exceptions::ServiceError
+          end
+        end
+      end
+    end
+
     it 'responds as expected, with extra ClaimsApi::Logger logging' do
-      VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
+      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
 
         # Events logged:
@@ -28,6 +80,7 @@ describe ClaimsApi::LocalBGS do
 
     describe 'breakers' do
       it 'returns a Bad Gateway' do
+        stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService").to_timeout
         stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService?WSDL").to_timeout
         expect do
           subject.find_poa_by_participant_id('also-does-not-matter')
@@ -42,7 +95,8 @@ describe ClaimsApi::LocalBGS do
     end
 
     it 'triggers StatsD measurements' do
-      VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id', allow_playback_repeats: true) do
+      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id',
+                       allow_playback_repeats: true) do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
 
         %w[establish_ssl_connection connection_wsdl_get connection_post parsed_response].each do |event|
@@ -72,7 +126,7 @@ describe ClaimsApi::LocalBGS do
 
     context 'when claims come back as a hash instead of an array' do
       it 'casts the hash as an array' do
-        VCR.use_cassette('bgs/claims/claims_trimmed_down') do
+        VCR.use_cassette('claims_api/bgs/claims/claims_trimmed_down') do
           claims = subject_instance.find_benefit_claims_status_by_ptcpnt_id('600061742')
           claims[:benefit_claims_dto][:benefit_claim] = claims[:benefit_claims_dto][:benefit_claim][0]
           allow(subject_instance).to receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(claims)

@@ -58,7 +58,7 @@ FactoryBot.define do
               quantity: nil,
               expiration_date: nil,
               prescription_number: '2720542',
-              prescription_Name: 'ONDANSETRON 8 MG TAB',
+              prescription_name: 'ONDANSETRON 8 MG TAB',
               dispensed_date: 'Thu, 21 Apr 2016 00:00:00 EDT',
               station_number: '989',
               in_cerner_transition: false,
@@ -91,5 +91,47 @@ FactoryBot.define do
         ]
       ]
     }
+    tracking_list {
+      [
+        [
+          'tracking',
+          [
+            {
+              carrier: 'UPS',
+              completeDateTime: '2023-03-28T04:39:11-04:00',
+              dateLoaded: '2023-06-21T13:05:19-04:00',
+              dialDivisionPhone: '3082719803',
+              divisionPhone: '(308)271-9803',
+              id: 3974,
+              isLocalTracking: false,
+              ndc: '00113002239',
+              othersInSamePackage: false,
+              rxNumber: 2_719_799,
+              stationNumber: 994,
+              trackingNumber: '772980271979930000002254',
+              viewImageDisplayed: true
+            },
+            {
+              carrier: 'FedEx',
+              completeDateTime: '2023-05-28T04:39:11-04:00',
+              dateLoaded: '2023-04-21T16:55:19-04:00',
+              dialDivisionPhone: '4012719804',
+              divisionPhone: '(401)271-9804',
+              id: 9878,
+              isLocalTracking: false,
+              ndc: '00113002240',
+              othersInSamePackage: false,
+              rxNumber: 2_719_780,
+              stationNumber: 995,
+              trackingNumber: '332980271979930000002300',
+              viewImageDisplayed: false
+            }
+          ]
+        ]
+      ]
+    }
+    trait :with_api_name do
+      facility_api_name { 'Dayton Medical Center' }
+    end
   end
 end

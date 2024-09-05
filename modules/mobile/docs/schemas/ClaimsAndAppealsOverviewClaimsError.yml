@@ -62,24 +62,9 @@ properties:
               enum:
                 - claims
             errorDetails:
-              type: array
-              items:
-                type: object
-                description: error details object from failing upstream service. Used for debugging only.
-                required:
-                  - key
-                  - severity
-                  - text
-                properties:
-                  key:
-                    type: string
-                    example: "EVSS_7022"
-                  severity:
-                    type: string
-                    example: "ERROR"
-                  text:
-                    type: string
-                    example: "Please define your custom text for this error in claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
+              type: string
+              description: List of errors encountered concatenated with semicolon delimiter.
+              example: "Please define your custom text for this error in claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       pagination:
         type: object
         required:

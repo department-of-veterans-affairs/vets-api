@@ -14,6 +14,7 @@ module Lighthouse
       502 => Common::Exceptions::BadGateway,
       500 => Common::Exceptions::ExternalServerInternalServerError,
       429 => Common::Exceptions::TooManyRequests,
+      422 => Common::Exceptions::UnprocessableEntity,
       413 => Common::Exceptions::PayloadTooLarge,
       404 => Common::Exceptions::ResourceNotFound,
       403 => Common::Exceptions::Forbidden,
@@ -26,9 +27,9 @@ module Lighthouse
     # formats the Lighthouse exception for the controller ExceptionHandling to report out to the consumer
     def self.send_error(error, service_name, lighthouse_client_id, url)
       send_error_logs(error, service_name, lighthouse_client_id, url)
+      return error unless error.respond_to?(:response)
 
       response = error.response
-
       status_code = get_status_code(response)
       return error unless status_code
 
@@ -86,13 +87,18 @@ module Lighthouse
         .transform_keys(&:to_sym)
     end
 
-    # sends errors to sentry!
+    # log errors
     def self.send_error_logs(error, service_name, lighthouse_client_id, url)
-      base_key_string = "#{lighthouse_client_id} #{url} Lighthouse Error"
-      Rails.logger.error(
-        error.response,
-        base_key_string
-      )
+      logging_options = { url:, lighthouse_client_id: }
+
+      if error.respond_to?(:response) && error.response.present?
+        logging_options[:status] = error.response[:status]
+        logging_options[:body] = error.response[:body]
+      else
+        logging_options[:message] = error.message
+        logging_options[:backtrace] = error.backtrace
+      end
+      log_to_rails_logger(service_name, logging_options)
 
       extra_context = Sentry.set_extras(
         message: error.message,
@@ -103,6 +109,13 @@ module Lighthouse
       tags_context = Sentry.set_tags(external_service: service_name)
 
       log_exception_to_sentry(error, extra_context, tags_context)
+    end
+
+    def self.log_to_rails_logger(service_name, options)
+      Rails.logger.error(
+        service_name,
+        options
+      )
     end
 
     def self.get_status_code(response)

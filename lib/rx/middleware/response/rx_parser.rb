@@ -6,7 +6,7 @@ module Rx
       ##
       # Middleware class responsible for customizing MHV Rx response parsing
       #
-      class RxParser < Faraday::Response::Middleware
+      class RxParser < Faraday::Middleware
         ##
         # Override the Faraday #on_complete method to filter body through custom #parse
         # @param env [Faraday::Env] the request environment
@@ -28,7 +28,8 @@ module Rx
           @meta_attributes = split_meta_fields!
           @errors = @parsed_json.delete(:errors) || {}
 
-          data =  parsed_prescription_list || parsed_tracking_object || parsed_prescription || parsed_medication_list
+          data =  parsed_prescription_list || parsed_tracking_object ||
+                  parsed_prescription || parsed_medication_list || parsed_documentation
           @parsed_json = {
             data:,
             errors: @errors,
@@ -41,6 +42,12 @@ module Rx
           return nil unless @parsed_json.keys.include?(:medication_list)
 
           @parsed_json[:medication_list][:medication]
+        end
+
+        def parsed_documentation
+          return nil unless @parsed_json.keys.include?(:html)
+
+          @parsed_json[:html]
         end
 
         def split_meta_fields!

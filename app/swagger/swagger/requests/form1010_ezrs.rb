@@ -8,6 +8,8 @@ module Swagger
       swagger_path '/v0/form1010_ezrs' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ValidationError
+          extend Swagger::Responses::BackendServiceError
           extend Swagger::Responses::InternalServerError
 
           key :description, 'Submit a 10-10EZR form'
@@ -33,19 +35,14 @@ module Swagger
               key :$ref, :Form1010EzrSubmissionResponse
             end
           end
-
-          response 422 do
-            key :description, 'Unprocessable Entity: one or more form validations has failed'
-            schema '$ref': :Errors
-          end
         end
       end
 
       swagger_schema :Form1010EzrSubmissionResponse do
         key :required, %i[formSubmissionId timestamp success]
 
-        property :formSubmissionId, type: :integer
-        property :timestamp, type: :string
+        property :formSubmissionId, type: %i[integer null], example: nil
+        property :timestamp, type: %i[string null], example: nil
         property :success, type: :boolean
       end
     end

@@ -24,7 +24,7 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
       end
 
       it 'calls successfully submits the career counseling job' do
-        expect(CentralMail::SubmitCareerCounselingJob).to receive(:perform_async)
+        expect(Lighthouse::SubmitCareerCounselingJob).to receive(:perform_async)
 
         post(:create, params: form_params)
       end

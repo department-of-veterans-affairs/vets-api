@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-class CemeterySerializer < ActiveModel::Serializer
-  attribute :id
+class CemeterySerializer
+  include JSONAPI::Serializer
 
-  attribute(:cemetery_id) { object.id }
+  set_type :preneeds_cemeteries
+
   attribute :name
   attribute :cemetery_type
   attribute :num
+  attribute :cemetery_id, &:id
 end

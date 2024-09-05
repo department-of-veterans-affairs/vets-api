@@ -18,6 +18,7 @@ module Rx
     client_session Rx::ClientSession
 
     CACHE_TTL = 3600 * 1 # 1 hour cache
+    CACHE_TTL_ZERO = 0
 
     def request(method, path, params = {}, headers = {}, options = {})
       super(method, path, params, headers, options)
@@ -31,7 +32,7 @@ module Rx
     # @return [Common::Collection[Prescription]]
     #
     def get_active_rxs
-      Common::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
+      Common::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL_ZERO) do
         perform(:get, 'prescription/getactiverx', nil, token_headers).body
       end
     end
@@ -53,7 +54,7 @@ module Rx
     # @return [Common::Collection[Prescription]]
     #
     def get_history_rxs
-      Common::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: CACHE_TTL) do
+      Common::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: CACHE_TTL_ZERO) do
         perform(:get, 'prescription/gethistoryrx', nil, token_headers).body
       end
     end
@@ -68,6 +69,15 @@ module Rx
       Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
         perform(:get, 'prescription/medications', nil, token_headers).body
       end
+    end
+
+    ##
+    # Get documentation for a single prescription
+    #
+    # @return [Common::Collection[PrescriptionDocumentation]]
+    #
+    def get_rx_documentation(ndc)
+      perform(:get, "prescription/getrxdoc/#{ndc}", nil, token_headers).body
     end
 
     ##
@@ -123,10 +133,7 @@ module Rx
     # @return [Faraday::Env]
     #
     def post_refill_rxs(ids)
-      if (result = perform(:post, 'prescription/rxrefill', ids, token_headers))
-        Common::Collection.bust([cache_key('getactiverx'), cache_key('gethistoryrx')])
-      end
-      result
+      perform(:post, 'prescription/rxrefill', ids, token_headers)
     end
 
     ##
@@ -137,7 +144,8 @@ module Rx
     #
     def post_refill_rx(id)
       if (result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers))
-        Common::Collection.bust([cache_key('getactiverx'), cache_key('gethistoryrx')])
+        keys = [cache_key('getactiverx'), cache_key('gethistoryrx')].compact
+        Common::Collection.bust(keys) unless keys.empty?
       end
       result
     end

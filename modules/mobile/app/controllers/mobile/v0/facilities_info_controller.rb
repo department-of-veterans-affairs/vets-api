@@ -52,7 +52,6 @@ module Mobile
       def sort_by_recent_appointment(facilities)
         appointments = Mobile::V0::Appointment.get_cached(@current_user)&.sort_by(&:start_date_utc)
 
-        log_nil_cache if appointments.nil?
         return facilities if appointments.blank?
 
         appointment_facility_ids = appointments.map(&:facility_id).uniq
@@ -66,10 +65,6 @@ module Mobile
         # appointment_facility_ids.size ensures any facility not found in appointment_facilities_hash is pushed to the
         # bottom of the array
         facilities.sort_by { |facility| appointment_facilities_hash[facility.id] || appointment_facility_ids.size }
-      end
-
-      def log_nil_cache
-        Rails.logger.info('mobile facilities info appointments cache nil', user_uuid: @current_user.uuid)
       end
 
       def validate_sort_method_inclusion!

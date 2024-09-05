@@ -117,6 +117,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       end
 
       it 'sends a confirmation email' do
+        allow(Settings).to receive(:vsp_environment).and_return('production')
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user_data)
@@ -267,7 +268,9 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       service = described_class.new(user)
       builder = DebtsApi::V0::FsrFormBuilder.new(vha_form_data, '', user)
       copay_count = builder.vha_forms.length
-      expect { service.submit_combined_fsr(builder) }.to change(Form5655Submission, :count).by(copay_count)
+      expect { service.submit_combined_fsr(builder) }.to change(
+        DebtsApi::V0::Form5655Submission, :count
+      ).by(copay_count)
       expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to eq(true)
       form = service.send(:add_vha_specific_data, DebtsApi::V0::Form5655Submission.last)
       expect(form.class).to be(Hash)
@@ -280,7 +283,9 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         copay_count = builder.vha_forms.length
         debt_count = builder.vba_form.present? ? 1 : 0
         needed_count = copay_count + debt_count
-        expect { service.submit_combined_fsr(builder) }.to change(Form5655Submission, :count).by(needed_count)
+        expect do
+          service.submit_combined_fsr(builder)
+        end.to change(DebtsApi::V0::Form5655Submission, :count).by(needed_count)
         expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to eq(true)
         debt_amounts = DebtsApi::V0::Form5655Submission.with_debt_type('DEBT').last.public_metadata['debt_amounts']
         expect(debt_amounts).to eq(['541.67', '1134.22'])
@@ -300,13 +305,13 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     it 'persists vba FSRs' do
       service = described_class.new(user)
       builder = DebtsApi::V0::FsrFormBuilder.new(valid_vba_form_data, '', user)
-      expect { service.create_vba_fsr(builder) }.to change(Form5655Submission, :count).by(1)
+      expect { service.create_vba_fsr(builder) }.to change(DebtsApi::V0::Form5655Submission, :count).by(1)
     end
 
     it 'gracefully handles a lack of vba FSRs' do
       service = described_class.new(user)
       builder = DebtsApi::V0::FsrFormBuilder.new(valid_vha_form_data, '', user)
-      expect { service.create_vba_fsr(builder) }.not_to change(Form5655Submission, :count)
+      expect { service.create_vba_fsr(builder) }.not_to change(DebtsApi::V0::Form5655Submission, :count)
     end
   end
 

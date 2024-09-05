@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
+require 'res/ch31_form'
 require 'vre/ch31_form'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
@@ -74,7 +75,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   }.freeze
 
   def initialize(args)
-    @sent_to_cmp = false
+    @sent_to_lighthouse = false
     super
   end
 
@@ -107,35 +108,32 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     @office_location = regional_office[0]
     office_name = regional_office[1]
 
-    updated_form['veteranInformation']&.merge!({ 'regionalOffice' => "#{@office_location} - #{office_name}" })
+    updated_form['veteranInformation']&.merge!({
+                                                 'regionalOffice' => "#{@office_location} - #{office_name}",
+                                                 'regionalOfficeName' => office_name,
+                                                 'stationId' => @office_location
+                                               })
   end
 
   def send_to_vre(user)
-    if user&.participant_id.blank?
-      log_message_to_sentry('Participant id is blank when submitting VRE claim', :warn)
-      send_to_central_mail!(user)
+    add_claimant_info(user)
+
+    if user&.participant_id
+      upload_to_vbms(user:)
     else
-      begin
-        upload_to_vbms
-        send_vbms_confirmation_email(user)
-      rescue => e
-        log_message_to_sentry('Error uploading VRE claim to VBMS', :warn, { uuid: user.uuid })
-        log_exception_to_sentry(e, { uuid: user.uuid })
-        begin
-          send_to_central_mail!(user)
-        rescue => e
-          log_message_to_sentry('Error uploading VRE claim to central mail after failure uploading claim to vbms',
-                                :warn, { uuid: user.uuid })
-          log_exception_to_sentry(e, { uuid: user.uuid })
-        end
-      end
+      Rails.logger.warn('Participant id is blank when submitting VRE claim')
+      send_to_lighthouse!(user)
     end
 
-    send_vre_email_form(user)
+    if Flipper.enabled?(:veteran_readiness_employment_to_res)
+      send_to_res(user)
+    else
+      send_vre_email_form(user)
+    end
   end
 
-  def upload_to_vbms(doc_type: '1167')
-    form_path = PdfFill::Filler.fill_form(self)
+  def upload_to_vbms(user:, doc_type: '1167')
+    form_path = PdfFill::Filler.fill_form(self, nil, { created_at: })
 
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: Rails.root.join(form_path),
@@ -144,11 +142,26 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
 
     log_to_statsd('vbms') do
-      uploader.upload!
+      response = uploader.upload!
+
+      if response[:vbms_document_series_ref_id].present?
+        updated_form = parsed_form
+        updated_form['documentId'] = response[:vbms_document_series_ref_id]
+        update!(form: updated_form.to_json)
+      end
     end
+
+    send_vbms_confirmation_email(user)
+  rescue
+    Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid })
+    send_to_lighthouse!(user)
   end
 
-  def send_to_central_mail!(user)
+  def to_pdf(file_name = nil)
+    PdfFill::Filler.fill_form(self, file_name, { created_at: })
+  end
+
+  def send_to_lighthouse!(user)
     form_copy = parsed_form.clone
 
     form_copy['veteranSocialSecurityNumber'] = parsed_form.dig('veteranInformation', 'ssn')
@@ -157,27 +170,49 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     update!(form: form_copy.to_json)
 
-    log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
-    @sent_to_cmp = true
-    log_to_statsd('cmp') do
-      process_attachments!
+    process_attachments!
+    @sent_to_lighthouse = true
+
+    send_lighthouse_confirmation_email(user)
+  rescue => e
+    Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
+  end
+
+  def send_to_res(user)
+    email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
+
+    Rails.logger.info('VRE claim sending to RES service',
+                      {
+                        email: email_addr,
+                        user_uuid: user.uuid,
+                        was_sent: @sent_to_lighthouse,
+                        user_present: user.present?
+                      })
+
+    if user.present?
+      VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
+                                             @sent_to_lighthouse).deliver_later
     end
 
-    send_central_mail_confirmation_email(user)
+    service = RES::Ch31Form.new(user:, claim: self)
+    service.submit
   end
 
   def send_vre_email_form(user)
-    @office_location = check_office_location[0] if @office_location.nil?
-
-    log_message_to_sentry("VRE claim office location: #{@office_location}",
-                          :info, { uuid: user.uuid })
-
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
 
-    log_message_to_sentry("VRE claim email: #{email_addr}, sent to cmp: #{@sent_to_cmp} #{user.present?}",
-                          :info, { uuid: user.uuid })
+    Rails.logger.info('VRE claim sending to VRE service',
+                      {
+                        email: email_addr,
+                        user_uuid: user.uuid,
+                        was_sent: @sent_to_lighthouse,
+                        user_present: user.present?
+                      })
 
-    VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr, @sent_to_cmp).deliver_later if user.present?
+    if user.present?
+      VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
+                                             @sent_to_lighthouse).deliver_later
+    end
 
     # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
     # send the data to them. We always send a pdf to VBMS
@@ -205,7 +240,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
   end
 
-  def send_central_mail_confirmation_email(user)
+  def send_lighthouse_confirmation_email(user)
     return if user.va_profile_email.blank?
 
     VANotify::EmailJob.perform_async(
@@ -223,7 +258,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
-    CentralMail::SubmitSavedClaimJob.new.perform(id)
+    Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
+  end
+
+  def business_line
+    'VRE'
   end
 
   private
@@ -241,7 +280,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       regional_office_response[:regional_office][:name]
     ]
   rescue => e
-    log_message_to_sentry(e.message, :warn, {}, { team: 'vfs-ebenefits' })
+    Rails.logger.warn(e.message)
     ['000', 'Not Found']
   end
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'decision_review_v1/utilities/logging_utils'
+require 'common/pdf_helpers'
 
 # Notice of Disagreement evidence submissions
 module V0
@@ -13,25 +14,52 @@ module V0
 
     private
 
+    def serializer_klass
+      DecisionReviewEvidenceAttachmentSerializer
+    end
+
     # This method, declared in `FormAttachmentCreate`, is responsible for uploading file data to S3.
     def save_attachment_to_cloud!
-      common_log_params = {
+      # `form_attachment` is declared in `FormAttachmentCreate`, included above.
+      form_attachment_guid = form_attachment&.guid
+      password = filtered_params[:password]
+
+      log_params = {
+        form_attachment_guid:,
+        encrypted: password.present?
+      }
+
+      # Unlock pdf with hexapdf instead of using pdftk
+      if password.present?
+        unlocked_pdf = unlock_pdf(filtered_params[:file_data], password)
+        form_attachment.set_file_data!(unlocked_pdf)
+      else
+        super
+      end
+
+      log_formatted(**common_log_params.merge(params: log_params, is_success: true))
+    rescue => e
+      log_formatted(**common_log_params.merge(params: log_params, is_success: false, response_error: e))
+      raise e
+    end
+
+    def common_log_params
+      {
         key: :evidence_upload_to_s3,
-        # Will have to update this when NOD and SC using same LH API version. The beginning of that work is ticketed in
-        # https://github.com/department-of-veterans-affairs/va.gov-team/issues/66514.
         form_id: get_form_id_from_request_headers,
         user_uuid: current_user.uuid,
-        downstream_system: 'AWS S3',
-        params: {
-          # `form_attachment` is declared in `FormAttachmentCreate`, included above.
-          form_attachment_guid: form_attachment&.guid
-        }
+        downstream_system: 'AWS S3'
       }
-      super
-      log_formatted(**common_log_params.merge(is_success: true))
-    rescue => e
-      log_formatted(**common_log_params.merge(is_success: false, response_error: e))
-      raise e
+    end
+
+    def unlock_pdf(file, password)
+      tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
+      ::Common::PdfHelpers.unlock_pdf(file.tempfile.path, password, tmpf)
+      tmpf.rewind
+
+      file.tempfile.unlink
+      file.tempfile = tmpf
+      file
     end
 
     def get_form_id_from_request_headers
@@ -40,8 +68,9 @@ module V0
       # - vets-website/src/platform/utilities/api/index.js (apiRequest)
       # - vets-website/src/platform/startup/setup.js (setUpCommonFunctionality)
       # - vets-website/src/platform/startup/index.js (startApp)
-      source_app_name = request.headers['Source-App-Name']
-      # The higher-level review form (966) is not included in this list because it does permit evidence uploads.
+      # - vets-api/lib/source_app_middleware.rb
+      source_app_name = request.env['SOURCE_APP']
+      # The higher-level review form (996) is not included in this list because it does not permit evidence uploads.
       form_id = {
         '10182-board-appeal' => '10182',
         '995-supplemental-claim' => '995'

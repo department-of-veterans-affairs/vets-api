@@ -1,35 +1,56 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::Verification, type: :model do
-  describe 'create' do
-    let(:user_info) { create(:vye_user_info) }
-    let(:award) { create(:vye_award, user_info:) }
+  it 'is valid with valid attributes' do
+    address_change = build_stubbed(:vye_verification)
+    expect(address_change).to be_valid
+  end
 
+  describe 'creates a report' do
     before do
-      s =
-        Struct.new(:settings, :scrypt_config) do
-          include Vye::GenDigest
-          settings =
-            Config.load_files(
-              Rails.root / 'config/settings.yml',
-              Vye::Engine.root / 'config/settings/test.yml'
-            )
-          scrypt_config = extract_scrypt_config settings
-          new(settings, scrypt_config)
-        end
+      old_bdn = FactoryBot.create(:vye_bdn_clone, is_active: true, export_ready: nil)
+      new_bdn = FactoryBot.create(:vye_bdn_clone, is_active: false, export_ready: nil)
 
-      allow_any_instance_of(Vye::GenDigest::Common)
-        .to receive(:scrypt_config)
-        .and_return(s.scrypt_config)
+      FactoryBot.create_list(:vye_user_info, 7, :with_verified_awards, bdn_clone: old_bdn)
+
+      new_bdn.activate!
+
+      ssn = '123456789'
+      profile = double(ssn:)
+      find_profile_by_identifier = double(profile:)
+      service = double(find_profile_by_identifier:)
+      allow(MPI::Service).to receive(:new).and_return(service)
     end
 
-    it 'creates a record' do
+    it 'produces report rows' do
+      expect(described_class.each_report_row.to_a.length).to eq(7)
+    end
+
+    it 'writes out a report' do
+      io = StringIO.new
+
       expect do
-        attributes = FactoryBot.attributes_for(:vye_verification, user_info:, award:)
-        Vye::Verification.create!(attributes)
-      end.to change(Vye::Verification, :count).by(1)
+        described_class.write_report(io)
+      end.not_to raise_error
+
+      io.rewind
+
+      expect(io.string.scan("\n").count).to be(7)
+    end
+
+    it 'writes out a report where the stub_nm is left aligned' do
+      io = StringIO.new
+
+      expect do
+        described_class.write_report(io)
+      end.not_to raise_error
+
+      stub_nm_list = io.string.split(/[\n]/).map { |x| x.slice(0, 7) }.flatten
+
+      expect(stub_nm_list.all? { |x| x.start_with?(/\S/) }).to be(true)
     end
   end
 end

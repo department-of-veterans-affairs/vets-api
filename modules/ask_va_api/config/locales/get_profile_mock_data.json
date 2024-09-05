@@ -1,0 +1,33 @@
+{
+  "Data": {
+      "FirstName": "Aminul",
+      "MiddleName": null,
+      "LastName": null,
+      "PreferredName": "test",
+      "Suffix": "Jr",
+      "Gender": "Female",
+      "Pronouns": null,
+      "Country": "United States",
+      "Street": null,
+      "City": null,
+      "State": null,
+      "ZipCode": null,
+      "Province": null,
+      "BusinessPhone": "(973)767-7598",
+      "PersonalPhone": null,
+      "PersonalEmail": "aminul.islam@va.gov",
+      "BusinessEmail": "test@va.gov",
+      "SchoolState": null,
+      "SchoolFacilityCode": null,
+      "ServiceNumber": null,
+      "ClaimNumber": null,
+      "VeteranServiceStateDate": "1/1/0001 12:00:00 AM",
+      "VeteranServiceEndDate": "1/1/0001 12:00:00 AM",
+      "DateOfBirth": "7/22/1991 12:00:00 AM",
+      "EDIPI": null
+  },
+  "message": null,
+  "ExceptionOccurred": false,
+  "ExceptionMessage": null,
+  "MessageId": "e705eb37-4af4-43aa-9248-c8a02ba523eb"
+}

@@ -44,29 +44,30 @@ module Lighthouse
       end
 
       def self.parse_code(detail) # rubocop:disable Metrics/MethodLength
-        return 'cnp.payment.api.rate.limit.exceeded' if detail.include? 'API rate limit exceeded'
-        return 'cnp.payment.api.gateway.timeout' if detail.include? 'Did not receive a timely response'
-        return 'cnp.payment.invalid.authentication.creds' if detail.include? 'Invalid authentication credentials'
-        return 'cnp.payment.invalid.token' if detail.include? 'Invalid token'
-        return 'cnp.payment.invalid.scopes' if detail.include? 'scopes are not configured'
-        return 'cnp.payment.icn.not.found' if detail.include? 'No data found for ICN'
-        return 'cnp.payment.icn.invalid' if detail.include? 'getDirectDeposit.icn size'
-        return 'cnp.payment.account.number.invalid' if detail.include? 'payment.accountNumber.invalid'
-        return 'cnp.payment.account.type.invalid' if detail.include? 'payment.accountType.invalid'
-        return 'cnp.payment.account.number.fraud' if detail.include? 'Flashes on record'
-        return 'cnp.payment.routing.number.invalid.checksum' if detail.include? 'accountRoutingNumber.invalidCheckSum'
-        return 'cnp.payment.routing.number.invalid' if detail.include? 'payment.accountRoutingNumber.invalid'
-        return 'cnp.payment.routing.number.fraud' if detail.include? 'Routing number related to potential fraud'
-        return 'cnp.payment.restriction.indicators.present' if detail.include? 'restriction.indicators.present'
-        return 'cnp.payment.day.phone.number.invalid' if detail.include? 'Day phone number is invalid'
-        return 'cnp.payment.day.area.number.invalid' if detail.include? 'Day area number is invalid'
-        return 'cnp.payment.night.phone.number.invalid' if detail.include? 'Night phone number is invalid'
-        return 'cnp.payment.night.area.number.invalid' if detail.include? 'Night area number is invalid'
-        return 'cnp.payment.mailing.address.invalid' if detail.include? 'field not entered for mailing address update'
-        return 'cnp.payment.potential.fraud' if detail.include? 'GUIE50041'
-        return 'cnp.payment.unspecified.error' if detail.include? 'GUIE50022'
+        prefix = 'direct.deposit'
 
-        'cnp.payment.generic.error'
+        return "#{prefix}.api.rate.limit.exceeded" if detail.include? 'API rate limit exceeded'
+        return "#{prefix}.api.gateway.timeout" if detail.include? 'Did not receive a timely response'
+        return "#{prefix}.invalid.authentication.creds" if detail.include? 'Invalid authentication credentials'
+        return "#{prefix}.invalid.token" if detail.include? 'Invalid token'
+        return "#{prefix}.invalid.scopes" if detail.include? 'scopes are not configured'
+        return "#{prefix}.icn.not.found" if detail.include? 'No data found for ICN'
+        return "#{prefix}.icn.invalid" if detail.include? 'getDirectDeposit.icn size'
+        return "#{prefix}.account.number.invalid" if detail.include? 'payment.accountNumber.invalid'
+        return "#{prefix}.account.type.invalid" if detail.include? 'payment.accountType.invalid'
+        return "#{prefix}.account.number.fraud" if detail.include? 'Flashes on record'
+        return "#{prefix}.routing.number.invalid.checksum" if detail.include? 'accountRoutingNumber.invalidCheckSum'
+        return "#{prefix}.routing.number.invalid" if detail.include? 'payment.accountRoutingNumber.invalid'
+        return "#{prefix}.routing.number.fraud" if detail.include? 'Routing number related to potential fraud'
+        return "#{prefix}.restriction.indicators.present" if detail.include? 'restriction.indicators.present'
+        return "#{prefix}.day.phone.number.invalid" if detail.include? 'Day phone number is invalid'
+        return "#{prefix}.day.area.number.invalid" if detail.include? 'Day area number is invalid'
+        return "#{prefix}.night.phone.number.invalid" if detail.include? 'Night phone number is invalid'
+        return "#{prefix}.night.area.number.invalid" if detail.include? 'Night area number is invalid'
+        return "#{prefix}.mailing.address.invalid" if detail.include? 'field not entered for mailing address update'
+        return "#{prefix}.potential.fraud" if %w[GUIE50022 GUIE50041].any? { |code| detail.include?(code) }
+
+        "#{prefix}.generic.error"
       end
 
       def self.data_source

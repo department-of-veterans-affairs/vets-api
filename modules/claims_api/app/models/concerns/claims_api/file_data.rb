@@ -8,7 +8,7 @@ module ClaimsApi
     extend ActiveSupport::Concern
 
     included do
-      serialize :file_data, JsonMarshal::Marshaller
+      serialize :file_data, coder: JsonMarshal::Marshaller
       has_kms_key
       has_encrypted :file_data, key: :kms_key, **lockbox_options
 

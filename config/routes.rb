@@ -18,7 +18,6 @@ Rails.application.routes.draw do
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
   post '/v0/sign_in/token', to: 'v0/sign_in#token'
-  get '/v0/sign_in/introspect', to: 'v0/sign_in#introspect'
   get '/v0/sign_in/logout', to: 'v0/sign_in#logout'
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
@@ -27,13 +26,10 @@ Rails.application.routes.draw do
 
   unless Settings.vsp_environment == 'production'
     namespace :sign_in do
-      resources :client_configs
+      resources :client_configs, param: :client_id
+      resources :service_account_configs, param: :service_account_id
     end
   end
-
-  get '/inherited_proofing/auth', to: 'inherited_proofing#auth'
-  get '/inherited_proofing/user_attributes', to: 'inherited_proofing#user_attributes'
-  get '/inherited_proofing/callback', to: 'inherited_proofing#callback'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
@@ -93,12 +89,6 @@ Rails.application.routes.draw do
     end
     get 'benefits_reference_data/*path', to: 'benefits_reference_data#get_data'
 
-    resources :financial_status_reports, only: %i[create] do
-      collection do
-        get :download_pdf
-      end
-    end
-
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
     resource :decision_review_evidence, only: :create
@@ -107,7 +97,7 @@ Rails.application.routes.draw do
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
     end
-    resource :post911_gi_bill_status, only: [:show]
+    resource :veteran_onboarding, only: %i[show update]
 
     resource :education_benefits_claims, only: %i[create show] do
       collection do
@@ -121,11 +111,12 @@ Rails.application.routes.draw do
         get(:healthcheck)
         get(:enrollment_status)
         get(:rating_info)
-        post(:download_pdf)
+        get(:facilities)
       end
     end
 
     resource :hca_attachments, only: :create
+    resource :form1010_ezr_attachments, only: :create
 
     resources :caregivers_assistance_claims, only: :create
     post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
@@ -147,6 +138,9 @@ Rails.application.routes.draw do
       resources :burial_claims, only: %i[create show]
     end
 
+    post 'form0969', to: 'income_and_assets_claims#create'
+    get 'form0969', to: 'income_and_assets_claims#show'
+
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member
       post 'benefits_documents', to: 'benefits_documents#create'
@@ -154,6 +148,11 @@ Rails.application.routes.draw do
 
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
+
+    get 'average_days_for_claim_completion', to: 'average_days_for_claim_completion#index'
+
+    get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
+    get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
 
     resources :efolder, only: %i[index show]
 
@@ -215,15 +214,9 @@ Rails.application.routes.draw do
 
     resources :appeals, only: :index
 
-    namespace :higher_level_reviews do
-      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
-    end
-    resources :higher_level_reviews, only: %i[create show]
-
     namespace :notice_of_disagreements do
       get 'contestable_issues', to: 'contestable_issues#index'
     end
-    resources :notice_of_disagreements, only: %i[create show]
 
     scope :messaging do
       scope :health do
@@ -286,28 +279,21 @@ Rails.application.routes.draw do
 
     resources :gi_bill_feedbacks, only: %i[create show]
 
-    resource :address, only: %i[show update] do
-      collection do
-        get 'countries', to: 'addresses#countries'
-        get 'states', to: 'addresses#states'
-      end
+    namespace :my_va do
+      resource :submission_statuses, only: :show
     end
 
     namespace :profile do
-      resource :alternate_phone, only: %i[show create]
-      resource :email, only: %i[show create]
       resource :full_name, only: :show
       resource :personal_information, only: :show
-      resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
       resources :payment_history, only: %i[index]
+      resource :military_occupations, only: :show
 
       # Lighthouse
-      namespace :direct_deposits do
-        resource :disability_compensations, only: %i[show update]
-      end
+      resource :direct_deposits, only: %i[show update]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do
@@ -338,15 +324,9 @@ Rails.application.routes.draw do
       resources :communication_preferences, only: %i[index create update]
       resources :contacts, only: %i[index]
 
-      resources :ch33_bank_accounts, only: %i[index]
-      put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
     end
-
-    get '/account_controls/credential_index', to: 'account_controls#credential_index'
-    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
-    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
 
     resources :search, only: :index
     resources :search_typeahead, only: :index
@@ -378,8 +358,12 @@ Rails.application.routes.draw do
       post 'document_upload'
     end
 
+    unless Settings.vsp_environment == 'production'
+      get 'terms_of_use_agreements/:icn/current_status', to: 'terms_of_use_agreements#current_status'
+    end
     get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
+    post 'terms_of_use_agreements/:version/accept_and_provision', to: 'terms_of_use_agreements#accept_and_provision'
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
     put 'terms_of_use_agreements/update_provisioning', to: 'terms_of_use_agreements#update_provisioning'
 
@@ -424,6 +408,8 @@ Rails.application.routes.draw do
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
 
+    resource :decision_review_evidence, only: :create
+
     namespace :higher_level_reviews do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
@@ -434,10 +420,17 @@ Rails.application.routes.draw do
     end
     resources :notice_of_disagreements, only: %i[create show]
 
+    resource :post911_gi_bill_status, only: [:show]
+
     namespace :supplemental_claims do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
     resources :supplemental_claims, only: %i[create show]
+
+    scope format: false do
+      resources :nod_callbacks, only: [:create]
+      resources :pension_ipf_callbacks, only: [:create]
+    end
   end
 
   root 'v0/example#index', module: 'v0'
@@ -453,6 +446,7 @@ Rails.application.routes.draw do
   end
 
   # Modules
+  mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
   mount CheckIn::Engine, at: '/check_in'
@@ -461,6 +455,8 @@ Rails.application.routes.draw do
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount IvcChampva::Engine, at: '/ivc_champva'
+  mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
   mount HealthQuest::Engine, at: '/health_quest'
   mount IncomeLimits::Engine, at: '/income_limits'
@@ -470,6 +466,7 @@ Rails.application.routes.draw do
   mount TravelPay::Engine, at: '/travel_pay'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
+  mount Pensions::Engine, at: '/pensions'
   # End Modules
 
   require 'sidekiq/web'

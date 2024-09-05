@@ -16,6 +16,7 @@ require 'action_mailer/railtie'
 # require "action_cable/engine"
 # require "sprockets/railtie"
 require_relative '../lib/http_method_not_allowed'
+require_relative '../lib/source_app_middleware'
 require_relative '../lib/statsd_middleware'
 require_relative '../lib/faraday_adapter_socks/faraday_adapter_socks'
 require 'rails/test_unit/railtie'
@@ -30,7 +31,7 @@ module VetsAPI
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     # https://guides.rubyonrails.org/configuring.html#default-values-for-target-version-7-0
-    config.load_defaults 7.0
+    config.load_defaults 7.1
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -41,20 +42,16 @@ module VetsAPI
     # config.eager_load_paths << Rails.root.join("extras")
 
     # RAILS 7 CONFIG START
+    # 7.1
+    config.add_autoload_paths_to_load_path = true
+    config.active_record.raise_on_assign_to_attr_readonly = false
+
+    # 7.0
     config.action_controller.raise_on_open_redirects = false
 
     # DEPRECATION WARNING: ActiveSupport::TimeWithZone.name has been deprecated and
     # from Rails 7.1 will use the default Ruby implementation.
     config.active_support.remove_deprecated_time_with_zone_name = false
-
-    # DEPRECATION WARNING: Providing a namespace ID that is not one of the constants defined
-    # on Digest::UUID generates an incorrect UUID value according to RFC 4122. To enable the
-    # correct behavior, set the Rails.application.config.active_support.use_rfc4122_namespaced_uuids
-    # configuration option to true.
-
-    # The namespaces uses in this api aren't one of the constants defined on Digest::UUID
-    # so need to set this to false in order to get the same digest as before
-    config.active_support.use_rfc4122_namespaced_uuids = false
     # RAILS 7 CONFIG END
 
     # Only loads a smaller set of middleware suitable for API only apps.
@@ -92,6 +89,7 @@ module VetsAPI
 
     config.middleware.insert_before(0, HttpMethodNotAllowed)
     config.middleware.use OliveBranch::Middleware, inflection_header: 'X-Key-Inflection'
+    config.middleware.use SourceAppMiddleware
     config.middleware.use StatsdMiddleware
     config.middleware.use Rack::Attack
     config.middleware.use ActionDispatch::Cookies

@@ -11,13 +11,14 @@ RSpec.describe SignIn::SessionCreator do
     subject { session_creator.perform }
 
     context 'when input object is a ValidatedCredential' do
-      let(:validated_credential) { create(:validated_credential, client_config:) }
+      let(:validated_credential) { create(:validated_credential, client_config:, device_sso:) }
       let(:user_uuid) { validated_credential.user_verification.backing_credential_identifier }
       let(:client_id) { client_config.client_id }
       let(:client_config) { create(:client_config, refresh_token_duration:, access_token_attributes:, enforced_terms:) }
       let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
       let(:access_token_attributes) { %w[first_name last_name email] }
       let(:enforced_terms) { nil }
+      let(:device_sso) { false }
 
       context 'expected credential_lock validation' do
         let(:validated_credential) { create(:validated_credential, client_config:, user_verification:) }
@@ -109,9 +110,27 @@ RSpec.describe SignIn::SessionCreator do
         end
 
         before do
-          allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
-          allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
+          allow(SecureRandom).to receive_messages(hex: stubbed_random_number, uuid: expected_handle)
           allow(Time.zone).to receive(:now).and_return(expected_created_time)
+        end
+
+        context 'when validated credential is set up to enable device_sso' do
+          let(:device_sso) { true }
+          let(:expected_device_secret) { 'some-expected-device-secret' }
+
+          before { allow(Digest::SHA256).to receive(:hexdigest).and_return(expected_device_secret) }
+
+          it 'returns expected device_secret field on access token' do
+            expect(subject.session.hashed_device_secret).to eq(expected_device_secret)
+          end
+        end
+
+        context 'when validated credential is not set up to enable device_sso' do
+          let(:device_sso) { false }
+
+          it 'returns nil for device_secret field on access token' do
+            expect(subject.session.hashed_device_secret).to eq(nil)
+          end
         end
 
         it 'returns a Session Container with expected OAuth Session and fields' do
@@ -168,8 +187,7 @@ RSpec.describe SignIn::SessionCreator do
         end
 
         before do
-          allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
-          allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
+          allow(SecureRandom).to receive_messages(hex: stubbed_random_number, uuid: expected_handle)
         end
 
         it 'returns a Session Container with expected Refresh Token and fields' do
@@ -211,9 +229,27 @@ RSpec.describe SignIn::SessionCreator do
         let(:expected_last_regeneration_time) { Time.zone.now }
 
         before do
-          allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
-          allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
+          allow(SecureRandom).to receive_messages(hex: stubbed_random_number, uuid: expected_handle)
           allow(Time.zone).to receive(:now).and_return(expected_last_regeneration_time)
+        end
+
+        context 'when validated credential is set up to enable device_sso' do
+          let(:device_sso) { true }
+          let(:expected_device_secret) { 'some-expected-device-secret' }
+
+          before { allow(Digest::SHA256).to receive(:hexdigest).and_return(expected_device_secret) }
+
+          it 'returns expected device_secret field on access token' do
+            expect(subject.access_token.device_secret_hash).to eq(expected_device_secret)
+          end
+        end
+
+        context 'when validated credential is not set up to enable device_sso' do
+          let(:device_sso) { false }
+
+          it 'returns nil for device_secret field on access token' do
+            expect(subject.access_token.device_secret_hash).to eq(nil)
+          end
         end
 
         it 'returns a Session Container with expected Access Token and fields' do
@@ -256,6 +292,14 @@ RSpec.describe SignIn::SessionCreator do
             end
           end
         end
+      end
+
+      context 'when validated credential is set up to enable device_sso' do
+        let(:device_sso) { true }
+      end
+
+      context 'when validated credential is not set up to enable device_sso' do
+        let(:device_sso) { false }
       end
     end
   end

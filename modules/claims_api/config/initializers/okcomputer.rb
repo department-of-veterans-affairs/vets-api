@@ -2,7 +2,6 @@
 
 require 'bgs/services'
 require 'mpi/service'
-require 'evss/service'
 require 'bgs_service/local_bgs'
 
 OkComputer.mount_at = false
@@ -22,20 +21,6 @@ class BaseCheck < OkComputer::Check
   def process_failure
     mark_failure
     mark_message "#{name} is unavailable"
-  end
-end
-
-class EvssCheck < BaseCheck
-  def check
-    Settings.evss.mock_claims || EVSS::Service.service_is_up? ? process_success : process_failure
-  rescue
-    process_failure
-  end
-
-  protected
-
-  def name
-    'EVSS'
   end
 end
 
@@ -98,24 +83,6 @@ class FaradayBGSCheck < BaseCheck
   end
 end
 
-class VbmsCheck < BaseCheck
-  def check
-    connection = Faraday::Connection.new
-    connection.options.timeout = 10
-    response = connection.get("#{Settings.vbms.url}/vbms-efolder-svc/upload-v1/eFolderUploadService?wsdl")
-    response.status == 200 ? process_success : process_failure
-  rescue
-    process_failure
-  end
-
-  protected
-
-  def name
-    'VBMS'
-  end
-end
-
-OkComputer::Registry.register 'evss', EvssCheck.new
 OkComputer::Registry.register 'mpi', MpiCheck.new
 OkComputer::Registry.register 'bgs-vet_record', BgsCheck.new('vet_record')
 OkComputer::Registry.register 'bgs-corporate_update', BgsCheck.new('corporate_update')
@@ -135,7 +102,3 @@ OkComputer::Registry.register 'localbgs-intenttofile',
                               FaradayBGSCheck.new('IntentToFileWebServiceBean/IntentToFileWebService')
 OkComputer::Registry.register 'localbgs-trackeditem',
                               FaradayBGSCheck.new('TrackedItemService/TrackedItemService')
-
-OkComputer::Registry.register 'vbms', VbmsCheck.new
-
-OkComputer.make_optional %w[vbms bgs-vet_record bgs-corporate_update bgs-contention]

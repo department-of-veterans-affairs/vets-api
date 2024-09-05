@@ -1,12 +1,14 @@
 version: '3.4'
 services:
+  redis:
+    image: public.ecr.aws/docker/library/redis:6.2-alpine
   postgres:
-    image: mdillon/postgis:11-alpine
+    image: postgis/postgis:14-3.3-alpine
     command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
-  vets-api:
+  web:
     build:
       context: .
       target: development
@@ -15,12 +17,13 @@ services:
         userid: "${VETS_API_USER_ID}"
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
-      - ".:/srv/vets-api/src"
+      - ".:/app"
       - test_bundle:/usr/local/bundle
     environment:
       "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
       "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
-      "Settings.binaries.clamdscan": "clamscan"           # Not running a separate process within the container for clamdscan, so we use clamscan which requires no daemon
+      "Settings.redis.app_data.url": "redis://redis:6379"
+      "Settings.redis.sidekiq.url": "redis://redis:6379"
       POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
@@ -34,7 +37,9 @@ services:
       DANGER_GITHUB_API_TOKEN: "${DANGER_GITHUB_API_TOKEN}"
     depends_on:
       - postgres
+      - redis
     links:
       - postgres
+      - redis
 volumes:
   test_bundle:

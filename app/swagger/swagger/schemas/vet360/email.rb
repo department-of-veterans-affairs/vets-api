@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'evss/pciu/email_address'
+require 'va_profile/models/email'
 
 module Swagger
   module Schemas
@@ -15,7 +15,7 @@ module Swagger
                    example: 'john@example.com',
                    minLength: 6,
                    maxLength: 255,
-                   pattern: EVSS::PCIU::EmailAddress::VALID_EMAIL_REGEX.inspect
+                   pattern: VAProfile::Models::Email::VALID_EMAIL_REGEX.inspect
         end
 
         swagger_schema :PutVet360Email do
@@ -26,7 +26,7 @@ module Swagger
                    example: 'john@example.com',
                    minLength: 6,
                    maxLength: 255,
-                   pattern: EVSS::PCIU::EmailAddress::VALID_EMAIL_REGEX.inspect
+                   pattern: VAProfile::Models::Email::VALID_EMAIL_REGEX.inspect
         end
       end
     end

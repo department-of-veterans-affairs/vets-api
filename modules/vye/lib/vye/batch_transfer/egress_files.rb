@@ -1,39 +1,44 @@
 # frozen_string_literal: true
 
-module VYE; end
-module VYE::BatchTransfer; end
+module Vye
+  module BatchTransfer
+    module EgressFiles
+      BDN_TIMEZONE = 'Central Time (US & Canada)'
 
-module VYE::BatchTransfer::EgressFiles
-  BDN_TIMEZONE = 'Central Time (US & Canada)'
+      private_constant :BDN_TIMEZONE
 
-  extend self
+      include Vye::CloudTransfer
 
-  private
+      extend self
 
-  def now_in_bdn_timezone
-    Time.current.in_time_zone(BDN_TIMEZONE)
-  end
+      private
 
-  def prefixed_dated(prefix)
-    "#{prefix}#{now_in_bdn_timezone.strftime('%Y%m%d%H%M%S')}.txt"
-  end
+      def now_in_bdn_timezone = Time.current.in_time_zone(BDN_TIMEZONE)
 
-  public
+      def prefixed_dated(prefix) = "#{prefix}#{now_in_bdn_timezone.strftime('%Y%m%d%H%M%S')}.txt"
 
-  # Change of addresses send to Newman every night.
-  def address_changes_filename
-    prefixed_dated 'CHGADD'
-  end
+      # Change of addresses send to Newman everyday.
+      def address_changes_filename = prefixed_dated('CHGADD')
 
-  # Change of direct deposit send to Newman every night.
-  def direct_deposit_filename
-    prefixed_dated 'DirDep'
-  end
+      # Change of direct deposit send to Newman everyday.
+      def direct_deposit_filename = prefixed_dated('DirDep')
 
-  # Verification of no change in enrollment sent to BDN every night.
-  # Some mainframes work with Julian dates. The BDN services expects this file
-  # to have Julian dates as part of the filename.
-  def no_change_enrollment_filename
-    "vawave#{now_in_bdn_timezone.yday}"
+      # enrollment verification sent to BDN everyday.
+      def verification_filename = "vawave#{now_in_bdn_timezone.yday}"
+
+      public
+
+      def address_changes_upload
+        upload_report(address_changes_filename, &AddressChange.method(:write_report))
+      end
+
+      def direct_deposit_upload
+        upload_report(direct_deposit_filename, &DirectDepositChange.method(:write_report))
+      end
+
+      def verification_upload
+        upload_report(verification_filename, &Verification.method(:write_report))
+      end
+    end
   end
 end

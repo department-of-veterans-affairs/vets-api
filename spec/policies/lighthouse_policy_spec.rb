@@ -35,7 +35,7 @@ describe LighthousePolicy do
     end
   end
 
-  permissions :access_disability_compensations? do
+  permissions :direct_deposit_access? do
     let(:user) { build(:evss_user) }
 
     context 'user has ICN and Participant ID' do
@@ -72,6 +72,66 @@ describe LighthousePolicy do
       context 'with a loa3 user' do
         it 'allows access' do
           expect(described_class).to permit(user, :lighthouse)
+        end
+      end
+    end
+
+    permissions :itf_access? do
+      context 'user has Participant ID and SSN and First/Last Name' do
+        let(:user) { build(:user, :loa3) }
+
+        it 'grants access' do
+          expect(subject).to permit(user, :lighthouse)
+        end
+      end
+
+      context 'user with blank first name (single name user)' do
+        let(:user) { build(:user, :loa3) }
+
+        before { allow(user).to receive(:first_name).and_return('') }
+
+        it 'grants access' do
+          expect(subject).to permit(user, :lighthouse)
+        end
+      end
+
+      context 'user without Participant ID' do
+        let(:user) { build(:user, :loa3) }
+
+        before { allow(user).to receive(:participant_id).and_return(nil) }
+
+        it 'denies access' do
+          expect(subject).not_to permit(user, :lighthouse)
+        end
+      end
+
+      context 'user without SSN' do
+        let(:user) { build(:user, :loa3) }
+
+        before { allow(user).to receive(:ssn).and_return(nil) }
+
+        it 'denies access' do
+          expect(subject).not_to permit(user, :lighthouse)
+        end
+      end
+
+      context 'user without first name' do
+        let(:user) { build(:user, :loa3) }
+
+        before { allow(user).to receive(:first_name).and_return(nil) }
+
+        it 'denies access' do
+          expect(subject).not_to permit(user, :lighthouse)
+        end
+      end
+
+      context 'user without last name' do
+        let(:user) { build(:user, :loa3) }
+
+        before { allow(user).to receive(:last_name).and_return(nil) }
+
+        it 'denies access' do
+          expect(subject).not_to permit(user, :lighthouse)
         end
       end
     end

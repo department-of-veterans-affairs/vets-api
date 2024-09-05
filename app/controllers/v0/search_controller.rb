@@ -16,8 +16,9 @@ module V0
     #
     def index
       response = Search::Service.new(query, page).results
+      options = { meta: { pagination: response.pagination } }
 
-      render json: response, serializer: SearchSerializer, meta: { pagination: response.pagination }
+      render json: SearchSerializer.new(response, options)
     end
 
     private

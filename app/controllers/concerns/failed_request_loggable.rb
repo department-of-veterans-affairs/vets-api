@@ -52,6 +52,13 @@ module FailedRequestLoggable
     }
     data[:additional_data] = additional_data if additional_data.present?
 
-    PersonalInformationLog.create! error_class:, data:
+    begin
+      PersonalInformationLog.create!(error_class:, data:)
+    rescue => e
+      # Not sure if the error message could include PII
+      # so just logging the backtrace as it would still tell us if there's a validation error or something
+      Rails.logger.error('PersonalInformationLog error backtrace', e.backtrace)
+      raise
+    end
   end
 end

@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
-class RatingInfoSerializer < ActiveModel::Serializer
-  attributes :user_percent_of_disability, :source_system
+class RatingInfoSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
+  set_id { '' }
+
+  attribute :user_percent_of_disability do |object|
+    object[:user_percent_of_disability]
   end
 
-  def source_system
+  attribute :source_system do |_|
     'EVSS'
   end
 end

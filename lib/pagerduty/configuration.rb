@@ -2,7 +2,7 @@
 
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/json_parser'
-require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/raise_custom_error'
 
 module PagerDuty
   class Configuration < Common::Client::Configuration::REST
@@ -11,7 +11,7 @@ module PagerDuty
         conn.use :breakers
         conn.request :json
 
-        conn.response :raise_error, error_prefix: service_name
+        conn.response :raise_custom_error, error_prefix: service_name
         conn.response :json_parser
 
         conn.adapter Faraday.default_adapter

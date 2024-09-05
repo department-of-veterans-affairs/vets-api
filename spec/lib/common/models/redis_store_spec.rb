@@ -62,11 +62,17 @@ describe Common::RedisStore do
 
   describe '#save' do
     it 'saves serialized class to redis with the correct namespace' do
-      expect_any_instance_of(Redis).to receive(:set).once.with(
-        'my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea',
+      expect_any_instance_of(Redis::Namespace).to receive(:set).once.with(
+        'e66fd7b7-94e0-4748-8063-283f55efb0ea',
         '{":uuid":"e66fd7b7-94e0-4748-8063-283f55efb0ea",":email":"foo@bar.com"}'
       )
       subject.save
+    end
+
+    it 'saves entry with namespace' do
+      subject.save
+
+      expect(subject.redis_namespace.redis.keys).to include('my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea')
     end
   end
 
@@ -92,10 +98,16 @@ describe Common::RedisStore do
 
   describe '#destroy' do
     it 'removes itself from redis with the correct namespace' do
-      expect_any_instance_of(Redis).to receive(:del).once.with(
-        'my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea'
+      expect_any_instance_of(Redis::Namespace).to receive(:del).once.with(
+        'e66fd7b7-94e0-4748-8063-283f55efb0ea'
       )
       subject.destroy
+    end
+
+    it "entry doesn't exists" do
+      subject.destroy
+
+      expect(subject.redis_namespace.redis.keys).not_to include('my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea')
     end
 
     it 'freezes the instance after destroy is called' do

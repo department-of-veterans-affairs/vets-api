@@ -41,7 +41,7 @@ module SignIn
     end
 
     def logingov_auth_service
-      @logingov_auth_service ||= Logingov::Service.new
+      @logingov_auth_service ||= Logingov::Service.new(optional_scopes: logingov_optional_scopes)
     end
 
     def mock_auth_service
@@ -50,6 +50,12 @@ module SignIn
         @mock_auth_service.type = type
         @mock_auth_service
       end
+    end
+
+    def logingov_optional_scopes
+      return [] if client_config.blank?
+
+      client_config.access_token_attributes & Logingov::Service::OPTIONAL_SCOPES
     end
   end
 end

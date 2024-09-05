@@ -9,8 +9,12 @@ module ClaimsApi
           'forms/526'
         end
 
-        field :attributes do |claim, _options|
-          claim&.form_data
+        field :attributes do |claim, options|
+          if options[:async] == false
+            { claimId: claim&.evss_id&.to_s }.merge(claim&.form_data)
+          else
+            claim&.form_data
+          end
         end
       end
     end

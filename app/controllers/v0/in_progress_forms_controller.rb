@@ -6,9 +6,10 @@ module V0
     service_tag 'save-in-progress'
 
     def index
-      # :unaltered prevents the keys from being deeply transformed, which might corrupt some keys
+      # the keys of metadata shouldn't be deeply transformed, which might corrupt some keys
       # see https://github.com/department-of-veterans-affairs/va.gov-team/issues/17595 for more details
-      render json: InProgressForm.for_user(@current_user), key_transform: :unaltered
+      pending_submissions = InProgressForm.submission_pending.for_user(@current_user)
+      render json: InProgressFormSerializer.new(pending_submissions)
     end
 
     def show
@@ -24,20 +25,31 @@ module V0
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
 
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
-      render json: form, key_transform: :unaltered
+
+      veteran_icn = @current_user.icn
+      if Flipper.enabled?(:intent_to_file_lighthouse_enabled, @current_user) && form.id_previously_changed? &&
+         Lighthouse::CreateIntentToFileJob::ITF_FORMS.include?(form.form_id) && veteran_icn.present?
+        if @current_user.participant_id.blank?
+          track_missing_user_pids(form)
+        else
+          Lighthouse::CreateIntentToFileJob.perform_async(form.form_id, form.created_at, veteran_icn)
+        end
+      end
+
+      render json: InProgressFormSerializer.new(form)
     end
 
     def destroy
       raise Common::Exceptions::RecordNotFound, form_id if form_for_user.blank?
 
       form_for_user.destroy
-      render json: form_for_user, key_transform: :unaltered
+      render json: InProgressFormSerializer.new(form_for_user)
     end
 
     private
 
     def form_for_user
-      @form_for_user ||= InProgressForm.form_for_user(form_id, @current_user)
+      @form_for_user ||= InProgressForm.submission_pending.form_for_user(form_id, @current_user)
     end
 
     def form_id
@@ -57,6 +69,16 @@ module V0
         form_json,
         OliveBranch::Transformations.method(:camelize)
       )
+    end
+
+    def track_missing_user_pids(form)
+      StatsD.increment('user.participant_id.blank')
+      context = {
+        in_progress_form_id: form.id,
+        user_uuid: @current_user.uuid,
+        user_account_uuid: @current_user.user_account_uuid
+      }
+      Rails.logger.info('V0 InProgressFormsController async ITF user.participant_id is blank', context)
     end
   end
 end

@@ -5,7 +5,6 @@
       "benefitType": "compensation",
       "claimantType": "other",
       "claimantTypeOtherValue": "Veteran Attorney",
-      "potentialPactAct": true,
       "veteran": {
         "ssn": "123456789",
         "icn": "1012667145V762142",

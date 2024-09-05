@@ -29,43 +29,35 @@ module Form1010Ezr
     def submit_async(parsed_form)
       HCA::EzrSubmissionJob.perform_async(
         HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
-        HealthCareApplication.get_user_identifier(@user)
+        @user.uuid
       )
+
+      { success: true, formSubmissionId: nil, timestamp: nil }
     end
 
     def submit_sync(parsed_form)
-      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user, FORM_ID)
-      content = Gyoku.xml(formatted)
-      submission = soap.build_request(:save_submit_form, message: content)
-      response = with_monitoring do
-        perform(:post, '', submission.body)
+      res = with_monitoring do
+        es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
       end
 
-      root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
-      form_submission_id = root.locate('formSubmissionId').first.text.to_i
-
       # Log the 'formSubmissionId' for successful submissions
-      Rails.logger.info("SubmissionID=#{form_submission_id}")
+      Rails.logger.info("SubmissionID=#{res[:formSubmissionId]}")
 
-      {
-        success: true,
-        formSubmissionId: form_submission_id,
-        timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
-      }
+      res
+    rescue => e
+      log_and_raise_error(e, parsed_form)
     end
 
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
     def submit_form(parsed_form)
+      # Log the 'veteranDateOfBirth' to ensure the frontend validation is working as intended
+      # REMOVE THE FOLLOWING TWO LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+      @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
       parsed_form = configure_and_validate_form(parsed_form)
-      if Flipper.enabled?(:ezr_async, @user)
-        submit_async(parsed_form)
-      else
-        submit_sync(parsed_form)
-      end
+
+      submit_async(parsed_form)
     rescue => e
-      log_submission_failure(parsed_form)
-      Rails.logger.error "10-10EZR form submission failed: #{e.message}"
-      raise e
+      log_and_raise_error(e, parsed_form)
     end
 
     def log_submission_failure(parsed_form)
@@ -81,9 +73,9 @@ module Form1010Ezr
           '1010EZR total failure',
           :error,
           {
-            first_initial: parsed_form['veteranFullName']['first'][0],
-            middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
-            last_initial: parsed_form['veteranFullName']['last'][0]
+            first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
+            middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
+            last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
           },
           ezr: :total_failure
         )
@@ -99,13 +91,24 @@ module Form1010Ezr
       validation_errors = JSON::Validator.fully_validate(schema, parsed_form)
 
       if validation_errors.present?
+        # REMOVE THE FOLLOWING SIX LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+        if validation_errors.find { |error| error.include?('veteranDateOfBirth') }.present?
+          PersonalInformationLog.create!(
+            data: @unprocessed_user_dob,
+            error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure"
+          )
+        end
+
         log_validation_errors(parsed_form)
 
-        Rails.logger.error('10-10EZR form validation failed. Form does not match schema.')
+        Rails.logger.error(
+          "10-10EZR form validation failed. Form does not match schema. Error list: #{validation_errors}"
+        )
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
     end
 
+    # <---- Post-fill methods ---->
     # Add required fields not included in the JSON schema, but are
     # required in the Enrollment System API
     def post_fill_required_fields(parsed_form)
@@ -114,8 +117,35 @@ module Form1010Ezr
       parsed_form.merge!(required_fields)
     end
 
-    def configure_and_validate_form(parsed_form)
+    # Due to issues with receiving submissions that do not include the Veteran's DOB, full name, SSN, and/or
+    # gender, we'll try to add them in before we validate the form
+    def post_fill_required_user_fields(parsed_form)
+      # User fields that are required in the 10-10EZR schema, but not editable on the frontend
+      required_user_form_fields = {
+        'veteranDateOfBirth' => @user.birth_date,
+        'veteranFullName' => @user.full_name_normalized&.compact&.stringify_keys,
+        'veteranSocialSecurityNumber' => @user.ssn_normalized,
+        'gender' => @user.gender
+      }
+
+      required_user_form_fields.each do |key, value|
+        next if parsed_form[key].present?
+
+        StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.missing_#{key.underscore}")
+
+        parsed_form[key] = value
+      end
+    end
+
+    def post_fill_fields(parsed_form)
       post_fill_required_fields(parsed_form)
+      post_fill_required_user_fields(parsed_form)
+
+      parsed_form.compact
+    end
+
+    def configure_and_validate_form(parsed_form)
+      post_fill_fields(parsed_form)
       validate_form(parsed_form)
       # Due to overriding the JSON form schema, we need to do so after the form has been validated
       override_parsed_form(parsed_form)
@@ -137,6 +167,12 @@ module Form1010Ezr
         data: parsed_form,
         error_class: 'Form1010Ezr ValidationError'
       )
+    end
+
+    def log_and_raise_error(error, form)
+      log_submission_failure(form)
+      Rails.logger.error "10-10EZR form submission failed: #{error.message}"
+      raise error
     end
   end
 end

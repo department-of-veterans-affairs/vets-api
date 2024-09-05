@@ -18,14 +18,14 @@ module V0
       Rails.logger.info "ClaimID=#{claim.id} RPO=#{claim.education_benefits_claim.region} Form=#{form_type}"
       claim.after_submit(@current_user)
       clear_saved_form(claim.in_progress_form_id)
-      render(json: claim.education_benefits_claim)
+      render json: EducationBenefitsClaimSerializer.new(claim.education_benefits_claim)
     end
 
     def stem_claim_status
       current_applications = []
       current_applications = user_stem_automated_decision_claims unless @current_user.nil?
 
-      render json: current_applications, each_serializer: EducationStemClaimStatusSerializer
+      render json: EducationStemClaimStatusSerializer.new(current_applications)
     end
 
     private

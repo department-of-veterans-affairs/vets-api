@@ -1,0 +1,40 @@
+{
+  "form_number": "10-7959F-1",
+  "primary_contact_info": {
+    "name": {
+      "first": "Veteran",
+      "last": "Surname"
+    },
+    "email": "email@address.com"
+  },
+  "veteran": {
+    "date_of_birth": "02/02/1987",
+    "full_name": {
+      "first": "Veteran",
+      "middle": "B",
+      "last": "Surname"
+    },
+    "physical_address": {
+      "country": "USA",
+      "street": "1 Physical Ln",
+      "street_combined": "1 Physical Ln",
+      "city": "Place",
+      "state": "AL",
+      "postal_code": "12345"
+    },
+    "mailing_address": {
+      "country": "USA",
+      "street": "1 Mail Ln",
+      "street_combined": "1 Mail Ln",
+      "city": "Place",
+      "state": "PA",
+      "postal_code": "12345"
+    },
+    "ssn": "222554444",
+    "va_claim_number": "123456789",
+    "phone_number": "9876543213",
+    "email_address": "veteran@mail.com"
+  },
+  "statement_of_truth_signature": "Veteran B Surname",
+  "current_date": "01/01/2024"
+}

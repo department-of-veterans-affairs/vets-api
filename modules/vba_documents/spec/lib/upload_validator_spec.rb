@@ -35,7 +35,7 @@ RSpec.describe VBADocuments::UploadValidations do
   describe '#validate_metadata' do
     let(:included_values) { {} }
     let(:input) { JSON.parse(File.read(get_fixture('valid_metadata.json'))).merge(included_values).to_json }
-    let(:output) { validate_metadata(input, submission_version: 1) }
+    let(:output) { validate_metadata(input, 'consumer_id', 'guid', submission_version: 1) }
 
     it 'validates valid metadata' do
       expect { output }.not_to raise_error
@@ -59,6 +59,44 @@ RSpec.describe VBADocuments::UploadValidations do
         expect { output }.to raise_error(VBADocuments::UploadError) do |e|
           expect(e.code).to eq('DOC102')
           expect(e.detail).to include('five digits')
+        end
+      end
+    end
+
+    context 'when vba_documents.custom_metadata_allow_list Setting is not accessable(nil)' do
+      let(:included_values) { { unpermitted_key: 'ahhh!!!!' } }
+
+      it 'logs missing\invalid setting warning' do
+        expect(Rails.logger).to receive(:warn).with(
+          'VBADocuments missing or malformed Setting: custom_metadata_allow_list'
+        )
+        expect { output }.not_to raise_error
+      end
+    end
+
+    context 'when unpermitted metadata is supplied' do
+      let(:included_values) { { unpermitted_key: 'ahhh!!!!' } }
+
+      it 'logs unpermitted metadata warning' do
+        with_settings(Settings.vba_documents, custom_metadata_allow_list: { other_consumer_id: ['key3'] }.to_json) do
+          expect(Rails.logger).to receive(:warn).with(
+            'VBADocuments unpermitted metadata supplied. Guid: guid Keys: unpermitted_key'
+          )
+          expect { output }.not_to raise_error
+        end
+      end
+    end
+
+    context 'when consumer specific metadata is supplied' do
+      let(:included_values) { { unpermitted_key: 'ahhh!!!!' } }
+
+      it 'does not log' do
+        with_settings(Settings.vba_documents,
+                      custom_metadata_allow_list: { consumer_id: ['unpermitted_key'] }.to_json) do
+          expect(Rails.logger).not_to receive(:warn).with(
+            'VBADocuments unpermitted metadata supplied. Guid: guid Keys: unpermitted_key'
+          )
+          expect { output }.not_to raise_error
         end
       end
     end

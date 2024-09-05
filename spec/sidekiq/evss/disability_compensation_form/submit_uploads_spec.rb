@@ -8,6 +8,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   before do
     Sidekiq::Job.clear_all
     Flipper.disable(:disability_compensation_lighthouse_document_service_provider)
+    Flipper.disable(:form526_send_document_upload_failure_notification)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -60,6 +61,57 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           subject.perform_async(submission.id, upload_data)
           expect(Form526JobStatus).to receive(:upsert).twice
           expect { described_class.drain }.to raise_error(EVSS::ErrorMiddleware::EVSSBackendServiceError)
+        end
+      end
+
+      context 'when all retries are exhausted' do
+        let!(:form526_job_status) do
+          create(
+            :form526_job_status,
+            :retryable_error,
+            form526_submission: submission,
+            job_id: 1
+          )
+        end
+
+        let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
+        let!(:attachment) do
+          sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
+          sea.set_file_data!(file)
+          sea.save!
+          sea
+        end
+
+        context 'when the form526_send_document_upload_failure_notification Flipper is enabled' do
+          before do
+            Flipper.enable(:form526_send_document_upload_failure_notification)
+          end
+
+          it 'enqueues a failure notification mailer to send to the veteran' do
+            subject.within_sidekiq_retries_exhausted_block(
+              {
+                'jid' => form526_job_status.job_id,
+                'args' => [submission.id, upload_data]
+              }
+            ) do
+              expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail)
+                .to receive(:perform_async).with(submission.id, attachment.guid)
+            end
+          end
+        end
+
+        context 'when the form526_send_document_upload_failure_notification Flipper is disabled' do
+          it 'does not enqueue a failure notification mailer to send to the veteran' do
+            subject.within_sidekiq_retries_exhausted_block(
+              {
+                'jid' => form526_job_status.job_id,
+                'args' => [submission.id, upload_data]
+              }
+            ) do
+              expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail)
+                .not_to receive(:perform_async)
+            end
+          end
         end
       end
     end

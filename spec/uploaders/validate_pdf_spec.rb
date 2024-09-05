@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe ValidatePdf, uploader_helpers: true do
+describe ValidatePdf, :uploader_helpers do
   class ValidatePdfTest < CarrierWave::Uploader::Base
     include ValidatePdf
   end

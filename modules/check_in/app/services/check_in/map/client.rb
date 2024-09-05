@@ -28,17 +28,40 @@ module CheckIn
         @settings = Settings.check_in.map_api
       end
 
+      def deep_analyze_and_modify(obj)
+        case obj
+        when Hash
+          obj.each do |key, value|
+            if key == :system && value.is_a?(String)
+              obj[key] = value.gsub('https://va.gov', '')
+            else
+              deep_analyze_and_modify(value)
+            end
+          end
+        when Array
+          obj.each do |value|
+            deep_analyze_and_modify(value)
+          end
+        end
+      end
+
       ##
       # HTTP GET call to get the appointment data from MAP
       #
       # @return [Faraday::Response]
       #
       def appointments(token:, patient_icn:, query_params:)
-        connection.post("/vaos/v1/patients/#{patient_icn}/appointments?#{query_params}") do |req|
+        response = connection.post("/vaos/v1/patients/#{patient_icn}/appointments?#{query_params}") do |req|
           req.headers = default_headers.merge('X-VAMF-JWT' => token)
         end
+        deep_analyze_and_modify(response)
+        response
       rescue => e
-        Faraday::Response.new(body: e.original_body, status: e.original_status)
+        if e.respond_to?(:original_body) && e.respond_to?(:original_status)
+          Faraday::Response.new(body: e.original_body, status: e.original_status)
+        else
+          raise e
+        end
       end
 
       private
@@ -52,7 +75,7 @@ module CheckIn
       def connection
         Faraday.new(url:) do |conn|
           conn.use :breakers
-          conn.response :raise_error, error_prefix: service_name
+          conn.response :raise_custom_error, error_prefix: service_name
           conn.response :betamocks if mock_enabled?
 
           conn.adapter Faraday.default_adapter

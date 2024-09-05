@@ -27,10 +27,9 @@ module AppealsApi::V1
             submission = AppealsApi::EvidenceSubmission.create! submission_attributes.merge(upload_submission: upload)
 
             render status: :accepted,
-                   json: submission,
-                   serializer: AppealsApi::EvidenceSubmissionSerializer,
-                   key_transform: :camel_lower,
-                   render_location: true
+                   json: AppealsApi::EvidenceSubmissionSerializer.new(
+                     submission, { params: { render_location: true } }
+                   ).serializable_hash
           else
             log_error(error)
             render json: { errors: [error] }, status: error[:title].to_sym
@@ -43,10 +42,9 @@ module AppealsApi::V1
 
           submission = with_status_simulation(submission) if status_requested_and_allowed?
 
-          render json: submission,
-                 serializer: AppealsApi::EvidenceSubmissionSerializer,
-                 key_transform: :camel_lower,
-                 render_location: false
+          render json: AppealsApi::EvidenceSubmissionSerializer.new(
+            submission, { params: { render_location: false } }
+          ).serializable_hash
         end
 
         private

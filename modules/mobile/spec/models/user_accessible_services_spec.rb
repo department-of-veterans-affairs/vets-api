@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Mobile::V0::UserAccessibleServices, aggregate_failures: true, type: :model do
+describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model do
   let(:user) { build(:user, :loa3) }
   let(:non_evss_user) { build(:user, :loa3, edipi: nil, ssn: nil, participant_id: nil) }
   let(:non_lighthouse_user) { build(:user, :loa3, icn: nil, participant_id: nil) }
@@ -26,8 +26,38 @@ describe Mobile::V0::UserAccessibleServices, aggregate_failures: true, type: :mo
     end
 
     describe 'appointments' do
-      it 'is always true' do
-        expect(user_services.service_auth_map[:appointments]).to be_truthy
+      context 'when feature flag is off' do
+        before { Flipper.disable(:va_online_scheduling) }
+
+        it 'is false' do
+          expect(user_services.service_auth_map[:appointments]).to be(false)
+        end
+      end
+
+      context 'when feature flag is on' do
+        before { Flipper.enable(:va_online_scheduling) }
+
+        context 'when user does not have vaos access' do
+          let(:user) { build(:user, :loa1) }
+
+          it 'is false' do
+            expect(user_services.service_auth_map[:appointments]).to be(false)
+          end
+        end
+
+        context 'when user does not have an icn' do
+          let!(:user) { build(:user, :loa3, icn: nil) }
+
+          it 'is false' do
+            expect(user_services.service_auth_map[:appointments]).to be(false)
+          end
+        end
+
+        context 'when user has an icn and vaos access' do
+          it 'is true' do
+            expect(user_services.service_auth_map[:appointments]).to be_truthy
+          end
+        end
       end
     end
 
@@ -364,6 +394,9 @@ describe Mobile::V0::UserAccessibleServices, aggregate_failures: true, type: :mo
     end
 
     describe 'secureMessaging' do
+      before { Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z')) }
+      after { Timecop.return }
+
       context 'when user does not have mhv_messaging access' do
         it 'is false' do
           expect(user_services.service_auth_map[:secureMessaging]).to be(false)
@@ -371,10 +404,10 @@ describe Mobile::V0::UserAccessibleServices, aggregate_failures: true, type: :mo
       end
 
       context 'when user does have mhv_messaging access' do
-        let(:user) { build(:user, :mhv) }
-
         it 'is true' do
-          expect(user_services.service_auth_map[:secureMessaging]).to be_truthy
+          VCR.use_cassette('sm_client/session') do
+            expect(user_services.service_auth_map[:secureMessaging]).to be_truthy
+          end
         end
       end
     end

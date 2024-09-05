@@ -16,7 +16,7 @@ module Crm
 
     def initialize
       @settings = Settings.ask_va_api.crm_api
-      @cache_client = RedisClient.new
+      @cache_client = AskVAApi::RedisClient.new
       @logger = LogService.new
     end
 
@@ -52,7 +52,7 @@ module Crm
     def conn(url:)
       Faraday.new(url:) do |f|
         f.use :breakers
-        f.response :raise_error, error_prefix: service_name
+        f.response :raise_custom_error, error_prefix: service_name
         f.adapter Faraday.default_adapter
       end
     end

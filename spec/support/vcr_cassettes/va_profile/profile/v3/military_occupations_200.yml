@@ -1,0 +1,66 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/1100377582%5ENI%5E200DOD%5EUSDOD
+    body:
+      encoding: UTF-8
+      string: '{"bios":[{"bioPath":"militaryPerson.militaryOccupations"}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1523538090", dtSInfo;desc="0"
+      - dtRpid;desc="1504971135", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 965f0c9f-cbbf-49b6-9a9e-233483d8808c
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Tue, 30 Jan 2024 00:47:07 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1210'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"profile":{"militaryPerson":{"militaryOccupations":[{"serviceSegmentSequence":1,"occupationSegmentSequence":1,"occupationTypeCode":"P","occupationTypeText":"Primary","dodProvidedCode":"125000","dodOccupationCode":"125000","dodOccupationText":"Combat
+        Operations Control, General","serviceProvidedCode":"1C331","serviceSpecificOccupationCode":"1C","serviceSpecificOccupationText":"Airborne
+        Digital EW Systems","effectiveDate":"2007-01-24"},{"serviceSegmentSequence":1,"occupationSegmentSequence":2,"occupationTypeCode":"P","occupationTypeText":"Primary","dodProvidedCode":"183000","dodOccupationCode":"183000","dodOccupationText":"Law
+        Enforcement, General","serviceProvidedCode":"3P031A","serviceSpecificOccupationCode":"3P","serviceSpecificOccupationText":"SDC
+        Programmer Proficiency Trained","effectiveDate":"2010-07-07"},{"serviceSegmentSequence":2,"occupationSegmentSequence":1,"occupationTypeCode":"P","occupationTypeText":"Primary","dodProvidedCode":"183000","dodOccupationCode":"183000","dodOccupationText":"Law
+        Enforcement, General","serviceProvidedCode":"3P031B","serviceSpecificOccupationCode":"3P","serviceSpecificOccupationText":"SDC
+        Programmer Proficiency Trained","effectiveDate":"2012-11-20"}]}}}'
+  recorded_at: Tue, 30 Jan 2024 00:47:07 GMT
+recorded_with: VCR 6.2.0

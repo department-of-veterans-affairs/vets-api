@@ -1,5 +1,43 @@
 ---
-schema-version: v2.1
+schema-version: v2.2
+dd-service: accredited-representative-portal
+team: benefits
+application: Accredited Representative Portal
+tier: '1'
+lifecycle: pre-production
+contacts:
+  - name: benefits-representation-engineering
+    type: slack
+    contact: https://dsva.slack.com/archives/C06ABHUNBRS
+description: "For details, visit:
+  https://github.com/department-of-veterans-affairs/va.gov-team/tree/master/pro\
+  ducts/accredited-representative-facing"
+links:
+  - name: ARF Engineering
+    type: doc
+    provider: GitHub
+    url: https://github.com/department-of-veterans-affairs/va.gov-team/tree/master/products/accredited-representative-facing/engineering
+  - name: ARP Engine in vets-api
+    type: repo
+    provider: github
+    url: https://github.com/department-of-veterans-affairs/vets-api/tree/35e2ebe672b7d2d92c16473e336b99c3a372afda/modules/accredited_representative_portal
+  - name: ARP Frontend
+    type: repo
+    provider: github
+    url: https://github.com/department-of-veterans-affairs/vets-website/tree/5224ca7500fd9292b8fe29d967bcb4ab55f93df3/src/applications/accredited-representative-portal
+  - name: ARP Layout
+    type: repo
+    provider: github
+    url: https://github.com/department-of-veterans-affairs/content-build/blob/6c82218da1661c090d2883b26f40cf18e173ff98/src/site/layouts/representative.html
+tags:
+  - accredited-representative-portal
+type: web
+languages:
+  - ruby
+  - javascript
+integrations: {}
+---
+schema-version: v2.2
 dd-service: dependent-change
 team: benefits
 application: 686c/674
@@ -16,7 +54,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/vad-969-xqc/benefits---dependents-686674
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: mobile-application
 tier: '1'
 lifecycle: production
@@ -35,7 +73,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/pzz-7x2-4cs/mobile-api-dashboard
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: claim-status
 team: benefits
 application: claim status tool application
@@ -53,7 +91,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/uc8-jnr-zhm/benefits---claim-status-tool
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: gibill-application
 team: vfs-education
 tier: '1'
@@ -64,7 +102,7 @@ contacts:
     contact: https://dsva.slack.com/archives/CG6N59X40
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: healthcare-application
 team: 1010-health-apps
 application: health
@@ -81,7 +119,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/p5g-fys-epz/1010-health-apps
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: profile
 team: auth-experience-profile
 tier: '1'
@@ -92,7 +130,7 @@ contacts:
     contact: https://dsva.slack.com/archives/C909ZG2BB
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: education-forms
 team: vfs-education
 tier: '1'
@@ -103,7 +141,7 @@ contacts:
     contact: https://dsva.slack.com/archives/CG6N59X40
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: ask-va
 team: octo-engineers
 tier: '2'
@@ -114,7 +152,7 @@ contacts:
     contact: https://dsva.slack.com/archives/C05A2F6DEAE
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: evidence-upload
 team: benefits
 application: Notice of Disagreement, Supplemental Claims
@@ -133,7 +171,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/u78-itq-2yt
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: appeal-application
 team: benefits
 application: Supplemental Claims
@@ -151,7 +189,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/uc7-8ai-6c3/benefits---supplemental-claims
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: direct-deposit
 team: auth-experience-profile
 tier: '1'
@@ -167,7 +205,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/gra-npe-h52/authenticated-experience-cp-direct-deposit
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: avs
 team: After Visit Summary
 description: Displays after visit summaries to veterans.
@@ -177,7 +215,7 @@ contacts:
     contact: https://dsva.slack.com/archives/C04UBETRY8N
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: disability-application
 team: benefits
 application: disability benefits application
@@ -195,7 +233,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/ygg-v6d-nza/form-526-disability-compensation
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: appeal-status
 team: benefits
 application: Appeal Status - part of Claim Status Tool
@@ -213,7 +251,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/cpt-6qy-rbc
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: homepage
 team: vfs-websites
 tier: '1'
@@ -226,7 +264,7 @@ tags:
   - homepage
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: caregiver-application
 team: 1010-health-apps
 tier: '1'
@@ -242,7 +280,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/p5g-fys-epz/1010-health-apps
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: feature-flag
 team: platform
 application: platform
@@ -258,7 +296,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/sbb-id5-kwh/feature-toggles-500-errors
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: financial-report
 team: vfs-debt
 tier: '1'
@@ -268,7 +306,7 @@ contacts:
     contact: https://dsva.slack.com/archives/CPE4AJ6Q0
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: search
 team: vfs-websites
 tier: '1'
@@ -278,7 +316,7 @@ contacts:
     contact: https://dsva.slack.com/archives/C011K1VSTC3
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: save-in-progress
 team: platform
 application: platform
@@ -289,7 +327,7 @@ contacts:
     contact: https://dsva.slack.com/archives/CBU0KDSB1
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: authentication
 team: platform-identity
 tier: '1'
@@ -303,7 +341,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/52g-hyg-wcj/vsp-identity-monitor-dashboard
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: mobile-app
 team: vfs-mobile
 tier: '1'
@@ -323,7 +361,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/pzz-7x2-4cs/mobile-api-dashboard
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: pension-application
 team: benefits
 application: Pension / form 21P-527EZ
@@ -341,7 +379,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/vk2-6zi-zzu/benefits---form-527-pension-benefits
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: education-enrollment-verification
 team: vfs-education
 tier: '1'
@@ -352,7 +390,22 @@ contacts:
     contact: https://dsva.slack.com/archives/CG6N59X40
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
+dd-service: mhv-appointments
+team: mhv-appointments
+application: health
+tier: '1'
+description: Veteran medical appointment scheduling service.
+lifecycle: production
+contacts:
+  - name: "#appointments-team"
+    type: slack
+    contact: https://dsva.slack.com/archives/CMNQT72LX
+type: web
+languages:
+  - ruby
+---
+schema-version: v2.2
 dd-service: mhv-messaging
 team: vfs-myhealth
 application: health
@@ -369,7 +422,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/5r5-ra2-qga/mhv-secure-messaging
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: intent-to-file
 team: benefits
 application: disability-app
@@ -387,7 +440,7 @@ links:
     url: https://vagov.ddog-gov.com/dashboard/9c7-45v-3fx
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: mhv-medications
 team: vfs-myhealth
 application: health
@@ -398,7 +451,7 @@ contacts:
     contact: https://dsva.slack.com/archives/C04PRFEJQTY
 integrations: {}
 ---
-schema-version: v2.1
+schema-version: v2.2
 dd-service: find-a-form
 team: vfs-websites
 tier: '1'

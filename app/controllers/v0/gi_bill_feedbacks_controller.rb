@@ -21,11 +21,12 @@ module V0
 
       clear_saved_form(GIBillFeedback::FORM_ID)
 
-      render(json: gi_bill_feedback)
+      render json: GIBillFeedbackSerializer.new(gi_bill_feedback)
     end
 
     def show
-      render(json: GIBillFeedback.find(params[:id]))
+      gi_bill_feedback = GIBillFeedback.find(params[:id])
+      render json: GIBillFeedbackSerializer.new(gi_bill_feedback)
     end
   end
 end

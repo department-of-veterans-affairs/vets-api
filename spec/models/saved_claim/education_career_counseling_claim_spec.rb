@@ -12,18 +12,23 @@ RSpec.describe SavedClaim::EducationCareerCounselingClaim do
     end
   end
 
-  describe '#send_to_central_mail!' do
-    it 'formats data before sending to central mail' do
+  describe '#send_to_benefits_intake!' do
+    it 'formats data before sending to central mail or benefits intake' do
       allow(claim).to receive(:process_attachments!)
 
       expect(claim).to receive(:update).with(form: a_string_including('"veteranSocialSecurityNumber":"333224444"'))
 
-      claim.send_to_central_mail!
+      claim.send_to_benefits_intake!
     end
 
     it 'calls process_attachments! method' do
       expect(claim).to receive(:process_attachments!)
-      claim.send_to_central_mail!
+      claim.send_to_benefits_intake!
+    end
+
+    it 'calls Lighthouse::SubmitBenefitsIntakeClaim job' do
+      expect_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform).with(claim.id)
+      claim.send_to_benefits_intake!
     end
   end
 end

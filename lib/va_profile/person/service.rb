@@ -3,8 +3,11 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'va_profile/contact_information/configuration'
+require 'va_profile/v2/contact_information/configuration'
 require 'va_profile/contact_information/transaction_response'
+require 'va_profile/v2/contact_information/transaction_response'
 require 'va_profile/service'
+require 'va_profile/stats'
 require 'identity/parsers/gc_ids_constants'
 
 module VAProfile
@@ -13,6 +16,7 @@ module VAProfile
       include Common::Client::Concerns::Monitoring
       include ERB::Util
 
+      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.person".freeze
       configuration VAProfile::ContactInformation::Configuration
 
       # Initializes a vet360_id for a user that does not have one. Can be used when a current user
@@ -25,7 +29,6 @@ module VAProfile
       def init_vet360_id(icn = nil)
         with_monitoring do
           raw_response = perform(:post, encode_url!(icn), empty_body)
-
           VAProfile::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
         end
       rescue => e

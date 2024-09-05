@@ -4,7 +4,7 @@ module ClaimsApi
   module V2
     module Blueprints
       class PowerOfAttorneyBlueprint < Blueprinter::Base
-        identifier :id
+        field :id, if: ->(_field_name, obj, _options) { obj[:id].present? }
 
         field :type
 

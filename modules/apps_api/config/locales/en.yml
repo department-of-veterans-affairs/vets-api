@@ -9,7 +9,7 @@ en:
       app_type: 'The type of the application.'
       description: 'A baseline description of the application including its goals and a short summary of the history of the application.'
       platforms: 'The platform(s) this application is available on.'
-      icon_url: 'The URL of the logo for the given application.'
+      logo_url: 'The URL of the logo for the given application.'
       service_categories: 'The category this application belongs to.'
       app_url: 'The URL of the application.'
       privacy_url: 'The URL where the applications privacy policy can be reached.'

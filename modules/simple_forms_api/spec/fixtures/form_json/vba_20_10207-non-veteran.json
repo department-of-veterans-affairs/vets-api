@@ -1,0 +1,78 @@
+{
+  "form_number": "20-10207",
+  "preparer_type": "non-veteran",
+  "non_veteran_full_name": {
+    "first": "John",
+    "middle": "B",
+    "last": "Non-Veteran"
+  },
+  "non_veteran_date_of_birth": "1980-01-01",
+  "non_veteran_id": {
+    "ssn": "321540988",
+    "va_file_number": "123456789"
+  },
+  "living_situation": {
+    "none": true
+  },
+  "mailing_address_yes_no": true,
+  "non_veteran_mailing_address": {
+    "country": "USA",
+    "street": "124 Any St",
+    "street2": "Apt 1",
+    "city": "Anytown",
+    "state": "CA",
+    "postal_code": "12345"
+  },
+  "non_veteran_phone": "1234567891",
+  "non_veteran_email_address": "john.non-veteran@example.com",
+  "veteran_full_name": {
+    "first": "John",
+    "middle": "A",
+    "last": "Veteran"
+  },
+  "veteran_date_of_birth": "1980-01-01",
+  "veteran_id": {
+    "ssn": "321540987",
+    "va_file_number": "123456789"
+  },
+  "veteran_insurance_file_number": "987654321",
+  "other_reasons": {
+    "financial_hardship": true,
+    "als": true,
+    "terminal_illness": true,
+    "vsi_si": true,
+    "over_85": true,
+    "former_pow": true,
+    "medal_award": true
+  },
+  "pow_confinement_start_date": "2013-01-01",
+  "pow_confinement_end_date": "2013-01-02",
+  "pow_multiple_confinements": true,
+  "pow_confinement2_start_date": "2013-01-03",
+  "pow_confinement2_end_date": "2013-01-04",
+  "medical_treatments": [
+    {
+      "facility_name": "Facility Name1",
+      "facility_address": {
+        "country": "USA",
+        "street": "123 Any St",
+        "city": "Anytown",
+        "state": "CA",
+        "postal_code": "12345"
+      },
+      "start_date": "2013-01-05"
+    },
+    {
+      "facility_name": "Facility Name2",
+      "facility_address": {
+        "country": "USA",
+        "street": "123 Any St",
+        "city": "Anytown",
+        "state": "CA",
+        "postal_code": "12345"
+      },
+      "start_date": "2013-01-06"
+    }
+  ],
+  "statement_of_truth_signature": "John Non-Veteran"
+}

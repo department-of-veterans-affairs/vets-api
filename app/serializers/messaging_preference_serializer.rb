@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
-class MessagingPreferenceSerializer < ActiveModel::Serializer
+class MessagingPreferenceSerializer
+  include JSONAPI::Serializer
+
   attributes :email_address, :frequency
 end

@@ -1,0 +1,19 @@
+{
+  "data": {
+    "attributes": {
+      "veteran": {
+        "address": {
+          "addressLine1": "123",
+          "city": "city",
+          "stateCode": "OR",
+          "country": "US",
+          "zipCode": "12345"
+        }
+      },
+      "serviceOrganization": {
+        "poaCode": "aaa",
+        "registrationNumber": "999999999999"
+      }
+    }
+  }
+}

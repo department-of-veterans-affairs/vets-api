@@ -25,50 +25,49 @@ describe Veteran::Service::Representative, type: :model do
   end
 
   describe 'finding by identity' do
-    let(:rep) do
+    let(:representative) do
       FactoryBot.create(:representative,
-                        basic_attributes.merge!(ssn: identity.ssn, dob: identity.birth_date))
+                        basic_attributes)
     end
 
     before do
       identity
-      rep
+      representative
     end
 
-    describe 'finding by all fields' do
-      it 'finds a user by name, ssn, and dob' do
-        expect(Veteran::Service::Representative.for_user(
-          first_name: identity.first_name,
-          last_name: identity.last_name,
-          dob: identity.birth_date,
-          ssn: identity.ssn
-        ).id).to eq(rep.id)
-      end
-
-      it 'finds right user when 2 with the same name exist' do
-        FactoryBot.create(:representative,
-                          basic_attributes.merge!(ssn: '123-45-6789', dob: '1929-10-01'))
-        expect(Veteran::Service::Representative.for_user(
-          first_name: identity.first_name,
-          last_name: identity.last_name,
-          dob: identity.birth_date,
-          ssn: identity.ssn
-        ).id).to eq(rep.id)
-      end
-    end
-
-    describe 'finding by the name only' do
-      it 'finds a user by name fields' do
-        rep = FactoryBot.create(:representative, first_name: 'Bob', last_name: 'Smith')
-        identity = FactoryBot.create(:user_identity, first_name: rep.first_name, last_name: rep.last_name)
-        Veteran::Service::Representative.for_user(
-          first_name: identity.first_name,
-          last_name: identity.last_name
-        )
+    describe 'finding by the name' do
+      it 'finds a user' do
         expect(Veteran::Service::Representative.for_user(
           first_name: identity.first_name,
           last_name: identity.last_name
-        ).id).to eq(rep.id)
+        ).id).to eq(representative.id)
+      end
+
+      it 'handles a nil value without throwing an exception' do
+        expect(Veteran::Service::Representative.for_user(
+                 first_name: identity.first_name,
+                 last_name: nil
+               )).to eq(nil)
+      end
+    end
+
+    it 'finds right user when 2 with the same name exist' do
+      FactoryBot.create(:representative,
+                        basic_attributes)
+      expect(Veteran::Service::Representative.for_user(
+        first_name: identity.first_name,
+        last_name: identity.last_name
+      ).id).to eq(representative.id)
+    end
+
+    describe '#all_for_user' do
+      it 'handles a nil value without throwing an exception' do
+        expect(Veteran::Service::Representative.all_for_user(
+                 first_name: identity.first_name,
+                 last_name: nil,
+                 middle_initial: 'J',
+                 poa_code: '016'
+               )).to eq([])
       end
     end
   end
@@ -118,27 +117,147 @@ describe Veteran::Service::Representative, type: :model do
     describe '#set_full_name' do
       context 'creating a new representative' do
         it 'sets the full_name attribute as first_name + last_name' do
-          rep = described_class.new(representative_id: 'abc', poa_codes: ['123'], first_name: 'Joe',
-                                    last_name: 'Smith')
+          representative = described_class.new(representative_id: 'abc', poa_codes: ['123'], first_name: 'Joe',
+                                               last_name: 'Smith')
 
-          expect(rep.full_name).to be_nil
+          expect(representative.full_name).to be_nil
 
-          rep.save!
+          representative.save!
 
-          expect(rep.reload.full_name).to eq('Joe Smith')
+          expect(representative.reload.full_name).to eq('Joe Smith')
         end
       end
 
       context 'updating an existing representative' do
         it 'sets the full_name attribute as first_name + last_name' do
-          rep = create(:representative, first_name: 'Joe', last_name: 'Smith')
+          representative = create(:representative, first_name: 'Joe', last_name: 'Smith')
 
-          expect(rep.full_name).to eq('Joe Smith')
+          expect(representative.full_name).to eq('Joe Smith')
 
-          rep.update(first_name: 'Bob')
+          representative.update(first_name: 'Bob')
 
-          expect(rep.reload.full_name).to eq('Bob Smith')
+          expect(representative.reload.full_name).to eq('Bob Smith')
         end
+      end
+    end
+  end
+
+  describe '#diff' do
+    context 'when there are changes in address' do
+      let(:representative) do
+        FactoryBot.create(:representative,
+                          address_line1: '123 Main St',
+                          city: 'Anytown',
+                          zip_code: '12345',
+                          state_code: 'ST')
+      end
+      let(:new_data) do
+        {
+          address: {
+            address_line1: '234 Main St',
+            city: representative.city,
+            zip_code5: representative.zip_code,
+            zip_code4: representative.zip_suffix,
+            state_province: { code: representative.state_code }
+          },
+          email: representative.email,
+          phone_number: representative.phone_number
+        }
+      end
+
+      it 'returns a hash indicating changes in address but not email or phone' do
+        expect(representative.diff(new_data)).to eq({
+                                                      'address_changed' => true,
+                                                      'email_changed' => false,
+                                                      'phone_number_changed' => false
+                                                    })
+      end
+    end
+
+    context 'when there are changes in email' do
+      let(:representative) do
+        FactoryBot.create(:representative,
+                          email: 'old@example.com')
+      end
+      let(:new_data) do
+        {
+          address: {
+            address_line1: representative.address_line1,
+            city: representative.city,
+            zip_code5: representative.zip_code,
+            zip_code4: representative.zip_suffix,
+            state_province: { code: representative.state_code }
+          },
+          email: 'new@example.com',
+          phone_number: representative.phone_number
+        }
+      end
+
+      it 'returns a hash indicating changes in email but not address or phone' do
+        expect(representative.diff(new_data)).to eq({
+                                                      'address_changed' => false,
+                                                      'email_changed' => true,
+                                                      'phone_number_changed' => false
+                                                    })
+      end
+    end
+
+    context 'when there are changes in phone' do
+      let(:representative) do
+        FactoryBot.create(:representative,
+                          phone_number: '1234567890')
+      end
+      let(:new_data) do
+        {
+          address: {
+            address_line1: representative.address_line1,
+            city: representative.city,
+            zip_code5: representative.zip_code,
+            zip_code4: representative.zip_suffix,
+            state_province: { code: representative.state_code }
+          },
+          email: representative.email,
+          phone_number: '0987654321'
+        }
+      end
+
+      it 'returns a hash indicating changes in phone but not address or email' do
+        expect(representative.diff(new_data)).to eq({
+                                                      'address_changed' => false,
+                                                      'email_changed' => false,
+                                                      'phone_number_changed' => true
+                                                    })
+      end
+    end
+
+    context 'when there are no changes to address, email or phone' do
+      let(:representative) do
+        FactoryBot.create(:representative,
+                          address_line1: '123 Main St',
+                          city: 'Anytown',
+                          zip_code: '12345',
+                          state_code: 'ST')
+      end
+      let(:new_data) do
+        {
+          address: {
+            address_line1: representative.address_line1,
+            city: representative.city,
+            zip_code5: representative.zip_code,
+            zip_code4: representative.zip_suffix,
+            state_province: { code: representative.state_code }
+          },
+          email: representative.email,
+          phone_number: representative.phone_number
+        }
+      end
+
+      it 'returns a hash indicating no changes in address, email and phone number' do
+        expect(representative.diff(new_data)).to eq({
+                                                      'address_changed' => false,
+                                                      'email_changed' => false,
+                                                      'phone_number_changed' => false
+                                                    })
       end
     end
   end

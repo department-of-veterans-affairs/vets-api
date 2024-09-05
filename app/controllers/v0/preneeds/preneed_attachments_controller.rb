@@ -7,6 +7,12 @@ module V0
       skip_before_action(:authenticate, raise: false)
 
       FORM_ATTACHMENT_MODEL = ::Preneeds::PreneedAttachment
+
+      private
+
+      def serializer_klass
+        PreneedAttachmentSerializer
+      end
     end
   end
 end

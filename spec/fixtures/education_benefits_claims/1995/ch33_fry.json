@@ -38,10 +38,15 @@
     "state": "WI",
     "street": "123 Main St"
   },
+  "sponsorSocialSecurityNumber": "111223333",
+  "applicantGender": "F",
+  "dateOfBirth": "1970-01-01",
   "civilianBenefitsAssistance": true,
   "email": "test@sample.com",
   "benefit": "chapter33FryScholarship",
   "benefitUpdate": "chapter33FryScholarship",
+  "changeAnotherBenefit": "Yes",
+  "benefitAppliedFor": "chapter1606",
   "educationType": "tuitionTopUp",
   "educationTypeUpdate": "prepCourseForLoC",
   "educationObjective": "bachelor's degree",
@@ -59,6 +64,7 @@
     "parentDependent": false
   },
   "isActiveDuty": true,
+  "applicantServed": "Yes",
   "toursOfDuty": [{
     "dateRange": {
       "from": "2012-06-26",

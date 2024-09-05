@@ -19,10 +19,14 @@ module VAProfile
       attribute :end_date, String
       attribute :termination_reason_code, String
       attribute :termination_reason_text, String
-      attribute :personnel_category_type_code, String
+      attribute :period_of_service_type_code, String
+      attribute :period_of_service_type_text, String
       attribute :branch_of_service_code, String
       attribute :deployments, Array
       attribute :character_of_discharge_code, String
+
+      alias personnel_category_type_code period_of_service_type_code
+      alias personnel_category_type_text period_of_service_type_text
 
       # Converts an instance of the ServicyHistory model to a JSON encoded string suitable for
       # use in the body of a request to VAProfile
@@ -61,7 +65,8 @@ module VAProfile
           deployments: episode['deployments'],
           character_of_discharge_code: episode['character_of_discharge_code'],
           end_date: episode['period_of_service_end_date'],
-          personnel_category_type_code: episode['period_of_service_type_code'],
+          period_of_service_type_code: episode['period_of_service_type_code'],
+          period_of_service_type_text: episode['period_of_service_type_text'],
           termination_reason_code: episode['termination_reason_code'],
           termination_reason_text: episode['termination_reason_text']
         )

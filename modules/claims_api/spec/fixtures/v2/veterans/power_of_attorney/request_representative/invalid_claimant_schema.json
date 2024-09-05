@@ -1,0 +1,40 @@
+{
+  "data": {
+    "attributes": {
+      "veteran": {
+        "serviceNumber": "123123456",
+        "serviceBranch": "COAST_GUARD",
+        "address": {
+          "addressLine1":  "123 Main St",
+          "city": "New York",
+          "country":  "USA",
+          "stateCode": "NY",
+          "zipCode": "12323"
+        },
+        "phone": {
+          "areaCode": "555",
+          "phoneNumber": "5551234"
+        },
+        "email": "test@example.com",
+        "insuranceNumber": "678678987"
+      },
+      "claimant": {
+        "claimantId": "1013062086V794840",
+        "phone": {
+          "areaCode": "555",
+          "phoneNumber": "5559876"
+        },
+        "email": "example@example.com",
+        "relationship": "Spouse"
+      },
+      "poa": {
+        "poaCode": "067",
+        "registrationNumber": "999999999999",
+        "jobTitle": "Best Rep Ever"
+      },
+      "recordConsent": true,
+      "consentAddressChange": true,
+      "consentLimits": ["DRUG_ABUSE", "SICKLE_CELL"]
+    }
+  }
+}

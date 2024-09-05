@@ -3,44 +3,44 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::Attachments::Retriever do
-  subject(:retriever) { described_class.new(id: '1') }
+  subject(:retriever) { described_class.new(id: '1', entity_class: entity, user_mock_data: false) }
 
   describe '#call' do
+    let(:entity) { AskVAApi::Attachments::Entity }
     let(:service) { instance_double(Crm::Service) }
-    let(:entity) { instance_double(AskVAApi::Attachments::Entity) }
-
-    before do
-      allow(Crm::Service).to receive(:new).and_return(service)
-      allow(AskVAApi::Attachments::Entity).to receive(:new).and_return(entity)
-    end
 
     context 'when successful' do
       before do
+        allow(Crm::Service).to receive(:new).and_return(service)
         allow(service).to receive(:call)
-          .with(endpoint: 'get_attachments_mock_data', payload: { id: '1' })
-          .and_return([double])
+          .with(endpoint: 'attachment', payload: { id: '1' })
+          .and_return({ Data: {
+                        FileContent: 'VUVzFBBQUFBQUFB',
+                        FileName: 'AttachmenttoVA1.docx'
+                      } })
       end
 
       it 'returns an attachment object' do
-        expect(retriever.call).to eq(entity)
+        expect(retriever.call).to be_an(entity)
       end
     end
 
     context 'when Crm raise an error' do
-      let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
-      let(:endpoint) { AskVAApi::Attachments::ENDPOINT }
-      let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
+      let(:body) do
+        '{"Data":null,"Message":"Data Validation: Invalid GUID, Parsing Failed",' \
+          '"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: Invalid GUID,' \
+          ' Parsing Failed","MessageId":"c14c61c4-a3a8-4200-8c86-bdc09c261308"}'
+      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
       before do
-        allow(service).to receive(:call)
-          .with(endpoint: 'get_attachments_mock_data', payload: { id: '1' })
-          .and_raise(Crm::ErrorHandler::ServiceError, error_message)
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+        allow_any_instance_of(Crm::Service).to receive(:call)
+          .with(endpoint: 'attachment', payload: { id: '1' }).and_return(failure)
       end
 
-      it 'raises an Error' do
-        expect do
-          retriever.call
-        end.to raise_error(ErrorHandler::ServiceError, "Crm::ErrorHandler::ServiceError: #{error_message}")
+      it 'raise the error' do
+        expect { retriever.call }.to raise_error(ErrorHandler::ServiceError)
       end
     end
   end

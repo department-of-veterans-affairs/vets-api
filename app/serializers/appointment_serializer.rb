@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-class AppointmentSerializer < ActiveModel::Serializer
-  attributes :appointments
+class AppointmentSerializer
+  include JSONAPI::Serializer
 
-  delegate :appointments, to: :object
+  set_id { '' }
 
-  def id
-    nil
-  end
+  attribute :appointments
 end

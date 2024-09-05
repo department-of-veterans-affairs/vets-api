@@ -1,0 +1,67 @@
+---
+:profile:
+  :ssn: '796149080'
+  :file_number: '796149080'
+  :icn: 1012829910V765228
+:info:
+  :file_number: '796149080'
+  :dob: 1988-08-06
+  :stub_nm: RJFREEM
+  :mr_status: A
+  :rem_ent: '1704955'
+  :cert_issue_date: 2021-07-10
+  :del_date: 2025-04-29
+  :date_last_certified: 2024-04-18
+  :rpo_code: 4917
+  :fac_code: qui
+  :payment_amt: 6877.14
+  :indicator: A
+  :bdn_clone_active: true
+:address:
+  :veteran_name: Russell James Freeman
+  :address1: 9491 Altenwerth Heights
+  :city: Kalifurt
+  :state: IA
+  :zip_code: '90205'
+  :origin: backend
+:awards:
+- :cur_award_ind: P
+  :award_begin_date: 2023-01-09
+  :award_end_date: 2023-01-29
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 789.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: C
+  :award_begin_date: 2023-01-29
+  :award_end_date: 2023-05-06
+  :training_time: 3
+  :payment_date:
+  :monthly_rate: 789.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+- :cur_award_ind: F
+  :award_begin_date: 2023-08-21
+  :award_end_date: 2023-12-16
+  :training_time: 4
+  :payment_date:
+  :monthly_rate: 789.00
+  :begin_rsn: reason
+  :end_rsn: reason
+  :type_training: type
+  :number_hours: 20
+  :type_hours: type
+:pending_documents:
+- :doc_type: soluta
+  :queue_date: 2024-05-06
+  :rpo: et
+- :doc_type: est
+  :queue_date: 2024-05-09
+  :rpo: amet

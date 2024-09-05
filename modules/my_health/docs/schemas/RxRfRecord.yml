@@ -1,0 +1,155 @@
+type: object
+properties:
+  refillStatus:
+    type: string
+  refillSubmitDate:
+    type: string
+    format: date-time
+  refillDate:
+    type: string
+    format: date-time
+  refillRemaining:
+    type: integer
+  facilityName:
+    type: string
+  facilityApiName:
+    type: string
+  isRefillable:
+    type: boolean
+  isTrackable:
+    type: boolean
+  prescriptionId:
+    type: integer
+  sig:
+    type: string
+  orderedDate:
+    type: string
+    format: date-time
+  quantity:
+    type: integer
+  expirationDate:
+    type: string
+    format: date-time
+  prescriptionNumber:
+    type: string
+  prescriptionName:
+    type: string
+  dispensedDate:
+    type: string
+    format: date-time
+  stationNumber:
+    type: string
+  inCernerTransition:
+    type: boolean
+  notRefillableDisplayMessage:
+    type: string
+  cmopDivisionPhone:
+    type: string
+  cmopNdcNumber:
+    type: string
+  id:
+    type: integer
+  userId:
+    type: integer
+  providerFirstName:
+    type: string
+  providerLastName:
+    type: string
+  remarks:
+    type: string
+  divisionName:
+    type: string
+  modifiedDate:
+    type: string
+    format: date-time
+  institutionId:
+    type: string
+  dialCmopDivisionPhone:
+    type: string
+  dispStatus:
+    type: string
+  ndc:
+    type: string
+  reason:
+    type: string
+  prescriptionNumberIndex:
+    type: string
+  prescriptionSource:
+    type: string
+  disclaimer:
+    type: string
+  indicationForUse:
+    type: string
+  indicationForUseFlag:
+    type: string
+  category:
+    type: string
+  orderableItem:
+    type: string
+  shape:
+    type: string
+  color:
+    type: string
+  frontImprint:
+    type: string
+  backImprint:
+    type: string
+  rxRfRecords:
+    type: 'null'
+  dataSourceSystem:
+    type: string
+  trackingList:
+    type: array
+    items:
+      type: object
+  tracking:
+    type: boolean
+example:
+- refillStatus: "suspended"
+  refillSubmitDate: "Wed, 20 Mar 2024 13:43:06 EDT"
+  refillDate: "Mon, 11 Mar 2024 00:00:00 EDT"
+  refillRemaining: 4
+  facilityName: "SLC10 TEST LAB"
+  facilityApiName: null
+  isRefillable: false
+  isTrackable: false
+  prescriptionId: 23301817
+  sig: null
+  orderedDate: "Sun, 31 Mar 2024 00:00:00 EDT"
+  quantity: null
+  expirationDate: null
+  prescriptionNumber: "3637019"
+  prescriptionName: "SALMETEROL 50MCG/BLSTR PO INHL DISKUS 60"
+  dispensedDate: "Mon, 18 Mar 2024 00:00:00 EDT"
+  stationNumber: "979"
+  inCernerTransition: false
+  notRefillableDisplayMessage: null
+  cmopDivisionPhone: "(410)999-7019"
+  cmopNdcNumber: "00093721410"
+  id: 23301817
+  userId: 16955936
+  providerFirstName: null
+  providerLastName: null
+  remarks: null
+  divisionName: null
+  modifiedDate: null
+  institutionId: null
+  dialCmopDivisionPhone: "4109997019"
+  dispStatus: "Suspended"
+  ndc: "00173-0521-00"
+  reason: null
+  prescriptionNumberIndex: "RF1"
+  prescriptionSource: "RF"
+  disclaimer: null
+  indicationForUse: null
+  indicationForUseFlag: null
+  category: "Rx Medication"
+  orderableItem: null
+  shape: "OVAL"
+  color: "WHITE"
+  frontImprint: "9,3"
+  backImprint: "72,14"
+  dataSourceSystem: "VISTA"
+  trackingList: null
+  rxRfRecords: null
+  tracking: false

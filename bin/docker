@@ -1,0 +1,103 @@
+#!/usr/bin/env sh
+
+# Function to display the help message
+display_help() {
+  echo "Usage: bin/docker [COMMAND]"
+  echo
+  echo "Commands:"
+  echo "  clean         Prunes unused Docker objects and rebuilds the images"
+  echo "  rebuild       Stops running containers and builds the images without cache"
+  echo "  build         Stops running containers and builds the images with cache"
+  echo "  stop          Stops all running Docker containers"
+  echo "  startd        Start Docker containers in the background"
+  echo "  console       Starts the Rails console"
+  echo "  bundle        Bundles ruby gems"
+  echo "  db            Prepares the database for development and test environments" 
+  echo "  ci            Prepare docker environment to run bin/test --ci"
+  echo "  help          Display this help message"
+
+  echo
+  echo "Examples:"
+  echo "  bin/docker clean     Prune and rebuild Docker images"
+  echo "  bin/docker build     Stop and build Docker images without cache"
+  echo "  bin/docker stop      Stop all running Docker containers"
+  echo "  bin/docker startd    Start Docker containers in the background"
+  echo "  bin/docker console   Start the Rails console"
+  echo "  bin/docker bundle    Bundles ruby gems"
+  echo "  bin/docker db        Prepares the database for development and test environments" 
+  echo "  bin/docker ci        Prepare docker environment to run bin/test --ci"
+  echo "  bin/docker help      Display this help message"
+  exit 0
+}
+
+clean() {
+  echo "Pruning unused Docker objects..."
+  docker system prune -f -a
+  echo "Rebuilding Docker images..."
+  docker compose build --no-cache
+  echo "Clean and rebuild completed."
+}
+
+rebuild() {
+  stop
+  echo "Building Docker images without cache..."
+  docker compose build --no-cache
+  echo "Build completed."
+}
+
+build() {
+  stop
+  echo "Building Docker images with cache..."
+  docker compose build
+  echo "Build completed."
+}
+
+stop() {
+  echo "Stopping all running Docker containers..."
+  docker compose down
+  echo "All Docker containers stopped."
+}
+
+startd() {
+  echo "Starting Docker containers..."
+  docker compose up -d
+  echo "Docker containers started."
+}
+
+console() {
+  echo "Starting Rails console..."
+  docker compose run --rm --service-ports web bash -c "bundle exec rails console"
+}
+
+bundle() {
+  echo "Bundling ruby gems..."
+  docker compose run --rm --service-ports web bash -c "bundle install"
+}
+
+db() {
+  echo "Running 'rails db:prepare'..."
+  docker compose run --rm --service-ports web bash -c "bundle exec rails db:prepare"
+  db_prepare_parallel
+}
+
+db_prepare_parallel() {
+  echo "Running 'parallel_test rails db:prepare'..."
+  docker compose run --rm --service-ports web bash -c "RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -e 'bundle exec rails db:prepare'"
+}
+
+ci() {
+  echo "Setting up for bin/test --ci compatibility..."
+  stop
+  build
+  bundle
+  db_prepare_parallel
+}
+
+case "$1" in
+  clean | rebuild | build | stop | startd | console | bundle | db | ci)
+    "$1"
+    ;;
+  *)
+    display_help
+    ;;
+esac

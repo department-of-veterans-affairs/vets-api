@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/rx_client_helpers'
 
 # TODO: possibly refactor this spec to be generic, not dependent on PrescriptionsController
-RSpec.describe 'breakers', type: :request do
+RSpec.describe 'Breakers Integration', type: :request do
   include Rx::ClientHelpers
 
   let(:active_rxs) { File.read('spec/fixtures/json/get_active_rxs.json') }
@@ -30,7 +30,6 @@ RSpec.describe 'breakers', type: :request do
     # Not clearing the breakers would cause subsequent RX calls to fail after the breaker is
     # triggered in this group.
 
-    # fakeredis/rspec has a `before` callback, but it's for the suite, not each example. Oops.
     Breakers.client.redis_connection.redis.flushdb
   end
 
@@ -49,7 +48,7 @@ RSpec.describe 'breakers', type: :request do
 
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', '{"message":"ack"}', status_code: 500)
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', '{"message":"ack"}', status_code: 500)
-      20.times do
+      80.times do
         response = get '/v0/prescriptions'
         expect(response).to eq(400)
       end

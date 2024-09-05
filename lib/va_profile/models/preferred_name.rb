@@ -7,17 +7,20 @@ require 'va_profile/concerns/defaultable'
 module VAProfile
   module Models
     class PreferredName < Base
+      include ActiveModel::Validations::Callbacks
       include VAProfile::Concerns::Defaultable
 
       attribute :text, String
       attribute :source_system_user, String
       attribute :source_date, Common::ISO8601Time
 
+      before_validation :strip_blanks
       validates :text, presence: true
       validates :text, length: { maximum: 25 }
-      validates :text, format: { without: /\s/, message: 'must not contain spaces' }
-      validates :text, format: { with: /\A[a-zA-ZÀ-ÖØ-öø-ÿ\-áéíóúäëïöüâêîôûãñõ]+\z/,
-                                 message: 'must only contain alpha, -, acute, grave, diaeresis, circumflex, tilde' }
+      validates :text, format: {
+        with: /\A[a-zA-ZÀ-ÖØ-öø-ÿ\-áéíóúäëïöüâêîôûãñõ\s]+\z/,
+        message: 'must only contain alpha, -, space, acute, grave, diaeresis, circumflex, tilde'
+      }
 
       # Converts an instance of the PreferredName model to a JSON encoded string suitable for
       # use in the body of a request to VAProfile
@@ -44,6 +47,12 @@ module VAProfile
         VAProfile::Models::PreferredName.new(
           text: body['preferred_name']
         )
+      end
+
+      protected
+
+      def strip_blanks
+        self.text = text.strip if text
       end
     end
   end

@@ -64,6 +64,28 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
     end
   end
 
+  context 'when an errored job has exhausted its retries' do
+    let(:allow_poa_c_add) { 'Y' }
+    let(:consent_address_change) { true }
+
+    it 'logs to the ClaimsApi Logger' do
+      poa = create_poa
+      error_msg = 'An error occurred for the POA VBMS Updater Job'
+      msg = { 'args' => [poa.id],
+              'class' => subject,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: poa.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: error_msg
+        )
+      end
+    end
+  end
+
   private
 
   def create_poa

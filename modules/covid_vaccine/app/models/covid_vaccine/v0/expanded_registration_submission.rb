@@ -8,7 +8,7 @@ module CovidVaccine
       include AASM
       aasm(:state) do
         # Fire off job for email confirmation to the user that submission has been received
-        # Fire off job to determine EMIS eligibility to kick off after hours; transition to eligible or ineligible
+        # Fire off job to determine eligibility to kick off after hours; transition to eligible or ineligible
         state :received, initial: true
         state :enrollment_pending, :enrollment_complete, :enrollment_failed, :registered,
               :registered_no_icn, :registered_no_facility
@@ -48,9 +48,9 @@ module CovidVaccine
         reg.form_data&.symbolize_keys!
       end
 
-      serialize :eligibility_info, JsonMarshal::Marshaller
-      serialize :form_data, JsonMarshal::Marshaller
-      serialize :raw_form_data, JsonMarshal::Marshaller
+      serialize :eligibility_info, coder: JsonMarshal::Marshaller
+      serialize :form_data, coder: JsonMarshal::Marshaller
+      serialize :raw_form_data, coder: JsonMarshal::Marshaller
       has_kms_key
       has_encrypted :eligibility_info, :form_data, :raw_form_data, key: :kms_key, **lockbox_options
     end

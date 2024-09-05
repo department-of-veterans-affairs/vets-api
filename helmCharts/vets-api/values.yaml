@@ -1,0 +1,7 @@
+# Default values for vets-api.
+
+replicaCount: 1
+image:
+  repository: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/preview-environment/vets-api
+  pullPolicy: IfNotPresent
+  tag: "0.0.1"

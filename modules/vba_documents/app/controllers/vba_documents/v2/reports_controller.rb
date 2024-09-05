@@ -13,8 +13,8 @@ module VBADocuments
 
       def create
         statuses = VBADocuments::UploadSubmission.where(guid: params[ID_PARAM])
-        render json: with_spoofed(statuses),
-               each_serializer: VBADocuments::V2::UploadSerializer
+        spoofed_statuses = with_spoofed(statuses)
+        render json: VBADocuments::V2::UploadSerializer.new(spoofed_statuses)
       end
 
       private

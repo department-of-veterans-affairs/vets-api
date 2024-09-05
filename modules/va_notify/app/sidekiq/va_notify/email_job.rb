@@ -6,8 +6,18 @@ module VANotify
     include SentryLogging
     sidekiq_options retry: 14
 
-    def perform(email, template_id, personalisation = nil)
-      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+    sidekiq_retries_exhausted do |msg, _ex|
+      job_id = msg['jid']
+      job_class = msg['class']
+      error_class = msg['error_class']
+      error_message = msg['error_message']
+
+      message = "#{job_class} retries exhausted"
+      Rails.logger.error(message, { job_id:, error_class:, error_message: })
+    end
+
+    def perform(email, template_id, personalisation = nil, api_key = Settings.vanotify.services.va_gov.api_key)
+      notify_client = VaNotify::Service.new(api_key)
 
       notify_client.send_email(
         {

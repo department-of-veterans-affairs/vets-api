@@ -75,10 +75,6 @@ class User < Common::RedisStore
     @user_account_uuid ||= user_account&.id
   end
 
-  def inherited_proof_verified
-    @inherited_proof_verified ||= InheritedProofVerifiedUserAccount.where(user_account_id: user_account_uuid).present?
-  end
-
   def pciu_email
     pciu&.get_email_address&.email
   end
@@ -303,7 +299,7 @@ class User < Common::RedisStore
     @mpi = nil
   end
 
-  # emis attributes
+  # VA Profile attributes
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
 
@@ -374,6 +370,13 @@ class User < Common::RedisStore
   def identity
     @identity ||= UserIdentity.find(uuid)
   end
+
+  def onboarding
+    @onboarding ||= VeteranOnboarding.for_user(self)
+  end
+
+  # VeteranOnboarding attributes & methods
+  delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
 
   def vet360_contact_info
     return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpBnftClaimWebServiceBean/VnpBnftClaimService?WSDL
+    uri: <BGS_BASE_URL>/VnpBnftClaimWebServiceBean/VnpBnftClaimService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -171,7 +171,7 @@ http_interactions:
   recorded_at: Tue, 21 Jul 2020 00:26:33 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpBnftClaimWebServiceBean/VnpBnftClaimService
+    uri: <BGS_BASE_URL>/VnpBnftClaimWebServiceBean/VnpBnftClaimService
     body:
       encoding: UTF-8
       string: |-

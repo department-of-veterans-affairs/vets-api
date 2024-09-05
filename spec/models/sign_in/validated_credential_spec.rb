@@ -8,7 +8,8 @@ RSpec.describe SignIn::ValidatedCredential, type: :model do
            user_verification:,
            credential_email:,
            client_config:,
-           user_attributes:)
+           user_attributes:,
+           device_sso:)
   end
 
   let(:user_verification) { create(:user_verification) }
@@ -19,6 +20,7 @@ RSpec.describe SignIn::ValidatedCredential, type: :model do
       last_name: Faker::Name.last_name,
       email: Faker::Internet.email }
   end
+  let(:device_sso) { false }
 
   describe 'validations' do
     describe '#user_verification' do

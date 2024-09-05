@@ -14,8 +14,7 @@ RSpec.describe VBADocuments::DocumentRequestValidator do
     let(:result) { described_class.new(request).validate }
 
     before do
-      allow(request).to receive(:body).and_return(get_fixture(fixture_name))
-      allow(request).to receive(:headers).and_return(headers)
+      allow(request).to receive_messages(body: get_fixture(fixture_name), headers:)
     end
 
     it 'considers a valid PDF valid' do

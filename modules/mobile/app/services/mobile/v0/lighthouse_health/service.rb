@@ -52,7 +52,11 @@ module Mobile
           return cached_session.access_token if cached_session
 
           params = LighthouseParamsFactory.new(@user.icn, :health).build
-          response = config.access_token_connection.post('', params)
+          begin
+            response = config.access_token_connection.post('', params)
+          rescue
+            raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
+          end
           token_hash = response.body
           session = LighthouseSession.new(token_hash.symbolize_keys)
           LighthouseSession.set_cached(@user, session, session.expires_in)

@@ -7,13 +7,13 @@ TESTER
 V1995
 
 
-CH30
+Chapter1606
 *START*
 VA Form 22-1995
 OMB Control #: 2900-0074
 
 
-            REQUEST FOR CHANGE OF PROGRAM OR PLACE OF TRAINING
+        REQUEST FOR CHANGE OF BENEFIT, PROGRAM OR PLACE OF TRAINING
 FOR VETERANS, SERVICEPERSONS, DEPENDENTS & MEMBERS OF THE SELECTED RESERVE
                     -------------------------------------
 
@@ -21,6 +21,8 @@ FOR VETERANS, SERVICEPERSONS, DEPENDENTS & MEMBERS OF THE SELECTED RESERVE
                             ---------------------
 
 SSN: 223334444    VA File Number: N/A
+
+Sex: F  Date of Birth: 1970-01-01
 
 Name:   Joe Tester
 
@@ -41,7 +43,11 @@ Routing/Transit #:    Account #:
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Benefit You Are Receiving: Chapter30
+Benefit Most Recently Received: Chapter30
+
+Select Another Benefit: Yes
+
+Benefit Being Applied For: Chapter1606
 
 Type of Education or Training:
 Education or Career Goal:
@@ -49,18 +55,17 @@ Education or Career Goal:
 New School or Training Establishment:
 
 
-Current/Prior School or Training Establishment:
+                  APPLICANT ACTIVE DUTY SERVICE INFORMATION
+                  -----------------------------------------
 
+Served in the armed forces?: No
 
-Date You Stopped Training:
-Reason for Change:
+Are You Now On Active Duty?: N/A
 
-
-                       ACTIVE DUTY SERVICE INFORMATION
-                       -------------------------------
+Do you have any new periods of service to record since you last applied for
+education benefits? NO
 
 Date Entered   Date Separated     Service Component
-
 
 
       Certification and Signature of Applicant

@@ -8,9 +8,9 @@ module AskVAApi
                   :file_name
 
       def initialize(info)
-        @id = info[:id]
-        @file_content = info[:fileContent]
-        @file_name = info[:fileName]
+        @id = info[:Id]
+        @file_content = info[:FileContent]
+        @file_name = info[:FileName]
       end
     end
   end

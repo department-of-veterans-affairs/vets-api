@@ -7,11 +7,11 @@ module Swagger
     class Profile
       include Swagger::Blocks
 
-      swagger_path '/v0/profile/direct_deposits/disability_compensations' do
+      swagger_path '/v0/profile/direct_deposits' do
         operation :get do
           key :produces, ['application/json']
           key :consumes, ['application/json']
-          key :description, 'Get a veterans direct deposit information for compensation and pension benefits'
+          key :description, 'Get a veterans direct deposit information for comp and pen or education benefits'
           key :tags, %w[
             profile
           ]
@@ -19,7 +19,7 @@ module Swagger
           parameter :authorization
 
           response 200 do
-            key :description, 'Direct deposit information for a users compensation and pension benefits.'
+            key :description, 'Direct deposit information for a users comp and pen or education benefits.'
             schema do
               key :type, :object
               property(:data) do
@@ -33,27 +33,33 @@ module Swagger
                     key :required, %i[
                       can_update_direct_deposit
                       is_corp_available
+                      is_edu_claim_available
+                      has_cp_claim
+                      has_cp_award
                       is_corp_rec_found
                       has_no_bdn_payments
-                      has_identity
                       has_index
                       is_competent
                       has_mailing_address
                       has_no_fiduciary_assigned
                       is_not_deceased
                       has_payment_address
+                      has_identity
                     ]
                     property :can_update_direct_deposit, type: :boolean, example: true, description: 'Must be true to view payment account information'
                     property :is_corp_available, type: :boolean, example: true, description: ''
+                    property :is_edu_claim_available, type: :boolean, example: true, description: 'Is true if education claim'
+                    property :has_cp_claim, type: :boolean, example: true, description: 'Is true if comp and pen claim'
+                    property :has_cp_award, type: :boolean, example: true, description: 'Is true if comp and pen award'
                     property :is_corp_rec_found, type: :boolean, example: true, description: ''
                     property :has_no_bdn_payments, type: :boolean, example: true, description: ''
-                    property :has_identity, type: :boolean, example: true, description: ''
                     property :has_index, type: :boolean, example: true, description: ''
                     property :is_competent, type: :boolean, example: true, description: ''
-                    property :has_mailing_addres, type: :boolean, example: true, description: ''
-                    property :has_no_fiduciary_assigne, type: :boolean, example: true, description: ''
-                    property :is_not_decease, type: :boolean, example: true, description: ''
+                    property :has_mailing_address, type: :boolean, example: true, description: ''
+                    property :has_no_fiduciary_assigned, type: :boolean, example: true, description: ''
+                    property :is_not_deceased, type: :boolean, example: true, description: ''
                     property :has_payment_address, type: :boolean, example: true, description: ''
+                    property :has_identity, type: :boolean, example: true, description: ''
                   end
 
                   property :payment_account do
@@ -89,7 +95,7 @@ module Swagger
                                     example: 'getDirectDeposit.icn size must be between 17 and 17, getDirectDeposit.icn must match \"^\\d{10}V\\d{6}$\"',
                                     description: 'Description of error (optional)'
                   property :code, type: :string,
-                                  example: 'cnp.payment.icn.invalid',
+                                  example: 'direct.deposit.icn.invalid',
                                   description: 'Service name with code appended'
                   property :source, type: %i[string object],
                                     example: 'Lighthouse Direct Deposit',
@@ -110,7 +116,7 @@ module Swagger
                   key :required, %i[title detail code source]
                   property :title, type: :string, example: 'Invalid token.', description: 'Error title'
                   property :detail, type: %i[string null], description: 'Description of error (optional)'
-                  property :code, type: :string, example: 'cnp.payment.invalid.token',
+                  property :code, type: :string, example: 'direct.deposit.invalid.token',
                                   description: 'Error code'
                   property :source, type: %i[string object], example: 'Lighthouse Direct Deposit',
                                     description: 'Service name'
@@ -130,7 +136,7 @@ module Swagger
                   key :required, %i[title detail code source]
                   property :title, type: :string, example: 'Person for ICN not found', description: 'Error title'
                   property :detail, type: :string, example: 'No data found for ICN', description: 'Description of error (optional)'
-                  property :code, type: :string, example: 'cnp.payment.icn.not.found',
+                  property :code, type: :string, example: 'direct.deposit.icn.not.found',
                                   description: 'Service name with code appended'
                   property :source, type: %i[string object], example: 'Lighthouse Direct Deposit',
                                     description: 'Service name'
@@ -143,7 +149,7 @@ module Swagger
         operation :put do
           key :produces, ['application/json']
           key :consumes, ['application/json']
-          key :description, 'Update a veterans direct deposit information for compensation and pension benefits'
+          key :description, 'Update a veterans direct deposit information for comp and pen or education benefits'
           key :tags, %w[
             profile
           ]
@@ -157,14 +163,16 @@ module Swagger
             key :required, true
 
             schema do
-              property :account_number, type: :string, example: '1234567890'
-              property :account_type, type: :string, example: 'Checking'
-              property :routing_number, type: :string, example: '031000503'
+              property :payment_account, type: :object do
+                property :account_number, type: :string, example: '1234567890'
+                property :account_type, type: :string, example: 'Checking'
+                property :routing_number, type: :string, example: '031000503'
+              end
             end
           end
 
           response 200 do
-            key :description, 'Direct deposit information for a users compensation and pension benefits.'
+            key :description, 'Direct deposit information for a users comp and pen or education benefits.'
             schema do
               key :type, :object
               property(:data) do
@@ -178,27 +186,33 @@ module Swagger
                     key :required, %i[
                       can_update_direct_deposit
                       is_corp_available
+                      is_edu_claim_available
+                      has_cp_claim
+                      has_cp_award
                       is_corp_rec_found
                       has_no_bdn_payments
-                      has_identity
                       has_index
                       is_competent
                       has_mailing_address
                       has_no_fiduciary_assigned
                       is_not_deceased
                       has_payment_address
+                      has_identity
                     ]
                     property :can_update_direct_deposit, type: :boolean, example: true, description: 'Must be true to view payment account information'
                     property :is_corp_available, type: :boolean, example: true, description: ''
+                    property :is_edu_claim_available, type: :boolean, example: true, description: 'Is true if education claim'
+                    property :has_cp_claim, type: :boolean, example: true, description: 'Is true if comp and pen claim'
+                    property :has_cp_award, type: :boolean, example: true, description: 'Is true if comp and pen award'
                     property :is_corp_rec_found, type: :boolean, example: true, description: ''
                     property :has_no_bdn_payments, type: :boolean, example: true, description: ''
-                    property :has_identity, type: :boolean, example: true, description: ''
                     property :has_index, type: :boolean, example: true, description: ''
                     property :is_competent, type: :boolean, example: true, description: ''
-                    property :has_mailing_addres, type: :boolean, example: true, description: ''
-                    property :has_no_fiduciary_assigne, type: :boolean, example: true, description: ''
-                    property :is_not_decease, type: :boolean, example: true, description: ''
+                    property :has_mailing_address, type: :boolean, example: true, description: ''
+                    property :has_no_fiduciary_assigned, type: :boolean, example: true, description: ''
+                    property :is_not_deceased, type: :boolean, example: true, description: ''
                     property :has_payment_address, type: :boolean, example: true, description: ''
+                    property :has_identity, type: :boolean, example: true, description: ''
                   end
 
                   property :payment_account do
@@ -229,7 +243,7 @@ module Swagger
                   key :required, %i[title detail code source]
                   property :title, type: :string, example: 'Bad Request', description: 'Error title'
                   property :detail, type: :string, example: 'Routing number related to potential fraud', description: 'Description of error (optional)'
-                  property :code, type: :string, example: 'cnp.payment.routing.number.fraud.message', description: 'Service name with code appended'
+                  property :code, type: :string, example: 'direct.deposit.routing.number.fraud.message', description: 'Service name with code appended'
                   property :source, type: %i[string object], example: 'Lighthouse Direct Deposit', description: 'Service name'
                 end
               end
@@ -351,83 +365,8 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/profile/ch33_bank_accounts' do
-        operation :put do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Updates chapter 33 direct deposit bank info'
-          key :operationId, 'updateCh33BankAccount'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          key :produces, ['application/json']
-          key :consumes, ['application/json']
-
-          parameter do
-            key :name, :bank_account
-            key :in, :body
-            key :description, 'Bank account details'
-            key :required, true
-
-            schema do
-              key :type, :object
-              key :required, %i[account_type account_number financial_institution_routing_number]
-
-              property :account_type, type: :string, enum: %w[Checking Savings]
-              property :account_number, type: :string
-              property :financial_institution_routing_number, type: :string
-              property :ga_client_id, type: :string
-            end
-          end
-
-          extend Swagger::Responses::Ch33BankAccountInfo
-
-          response 400 do
-            key :description, 'Update bank account error'
-            schema do
-              key :type, :object
-
-              property(:update_ch33_dd_eft_response) do
-                key :type, :object
-
-                property '@xmlns:ns0', type: :string
-
-                property :return do
-                  key :type, :object
-
-                  property :return_code, type: :string
-                  property :return_message, type: :string
-                end
-              end
-            end
-          end
-        end
-
-        operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Gets chapter 33 direct deposit bank info'
-          key :operationId, 'getCh33BankAccount'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          key :produces, ['application/json']
-          key :consumes, ['application/json']
-
-          extend Swagger::Responses::Ch33BankAccountInfo
-        end
-      end
-
       swagger_path '/v0/profile/address_validation' do
         operation :post do
-          extend Swagger::Responses::AuthenticationError
-
           key :description, 'Outputs address suggestions'
           key :operationId, 'postVet360AddressValidation'
           key :tags, %w[
@@ -701,138 +640,6 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/profile/alternate_phone' do
-        operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Gets a users alternate phone number information'
-          key :operationId, 'getAlternatePhone'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :PhoneNumber
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-
-        operation :post do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Creates/updates a users alternate phone number information'
-          key :operationId, 'postAlternatePhone'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          parameter do
-            key :name, :body
-            key :in, :body
-            key :description, 'Attributes to create/update a phone number.'
-            key :required, true
-
-            schema do
-              property :number, type: :string, example: '4445551212'
-              property :extension, type: :string, example: '101'
-              property :country_code, type: :string, example: '1'
-            end
-          end
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :PhoneNumber
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-      end
-
-      swagger_path '/v0/profile/email' do
-        operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Gets a users email address information'
-          key :operationId, 'getEmailAddress'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :Email
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-
-        operation :post do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Creates/updates a users email address'
-          key :operationId, 'postEmailAddress'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          parameter do
-            key :name, :body
-            key :in, :body
-            key :description, 'Attributes to create/update an email address.'
-            key :required, true
-
-            schema do
-              property :email, type: :string, example: 'john@example.com'
-            end
-          end
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :Email
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-      end
-
       swagger_path '/v0/profile/email_addresses/create_or_update' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
@@ -1090,73 +897,6 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/profile/primary_phone' do
-        operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Gets a users primary phone number information'
-          key :operationId, 'getPrimaryPhone'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :PhoneNumber
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-
-        operation :post do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Creates/updates a users primary phone number information'
-          key :operationId, 'postPrimaryPhone'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          parameter do
-            key :name, :body
-            key :in, :body
-            key :description, 'Attributes to create/update a phone number.'
-            key :required, true
-
-            schema do
-              property :number, type: :string, example: '4445551212'
-              property :extension, type: :string, example: '101'
-              property :country_code, type: :string, example: '1'
-            end
-          end
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :PhoneNumber
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :$ref, :EVSSAuthError
-            end
-          end
-        end
-      end
-
       swagger_path '/v0/profile/service_history' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
@@ -1188,7 +928,9 @@ module Swagger
                       property :end_date, type: :string, format: :date, example: '2016-06-01'
                       property :termination_reason_code, type: :string, example: 'S', description: 'S = Separation From Personnel Category, C = Completion of Active Service Period, D = Death while in personnel category or organization, W = Not Applicable'
                       property :termination_reason_text, type: :string, example: 'Separation from personnel category or organization'
-                      property :personnel_category_type_code, type: :string, example: 'V', description: 'A = Regular Active, N = Guard, V = Reserve, Q = Reserve Retiree'
+                      property :period_of_service_type_code, type: :string, example: 'V', description: 'Service type code'
+                      property :period_of_service_type_text, type: :string, example: 'Reserve member', description: 'Service type text'
+                      property :character_of_discharge_code, type: :string, example: 'DVN', description: 'The abbreviated code used to reference the status of a Servicemember upon termination of an episode'
                     end
                   end
                 end

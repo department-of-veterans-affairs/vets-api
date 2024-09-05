@@ -5,15 +5,15 @@ require 'rails_helper'
 module AskVAApi
   module Categories
     RSpec.describe Retriever do
-      let(:parsed_data) { { Topics: [{ id: 1, name: 'Category 1', parentId: nil }] } }
-      let(:static_data_service) { instance_double(Crm::StaticData) }
+      let(:parsed_data) { { Topics: [{ Id: 1, Name: 'Category 1', ParentId: nil }] } }
+      let(:static_data_service) { instance_double(Crm::CacheData) }
       let(:entity_class) { AskVAApi::Categories::Entity }
 
       describe '#call' do
         let(:retriever) { described_class.new(user_mock_data:, entity_class:) }
 
         before do
-          allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
+          allow(Crm::CacheData).to receive(:new).and_return(static_data_service)
           allow(static_data_service).to receive(:call).and_return(user_mock_data ? 'mock data' : parsed_data)
           allow(File).to receive(:read).and_return(parsed_data.to_json) if user_mock_data
           allow(ErrorHandler).to receive(:handle_service_error)
@@ -30,7 +30,7 @@ module AskVAApi
         context 'when not using mock data' do
           let(:user_mock_data) { false }
 
-          it 'fetches data using Crm::StaticData service and returns an array of Entity instances' do
+          it 'fetches data using Crm::CacheData service and returns an array of Entity instances' do
             expect(retriever.call).to all(be_a(entity_class))
           end
         end

@@ -13,10 +13,9 @@ else
 	FOREMAN_ARG := all=1,clamd=0,freshclam=0
 endif
 
-
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
-BASH         := run --rm --service-ports vets-api bash
+BASH         := run --rm --service-ports web bash
 BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) --login -c
 SPEC_PATH    := spec/ modules/
@@ -117,9 +116,9 @@ spec:  ## Runs spec tests
 .PHONY: spec_parallel_setup
 spec_parallel_setup:  ## Setup the parallel test dbs. This resets the current test db, as well as the parallel test dbs
 ifeq ($(ENV_ARG), dev)
-	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'bundle exec rake db:reset'"
+	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -e 'bundle exec rake db:reset db:migrate'"
 else
-	@$(COMPOSE_TEST) $(BASH) -c "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'bundle exec rake db:reset'"
+	@$(COMPOSE_TEST) $(BASH) -c "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'bundle exec rake db:reset db:migrate'"
 endif
 
 .PHONY: spec_parallel
@@ -131,14 +130,14 @@ else
 endif
 
 .PHONY: up
-up: db  ## Starts the server and associated services with docker-compose, use `clam=1 make up` to run ClamAV
-	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m ${FOREMAN_ARG}"
+up: db  ## Starts the server and associated services with docker-compose
+	@$(BASH_DEV) "rm -f tmp/pids/server.pid && bundle exec foreman start -m all=1"
 
 # NATIVE COMMANDS
 .PHONY: native-up
 native-up:
 	bundle install
-	foreman start -m ${FOREMAN_ARG}
+	foreman start -m all=1
 
 .PHONY: native-lint
 native-lint:

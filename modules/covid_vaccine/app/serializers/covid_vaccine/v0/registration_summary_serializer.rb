@@ -2,19 +2,19 @@
 
 module CovidVaccine
   module V0
-    class RegistrationSummarySerializer < ActiveModel::Serializer
-      attribute :created_at
-      attribute :vaccine_interest
-      attribute :zip_code
+    class RegistrationSummarySerializer
+      include JSONAPI::Serializer
 
-      def id
-        nil
+      set_id { '' }
+
+      attribute :created_at
+
+      attribute :vaccine_interest do |object|
+        object.raw_form_data['vaccine_interest']
       end
 
-      %i[vaccine_interest zip_code].each do |attr|
-        define_method attr do
-          object.raw_form_data[attr]
-        end
+      attribute :zip_code do |object|
+        object.raw_form_data['zip_code']
       end
     end
   end

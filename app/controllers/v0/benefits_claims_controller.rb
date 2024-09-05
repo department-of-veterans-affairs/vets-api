@@ -33,14 +33,25 @@ module V0
                             claim_type_code: claim_info['claimTypeCode'],
                             num_contentions: claim_info['contentions'].count,
                             ep_code: claim_info['endProductCode'],
+                            current_phase_back: claim_info['claimPhaseDates']['currentPhaseBack'],
+                            latest_phase_type: claim_info['claimPhaseDates']['latestPhaseType'],
+                            decision_letter_sent: claim_info['decisionLetterSent'],
+                            development_letter_sent: claim_info['developmentLetterSent'],
                             claim_id: params[:id] })
+      log_evidence_requests(params[:id], claim_info)
+
       tap_claims([claim['data']])
 
       render json: claim
     end
 
     def submit5103
-      res = service.submit5103(@current_user, params[:id])
+      # Log if the user doesn't have a file number
+      # NOTE: We are treating the BIRLS ID as a substitute
+      # for file number here
+      ::Rails.logger.info('[5103 Submission] No file number') if @current_user.birls_id.nil?
+
+      res = service.submit5103(params[:id])
 
       render json: res
     end
@@ -75,7 +86,24 @@ module V0
             evss_id: claim['id'],
             data: {}
           )
+        else
+          # If there is a record, we want to set the updated_at field
+          # to Time.zone.now
+          record.touch # rubocop:disable Rails/SkipsModelValidations
         end
+      end
+    end
+
+    def log_evidence_requests(claim_id, claim_info)
+      tracked_items = claim_info['trackedItems']
+
+      tracked_items.each do |ti|
+        ::Rails.logger.info('Evidence Request Types',
+                            { message_type: 'lh.cst.evidence_requests',
+                              claim_id:,
+                              tracked_item_id: ti['id'],
+                              tracked_item_type: ti['displayName'],
+                              tracked_item_status: ti['status'] })
       end
     end
   end

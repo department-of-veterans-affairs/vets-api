@@ -10,13 +10,53 @@ require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
 require 'claims_api/evss_bgs_mapper'
 
+require 'bgs_service/local_bgs_refactored'
+
 module ClaimsApi
   class LocalBGS
-    attr_accessor :external_uid, :external_key
+    CACHED_SERVICES = %w[
+      ClaimantServiceBean/ClaimantWebService
+      EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
+      IntentToFileWebServiceBean/IntentToFileWebService
+      OrgWebServiceBean/OrgWebService
+      PersonWebServiceBean/PersonWebService
+      StandardDataWebServiceBean/StandardDataWebService
+      TrackedItemService/TrackedItemService
+      VDC/VeteranRepresentativeService
+      VdcBean/ManageRepresentativeService
+      VnpAtchmsWebServiceBean/VnpAtchmsService
+      VnpPersonWebServiceBean/VnpPersonService
+      VnpProcFormWebServiceBean/VnpProcFormService
+      VnpProcWebServiceBeanV2/VnpProcServiceV2
+      VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
+      VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
+      VnpPtcpntWebServiceBean/VnpPtcpntService
+    ].freeze
 
+    # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
+      @client_ip =
+        if Rails.env.test?
+          # For all intents and purposes, BGS behaves identically no matter what
+          # IP we provide it. So in a test environment, let's just give it a
+          # fake so that cassette matching isn't defeated on CI and everyone's
+          # computer.
+          '127.0.0.1'
+        else
+          Socket
+            .ip_address_list
+            .detect(&:ipv4_private?)
+            .ip_address
+        end
+
+      @ssl_verify_mode =
+        if Settings.bgs.ssl_verify_mode == 'none'
+          OpenSSL::SSL::VERIFY_NONE
+        else
+          OpenSSL::SSL::VERIFY_PEER
+        end
+
       @application = Settings.bgs.application
-      @client_ip = Socket.ip_address_list.detect(&:ipv4_private?).ip_address
       @client_station_id = Settings.bgs.client_station_id
       @client_username = Settings.bgs.client_username
       @env = Settings.bgs.env
@@ -25,16 +65,19 @@ module ClaimsApi
       @external_uid = external_uid || Settings.bgs.external_uid
       @external_key = external_key || Settings.bgs.external_key
       @forward_proxy_url = Settings.bgs.url
-      @ssl_verify_mode = Settings.bgs.ssl_verify_mode == 'none' ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
       @timeout = Settings.bgs.timeout || 120
     end
+    # rubocop:enable Metrics/MethodLength
 
     def self.breakers_service
       url = Settings.bgs.url
       path = URI.parse(url).path
       host = URI.parse(url).host
+      port = URI.parse(url).port
       matcher = proc do |request_env|
-        request_env.url.host == host && request_env.url.path =~ /^#{path}/
+        request_env.url.host == host &&
+          request_env.url.port == port &&
+          request_env.url.path =~ /^#{path}/
       end
 
       Breakers::Service.new(
@@ -164,8 +207,14 @@ module ClaimsApi
       itf_type_cd = body.at 'itfTypeCd'
       itf_type_cd.content = type.to_s
 
-      make_request(endpoint: 'IntentToFileWebServiceBean/IntentToFileWebService',
-                   action: 'findIntentToFileByPtcpntIdItfTypeCd', body:, key: 'IntentToFileDTO')
+      response =
+        make_request(
+          endpoint: 'IntentToFileWebServiceBean/IntentToFileWebService',
+          action: 'findIntentToFileByPtcpntIdItfTypeCd',
+          body:
+        )
+
+      Array.wrap(response[:intent_to_file_dto])
     end
 
     # BEGIN: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
@@ -181,8 +230,6 @@ module ClaimsApi
       transform_bgs_claims_to_evss(claims)
     end
     # END: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
-
-    private
 
     def header # rubocop:disable Metrics/MethodLength
       # Stock XML structure {{{
@@ -211,46 +258,47 @@ module ClaimsApi
       header.to_s
     end
 
-    def full_body(action:, body:, namespace:)
+    def full_body(action:, body:, namespace:, namespaces:)
+      namespaces =
+        namespaces.map do |aliaz, path|
+          uri = URI(namespace)
+          uri.path = path
+          %(xmlns:#{aliaz}="#{uri}")
+        end
+
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
-          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="#{namespace}" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Envelope
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:tns="#{namespace}"
+            xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+            #{namespaces.join("\n")}
+          >
           #{header}
           <env:Body>
-            <tns:#{action}>
-              #{body}
-            </tns:#{action}>
+            <tns:#{action}>#{body}</tns:#{action}>
           </env:Body>
           </env:Envelope>
       EOXML
       body.to_s
     end
 
-    def parsed_response(res, action, key = nil)
-      parsed = Hash.from_xml(res.body)
-      if action == 'findIntentToFileByPtcpntIdItfTypeCd'
-        itf_response = []
-        [parsed.dig('Envelope', 'Body', "#{action}Response", key)].flatten.each do |itf|
-          return itf_response if itf.nil?
+    def parsed_response(response, action:, key:, transform:)
+      body = Hash.from_xml(response.body)
+      keys = ['Envelope', 'Body', "#{action}Response"]
+      keys << key if key.present?
 
-          temp = itf.deep_transform_keys(&:underscore)
-                    &.deep_symbolize_keys
-          itf_response.push(temp)
+      body.dig(*keys).to_h.tap do |value|
+        if transform
+          value.deep_transform_keys! do |key|
+            key.underscore.to_sym
+          end
         end
-        return itf_response
-      end
-      if key.nil?
-        parsed.dig('Envelope', 'Body', "#{action}Response")
-              &.deep_transform_keys(&:underscore)
-              &.deep_symbolize_keys || {}
-      else
-        parsed.dig('Envelope', 'Body', "#{action}Response", key)
-              &.deep_transform_keys(&:underscore)
-              &.deep_symbolize_keys || {}
       end
     end
 
-    def make_request(endpoint:, action:, body:, key: nil) # rubocop:disable Metrics/MethodLength
+    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
           f.use :breakers
@@ -260,19 +308,16 @@ module ClaimsApi
       connection.options.timeout = @timeout
 
       begin
-        wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
-          connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
-        end
-        target_namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+        url = "#{Settings.bgs.url}/#{endpoint}"
+        body = full_body(action:, body:, namespace: namespace(connection, endpoint), namespaces:)
+        headers = {
+          'Content-Type' => 'text/xml;charset=UTF-8',
+          'Host' => "#{@env}.vba.va.gov",
+          'Soapaction' => %("#{action}")
+        }
+
         response = log_duration(event: 'connection_post', endpoint:, action:) do
-          connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action:,
-                                                                       body:,
-                                                                       namespace: target_namespace),
-                          {
-                            'Content-Type' => 'text/xml;charset=UTF-8',
-                            'Host' => "#{@env}.vba.va.gov",
-                            'Soapaction' => "\"#{action}\""
-                          })
+          connection.post(url, body, headers)
         end
       rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
         ClaimsApi::Logger.log('local_bgs',
@@ -283,8 +328,35 @@ module ClaimsApi
       soap_error_handler.handle_errors(response) if response
 
       log_duration(event: 'parsed_response', key:) do
-        parsed_response(response, action, key)
+        parsed_response = parse_response(response, action:, key:)
+        transform_response ? transform_keys(parsed_response) : parsed_response
       end
+    end
+
+    def namespace(connection, endpoint)
+      if CACHED_SERVICES.include?(endpoint) && Flipper.enabled?(:lighthouse_claims_api_hardcode_wsdl)
+        begin
+          ClaimsApi::LocalBGSRefactored::FindDefinition
+            .for_service(endpoint)
+            .bean.namespaces.target
+        rescue => e
+          unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+            ClaimsApi::Logger.log('local_bgs', level: :error,
+                                               detail: "local BGS FindDefinition Error: #{e.message}")
+          end
+
+          fetch_namespace(connection, endpoint)
+        end
+      else
+        fetch_namespace(connection, endpoint)
+      end
+    end
+
+    def fetch_namespace(connection, endpoint)
+      wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
+        connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+      end
+      Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
     end
 
     def construct_itf_body(options)
@@ -326,7 +398,7 @@ module ClaimsApi
     end
 
     def transform_bgs_claims_to_evss(claims)
-      claims_array = [claims[:benefit_claims_dto][:benefit_claim]]&.flatten
+      claims_array = [claims[:benefit_claims_dto][:benefit_claim]].flatten
       claims_array&.map do |claim|
         bgs_claim = ClaimsApi::EvssBgsMapper.new(claim)
         bgs_claim.map_and_build_object
@@ -335,6 +407,58 @@ module ClaimsApi
 
     def to_camelcase(claim:)
       claim.deep_transform_keys { |k| k.to_s.camelize(:lower) }
+    end
+
+    def convert_nil_values(options)
+      arg_strg = ''
+      options.each do |option|
+        arg = option[0].to_s.camelize(:lower)
+        arg_strg += (option[1].nil? ? "<#{arg} xsi:nil='true'/>" : "<#{arg}>#{option[1]}</#{arg}>")
+      end
+      arg_strg
+    end
+
+    def validate_opts!(opts, required_keys)
+      keys = opts.keys.map(&:to_s)
+      required_keys = required_keys.map(&:to_s)
+      missing_keys = required_keys - keys
+      raise ArgumentError, "Missing required keys: #{missing_keys.join(', ')}" if missing_keys.present?
+    end
+
+    def jrn
+      {
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_status_type_cd: 'U',
+        jrn_user_id: Settings.bgs.client_username,
+        jrn_obj_id: Settings.bgs.application
+      }
+    end
+
+    private
+
+    def transform_keys(hash_or_array)
+      transformer = lambda do |object|
+        case object
+        when Hash
+          object.deep_transform_keys! { |k| k.underscore.to_sym }
+        when Array
+          object.map { |item| transformer.call(item) }
+        else
+          object
+        end
+      end
+
+      transformer.call(hash_or_array)
+    end
+
+    def parse_response(response, action:, key:)
+      keys = ['Envelope', 'Body', "#{action}Response"]
+      keys << key if key.present?
+
+      result = Hash.from_xml(response.body).dig(*keys)
+
+      result.is_a?(Array) ? result : result.to_h
     end
   end
 end

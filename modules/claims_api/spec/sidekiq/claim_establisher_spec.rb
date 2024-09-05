@@ -24,6 +24,29 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     claim
   end
 
+  let(:treatments) do
+    [
+      {
+        center: {
+          name: 'Some Treatment Center',
+          country: 'United States of America'
+        },
+        treatedDisabilityNames: [
+          'PTSD (post traumatic stress disorder)'
+        ],
+        startDate: '1999-01-01'
+      }
+    ]
+  end
+
+  let(:claim_with_treatments) do
+    claim = create(:auto_established_claim)
+    claim.form_data['treatments'] = treatments
+    claim.auth_headers = auth_headers
+    claim.save
+    claim
+  end
+
   describe 'successful submission' do
     it 'submits successfully' do
       expect do
@@ -54,68 +77,55 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   end
 
   describe 'errored submission' do
-    it 'sets the status of the claim to an error if it raises an EVSS::DisabilityCompensationForm::Service error' do
-      body = { 'messages' => [{ 'key' => 'serviceError', 'severity' => 'FATAL', 'text' => 'Not established.' }] }
-      allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
-        receive(:submit).and_raise(EVSS::DisabilityCompensationForm::ServiceException.new(body))
-      )
-      subject.new.perform(claim.id)
-      claim.reload
-      expect(claim.evss_id).to be_nil
-      expect(claim.evss_response).to eq(body['messages'])
-      expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+    let(:errors) do
+      [{ 'title' => 'Operation failed', 'detail' => 'Operation failed', 'code' => 'VA900', 'status' => '400' }]
     end
 
     it 'sets the status of the claim to an error if it raises an Common::Exceptions::BackendServiceException error' do
-      body = [{ 'key' => 400, 'severity' => 'FATAL', 'text' => nil }]
-      allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
-        receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new)
-      )
-      subject.new.perform(claim.id)
-      claim.reload
-      expect(claim.evss_id).to be_nil
-      expect(claim.evss_response).to eq(body)
-      expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
-    end
-
-    it 'fails current job if record fails to persist to the database' do
       evss_service_stub = instance_double('ClaimsApi::EVSSService::Base')
       allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
-      allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claim_id: 1337) }
-      expect_any_instance_of(ClaimsApi::AutoEstablishedClaim).to receive(:save!)
-        .and_raise(ActiveRecord::RecordInvalid.new(claim))
-
-      expect do
-        subject.new.perform(claim.id)
-      end.to raise_error(ActiveRecord::RecordInvalid)
-    end
-
-    it 'preserves original data upon BackendServiceException' do
-      orig_data = claim.form_data
-      body = [{ 'key' => 400, 'severity' => 'FATAL', 'text' => nil }]
-      allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
-        receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new)
-      )
+      allow(evss_service_stub).to receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+                                                               errors
+                                                             ))
       subject.new.perform(claim.id)
       claim.reload
       expect(claim.evss_id).to be_nil
-      expect(claim.evss_response).to eq(body)
+      expect(claim.evss_response).to eq(errors)
       expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
-      expect(claim.form_data).to eq(orig_data)
     end
 
-    it 'preserves original data upon ServiceException' do
-      orig_data = claim.form_data
-      body = { 'messages' => [{ 'key' => 'serviceError', 'severity' => 'FATAL', 'text' => nil }] }
-      allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
-        receive(:submit).and_raise(::EVSS::DisabilityCompensationForm::ServiceException.new(body))
-      )
-      subject.new.perform(claim.id)
-      claim.reload
-      expect(claim.evss_id).to be_nil
-      expect(claim.evss_response).to eq(body['messages'])
-      expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
-      expect(claim.form_data).to eq(orig_data)
+    it 'preserves the original form data throughout the job' do
+      orig_form_data = claim_with_treatments.form_data
+      evss_service_stub = instance_double('ClaimsApi::EVSSService::Base')
+      allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
+
+      expect(claim_with_treatments.form_data['treatments']).to eq(orig_form_data['treatments'])
+
+      allow(evss_service_stub).to receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+                                                               errors
+                                                             ))
+      subject.new.perform(claim_with_treatments.id)
+      claim_with_treatments.reload
+
+      expect(claim_with_treatments.form_data['treatments']).to eq(orig_form_data['treatments'])
+    end
+  end
+
+  describe 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred from the Claim Establisher Job'
+      msg = { 'args' => [claim.id],
+              'class' => described_class,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: claim.id,
+          detail: "Job retries exhausted for #{described_class}",
+          error: error_msg
+        )
+      end
     end
   end
 end

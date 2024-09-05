@@ -10,6 +10,8 @@
       }
       table {
         border-collapse: collapse;
+        margin-bottom:35px;
+        min-width:475px;
       }
       table tr th, table tr td {
         border: 1px solid #d3d3d3;
@@ -48,40 +50,28 @@
   <body>
     <h1><%= @date_from %> - <%= @date_to %> (Eastern Time)</h1>
     <hr>
-
-    <% @data[:month].keys.each do |kind| %>
-      <h2>Monthly 526EZ <%= kind %> Claim Submissions</h2>
-      <table>
-        <tr>
-          <th>Consumer</th>
-          <th><%= kind %> submissions</th>
-        </tr>
-        <% @data[:month][kind].keys.each do |label| %>
-          <tr>
-            <td><%= label %></td>
-            <td><%= @data[:month][kind][label] %></td>
-          </tr>
-        <% end %>
-      </table>
+    <h2>526EZ Claim Submissions</h2>
+    <h3><span class="title">Per Consumer Status Counts</span></h3>
+    <%= render partial: 'claims_api/monthly_claims_status_table', locals: {claims_consumers: @consumer_claims_totals } unless @consumer_claims_totals.count.zero? %>
+    <hr>
+    <h2>Power of Attorney Submissions</h2>
+    <h3><span class="title">Per Consumer Status Counts</span></h3>
+    <%= render partial: 'claims_api/poa_status_table', locals: { poa_consumers: @poa_totals } unless @poa_totals.blank? %>
+    <hr>
+    <h2>Evidence Waiver Submissions</h2>
+    <h3><span class="title">Per Consumer Status Counts</span></h3>
+    <%= render partial: 'claims_api/ews_status_table', locals: { ews_consumers: @ews_totals } unless @ews_totals.blank? %>
+    <hr>
+    <h2>Intent To File Submissions</h2>
+    <% if @itf_totals.blank? %>
+      <h3>
+        <%= '0' %>
+        <span class="title">ITF Submissions</span>
+      </h3>
+    <% else %>
+      <h3><span class="title">Per Consumer Status Counts</span></h3>
+      <%= render partial: 'claims_api/itf_status_table', locals: { itf_consumers: @itf_totals } unless @itf_totals.blank? %>
     <% end %>
-
-    <br /><hr>
-
-    <% @data[:year].keys.each do |kind| %>
-      <h2>Yearly 526EZ <%= kind %> Claim Submissions</h2>
-      <table>
-        <tr>
-          <th>Consumer</th>
-          <th><%= kind %> submissions</th>
-        </tr>
-        <% @data[:year][kind].keys.each do |label| %>
-          <tr>
-            <td><%= label %></td>
-            <td><%= @data[:year][kind][label] %></td>
-          </tr>
-        <% end %>
-      </table>
-    <% end %>
-
+    <hr>
   </body>
 </html>

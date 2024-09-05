@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
-class CentralMailSubmissionSerializer < ActiveModel::Serializer
-  attribute(:state)
+class CentralMailSubmissionSerializer
+  include JSONAPI::Serializer
+
+  attribute :state
 end

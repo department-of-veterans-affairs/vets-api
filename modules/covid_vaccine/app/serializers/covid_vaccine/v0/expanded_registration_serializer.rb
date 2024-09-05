@@ -2,12 +2,12 @@
 
 module CovidVaccine
   module V0
-    class ExpandedRegistrationSerializer < ActiveModel::Serializer
+    class ExpandedRegistrationSerializer
+      include JSONAPI::Serializer
+
       attribute :created_at
 
-      def id
-        nil
-      end
+      set_id { '' }
     end
   end
 end

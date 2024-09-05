@@ -16,7 +16,6 @@ logingov:
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://idp.int.identitysandbox.gov
   oauth_public_key: spec/fixtures/logingov/logingov_oauth_pub.pem
-  inherited_proofing_redirect_uri: http://localhost:3000/inherited_proofing/callback
 
 idme:
   client_id: ef7f1237ed3c396e4b4a2b04b608a7b1
@@ -76,10 +75,17 @@ sign_in:
   mock_auth_url: http://localhost:3000/mocked_authentication/profiles
   mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
   mockdata_sync_api_key: ~
+  vaweb_client_id: vaweb
+  vamobile_client_id: vamobile
+  arp_client_id: arp
+  sts_client:
+    base_url: http://localhost:3000
+    key_path: spec/fixtures/sign_in/sts_client.pem
 
 terms_of_use:
   current_version: v1
   provisioner_cookie_domain: localhost
+  enabled_clients: vaweb, mhv, myvahealth
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
@@ -90,6 +96,13 @@ binaries:
   pdfinfo: pdfinfo
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
+
+clamav:
+  mock: false
+  # host & port here are only used in development here:
+  # config/initializers/clamav.rb
+  host: 'clamav'
+  port: '3310'
 
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
@@ -162,6 +175,12 @@ form_10_10cg:
       client_secret: ~
       timeout: 30
       async_timeout: 600
+      auth:
+        mock: false
+        timeout: ~
+        token_url: ~
+        client_id: ~
+        client_secret: ~
   poa:
     s3:
       aws_access_key_id: my-aws-key-id
@@ -212,6 +231,8 @@ edu:
       - vishnhav.ashok@va.gov
       - donna.saunders@va.gov
       - ariana.adili@govcio.com
+      - marelby.hernandez@va.gov
+      - nawar.hussein@va.gov
 
 dependents:
   prefill: true
@@ -245,7 +266,7 @@ vet360:
     cache_enabled: false
     enabled: true
     timeout: 30
-    mock: false
+    mock: true
   military_personnel:
     cache_enabled: false
     enabled: true
@@ -261,6 +282,10 @@ vet360:
     api_key: "<AV_KEY>"
   health_benefit:
     mock: true
+  profile_information:
+    enabled: true
+    timeout: 30
+    use_mocks: false
 
 # Settings for IHub
 ihub:
@@ -354,7 +379,6 @@ modules_appeals_api:
       # List of flags to indicate parts of documentation that are still WIP and not ready for production.
       # See the rswag:appeals_api:dev rake task, spec_helper, and DocHelpers#wip_doc_enabled? for usage info to opt-in.
       # NOTE: Do not remove this key even if it's empty.
-      - sc_v2_potential_pact_act
   legacy_appeals_enabled: true
   reports:
     daily_decision_review:
@@ -396,6 +420,15 @@ coe:
 adapted_housing:
   prefill: true
 
+intent_to_file:
+  prefill: true
+
+ivc_champva:
+  prefill: true
+
+form_upload_flow:
+  prefill: true
+
 # Settings for Expiry Scanner
 expiry_scanner:
   slack:
@@ -405,6 +438,10 @@ expiry_scanner:
 argocd:
   slack:
     api_key: ~
+
+# Settings for Accredited Rep Management
+acc_rep_management:
+  prefill: true
 
 # Settings for EVSS
 evss:
@@ -455,8 +492,6 @@ evss:
     cert_path: ~
     key_path: ~
     root_ca: ~
-  reference_data_service:
-    enabled: false
   international_postal_codes: "config/evss/international_postal_codes.json"
 
 # Settings for GI Bill Data Service
@@ -520,14 +555,16 @@ mhv:
     collection_caching_enabled: true
   account:
     mock: false
-  inherited_proofing:
-    base_path: https://mhv-api.example.com
-    app_token: fake-app-token
-    mock: true
   medical_records:
     host: fake-host
     app_token: fake-app-token
     x_auth_key: fake-x-auth-key
+  account_creation:
+    mock: true
+    host: https://mhv-intb-api.myhealth.va.gov
+    sts:
+      service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
+      issuer: http://localhost:3000
 
 # Settings for alternate MHV integration for mobile app
 mhv_mobile:
@@ -544,52 +581,6 @@ mvi:
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
   pii_logging: false
-
-# Settings for eMIS
-# The certs used here can be obtained from the DevOps team. A different set is required for
-# each environment when connecting to the service.
-emis:
-  mock: true
-  host: https://vaausvrsapp81.aac.va.gov
-  veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
-  payment_url:
-    v1: /VIERSService/eMIS/v1/PaymentService
-    v2: /VIERSService/eMIS/v2/PaymentService
-  military_information_url:
-    v1: /VIERSService/eMIS/v1/MilitaryInformationService
-    v2: /VIERSService/eMIS/v2/MilitaryInformationService
-  client_cert_path: /fake/client/cert/path
-  client_key_path: /fake/client/key/path
-  soap_namespaces:
-    xmlns:xsd: http://www.w3.org/2001/XMLSchema
-    xmlns:xsi: http://www.w3.org/2001/XMLSchema-instance
-    xmlns:soap: http://www.w3.org/2003/05/soap-envelope
-    xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v1
-    xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v1
-    xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v1
-  military_information:
-    v1:
-      soap_namespaces:
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
-    v2:
-      soap_namespaces:
-        xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
-        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
-        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2
-  payment:
-    v1:
-      soap_namespaces:
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v1
-    v2:
-      soap_namespaces:
-        xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
-        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
-        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v2
-  veteran_status:
-    soap_namespaces:
-      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
 
 caseflow:
   mock: true
@@ -647,13 +638,14 @@ vba_documents:
 
 #Settings for Ask VA Api Module
 ask_va_api:
+  prefill: true
   crm_api:
     auth_url: https://login.microsoftonline.us
     base_url: https://dev.integration.d365.va.gov
     client_id: client_id
     client_secret: secret
     resource: resource
-    veis_api_path: veis/vagov.lob.ava/api
+    veis_api_path: eis/vagov.lob.ava/api
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     ocp_apim_subscription_key: subscription_key
     redis_token_expiry: 3540 # 59 minutes
@@ -695,6 +687,8 @@ claims_api:
         aud_claim_url: ~
     host: https://sandbox-api.va.gov
     use_mocks: false
+  poa_v2:
+    disable_jobs: false
 
 connected_apps_api:
   connected_apps:
@@ -878,6 +872,7 @@ maintenance:
     logingov: P2SHMM9
     mvi: PCIPVGJ
     mhv: PP2ZZ2V
+    pega: P3ZJCBK
     search: PRG8HJI
     tims: PUL8OQ4
     vet360: PHVOGQ1
@@ -938,7 +933,7 @@ va_mobile:
   ppms_base_url: "https://staff.apps.va.gov"
   mock: false
   key_path: /fake/client/key/path
-  timeout: 55
+  timeout: 25
 
 vetext:
   url: "https://something.fake.va.gov"
@@ -949,7 +944,7 @@ vetext:
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
-  key_path: /srv/vets-api/secret/health-quest.key
+  key_path: /app/secret/health-quest.key
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
   facilities:
@@ -972,7 +967,7 @@ hqva_mobile:
     health_api: "health_api"
     pgd_api: "pgd_api"
     mock: false
-    key_path: /srv/vets-api/secret/health-quest.lighthouse.key
+    key_path: /app/secret/health-quest.lighthouse.key
     pgd_api_scopes:
       - "launch launch/patient"
       - "patient/Observation.read"
@@ -1019,6 +1014,22 @@ lighthouse:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
     use_mocks: false
+  benefits_education:
+    host: https://sandbox-api.va.gov
+    access_token:
+      client_id: ~
+      rsa_key: ~
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausln2mo4jCAYRrlR2p7/v1/token
+    use_mocks: false
+  benefits_intake:
+    host: https://sandbox-api.va.gov
+    path: /services/vba_documents
+    version: v1
+    use_mocks: false
+    api_key: ~
+    report:
+      stale_sla: 10 # days
+      batch_size: 1000
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1056,7 +1067,7 @@ lighthouse:
       aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token"
       client_id: "0oaaxkp0aeXEJkMFw2p7"
       grant_type: "client_credentials"
-      api_key: /srv/vets-api/secret/lighthouse_fast_track_api.key
+      api_key: /app/secret/lighthouse_fast_track_api.key
   facilities:
     url: https://sandbox-api.va.gov
     api_key: fake_key
@@ -1093,13 +1104,11 @@ vbms:
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
   client_keyfile: vetsapi.client.vbms.aide.oit.va.gov.p12
   server_cert: vbms.aide.oit.va.gov.crt
-  environment_directory: /srv/vets-api/secret
+  environment_directory: /app/secret
   env: test
 
 vet_verification:
   key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
-  mock_emis: false
-  mock_emis_host: false
   mock_bgs: false
   mock_bgs_url: false
 
@@ -1257,6 +1266,7 @@ virtual_agent:
   webchat_secret_msft: fake_secret
   webchat_secret_nlu: fake_secret
   webchat_pva2_secret: fake_secret
+  webchat_root_bot_secret: fake_secret
   lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
   lighthouse_api_key: fake_api_key
   cxdw_client_secret: fake_secret
@@ -1274,6 +1284,7 @@ vanotify:
     va_gov:
       api_key: fake_secret
       template_id:
+        appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
         burial_claim_confirmation_email_template_id: burial_claim_confirmation_email_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
@@ -1285,13 +1296,23 @@ vanotify:
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
+        form1990meb_approved_confirmation_email: form1990meb_approved_confirmation_email_template_id
+        form1990meb_offramp_confirmation_email: form1990meb_offramp_confirmation_email_template_id
+        form1990meb_denied_confirmation_email: form1990meb_denied_confirmation_email_template_id
+        form1990emeb_approved_confirmation_email: form1990emeb_approved_confirmation_email_template_id
+        form1990emeb_offramp_confirmation_email: form1990emeb_offramp_confirmation_email_template_id
+        form1990emeb_denied_confirmation_email: form1990emeb_denied_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
+        form21_0966_confirmation_email: form21_0966_confirmation_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
+        form20_10206_confirmation_email: form20_10206_confirmation_email_template_id
+        form20_10207_confirmation_email: form20_10207_confirmation_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
+        form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
         form5490_confirmation_email: form5490_confirmation_email_template_id
@@ -1303,6 +1324,7 @@ vanotify:
         in_progress_reminder_email_generic: fake_template_id
         covid_vaccine_registration: fake_template_id
         covid_vaccine_expanded_registration: fake_template_id
+        direct_deposit: direct_deposit_template_id
         direct_deposit_edu: edu_template_id
         direct_deposit_comp_pen: comp_pen_template_id
         login_reactivation_email: reactivation_email_test_b
@@ -1321,6 +1343,31 @@ vanotify:
         claim_submission_success_text: fake_template_id
         claim_submission_duplicate_text: fake_template_id
         claim_submission_error_text: fake_template_id
+    oracle_health:
+      sms_sender_id: fake_secret
+      template_id:
+        claim_submission_success_text: fake_template_id
+        claim_submission_duplicate_text: fake_template_id
+        claim_submission_error_text: fake_template_id
+    benefits_decision_review:
+      api_key: fake_secret
+    benefits_disability:
+      api_key: fake_secret
+      template_id:
+        form526_document_upload_failure_notification_template_id: form526_document_upload_failure_notification_template_id
+        form4142_upload_failure_notification_template_id: form4142_upload_failure_notification_template_id
+    ivc_champva:
+      api_key: fake_secret
+      template_id:
+        form_10_10d_email: form_10_10d_email
+        form_10_7959f_1_email: form_10_7959f_1_email
+        form_10_7959f_2_email: form_10_7959f_2_email
+        form_10_7959c_email: form_10_7959c_email
+        form_10_7959a_email: form_10_7959a_email
+    health_apps_1010:
+      api_key: fake_secret
+      template_id:
+        form1010_ez_failure_email: fake_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1331,6 +1378,8 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: https://fake-url.com
+  form_reloader:
+    enabled: false
   # A notification for when a forms url has changed
   slack:
     enabled: false
@@ -1360,6 +1409,10 @@ vetext_push:
   base_url: https://vetext1.r01.med.va.gov
   user: vets-api-username
   pass: secret
+
+res:
+  base_url: ~
+  api_key: ~
 
 veteran_readiness_and_employment:
   base_url: ~
@@ -1459,14 +1512,29 @@ chip:
     password: '12345'
 
 check_in:
+  vaos:
+    mock: false
   map_api:
     url: https://veteran.apps-staging.va.gov
     service_name: MAP-API
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
+    auth_url_v2: ~
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     claims_url: https://dev.integration.d365.va.gov
+    claims_url_v2: ~
     claims_base_path: EC/ClaimIngestSvc
+    redis_token_expiry: 3540 # 59 minutes
+    service_name: BTSSS-API
+  travel_reimbursement_api_v2:
+    auth_url: https://login.microsoftonline.us
+    auth_url_v2: ~
+    tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
+    client_id: ~
+    client_secret: ~
+    claims_url: https://dev.integration.d365.va.gov
+    claims_url_v2: ~
+    claims_base_path: ~
     redis_token_expiry: 3540 # 59 minutes
     service_name: BTSSS-API
   authentication:
@@ -1540,8 +1608,9 @@ virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
+  vagov_classification_path: contention-classification/va-gov-claim-classifier
   max_cfi_path: employee-experience/max-ratings
-  ep_merge_path: employee-experience/merge
+  ep_merge_path: employee-experience-ep-merge-app/merge
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:
@@ -1595,6 +1664,12 @@ lgy:
   api_key: ~
   mock_coe: true
 
+lgy_sahsha:
+  base_url: http://www.example.com
+  app_id: ~
+  api_key: ~
+  mock_coe: false
+
 form526_backup:
   enabled: true
   # Can be single or multi, to send 1 payload or many, to central mail
@@ -1636,6 +1711,18 @@ form1095_b:
     enabled: true
     region: "region"
 
+ivc_forms:
+  s3:
+    aws_access_key_id: ~
+    aws_secret_access_key: ~
+    bucket: "bucket"
+    enabled: true
+    region: "region"
+  sidekiq:
+    missing_form_status_job:
+      enabled: true
+
+
 coverband:
   github_organization: ~
   github_team: ~
@@ -1668,6 +1755,22 @@ brd:
   api_key: 'fake_key'
   base_name: 'https://something.fake.va.gov'
 
+
+travel_pay:
+  sts:
+    service_account_id: ~
+  mock: true
+  veis:
+    client_id: ~
+    client_secret: ~
+    resource: ~
+    tenant_id: ~
+    auth_url: https://login.microsoftonline.us
+  subscription_key: ~
+  base_url: ~
+  client_number: ~
+  service_name: BTSSS-API
+
 xlsx_file_fetcher:
   github_access_token: ~
 
@@ -1692,3 +1795,15 @@ vye:
     r: 8
     p: 1
     length: 16
+  s3:
+    access_key_id: ~
+    secret_access_key: ~
+    region: ~
+    bucket: ~
+
+schema_contract:
+  appointments_index: 'modules/vaos/app/schemas/appointments_index.json'
+  test_index: 'spec/fixtures/schema_contract/test_schema.json'
+
+form_mock_ae_design_patterns:
+  prefill: true

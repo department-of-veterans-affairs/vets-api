@@ -2,12 +2,12 @@
 
 module AskVAApi
   module Correspondences
-    class Serializer < ActiveModel::Serializer
+    class Serializer
       include JSONAPI::Serializer
       set_type :correspondence
 
-      attributes :inquiry_id,
-                 :message_type,
+      attributes :message_type,
+                 :created_on,
                  :modified_on,
                  :status_reason,
                  :description,

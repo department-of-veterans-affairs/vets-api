@@ -195,4 +195,151 @@ describe BGS::PowerOfAttorneyVerifier do
       end
     end
   end
+
+  describe 'when multiple representatives have the same first, last, and middle name' do
+    before do
+      allow(Veteran::Service::Representative).to receive(:all_for_user).with(
+        hash_including(
+          first_name: identity.first_name,
+          last_name: identity.last_name
+        )
+      ).and_return(
+        OpenStruct.new(count: 2)
+      )
+    end
+
+    context 'and the authenticated user has a middle name' do
+      let(:authenticated_user_middle_name) { 'Bruce' }
+
+      before do
+        identity.middle_name = authenticated_user_middle_name
+
+        allow(Veteran::Service::Representative).to receive(:all_for_user).with(
+          hash_including(
+            first_name: identity.first_name,
+            last_name: identity.last_name,
+            middle_initial: 'B'
+          )
+        ).and_call_original
+
+        allow(Veteran::Service::Representative).to receive(:all_for_user).with(
+          hash_including(
+            first_name: identity.first_name,
+            last_name: identity.last_name,
+            poa_code: 'A1Q'
+          )
+        ).and_call_original
+      end
+
+      it "does an additional search using 'poa_code'" do
+        FactoryBot.create(
+          :representative,
+          representative_id: '1234',
+          poa_codes: ['A1Q'],
+          first_name: identity.first_name,
+          last_name: identity.last_name,
+          middle_initial: 'B'
+        )
+        FactoryBot.create(
+          :representative,
+          representative_id: '5678',
+          poa_codes: ['B1Q'],
+          first_name: identity.first_name,
+          last_name: identity.last_name,
+          middle_initial: 'B'
+        )
+
+        expect do
+          BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+
+          expect(Veteran::Service::Representative).to have_received(:all_for_user).with(
+            hash_including(
+              first_name: identity.first_name,
+              last_name: identity.last_name,
+              poa_code: 'A1Q'
+            )
+          )
+        end.not_to raise_error
+      end
+
+      context 'and the additional search returns a single result' do
+        context 'and the poa code does match' do
+          it 'does not error' do
+            FactoryBot.create(
+              :representative,
+              representative_id: '1234',
+              poa_codes: ['A1Q'],
+              first_name: identity.first_name,
+              last_name: identity.last_name,
+              middle_initial: 'B'
+            )
+            FactoryBot.create(
+              :representative,
+              representative_id: '5678',
+              poa_codes: ['B1Q'],
+              first_name: identity.first_name,
+              last_name: identity.last_name,
+              middle_initial: 'B'
+            )
+
+            expect do
+              BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+            end.not_to raise_error
+          end
+        end
+
+        context 'and the poa code does not match' do
+          it 'raises an error' do
+            FactoryBot.create(
+              :representative,
+              representative_id: '1234',
+              poa_codes: ['NOT GONNA MATCH'],
+              first_name: identity.first_name,
+              last_name: identity.last_name,
+              middle_initial: 'B'
+            )
+            FactoryBot.create(
+              :representative,
+              representative_id: '5678',
+              poa_codes: ['B1Q'],
+              first_name: identity.first_name,
+              last_name: identity.last_name,
+              middle_initial: 'X'
+            )
+
+            expect do
+              BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+            end.to raise_error { |error|
+              expect(error.errors.first.detail).to eq("Power of Attorney code doesn't match Veteran's")
+            }
+          end
+        end
+      end
+
+      context 'and the additional search still returns multiple results' do
+        it "raises an error for 'ambiguity'" do
+          FactoryBot.create(
+            :representative,
+            representative_id: '1234',
+            poa_codes: ['A1Q'],
+            first_name: identity.first_name,
+            last_name: identity.last_name,
+            middle_initial: 'B'
+          )
+          FactoryBot.create(
+            :representative,
+            representative_id: '5678',
+            poa_codes: ['A1Q'],
+            first_name: identity.first_name,
+            last_name: identity.last_name,
+            middle_initial: 'B'
+          )
+
+          expect do
+            BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+          end.to raise_error { |error| expect(error.errors.first.detail).to eq('Ambiguous VSO Representative Results') }
+        end
+      end
+    end
+  end
 end

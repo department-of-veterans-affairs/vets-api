@@ -17,14 +17,15 @@ module V0
       dependent_service.submit_686c_form(claim)
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      clear_saved_form(claim.form_id)
+      # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
 
-      render(json: claim)
+      render json: SavedClaimSerializer.new(claim)
     end
 
     def show
       dependents = dependent_service.get_dependents
-      render json: dependents, serializer: DependentsSerializer
+      dependents[:diaries] = dependency_verification_service.read_diaries
+      render json: DependentsSerializer.new(dependents)
     rescue => e
       log_exception_to_sentry(e)
       raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
@@ -57,6 +58,10 @@ module V0
 
     def dependent_service
       @dependent_service ||= BGS::DependentService.new(current_user)
+    end
+
+    def dependency_verification_service
+      @dependency_verification_service ||= BGS::DependencyVerificationService.new(current_user)
     end
 
     def stats_key

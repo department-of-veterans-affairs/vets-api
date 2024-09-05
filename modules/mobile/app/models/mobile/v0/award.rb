@@ -41,10 +41,6 @@ module Mobile
       attribute :ptcpnt_vet_id, Types::String
       attribute :reason_one_txt, Types::String
       attribute :spouse_txt, Types::String
-      attribute :veteran_id, Types::String
-      attribute :is_eligible_for_pension, Types::Bool
-      attribute :is_in_receipt_of_pension, Types::Bool
-      attribute :net_worth_limit, Types::Decimal
     end
   end
 end

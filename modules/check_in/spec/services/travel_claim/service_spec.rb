@@ -107,4 +107,63 @@ describe TravelClaim::Service do
       end
     end
   end
+
+  describe '#claim_status' do
+    context 'when token does not exist in redis and endpoint fails' do
+      let(:response) do
+        { data: { error: true, code: 'CLM_020_INVALID_AUTH', message: 'Unauthorized' }, status: 401 }
+      end
+
+      before do
+        allow_any_instance_of(TravelClaim::RedisClient).to receive(:token).and_return(nil)
+        allow_any_instance_of(TravelClaim::Service).to receive(:token).and_return(nil)
+      end
+
+      it 'returns 401 error response' do
+        expect(subject.build.submit_claim).to eq(response)
+      end
+    end
+
+    context 'when valid token exists' do
+      let(:access_token) { 'test-token-123' }
+      let(:resp_str) do
+        '[
+            {
+              "aptDateTime": "2024-05-30T18:44:22.733Z",
+              "aptId": "test-apt-id-1",
+              "aptSourceSystem": "test-apt-source"
+            }
+        ]'
+      end
+      let(:appointment_identifiers) do
+        {
+          data: {
+            id: uuid,
+            type: :appointment_identifier,
+            attributes: { patientDFN: '123', stationNo: 888, icn: '7892357463V984537' }
+          }
+        }
+      end
+      let(:resp) { Faraday::Response.new(response_body: resp_str, status: 200) }
+
+      let(:status_response) { { data: { code: 'CLM_000_SUCCESS', body: Oj.load(resp_str) }, status: 200 } }
+
+      before do
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache'
+        )
+
+        allow_any_instance_of(TravelClaim::RedisClient).to receive(:token).and_return(access_token)
+        allow_any_instance_of(TravelClaim::Client).to receive(:claim_status).and_return(resp)
+      end
+
+      it 'returns response' do
+        response = subject.build(check_in:,
+                                 params: { appointment_date: '2020-10-16' }).claim_status
+        expect(response).to eq status_response
+      end
+    end
+  end
 end

@@ -4,25 +4,102 @@ require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe SimpleFormsApi::PdfStamper do
-  def self.test_pdf_stamp_error(stamp_method, test_payload)
-    it 'raises an error when generating stamped file' do
-      allow(Common::FileHelpers).to receive(:random_file_path).and_return('fake/stamp_path')
-      allow(Common::FileHelpers).to receive(:delete_file_if_exists)
-      allow(Prawn::Document).to receive(:generate).and_raise('Error generating stamped file')
+  let(:data) { JSON.parse(File.read('modules/simple_forms_api/spec/fixtures/form_json/vba_21_0845.json')) }
+  let(:form) { SimpleFormsApi::VBA210845.new(data) }
+  let(:path) { 'tmp/template.pdf' }
+  let(:instance) { described_class.new(stamped_template_path: path, form:, current_loa: 3, timestamp: nil) }
 
-      generated_form_path = 'fake/generated_form_path'
-      data = JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{test_payload}.json"))
-      form = "SimpleFormsApi::#{test_payload.titleize.gsub(' ', '')}".constantize.new(data)
+  describe '#stamp_pdf' do
+    context 'applying stamps as specified by the form model' do
+      context 'page is specified' do
+        let(:coords) { {} }
+        let(:page) { 2 }
+        let(:desired_stamp) { { coords:, page: } }
+        let(:page_configuration) { double }
 
-      expect do
-        SimpleFormsApi::PdfStamper.send(stamp_method, generated_form_path, form)
-      end.to raise_error(RuntimeError, 'Error generating stamped file')
+        before do
+          allow(form).to receive_messages(desired_stamps: [desired_stamp], submission_date_stamps: [])
+          allow(instance).to receive(:verified_multistamp)
+          allow(instance).to receive(:verify)
+          allow(instance).to receive(:get_page_configuration).and_return(page_configuration)
+        end
 
-      expect(Common::FileHelpers).to have_received(:delete_file_if_exists).with('fake/stamp_path')
+        it 'calls #get_page_configuration' do
+          instance.stamp_pdf
+
+          expect(instance).to have_received(:get_page_configuration).with(desired_stamp)
+        end
+
+        it 'calls #verified_multistamp' do
+          instance.stamp_pdf
+
+          expect(instance).to have_received(:verified_multistamp).with(desired_stamp, page_configuration)
+        end
+
+        context 'timestamp is passed in' do
+          let(:timestamp) { 'right-timestamp' }
+          let(:instance) { described_class.new(stamped_template_path: path, form:, current_loa: 3, timestamp:) }
+
+          it 'passes the right timestamp when fetching the submission date stamps' do
+            instance.stamp_pdf
+
+            expect(form).to have_received(:submission_date_stamps).with(timestamp)
+          end
+        end
+      end
+
+      context 'page is not specified' do
+        let(:desired_stamp) { { coords: {} } }
+        let(:current_file_path) { 'current-file-path' }
+        let(:datestamp_instance) { double(run: current_file_path) }
+
+        before do
+          allow(form).to receive_messages(desired_stamps: [desired_stamp], submission_date_stamps: [])
+          allow(File).to receive(:rename)
+          allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
+          allow(instance).to receive(:verify)
+        end
+
+        it 'calls PDFUtilities::DatestampPdf and renames the File' do
+          instance.stamp_pdf
+
+          expect(File).to have_received(:rename).with(current_file_path, path)
+        end
+      end
+    end
+
+    describe 'stamping the authentication text' do
+      let(:current_file_path) { 'current-file-path' }
+      let(:datestamp_instance) { double(run: current_file_path) }
+
+      before do
+        allow(form).to receive_messages(desired_stamps: [], submission_date_stamps: [])
+        allow(instance).to receive(:verify).and_yield
+        allow(File).to receive(:rename)
+        allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
+      end
+
+      it 'calls PDFUtilities::DatestampPdf and renames the File' do
+        text = /Signed electronically and submitted via VA.gov at /
+        instance.stamp_pdf
+
+        expect(datestamp_instance).to have_received(:run).with(text:, x: anything, y: anything, text_only: false,
+                                                               size: 9, timestamp: anything)
+        expect(File).to have_received(:rename).with(current_file_path, path)
+      end
+
+      context 'timestamp is passed in' do
+        let(:timestamp) { 'fake-timestamp' }
+        let(:instance) { described_class.new(stamped_template_path: path, form:, current_loa: 3, timestamp:) }
+
+        it 'calls PDFUtilities::DatestampPdf with the timestamp' do
+          text = /Signed electronically and submitted via VA.gov at /
+          instance.stamp_pdf
+
+          expect(datestamp_instance).to have_received(:run).with(text:, x: anything, y: anything, text_only: false,
+                                                                 size: 9, timestamp:)
+        end
+      end
     end
   end
-
-  test_pdf_stamp_error 'stamp214142', 'vba_21_4142'
-  test_pdf_stamp_error 'stamp2110210', 'vba_21_10210'
-  test_pdf_stamp_error 'stamp21p0847', 'vba_21p_0847'
 end

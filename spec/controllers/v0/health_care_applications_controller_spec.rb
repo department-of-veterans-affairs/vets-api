@@ -15,20 +15,35 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
     end
   end
 
-  describe '#download_pdf' do
-    let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10EZ_John_Smith.pdf' }
-    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10EZ', 'unsigned', 'simple.pdf' }
+  describe '#facilities' do
+    let(:lighthouse_service) { instance_double(Lighthouse::Facilities::V1::Client) }
+    let(:unrelated_facility) { Lighthouse::Facilities::Facility.new('id' => 'vha_123', 'attributes' => {}) }
+    let(:target_facility) { Lighthouse::Facilities::Facility.new('id' => 'vha_456ab', 'attributes' => {}) }
+    let(:facilities) { [unrelated_facility, target_facility] }
 
-    it 'downloads a pdf' do
-      post :download_pdf, params: JSON.parse(hca_request)
+    before do
+      allow(Lighthouse::Facilities::V1::Client).to receive(:new) { lighthouse_service }
+      allow(lighthouse_service).to receive(:get_facilities) { facilities }
+    end
 
-      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
+    it 'only returns facilities in VES' do
+      params = { state: 'AK' }
 
-      expect(response).to have_http_status(:ok)
+      StdInstitutionFacility.create(station_number: target_facility.unique_id)
 
-      expect(
-        pdfs_fields_match?(response_pdf, expected_pdf)
-      ).to eq(true)
+      get(:facilities, params:)
+
+      expect(response.body).to eq([target_facility].to_json)
+    end
+
+    it 'filters out deactivated facilities' do
+      params = { state: 'AK' }
+
+      StdInstitutionFacility.create(station_number: target_facility.unique_id, deactivation_date: Time.current)
+
+      get(:facilities, params:)
+
+      expect(response.body).to eq([].to_json)
     end
   end
 end

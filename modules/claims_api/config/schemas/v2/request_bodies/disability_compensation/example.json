@@ -3,6 +3,7 @@
     "type": "form/526",
     "attributes": {
       "claimProcessType": "STANDARD_CLAIM_PROCESS",
+      "claimNotes": "Some things that are important to know, and are not included in any other place.",
       "veteranIdentification": {
         "serviceNumber": "123456789",
         "veteranNumber": {
@@ -173,11 +174,11 @@
       },
       "servicePay": {
         "receivingMilitaryRetiredPay": "NO",
-        "futureMilitaryRetiredPay": "NO",
+        "futureMilitaryRetiredPay": "YES",
         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
         "militaryRetiredPay": {
           "branchOfService": "Air Force",
-          "monthlyAmount": 240.75
+          "monthlyAmount": 240
         },
         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
         "favorMilitaryRetiredPay": false, 
@@ -185,7 +186,7 @@
         "separationSeverancePay": {
           "datePaymentReceived": "2018-07-31",
           "branchOfService": "Air Force",
-          "preTaxAmountReceived": 179.25
+          "preTaxAmountReceived": 179
         },
         "favorTrainingPay": false
       },

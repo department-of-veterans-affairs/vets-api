@@ -1,28 +1,23 @@
 # frozen_string_literal: true
 
-class FullNameSerializer < ActiveModel::Serializer
-  attribute :first
-  attribute :middle
-  attribute :last
-  attribute :suffix
+class FullNameSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  set_id { '' }
 
-  def first
+  attribute :first do |object|
     object[:first]
   end
 
-  def middle
+  attribute :middle do |object|
     object[:middle]
   end
 
-  def last
+  attribute :last do |object|
     object[:last]
   end
 
-  def suffix
+  attribute :suffix do |object|
     object[:suffix]
   end
 end

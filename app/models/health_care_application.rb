@@ -8,7 +8,6 @@ require 'hca/enrollment_eligibility/status_matcher'
 require 'mpi/service'
 
 class HealthCareApplication < ApplicationRecord
-  include TempFormValidation
   include SentryLogging
   include VA1010Forms::Utils
 
@@ -17,20 +16,18 @@ class HealthCareApplication < ApplicationRecord
   DISABILITY_THRESHOLD = 50
   LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
 
-  attr_accessor :user, :async_compatible, :google_analytics_client_id
+  attr_accessor :user, :async_compatible, :google_analytics_client_id, :form
 
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
 
   validate(:long_form_required_fields, on: :create)
 
-  after_save(:send_failure_mail, if: proc do |hca|
-    hca.saved_change_to_attribute?(:state) && hca.failed? && hca.form.present? && hca.parsed_form['email']
-  end)
+  validates(:form, presence: true, on: :create)
+  validate(:form_matches_schema, on: :create)
 
-  after_save(:log_submission_failure, if: proc do |hca|
-    hca.saved_change_to_attribute?(:state) && hca.failed?
-  end)
+  after_save :send_failure_email, if: :send_failure_email?
+  after_save :log_async_submission_failure, if: :async_submission_failed?
 
   # @param [Account] user
   # @return [Hash]
@@ -59,6 +56,20 @@ class HealthCareApplication < ApplicationRecord
     form.present? && parsed_form['lastServiceBranch'].blank?
   end
 
+  def async_submission_failed?
+    saved_change_to_attribute?(:state) && failed?
+  end
+
+  def email
+    return nil if form.blank?
+
+    parsed_form['email']
+  end
+
+  def send_failure_email?
+    async_submission_failed? && email.present?
+  end
+
   def submit_sync
     @parsed_form = override_parsed_form(parsed_form)
 
@@ -76,7 +87,7 @@ class HealthCareApplication < ApplicationRecord
 
     result
   rescue
-    log_submission_failure
+    log_sync_submission_failure
 
     raise
   end
@@ -85,6 +96,8 @@ class HealthCareApplication < ApplicationRecord
     prefill_fields
 
     unless valid?
+      Rails.logger.warn("HealthCareApplication::ValidationError: #{Flipper.enabled?(:hca_use_facilities_API)}")
+
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error")
 
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error_short_form") if short_form?
@@ -99,11 +112,9 @@ class HealthCareApplication < ApplicationRecord
       raise(Common::Exceptions::ValidationErrors, self)
     end
 
-    has_email = parsed_form['email'].present?
-
-    if has_email || async_compatible
+    if email.present? || async_compatible
       save!
-      submit_async(has_email)
+      submit_async
     else
       submit_sync
     end
@@ -199,6 +210,10 @@ class HealthCareApplication < ApplicationRecord
     form_submission_id_string&.to_i
   end
 
+  def parsed_form
+    @parsed_form ||= form.present? ? JSON.parse(form) : nil
+  end
+
   private
 
   def long_form_required_fields
@@ -225,10 +240,8 @@ class HealthCareApplication < ApplicationRecord
     }.compact)
   end
 
-  def submit_async(has_email)
-    submission_job = 'SubmissionJob'
-    submission_job = "Anon#{submission_job}" unless has_email
-
+  def submit_async
+    submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
     @parsed_form = override_parsed_form(parsed_form)
 
     "HCA::#{submission_job}".constantize.perform_async(
@@ -241,30 +254,78 @@ class HealthCareApplication < ApplicationRecord
     self
   end
 
-  def log_submission_failure
+  def log_sync_submission_failure
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed")
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed_short_form") if short_form?
+    log_submission_failure_details
+  end
+
+  def log_async_submission_failure
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
+    log_submission_failure_details
+  end
 
+  def log_submission_failure_details
+    return if parsed_form.blank?
+
+    PersonalInformationLog.create!(
+      data: parsed_form,
+      error_class: 'HealthCareApplication FailedWontRetry'
+    )
+
+    log_message_to_sentry(
+      'HCA total failure',
+      :error,
+      {
+        first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
+        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
+        last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
+      },
+      hca: :total_failure
+    )
+  end
+
+  def send_failure_email
+    first_name = parsed_form.dig('veteranFullName', 'first')
+    template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email
+    api_key = Settings.vanotify.services.health_apps_1010.api_key
+
+    salutation = first_name ? "Dear #{first_name}," : ''
+
+    VANotify::EmailJob.perform_async(
+      email,
+      template_id,
+      { 'salutation' => salutation },
+      api_key
+    )
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
+  rescue => e
+    log_exception_to_sentry(e)
+  end
+
+  # If the hca_use_facilities_API flag is on then vaMedicalFacility will only
+  # validate for a string, else it will validate through the enum.  This avoids
+  # changes to vets-website and vets-json-schema having to deploy simultaneously.
+  def form_matches_schema
     if form.present?
-      PersonalInformationLog.create!(
-        data: parsed_form,
-        error_class: 'HealthCareApplication FailedWontRetry'
-      )
-
-      log_message_to_sentry(
-        'HCA total failure',
-        :error,
-        {
-          first_initial: parsed_form['veteranFullName']['first'][0],
-          middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
-          last_initial: parsed_form['veteranFullName']['last'][0]
-        },
-        hca: :total_failure
-      )
+      JSON::Validator.fully_validate(current_schema, parsed_form).each do |v|
+        errors.add(:form, v.to_s)
+      end
     end
   end
 
-  def send_failure_mail
-    HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
+  def current_schema
+    feature_enabled_for_user = Flipper.enabled?(:hca_use_facilities_API, user)
+    Rails.logger.warn(
+      "HealthCareApplication::hca_use_facilitiesAPI enabled = #{feature_enabled_for_user}"
+    )
+
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
+    return schema unless feature_enabled_for_user
+
+    schema.deep_dup.tap do |c|
+      c['properties']['vaMedicalFacility'] = { type: 'string' }.as_json
+    end
   end
 end

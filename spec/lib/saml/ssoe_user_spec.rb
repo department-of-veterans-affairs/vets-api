@@ -25,6 +25,27 @@ RSpec.describe SAML::User do
         issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
       )
     end
+    let(:sign_in) do
+      {
+        service_name:,
+        account_type:,
+        auth_broker:,
+        client_id:
+      }
+    end
+    let(:service_name) { 'logingov' }
+    let(:account_type) { 'N/A' }
+    let(:auth_broker) { SAML::URLService::BROKER_CODE }
+    let(:client_id) { 'vaweb' }
+
+    before do
+      SAMLRequestTracker.create(
+        uuid: login_uuid,
+        payload: {
+          application: client_id
+        }
+      )
+    end
 
     context 'mapped attributes' do
       let(:saml_attributes) do
@@ -110,11 +131,7 @@ RSpec.describe SAML::User do
           mhv_account_type: nil,
           edipi: nil,
           loa: { current: 1, highest: 1 },
-          sign_in: {
-            service_name: 'logingov',
-            account_type: 'N/A',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           multifactor: true,
           icn: nil,
           authn_context:
@@ -152,7 +169,7 @@ RSpec.describe SAML::User do
           logingov_uuid: 'aa478abc-e494-4af1-9f87-d002f8fe1cda',
           verified_at: '2021-10-28T23:54:46Z',
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'logingov', account_type: 'N/A', auth_broker: SAML::URLService::BROKER_CODE },
+          sign_in:,
           sec_id: '1200049153',
           icn: '1200049153V217987',
           multifactor: true,
@@ -171,6 +188,7 @@ RSpec.describe SAML::User do
 
     context 'unproofed IDme LOA1 user' do
       let(:saml_attributes) { build(:ssoe_idme_loa1_unproofed) }
+      let(:service_name) { 'idme' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -192,11 +210,7 @@ RSpec.describe SAML::User do
           verified_at: nil,
           multifactor: false,
           loa: { current: 1, highest: 1 },
-          sign_in: {
-            service_name: 'idme',
-            account_type: 'N/A',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: nil,
           icn: nil
         )
@@ -209,6 +223,7 @@ RSpec.describe SAML::User do
 
     context 'previously proofed IDme LOA1 user' do
       let(:saml_attributes) { build(:ssoe_idme_loa1) }
+      let(:service_name) { 'idme' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -230,11 +245,7 @@ RSpec.describe SAML::User do
           verified_at: nil,
           multifactor: true,
           loa: { current: 1, highest: 3 },
-          sign_in: {
-            service_name: 'idme',
-            account_type: 'N/A',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: nil,
           icn: nil
         )
@@ -248,6 +259,7 @@ RSpec.describe SAML::User do
     context 'IDme LOA3 user' do
       let(:authn_context) { LOA::IDME_LOA3 }
       let(:saml_attributes) { build(:ssoe_idme_loa3) }
+      let(:service_name) { 'idme' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -269,7 +281,7 @@ RSpec.describe SAML::User do
           verified_at: nil,
           multifactor: true,
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'idme', account_type: 'N/A', auth_broker: SAML::URLService::BROKER_CODE },
+          sign_in:,
           sec_id: '1008830476',
           icn: '1008830476V316605'
         )
@@ -285,6 +297,8 @@ RSpec.describe SAML::User do
       let(:highest_attained_loa) { '3' }
       let(:saml_attributes) { build(:ssoe_idme_mhv_advanced) }
       let(:multifactor) { true }
+      let(:service_name) { 'mhv' }
+      let(:account_type) { 'Advanced' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -305,8 +319,7 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'mhv', account_type: 'Advanced',
-                     auth_broker: SAML::URLService::BROKER_CODE },
+          sign_in:,
           sec_id: nil,
           icn: nil,
           multifactor:
@@ -325,6 +338,8 @@ RSpec.describe SAML::User do
       let(:highest_attained_loa) { '3' }
       let(:saml_attributes) { build(:ssoe_idme_mhv_loa3) }
       let(:multifactor) { true }
+      let(:service_name) { 'mhv' }
+      let(:account_type) { 'Advanced' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -345,8 +360,7 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'mhv', account_type: 'Advanced',
-                     auth_broker: SAML::URLService::BROKER_CODE },
+          sign_in:,
           sec_id: '1013183292',
           icn: '1013183292V131165',
           multifactor:
@@ -360,6 +374,8 @@ RSpec.describe SAML::User do
       let(:saml_attributes) { build(:ssoe_idme_mhv_basic_multifactor) }
       let(:multifactor) { false }
       let(:existing_saml_attributes) { build(:ssoe_idme_mhv_basic_singlefactor) }
+      let(:service_name) { 'mhv' }
+      let(:account_type) { 'Basic' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -380,11 +396,7 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 1, highest: 1 },
-          sign_in: {
-            service_name: 'mhv',
-            account_type: 'Basic',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: nil,
           icn: nil,
           multifactor: true
@@ -401,6 +413,8 @@ RSpec.describe SAML::User do
       let(:highest_attained_loa) { '3' }
       let(:saml_attributes) { build(:ssoe_idme_mhv_premium) }
       let(:multifactor) { true }
+      let(:service_name) { 'mhv' }
+      let(:account_type) { 'Premium' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -421,11 +435,7 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'mhv',
-            account_type: 'Premium',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: '1012853550',
           icn: '1012853550V207686',
           multifactor:
@@ -443,6 +453,8 @@ RSpec.describe SAML::User do
               va_eauth_gcIds: ['2107307560^NI^200DOD^USDOD^A|'])
       end
       let(:multifactor) { true }
+      let(:service_name) { 'mhv' }
+      let(:account_type) { 'Premium' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -457,17 +469,13 @@ RSpec.describe SAML::User do
           mhv_icn: '1012853550V207686',
           mhv_correlation_id: '12345748',
           mhv_account_type: 'Premium',
-          uuid: Digest::UUID.uuid_v3('sec-id', '1012853550').tr('-', ''),
+          uuid: nil,
           email: 'k+tristanmhv@example.com',
           idme_uuid: nil,
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'mhv',
-            account_type: 'Premium',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: '1012853550',
           icn: nil,
           multifactor:
@@ -568,13 +576,9 @@ RSpec.describe SAML::User do
         end
 
         context 'MHV outbound-redirect flow' do
+          let(:client_id) { 'mhv' }
+
           it 'does not validate and logs a Sentry warning' do
-            SAMLRequestTracker.create(
-              uuid: '1234567890',
-              payload: {
-                application: 'mhv'
-              }
-            )
             expect(Rails.logger).to receive(:warn).with(expected_log)
             expect { subject.validate! }.not_to raise_error
           end
@@ -604,13 +608,9 @@ RSpec.describe SAML::User do
         end
 
         context 'MHV outbound-redirect flow' do
+          let(:client_id) { 'myvahealth' }
+
           it 'does not validate and logs a Sentry warning' do
-            SAMLRequestTracker.create(
-              uuid: '1234567890',
-              payload: {
-                application: 'myvahealth'
-              }
-            )
             expect(Rails.logger).to receive(:warn).with(expected_log)
             expect { subject.validate! }.not_to raise_error
           end
@@ -790,26 +790,18 @@ RSpec.describe SAML::User do
         end
 
         context 'MHV outbound-redirect flow' do
+          let(:client_id) { 'mhv' }
+
           it 'logs a Sentry warning and allows login' do
-            SAMLRequestTracker.create(
-              uuid: '1234567890',
-              payload: {
-                application: 'mhv'
-              }
-            )
             expect(Rails.logger).to receive(:warn).with(expected_log)
             expect { subject.validate! }.not_to raise_error
           end
         end
 
         context 'incorrect outbound-redirect flow' do
+          let(:client_id) { 'test application' }
+
           it 'does not validate and prevents login' do
-            SAMLRequestTracker.create(
-              uuid: '1234567890',
-              payload: {
-                application: 'test application'
-              }
-            )
             expect(Rails.logger).to receive(:warn).with(expected_log)
             expect { subject.validate! }
               .to raise_error { |error|
@@ -882,6 +874,8 @@ RSpec.describe SAML::User do
       let(:authn_context) { 'dslogon' }
       let(:highest_attained_loa) { '3' }
       let(:saml_attributes) { build(:ssoe_idme_dslogon_level1) }
+      let(:service_name) { 'dslogon' }
+      let(:account_type) { '1' }
 
       xit 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -900,11 +894,7 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           loa: { current: 1, highest: 3 },
-          sign_in: {
-            service_name: 'dslogon',
-            account_type: '1',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: nil,
           icn: nil,
           multifactor:
@@ -924,6 +914,8 @@ RSpec.describe SAML::User do
                                '2106798217^NI^200DOD^USDOD^A|'\
                                '1013173963^PN^200PROV^USDVA^A'])
       end
+      let(:service_name) { 'dslogon' }
+      let(:account_type) { '2' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -944,11 +936,7 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'dslogon',
-            account_type: '2',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: '1013173963',
           icn: '1013173963V366678',
           multifactor: false
@@ -966,6 +954,8 @@ RSpec.describe SAML::User do
       let(:highest_attained_loa) { '3' }
       let(:multifactor) { true }
       let(:saml_attributes) { build(:ssoe_idme_dslogon_level2) }
+      let(:service_name) { 'dslogon' }
+      let(:account_type) { '2' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -986,11 +976,7 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'dslogon',
-            account_type: '2',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: '0000028007',
           icn: '1012740600V714187',
           multifactor:
@@ -1007,6 +993,8 @@ RSpec.describe SAML::User do
               va_eauth_uid: ['0000028007'],
               va_eauth_csid: ['NOT_FOUND'])
       end
+      let(:service_name) { 'dslogon' }
+      let(:account_type) { '2' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -1027,11 +1015,7 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'dslogon',
-            account_type: '2',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: '0000028007',
           icn: '1012740600V714187',
           multifactor:
@@ -1065,6 +1049,8 @@ RSpec.describe SAML::User do
         build(:ssoe_inbound_dslogon_level2,
               va_eauth_multifactor: ['True'])
       end
+      let(:service_name) { 'dslogon' }
+      let(:account_type) { 'N/A' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -1079,17 +1065,13 @@ RSpec.describe SAML::User do
           mhv_icn: '1012779219V964737',
           mhv_correlation_id: nil,
           mhv_account_type: nil,
-          uuid: '85ba80dba1b93ed3bf080b2989cde313',
+          uuid: nil,
           email: nil,
           idme_uuid: nil,
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'dslogon',
-            account_type: 'N/A',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: '1012779219',
           icn: '1012779219V964737',
           multifactor:
@@ -1120,6 +1102,8 @@ RSpec.describe SAML::User do
         build(:ssoe_inbound_mhv_premium,
               va_eauth_multifactor: ['True'])
       end
+      let(:service_name) { 'mhv' }
+      let(:account_type) { 'N/A' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -1140,11 +1124,7 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'mhv',
-            account_type: 'N/A',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: '1013062086',
           icn: '1013062086V794840',
           multifactor:
@@ -1160,6 +1140,8 @@ RSpec.describe SAML::User do
         build(:ssoe_inbound_idme_loa3,
               va_eauth_multifactor: ['True'])
       end
+      let(:service_name) { 'idme' }
+      let(:account_type) { 'N/A' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -1180,11 +1162,7 @@ RSpec.describe SAML::User do
           logingov_uuid: 'aa478abc-e494-4ae1-8f87-d002f8fe1bbd',
           verified_at: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'idme',
-            account_type: 'N/A',
-            auth_broker: SAML::URLService::BROKER_CODE
-          },
+          sign_in:,
           sec_id: '1012827134',
           icn: '1012827134V054550',
           multifactor:

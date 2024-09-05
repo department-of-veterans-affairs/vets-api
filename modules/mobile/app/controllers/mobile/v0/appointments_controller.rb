@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
+require 'mobile/v0/exceptions/custom_errors'
+
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
       UPCOMING_DAYS_LIMIT = 7
 
+      before_action { authorize }
       after_action :clear_appointments_cache, only: %i[cancel create]
 
       def index
+        staging_custom_error
         appointments, failures = fetch_appointments
         appointments = filter_by_date_range(appointments)
         partial_errors = partial_errors(failures)
@@ -94,12 +98,7 @@ module Mobile
       end
 
       def get_response_status(failures)
-        case failures&.size
-        when 0, nil
-          :ok
-        else
-          :multi_status
-        end
+        failures.present? ? :multi_status : :ok
       end
 
       def filter_by_date_range(appointments)
@@ -131,6 +130,31 @@ module Mobile
 
       def appointments_cache_interface
         @appointments_cache_interface ||= Mobile::AppointmentsCacheInterface.new
+      end
+
+      def authorize
+        raise_access_denied unless current_user.authorize(:vaos, :access?)
+        raise_access_denied_no_icn if current_user.icn.blank?
+      end
+
+      def raise_access_denied
+        raise Common::Exceptions::Forbidden, detail: 'You do not have access to online scheduling'
+      end
+
+      def raise_access_denied_no_icn
+        raise Common::Exceptions::Forbidden, detail: 'No patient ICN found'
+      end
+
+      def staging_custom_error
+        if Settings.vsp_environment != 'production' && @current_user.email == 'vets.gov.user+141@gmail.com'
+          raise Mobile::V0::Exceptions::CustomErrors.new(
+            title: 'Custom error title',
+            body: 'Custom error body. \n This explains to the user the details of the ongoing issue.',
+            source: 'VAOS',
+            telephone: '999-999-9999',
+            refreshable: true
+          )
+        end
       end
     end
   end

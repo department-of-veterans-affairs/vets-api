@@ -19,6 +19,7 @@ module MedicalRecords
     # LOINC codes for clinical notes
     PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
     DISCHARGE_SUMMARY = '18842-5' # Discharge summary
+    CONSULT_RESULT = '11488-4' # Consultation note
 
     # LOINC codes for vitals
     BLOOD_PRESSURE = '85354-9' # Blood Pressure
@@ -27,6 +28,7 @@ module MedicalRecords
     HEIGHT = '8302-2' # Height
     TEMPERATURE = '8310-5' # Temperature
     WEIGHT = '29463-7' # Weight
+    PULSE_OXIMETRY = '59408-5,2708-6, ' # Oxygen saturation in Arterial blood
 
     # LOINC codes for labs & tests
     MICROBIOLOGY = '79381-0' # Gastrointestinal pathogens panel
@@ -70,6 +72,8 @@ module MedicalRecords
     # @return [FHIR::Client]
     #
     def fhir_client
+      raise MedicalRecords::PatientNotFound if patient_fhir_id.nil?
+
       @fhir_client ||= sessionless_fhir_client(jwt_bearer_token)
     end
 
@@ -85,10 +89,8 @@ module MedicalRecords
 
     def list_allergies
       bundle = fhir_search(FHIR::AllergyIntolerance,
-                           {
-                             search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active' } },
-                             headers: { 'Cache-Control': 'no-cache' }
-                           })
+                           search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active',
+                                                   'verification-status:not': 'entered-in-error' } })
       sort_bundle(bundle, :recordedDate, :desc)
     end
 
@@ -98,10 +100,7 @@ module MedicalRecords
 
     def list_vaccines
       bundle = fhir_search(FHIR::Immunization,
-                           {
-                             search: { parameters: { patient: patient_fhir_id } },
-                             headers: { 'Cache-Control': 'no-cache' }
-                           })
+                           search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } })
       sort_bundle(bundle, :occurrenceDateTime, :desc)
     end
 
@@ -110,27 +109,30 @@ module MedicalRecords
     end
 
     def list_vitals
-      loinc_codes = "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT}"
-      bundle = fhir_search(FHIR::Observation, search: { parameters: { patient: patient_fhir_id, code: loinc_codes } })
+      # loinc_codes =
+      #   "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT},#{PULSE_OXIMETRY}"
+      bundle = fhir_search(FHIR::Observation,
+                           search: { parameters: { patient: patient_fhir_id, category: 'vital-signs',
+                                                   'status:not': 'entered-in-error' } })
       sort_bundle(bundle, :effectiveDateTime, :desc)
     end
 
     def list_conditions
-      bundle = fhir_search(FHIR::Condition, search: { parameters: { patient: patient_fhir_id } })
+      bundle = fhir_search(FHIR::Condition,
+                           search: { parameters: { patient: patient_fhir_id,
+                                                   'verification-status:not': 'entered-in-error' } })
       sort_bundle(bundle, :recordedDate, :desc)
     end
 
     def get_condition(condition_id)
-      fhir_search(FHIR::Condition, search: { parameters: { _id: condition_id, _include: '*' } })
+      fhir_read(FHIR::Condition, condition_id)
     end
 
     def list_clinical_notes
-      loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY}"
+      loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY},#{CONSULT_RESULT}"
       bundle = fhir_search(FHIR::DocumentReference,
-                           {
-                             search: { parameters: { patient: patient_fhir_id, type: loinc_codes } },
-                             headers: { 'Cache-Control': 'no-cache' }
-                           })
+                           search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
+                                                   'status:not': 'entered-in-error' } })
 
       # Sort the bundle of notes based on the date field appropriate to each note type.
       sort_bundle_with_criteria(bundle, :desc) do |resource|
@@ -141,7 +143,7 @@ module MedicalRecords
                      end
 
         case loinc_code
-        when PHYSICIAN_PROCEDURE_NOTE
+        when PHYSICIAN_PROCEDURE_NOTE, CONSULT_RESULT
           resource.date
         when DISCHARGE_SUMMARY
           resource.context&.period&.end
@@ -153,77 +155,17 @@ module MedicalRecords
       fhir_read(FHIR::DocumentReference, note_id)
     end
 
-    def get_diagnostic_report(record_id)
-      fhir_search(FHIR::DiagnosticReport, search: { parameters: { _id: record_id, _include: '*' } })
+    def list_labs_and_tests
+      bundle = fhir_search(FHIR::DiagnosticReport,
+                           search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } })
+      sort_bundle(bundle, :effectiveDateTime, :desc)
     end
 
-    ##
-    # Fetch Lab & Tests results for the given patient. This combines the results of three separate calls.
-    #
-    # @param patient_id [Fixnum] MHV patient ID
-    # @return [FHIR::Bundle]
-    #
-    def list_labs_and_tests(page_size = 999, page_num = 1)
-      combined_bundle = FHIR::Bundle.new
-      combined_bundle.type = 'searchset'
-
-      # Make the individual API calls.
-      labs_diagrep_chemhem = list_labs_chemhem_diagnostic_report
-      labs_diagrep_other = list_labs_other_diagnostic_report
-      labs_docref = list_labs_document_reference
-
-      # TODO: Figure out how to do this in threads.
-      # labs_diagrep_chemhem_thread = Thread.new { list_labs_chemhem_diagnostic_report(patient_id) }
-      # labs_diagrep_other_thread = Thread.new { list_labs_other_diagnostic_report(patient_id) }
-      # labs_docref_thread = Thread.new { list_labs_document_reference(patient_id) }
-      # labs_diagrep_chemhem_thread.join
-      # labs_diagrep_other_thread.join
-      # labs_docref_thread.join
-      # labs_diagrep_chemhem = labs_diagrep_chemhem_thread.value
-      # labs_diagrep_other = labs_diagrep_other_thread.value
-      # labs_docref = labs_docref_thread.value
-
-      # Merge the entry arrays into the combined bundle.
-      combined_bundle.entry.concat(labs_diagrep_chemhem.entry) if labs_diagrep_chemhem.entry
-      combined_bundle.entry.concat(labs_diagrep_other.entry) if labs_diagrep_other.entry
-      combined_bundle.entry.concat(labs_docref.entry) if labs_docref.entry
-
-      # Ensure an accurate total count for the combined bundle.
-      combined_bundle.total = (labs_diagrep_chemhem&.total || 0) + (labs_diagrep_other&.total || 0) +
-                              (labs_docref&.total || 0)
-
-      # Sort the combined_bundle.entry array by date in reverse chronological order
-      sort_lab_entries(combined_bundle.entry)
-
-      # Apply pagination
-      combined_bundle.entry = paginate_bundle_entries(combined_bundle.entry, page_size, page_num)
-
-      combined_bundle
+    def get_diagnostic_report(record_id)
+      fhir_read(FHIR::DiagnosticReport, record_id)
     end
 
     protected
-
-    ##
-    # Fetch Chemistry/Hematology results for the given patient
-    #
-    # @param patient_id [Fixnum] MHV patient ID
-    # @return [FHIR::Bundle]
-    #
-    def list_labs_chemhem_diagnostic_report
-      fhir_search(FHIR::DiagnosticReport,
-                  search: { parameters: { patient: patient_fhir_id, category: 'LAB' } })
-    end
-
-    ##
-    # Fetch Microbiology and Pathology results for the given patient
-    #
-    # @param patient_id [Fixnum] MHV patient ID
-    # @return [FHIR::Bundle]
-    #
-    def list_labs_other_diagnostic_report
-      loinc_codes = "#{MICROBIOLOGY},#{PATHOLOGY}"
-      fhir_search(FHIR::DiagnosticReport, search: { parameters: { patient: patient_fhir_id, code: loinc_codes } })
-    end
 
     ##
     # Fetch EKG and Radiology results for the given patient
@@ -234,7 +176,8 @@ module MedicalRecords
     def list_labs_document_reference
       loinc_codes = "#{EKG},#{RADIOLOGY}"
       fhir_search(FHIR::DocumentReference,
-                  search: { parameters: { patient: patient_fhir_id, type: loinc_codes } })
+                  search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
+                                          'status:not': 'entered-in-error' } })
     end
 
     ##
@@ -257,15 +200,18 @@ module MedicalRecords
     end
 
     ##
-    # Perform a FHIR search. Returns the first page of results only. Filters out FHIR records
-    # that are not active.
+    # Perform a FHIR search. Returns the first page of results only.
     #
     # @param fhir_model [FHIR::Model] The type of resource to search
     # @param params [Hash] The parameters to pass the search
     # @return [FHIR::ClientReply]
     #
     def fhir_search_query(fhir_model, params)
+      default_headers = { 'Cache-Control': 'no-cache' }
+      params[:headers] = default_headers.merge(params.fetch(:headers, {}))
+
       params[:search][:parameters].merge!(_count: DEFAULT_COUNT)
+
       result = fhir_client.search(fhir_model, params)
       handle_api_errors(result) if result.resource.nil?
       result

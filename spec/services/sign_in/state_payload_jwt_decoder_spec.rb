@@ -14,7 +14,8 @@ RSpec.describe SignIn::StatePayloadJwtDecoder do
                                          code_challenge_method:,
                                          type:,
                                          code_challenge:,
-                                         client_state:).perform
+                                         client_state:,
+                                         scope:).perform
     end
     let(:code_challenge) { Base64.urlsafe_encode64('some-safe-code-challenge') }
     let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
@@ -22,8 +23,10 @@ RSpec.describe SignIn::StatePayloadJwtDecoder do
     let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
     let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
     let(:client_id) { client_config.client_id }
-    let(:client_config) { create(:client_config) }
+    let(:client_config) { create(:client_config, shared_sessions:) }
     let(:created_at) { Time.zone.now.to_i }
+    let(:shared_sessions) { true }
+    let(:scope) { SignIn::Constants::Auth::DEVICE_SSO }
 
     let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
 
@@ -43,7 +46,8 @@ RSpec.describe SignIn::StatePayloadJwtDecoder do
           acr:,
           type:,
           client_id:,
-          created_at:
+          created_at:,
+          scope:
         }
       end
       let(:expected_error) { SignIn::Errors::StatePayloadSignatureMismatchError }
@@ -73,6 +77,7 @@ RSpec.describe SignIn::StatePayloadJwtDecoder do
         expect(decoded_state_payload.type).to eq(type)
         expect(decoded_state_payload.client_id).to eq(client_id)
         expect(decoded_state_payload.created_at).to eq(created_at)
+        expect(decoded_state_payload.scope).to eq(scope)
       end
     end
   end

@@ -12,8 +12,7 @@ module Vye
 
       after_action :verify_authorized
 
-      rescue_from Pundit::NotAuthorizedError, with: -> { head :forbidden }
-      rescue_from FeatureDisabled, with: -> { head :bad_request }
+      rescue_from FeatureDisabled, with: -> { render json: { error: 'Bad Request' }, status: :bad_request }
 
       private
 
@@ -24,7 +23,7 @@ module Vye
       end
 
       def load_user_info
-        @user_info = Vye::UserInfo.find_and_update_icn(user: current_user)
+        @user_info = Vye::UserProfile.find_and_update_icn(user: current_user)&.active_user_info
       end
     end
   end

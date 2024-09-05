@@ -56,40 +56,149 @@ RSpec.describe BenefitsClaims::Service do
         end
       end
 
+      describe "when requesting a user's power of attorney" do
+        context 'when the user has an active power of attorney' do
+          it 'retrieves the power of attorney from the Lighthouse API' do
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/200_response') do
+              response = @service.get_power_of_attorney
+              expect(response['data']['type']).to eq('individual')
+              expect(response['data']['attributes']['code']).to eq('067')
+            end
+          end
+        end
+
+        context 'when the user does not have an active power of attorney' do
+          it 'retrieves the power of attorney from the Lighthouse API' do
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/200_empty_response') do
+              response = @service.get_power_of_attorney
+              expect(response['data']).to eq({})
+            end
+          end
+        end
+      end
+
       describe 'when posting a form526' do
-        it 'when given a full request body, posts to the Lighthouse API' do
-          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
-            response = @service.submit526({ data: { attributes: {} } }, '', '', { body_only: true })
-            expect(response).to eq('1234567890')
+        it 'has formatted request body data correctly' do
+          body = @service.send(:prepare_submission_body,
+                               {
+                                 'serviceInformation' => {
+                                   'confinements' => []
+                                 },
+                                 'toxicExposure' => {
+                                   'multipleExposures' => [],
+                                   'herbicideHazardService' => {
+                                     'serviceDates' => {
+                                       'beginDate' => '1991-03-01',
+                                       'endDate' => '1992-01-01'
+                                     }
+                                   }
+                                 }
+                               })
+
+          expect(body).to eq({
+                               'data' => {
+                                 'type' => 'form/526',
+                                 'attributes' => {
+                                   'serviceInformation' => {},
+                                   'toxicExposure' => {
+                                     'herbicideHazardService' => {
+                                       'serviceDates' => {
+                                         'beginDate' => '1991-03-01',
+                                         'endDate' => '1992-01-01'
+                                       }
+                                     }
+                                   }
+                                 }
+                               }
+                             })
+        end
+
+        context 'when posting to the default /synchronous endpoint' do
+          it 'when given a full request body, posts to the Lighthouse API' do
+            VCR.use_cassette('lighthouse/benefits_claims/submit526/200_synchronous_response') do
+              response = @service.submit526({ data: { attributes: {} } }, '', '', { body_only: true })
+              response_json = JSON.parse(response)
+              expect(response_json['data']['id']).to eq('46285849-9d82-4001-8572-2323d521eb8c')
+              expect(response_json['data']['attributes']['claimId']).to eq('12345678')
+            end
+          end
+
+          it 'when given only the form data in the request body, posts to the Lighthouse API' do
+            VCR.use_cassette('lighthouse/benefits_claims/submit526/200_synchronous_response') do
+              response = @service.submit526({}, '', '', { body_only: true })
+              response_json = JSON.parse(response)
+              expect(response_json['data']['id']).to eq('46285849-9d82-4001-8572-2323d521eb8c')
+              expect(response_json['data']['attributes']['claimId']).to eq('12345678')
+            end
+          end
+
+          it 'returns only the response body' do
+            VCR.use_cassette('lighthouse/benefits_claims/submit526/200_synchronous_response') do
+              body = @service.submit526({ data: { attributes: {} } }, '', '', { body_only: true })
+              response_json = JSON.parse(body)
+              expect(response_json['data']['id']).to eq('46285849-9d82-4001-8572-2323d521eb8c')
+              expect(response_json['data']['attributes']['claimId']).to eq('12345678')
+            end
+          end
+
+          it 'returns the whole response' do
+            VCR.use_cassette('lighthouse/benefits_claims/submit526/200_synchronous_response') do
+              raw_response = @service.submit526({}, '', '', { body_only: false })
+              claim_id = JSON.parse(raw_response.body).dig('data', 'attributes', 'claimId').to_i
+              raw_response_struct = OpenStruct.new({
+                                                     body: { claim_id: },
+                                                     status: raw_response.status
+                                                   })
+              response = EVSS::DisabilityCompensationForm::FormSubmitResponse
+                         .new(raw_response_struct.status, raw_response_struct)
+
+              expect(response.status).to eq(200)
+              expect(response.claim_id).to eq(claim_id)
+            end
           end
         end
 
-        it 'when given a only the form data in the request body, posts to the Lighthouse API' do
-          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
-            response = @service.submit526({}, '', '', { body_only: true })
-            expect(response).to eq('1234567890')
+        context 'when posting to the /validate endpoint' do
+          it 'when given a full request body, posts to the Lighthouse API' do
+            VCR.use_cassette('lighthouse/benefits_claims/validate526/200_synchronous_response') do
+              raw_response = @service.validate526({ data: { attributes: {} } }, '', '', { body_only: true })
+              response_json = JSON.parse(raw_response)
+              expect(response_json.dig('data', 'attributes', 'status')).to eq('valid')
+            end
+          end
+
+          it 'when given only the form data in the request body, posts to the Lighthouse API' do
+            VCR.use_cassette('lighthouse/benefits_claims/validate526/200_synchronous_response') do
+              raw_response = @service.validate526({}, '', '', { body_only: true })
+              response_json = JSON.parse(raw_response)
+              expect(response_json.dig('data', 'attributes', 'status')).to eq('valid')
+            end
+          end
+
+          it 'returns only the response body' do
+            VCR.use_cassette('lighthouse/benefits_claims/validate526/200_synchronous_response') do
+              body = @service.validate526({ data: { attributes: {} } }, '', '', { body_only: true })
+              response_json = JSON.parse(body)
+              expect(response_json.dig('data', 'attributes', 'status')).to eq('valid')
+            end
+          end
+
+          it 'returns the whole response' do
+            VCR.use_cassette('lighthouse/benefits_claims/validate526/200_synchronous_response') do
+              raw_response = @service.validate526({}, '', '', { body_only: false })
+              response_json = JSON.parse(raw_response.body)
+              expect(raw_response.status).to eq(200)
+              expect(response_json.dig('data', 'attributes', 'status')).to eq('valid')
+            end
           end
         end
 
-        it 'returns only the response body' do
-          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
-            body = @service.submit526({ data: { attributes: {} } }, '', '', { body_only: true })
-            expect(body).to eq('1234567890')
-          end
-        end
-
-        it 'returns the whole response' do
-          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
-            raw_response = @service.submit526({}, '', '', { body_only: false })
-            raw_response_struct = OpenStruct.new({
-                                                   body: { claim_id: raw_response.body },
-                                                   status: raw_response.status
-                                                 })
-            response = EVSS::DisabilityCompensationForm::FormSubmitResponse
-                       .new(raw_response_struct.status, raw_response_struct)
-
-            expect(response.status).to eq(200)
-            expect(response.claim_id).to eq(1_234_567_890)
+        context 'when given the option to use generate pdf' do
+          it 'calls the generate pdf endpoint' do
+            VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
+              raw_response = @service.submit526({}, '', '', { generate_pdf: true })
+              expect(raw_response.body).to eq('No example available')
+            end
           end
         end
       end

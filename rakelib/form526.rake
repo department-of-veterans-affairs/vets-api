@@ -1,5 +1,14 @@
 # frozen_string_literal: true
 
+require 'csv'
+require 'date'
+
+require 'reports/uploader'
+
+# Used to provide feedback while processing
+# a collection of Form526Submission instances.
+@form526_verbose = ENV.key?('FORM526_VERBOSE')
+
 namespace :form526 do
   desc <<~HEREDOC
     Get all submissions within a date period:
@@ -714,5 +723,176 @@ namespace :form526 do
     end
 
     Form526Submission.where(id: args.extras).find_each { |sub| puts_mpi_profile sub }
+  end
+
+  # Check a selected collection of form526_submissions
+  # (class: Form526Submission) for valid form526 content.
+  #
+  desc 'Check selected form526 submissions for errors'
+  task :lh_validate, %i[local_file start_date end_date] => :environment do |task_name, args|
+    params = args.to_h
+
+    unless (2..3).include?(params.size)
+      abort_with_message <<~USAGE
+        Send records from the form526_submissions table through
+        the lighthouse validate endpoint selecting records based
+        on their created_at timestamp.  Produces a CSV
+        file that shows the results.
+
+        Usage: bundle exec rake #{task_name}[local_file,YYYYMMDD,YYYYNNDD]
+
+        local_file(String) when 'local' the CSV file is saved to
+        the local file system.  Otherwise it is uploaded to S3.
+
+          The filename will be in the form of
+          "form526_YYYY-MM-DD_YYYY-MM-DD_validation.csv" using the
+          start and end dates.  If the end date is not
+          provided the value "9999-99-99" will be used
+          in the file name.
+
+        These two parameters control which records from the
+        form526_submissions table are selected based upon
+        the record's created_at value.
+
+        start_date(YYYYMMDD)
+        end_date(YYYYMMDD) **Optional**
+
+          When the end date is not provided the selections
+          of records will be on or after start date.
+          When present the query is between start and end dates inclusive.
+
+        form526_verbose? is #{form526_verbose?}
+        Export or unset system environment variable FORM526_VERGOSE as desired
+        to get feedback while processing records.
+      USAGE
+    end
+
+    @local_file = validate_local_file(params[:local_file])
+    start_date  = validate_yyyymmdd(params[:start_date])
+    end_date    = (validate_yyyymmdd(params[:end_date]) if params[:end_date])
+
+    if params.size == 3 && (start_date > end_date)
+      abort_with_message "ERROR:  start_date (#{start_date}) is after end_date (#{end_date})"
+    end
+
+    csv_filename  = "form526_#{start_date}_#{end_date || '9999-99-99'}_validation.csv"
+    csv_header    = %w[RecID Original Valid? Error]
+
+    # SMELL:  created_at is not indexed
+    #         Not a problem because this is
+    #         a manually launched task with
+    #         an expected low number of records
+
+    submissions = if end_date.nil?
+                    Form526Submission.where('created_at >= ?', start_date)
+                  else
+                    Form526Submission.where(created_at: start_date..end_date)
+                  end
+
+    csv_content = CSV.generate do |csv|
+      csv << csv_header
+
+      submissions.each do |submission|
+        base_row   = [submission.id]
+        base_row  << original_success_indicator(submission)
+        base_row  << submission.form_content_valid?
+
+        # if it was valid then append no errors and
+        # do the next submission
+        if base_row.last
+          base_row << ''
+          csv << base_row
+          puts base_row.join(', ') if form526_verbose?
+          next
+        end
+
+        errors = submission.lighthouse_validation_errors
+
+        if form526_verbose?
+          print base_row.join(', ')
+          puts " has #{errors.size} errors."
+        end
+
+        errors.each do |error|
+          row   = base_row.dup
+          row  << error['title']
+          csv << row
+          next
+        end
+      end
+    end
+
+    print "Saving #{csv_filename} " if form526_verbose?
+
+    if local_file?
+      print '... ' if form526_verbose?
+      csv_file = File.new(csv_filename, 'w')
+      csv_file.write csv_content
+      csv_file.close
+    else
+      print 'to S3 ... ' if form526_verbose?
+
+      s3_resource   = Reports::Uploader.new_s3_resource
+      target_bucket = Reports::Uploader.s3_bucket
+      object        = s3_resource.bucket(target_bucket).object(csv_filename)
+
+      object.put(body: csv_content)
+    end
+
+    puts 'Done.' if form526_verbose?
+  end
+
+  ############################################
+  ## Utility Methods
+
+  def validate_local_file(a_string) = a_string.downcase == 'local'
+  def local_file?                   = @local_file
+
+  # Ensure that a date string is correctly formatted
+  # Returns a Date object
+  # abort if invalid
+  def validate_yyyymmdd(a_string)
+    if a_string.match?(/\A[0-9]{8}\z/)
+      begin
+        Date.strptime(a_string, '%Y%m%d')
+      rescue Date::Error
+        abort_with_message "ERROR: bad date (#{a_string}) must be 8 digits in format YYYYMMDD"
+      end
+    else
+      abort_with_message "ERROR: bad date (#{a_string}) must be 8 digits in format YYYYMMDD"
+    end
+  end
+
+  # Send error message to STDOUT and
+  # then abort
+  #
+  def abort_with_message(a_string)
+    print "\n#{a_string}\n\n"
+    abort
+  end
+
+  def form526_verbose?
+    @form526_verbose
+  end
+
+  # Use the form526_job_statuses has_many link
+  # to get the OSI value
+  #
+  def original_success_indicator(a_submission_record)
+    job_status = a_submission_record
+                 .form526_job_statuses
+                 .order(:updated_at)
+                 .pluck(:job_class, :status)
+                 .to_h
+
+    if job_status.empty?
+      'Not Processed'
+    elsif job_status['SubmitForm526AllClaim'] == 'success'
+      'Primary Success'
+    elsif job_status['BackupSubmission'] == 'success'
+      'Backup Success'
+    else
+      'Unknown'
+    end
   end
 end

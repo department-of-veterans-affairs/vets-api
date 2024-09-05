@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8080/v3/contention-classification/classifier
+    uri: http://localhost:8120/classifier
     body:
       encoding: UTF-8
       string: '{"diagnostic_code":5235,"claim_id":190,"form526_submission_id":179}'

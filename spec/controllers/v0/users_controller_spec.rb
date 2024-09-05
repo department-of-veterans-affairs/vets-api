@@ -38,7 +38,6 @@ RSpec.describe V0::UsersController, type: :controller do
         expect(response).to be_successful
 
         claims = json.dig('attributes', 'profile', 'claims')
-        expect(claims['ch33_bank_accounts']).to be(false)
         expect(claims['communication_preferences']).to be(false)
         expect(claims['connected_apps']).to be(true)
         expect(claims['military_history']).to be(false)
@@ -57,6 +56,7 @@ RSpec.describe V0::UsersController, type: :controller do
     before do
       sign_in_as(user)
       Flipper.disable(:profile_user_claims)
+      create(:user_verification, idme_uuid: user.idme_uuid)
     end
 
     it 'returns a JSON user profile with a bad_address' do
@@ -78,6 +78,27 @@ RSpec.describe V0::UsersController, type: :controller do
       expect(claims).to be(nil)
     end
 
+    context 'onboarding' do
+      it 'returns a JSON user with onboarding information when the feature toggle is enabled' do
+        Flipper.enable(:veteran_onboarding_beta_flow, user)
+        get :show
+        json = json_body_for(response)
+        expect(response).to be_successful
+        onboarding = json.dig('attributes', 'onboarding')
+        expect(onboarding['show']).to be(true)
+      end
+
+      it 'returns a JSON user without onboarding information when the feature toggle is disabled' do
+        Flipper.disable(:veteran_onboarding_beta_flow)
+        Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
+        get :show
+        json = json_body_for(response)
+        expect(response).to be_successful
+        onboarding = json.dig('attributes', 'onboarding')
+        expect(onboarding['show']).to be(nil)
+      end
+    end
+
     context 'when profile claims enabled' do
       before do
         Flipper.enable(:profile_user_claims)
@@ -89,7 +110,6 @@ RSpec.describe V0::UsersController, type: :controller do
         expect(response).to be_successful
 
         claims = json.dig('attributes', 'profile', 'claims')
-        expect(claims['ch33_bank_accounts']).to be(true)
         expect(claims['communication_preferences']).to be(true)
         expect(claims['connected_apps']).to be(true)
         expect(claims['military_history']).to be(true)

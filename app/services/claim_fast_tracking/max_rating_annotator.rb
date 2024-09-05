@@ -4,40 +4,55 @@ require 'virtual_regional_office/client'
 
 module ClaimFastTracking
   class MaxRatingAnnotator
+    SELECT_DISABILITIES = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
+    EXCLUDED_DIGESTIVE_CODES = [7318, 7319, 7327, 7336, 7346].freeze
+
     def self.annotate_disabilities(rated_disabilities_response)
-      if Flipper.enabled?(:disability_526_maximum_rating_api)
-        annotate_disabilities_api_enabled(rated_disabilities_response)
-      else
-        annotate_disabilities_api_disabled(rated_disabilities_response)
-      end
-    end
-
-    def self.annotate_disabilities_api_disabled(rated_disabilities_response)
-      tinnitus = ClaimFastTracking::DiagnosticCodes::TINNITUS
-      rated_disabilities_response.rated_disabilities.each do |disability|
-        disability.maximum_rating_percentage = 10 if disability.diagnostic_code == tinnitus
-      end
-    end
-
-    def self.annotate_disabilities_api_enabled(rated_disabilities_response)
       return if rated_disabilities_response.rated_disabilities.blank?
+
+      log_hyphenated_diagnostic_codes(rated_disabilities_response.rated_disabilities)
 
       diagnostic_codes = rated_disabilities_response.rated_disabilities
                                                     .compact # filter out nil entries in rated_disabilities
+                                                    .select { |rd| eligible_for_request?(rd) } # select only eligible
                                                     .map(&:diagnostic_code) # map to diagnostic_code field in rating
-                                                    .select { |dc| dc.is_a?(Integer) } # select only integer values
       return rated_disabilities_response if diagnostic_codes.empty?
 
       ratings = get_ratings(diagnostic_codes)
-      if ratings.present?
-        ratings.each do |rating|
-          rated_disability = rated_disabilities_response.rated_disabilities.find do |disability|
-            disability.diagnostic_code == rating['diagnostic_code']
-          end
-          rated_disability.maximum_rating_percentage = rating['max_rating'] if rated_disability.present?
-        end
+      return rated_disabilities_response unless ratings
+
+      ratings_hash = ratings.to_h { |rating| [rating['diagnostic_code'], rating['max_rating']] }
+      rated_disabilities_response.rated_disabilities.each do |rated_disability|
+        max_rating = ratings_hash[rated_disability.diagnostic_code]
+        rated_disability.maximum_rating_percentage = max_rating if max_rating
       end
       rated_disabilities_response
+    end
+
+    def self.log_hyphenated_diagnostic_codes(rated_disabilities)
+      rated_disabilities.each do |dis|
+        Rails.logger.info('Max CFI rated disability',
+                          diagnostic_code: dis&.diagnostic_code,
+                          diagnostic_code_type: diagnostic_code_type(dis),
+                          hyphenated_diagnostic_code: dis&.hyphenated_diagnostic_code)
+      end
+    end
+
+    def self.diagnostic_code_type(rated_disability)
+      case rated_disability&.diagnostic_code
+      when nil
+        :missing_diagnostic_code
+      when 7200..7399
+        :digestive_system
+      when 6300..6399
+        :infectious_disease
+      else
+        if (rated_disability&.hyphenated_diagnostic_code || 0) % 100 == 99
+          :analogous_code
+        else
+          :primary_max_rating
+        end
+      end
     end
 
     def self.get_ratings(diagnostic_codes)
@@ -49,6 +64,15 @@ module ClaimFastTracking
       nil
     end
 
-    private_class_method :annotate_disabilities_api_disabled, :annotate_disabilities_api_enabled, :get_ratings
+    def self.eligible_for_request?(rated_disability)
+      return false if %i[infectious_disease missing_diagnostic_code].include?(diagnostic_code_type(rated_disability))
+
+      dc = rated_disability.diagnostic_code
+      return false if EXCLUDED_DIGESTIVE_CODES.include?(dc)
+
+      Flipper.enabled?(:disability_526_maximum_rating_api_all_conditions) || SELECT_DISABILITIES.include?(dc)
+    end
+
+    private_class_method :get_ratings
   end
 end

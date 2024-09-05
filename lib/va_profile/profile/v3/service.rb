@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
+require_relative 'bio_path_builder'
 require_relative 'configuration'
+require_relative 'health_benefit_bio_response'
+require_relative 'military_occupation_response'
 
 module VAProfile
   module Profile
@@ -13,16 +16,44 @@ module VAProfile
         OID = '2.16.840.1.113883.3.42.10001.100001.12'
         AAID = '^NI^200DOD^USDOD'
 
+        attr_reader :user
+
         def initialize(user)
           @user = user
           super()
         end
 
+        def get_health_benefit_bio
+          oid = MPI::Constants::VA_ROOT_OID
+          path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
+          service_response = perform(:post, path, { bios: [{ bioPath: 'healthBenefit' }] })
+          response = VAProfile::Profile::V3::HealthBenefitBioResponse.new(service_response)
+          Sentry.set_extras(response.debug_data) unless response.ok?
+          response
+        end
+
         def get_military_info
-          config.post(path(@user.edipi), body)
+          config.submit(path(@user.edipi), body)
+        end
+
+        def get_military_occupations
+          builder = VAProfile::Profile::V3::BioPathBuilder.new(:military_occupations)
+          response = submit(builder.params)
+          VAProfile::Profile::V3::MilitaryOccupationResponse.new(response)
+        end
+
+        def submit(params)
+          config.submit(path(@user.edipi), params)
         end
 
         private
+
+        def icn_with_aaid
+          return "#{user.idme_uuid}^PN^200VIDM^USDVA" if user.idme_uuid
+          return "#{user.logingov_uuid}^PN^200VLGN^USDVA" if user.logingov_uuid
+
+          nil
+        end
 
         def body
           {

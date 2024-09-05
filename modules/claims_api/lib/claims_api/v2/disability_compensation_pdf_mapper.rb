@@ -56,8 +56,16 @@ module ClaimsApi
         @pdf_data[:data][:attributes].delete(:claimantCertification)
         claim_date_and_signature
         claim_process_type
+        claim_notes
 
         @pdf_data
+      end
+
+      def claim_notes
+        if @auto_claim&.dig('claimNotes').present?
+          @pdf_data[:data][:attributes][:overflowText] = @auto_claim&.dig('claimNotes')
+          @pdf_data[:data][:attributes].delete(:claimNotes)
+        end
       end
 
       def claim_process_type
@@ -76,7 +84,7 @@ module ClaimsApi
           new_homeless_info = @pdf_data&.dig(:data, :attributes, :homeless)
 
           homeless_phone_info(homeless_info, new_homeless_info) if homeless_info && new_homeless_info
-          if @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber].empty?
+          if @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber].blank?
             @pdf_data[:data][:attributes][:homelessInformation].delete(:pointOfContactNumber)
           end
           homeless_at_risk_or_currently
@@ -94,21 +102,28 @@ module ClaimsApi
         international = convert_phone(poc_international) if poc_international.present?
 
         homeless_info[:pointOfContactNumber][:telephone] = phone unless phone.nil?
-        homeless_info[:pointOfContactNumber].delete(:telephone) if phone.nil?
+        homeless_info[:pointOfContactNumber]&.delete(:telephone) if phone.nil?
         homeless_info[:pointOfContactNumber][:internationalTelephone] = international unless international.nil?
-        homeless_info[:pointOfContactNumber].delete(:internationalTelephone) if international.nil?
+        homeless_info[:pointOfContactNumber]&.delete(:internationalTelephone) if international.nil?
       end
 
       def homeless_at_risk_or_currently
-        at_risk = @auto_claim&.dig('homeless', 'riskOfBecomingHomeless', 'livingSituationOptions').present?
-        currently = @auto_claim&.dig('homeless', 'pointOfContact').present?
-
-        if currently && !at_risk
+        currently = @auto_claim&.dig('homeless', 'isCurrentlyHomeless')&.to_s
+        if currently == 'true'
           @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouCurrentlyHomeless: 'YES')
-        else
-          homeless = @pdf_data[:data][:attributes][:homelessInformation].present?
-          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: 'YES') if homeless
+        elsif currently == 'false'
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouCurrentlyHomeless: 'NO')
         end
+
+        at_risk = @auto_claim&.dig('homeless', 'isAtRiskOfBecomingHomeless').to_s
+        if at_risk == 'true'
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: 'YES')
+        elsif at_risk == 'false'
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: 'NO')
+        end
+
+        @pdf_data[:data][:attributes][:homelessInformation]&.delete(:isCurrentlyHomeless)
+        @pdf_data[:data][:attributes][:homelessInformation]&.delete(:isAtRiskOfBecomingHomeless)
 
         @pdf_data
       end
@@ -167,13 +182,17 @@ module ClaimsApi
       def chg_addr_zip
         zip_first_five = @auto_claim&.dig('changeOfAddress', 'zipFirstFive') || ''
         zip_last_four = @auto_claim&.dig('changeOfAddress', 'zipLastFour') || ''
+        international_zip = @auto_claim&.dig('changeOfAddress', 'internationalPostalCode')
         zip = if zip_last_four.present?
                 "#{zip_first_five}-#{zip_last_four}"
+              elsif international_zip.present?
+                international_zip
               else
                 zip_first_five
               end
         addr = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress).present?
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress].merge!(zip:) if addr
+        @pdf_data[:data][:attributes][:changeOfAddress].delete(:internationalPostalCode)
       end
 
       def toxic_exposure_attributes
@@ -195,10 +214,8 @@ module ClaimsApi
       # rubocop:disable Layout/LineLength
       def gulfwar_hazard
         gulf = @pdf_data&.dig(:data, :attributes, :toxicExposure, :gulfWarHazardService)
-        if gulf.present?
-          served_gulf_loc = @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations]
-          served_gulf_loc == 'NO' || served_gulf_loc.blank? ? 'NO' : 'YES'
-        end
+        return if gulf.blank?
+
         if gulf[:serviceDates].present?
           gulfwar_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:serviceDates][:beginDate]
           if gulfwar_service_dates_begin.present?
@@ -216,8 +233,10 @@ module ClaimsApi
       end
 
       def herbicide_hazard
-        herb = @pdf_data&.dig(:data, :attributes, :toxicExposure, :herbicideHazardService).present?
-        if herb
+        herb = @pdf_data&.dig(:data, :attributes, :toxicExposure, :herbicideHazardService)
+        return if herb.blank?
+
+        if herb[:serviceDates].present?
           herbicide_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:serviceDates][:beginDate]
           if herbicide_service_dates_begin.present?
             @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates][:start] =
@@ -230,15 +249,14 @@ module ClaimsApi
               make_date_object(herbicide_service_dates_end, herbicide_service_dates_end.length)
           end
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates].delete(:endDate)
-          served_in_herbicide_hazard_locations = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations] =
-            served_in_herbicide_hazard_locations ? 'YES' : 'NO'
         end
       end
 
       def additional_exposures
-        add = @pdf_data&.dig(:data, :attributes, :toxicExposure, :additionalHazardExposures).present?
-        if add
+        add = @pdf_data&.dig(:data, :attributes, :toxicExposure, :additionalHazardExposures)
+        return if add.blank?
+
+        if add[:exposureDates].present?
           additional_exposure_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:additionalHazardExposures][:exposureDates][:beginDate]
           if additional_exposure_dates_begin.present?
             @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates][:start] =
@@ -255,32 +273,44 @@ module ClaimsApi
       end
 
       def multiple_exposures # rubocop:disable Metrics/MethodLength
-        multi = @pdf_data&.dig(:data, :attributes, :toxicExposure, :multipleExposures).present?
-        if multi
+        if @pdf_data&.dig(:data, :attributes, :toxicExposure, :multipleExposures).present?
           @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures].each_with_index do |exp, index|
-            deep_compact(exp)
-            if exp.empty?
-              @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].delete_at(index)
-            else
+            if exp[:exposureDates].present?
               multiple_service_dates_begin = exp[:exposureDates][:beginDate]
               if multiple_service_dates_begin.present?
                 @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:start] =
                   make_date_object(multiple_service_dates_begin, multiple_service_dates_begin.length)
               end
               @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:beginDate)
+
               multiple_service_dates_end = exp[:exposureDates][:endDate]
               if multiple_service_dates_end.present?
                 @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:end] =
                   make_date_object(multiple_service_dates_end, multiple_service_dates_end.length)
               end
               @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:endDate)
+            else
+              @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index].delete(:exposureDates)
             end
+            clean_up_exposure(exp, index)
           end
           if @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].empty?
             @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure].delete(:multipleExposures)
           end
         end
         @pdf_data
+      end
+
+      def clean_up_exposure(exp, idx)
+        deep_compact(exp)
+
+        if @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][idx][:exposureDates].empty?
+          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][idx].delete(:exposureDates)
+        end
+
+        if exp.empty?
+          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].delete_at(idx)
+        end
       end
 
       def deep_compact(hash)
@@ -360,8 +390,11 @@ module ClaimsApi
       def zip
         zip_first_five = @auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipFirstFive') || ''
         zip_last_four = @auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipLastFour') || ''
+        international_zip = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress, :internationalPostalCode)
         zip = if zip_last_four.present?
                 "#{zip_first_five}-#{zip_last_four}"
+              elsif international_zip.present?
+                international_zip
               else
                 zip_first_five
               end
@@ -369,6 +402,7 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].merge!(zip:) if mailing_addr
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipFirstFive)
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipLastFour)
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:internationalPostalCode)
 
         @pdf_data
       end
@@ -396,61 +430,35 @@ module ClaimsApi
 
       def disability_attributes
         @pdf_data[:data][:attributes][:claimInformation] = {}
-        @pdf_data[:data][:attributes][:claimInformation].merge!(
-          { disabilities: [] }
-        )
         conditions_related_to_exposure?
-
-        disabilities = transform_disabilities
-
-        details = disabilities[:data][:attributes][:claimInformation][:disabilities].map(
-          &:deep_symbolize_keys
-        )
-        @pdf_data[:data][:attributes][:claimInformation][:disabilities] = details
-
+        @pdf_data[:data][:attributes][:claimInformation][:disabilities] = transform_disabilities
         @pdf_data[:data][:attributes].delete(:disabilities)
-        @pdf_data
       end
 
-      def transform_disabilities # rubocop:disable Metrics/MethodLength
-        d2 = []
-        claim_disabilities = @auto_claim&.dig('disabilities')&.map do |disability|
-          disability['disability'] = disability['name']
-          if disability['approximateDate'].present?
-            approx_date = make_date_string_month_first(disability['approximateDate'], disability['approximateDate'].length)
+      def transform_disabilities
+        [].tap do |disabilities_list|
+          @auto_claim&.dig('disabilities')&.map do |disability|
+            dis_name = disability['name']
+            dis_date = make_date_string_month_first(disability['approximateDate'], disability['approximateDate'].length) if disability['approximateDate'].present?
+            exposure = disability['exposureOrEventOrInjury']
+            service_relevance = disability['serviceRelevance']
 
-            disability['approximateDate'] = approx_date
-          end
-          disability.delete('name')
-          disability.delete('classificationCode')
-          disability.delete('ratedDisabilityId')
-          disability.delete('diagnosticCode')
-          disability.delete('disabilityActionType')
-          disability.delete('isRelatedToToxicExposure')
-          sec_dis = disability['secondaryDisabilities']&.map do |secondary_disability|
-            # if secondary disability is present a name is required
-            # so it is safe to assume both names are present
-            secondary_disability['disability'] = "#{secondary_disability['name']} secondary to: #{disability['disability']}"
-            if secondary_disability['approximateDate'].present?
-              approx_date = make_date_string_month_first(secondary_disability['approximateDate'], secondary_disability['approximateDate'].length)
-              secondary_disability['approximateDate'] = approx_date
+            disabilities_list << build_disability_item(dis_name, dis_date, exposure, service_relevance)
+            if disability['secondaryDisabilities'].present?
+              disabilities_list << disability['secondaryDisabilities']&.map do |secondary_disability|
+                dis_name = "#{secondary_disability['name']} secondary to: #{disability['name']}"
+                dis_date = make_date_string_month_first(secondary_disability['approximateDate'], secondary_disability['approximateDate'].length) if secondary_disability['approximateDate'].present?
+                exposure = disability['exposureOrEventOrInjury']
+                service_relevance = secondary_disability['serviceRelevance']
+                build_disability_item(dis_name, dis_date, exposure, service_relevance)
+              end
             end
-            secondary_disability.delete('name')
-            secondary_disability.delete('classificationCode')
-            secondary_disability.delete('ratedDisabilityId')
-            secondary_disability.delete('diagnosticCode')
-            secondary_disability.delete('disabilityActionType')
-            secondary_disability.delete('isRelatedToToxicExposure')
-            secondary_disability
           end
-          d2 << sec_dis
-          disability.delete('secondaryDisabilities')
-          disability
-        end
-        claim_disabilities << d2
-        @pdf_data[:data][:attributes][:claimInformation][:disabilities] = claim_disabilities.flatten.compact
+        end.flatten
+      end
 
-        @pdf_data
+      def build_disability_item(disability, approximate_date, exposure, service_relevance)
+        { disability:, approximateDate: approximate_date, exposureOrEventOrInjury: exposure, serviceRelevance: service_relevance }.compact
       end
 
       def conditions_related_to_exposure?
@@ -608,19 +616,20 @@ module ClaimsApi
       end
 
       def confinements
-        return if @pdf_data[:data][:attributes][:serviceInformation][:confinements].blank?
+        if @pdf_data[:data][:attributes][:serviceInformation][:confinements].blank?
+          return @pdf_data[:data][:attributes][:serviceInformation].delete(:confinements)
+        end
 
         si = []
         @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = { confinementDates: [] }
         @pdf_data[:data][:attributes][:serviceInformation][:confinements].map do |confinement|
           start_date =
-            make_date_object(confinement[:approximateBeginDate], confinement[:approximateBeginDate].length)
+            make_date_object(confinement[:approximateBeginDate], confinement[:approximateBeginDate]&.length)
           end_date =
-            make_date_object(confinement[:approximateEndDate], confinement[:approximateEndDate].length)
+            make_date_object(confinement[:approximateEndDate], confinement[:approximateEndDate]&.length)
 
-          si.push({
-                    start: start_date, end: end_date
-                  })
+          info = deep_compact({ start: start_date, end: end_date })
+          si.push(info)
           si
         end
         pow = si.present?
@@ -652,7 +661,8 @@ module ClaimsApi
 
           area_code = reserves&.dig(:unitPhone, :areaCode)
           phone_number = reserves&.dig(:unitPhone, :phoneNumber)
-          reserves[:unitPhoneNumber] = convert_phone(area_code + phone_number) if area_code && phone_number
+          phone_number&.delete! '-'
+          reserves[:unitPhoneNumber] = (area_code + phone_number) if area_code && phone_number
           reserves.delete(:unitPhone)
 
           reserves[:receivingInactiveDutyTrainingPay] = handle_yes_no(reserves[:receivingInactiveDutyTrainingPay])
@@ -702,12 +712,20 @@ module ClaimsApi
         first_name = @auth_headers[:va_eauth_firstName]
         last_name = @auth_headers[:va_eauth_lastName]
         name = "#{first_name} #{last_name}"
-        date = make_date_object(@created_at, @created_at.length) if @created_at.present?
+        date_signed = get_date_signed
         @pdf_data[:data][:attributes].merge!(claimCertificationAndSignature: {
-                                               dateSigned: date,
+                                               dateSigned: date_signed,
                                                signature: name
                                              })
         @pdf_data[:data][:attributes].delete(:claimDate)
+      end
+
+      def get_date_signed
+        # generate_pdf allows for an optional claimDate on its schema
+        claim_date_value = @pdf_data.dig(:data, :attributes, :claimDate)
+        claim_date_obj = make_date_object(claim_date_value, claim_date_value.length) if claim_date_value.present?
+        date = make_date_object(@created_at, @created_at.length) if @created_at.present?
+        claim_date_obj || date
       end
 
       def get_service_pay
@@ -832,7 +850,7 @@ module ClaimsApi
 
       def make_date_object(date, date_length)
         year, month, day = regex_date_conversion(date)
-        return if year.nil?
+        return if year.nil? || date_length.nil?
 
         if date_length == 4
           { year: }
@@ -845,7 +863,7 @@ module ClaimsApi
 
       def make_date_string_month_first(date, date_length)
         year, month, day = regex_date_conversion(date)
-        return if year.nil?
+        return if year.nil? || date_length.nil?
 
         if date_length == 4
           year.to_s

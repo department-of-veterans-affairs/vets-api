@@ -37,7 +37,6 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
   end
 
   describe '#disclosure_for', run_at: '2017-01-04 03:00:00 EDT' do
-    today = '2017-01-04'
     before do
       subject.instance_variable_set(:@applicant, OpenStruct.new(benefitsRelinquishedDate: Time.zone.today))
     end
@@ -45,10 +44,10 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
     { CH32: 'Chapter 32',
       CH30: 'Chapter 30',
       CH1606: 'Chapter 1606',
-      CH33: 'Chapter 33 - Not Eligible for Other Listed Benefits',
-      CH33_1606: "Chapter 33 in Lieu of Chapter 1606 - Effective: #{today}",
-      CH33_1607: "Chapter 33 in Lieu of Chapter 1607 - Effective: #{today}",
-      CH33_30: "Chapter 33 in Lieu of Chapter 30 - Effective: #{today}" }.each do |type, check|
+      CH33: 'Chapter 33 ',
+      CH33_1606: 'Chapter 33 ',
+      CH33_1607: 'Chapter 33 ',
+      CH33_30: 'Chapter 33 ' }.each do |type, check|
       it "shows a partial containing the #{type} disclaimer" do
         output = subject.disclosure_for(type)
         expect(output).to include(check)

@@ -53,5 +53,6 @@
   },
   "witness_other_relationship_to_claimant": "Other text",
   "claimant_type": "non-veteran",
-  "claim_ownership": "third-party"
+  "claim_ownership": "third-party",
+  "statement_of_truth_signature": "Joe Center Claimant"
 }

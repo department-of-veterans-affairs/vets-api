@@ -4,10 +4,10 @@ require 'sign_in/logingov/service'
 
 module SignIn
   class LogoutRedirectGenerator
-    attr_reader :user, :client_config
+    attr_reader :credential_type, :client_config
 
-    def initialize(user:, client_config:)
-      @user = user
+    def initialize(client_config:, credential_type: nil)
+      @credential_type = credential_type
       @client_config = client_config
     end
 
@@ -28,15 +28,11 @@ module SignIn
     end
 
     def authenticated_with_logingov?
-      authenticated_credential == Constants::Auth::LOGINGOV
+      credential_type == Constants::Auth::LOGINGOV
     end
 
     def logout_redirect_uri
-      @logout_redirect_uri ||= client_config.logout_redirect_uri
-    end
-
-    def authenticated_credential
-      @authenticated_credential ||= user.nil? ? nil : user.identity.sign_in[:service_name]
+      @logout_redirect_uri ||= client_config&.logout_redirect_uri
     end
 
     def logingov_service

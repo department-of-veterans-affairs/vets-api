@@ -17,6 +17,19 @@ module HCA
 
     NO_RACE = '0000-0'
 
+    EXPOSURE_MAPPINGS = {
+      'exposureToAirPollutants' => 'Air Pollutants',
+      'exposureToChemicals' => 'Chemicals',
+      'exposureToContaminatedWater' => 'Contaminated Water at Camp Lejeune',
+      'exposureToRadiation' => 'Radiation',
+      'exposureToShad' => 'SHAD',
+      'exposureToOccupationalHazards' => 'Occupational Hazards',
+      'exposureToAsbestos' => 'Asbestos',
+      'exposureToMustardGas' => 'Mustard Gas',
+      'exposureToWarfareAgents' => 'Warfare Agents',
+      'exposureToOther' => 'Other'
+    }.freeze
+
     SIGI_CODES = {
       'M' => 'M',
       'F' => 'F',
@@ -530,10 +543,52 @@ module HCA
           'serviceConnectedIndicator' => veteran['vaCompensationType'] == 'highDisability'
         },
         'specialFactors' => {
-          'agentOrangeInd' => veteran['vietnamService'].present?,
+          'agentOrangeInd' => veteran['vietnamService'].present? || veteran['exposedToAgentOrange'].present?,
           'envContaminantsInd' => veteran['swAsiaCombat'].present?,
           'campLejeuneInd' => veteran['campLejeune'].present?,
-          'radiationExposureInd' => veteran['exposedToRadiation'].present?
+          'radiationExposureInd' =>
+            veteran['exposedToRadiation'].present? || veteran['radiationCleanupEfforts'].present?
+        }.merge(veteran_to_tera(veteran))
+      }
+    end
+
+    def veteran_to_tera(veteran)
+      return {} unless veteran['hasTeraResponse']
+
+      {
+        'supportOperationsInd' => veteran['combatOperationService'].present?
+      }.merge(
+        if veteran['gulfWarService'].present?
+          {
+            'gulfWarHazard' => {
+              'gulfWarHazardInd' => veteran['gulfWarService'].present?,
+              'fromDate' => Validations.parse_short_date(veteran['gulfWarStartDate']),
+              'toDate' => Validations.parse_short_date(veteran['gulfWarEndDate'])
+            }
+          }
+        else
+          {}
+        end
+      ).merge(veteran_to_toxic_exposure(veteran))
+    end
+
+    def veteran_to_toxic_exposure(veteran)
+      categories = []
+
+      EXPOSURE_MAPPINGS.each do |k, v|
+        categories << v if veteran[k].present?
+      end
+
+      return {} if categories.blank?
+
+      {
+        'toxicExposure' => {
+          'exposureCategories' => {
+            'exposureCategory' => categories
+          },
+          'otherText' => veteran['otherToxicExposure'],
+          'fromDate' => Validations.parse_short_date(veteran['toxicExposureStartDate']),
+          'toDate' => Validations.parse_short_date(veteran['toxicExposureEndDate'])
         }
       }
     end
@@ -798,10 +853,10 @@ module HCA
       end
     end
 
-    def add_attachment(file, is_dd214)
+    def add_attachment(file, id, is_dd214)
       {
         'va:document' => {
-          'va:name' => 'Attachment',
+          'va:name' => "Attachment_#{id}",
           'va:format' => get_va_format(file.content_type),
           'va:type' => is_dd214 ? '1' : '5',
           'va:content' => Base64.encode64(file.read)
@@ -823,10 +878,14 @@ module HCA
 
       request = build_form_for_user(current_user, form_id)
 
-      veteran['attachments']&.each do |attachment|
-        hca_attachment = HCAAttachment.find_by(guid: attachment['confirmationCode'])
+      veteran['attachments']&.each_with_index do |attachment, i|
+        guid = attachment['confirmationCode']
+        form_attachment = HCAAttachment.find_by(guid:) || Form1010EzrAttachment.find_by(guid:)
+
+        next if form_attachment.nil?
+
         request['va:form']['va:attachments'] ||= []
-        request['va:form']['va:attachments'] << add_attachment(hca_attachment.get_file, attachment['dd214'])
+        request['va:form']['va:attachments'] << add_attachment(form_attachment.get_file, i + 1, attachment['dd214'])
       end
 
       request['va:form']['va:summary'] = veteran_to_summary(veteran)

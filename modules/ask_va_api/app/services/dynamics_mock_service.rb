@@ -25,31 +25,26 @@ class DynamicsMockService
   private
 
   def file_path_for(endpoint)
-    "modules/ask_va_api/config/locales/#{sanitize_endpoint(endpoint)}"
+    "modules/ask_va_api/config/locales/get_#{endpoint}_mock_data.json"
   end
 
   def read_and_parse_json(file_path)
-    JSON.parse(File.read(file_path), symbolize_names: true)[:data]
-  end
-
-  def sanitize_endpoint(endpoint)
-    "#{endpoint.tr('/', '_')}.json"
+    JSON.parse(File.read(file_path), symbolize_names: true)[:Data]
   end
 
   def filter_mock_data(data)
     return data if @payload.blank?
 
     key, value = @payload.first
-    key = camelize_key(key)
-    data.select { |item| item[key.to_sym].to_i == formatted_value(key, value).to_i }
+    key = sanitize_key(key)
+    if key == 'Id'
+      { Data: data.find { |item| item[key.to_sym].to_i == value.to_i } }
+    else
+      { Data: data.select { |item| item[key.to_sym].to_i == value.to_i } }
+    end
   end
 
-  def camelize_key(key)
-    parts = key.to_s.split('_')
-    parts[0] + parts[1..].collect(&:capitalize).join
-  end
-
-  def formatted_value(key, value)
-    key.to_s.end_with?('Id') ? value.to_i : value
+  def sanitize_key(key)
+    key.to_s.gsub(/(\A.|_.)/) { ::Regexp.last_match(1).upcase }.gsub(/_/, '')
   end
 end

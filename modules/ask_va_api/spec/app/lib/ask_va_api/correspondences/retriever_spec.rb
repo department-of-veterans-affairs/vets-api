@@ -3,54 +3,91 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::Correspondences::Retriever do
-  subject(:retriever) { described_class.new(inquiry_id:) }
+  subject(:retriever) do
+    described_class.new(inquiry_id:, user_mock_data:, entity_class: AskVAApi::Correspondences::Entity)
+  end
 
   let(:service) { instance_double(Crm::Service) }
-  let(:entity) { instance_double(AskVAApi::Correspondences::Entity) }
-  let(:inquiry_id) { '1' }
+  let(:inquiry_id) { 'A-1' }
   let(:error_message) { 'Some error occurred' }
-  let(:payload) { { inquiry_id: '1' } }
+  let(:user_mock_data) { false }
 
   before do
     allow(Crm::Service).to receive(:new).and_return(service)
-    allow(AskVAApi::Correspondences::Entity).to receive(:new).and_return(entity)
     allow(service).to receive(:call)
   end
 
   describe '#call' do
-    context 'when id is blank' do
-      let(:inquiry_id) { nil }
-
-      it 'raises an ArgumentError' do
-        expect { retriever.call }
-          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid Inquiry ID')
-      end
-    end
-
     context 'when Crm raise an error' do
-      let(:payload) { { inquiry_id: '1' } }
-      let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
-      let(:endpoint) { AskVAApi::Correspondences::ENDPOINT }
-      let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
+      let(:endpoint) { 'inquiries/1/replies' }
+      let(:body) do
+        '{"Data":[],"Message":"null",' \
+          '"ExceptionOccurred":false,"ExceptionMessage":"null", ' \
+          '"MessageId":"95f9d1e7-d532-41d7-b43f-78ae9a3e778d"}'
+      end
+      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
       before do
-        allow(service).to receive(:call)
-          .with(endpoint:, payload:)
-          .and_raise(Crm::ErrorHandler::ServiceError, error_message)
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+        allow(service).to receive(:call).and_return(failure)
       end
 
-      it 'raises an Error' do
-        expect do
-          retriever.call
-        end.to raise_error(ErrorHandler::ServiceError, "Crm::ErrorHandler::ServiceError: #{error_message}")
+      it 'returns the error' do
+        expect(retriever.call).to eq(body)
       end
     end
 
-    it 'returns an array object with correct data' do
-      allow(service).to receive(:call)
-        .with(endpoint: 'get_replies_mock_data', payload: { inquiry_id: })
-        .and_return([double])
-      expect(retriever.call).to eq([entity])
+    context 'when successful' do
+      context 'with user_mock_data' do
+        let(:user_mock_data) { true }
+
+        it 'returns an array object with correct data' do
+          expect(retriever.call.first).to be_a(AskVAApi::Correspondences::Entity)
+        end
+      end
+
+      context 'with Crm::Service' do
+        let(:crm_response) do
+          {
+            Data: [
+              {
+                Id: 'a5247de6-62c4-ee11-907a-001dd804eab2',
+                CreatedOn: '2/5/2024 8:14:48 PM',
+                ModifiedOn: '2/5/2024 8:14:48 PM',
+                StatusReason: 'PendingSend',
+                Description: 'Dear aminul, Thank you for submitting ' \
+                             'your Inquiry with the U.S.',
+                MessageType: 'Notification',
+                EnableReply: true,
+                AttachmentNames: nil
+              },
+              {
+                Id: 'f4b12ee3-93bb-ed11-9886-001dd806a6a7',
+                ModifiedOn: '3/5/2023 8:25:49 PM',
+                StatusReason: 'Sent',
+                Description: 'Dear aminul, Thank you for submitting your ' \
+                             'Inquiry with the U.S. Department of Veteran Affairs.',
+                MessageType: 'Notification',
+                EnableReply: true,
+                AttachmentNames: nil
+              }
+            ],
+            Message: nil,
+            ExceptionOccurred: false,
+            ExceptionMessage: nil,
+            MessageId: '086594d9-188b-46b0-9ce2-b8b36329506b'
+          }
+        end
+
+        before do
+          allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+          allow(service).to receive(:call).and_return(crm_response)
+        end
+
+        it 'returns an array object with correct data' do
+          expect(retriever.call.first).to be_a(AskVAApi::Correspondences::Entity)
+        end
+      end
     end
   end
 end

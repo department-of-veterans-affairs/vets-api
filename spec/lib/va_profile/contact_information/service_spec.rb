@@ -3,16 +3,16 @@
 require 'rails_helper'
 require 'va_profile/contact_information/service'
 
-describe VAProfile::ContactInformation::Service, skip_vet360: true do
+describe VAProfile::ContactInformation::Service, :skip_vet360 do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
   let(:vet360_id) { '1' }
 
   before do
-    allow(user).to receive(:vet360_id).and_return(vet360_id)
-    allow(user).to receive(:icn).and_return('1234')
+    allow(user).to receive_messages(vet360_id:, icn: '1234')
     Flipper.enable(:contact_info_change_email)
+    Flipper.disable(:va_v3_contact_information_service)
   end
 
   describe '#get_person' do

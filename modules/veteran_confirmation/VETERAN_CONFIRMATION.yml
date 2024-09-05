@@ -163,18 +163,6 @@ components:
             - M
             - F
           example: "M"
-    VeteranStatusConfirmation:
-      description: Veteran status confirmation for an individual
-      type: object
-      properties:
-        veteran_status:
-          type: string
-          description: |
-            Whether the system could confirm the Veteran status of an individual based on traits
-          enum:
-            - confirmed
-            - not confirmed
-          deprecated: true
     APIError:
       description: API invocation or processing error
       type: object

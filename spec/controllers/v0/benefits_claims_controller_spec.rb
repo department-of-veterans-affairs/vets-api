@@ -37,6 +37,29 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       end
     end
 
+    context 'it updates existing EVSSClaim records when visited' do
+      let(:evss_id) { 600_383_363 }
+      let(:claim) { create(:evss_claim, evss_id:, user_uuid: user.uuid) }
+      let(:t1) { claim.updated_at }
+
+      before do
+        p "TIMESTAMP #1: #{t1} #{t1.class}"
+      end
+
+      it 'updates the ’updated_at’ field on existing EVSSClaim records' do
+        Timecop.travel(10.minutes.from_now)
+
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+
+        expect(response).to have_http_status(:ok)
+
+        t2 = EVSSClaim.where(evss_id:).first.updated_at
+        expect(t2).to be > t1
+      end
+    end
+
     context 'when not authorized' do
       it 'returns a status of 401' do
         VCR.use_cassette('lighthouse/benefits_claims/index/401_response') do
@@ -120,7 +143,35 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                   claim_type_code: '020NEW',
                   num_contentions: 1,
                   ep_code: '020',
+                  current_phase_back: false,
+                  latest_phase_type: 'GATHERING_OF_EVIDENCE',
+                  decision_letter_sent: false,
+                  development_letter_sent: true,
                   claim_id: '600383363' })
+      end
+
+      it 'logs evidence requests/tracked items details' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(Rails.logger)
+          .to have_received(:info)
+          .with('Evidence Request Types',
+                { message_type: 'lh.cst.evidence_requests',
+                  claim_id: '600383363',
+                  tracked_item_id: 395_084,
+                  tracked_item_type: 'Request 1',
+                  tracked_item_status: 'NEEDED_FROM_YOU' })
+        expect(Rails.logger)
+          .to have_received(:info)
+          .with('Evidence Request Types',
+                { message_type: 'lh.cst.evidence_requests',
+                  claim_id: '600383363',
+                  tracked_item_id: 394_443,
+                  tracked_item_type: 'Submit buddy statement(s)',
+                  tracked_item_status: 'NEEDED_FROM_YOU' })
       end
     end
 
@@ -173,19 +224,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       expect(response).to have_http_status(:ok)
     end
 
-    context 'as a user that is a dependent' do
-      before { sign_in_as(dependent_user) }
-
-      it 'returns a status of 200' do
-        VCR.use_cassette('lighthouse/benefits_claims/submit5103/200_response_dependent') do
-          post(:submit5103, params: { id: '600397109' })
-        end
-
-        expect(response).to have_http_status(:ok)
-        expect(Rails.logger).to have_received(:info).with('[5103 Submission] Applying sponsorIcn param')
-      end
-    end
-
     it 'returns a status of 404' do
       VCR.use_cassette('lighthouse/benefits_claims/submit5103/404_response') do
         post(:submit5103, params: { id: '600397108' })
@@ -196,10 +234,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
     context 'when LH takes too long to respond' do
       it 'returns a status of 504' do
-        # rubocop:disable Layout/LineLength
-        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:post_with_params).and_raise(Faraday::TimeoutError)
-        # rubocop:enable Layout/LineLength
-
+        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:post).and_raise(Faraday::TimeoutError)
         post(:submit5103, params: { id: '60038334' })
 
         expect(response).to have_http_status(:gateway_timeout)

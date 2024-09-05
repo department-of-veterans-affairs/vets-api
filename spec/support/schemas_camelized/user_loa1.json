@@ -50,11 +50,24 @@
             },
             "session": {
               "type": "object",
-              "required": ["ssoe", "transactionid", "authBroker"],
+              "required": [
+                "authBroker",
+                "ssoe",
+                "transactionid"
+              ],
               "properties": {
-                "ssoe": { "type": "boolean"},
-                "transactionid": { "type": [ "string", null ] },
-                "authBroker": { "type": "string" }
+                "authBroker": {
+                  "type": "string"
+                },
+                "ssoe": {
+                  "type": "boolean"
+                },
+                "transactionid": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                }
               }
             },
             "services": {
@@ -93,7 +106,13 @@
                 "verified",
                 "signIn",
                 "authnContext",
-                "inheritedProofVerified"
+                "icn",
+                "birlsId",
+                "edipi",
+                "secId",
+                "logingovUuid",
+                "idmeUuid",
+                "idTheftFlag"
               ],
               "properties": {
                 "email": {
@@ -179,22 +198,102 @@
                 "authnContext": {
                   "type": "string"
                 },
-                "inheritedProofVerified": {
-                  "type": "boolean"
+                "icn": {
+                  "type": "string"
+                },
+                "birlsId": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
+                "edipi": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
+                "secId": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
+                "logingovUuid": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
+                "idmeUuid": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
+                "idTheftFlag": {
+                  "type": [
+                    "boolean",
+                    null
+                  ]
                 },
                 "claims": {
                   "type": "object",
                   "properties": {
-                    "ch33BankAccounts": { "type": "boolean" },
-                    "coe": { "type": "boolean" },
-                    "communicationPreferences": { "type": "boolean" },
-                    "connectedApps": { "type": "boolean" },
-                    "militaryHistory": { "type": "boolean" },
-                    "paymentHistory": { "type": "boolean" },
-                    "personalInformation": { "type": "boolean" },
-                    "ratingInfo": { "type": "boolean" },
-                    "appeals": { "type": "boolean" },
-                    "medicalCopays": { "type": "boolean" }
+                    "coe": {
+                      "type": "boolean"
+                    },
+                    "communicationPreferences": {
+                      "type": "boolean"
+                    },
+                    "connectedApps": {
+                      "type": "boolean"
+                    },
+                    "militaryHistory": {
+                      "type": "boolean"
+                    },
+                    "paymentHistory": {
+                      "type": "boolean"
+                    },
+                    "personalInformation": {
+                      "type": "boolean"
+                    },
+                    "ratingInfo": {
+                      "type": "boolean"
+                    },
+                    "appeals": {
+                      "type": "boolean"
+                    },
+                    "medicalCopays": {
+                      "type": "boolean"
+                    },
+                    "form526RequiredIdentifierPresence": {
+                      "type": "object",
+                      "properties": {
+                        "participantId": {
+                          "type": "boolean"
+                        },
+                        "birlsId": {
+                          "type": "boolean"
+                        },
+                        "ssn": {
+                          "type": "boolean"
+                        },
+                        "birthDate": {
+                          "type": "boolean"
+                        },
+                        "edipi": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "participantId",
+                        "birlsId",
+                        "ssn",
+                        "birthDate",
+                        "edipi"
+                      ]
+                    }
                   }
                 }
               }
@@ -243,6 +342,11 @@
                 "object",
                 "null"
               ]
+            },
+            "onboarding": {
+              "show": {
+                "type": ["boolean", "null"]
+              }
             }
           }
         }

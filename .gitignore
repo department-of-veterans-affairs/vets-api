@@ -62,6 +62,7 @@ config/environments/*.local.yml
 config/certs
 config/ca-trust
 !config/ca-trust/README.md
+!config/ca-trust/fwdproxy.crt
 
 # Ignore lock files in modules (gems)
 modules/**/Gemfile.lock
@@ -91,9 +92,10 @@ test_users.csv
 # Ignore .DS_STORE files created by Mac OS
 **/.DS_STORE
 
-# Ignore VIM artifact files
+# Ignore VIM/vscode artifact files
 .ignore 
 *.swp
+.vscode
 
 # Ignore node_modules for development tools
 node_modules
@@ -101,3 +103,16 @@ node_modules
 # Ignore public folder (used for local document uploads)
 public
 
+# Ignore any files within clamav_tmp
+clamav_tmp/*
+!/clamav_tmp/.keep
+
+# Ignore development setup (native, docker, hybrid)
+.developer-setup
+
+# ignore DBEX LH migration debug tools
+lib/TREX
+staging.benefits_claims.pem
+
+# ignore Yardoc generation
+.yardoc/

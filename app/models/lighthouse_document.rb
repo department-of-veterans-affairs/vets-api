@@ -8,20 +8,23 @@ class LighthouseDocument < Common::Base
   include ActiveModel::Validations::Callbacks
   include SentryLogging
 
-  attribute :file_number, String
   attribute :claim_id, Integer
-  attribute :tracked_item_id, Integer
   attribute :document_type, String
   attribute :file_name, String
-  attribute :uuid, String
+  attribute :file_extension, String
   attribute :file_obj, ActionDispatch::Http::UploadedFile
+  attribute :participant_id, String
   attribute :password, String
+  attribute :tracked_item_id, Integer
+  attribute :uuid, String
 
   validates(:file_name, presence: true)
-  validates(:file_number, presence: true)
+  validates(:participant_id, presence: true)
   validate :known_document_type?
   validate :unencrypted_pdf?
-  before_validation :normalize_text, :convert_to_unlocked_pdf, :normalize_file_name
+  # Taken from LighthouseDocumentUploaderBase
+  validates(:file_extension, inclusion: { in: %w[pdf gif png tiff tif jpeg jpg bmp txt] })
+  before_validation :set_file_extension, :normalize_text, :convert_to_unlocked_pdf, :normalize_file_name
 
   # rubocop:disable Layout/LineLength
   DOCUMENT_TYPES = {
@@ -124,6 +127,10 @@ class LighthouseDocument < Common::Base
     else
       errors.add(:base, I18n.t('errors.messages.uploads.malformed_pdf'))
     end
+  end
+
+  def set_file_extension
+    self.file_extension = file_name.split('.').last
   end
 
   def normalize_text

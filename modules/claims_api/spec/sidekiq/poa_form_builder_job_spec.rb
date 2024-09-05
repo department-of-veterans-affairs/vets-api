@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'pdf_fill/filler'
 
-RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
+RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
   subject { described_class }
 
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
@@ -11,6 +11,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
   let(:bad_b64_image) { File.read('modules/claims_api/spec/fixtures/signature_b64_prefix_bad.txt') }
 
   before do
+    Flipper.disable(:lighthouse_claims_api_poa_use_bd)
     Sidekiq::Job.clear_all
     b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
     power_of_attorney.form_data = {
@@ -76,8 +77,8 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
 
       it 'generates the pdf to match example' do
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-        expect(ClaimsApi::PoaPdfConstructor::Individual).to receive(:new).and_call_original
-        expect_any_instance_of(ClaimsApi::PoaPdfConstructor::Individual).to receive(:construct).and_call_original
+        expect(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:new).and_call_original
+        expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:construct).and_call_original
         subject.new.perform(power_of_attorney.id)
       end
 
@@ -106,8 +107,8 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
 
       it 'generates the pdf to match example' do
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-        expect(ClaimsApi::PoaPdfConstructor::Organization).to receive(:new).and_call_original
-        expect_any_instance_of(ClaimsApi::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
+        expect(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:new).and_call_original
+        expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
         subject.new.perform(power_of_attorney.id)
       end
 
@@ -143,13 +144,41 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
       end
 
       it 'sets the status and store the error' do
-        expect_any_instance_of(ClaimsApi::PoaPdfConstructor::Organization).to receive(:construct)
+        expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct)
           .and_raise(ClaimsApi::StampSignatureError)
         subject.new.perform(power_of_attorney.id)
         power_of_attorney.reload
         expect(power_of_attorney.status).to eq(ClaimsApi::PowerOfAttorney::ERRORED)
         expect(power_of_attorney.signature_errors).not_to be_empty
       end
+    end
+  end
+
+  context 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred for the POA Form Builder Job'
+      msg = { 'args' => [power_of_attorney.id, 'value here'],
+              'class' => subject,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: power_of_attorney.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: error_msg
+        )
+      end
+    end
+  end
+
+  context 'when the BD upload feature flag is enabled' do
+    it 'calls the benefits document API upload instead of VBMS' do
+      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
+      expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
+      expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
+
+      subject.new.perform(power_of_attorney.id)
     end
   end
 end

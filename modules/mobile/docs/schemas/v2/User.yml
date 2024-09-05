@@ -7,6 +7,7 @@ properties:
   id:
     type: string
     example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+    description: user UUID
   type:
     type: string
     example: "user"
@@ -45,3 +46,6 @@ properties:
           - DSL
           - MHV
           - LOGINGOV
+      hasFacilityTransitioningToCerner:
+        type: boolean
+        description: The user has a treatment facility that is currently transitioning to cerner. This is temporary.

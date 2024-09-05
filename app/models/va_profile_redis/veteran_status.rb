@@ -31,7 +31,7 @@ module VAProfileRedis
       value_for('title38_status_code')
     end
 
-    # Returns boolean for user being/not being considered a military person, by eMIS,
+    # Returns boolean for user being/not being considered a military person, by VA Profile,
     # based on their Title 38 Status Code.
     #
     # @return [Boolean]

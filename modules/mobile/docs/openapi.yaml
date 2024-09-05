@@ -113,8 +113,7 @@ paths:
       description: Given a date range returns a list of upcoming VA, Community Care,
         and Express Care appointments. If start and end date ranges are not passed
         in then it defaults to - 1 year and + 1 year from the beginning of today's
-        UTC date. The endpoint is paginated and call with no pagination params defaults
-        to page 1 with a page size of 10. Requesting a page out of bounds
+        UTC date. Requesting a page out of bounds
         will return an empty list.
       parameters:
         - description: The start date for the range of appointments in ISO 8601 UTC
@@ -132,13 +131,13 @@ paths:
           schema:
             format: date-time
             type: string
-        - description: The page number requested
+        - description: The page number requested. Defaults to 1.
           example: 1
           in: query
           name: page[number]
           schema:
             type: integer
-        - description: The number of records to return per page
+        - description: The number of records to return per page. Defaults to 10.
           example: 10
           in: query
           name: page[size]
@@ -485,6 +484,18 @@ paths:
           required: true
           schema:
             type: string
+        - description: The page number requested. Defaults to 1.
+          example: 2
+          in: query
+          name: page[number]
+          schema:
+            type: integer
+        - description: The number of records to return per page. Defaults to 3.
+          example: 10
+          in: query
+          name: page[size]
+          schema:
+            type: integer
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
@@ -622,6 +633,73 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: []
+      summary: /v0/appointments/facilities/{facility_id}/clinics/{clinic_id}/slots
+  /v0/appointments/facilities/{facility_id}/slots:
+    get:
+      description: Accepts date range for a va facility and returns available slots for a a direct schedule appointment.
+      parameters:
+        - description: The start date for the range of appointments slots in ISO 8601 UTC
+            format. If not provided the start date will be considered now.
+          example: 2020-10-29T07:00:00Z
+          in: query
+          name: startDate
+          schema:
+            format: date-time
+            type: string
+        - description: The end date for the range of appointments slots in ISO 8601 UTC format.
+            If not provided the end date will be 2 months from today's date
+          example: 2021-11-29T08:00:00Z
+          in: query
+          name: endDate
+          schema:
+            format: date-time
+            type: string
+        - description: The facility division ID
+          in: path
+          required: true
+          name: location_id
+          schema:
+            type: string
+        - description: The clinic IEN. Required if clinical_service not provided.
+          in: query
+          required: false
+          name: clinic_id
+          schema:
+            type: string
+        - description: The clinical service (type of care) to find appointment slots for. Required if clinic_id not provided.
+          in: query
+          required: false
+          name: clinical_service
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/ClinicSlots.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
       summary: /v0/appointments/facilities/{facility_id}/clinics/{clinic_id}/slots
   /v0/appointments/preferences:
     get:
@@ -765,6 +843,7 @@ paths:
                     properties:
                       id:
                         type: string
+                        description: Upstream identifier. Appointment id.
                       type:
                         type: string
                       attributes:
@@ -1170,13 +1249,13 @@ paths:
           schema:
             format: date-time
             type: string
-        - description: The page number requested
-          example: 1
+        - description: The page number requested. Defaults to 1.
+          example: 2
           in: query
           name: page[number]
           schema:
             type: integer
-        - description: The number of records to return per page
+        - description: The number of records to return per page. Defaults to 10.
           example: 10
           in: query
           name: page[size]
@@ -1202,6 +1281,13 @@ paths:
         '200':
           content:
             application/json:
+              examples:
+                Appeal:
+                  value:
+                    $ref: ./schemas/ClaimsAndAppealsOverviewAppeal.yml
+                Claim:
+                  value:
+                    $ref: ./schemas/ClaimsAndAppealsOverviewClaim.yml
               schema:
                 $ref: ./schemas/ClaimsAndAppealsOverview.yml
           description: OK
@@ -1255,13 +1341,13 @@ paths:
           name: facilityId
           schema:
             type: string
-        - description: The page number requested
+        - description: The page number requested. Defaults to 1.
           example: 1
           in: query
           name: page[number]
           schema:
             type: integer
-        - description: The number of records to return per page
+        - description: The number of records to return per page. Defaults to 10.
           example: 10
           in: query
           name: page[size]
@@ -1343,6 +1429,41 @@ paths:
       security:
         - Bearer: []
       summary: /v0/debts
+  /v0/debts/{id}:
+    get:
+      description: Returns a users debt by id.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Debt.yml
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/debts/{id}
   /v0/dependents:
     get:
       description: Returns a list of user's dependents. Dependent SSN is also available but is removed to limit PII exposure.
@@ -1603,6 +1724,39 @@ paths:
       security:
         - Bearer: []
       summary: /v0/disability-rating
+  /v0/enrollment-status:
+    get:
+      description: Returns the user's VA enrollment status.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/EnrollmentStatus.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/enrollment-status
   /v0/facilities-info:
     get:
       description: Retrieves facilities info for a user's va treatment facilities
@@ -1688,6 +1842,50 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/facilities-info/{sort_method}
+  /v0/financial-status-reports/download:
+    post:
+      description: Returns financial status report PDF
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                format: binary
+                type: string
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Payload too large.
+        '422':
+          $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/financial-status-reports/download
   /v0/health/immunizations:
     get:
       description: Returns the list of immunization records for given user
@@ -1926,13 +2124,13 @@ paths:
           required: false
           schema:
             type: string
-        - description: The page number requested
+        - description: The page number requested. Defaults to 1.
           example: 1
           in: query
           name: page[number]
           schema:
             type: integer
-        - description: The number of records to return per page
+        - description: The number of records to return per page. Defaults to 10.
           example: 10
           in: query
           name: page[size]
@@ -2263,6 +2461,25 @@ paths:
       description: List available secure messaging folders
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - description: The page number requested
+          example: 1
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: The number of records to return per page. Defaults to 100
+          example: 10
+          in: query
+          name: perPage
+          schema:
+            type: integer
+        - description: Whether or not to use this API's cache or fetch records from
+            the upstream service. Defaults to true.
+          example: true
+          in: query
+          name: useCache
+          schema:
+            type: boolean
       responses:
         '200':
           content:
@@ -2366,6 +2583,39 @@ paths:
         getting the specific message resource.
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - description: |
+            what field to sort array of messages by. fields that can be sorted:  sent_date, subject, sender_name, recipient_name. The date field sorts by descending order by default while all others default to ASC. To get the opposite sort direction negate the field with a '-'. EX: -recipient_name. Default sort field is sent_date.
+          in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+        - description: |
+            filter by field values. Syntax: ?filter[sender_name][eq]=JOHN DEER. fields that can be filtered: sent_date, subject, sender_name, recipient_name. Available operators include 'eq' and 'not_eq'. Date fields can use operators 'lteq' and 'gteq' (less/greater than or equal). string fields can use 'match' operator for partial matching. String fields can also be filtered by multiple values of the same field, deliminate the parameter value with commas. Syntax: ?filter[sender_name][eq]=John Deer,John Smith
+          in: query
+          name: filter
+          required: false
+          schema:
+            type: string
+        - description: The page number requested
+          example: 1
+          in: query
+          name: page
+          schema:
+            type: integer
+        - description: The number of records to return per page. Defaults to 100
+          example: 10
+          in: query
+          name: perPage
+          schema:
+            type: integer
+        - description: Whether or not to use this API's cache or fetch records from
+            the upstream service. Defaults to true.
+          example: true
+          in: query
+          name: useCache
+          schema:
+            type: boolean
       responses:
         '200':
           content:
@@ -2830,6 +3080,12 @@ paths:
           <li>If message has an attachment included, attachmentSize is displayed in bytes</li>
         </ul>
       parameters:
+        - description: Whether or not to use this API's cache or fetch records from upstream when getting triage team information to determine if user is in triage team. See meta field 'user_in_triage_team'.
+          example: true
+          in: query
+          name: useCache
+          schema:
+            type: boolean
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
@@ -3095,6 +3351,13 @@ paths:
     get:
       description: List available recipients to which messages may be sent
       parameters:
+        - description: Whether or not to use this API's cache or fetch records from
+            the upstream service. Defaults to true.
+          example: true
+          in: query
+          name: useCache
+          schema:
+            type: boolean
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
@@ -3158,6 +3421,32 @@ paths:
       description: Returns user's payment history
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - description: The start date for the range of payments in ISO 8601 UTC format. Defaults to the beginning of the year of the most recent payment.
+          example: 2020-10-29T07:00:00Z
+          in: query
+          name: startDate
+          schema:
+            format: date-time
+            type: string
+        - description: The end date for the range of appointments in ISO 8601 UTC format. Defaults to the end of the year of the most recent payment.
+          example: 2021-11-29T08:00:00Z
+          in: query
+          name: endDate
+          schema:
+            format: date-time
+            type: string
+        - description: The page number requested. Defaults to 1.
+          example: 1
+          in: query
+          name: page[number]
+          schema:
+            type: integer
+        - description: The number of records to return per page. Defaults to 10.
+          example: 10
+          in: query
+          name: page[size]
+          schema:
+            type: integer
       responses:
         '200':
           content:
@@ -3256,6 +3545,37 @@ paths:
       security:
         - Bearer: []
       summary: /v0/payment-information/benefits
+  /v0/pensions:
+    get:
+      description: Get current pensions overview
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Pensions.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/pensions
   /v0/push/prefs/{endpointSid}:
     get:
       description: Get the user's push notification preferences
@@ -3845,10 +4165,10 @@ paths:
               examples:
                 Multiple matches:
                   value:
-                    $ref: ./examples/appointments/va_appointment.yml
+                    $ref: ./examples/addresses/validation_multiple_matches.yml
                 Single match:
                   value:
-                    $ref: ./examples/appointments/va_appointment.yml
+                    $ref: ./examples/addresses/validation_single_matches.yml
               schema:
                 $ref: ./schemas/AddressResponse.yml
           description: OK
@@ -4315,6 +4635,25 @@ paths:
       description: Returns a paginated list of immunization records for given user
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - description: The page number requested. Defaults to 1.
+          example: 1
+          in: query
+          name: page[number]
+          schema:
+            type: integer
+        - description: The number of records to return per page. Defaults to 10.
+          example: 10
+          in: query
+          name: page[size]
+          schema:
+            type: integer
+        - description: Whether or not to use this API's cache or fetch records from
+            the upstream service. Defaults to true.
+          example: true
+          in: query
+          name: useCache
+          schema:
+            type: boolean
       responses:
         '200':
           content:

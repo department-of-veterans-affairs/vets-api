@@ -19,6 +19,7 @@ module Users
     def authorizations
       @list << BackendServices::RX if user.authorize :mhv_prescriptions, :access?
       @list << BackendServices::MESSAGING if user.authorize :mhv_messaging, :access?
+      @list << BackendServices::MEDICAL_RECORDS if user.authorize :mhv_medical_records, :access?
       @list << BackendServices::HEALTH_RECORDS if user.authorize :mhv_health_records, :access?
       @list << BackendServices::EVSS_CLAIMS if user.authorize :evss, :access?
       @list << BackendServices::LIGHTHOUSE if user.authorize :lighthouse, :access?
@@ -29,6 +30,7 @@ module Users
       @list << BackendServices::ID_CARD if user.can_access_id_card?
       @list << BackendServices::IDENTITY_PROOFED if user.loa3?
       @list << BackendServices::VET360 if user.can_access_vet360?
+
       @list
     end
 

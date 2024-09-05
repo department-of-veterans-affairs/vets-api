@@ -3,11 +3,10 @@
 module ClaimsApi
   module V2
     class DisabilityCompensationEvssMapper
-      def initialize(auto_claim, file_number)
+      def initialize(auto_claim)
         @auto_claim = auto_claim
         @data = auto_claim&.form_data&.deep_symbolize_keys
         @evss_claim = {}
-        @file_number = file_number
       end
 
       def map_claim
@@ -34,21 +33,26 @@ module ClaimsApi
       def service_information
         info = @data[:serviceInformation]
         service_periods = format_service_periods(info&.dig(:servicePeriods))
+        confinements = format_confinements(info&.dig(:confinements)) if info&.dig(:confinements).present?
 
         @evss_claim[:serviceInformation] = {
           servicePeriods: service_periods
         }
+
+        if confinements.present?
+          @evss_claim[:serviceInformation].merge!(
+            { confinements: }
+          )
+        end
       end
 
       def current_mailing_address
         addr = @data.dig(:veteranIdentification, :mailingAddress) || {}
+        type = addr[:internationalPostalCode].present? ? 'INTERNATIONAL' : 'DOMESTIC'
         @evss_claim[:veteran] ||= {}
-        @evss_claim[:veteran][:currentMailingAddress] = addr
-        @evss_claim[:veteran][:currentMailingAddress].merge!({ type: 'DOMESTIC' })
+        @evss_claim[:veteran][:currentMailingAddress] = addr.compact_blank
+        @evss_claim[:veteran][:currentMailingAddress].merge!({ type: })
         @evss_claim[:veteran][:currentMailingAddress].except!(:numberAndStreet, :apartmentOrUnitNumber)
-        if @evss_claim[:veteran][:currentMailingAddress][:zipLastFour].blank?
-          @evss_claim[:veteran][:currentMailingAddress].except!(:zipLastFour)
-        end
       end
 
       def disabilities
@@ -57,8 +61,13 @@ module ClaimsApi
 
       def transform_disability_values!(disability)
         disability.delete(:diagnosticCode) if disability&.dig(:diagnosticCode).nil?
+        disability.delete(:serviceRelevance) if disability&.dig(:serviceRelevance).blank?
+        disability.delete(:classificationCode) if disability&.dig(:classificationCode).nil? # blank is ok
+
         if disability&.dig(:secondaryDisabilities).present?
           disability[:secondaryDisabilities] = disability[:secondaryDisabilities]&.map do |secondary|
+            secondary.delete(:classificationCode) if secondary&.dig(:classificationCode).nil? # blank is ok
+
             secondary.except(:exposureOrEventOrInjury, :approximateDate)
           end
         end
@@ -69,7 +78,10 @@ module ClaimsApi
 
       def check_for_pact_special_issue(disability)
         related_to_toxic_exposure = disability[:isRelatedToToxicExposure]
-        disability[:specialIssues] = ['PACT'] if related_to_toxic_exposure
+        if related_to_toxic_exposure
+          disability[:specialIssues] ||= []
+          disability[:specialIssues] << 'PACT'
+        end
       end
 
       def standard_claim
@@ -92,7 +104,6 @@ module ClaimsApi
         @evss_claim[:veteran][:currentlyVAEmployee] = @data.dig(:veteranIdentification, :currentVaEmployee)
         email_address = @data.dig(:veteranIdentification, :emailAddress, :email)
         @evss_claim[:veteran][:emailAddress] = email_address unless email_address.nil?
-        @evss_claim[:veteran][:fileNumber] = @file_number
       end
 
       # Convert 12-05-1984 to 1984-12-05 for Docker container
@@ -106,6 +117,19 @@ module ClaimsApi
 
           end_year = Date.strptime(sp_date[:activeDutyEndDate], '%Y-%m-%d')
           sp_date[:activeDutyEndDate] = end_year.strftime('%Y-%m-%d')
+        end
+      end
+
+      def format_confinements(confinements)
+        confinements.each do |confinement|
+          begin_date = confinement[:approximateBeginDate]
+          end_date = confinement[:approximateEndDate]
+          confinement.delete(:approximateBeginDate)
+          confinement.delete(:approximateEndDate)
+          confinement.merge!(
+            { confinementBeginDate: begin_date,
+              confinementEndDate: end_date }
+          )
         end
       end
     end

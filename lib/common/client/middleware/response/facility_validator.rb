@@ -4,7 +4,7 @@ module Common
   module Client
     module Middleware
       module Response
-        class FacilityValidator < Faraday::Response::Middleware
+        class FacilityValidator < Faraday::Middleware
           def on_complete(env)
             env.body = validate_body(env)
           end

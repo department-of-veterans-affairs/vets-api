@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'fugit'
+require 'feature_flipper'
 
 RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :education_benefits do
   subject { described_class.new }
@@ -9,10 +10,10 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
   sidekiq_file = Rails.root.join('lib', 'periodic_jobs.rb')
   lines = File.readlines(sidekiq_file).grep(/EducationForm::Process10203Submissions/i)
   cron = lines.first.gsub("  mgr.register('", '').gsub("', 'EducationForm::Process10203Submissions')\n", '')
-  let(:evss_user) { create(:evss_user) }
+  let(:user) { create(:user, :loa3) }
   let(:parsed_schedule) { Fugit.do_parse(cron) }
-  let(:evss_user2) { create(:evss_user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
-  let(:no_edipi_evss_user) { create(:unauthorized_evss_user) }
+  let(:user2) { create(:user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
+  let(:no_edipi_user) { create(:user, participant_id: nil) }
   let(:evss_response_with_poa) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
 
   describe 'scheduling' do
@@ -35,12 +36,12 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
     it 'takes a list of records into groups by user_uuid' do
       application_10203 = create(:va10203)
-      application_10203.after_submit(evss_user)
+      application_10203.after_submit(user)
       application_user2 = create(:va10203)
-      application_user2.after_submit(evss_user2)
+      application_user2.after_submit(user2)
 
       submissions = [application_10203, application_user2]
-      users = [evss_user, evss_user2]
+      users = [user, user2]
 
       output = subject.send(:group_user_uuid, submissions.map(&:education_benefits_claim))
       expect(output.keys).to eq(users.map(&:uuid))
@@ -64,7 +65,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
         it 'changes from init to processed with good answers' do
           application_10203 = create(:va10203)
-          application_10203.after_submit(evss_user)
+          application_10203.after_submit(user)
 
           expect do
             subject.perform
@@ -79,7 +80,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
           it 'without any be processed by CreateDailySpoolFiles' do
             application_10203 = create(:va10203)
-            application_10203.after_submit(evss_user)
+            application_10203.after_submit(user)
 
             expect do
               subject.perform
@@ -87,7 +88,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
                        .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
 
             application_10203_2 = create(:va10203)
-            application_10203_2.after_submit(evss_user)
+            application_10203_2.after_submit(user)
 
             expect do
               subject.perform
@@ -100,13 +101,13 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       context 'evss user with more than 180 days' do
         before do
           gi_bill_status = build(:gi_bill_status_response)
-          allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
+          allow_any_instance_of(BenefitsEducation::Service).to receive(:get_gi_bill_status)
                                                                     .and_return(gi_bill_status)
         end
 
         it 'is denied' do
           application_10203 = create(:va10203, :automated_bad_answers)
-          application_10203.after_submit(evss_user)
+          application_10203.after_submit(user)
           # allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
           #                                                      .and_return(evss_response_with_poa.body)
 
@@ -119,7 +120,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
       it 'evss user with no entitlement is processed' do
         application_10203 = create(:va10203)
-        application_10203.after_submit(evss_user)
+        application_10203.after_submit(user)
         allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
                                                              .and_return(evss_response_with_poa.body)
 
@@ -133,7 +134,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
         expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(true).at_least(:once)
         application_10203 = create(:va10203)
-        application_10203.after_submit(evss_user)
+        application_10203.after_submit(user)
 
         subject.perform
         application_10203.reload
@@ -144,7 +145,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
         expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
-        application_10203.after_submit(no_edipi_evss_user)
+        application_10203.after_submit(no_edipi_user)
 
         subject.perform
         application_10203.reload
@@ -155,7 +156,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
         expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
-        application_10203.after_submit(evss_user)
+        application_10203.after_submit(user)
         evss_response_without_poa = OpenStruct.new({ 'userPoaInfoAvailable' => false })
         allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
                                                              .and_return(evss_response_without_poa)
@@ -165,11 +166,11 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(false)
       end
 
-      it 'sets claim poa for evss user with poa' do
+      it 'sets claim poa for user with poa' do
         allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
         expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
-        application_10203.after_submit(evss_user)
+        application_10203.after_submit(user)
         allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
                                                              .and_return(evss_response_with_poa.body)
 

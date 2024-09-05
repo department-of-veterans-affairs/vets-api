@@ -1,0 +1,194 @@
+{
+  "data": {
+    "type": "form/526",
+    "attributes": {
+      "claimDate": "2018-06-25",
+      "claimProcessType": "STANDARD_CLAIM_PROCESS",
+      "claimNotes": "Some things that are important to know, and are not included in any other place.",
+      "veteranIdentification": {
+        "serviceNumber": "123456789",
+        "veteranNumber": {
+          "telephone": "5555555555"
+        },
+        "mailingAddress": {
+          "addressLine1": "123 Main Street",
+          "addressLine2": "Unit 1",
+          "addressLine3": "Room 2",
+          "city": "Portland",
+          "state": "OR",
+          "country": "USA",
+          "zipFirstFive": "41726",
+          "zipLastFour": "1234"
+        },
+        "emailAddress": {
+          "email": "valid@somedomain.com",
+          "agreeToEmailRelatedToClaim": true
+        },
+        "currentVaEmployee": false
+      },
+      "changeOfAddress": {
+        "typeOfAddressChange": "TEMPORARY",
+        "addressLine1": "456 Main Street",
+        "addressLine2": "Unit 3",
+        "addressLine3": "Room 4",
+        "city": "Atlanta",
+        "state": "GA",
+        "country": "USA",
+        "zipFirstFive": "42220",
+        "zipLastFour": "9897",
+        "dates": {
+          "beginDate": "2025-06-04",
+          "endDate": "2026-06-04"
+        }
+      },
+      "homeless": {
+        "currentlyHomeless": {
+          "homelessSituationOptions": "OTHER",
+          "otherDescription": "Other living situation"
+        },
+        "pointOfContact": "John Doe",
+        "pointOfContactNumber": {
+          "telephone": "5555555555"
+        }
+      },
+      "toxicExposure": {
+        "gulfWarHazardService": {
+          "servedInGulfWarHazardLocations": "NO"
+        },
+        "herbicideHazardService": {
+          "servedInHerbicideHazardLocations": "YES",
+          "otherLocationsServed": "Other locations served",
+          "serviceDates": {
+            "beginDate": "1972-05",
+            "endDate": "1980-10"
+          }
+        },
+        "additionalHazardExposures": {
+          "additionalExposures": ["OTHER"],
+          "specifyOtherExposures": "Agent Orange",
+          "exposureDates": {
+            "beginDate": "1972-05",
+            "endDate": "1980-10"
+          }
+        },
+        "multipleExposures": [
+          {
+            "hazardExposedTo": "Agent Orange",
+            "exposureLocation": "Vietnam",
+            "exposureDates": {
+              "beginDate": "1972-05",
+              "endDate": "1973-01"
+            }
+          },
+          {
+            "hazardExposedTo": "Agent Orange",
+            "exposureLocation": "Vietnam",
+            "exposureDates": {
+              "beginDate": "1979-04",
+              "endDate": "1980-10"
+            }
+          }
+        ]
+      },
+      "disabilities": [
+        {
+          "name": "Diabetes",
+          "exposureOrEventOrInjury": "Agent Orange",
+          "serviceRelevance": "Service in Vietnam War",
+          "approximateDate": "1975-05",
+          "disabilityActionType": "NEW",
+          "isRelatedToToxicExposure": true
+        },
+        {
+          "name": "Hearing Loss",
+          "exposureOrEventOrInjury": "Noise",
+          "serviceRelevance": "Heavy equipment operator in service",
+          "approximateDate": "1968-07",
+          "disabilityActionType": "INCREASE",
+          "classificationCode": "8987",
+          "ratedDisabilityId": "1234567",
+          "diagnosticCode": 5678,
+          "isRelatedToToxicExposure": false
+        }
+      ],
+      "treatments": [
+        {
+          "beginDate": "2021-04",
+          "treatedDisabilityNames": ["Diabetes"],
+          "center": {
+            "name": "ATLANTA VA MEDICAL CENTER",
+            "state": "GA",
+            "city": "ATLANTA"
+          }
+        },
+        {
+          "beginDate": "1996-03",
+          "treatedDisabilityNames": ["Hearing Loss"],
+          "center": {
+            "name": "ATLANTA VA MEDICAL CENTER",
+            "state": "GA",
+            "city": "ATLANTA"
+          }
+        }
+      ],
+      "serviceInformation": {
+        "alternateNames": ["Jon Doe", "Jane Doe"],
+        "servicePeriods": [
+          {
+            "serviceBranch": "Air Force",
+            "serviceComponent": "Active",
+            "activeDutyBeginDate": "1964-11-14",
+            "activeDutyEndDate": "1980-10-30",
+            "separationLocationCode": "98289"
+          }
+        ],
+        "servedInActiveCombatSince911": "NO",
+        "reservesNationalGuardService": {
+          "component": "National Guard",
+          "obligationTermsOfService": {
+            "beginDate": "1990-11-24",
+            "endDate": "1995-11-17"
+          },
+          "unitName": "National Guard Unit Name",
+          "unitAddress": "1243 Main Street",
+          "unitPhone": {
+            "areaCode": "555",
+            "phoneNumber": "5555555"
+          },
+          "receivingInactiveDutyTrainingPay": "YES"
+        },
+        "confinements": [
+          {
+            "approximateBeginDate": "1970-06-11",
+            "approximateEndDate": "1970-09-11"
+          }
+        ]
+      },
+      "servicePay": {
+        "receivingMilitaryRetiredPay": "NO",
+        "futureMilitaryRetiredPay": "YES",
+        "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
+        "militaryRetiredPay": {
+          "branchOfService": "Air Force",
+          "monthlyAmount": 240
+        },
+        "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
+        "favorMilitaryRetiredPay": false,
+        "receivedSeparationOrSeverancePay": "YES",
+        "separationSeverancePay": {
+          "datePaymentReceived": "2018-07-31",
+          "branchOfService": "Air Force",
+          "preTaxAmountReceived": 179
+        },
+        "favorTrainingPay": false
+      },
+      "directDeposit": {
+        "accountNumber": "123123123123",
+        "accountType": "CHECKING",
+        "financialInstitutionName": "Chase",
+        "routingNumber": "123456789"
+      },
+      "claimantCertification": true
+    }
+  }
+}
