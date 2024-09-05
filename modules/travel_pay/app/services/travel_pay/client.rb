@@ -44,29 +44,6 @@ module TravelPay
     end
 
     ##
-    # HTTP GET call to the BTSSS 'ping' endpoint to test liveness
-    #
-    # @return [Faraday::Response]
-    #
-    def ping
-      veis_token = request_veis_token
-      request_ping(veis_token)
-    end
-
-    ##
-    # HTTP GET call to the BTSSS 'authorized-ping' endpoint to test liveness
-    #
-    # @return [Faraday::Response]
-    #
-    def authorized_ping(current_user)
-      sts_token = request_sts_token(current_user)
-      veis_token = request_veis_token
-      btsss_token = request_btsss_token(veis_token, sts_token)
-
-      request_authorized_ping(veis_token, btsss_token)
-    end
-
-    ##
     # HTTP GET call to the BTSSS 'claims' endpoint
     # API responds with travel pay claims including status
     #
