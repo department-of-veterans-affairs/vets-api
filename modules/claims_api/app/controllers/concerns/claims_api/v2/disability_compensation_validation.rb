@@ -62,10 +62,16 @@ module ClaimsApi
       def validate_form_526_change_of_address_required_fields
         change_of_address = form_attributes['changeOfAddress']
         coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
+        type_of_address_change = change_of_address&.dig('typeOfAddressChange')
+        address_line_one = change_of_address&.dig('addressLine1')
+        country = change_of_address&.dig('country')
 
         form_object_desc = '/changeOfAddress'
 
         collect_error_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
+        collect_error_if_value_not_present('addressLine1', form_object_desc) if address_line_one.blank?
+        collect_error_if_value_not_present('country', form_object_desc) if country.blank?
+        collect_error_if_value_not_present('typeOfAddressChange', form_object_desc) if type_of_address_change.blank?
       end
 
       def validate_form_526_change_of_address_beginning_date

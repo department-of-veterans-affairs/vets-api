@@ -259,30 +259,30 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         end
       end
 
-      describe 'validation of claimant change of address elements' do
-        context "when any values present, 'dates','typeOfAddressChange','numberAndStreet','country' are required" do
-          context 'with the required values present' do
-            let(:valid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-30'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '10 Peach St',
-                addressLine2: 'Unit 4',
-                addressLine3: 'Room 1',
-                city: 'Atlanta',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: 'OH',
-                country: 'USA'
-              }
-            end
+      describe 'validation of changeOfAddress' do
+        let(:change_of_address_values) do
+          {
+            dates: {
+              beginDate: '2012-11-30'
+            },
+            typeOfAddressChange: 'PERMANENT',
+            addressLine1: '10 Peach St',
+            addressLine2: 'Unit 4',
+            addressLine3: 'Room 1',
+            city: 'Atlanta',
+            zipFirstFive: '42220',
+            zipLastFour: '',
+            state: 'OH',
+            country: 'USA'
+          }
+        end
 
+        context "'typeOfAddressChange','addressLine1','city' and 'country' are conditionally required" do
+          context 'with the required values present' do
             it 'responds with a 202' do
               mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = valid_change_of_address
+                json['data']['attributes']['changeOfAddress'] = change_of_address_values
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:accepted)
@@ -290,26 +290,10 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
             end
           end
 
-          context 'without the required numberAndStreet value present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-30',
-                  endDate: '2013-11-12'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '',
-                addressLine2: 'Unit 4',
-                addressLine3: 'Room 1',
-                city: '',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: '',
-                country: 'USA'
-              }
-            end
-
+          context 'when addressLine1 is an empty string' do
             it 'responds with a 422' do
+              invalid_change_of_address = change_of_address_values.merge(addressLine1: '')
+
               mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
@@ -318,32 +302,16 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT'
+                  'The addressLine1 is required for /changeOfAddress.'
                 )
               end
             end
           end
 
           context 'without the required country value present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-31',
-                  endDate: '2013-11-31'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '10 Peach St',
-                addressLine2: '',
-                addressLine3: '',
-                city: '',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: '',
-                country: ''
-              }
-            end
-
             it 'responds with a 422' do
+              invalid_change_of_address = change_of_address_values.merge(country: '')
+
               mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
@@ -351,32 +319,17 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to include(
-                  'is not a valid'
+                expect(response_body['errors'][0]['detail']).to eq(
+                  'The country is required for /changeOfAddress.'
                 )
               end
             end
           end
 
           context 'without the required dates values present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  endDate: '2013-11-30'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '10 Peach St',
-                addressLine2: '22',
-                addressLine3: '',
-                city: 'Atlanta',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: 'GA',
-                country: 'USA'
-              }
-            end
-
             it 'responds with a 422' do
+              invalid_change_of_address = change_of_address_values.merge(dates: { beginDate: nil })
+
               mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
@@ -391,32 +344,20 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
             end
           end
 
-          context 'without the required typeOfAddressChange values present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-31',
-                  endDate: ''
-                },
-                typeOfAddressChange: '',
-                addressLine1: '10 Peach St',
-                addressLine2: '22',
-                addressLine3: '',
-                city: 'Atlanta',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: 'GA',
-                country: 'USA'
-              }
-            end
-
+          context 'when typeOfAddressChange is an empty string' do
             it 'responds with a 422' do
+              invalid_change_of_address = change_of_address_values.merge(typeOfAddressChange: '')
+
               mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
+                response_body = JSON.parse(response.body)
+                expect(response_body['errors'][0]['detail']).to eq(
+                  'The typeOfAddressChange is required for /changeOfAddress.'
+                )
               end
             end
           end
