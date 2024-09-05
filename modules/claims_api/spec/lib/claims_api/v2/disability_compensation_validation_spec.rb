@@ -261,6 +261,45 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
+    context 'conditional validations when the country is USA' do
+      context 'zipfirstFive is not included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['zipFirstFive'] = ''
+          address = subject.form_attributes['changeOfAddress']
+          test_526_validation_instance.send(:validate_form_526_usa_coa_conditions, address)
+          errors = subject.instance_variable_get(:@errors)
+          expect(errors[0][:detail]).to eq('The zipFirstFive is required if the country is USA.')
+          expect(errors[0][:source]).to eq('/changeOfAddress')
+        end
+      end
+
+      context 'state is not included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['state'] = ''
+          address = subject.form_attributes['changeOfAddress']
+          test_526_validation_instance.send(:validate_form_526_usa_coa_conditions, address)
+          errors = subject.instance_variable_get(:@errors)
+          expect(errors[0][:detail]).to eq('The state is required if the country is USA.')
+          expect(errors[0][:source]).to eq('/changeOfAddress')
+        end
+      end
+    end
+
+    context 'conditional validations when the country is not USA' do
+      context 'zipfirstFive is included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['country'] = 'Brazil'
+          subject.form_attributes['changeOfAddress']['zipfirstFive'] = '54321'
+          subject.form_attributes['changeOfAddress']['internationalPostalCode'] = '867-5309'
+          address = subject.form_attributes['changeOfAddress']
+          test_526_validation_instance.send(:validate_form_526_international_coa_conditions, address)
+          errors = subject.instance_variable_get(:@errors)
+          expect(errors[0][:detail]).to eq('The zipFirstFive is prohibited if the country is not USA.')
+          expect(errors[0][:source]).to eq('/changeOfAddress/zipFirstFive')
+        end
+      end
+    end
+
     context 'when the begin date is after the end date' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
