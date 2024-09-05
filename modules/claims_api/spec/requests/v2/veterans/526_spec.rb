@@ -416,6 +416,65 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
           end
         end
 
+        context "conditionally required if country is 'USA'" do
+          let(:country) { 'USA' }
+
+          context 'when state is not provided' do
+            it 'responds with a 422' do
+              mock_ccg(scopes) do |auth_header|
+                json = JSON.parse(data)
+                json['data']['attributes']['changeOfAddress']['country'] = country
+                json['data']['attributes']['changeOfAddress']['state'] = ''
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
+                response_body = JSON.parse(response.body)
+                expect(response_body['errors'][0]['detail']).to eq(
+                  'The state is required if the country is USA.'
+                )
+              end
+            end
+          end
+
+          context 'when zipFirstFive is not provided' do
+            it 'responds with a 422' do
+              mock_ccg(scopes) do |auth_header|
+                json = JSON.parse(data)
+                json['data']['attributes']['changeOfAddress']['country'] = country
+                json['data']['attributes']['changeOfAddress']['zipFirstFive'] = ''
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
+                response_body = JSON.parse(response.body)
+                expect(response_body['errors'][0]['detail']).to eq(
+                  'The zipFirstFive is required if the country is USA.'
+                )
+              end
+            end
+          end
+        end
+
+        context "prohibited if country is not 'USA'" do
+          let(:country) { 'Brazil' }
+
+          context 'when zipFirstFive is provided' do
+            it 'responds with a 422' do
+              mock_ccg(scopes) do |auth_header|
+                json = JSON.parse(data)
+                json['data']['attributes']['changeOfAddress']['country'] = country
+                json['data']['attributes']['changeOfAddress']['internationalPostalCode'] = '1234-5678'
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
+                response_body = JSON.parse(response.body)
+                expect(response_body['errors'][0]['detail']).to eq(
+                  'The zipFirstFive is prohibited if the country is USA.'
+                )
+              end
+            end
+          end
+        end
+
         context 'when the begin date is after the end date' do
           let(:begin_date) { '2023-01-01' }
           let(:end_date) { '2022-01-01' }

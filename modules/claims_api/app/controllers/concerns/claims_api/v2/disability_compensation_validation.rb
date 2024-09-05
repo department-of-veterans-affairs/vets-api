@@ -134,20 +134,42 @@ module ClaimsApi
 
       def validate_form_526_change_of_address_zip
         address = form_attributes['changeOfAddress'] || {}
-        if address['country'] == 'USA' && address['zipFirstFive'].blank?
+
+        if address['country'] == 'USA'
+          validate_form_526_usa_zip_code(address)
+        else
+          validate_form_526_international_zip_code(address)
+        end
+      end
+
+      def validate_form_526_usa_zip_code(address)
+        if address['zipFirstFive'].blank?
           collect_error_messages(
             source: '/changeOfAddress/zipFirstFive',
             detail: 'The zipFirstFive is required if the country is USA.'
           )
-        elsif address['country'] != 'USA' && address['internationalPostalCode'].blank?
+        end
+
+        if address['internationalPostalCode'].present?
+          collect_error_messages(
+            source: '/changeOfAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode should not be provided if the country is USA.'
+          )
+        end
+      end
+
+      def validate_form_526_international_zip_code(address)
+        if address['internationalPostalCode'].blank?
           collect_error_messages(
             source: '/changeOfAddress/internationalPostalCode',
             detail: 'The internationalPostalCode is required if the country is not USA.'
           )
-        elsif address['country'] == 'USA' && address['internationalPostalCode'].present?
+        end
+
+        if address['zipFirstFive'].present?
           collect_error_messages(
-            source: '/changeOfAddress/internationalPostalCode',
-            detail: 'The internationalPostalCode should not be provided if the country is USA.'
+            source: '/changeOfAddress/zipFirstFive',
+            detail: 'The zipFirstFive is prohibited if the country is USA.'
           )
         end
       end
