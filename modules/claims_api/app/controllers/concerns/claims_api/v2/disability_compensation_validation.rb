@@ -316,7 +316,7 @@ module ClaimsApi
         form_attributes['disabilities'].each_with_index do |disability, dis_idx|
           if disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].blank?
             collect_error_messages(source: "disabilities/#{dis_idx}/",
-                                   detail: "If the `disabilityActionType` (#{idx}) is set to `NONE` " \
+                                   detail: "If the `disabilityActionType` (#{dis_idx}) is set to `NONE` " \
                                            'there must be a secondary disability present.')
           end
           next if disability['secondaryDisabilities'].blank?
