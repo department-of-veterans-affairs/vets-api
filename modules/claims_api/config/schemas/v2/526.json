@@ -152,7 +152,7 @@
       }
     },
     "changeOfAddress": {
-      "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
+      "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'7.",
       "type": ["object", "null"],
       "nullable": true,
       "additionalProperties": false,

@@ -281,46 +281,23 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
           context 'with the required values present' do
             it 'responds with a 202' do
               mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = change_of_address_values
-                data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:accepted)
               end
             end
           end
 
-          context 'when addressLine1 is an empty string' do
+          context 'without the condtionally required addressLine1' do
             it 'responds with a 422' do
-              invalid_change_of_address = change_of_address_values.merge(addressLine1: '')
-
               mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
+                json['data']['attributes']['changeOfAddress']['addressLine1'] = ''
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
                   'The addressLine1 is required for /changeOfAddress.'
-                )
-              end
-            end
-          end
-
-          context 'without the required country value present' do
-            it 'responds with a 422' do
-              invalid_change_of_address = change_of_address_values.merge(country: '')
-
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'The country is required for /changeOfAddress.'
                 )
               end
             end
@@ -344,13 +321,11 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
             end
           end
 
-          context 'when typeOfAddressChange is an empty string' do
+          context 'without the condtionally required typeOfAddressChange' do
             it 'responds with a 422' do
-              invalid_change_of_address = change_of_address_values.merge(typeOfAddressChange: '')
-
               mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
+                json['data']['attributes']['changeOfAddress']['typeOfAddressChange'] = ''
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
@@ -361,58 +336,82 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
               end
             end
           end
-        end
 
-        context 'when the country is valid' do
-          let(:country) { 'USA' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['country'] = country
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
+          context 'without the condtionally required country value present' do
+            it 'responds with a 422' do
+              mock_ccg(scopes) do |auth_header|
+                json = JSON.parse(data)
+                json['data']['attributes']['changeOfAddress']['country'] = ''
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
+                response_body = JSON.parse(response.body)
+                expect(response_body['errors'][0]['detail']).to eq(
+                  'The country is required for /changeOfAddress.'
+                )
+              end
             end
           end
-        end
 
-        context 'when the country is invalid' do
-          let(:country) { 'United States of Nada' }
+          context 'when the country is valid' do
+            let(:country) { 'USA' }
 
-          it 'responds with 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['country'] = country
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+            it 'responds with a 202' do
+              mock_ccg(scopes) do |auth_header|
+                json = JSON.parse(data)
+                json['data']['attributes']['changeOfAddress']['country'] = country
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
             end
           end
-        end
 
-        context 'when the city is valid' do
-          let(:city) { '#Base 6' }
+          context 'when the country is invalid' do
+            let(:country) { 'United States of Nada' }
 
-          it 'responds with 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['city'] = city
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
+            it 'responds with 422' do
+              mock_ccg(scopes) do |auth_header|
+                json = JSON.parse(data)
+                json['data']['attributes']['changeOfAddress']['country'] = country
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
+                response_body = JSON.parse(response.body)
+                expect(response_body['errors'][0]['detail']).to eq(
+                  'The country provided is not valid.'
+                )
+              end
             end
           end
-        end
 
-        context 'when the city is invalid' do
-          it 'responds with 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['city'] = nil
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+          context 'without the condtionally required city value' do
+            it 'responds with a 422' do
+              mock_ccg(scopes) do |auth_header|
+                json = JSON.parse(data)
+                json['data']['attributes']['changeOfAddress']['city'] = ''
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
+                response_body = JSON.parse(response.body)
+                expect(response_body['errors'][0]['detail']).to eq(
+                  'The city is required for /changeOfAddress.'
+                )
+              end
+            end
+          end
+
+          context 'when the city is valid' do
+            let(:city) { '#Base 6' }
+
+            it 'responds with 202' do
+              mock_ccg(scopes) do |auth_header|
+                json = JSON.parse(data)
+                json['data']['attributes']['changeOfAddress']['city'] = city
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
             end
           end
         end
