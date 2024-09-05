@@ -69,6 +69,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
 
       context 'with appeals model used' do
         before { Flipper.enable(:mobile_appeal_model) }
+        after { Flipper.disable(:mobile_appeal_model) }
 
         it 'and a result that matches our schema is successfully returned with the 200 status' do
           VCR.use_cassette('caseflow/appeals') do
