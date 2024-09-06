@@ -62,9 +62,6 @@ module Lighthouse
 
       init(in_progress_form_id, veteran_icn)
 
-      itf_log_monitor ||= BenefitsClaims::IntentToFile::Monitor.new
-      service ||= BenefitsClaims::Service.new(icn)
-
       itf_log_monitor.track_create_itf_begun(itf_type, form.created_at.to_s, form.user_account_id)
       service.create_intent_to_file(itf_type, '')
       itf_log_monitor.track_create_itf_success(itf_type, form.created_at.to_s, form.user_account_id)
@@ -103,6 +100,14 @@ module Lighthouse
       elsif itf_type.blank?
         itf_log_monitor.track_invalid_itf_type(form, e)
       end
+    end
+
+    def itf_log_monitor
+      @itf_log_monitor ||= BenefitsClaims::IntentToFile::Monitor.new
+    end
+
+    def service
+      @service ||= BenefitsClaims::Service.new(icn)
     end
   end
 end
