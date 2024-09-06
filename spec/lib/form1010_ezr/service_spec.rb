@@ -93,12 +93,12 @@ RSpec.describe Form1010Ezr::Service do
 
   describe '#post_fill_required_fields' do
     it 'Adds required fields in the Enrollment System API to the form object',
-      run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
+       run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
       VCR.use_cassette(
         'hca/ee/lookup_user',
         VCR::MATCH_EVERYTHING.merge(erb: true)
       ) do
-        expect(form.keys).to_not include('isEssentialAcaCoverage', 'vaMedicalFacility')
+        expect(form.keys).not_to include('isEssentialAcaCoverage', 'vaMedicalFacility')
 
         service.send(:post_fill_required_fields, form)
 
@@ -375,7 +375,7 @@ RSpec.describe Form1010Ezr::Service do
         end
       end
 
-      it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending "\
+      it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
          'order (if applicable)',
          run_at: 'Wed, 17 Jul 2024 18:17:30 GMT' do
         VCR.use_cassette(
