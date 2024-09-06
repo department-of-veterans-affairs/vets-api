@@ -91,7 +91,6 @@ Rails.application.routes.draw do
 
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
-    resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
 
     resource :user, only: [:show] do
