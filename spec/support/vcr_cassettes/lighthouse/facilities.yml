@@ -114,8 +114,8 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"data":{"id":"vha_358","type":"va_facilities","attributes":{"name":"Manila
-        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+      string: '{"data":{"id":"vha_358AB","type":"va_facilities","attributes":{"name":"Manila
+        VA Clinic","parent":{"id":"vha_358"},"facility_type":"va_health_facility","classification":"Other Outpatient
         Services (OOS)","website":null,"lat":14.54408,"long":120.99139,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
         City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":"NOX3 Seafront
         Compound","address_3":null}},"phone":{"fax":"632-310-5962","main":"632-550-3888","pharmacy":"632-550-3888
@@ -1872,8 +1872,8 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"data":[{"id":"vha_358","type":"va_facilities","attributes":{"name":"Manila
-        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+      string: '{"data":[{"id":"vha_358AB","type":"va_facilities","attributes":{"name":"Manila
+        VA Clinic","parent":{"id":"vha_358"},"facility_type":"va_health_facility","classification":"Other Outpatient
         Services (OOS)","website":null,"lat":14.54408,"long":120.99139,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
         City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":"NOX3 Seafront
         Compound","address_3":null}},"phone":{"fax":"632-310-5962","main":"632-550-3888","pharmacy":"632-550-3888
@@ -1967,8 +1967,8 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"data":[{"id":"vha_358","type":"va_facilities","attributes":{"name":"Manila
-        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+      string: '{"data":[{"id":"vha_358AB","type":"va_facilities","attributes":{"name":"Manila
+        VA Clinic","parent":{"id":"vha_358"},"facility_type":"va_health_facility","classification":"Other Outpatient
         Services (OOS)","website":null,"lat":14.54408,"long":120.99139,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
         City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":"NOX3 Seafront
         Compound","address_3":null}},"phone":{"fax":"632-310-5962","main":"632-550-3888","pharmacy":"632-550-3888

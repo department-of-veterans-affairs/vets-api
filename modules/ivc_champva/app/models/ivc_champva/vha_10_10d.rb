@@ -34,12 +34,18 @@ module IvcChampva
         'businessLine' => 'CMP',
         'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
         'uuid' => @uuid,
-        'primaryContactInfo' => @data['primary_contact_info']
+        'primaryContactInfo' => @data['primary_contact_info'],
+        'hasApplicantOver65' => @data['has_applicant_over65'].to_s
       }
     end
 
     def desired_stamps
-      [{ coords: [40, 105], text: data['statement_of_truth_signature'], page: 0 }]
+      return [] unless @data
+
+      stamps = initial_stamps
+      stamps.concat(applicant_stamps)
+
+      stamps
     end
 
     def submission_date_stamps
@@ -77,6 +83,43 @@ module IvcChampva
 
     def respond_to_missing?(_)
       true
+    end
+
+    private
+
+    def initial_stamps
+      stamps = [
+        { coords: [40, 105], text: @data['statement_of_truth_signature'], page: 0 }
+      ]
+      sponsor_is_deceased = @data.dig('veteran', 'sponsor_is_deceased')
+      veteran_country = @data.dig('veteran', 'address', 'country')
+      applicants = @data.fetch('applicants', [])
+      first_applicant_country = if applicants.is_a?(Array) && !applicants.empty?
+                                  applicants.first&.dig('applicant_address', 'country')
+                                end
+
+      stamps << { coords: [520, 470], text: first_applicant_country, page: 0 }
+      stamps << { coords: [520, 590], text: veteran_country, page: 0 } unless sponsor_is_deceased
+      stamps << { coords: [420, 45], text: veteran_country, page: 0 } if @data['certifier_role'] == 'sponsor'
+      stamps
+    end
+
+    def applicant_stamps
+      stamps = []
+      applicants = @data.fetch('applicants', [])
+
+      applicants.each_with_index do |applicant, index|
+        next if index.zero?
+
+        coords_y = 470 - (116 * index)
+        applicant_country = applicant.dig('applicant_address', 'country')
+
+        if applicant_country && stamps.count { |stamp| stamp[:text] == applicant_country } < 2
+          stamps << { coords: [520, coords_y], text: applicant_country, page: 0 }
+        end
+      end
+
+      stamps
     end
   end
 end

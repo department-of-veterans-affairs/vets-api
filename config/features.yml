@@ -72,6 +72,10 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_insurance_v2_enabled:
+    actor_type: user
+    description: Enables the the upgraded insurance section of the Health Care Application
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -154,9 +158,9 @@ features:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
     enable_in_development: true
-  check_in_experience_travel_btsss_ssm_urls_enabled:
+  check_in_experience_travel_api_v2_cutover:
     actor_type: user
-    description: Uses environment variables populated from SSM Param Store for BTSSS URLs.
+    description: Cuts over to new EIS endpoint path, client_id, and keys for BTSSS
     enable_in_development: true
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
@@ -218,9 +222,9 @@ features:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes 5103 letters
     enable_in_development: true
-  cst_use_claim_details_v2:
+  cst_include_ddl_sqd_letters:
     actor_type: user
-    description: When enabled, claims status tool uses the new claim details design
+    description: When enabled, the Download Decision Letters feature includes Subsequent Development Letters
     enable_in_development: true
   cst_use_dd_rum:
     actor_type: user
@@ -313,6 +317,9 @@ features:
   debts_cache_dmc_empty_response:
     actor_type: user
     description: Enables caching of empty DMC response
+  debts_cache_vbs_copays_empty_response:
+    actor_type: user
+    description: Enables caching of empty VBS medical copay response
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
@@ -420,12 +427,6 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
-  disability_526_ep_merge_new_claims:
-    actor_type: user
-    description: enables EP Merge for single-contention 526 claims for a new condition
-  disability_526_ep_merge_multi_contention:
-    actor_type: user
-    description: enables EP Merge for multi-contention 526 claims
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -516,6 +517,10 @@ features:
   facility_locator_show_operational_hours_special_instructions:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
+    enable_in_development: true
+  find_forms_show_pdf_modal:
+    actor_type: user
+    description: Shows the PDF modal for the Find VA Forms detail page
     enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
@@ -647,7 +652,11 @@ features:
     enable_in_development: true
   form1990meb_confirmation_email:
     actor_type: user
-    description: Enables form 1990meb email submission confirmation (VaNotify)
+    description: Enables form 1990 MEB email submission confirmation (VaNotify)
+    enable_in_development: true
+  form1990emeb_confirmation_email:
+    actor_type: user
+    description: Enables form 1990e MEB email submission confirmation (VaNotify)
     enable_in_development: true
   form5490_confirmation_email:
     actor_type: user
@@ -755,6 +764,10 @@ features:
   letters_check_discrepancies:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
+    enable_in_development: true
+  lighthouse_claims_api_poa_dependent_claimants:
+    actor_type: user
+    description: Enable/disable dependent claimant support for POA requests
     enable_in_development: true
   lighthouse_claims_v2_poa_requests_skip_bgs:
     actor_type: user
@@ -961,9 +974,18 @@ features:
   profile_user_claims:
     actor_type: user
     description: When enabled, /v0/user will return user profile claims for accessing service endpoints.
-  profile_show_mhv_notification_settings:
+  profile_show_mhv_notification_settings_email_appointment_reminders:
     actor_type: user
-    description: Display MHV notification settings - RX refill shipment, appointment, secure messaging, and medical images/reports
+    description: Show/Hide the email channel for Health appointment reminders notifications
+  profile_show_mhv_notification_settings_email_rx_shipment:
+    actor_type: user
+    description: Show/Hide the email channel for Prescription shipping notifications
+  profile_show_mhv_notification_settings_new_secure_messaging:
+    actor_type: user
+    description: Display MHV notification settings - New secure message notifications
+  profile_show_mhv_notification_settings_medical_images:
+    actor_type: user
+    description: Display MHV notification settings - Medical images/reports notifications
   profile_show_military_academy_attendance:
     actor_type: user
     description: When enabled, profile service history will include military academy attendance.
@@ -987,12 +1009,15 @@ features:
   profile_show_direct_deposit_single_form_edu_downtime:
     actor_type: user
     description: Show/hide the edu direct deposit form and instead display a downtime message in its place
-  profile_show_email_notification_settings:
-    actor_type: user
-    description: Show/Hide the email channel based notification settings in profile
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
+  profile_show_new_benefit_overpayment_debt_notification_setting:
+    actor_type: user
+    description: Show/Hide the Benefit overpayment debt notification item of notifications in profile
+  profile_show_new_health_care_copay_bill_notification_setting:
+    actor_type: user
+    description: Show/Hide the Health care copay bill section of notifications in profile
   profile_show_privacy_policy:
     actor_type: user
     description: Show/Hide the privacy policy section on profile pages
@@ -1172,6 +1197,10 @@ features:
     actor_type: cookie_id
     description: Enables the ability to use OAuth authentication via the Sign in Service (Identity)
     enable_in_development: true
+  sign_in_modal_v2:
+    actor_type: user
+    description: Enables new page design of Sign In modal and USiP
+    enable_in_development: false
   medical_copays_zero_debt:
     actor_type: user
     description: Enables zero debt balances feature on the medical copays application
@@ -1321,10 +1350,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
-  va_online_scheduling_appointment_details_redesign:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for redesigning the appointment details page.
   va_online_scheduling_recent_locations_filter:
     actor_type: user
     enable_in_development: true
@@ -1361,6 +1386,10 @@ features:
   veteran_onboarding_show_to_newly_onboarded:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user, based upon number of days since verified
+  veteran_onboarding_show_welcome_message_to_new_users:
+    actor_type: user
+    description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
+    enable_in_development: true
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1628,10 +1657,25 @@ features:
       When disabled: it will use the old SOB application that only works from 0600 to 2200 hrs
   travel_pay_power_switch:
     actor_type: user
+    enable_in_development: true
     description: >-
       Main switch for the Travel Pay feature on VA.gov using the new BTSSS (travel pay) API.
       Enabled - Requests are handled as normal.
       Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
+  travel_pay_view_claim_details:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A frontend-focused switch that toggles visibility of and access to the Travel Pay claim details page and entry point (features toggled together).
+      Enabled - Entry point link and claim details page are viewable.
+      Disabled - Entry point link and claim details page are not viewable.
+  travel_pay_submit_mileage_expense:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles availability of the submit mileage expense feature.
+      Enabled - Requests are handled as normal. Frontend features are available per toggle settings.
+      Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled. Frontend features are not available.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results

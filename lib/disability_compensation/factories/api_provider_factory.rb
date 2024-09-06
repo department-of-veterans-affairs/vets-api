@@ -189,9 +189,9 @@ class ApiProviderFactory
   def supplemental_document_upload_service_provider
     case api_provider
     when API_PROVIDER[:evss]
-      EVSSSupplementalDocumentUploadProvider.new(@options[:form526_submission], @options[:file_body])
+      EVSSSupplementalDocumentUploadProvider.new(@options[:form526_submission])
     when API_PROVIDER[:lighthouse]
-      LighthouseSupplementalDocumentUploadProvider.new(@options[:form526_submission], @options[:file_body])
+      LighthouseSupplementalDocumentUploadProvider.new(@options[:form526_submission])
     else
       raise NotImplementedError, 'No known Supplemental Document Upload Api Provider type provided'
     end
