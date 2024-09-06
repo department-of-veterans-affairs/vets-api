@@ -2057,36 +2057,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'NOD contestable_issues' do
-      let(:ssn) { '212222112' }
-
-      it 'documents contestable_issues 200' do
-        VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200') do
-          expect(subject).to validate(
-            :get,
-            '/v0/notice_of_disagreements/contestable_issues',
-            200,
-            headers
-          )
-        end
-      end
-
-      context '404' do
-        let(:ssn) { '000000000' }
-
-        it 'documents contestable_issues 404' do
-          VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404') do
-            expect(subject).to validate(
-              :get,
-              '/v0/notice_of_disagreements/contestable_issues',
-              404,
-              headers
-            )
-          end
-        end
-      end
-    end
-
     describe 'appointments' do
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')

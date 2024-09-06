@@ -214,10 +214,6 @@ Rails.application.routes.draw do
 
     resources :appeals, only: :index
 
-    namespace :notice_of_disagreements do
-      get 'contestable_issues', to: 'contestable_issues#index'
-    end
-
     scope :messaging do
       scope :health do
         resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
