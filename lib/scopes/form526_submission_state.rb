@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Scopes
+  # rubocop:disable Metrics/ModuleLength
   module Form526SubmissionState
     extend ActiveSupport::Concern
 
@@ -124,4 +125,5 @@ module Scopes
     end
     # rubocop:enable Metrics/BlockLength
   end
+  # rubocop:enable Metrics/ModuleLength
 end

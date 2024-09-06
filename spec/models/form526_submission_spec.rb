@@ -213,7 +213,6 @@ RSpec.describe Form526Submission do
     end
 
     describe 'accepted_to_primary_path' do
-
       it 'returns submissions with a submitted_claim_id' do
         expect(Form526Submission.accepted_to_evss_primary_path).to contain_exactly(
           happy_path_success
@@ -239,15 +238,15 @@ RSpec.describe Form526Submission do
       it 'returns the EVSS submission when the Lighthouse submission is not found' do
         happy_lighthouse_path_success.update(submitted_claim_id: nil)
         expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
-                                                                happy_path_success
-                                                              )
+          happy_path_success
+        )
       end
 
       it 'returns the Lighthouse submission when the EVSS submission has no submitted claim id' do
         happy_path_success.update(submitted_claim_id: nil)
         expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
-                                                                happy_lighthouse_path_success
-                                                              )
+          happy_lighthouse_path_success
+        )
       end
 
       it 'returns neither submission when neither EVSS nor Lighthouse submissions have submitted claim ids' do
