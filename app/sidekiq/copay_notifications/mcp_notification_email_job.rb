@@ -14,13 +14,8 @@ module CopayNotifications
     include SentryLogging
     sidekiq_options retry: 14
 
-    def perform(vet360_id, template_id, backup_email = nil, personalisation = nil) # rubocop:disable Metrics/MethodLength
-      person_resp = if Flipper.enabled?(:va_v3_contact_information_service)
-                      VAProfile::V2::ContactInformation::Service.get_person(vet360_id)
-                    else
-                      VAProfile::ContactInformation::Service.get_person(vet360_id)
-                    end
-
+    def perform(vet360_id, template_id, backup_email = nil, personalisation = nil)
+      person_resp = person_response(vet360_id)
       email_address = person_resp.person&.emails&.first&.email_address || backup_email
 
       if email_address
@@ -50,6 +45,16 @@ module CopayNotifications
           personalisation:
         }.compact
       )
+    end
+
+    private
+
+    def person_response(vet360_id)
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        VAProfile::V2::ContactInformation::Service.get_person(vet360_id)
+      else
+        VAProfile::ContactInformation::Service.get_person(vet360_id)
+      end
     end
   end
 end
