@@ -133,7 +133,6 @@ module V0
       Swagger::Requests::Coe,
       Swagger::Requests::Debts,
       Swagger::Requests::DebtLetters,
-      Swagger::Requests::DecisionReviewEvidence,
       Swagger::Requests::DependentsApplications,
       Swagger::Requests::DependentsVerifications,
       Swagger::Requests::DisabilityCompensationForm,
