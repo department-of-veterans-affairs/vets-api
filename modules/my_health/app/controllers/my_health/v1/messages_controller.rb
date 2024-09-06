@@ -110,6 +110,7 @@ module MyHealth
       private
 
       def message_params
+        # test
         @message_params ||= begin
           params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
           params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
