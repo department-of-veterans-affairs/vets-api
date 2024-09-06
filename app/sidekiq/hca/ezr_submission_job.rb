@@ -7,7 +7,6 @@ module HCA
   class EzrSubmissionJob
     include Sidekiq::Job
     include SentryLogging
-    include Common::Client::Concerns::Monitoring
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError
 
     sidekiq_options retry: 14
