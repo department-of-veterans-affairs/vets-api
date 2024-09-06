@@ -73,8 +73,6 @@ module Form1010Ezr
           error_class: 'Form1010Ezr Failed'
         )
 
-        failure_message = '1010EZR failure'
-
         log_message_to_sentry(
           '1010EZR failure',
           :error,
