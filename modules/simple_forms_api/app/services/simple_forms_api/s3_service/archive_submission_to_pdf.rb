@@ -1,27 +1,33 @@
 # frozen_string_literal: true
 
 # To use
-# ids = <array of submission ids to dump>
-# parent_dir = <the name of the s3 'folder' where these dumps will be put>
+# ids = <array of submission ids to archive>
+# parent_dir = <the name of the s3 'folder' where these archives will be put>
 #
-# to see your dump in s3
+# to see your archive in s3
 # 1. go here https://console.amazonaws-us-gov.com/s3/home?region=us-gov-west-1#
 # 2. login with 2fa
 # 3. search for dsva-vetsgov-prod-reports
-# 4. search for your parent_dir name, e.g. 526dump_aug_21st_2024
+# 4. search for your parent_dir name, e.g. 526archive_aug_21st_2024
 #
 # If you do not provide a parent_dir, the script defaults to a folder called wipn8923-test
 #
 # OPTION 1: Run the script with user groupings
 # - requires SubmissionDuplicateReport object
-# - SubmissionDumpHandler.new(submission_ids: ids, parent_dir:).run
+# - SubmissionArchiveHandler.new(submission_ids: ids, parent_dir:).run
 #
 # OPTION 2: Run without user groupings
-# ids.each { |id| DumpSubmissionToPdf.new(submission_id: id, parent_dir:).run }
+# ids.each { |id| ArchiveSubmissionToPdf.new(submission_id: id, parent_dir:).run }
 # this will just put each submission in a folder by it's id under the parent dir
-class DumpSubmissionToPdf
-  attr_reader :failures, :form_id, :include_json_dump, :include_text_dump,
-              :parent_dir, :quiet_pdf_failures, :quiet_upload_failures, :submission
+class ArchiveSubmissionToPdf
+  attr_reader :failures, :form_id, :include_json_archive, :include_text_archive,
+              :parent_dir, :quiet_pdf_failures, :quiet_upload_failures, :run_quiet,
+              :submission
+
+  VALID_VFF_FORMS = %w[
+    20-10206 20-10207 21-0845 21-0966 21-0972 21-10210
+    21-4138 21-4142 21P-0847 26-4555 40-0247 40-10007
+  ].freeze
 
   def initialize(form_id: nil, submission_id: nil, submission: nil, **options)
     defaults = default_options.merge(options)
@@ -30,10 +36,11 @@ class DumpSubmissionToPdf
     @form_id = form_id
     @submission = submission || FormSubmission.find(submission_id)
     @parent_dir = defaults[:parent_dir]
-    @include_text_dump = defaults[:include_text_dump]
-    @include_json_dump = defaults[:include_json_dump]
+    @include_text_archive = defaults[:include_text_archive]
+    @include_json_archive = defaults[:include_json_archive]
     @quiet_upload_failures = defaults[:quiet_upload_failures]
     @quiet_pdf_failures = defaults[:quiet_pdf_failures]
+    @run_quiet = defaults[:run_quiet]
   end
 
   def run
@@ -48,8 +55,8 @@ class DumpSubmissionToPdf
 
   def default_options
     {
-      include_json_dump: true, # include the form data as a JSON object
-      include_text_dump: true, # include the form data as a text file
+      include_json_archive: true, # include the form data as a JSON object
+      include_text_archive: true, # include the form data as a text file
       parent_dir: 'wipn8923-test',
       quiet_pdf_failures: true, # skip PDF generation silently
       quiet_upload_failures: true, # skip problematic uploads silently
@@ -59,14 +66,14 @@ class DumpSubmissionToPdf
 
   def process_submission_files
     write_pdf
-    write_as_json_dump if include_json_dump
-    write_as_text_dump if include_text_dump
+    write_as_json_archive if include_json_archive
+    write_as_text_archive if include_text_archive
     write_user_uploads if user_uploads.present?
     write_metadata
   end
 
   def handle_run_error(error)
-    raise error unless default_options[:run_quiet]
+    raise error unless run_quiet
 
     failures << { id: submission.id, error: error.message }
     log_error("Failed submission: #{submission.id}", error)
@@ -93,12 +100,12 @@ class DumpSubmissionToPdf
     "#{error.message}\n\n#{error.backtrace.join("\n")}"
   end
 
-  def write_as_json_dump
-    save_file_to_s3("#{output_directory_path}/form_text_dump.json", JSON.pretty_generate(form_json))
+  def write_as_json_archive
+    save_file_to_s3("#{output_directory_path}/form_text_archive.json", JSON.pretty_generate(form_json))
   end
 
-  def write_as_text_dump
-    save_file_to_s3("#{output_directory_path}/form_text_dump.txt", form_text_dump.to_json)
+  def write_as_text_archive
+    save_file_to_s3("#{output_directory_path}/form_text_archive.txt", form_text_archive.to_json)
   end
 
   def write_metadata
@@ -147,7 +154,7 @@ class DumpSubmissionToPdf
     @form_json ||= JSON.parse(submission.form_json)[form_id]
   end
 
-  def form_text_dump
+  def form_text_archive
     form = submission.form
     form[form_id]['claimDate'] ||= submission.created_at.iso8601
     form
@@ -172,15 +179,7 @@ class DumpSubmissionToPdf
   end
 
   def map_form_inclusion
-    %w[form1 form2].select { |type| submission.form[type].present? }
-  end
-
-  def log_info(message)
-    Rails.logger.info(message)
-  end
-
-  def log_error(message, error)
-    Rails.logger.error("#{message}: #{error.message}")
+    VALID_VFF_FORMS.select { |type| submission.form[type].present? }
   end
 
   def output_directory_path
