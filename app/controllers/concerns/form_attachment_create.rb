@@ -5,26 +5,9 @@ module FormAttachmentCreate
   include SentryLogging
 
   def create
-    begin
-      validate_file_upload_class!
-    rescue => e
-      log_exception_to_sentry(e, { context: 'FAC_validate', class: filtered_params[:file_data].class.name })
-      raise e
-    end
-
-    begin
-      save_attachment_to_cloud!
-    rescue => e
-      log_exception_to_sentry(e, { context: 'FAC_cloud' })
-      raise e
-    end
-
-    begin
-      save_attachment_to_db!
-    rescue => e
-      log_exception_to_sentry(e, { context: 'FAC_db', errors: form_attachment.errors })
-      raise e
-    end
+    validate_file_upload_class!
+    save_attachment_to_cloud!
+    save_attachment_to_db!
 
     render json: serializer_klass.new(form_attachment)
   end
@@ -36,18 +19,33 @@ module FormAttachmentCreate
   end
 
   def validate_file_upload_class!
-    # is it either ActionDispatch::Http::UploadedFile or Rack::Test::UploadedFile
-    unless filtered_params[:file_data].class.name.include? 'UploadedFile'
-      raise Common::Exceptions::InvalidFieldValue.new('file_data', filtered_params[:file_data].class.name)
+    begin
+      # is it either ActionDispatch::Http::UploadedFile or Rack::Test::UploadedFile
+      unless filtered_params[:file_data].class.name.include? 'UploadedFile'
+        raise Common::Exceptions::InvalidFieldValue.new('file_data', filtered_params[:file_data].class.name)
+      end
+    rescue => e
+      log_exception_to_sentry(e, { context: 'FAC_validate', class: filtered_params[:file_data].class.name })
+      raise e
     end
   end
 
   def save_attachment_to_cloud!
-    form_attachment.set_file_data!(filtered_params[:file_data], filtered_params[:password])
+    begin
+      form_attachment.set_file_data!(filtered_params[:file_data], filtered_params[:password])
+    rescue => e
+      log_exception_to_sentry(e, { context: 'FAC_cloud' })
+      raise e
+    end
   end
 
   def save_attachment_to_db!
-    form_attachment.save!
+    begin
+      form_attachment.save!
+    rescue => e
+      log_exception_to_sentry(e, { context: 'FAC_db', errors: form_attachment.errors })
+      raise e
+    end
   end
 
   def form_attachment
