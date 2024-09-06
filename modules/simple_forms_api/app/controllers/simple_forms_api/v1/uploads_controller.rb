@@ -164,9 +164,14 @@ module SimpleFormsApi
       end
 
       def upload_pdf(file_path, metadata, form)
-        location, uuid = prepare_for_upload(form, file_path)
+        location, uuid, submission_attempt = prepare_for_upload(form, file_path)
         log_upload_details(location, uuid)
         response = perform_pdf_upload(location, file_path, metadata, form)
+        SimpleFormsApi::S3Service::SubmissionArchiveHandlerJob.perform_async(
+          submission_ids: [submission_attempt.form_submission.id],
+          metadata:,
+          file_path:
+        )
 
         [response.status, uuid]
       end
@@ -176,9 +181,9 @@ module SimpleFormsApi
                           form_id: get_form_id)
         location, uuid = lighthouse_service.request_upload
         stamp_pdf_with_uuid(form, uuid, file_path)
-        create_form_submission_attempt(uuid)
+        submission_attempt = create_form_submission_attempt(uuid)
 
-        [location, uuid]
+        [location, uuid, submission_attempt]
       end
 
       def stamp_pdf_with_uuid(form, uuid, stamped_template_path)

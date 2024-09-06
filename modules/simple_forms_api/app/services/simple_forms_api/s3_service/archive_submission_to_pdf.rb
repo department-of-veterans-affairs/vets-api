@@ -10,7 +10,7 @@
 # 3. search for dsva-vetsgov-prod-reports
 # 4. search for your parent_dir name, e.g. 526archive_aug_21st_2024
 #
-# If you do not provide a parent_dir, the script defaults to a folder called wipn8923-test
+# If you do not provide a parent_dir, the script defaults to a folder called vff-simple-forms
 #
 # OPTION 1: Run the script with user groupings
 # - requires SubmissionDuplicateReport object
@@ -22,7 +22,7 @@
 module SimpleFormsApi
   module S3Service
     class ArchiveSubmissionToPdf < SimpleFormsApi::S3Service::Utils
-      attr_reader :failures, :form_id, :include_json_archive, :include_text_archive,
+      attr_reader :failures, :include_json_archive, :include_text_archive, :metadata,
                   :parent_dir, :quiet_pdf_failures, :quiet_upload_failures, :run_quiet,
                   :submission
 
@@ -31,11 +31,10 @@ module SimpleFormsApi
         21-4138 21-4142 21P-0847 26-4555 40-0247 40-10007
       ].freeze
 
-      def initialize(form_id: nil, submission_id: nil, submission: nil, **options)
+      def initialize(submission_id: nil, submission: nil, **options)
         defaults = default_options.merge(options)
 
         @failures = []
-        @form_id = form_id
         @submission = submission || FormSubmission.find(submission_id)
 
         assign_instance_variables(defaults)
@@ -46,19 +45,22 @@ module SimpleFormsApi
         process_submission_files
         output_directory_path
       rescue => e
-        handle_error("Failed submission: #{submission.id}", e, submission_id: submission.id)
+        handle_error("Failed submission: #{submission.id}", e, { submission_id: submission.id })
       end
 
       private
 
       def default_options
         {
+          file_path: nil, # file path for the PDF file to be archived
           include_json_archive: true, # include the form data as a JSON object
           include_text_archive: true, # include the form data as a text file
-          parent_dir: 'wipn8923-test',
+          metadata: {},
+          parent_dir: 'vff-simple-forms',
           quiet_pdf_failures: true, # skip PDF generation silently
           quiet_upload_failures: true, # skip problematic uploads silently
-          run_quiet: true # silence but record errors, logged at the end
+          run_quiet: true, # silence but record errors, logged at the end
+          uploads_path: ['uploadedFile'] # hierarchy where the attachments can be found
         }
       end
 
@@ -72,15 +74,24 @@ module SimpleFormsApi
 
       def write_pdf
         encoded_pdf = generate_pdf_content
-        save_file_to_s3("#{output_directory_path}/form.pdf", Base64.decode64(encoded_pdf))
+        pdf = save_file_to_s3(
+          "#{output_directory_path}/form_#{submission.form_data['form_number']}.pdf",
+          Base64.decode64(encoded_pdf)
+        )
+        sign_s3_file_url(pdf)
       rescue => e
         quiet_pdf_failures ? write_pdf_error(e) : raise(e)
       end
 
-      # TODO: update this method to support configurable pdf generation logic
       def generate_pdf_content
-        service = EVSS::DisabilityCompensationForm::NonBreakeredService.new(submission.auth_headers)
-        service.get_form(form_json.to_json).body['pdf']
+        raise 'Missing PDF file to upload' unless file_path
+
+        Faraday::UploadIO.new(file_path, Mime[:pdf].to_s, File.basename(file_path))
+      end
+
+      def sign_s3_file_url(pdf)
+        signed_url = pdf.presigned_url(:get, expires_in: 1.year.to_i)
+        submission.form_submission_attempts&.last&.update(signed_url:)
       end
 
       def write_pdf_error(error)
@@ -135,41 +146,22 @@ module SimpleFormsApi
       end
 
       def save_file_to_s3(path, content)
-        s3_resource.bucket(target_bucket).object(path).put(body: content)
-      end
-
-      def form_json
-        @form_json ||= JSON.parse(submission.form_json)[form_id]
-      end
-
-      def form_text_archive
-        submission.form.tap do |form|
-          form[form_id]['claimDate'] ||= submission.created_at.iso8601
+        s3_resource.bucket(target_bucket).object(path).tap do |obj|
+          obj.put(body: content)
         end
       end
 
-      def metadata
-        return {} unless submission.auth_headers.present? && submission.form[form_id].present?
-
-        extract_metadata_from_submission
+      def form_json
+        @form_json ||= JSON.parse(submission.form_data)
       end
 
-      # TODO: update this method to support configurable metadata
-      def extract_metadata_from_submission
-        address = submission.form.dig(form_id, 'veteran', 'currentMailingAddress')
-        zip = [address['zipFirstFive'], address['zipLastFour']].join('-') if address.present?
-        pii = JSON.parse(submission.auth_headers['va_eauth_authorization'])['authorizationResponse']
-        pii.merge({
-                    fileNumber: pii['va_eauth_pnid'],
-                    zipCode: zip || '00000',
-                    claimDate: submission.created_at.iso8601,
-                    formsIncluded: map_form_inclusion
-                  })
+      def form_text_archive
+        submission.form_data['claimDate'] ||= submission.created_at.iso8601
       end
 
       # TODO: update this method to check against configured form list
       def map_form_inclusion
-        VALID_VFF_FORMS.select { |type| submission.form[type].present? }
+        VALID_VFF_FORMS.select { |type| submission.form_number == type }
       end
 
       def output_directory_path
@@ -177,7 +169,7 @@ module SimpleFormsApi
       end
 
       def user_uploads
-        @user_uploads ||= submission.form['form_uploads']
+        @user_uploads ||= submission.fetch(*uploads_path, nil)
       end
 
       def user_upload_failures

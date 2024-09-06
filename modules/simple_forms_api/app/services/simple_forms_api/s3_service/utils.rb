@@ -22,7 +22,7 @@ module SimpleFormsApi
       def handle_error(message, error, context)
         raise error unless run_quiet
 
-        log_error(message, error, context)
+        log_error(message, error, **context)
         failures << { message:, error:, **context }
       end
 

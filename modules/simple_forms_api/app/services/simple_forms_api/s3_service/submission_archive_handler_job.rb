@@ -22,7 +22,9 @@ module SimpleFormsApi
       def default_options
         {
           bundle_by_user: true,
-          parent_dir: 'wipn8923-test',
+          file_path: nil, # file path for the PDF file to be archived
+          metadata: nil,
+          parent_dir: 'vff-simple-forms',
           quiet_pdf_failures: false,
           quiet_upload_failures: false,
           run_quiet: true,

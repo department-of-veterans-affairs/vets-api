@@ -5,7 +5,7 @@ module SimpleFormsApi
     class UserSubmissionArchiveHandler < SimpleFormsApi::S3Service::Utils
       attr_reader :uuid, :user_dir, :submission_ids
 
-      def initialize(uuid:, submission_ids:, parent_dir: 'wipn8923-test')
+      def initialize(uuid:, submission_ids:, parent_dir: 'vff-simple-forms')
         @submission_ids = submission_ids
         @uuid = uuid
         @user_dir = build_user_directory(parent_dir)

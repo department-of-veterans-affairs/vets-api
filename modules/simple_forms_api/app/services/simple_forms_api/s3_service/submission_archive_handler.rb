@@ -26,7 +26,9 @@ module SimpleFormsApi
       def default_options
         {
           bundle_by_user: true,
-          parent_dir: 'wipn8923-test',
+          file_path: nil, # file path for the PDF file to be archived
+          metadata: nil,
+          parent_dir: 'vff-simple-forms',
           quiet_pdf_failures: false, # granular control over how pdf processing raises errors
           quiet_upload_failures: false, # granular control over how upload processing raises errors
           run_quiet: true # silence but record errors until the end
@@ -72,10 +74,12 @@ module SimpleFormsApi
 
       def process_submission(submission_id)
         ArchiveSubmissionToPdf.new(
-          submission_id:,
+          file_path:,
+          metadata:,
           parent_dir:,
           quiet_pdf_failures:,
-          quiet_upload_failures:
+          quiet_upload_failures:,
+          submission_id:
         ).run
       rescue => e
         handle_error("Submission archiver failure: #{submission_id}", e, submission_id:)
