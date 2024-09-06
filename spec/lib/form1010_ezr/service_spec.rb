@@ -165,6 +165,15 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   describe '#log_submission_failure' do
+    context "when 'parsed_form' is not present" do
+      it 'only increments StatsD' do
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+
+        described_class.new(nil).log_submission_failure(nil)
+      end
+    end
+
     context "when 'parsed_form' is present" do
       context "when 'retries_exhausted' is false" do
         it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a failure message to sentry" do
@@ -316,7 +325,7 @@ RSpec.describe Form1010Ezr::Service do
         it 'increments StatsD as well as logs and raises the error' do
           allow(StatsD).to receive(:increment)
 
-          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+          expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
           expect { submit_form(form) }.to raise_error(
             StandardError, 'Uh oh. Some bad error occurred.'
           )
