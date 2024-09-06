@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lighthouse/benefits_documents/form526/upload_supplemental_document_service'
 
 RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :job do
   subject { described_class }
@@ -116,7 +115,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
             form526_submission_id: submission.id,
             document_type: Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE,
             lighthouse_document_request_id: lighthouse_request_id
-
           }
 
           expect do

@@ -128,25 +128,25 @@ module EVSS
         if Flipper.enabled?(:disability_compensation_use_api_provider_for_bdd_instructions)
           api_response = upload_via_api_provider
 
-          if @api_upload_provider.is_a?(LighthouseSupplementalDocumentUploadProvider)
+          if upload_provider.is_a?(LighthouseSupplementalDocumentUploadProvider)
             create_lighthouse_polling_record(api_response)
           end
 
-          api_upload_provider.log_upload_success(STATSD_KEY_PREFIX)
+          upload_provider.log_upload_success(STATSD_KEY_PREFIX)
         else
           EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
         end
       end
 
       def upload_via_api_provider
-        document = api_upload_provider.generate_upload_document(
+        document = upload_provider.generate_upload_document(
           BDD_INSTRUCTIONS_DOCUMENT_TYPE, BDD_INSTRUCTIONS_DOCUMENT_TYPE
         )
-        api_upload_provider.submit_upload_document(document, file_body)
+        upload_provider.submit_upload_document(document, file_body)
       end
 
-      def api_upload_provider
-        @api_upload_provider ||= EVSS::DisabilityCompensationForm::UploadBddInstructions.api_upload_provider(submission)
+      def upload_provider
+        @upload_provider ||= EVSS::DisabilityCompensationForm::UploadBddInstructions.api_upload_provider(submission)
       end
 
       # Creates a Lighthouse526DocumentUpload record, where we save

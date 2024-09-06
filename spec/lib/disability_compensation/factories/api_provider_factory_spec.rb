@@ -253,7 +253,7 @@ RSpec.describe ApiProviderFactory do
         type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
         provider: api_provider,
         options: {
-          form526_submission: submission,
+          form526_submission: submission
         },
         current_user:,
         feature_toggle: nil
@@ -273,14 +273,14 @@ RSpec.describe ApiProviderFactory do
         ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
           options: {
-            form526_submission: submission,
+            form526_submission: submission
           },
           current_user:,
           feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS
         )
       end
 
-      it 'provides an upload_supplemental_document provider based on Flipper' do
+      it 'provides a SupplementalDocumentUploadProvider based on a Flipper' do
         Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS)
         expect(provider.class).to equal(LighthouseSupplementalDocumentUploadProvider)
 
