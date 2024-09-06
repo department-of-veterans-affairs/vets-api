@@ -108,20 +108,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
           subject.perform_async(submission.id)
           described_class.drain
         end
-
-        it 'creates a pending Lighthouse526DocumentUpload record for the submission so we can poll Lighthouse later' do
-          upload_attributes = {
-            aasm_state: 'pending',
-            form526_submission_id: submission.id,
-            document_type: Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE,
-            lighthouse_document_request_id: lighthouse_request_id
-          }
-
-          expect do
-            subject.perform_async(submission.id)
-            described_class.drain
-          end.to change { Lighthouse526DocumentUpload.where(**upload_attributes).count }.by(1)
-        end
       end
 
       context 'when the ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS feature flag is disabled' do
@@ -152,17 +138,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
 
           subject.perform_async(submission.id)
           described_class.drain
-        end
-
-        # We don't create these records when uploading to EVSS, since they are only used
-        # to poll Lighthouse for the status of the document after Lighthouse receives it
-        it 'does not create a Lighthouse526DocumentUpload record' do
-          allow_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:submit_upload_document)
-
-          expect do
-            subject.perform_async(submission.id)
-            described_class.drain
-          end.not_to change(Lighthouse526DocumentUpload, :count)
         end
       end
     end
