@@ -16,7 +16,7 @@ module BGS
 
     def read_diaries
       return { dependency_decs: nil, diaries: [] } if participant_id.blank?
-      
+
       diaries = service.diaries.read_diaries(
         {
           beneficiary_id: participant_id,
