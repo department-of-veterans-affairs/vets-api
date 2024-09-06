@@ -177,6 +177,8 @@ module SimpleFormsApi
       end
 
       def prepare_for_upload(form)
+        Rails.logger.info('Simple forms api - preparing to request upload location from Lighthouse',
+                          form_id: get_form_id)
         location, uuid = lighthouse_service.request_upload
         stamp_pdf_with_uuid(form, uuid)
         create_form_submission_attempt(uuid)
