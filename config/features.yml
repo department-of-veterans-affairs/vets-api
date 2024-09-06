@@ -72,6 +72,10 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_insurance_v2_enabled:
+    actor_type: user
+    description: Enables the the upgraded insurance section of the Health Care Application
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -317,6 +321,9 @@ features:
   debts_cache_dmc_empty_response:
     actor_type: user
     description: Enables caching of empty DMC response
+  debts_cache_vbs_copays_empty_response:
+    actor_type: user
+    description: Enables caching of empty VBS medical copay response
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
@@ -424,12 +431,6 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
-  disability_526_ep_merge_new_claims:
-    actor_type: user
-    description: enables EP Merge for single-contention 526 claims for a new condition
-  disability_526_ep_merge_multi_contention:
-    actor_type: user
-    description: enables EP Merge for multi-contention 526 claims
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -1345,10 +1346,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
-  va_online_scheduling_appointment_details_redesign:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for redesigning the appointment details page.
   va_online_scheduling_recent_locations_filter:
     actor_type: user
     enable_in_development: true
@@ -1385,6 +1382,10 @@ features:
   veteran_onboarding_show_to_newly_onboarded:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user, based upon number of days since verified
+  veteran_onboarding_show_welcome_message_to_new_users:
+    actor_type: user
+    description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
+    enable_in_development: true
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1663,7 +1664,7 @@ features:
     description: >-
       A frontend-focused switch that toggles visibility of and access to the Travel Pay claim details page and entry point (features toggled together).
       Enabled - Entry point link and claim details page are viewable.
-      Disabled - Entry point link and claim details page are not viewable. 
+      Disabled - Entry point link and claim details page are not viewable.
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true

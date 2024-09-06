@@ -79,6 +79,7 @@ sign_in:
   vamobile_client_id: vamobile
   arp_client_id: arp
   sts_client:
+    base_url: http://localhost:3000
     key_path: spec/fixtures/sign_in/sts_client.pem
 
 terms_of_use:
@@ -558,6 +559,12 @@ mhv:
     host: fake-host
     app_token: fake-app-token
     x_auth_key: fake-x-auth-key
+  account_creation:
+    mock: true
+    host: https://mhv-intb-api.myhealth.va.gov
+    sts:
+      service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
+      issuer: http://localhost:3000
 
 # Settings for alternate MHV integration for mobile app
 mhv_mobile:
@@ -1277,6 +1284,7 @@ vanotify:
     va_gov:
       api_key: fake_secret
       template_id:
+        appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
         burial_claim_confirmation_email_template_id: burial_claim_confirmation_email_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id

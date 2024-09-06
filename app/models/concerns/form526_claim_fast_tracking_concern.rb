@@ -120,14 +120,6 @@ module Form526ClaimFastTrackingConcern
     disabilities.pluck('diagnosticCode')
   end
 
-  def eligible_for_ep_merge?
-    user = User.find(user_uuid)
-    return true if Flipper.enabled?(:disability_526_ep_merge_multi_contention, user)
-    return false unless disabilities.count == 1
-
-    Flipper.enabled?(:disability_526_ep_merge_new_claims, user) ? increase_or_new? : increase_only?
-  end
-
   def prepare_for_evss!
     begin
       is_claim_fully_classified = update_classification!
@@ -136,7 +128,7 @@ module Form526ClaimFastTrackingConcern
       Rails.logger.error e.backtrace.join('\n')
     end
 
-    prepare_for_ep_merge! if eligible_for_ep_merge? && is_claim_fully_classified
+    prepare_for_ep_merge! if is_claim_fully_classified
 
     return if pending_eps? || disabilities_not_service_connected?
 
