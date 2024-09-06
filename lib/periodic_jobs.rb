@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# @see https://crontab.guru/
+# @see https://en.wikipedia.org/wiki/Cron
 PERIODIC_JOBS = lambda { |mgr|
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
@@ -53,7 +55,7 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
 
   # Generate FormSubmissionAttempt rememdiation statistics from Lighthouse Benefits Intake API
-  mgr.register('0 0 * * *', 'BenefitsIntakeRemediationJob')
+  mgr.register('0 1 * * 1', 'BenefitsIntakeRemediationJob')
 
   # Update Lighthouse526DocumentUpload statuses according to Lighthouse Benefits Documents service tracking
   mgr.register('15 * * * *', 'Form526DocumentUploadPollingJob')

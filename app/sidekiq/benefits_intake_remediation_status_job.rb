@@ -2,7 +2,7 @@
 
 require 'lighthouse/benefits_intake/service'
 
-class BenefitsIntakeRemediationJob
+class BenefitsIntakeRemediationStatusJob
   include Sidekiq::Job
 
   sidekiq_options retry: false
@@ -10,54 +10,60 @@ class BenefitsIntakeRemediationJob
   STATS_KEY = 'api.benefits_intake.remediation_status'
   BATCH_SIZE = Settings.lighthouse.benefits_intake.report.batch_size || 1000
 
-  attr_reader :batch_size
-
   def initialize(batch_size: BATCH_SIZE)
     @batch_size = batch_size
+    @total_handled = 0
   end
 
   def perform
-    Rails.logger.info('BenefitsIntakeRemediationJob started')
+    Rails.logger.info('BenefitsIntakeRemediationStatusJob started')
+
+    form_submissions = FormSubmission.includes(:form_submission_attempts)
+    fs_saved_claim_ids = form_submissions.map(&:saved_claim_id).uniq
+
+    started = form_submissions.group(:form_type).minimum(:created_at)
+    started.each do |form_id, created_at|
+      claim_ids = SavedClaim.where(form_id:).where("created_at > ?", created_at:).map(&:id).uniq
 
 
-    start_dates = FormSubmission.group(:form_type).minimum(:created_at)
-    failed = FormSubmission.joins(:form_submission_attempts).where(form_type: '21P-527EZ', form_submission_attempts: {aasm_state: 'failure'})
+      puts "UNSUBMITTED CLAIMS: #{claim_ids - fs_saved_claim_ids}"
+      puts "ORPHAN SUBMISSION: #{fs_saved_claim_ids - claim_ids}"
+    end
 
-    pending_form_submissions = FormSubmission
-                               .joins(:form_submission_attempts)
-                               .where(form_submission_attempts: { aasm_state: 'pending' })
-    total_handled, result = batch_process(pending_form_submissions)
+    failed = form_submissions.where(form_submission_attempts: {aasm_state: 'failure'})
 
-    Rails.logger.info('BenefitsIntakeRemediationJob ended', total_handled:) if result
+    batch_process(submissions)
+
+    Rails.logger.info('BenefitsIntakeRemediationStatusJob ended', total_handled:)
   end
 
   private
 
-  def batch_process(pending_form_submissions)
-    total_handled = 0
+  attr_reader :batch_size
+  attr_accessor :total_handled
+
+  def batch_process(submissions)
     intake_service = BenefitsIntake::Service.new
 
-    pending_form_submissions.each_slice(batch_size) do |batch|
+    submissions.each_slice(batch_size) do |batch|
       batch_uuids = batch.map(&:benefits_intake_uuid)
       response = intake_service.bulk_status(uuids: batch_uuids)
       raise response.body unless response.success?
 
-      total_handled += handle_response(response, batch)
+      next unless data = response.body['data']
+
+      handle_response(data, batch)
     end
 
-    [total_handled, true]
   rescue => e
     Rails.logger.error('Error processing Intake Status batch', class: self.class.name, message: e.message)
-    [total_handled, false]
   end
 
   # rubocop:disable Metrics/MethodLength
-  def handle_response(response, pending_form_submissions)
-    total_handled = 0
-
-    response.body['data']&.each do |submission|
+  def handle_response(response_data, form_submissions)
+    response_data.each do |submission|
       uuid = submission['id']
-      form_submission = pending_form_submissions.find do |submission_from_db|
+      form_submission = form_submissions.find do |submission_from_db|
         submission_from_db.benefits_intake_uuid == uuid
       end
       form_id = form_submission.form_type
@@ -85,14 +91,12 @@ class BenefitsIntakeRemediationJob
 
       total_handled += 1
     end
-
-    total_handled
   end
   # rubocop:enable Metrics/MethodLength
 
   def log_result(result, form_id, uuid, time_to_transition = nil)
     StatsD.increment("#{STATS_KEY}.#{form_id}.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
-    Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:)
+    Rails.logger.info('BenefitsIntakeRemediationStatusJob', result:, form_id:, uuid:, time_to_transition:)
   end
 end
