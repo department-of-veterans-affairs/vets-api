@@ -92,8 +92,6 @@ module RepresentationManagement
         private
 
         def add_text_with_spacing(pdf, text, size: 12, move_down: 10, style: :normal, font: 'bitter')
-          p "add_text_with_spacing: #{text}", "size: #{size}", "move_down: #{move_down}", "style: #{style}",
-            "font: #{font}", '*' * 50
           pdf.font(font, style:) do
             pdf.font_size(size)
             pdf.text(text)
@@ -103,14 +101,11 @@ module RepresentationManagement
         end
 
         def format_phone_number(phone_number)
-          p "format_phone_number: #{phone_number}"
           return '' if phone_number.blank?
 
-          p "format_phone_number: #{phone_number} not blank"
           phone_number = phone_number.gsub(/\D/, '')
           return phone_number if phone_number.length < 10
 
-          p "format_phone_number: #{phone_number} length >= 10"
           "#{phone_number[0..2]}-#{phone_number[3..5]}-#{phone_number[6..9]}"
         end
 
