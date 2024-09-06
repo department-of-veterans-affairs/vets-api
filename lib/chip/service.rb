@@ -109,20 +109,6 @@ module Chip
       }
     end
 
-    def token
-      @token ||= begin
-        token = redis_client.get
-        if token.present?
-          token
-        else
-          resp = get_token
-
-          Oj.load(resp.body)&.fetch('token').tap do |jwt_token|
-            redis_client.save(token: jwt_token)
-          end
-        end
-      end
-    end
 
     def with_monitoring_and_error_handling(&)
       with_monitoring(2, &)
