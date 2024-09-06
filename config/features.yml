@@ -1135,7 +1135,7 @@ features:
     description: Enables VA Form 5655 (Financial Status Report)
     enable_in_development: true
   show_financial_status_report_wizard:
-    actor_type: user
+    actor_type: use
     description: Enables the Wizard for VA Form 5655 (Financial Status Report)
     enable_in_development: true
   show_form_i18n:
@@ -1531,6 +1531,9 @@ features:
   disability_compensation_lighthouse_upload_supplemental_document:
     actor_type: user
     description: If enabled uses the Lighthouse Benefits Documents API to submit Form 526 documents
+  disablity_benefits_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for disability benefits applications
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
