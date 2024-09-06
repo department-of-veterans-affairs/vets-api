@@ -82,23 +82,12 @@ module Form1010Ezr
       end
     end
 
-    # When a submission runs out of retry attempts
-    def log_exhausted_submission_failure(parsed_form)
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
-
-      if parsed_form.present?
-        PersonalInformationLog.create!(
-          data: parsed_form,
-          error_class: 'Form1010Ezr FailedWontRetry'
-        )
-
-        log_message_to_sentry(
-          '1010EZR total failure',
-          :error,
-          veteran_initials(parsed_form),
-          ezr: :total_failure
-        )
-      end
+    def veteran_initials(parsed_form)
+      {
+        first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
+        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
+        last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
+      }
     end
 
     private
@@ -192,14 +181,6 @@ module Form1010Ezr
       log_submission_failure(form)
       Rails.logger.error "10-10EZR form submission failed: #{error.message}"
       raise error
-    end
-
-    def veteran_initials(parsed_form)
-      {
-        first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
-        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
-        last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
-      }
     end
   end
 end

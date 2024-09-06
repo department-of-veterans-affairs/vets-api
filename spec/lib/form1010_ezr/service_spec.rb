@@ -196,39 +196,6 @@ RSpec.describe Form1010Ezr::Service do
     end
   end
 
-  describe '#log_exhausted_submission_failure' do
-    context "when 'parsed_form' is not present" do
-      it 'only increments StatsD' do
-        allow(StatsD).to receive(:increment)
-        expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
-
-        described_class.new(nil).log_exhausted_submission_failure(nil)
-      end
-    end
-
-    context "when 'parsed_form' is present" do
-      it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a failure message to sentry" do
-        allow(StatsD).to receive(:increment)
-
-        expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          '1010EZR total failure',
-          :error,
-          {
-            first_initial: 'F',
-            middle_initial: 'M',
-            last_initial: 'Z'
-          },
-          ezr: :total_failure
-        )
-
-        described_class.new(nil).log_exhausted_submission_failure(form)
-
-        expect_personal_info_log('Form1010Ezr FailedWontRetry')
-      end
-    end
-  end
-
   describe '#submit_form' do
     it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
       VCR.use_cassette(

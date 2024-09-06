@@ -7,14 +7,29 @@ module HCA
   class EzrSubmissionJob
     include Sidekiq::Job
     include SentryLogging
+    include Common::Client::Concerns::Monitoring
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError
 
     sidekiq_options retry: 14
 
     sidekiq_retries_exhausted do |msg, _e|
-      Form1010Ezr::Service.new(nil).log_exhausted_submission_failure(
-        decrypt_form(msg['args'][0])
-      )
+      parsed_form = decrypt_form(msg['args'][0])
+
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
+
+      if parsed_form.present?
+        PersonalInformationLog.create!(
+          data: parsed_form,
+          error_class: 'Form1010Ezr FailedWontRetry'
+        )
+
+        new.log_message_to_sentry(
+          '1010EZR total failure',
+          :error,
+          Form1010Ezr::Service.new(nil).veteran_initials(parsed_form),
+          ezr: :total_failure
+        )
+      end
     end
 
     def self.decrypt_form(encrypted_form)
