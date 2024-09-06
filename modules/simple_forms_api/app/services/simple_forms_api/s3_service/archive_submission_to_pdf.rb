@@ -37,12 +37,8 @@ module SimpleFormsApi
         @failures = []
         @form_id = form_id
         @submission = submission || FormSubmission.find(submission_id)
-        @parent_dir = defaults[:parent_dir]
-        @include_text_archive = defaults[:include_text_archive]
-        @include_json_archive = defaults[:include_json_archive]
-        @quiet_upload_failures = defaults[:quiet_upload_failures]
-        @quiet_pdf_failures = defaults[:quiet_pdf_failures]
-        @run_quiet = defaults[:run_quiet]
+
+        assign_instance_variables(defaults)
       end
 
       def run
@@ -50,7 +46,7 @@ module SimpleFormsApi
         process_submission_files
         output_directory_path
       rescue => e
-        handle_run_error(e)
+        handle_error("Failed submission: #{submission.id}", e, submission_id: submission.id)
       end
 
       private
@@ -62,7 +58,7 @@ module SimpleFormsApi
           parent_dir: 'wipn8923-test',
           quiet_pdf_failures: true, # skip PDF generation silently
           quiet_upload_failures: true, # skip problematic uploads silently
-          run_quiet: true
+          run_quiet: true # silence but record errors, logged at the end
         }
       end
 
@@ -72,13 +68,6 @@ module SimpleFormsApi
         write_as_text_archive if include_text_archive
         write_user_uploads if user_uploads.present?
         write_metadata
-      end
-
-      def handle_run_error(error)
-        raise error unless run_quiet
-
-        failures << { id: submission.id, error: error.message }
-        log_error("Failed submission: #{submission.id}", error)
       end
 
       def write_pdf
@@ -124,7 +113,10 @@ module SimpleFormsApi
       end
 
       def process_user_upload(upload)
-        log_info("Processing upload: #{upload['name']} - #{upload['confirmationCode']}")
+        log_info(
+          "Processing upload: #{upload['name']} - #{upload['confirmationCode']}",
+          { name: upload['name'], confirmation_code: upload['confirmationCode'] }
+        )
         # TODO: update this logic in preference of a configurable attachment type
         local_file = SupportingEvidenceAttachment.find_by(guid: upload['confirmationCode'])
         raise 'Local record not found' unless local_file

@@ -10,12 +10,9 @@ module SimpleFormsApi
         defaults = default_options.merge(options)
 
         @submission_ids = submission_ids
-        @parent_dir = defaults[:parent_dir]
-        @bundle_by_user = defaults[:bundle_by_user]
-        @run_quiet = defaults[:run_quiet]
-        @quiet_upload_failures = defaults[:quiet_upload_failures]
-        @quiet_pdf_failures = defaults[:quiet_pdf_failures]
         @failures = []
+
+        assign_instance_variables(defaults)
       end
 
       def run
@@ -30,8 +27,8 @@ module SimpleFormsApi
         {
           bundle_by_user: true,
           parent_dir: 'wipn8923-test',
-          quiet_pdf_failures: false, # granular control over how user processing raises errors
-          quiet_upload_failures: false, # granular control over how user processing raises errors
+          quiet_pdf_failures: false, # granular control over how pdf processing raises errors
+          quiet_upload_failures: false, # granular control over how upload processing raises errors
           run_quiet: true # silence but record errors until the end
         }
       end
@@ -70,7 +67,7 @@ module SimpleFormsApi
       def process_user_submissions(uuid, submission_ids)
         UserSubmissionArchiveHandler.new(uuid:, submission_ids:, parent_dir:).run
       rescue => e
-        handle_error("User failure: #{uuid}", e, uuid:)
+        handle_error("User submission archiver failure: #{uuid}", e, uuid:)
       end
 
       def process_submission(submission_id)
@@ -81,14 +78,7 @@ module SimpleFormsApi
           quiet_upload_failures:
         ).run
       rescue => e
-        handle_error("Submission failure: #{submission_id}", e, submission_id:)
-      end
-
-      def handle_error(message, error, context)
-        raise unless run_quiet
-
-        log_error(message, error, context)
-        failures << { context => error }
+        handle_error("Submission archiver failure: #{submission_id}", e, submission_id:)
       end
 
       def cleanup_tmp_files
