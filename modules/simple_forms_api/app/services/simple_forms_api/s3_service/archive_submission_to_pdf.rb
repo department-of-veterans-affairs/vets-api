@@ -88,6 +88,7 @@ module SimpleFormsApi
         quiet_pdf_failures ? write_pdf_error(e) : raise(e)
       end
 
+      # TODO: update this method to support configurable pdf generation logic
       def generate_pdf_content
         service = EVSS::DisabilityCompensationForm::NonBreakeredService.new(submission.auth_headers)
         service.get_form(form_json.to_json).body['pdf']
@@ -124,6 +125,7 @@ module SimpleFormsApi
 
       def process_user_upload(upload)
         log_info("Processing upload: #{upload['name']} - #{upload['confirmationCode']}")
+        # TODO: update this logic in preference of a configurable attachment type
         local_file = SupportingEvidenceAttachment.find_by(guid: upload['confirmationCode'])
         raise 'Local record not found' unless local_file
 
@@ -160,6 +162,7 @@ module SimpleFormsApi
         extract_metadata_from_submission
       end
 
+      # TODO: update this method to support configurable metadata
       def extract_metadata_from_submission
         address = submission.form.dig(form_id, 'veteran', 'currentMailingAddress')
         zip = [address['zipFirstFive'], address['zipLastFour']].join('-') if address.present?
@@ -172,6 +175,7 @@ module SimpleFormsApi
                   })
       end
 
+      # TODO: update this method to check against configured form list
       def map_form_inclusion
         VALID_VFF_FORMS.select { |type| submission.form[type].present? }
       end
