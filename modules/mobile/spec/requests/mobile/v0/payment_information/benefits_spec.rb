@@ -73,6 +73,18 @@ RSpec.describe 'Mobile::V0::PaymentInformation::Benefits', type: :request do
       end
     end
 
+    context 'when response body is missing control_information or payment_account' do
+      it 'returns not found' do
+        # i'm choosing to stub instead of creating a new cassette because this is a temporary fix
+        allow_any_instance_of(Lighthouse::DirectDeposit::Response).to receive(:control_information).and_return(nil)
+
+        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+          get '/mobile/v0/payment-information/benefits', headers: sis_headers
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
     context 'with a 500 server error type' do
       it 'returns a service error response' do
         VCR.use_cassette('lighthouse/direct_deposit/show/errors/400_unspecified_error') do

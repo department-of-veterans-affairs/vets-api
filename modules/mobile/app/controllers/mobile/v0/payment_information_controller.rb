@@ -23,6 +23,7 @@ module Mobile
       def index
         payment_information = if lighthouse?
                                 data = lighthouse_service.get_payment_info
+                                validate_response!(data)
                                 adapted_data = lighthouse_adapter.parse(data, current_user.uuid)
                                 Mobile::V0::PaymentInformation.new(adapted_data)
                               else
@@ -107,6 +108,17 @@ module Mobile
 
       def send_lighthouse_confirmation_email
         VANotifyDdEmailJob.send_to_emails(@current_user.all_emails, 'comp_and_pen')
+      end
+
+      # the upstream team has confirmed that a lack of control_information or payment_account implies that the user
+      # is not found. lighthouse is not handling the case correctly. the lighthouse team has been informed, but it may
+      # but it may take lighthouse a while to fix it and they may not inform us. if you're looking at this comment,
+      # remove this code if the detail below does not exist in the logs
+      def validate_response!(data)
+        if data.control_information.nil? || data.payment_account.nil?
+          detail = 'User not found on payment information system'
+          raise Common::Exceptions::RecordNotFound.new(@current_user.uuid, detail:)
+        end
       end
     end
   end
