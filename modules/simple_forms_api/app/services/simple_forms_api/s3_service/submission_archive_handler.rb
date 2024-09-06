@@ -2,7 +2,7 @@
 
 module SimpleFormsApi
   module S3Service
-    class SubmissionArchiveHandler < SimpleFormsApi::S3Service::Utils
+    class SubmissionArchiveHandler < Utils
       attr_reader :submission_ids, :parent_dir, :successes, :failures,
                   :bundle_by_user, :run_quiet, :quiet_upload_failures, :quiet_pdf_failures
 

@@ -2,7 +2,7 @@
 
 module SimpleFormsApi
   module S3Service
-    class UserSubmissionArchiveHandler < SimpleFormsApi::S3Service::Utils
+    class UserSubmissionArchiveHandler < Utils
       attr_reader :uuid, :user_dir, :submission_ids
 
       def initialize(uuid:, submission_ids:, parent_dir: 'vff-simple-forms')

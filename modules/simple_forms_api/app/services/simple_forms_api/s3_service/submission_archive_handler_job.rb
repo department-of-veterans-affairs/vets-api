@@ -2,7 +2,7 @@
 
 module SimpleFormsApi
   module S3Service
-    class SubmissionArchiveHandlerJob < SimpleFormsApi::S3Service::Utils
+    class SubmissionArchiveHandlerJob < Utils
       include Sidekiq::Worker
 
       sidekiq_options retry: 3, queue: 'default'

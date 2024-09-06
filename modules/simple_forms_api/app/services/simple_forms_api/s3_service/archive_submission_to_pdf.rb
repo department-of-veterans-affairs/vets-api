@@ -21,7 +21,7 @@
 # this will just put each submission in a folder by it's id under the parent dir
 module SimpleFormsApi
   module S3Service
-    class ArchiveSubmissionToPdf < SimpleFormsApi::S3Service::Utils
+    class ArchiveSubmissionToPdf < Utils
       attr_reader :failures, :include_json_archive, :include_text_archive, :metadata,
                   :parent_dir, :quiet_pdf_failures, :quiet_upload_failures, :run_quiet,
                   :submission
