@@ -58,16 +58,15 @@ module RepresentationManagement
           # TODO: - Add a method that takes a text string then adds it to the pdf,
           # moves down 10, and sets the font size to 12
           add_text_with_spacing(pdf,
-                                'Fill out your form to appoint a VA accredited representative or VSO', size: 20,
-                                                                                                       style: :bold)
+                                'Request help from a VA accredited representative or VSO', size: 20,
+                                                                                           style: :bold)
           add_text_with_spacing(pdf, 'VA Form 21-22a')
           add_text_with_spacing(pdf, 'Your Next Steps', size: 16, style: :bold)
           str = <<~HEREDOC.squish
             Both you and the accredited representative will need to sign your form.
             You can bring your form to them in person or mail it to them.
           HEREDOC
-          pdf.text(str)
-          pdf.move_down(30)
+          add_text_with_spacing(pdf, str, move_down: 30, font: 'soursesanspro')
         end
 
         def next_steps_part2(pdf)
@@ -76,40 +75,43 @@ module RepresentationManagement
             After your form is signed, you or the accredited representative
             can submit it online, by mail, or in person.
           HEREDOC
-          pdf.text(str)
-          pdf.move_down(10)
+          add_text_with_spacing(pdf, str, font: 'soursesanspro')
           add_text_with_spacing(pdf, 'After you submit your printed form', size: 16, style: :bold)
-          pdf.font_size(12)
-          str = <<~HEREDOC.squish
-            We'll confirm that the accredited representative is available to help you.
-            Then we'll update your VA.gov profile with their information.
-          HEREDOC
-          pdf.text(str)
-          pdf.move_down(10)
         end
 
         def next_steps_part3(pdf)
           str = <<~HEREDOC.squish
-            We usually process your form within 1 week.
-            You can contact the accredited representative any time to ask when they can start helping you.
+            We usually process your form within 1 week. You can contact the accredited representative any time.
           HEREDOC
-          pdf.text(str)
-          pdf.move_down(10)
+          add_text_with_spacing(pdf, str, font: 'soursesanspro')
           add_text_with_spacing(pdf, 'Need help?', size: 14, style: :bold)
-          pdf.font_size(12)
-          pdf.text("You can call us at 800-698-2411, ext. 0 (TTY: 711). We're here 24/7.")
-          pdf.move_down(10)
+          add_text_with_spacing(pdf, "You can call us at 800-698-2411, ext. 0 (TTY: 711). We're here 24/7.",
+                                font: 'soursesanspro')
         end
 
         private
 
         def add_text_with_spacing(pdf, text, size: 12, move_down: 10, style: :normal, font: 'bitter')
+          p "add_text_with_spacing: #{text}", "size: #{size}", "move_down: #{move_down}", "style: #{style}",
+            "font: #{font}", '*' * 50
           pdf.font(font, style:) do
             pdf.font_size(size)
             pdf.text(text)
             pdf.move_down(move_down)
           end
           pdf.font_size(12) # Reset to default size
+        end
+
+        def format_phone_number(phone_number)
+          p "format_phone_number: #{phone_number}"
+          return '' if phone_number.blank?
+
+          p "format_phone_number: #{phone_number} not blank"
+          phone_number = phone_number.gsub(/\D/, '')
+          return phone_number if phone_number.length < 10
+
+          p "format_phone_number: #{phone_number} length >= 10"
+          "#{phone_number[0..2]}-#{phone_number[3..5]}-#{phone_number[6..9]}"
         end
 
         #
@@ -134,7 +136,6 @@ module RepresentationManagement
           next_steps = Prawn::Document.new
           next_steps.font_families.update(
             'bitter' => {
-              # modules/health_quest/lib/fonts/bitter-regular.ttf
               normal: Rails.root.join('modules', 'representation_management', 'lib', 'fonts', 'bitter-regular.ttf'),
               bold: Rails.root.join('modules', 'representation_management', 'lib', 'fonts', 'bitter-bold.ttf')
             },
