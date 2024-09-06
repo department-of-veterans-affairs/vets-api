@@ -925,10 +925,6 @@ features:
     actor_type: user
     description: Logs decision letter info on both claims and decision letter endpoint
     enable_in_development: true
-  mobile_v1_lighthouse_facilities:
-    actor_type: user
-    description: change mobile lighthouse facility calls to use new v1 endpoint
-    enable_in_development: true
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
