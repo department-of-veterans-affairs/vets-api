@@ -79,7 +79,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
           end
         end
 
-        it 'and attempting to access a nonexistant appeal returns a 404 wtih an error' do
+        it 'and attempting to access a nonexistent appeal returns a 404 with an error' do
           VCR.use_cassette('caseflow/appeals') do
             get '/mobile/v0/appeal/1234567', headers: sis_headers
             expect(response).to have_http_status(:not_found)
