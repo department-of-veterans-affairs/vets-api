@@ -46,24 +46,6 @@ module BenefitsClaims
         }
         Rails.logger.error("Lighthouse::CreateIntentToFileJob create #{itf_type} ITF exhausted", context)
       end
-
-      def track_missing_user_icn(form)
-        StatsD.increment('user.icn.blank')
-        context = {
-          in_progress_form_id: form.id,
-          user_account_uuid: form.user_account_id
-        }
-        Rails.logger.info('V0 InProgressFormsController async ITF user.icn is blank', context)
-      end
-
-      def track_missing_user_pid(form)
-        StatsD.increment('user.participant_id.blank')
-        context = {
-          in_progress_form_id: form.id,
-          user_account_uuid: form.user_account_id
-        }
-        Rails.logger.info('V0 InProgressFormsController async ITF user.participant_id is blank', context)
-      end
     end
   end
 end
