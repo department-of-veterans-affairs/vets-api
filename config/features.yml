@@ -431,12 +431,6 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
-  disability_526_ep_merge_new_claims:
-    actor_type: user
-    description: enables EP Merge for single-contention 526 claims for a new condition
-  disability_526_ep_merge_multi_contention:
-    actor_type: user
-    description: enables EP Merge for multi-contention 526 claims
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -527,6 +521,10 @@ features:
   facility_locator_show_operational_hours_special_instructions:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
+    enable_in_development: true
+  find_forms_show_pdf_modal:
+    actor_type: user
+    description: Shows the PDF modal for the Find VA Forms detail page
     enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
