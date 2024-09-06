@@ -41,7 +41,11 @@ module Form1010Ezr
       end
 
       # Log the 'formSubmissionId' for successful submissions
-      Rails.logger.info("SubmissionID=#{res[:formSubmissionId]}")
+      Rails.logger.info(
+        '1010EZR successfully submitted',
+        submission_id: res[:formSubmissionId],
+        veteran_initials: veteran_initials(parsed_form)
+      )
 
       res
     rescue => e
@@ -60,24 +64,22 @@ module Form1010Ezr
       log_and_raise_error(e, parsed_form)
     end
 
-    def log_submission_failure(parsed_form)
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
+    def log_submission_failure(parsed_form, retries_exhausted: false)
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed#{'_wont_retry' if retries_exhausted}")
 
       if parsed_form.present?
         PersonalInformationLog.create!(
           data: parsed_form,
-          error_class: 'Form1010Ezr FailedWontRetry'
+          error_class: "Form1010Ezr Failed#{'WontRetry' if retries_exhausted}"
         )
 
+        failure_message = "1010EZR #{'total ' if retries_exhausted}failure"
+
         log_message_to_sentry(
-          '1010EZR total failure',
+          failure_message,
           :error,
-          {
-            first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
-            middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
-            last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
-          },
-          ezr: :total_failure
+          veteran_initials(parsed_form),
+          ezr: retries_exhausted ? :total_failure : :failure
         )
       end
     end
@@ -173,6 +175,14 @@ module Form1010Ezr
       log_submission_failure(form)
       Rails.logger.error "10-10EZR form submission failed: #{error.message}"
       raise error
+    end
+
+    def veteran_initials(parsed_form)
+      {
+        first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
+        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
+        last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
+      }
     end
   end
 end

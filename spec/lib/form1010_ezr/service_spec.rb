@@ -62,6 +62,13 @@ RSpec.describe Form1010Ezr::Service do
     )
   end
 
+  def expect_personal_info_log(message)
+    pii_log = PersonalInformationLog.last
+
+    expect(pii_log.error_class).to eq(message)
+    expect(pii_log.data).to eq(form)
+  end
+
   describe '#add_financial_flag' do
     context 'when the form has veteran gross income' do
       let(:parsed_form) do
@@ -86,17 +93,18 @@ RSpec.describe Form1010Ezr::Service do
 
   describe '#post_fill_required_fields' do
     it 'Adds required fields in the Enrollment System API to the form object',
-       run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
+      run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
       VCR.use_cassette(
         'hca/ee/lookup_user',
         VCR::MATCH_EVERYTHING.merge(erb: true)
       ) do
-        expect(form['isEssentialAcaCoverage']).to eq(nil)
-        expect(form['vaMedicalFacility']).to eq(nil)
+        expect(form.keys).to_not include('isEssentialAcaCoverage', 'vaMedicalFacility')
 
         service.send(:post_fill_required_fields, form)
 
         expect(form.keys).to include('isEssentialAcaCoverage', 'vaMedicalFacility')
+        expect(form['isEssentialAcaCoverage']).to eq(false)
+        expect(form['vaMedicalFacility']).to eq('988')
       end
     end
   end
@@ -151,6 +159,54 @@ RSpec.describe Form1010Ezr::Service do
 
         required_user_fields.each do |key, value|
           expect(parsed_form[key]).to eq(value)
+        end
+      end
+    end
+  end
+
+  describe '#log_submission_failure' do
+    context "when 'parsed_form' is present" do
+      context "when 'retries_exhausted' is false" do
+        it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a failure message to sentry" do
+          # The names for these errors will not include 'total' or 'wont_retry' as they are not for total failures
+          allow(StatsD).to receive(:increment)
+          expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+            '1010EZR failure',
+            :error,
+            {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            },
+            ezr: :failure
+          )
+
+          described_class.new(nil).log_submission_failure(form)
+
+          expect_personal_info_log('Form1010Ezr Failed')
+        end
+      end
+
+      context "when 'retries_exhausted' is true" do
+        it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a TOTAL failure message to sentry" do
+          allow(StatsD).to receive(:increment)
+
+          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+            '1010EZR total failure',
+            :error,
+            {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            },
+            ezr: :total_failure
+          )
+
+          described_class.new(nil).log_submission_failure(form, retries_exhausted: true)
+
+          expect_personal_info_log('Form1010Ezr FailedWontRetry')
         end
       end
     end
@@ -310,7 +366,8 @@ RSpec.describe Form1010Ezr::Service do
         end
       end
 
-      it 'logs the submission id, payload size, and individual attachment sizes in descending order (if applicable)',
+      it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending "\
+         'order (if applicable)',
          run_at: 'Wed, 17 Jul 2024 18:17:30 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit_with_attachments',
@@ -318,7 +375,15 @@ RSpec.describe Form1010Ezr::Service do
         ) do
           submission_response = service.submit_sync(ezr_form_with_attachments)
 
-          expect(Rails.logger).to have_received(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
+          expect(Rails.logger).to have_received(:info).with(
+            '1010EZR successfully submitted',
+            submission_id: submission_response[:formSubmissionId],
+            veteran_initials: {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            }
+          )
           expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
                                                             'Body size of 362 KB with 2 attachment(s)')
           expect(Rails.logger).to have_received(:info).with(

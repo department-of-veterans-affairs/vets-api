@@ -12,11 +12,10 @@ module HCA
     sidekiq_options retry: 14
 
     sidekiq_retries_exhausted do |msg, _e|
-      log_submission_failure(decrypt_form(msg['args'][0]))
-    end
-
-    def self.log_submission_failure(parsed_form)
-      Form1010Ezr::Service.new(nil).log_submission_failure(parsed_form)
+      Form1010Ezr::Service.new(nil).log_submission_failure(
+        decrypt_form(msg['args'][0]),
+        retries_exhausted: true
+      )
     end
 
     def self.decrypt_form(encrypted_form)
@@ -29,7 +28,7 @@ module HCA
 
       Form1010Ezr::Service.new(user).submit_sync(parsed_form)
     rescue VALIDATION_ERROR => e
-      self.class.log_submission_failure(parsed_form)
+      Form1010Ezr::Service.new(nil).log_submission_failure(parsed_form)
       log_exception_to_sentry(e)
     rescue
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.async.retries")
