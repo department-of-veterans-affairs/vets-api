@@ -690,6 +690,9 @@ claims_api:
   poa_v2:
     disable_jobs: false
 
+auth:
+  access_key: ~
+
 connected_apps_api:
   connected_apps:
     url: https://sandbox-api.va.gov/internal/auth/v3/user/connected-apps
