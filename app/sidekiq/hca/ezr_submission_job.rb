@@ -12,9 +12,8 @@ module HCA
     sidekiq_options retry: 14
 
     sidekiq_retries_exhausted do |msg, _e|
-      Form1010Ezr::Service.new(nil).log_submission_failure(
-        decrypt_form(msg['args'][0]),
-        retries_exhausted: true
+      Form1010Ezr::Service.new(nil).log_exhausted_submission_failure(
+        decrypt_form(msg['args'][0])
       )
     end
 

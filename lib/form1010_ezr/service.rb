@@ -64,22 +64,41 @@ module Form1010Ezr
       log_and_raise_error(e, parsed_form)
     end
 
-    def log_submission_failure(parsed_form, retries_exhausted: false)
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed#{'_wont_retry' if retries_exhausted}")
+    def log_submission_failure(parsed_form)
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
 
       if parsed_form.present?
         PersonalInformationLog.create!(
           data: parsed_form,
-          error_class: "Form1010Ezr Failed#{'WontRetry' if retries_exhausted}"
+          error_class: 'Form1010Ezr Failed'
         )
 
-        failure_message = "1010EZR #{'total ' if retries_exhausted}failure"
+        failure_message = '1010EZR failure'
 
         log_message_to_sentry(
-          failure_message,
+          '1010EZR failure',
           :error,
           veteran_initials(parsed_form),
-          ezr: retries_exhausted ? :total_failure : :failure
+          ezr: :failure
+        )
+      end
+    end
+
+    # When a submission runs out of retry attempts
+    def log_exhausted_submission_failure(parsed_form)
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
+
+      if parsed_form.present?
+        PersonalInformationLog.create!(
+          data: parsed_form,
+          error_class: 'Form1010Ezr FailedWontRetry'
+        )
+
+        log_message_to_sentry(
+          '1010EZR total failure',
+          :error,
+          veteran_initials(parsed_form),
+          ezr: :total_failure
         )
       end
     end

@@ -175,48 +175,56 @@ RSpec.describe Form1010Ezr::Service do
     end
 
     context "when 'parsed_form' is present" do
-      context "when 'retries_exhausted' is false" do
-        it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a failure message to sentry" do
-          # The names for these errors will not include 'total' or 'wont_retry' as they are not for total failures
-          allow(StatsD).to receive(:increment)
-          expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            '1010EZR failure',
-            :error,
-            {
-              first_initial: 'F',
-              middle_initial: 'M',
-              last_initial: 'Z'
-            },
-            ezr: :failure
-          )
+      it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a failure message to sentry" do
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+          '1010EZR failure',
+          :error,
+          {
+            first_initial: 'F',
+            middle_initial: 'M',
+            last_initial: 'Z'
+          },
+          ezr: :failure
+        )
 
-          described_class.new(nil).log_submission_failure(form)
+        described_class.new(nil).log_submission_failure(form)
 
-          expect_personal_info_log('Form1010Ezr Failed')
-        end
+        expect_personal_info_log('Form1010Ezr Failed')
       end
+    end
+  end
 
-      context "when 'retries_exhausted' is true" do
-        it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a TOTAL failure message to sentry" do
-          allow(StatsD).to receive(:increment)
+  describe '#log_exhausted_submission_failure' do
+    context "when 'parsed_form' is not present" do
+      it 'only increments StatsD' do
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
 
-          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            '1010EZR total failure',
-            :error,
-            {
-              first_initial: 'F',
-              middle_initial: 'M',
-              last_initial: 'Z'
-            },
-            ezr: :total_failure
-          )
+        described_class.new(nil).log_exhausted_submission_failure(nil)
+      end
+    end
 
-          described_class.new(nil).log_submission_failure(form, retries_exhausted: true)
+    context "when 'parsed_form' is present" do
+      it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a failure message to sentry" do
+        allow(StatsD).to receive(:increment)
 
-          expect_personal_info_log('Form1010Ezr FailedWontRetry')
-        end
+        expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+          '1010EZR total failure',
+          :error,
+          {
+            first_initial: 'F',
+            middle_initial: 'M',
+            last_initial: 'Z'
+          },
+          ezr: :total_failure
+        )
+
+        described_class.new(nil).log_exhausted_submission_failure(form)
+
+        expect_personal_info_log('Form1010Ezr FailedWontRetry')
       end
     end
   end
