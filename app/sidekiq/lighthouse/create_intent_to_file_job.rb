@@ -69,7 +69,15 @@ module Lighthouse
       service.create_intent_to_file(itf_type, '')
       itf_log_monitor.track_create_itf_success(itf_type, form.created_at.to_s, form.user_account_id)
     rescue MissingICNError, MissingParticipantIDError, InvalidITFTypeError, FormNotFoundError => e
-      itf_log_monitor.track_create_itf_failure(itf_type, form.created_at.to_s, form.user_account_id, e)
+      if veteran_icn.blank?
+        itf_log_monitor.track_missing_user_icn(form, e)
+      elsif participant_id.blank?
+        itf_log_monitor.track_missing_user_pid(form, e)
+      elsif form.blank?
+        itf_log_monitor.track_missing_form(form, e)
+      elsif itf_type.blank?
+        itf_log_monitor.track_invalid_itf_type(form, e)
+      end
     rescue => e
       itf_log_monitor.track_create_itf_failure(itf_type, form.created_at.to_s, form.user_account_id, e)
       raise e
