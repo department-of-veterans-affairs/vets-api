@@ -8,13 +8,14 @@ module HCA
     include Sidekiq::Job
     include SentryLogging
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError
+    STATSD_KEY_PREFIX = 'api.1010ezr'
 
     sidekiq_options retry: 14
 
     sidekiq_retries_exhausted do |msg, _e|
       parsed_form = decrypt_form(msg['args'][0])
 
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failed_wont_retry")
 
       if parsed_form.present?
         PersonalInformationLog.create!(
@@ -44,7 +45,7 @@ module HCA
       Form1010Ezr::Service.new(nil).log_submission_failure(parsed_form)
       log_exception_to_sentry(e)
     rescue
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.async.retries")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.async.retries")
       raise
     end
   end
