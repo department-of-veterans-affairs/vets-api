@@ -4,6 +4,7 @@ module AccreditedRepresentativePortal
   class ApplicationController < SignIn::ApplicationController
     include SignIn::AudienceValidator
     include Authenticable
+
     service_tag 'accredited-representative-portal' # ARP DataDog monitoring: https://bit.ly/arp-datadog-monitoring
     validates_access_token_audience Settings.sign_in.arp_client_id
 

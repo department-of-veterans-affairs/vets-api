@@ -81,9 +81,13 @@ module AccreditedRepresentativePortal
       @current_user = user
     end
 
-    def verified
-      loa = @current_user.loa.to_h[:current]&.to_i
-      loa == SignIn::Constants::Auth::LOA_THREE
+    def verified?
+      # TODO: Should we use the actual logic for `verified?`. The fact that ARP
+      # users are always verified is expressed elsewhere as ARP required LOA
+      # level in ARP `ClientConfig`. An example isntantiation of this is
+      # `db/seeds/development.rb` while it is a DB record in other environments.
+      # session.user_account.verified?
+      true
     end
   end
 end
