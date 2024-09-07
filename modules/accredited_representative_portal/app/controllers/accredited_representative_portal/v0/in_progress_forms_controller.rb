@@ -5,7 +5,7 @@ module AccreditedRepresentativePortal
     class InProgressFormsController < ApplicationController
       def update
         form = in_progress_form || new_form_for_user(form_id, @current_user)
-        form.update!(form_params)
+        form.update!(form_data: params[:form_data], metadata: params[:metadata])
 
         render json: InProgressFormSerializer.new(form)
       end
@@ -42,10 +42,6 @@ module AccreditedRepresentativePortal
       def in_progress_form
         @in_progress_form ||=
           InProgressForm.form_for_user(form_id, @current_user)
-      end
-
-      def form_params
-        params.permit(form_data: {}, metadata: {})
       end
 
       def form_id
