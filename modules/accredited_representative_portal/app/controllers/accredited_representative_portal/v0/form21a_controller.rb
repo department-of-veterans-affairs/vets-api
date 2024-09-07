@@ -12,7 +12,7 @@ module AccreditedRepresentativePortal
       def submit
         response = AccreditationService.submit_form21a(parsed_request_body)
 
-        clear_saved_form('21a') if response.success?
+        form_for_user('21a')&.destroy if response.success?
         render_ogc_service_response(response)
       rescue => e
         Rails.logger.error("Form21aController: Unexpected error occurred - #{e.message}")

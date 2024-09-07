@@ -24,7 +24,7 @@ module AccreditedRepresentativePortal
       private
 
       def in_progress_forms
-        InProgressForm.submission_pending.where(user_uuid: @current_user.uuid).map do |form|
+        in_progress_forms_for_user.map do |form|
           {
             form: form.form_id,
             metadata: form.metadata,

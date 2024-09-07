@@ -11,20 +11,20 @@ module AccreditedRepresentativePortal
       end
 
       def show
-        render json: form_for_user&.data_and_metadata
+        render json: in_progress_form&.data_and_metadata || {}
       end
 
       def destroy
-        raise Common::Exceptions::RecordNotFound, form_id if form_for_user.blank?
+        raise Common::Exceptions::RecordNotFound, form_id if in_progress_form.blank?
 
-        form_for_user.destroy
-        render json: form_for_user, key_transform: :unaltered
+        in_progress_form.destroy
+        render json: in_progress_form, key_transform: :unaltered
       end
 
       private
 
-      def form_for_user
-        @form_for_user ||= InProgressForm.submission_pending.find_by(form_id:, user_uuid: @current_user.uuid)
+      def in_progress_form
+        @in_progress_form ||= form_for_user(form_id)
       end
 
       def form_id

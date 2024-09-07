@@ -5,6 +5,20 @@ require_relative '../../../support/authentication'
 
 RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, type: :request do
   let(:representative_user) { create(:representative_user) }
+  let(:expected_response_body) do
+    {
+      'data' => {
+        'id' => in_progress_form.id.to_s,
+        'type' => 'in_progress_forms',
+        'attributes' => {
+          'formId' => in_progress_form.form_id,
+          'createdAt' => in_progress_form.created_at,
+          'updatedAt' => in_progress_form.updated_at,
+          'metadata' => in_progress_form.metadata
+        }
+      }
+    }
+  end
 
   before do
     Flipper.enable(:accredited_representative_portal_pilot)
@@ -22,21 +36,21 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
         put("/accredited_representative_portal/v0/in_progress_forms/#{in_progress_form.form_id}", params: { form_data: form_data }.to_json, headers:)
 
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['data']['id'].to_i).to eq(in_progress_form.id)
-        expect(in_progress_form.reload.form_data).to eq(form_data.to_json)
+        in_progress_form.reload
+        expect(response.body).to eq(expected_response_body.to_json)
       end
     end
 
     context 'without an existing InProgressForm' do
       let(:form_id) { '21a' }
+      let(:in_progress_form) { InProgressForm.last }
+
       it 'create InProgressForm' do
         headers = { 'Content-Type' => 'application/json' }
         put("/accredited_representative_portal/v0/in_progress_forms/#{form_id}", params: { form_data: form_data }.to_json, headers:)
 
         expect(response).to have_http_status(:ok)
-        in_progress_form = InProgressForm.last
-        expect(JSON.parse(response.body)['data']['id'].to_i).to eq(in_progress_form.id)
-        expect(in_progress_form.reload.form_data).to eq(form_data.to_json)
+        expect(response.body).to eq(expected_response_body.to_json)
       end
     end
   end
@@ -49,9 +63,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
         get("/accredited_representative_portal/v0/in_progress_forms/#{in_progress_form.form_id}")
 
         expect(response).to have_http_status(:ok)
-        response_body = JSON.parse(response.body)
-        expect(response_body['formData']).to eq(JSON.parse(in_progress_form.form_data))
-        expect(response_body['metadata']['inProgressFormId'].to_i).to eq(in_progress_form.id)
+        expect(JSON.parse(response.body)).to eq(
+          'formData' => JSON.parse(in_progress_form.form_data),
+          'metadata' => in_progress_form.metadata
+        )
       end
     end
   end
@@ -64,8 +79,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
         delete("/accredited_representative_portal/v0/in_progress_forms/#{in_progress_form.form_id}")
 
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['data']['id'].to_i).to eq(in_progress_form.id)
+        expect(response.body).to eq(expected_response_body.to_json)
         expect(InProgressForm.exists?(in_progress_form.id)).to be false
+
+        get("/accredited_representative_portal/v0/in_progress_forms/#{in_progress_form.form_id}")
+        expect(response.body).to eq({}.to_json)
       end
     end
 
