@@ -4,7 +4,7 @@ module AccreditedRepresentativePortal
   module V0
     class InProgressFormsController < ApplicationController
       def update
-        form = InProgressForm.where(form_id:, user_uuid: @current_user.uuid).first_or_initialize
+        form = in_progress_form || new_form_for_user(form_id, @current_user)
         form.update!(form_data: params[:formData], metadata: params[:metadata])
 
         render json: form, key_transform: :unaltered
@@ -23,10 +23,28 @@ module AccreditedRepresentativePortal
 
       private
 
-      def in_progress_form
-        return @in_progress_form if defined?(@in_progress_form)
+      # NOTE: The in-progress form module can upstream this convenience that
+      # allows the caller to not know about the details of legacy foreign key
+      # relations. It is totally analogous to the query convenience
+      # `form_for_user` that they expose.
+      def new_form_for_user(form_id, user)
+        form =
+          InProgressForm.new(
+            form_id:,
+            user_uuid: user.uuid,
+            user_account: user.user_account
+          )
 
-        @in_progress_form = form_for_user(form_id)
+        form.real_user_uuid = user.uuid
+        form
+      end
+
+      def in_progress_form
+        @in_progress_form ||=
+          InProgressForm.form_for_user(
+            form_id,
+            @current_user
+          )
       end
 
       def form_id

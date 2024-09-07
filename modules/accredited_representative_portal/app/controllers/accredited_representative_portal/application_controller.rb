@@ -20,15 +20,5 @@ module AccreditedRepresentativePortal
         raise Common::Exceptions::Forbidden, detail: message
       end
     end
-
-    def in_progress_forms_for_user
-      InProgressForm.submission_pending.where(user_uuid: @current_user.uuid)
-    end
-
-    def form_for_user(form_id)
-      return unless @current_user
-
-      in_progress_forms_for_user.find_by(form_id:)
-    end
   end
 end
