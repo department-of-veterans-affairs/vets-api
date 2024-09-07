@@ -13,6 +13,19 @@ module AccreditedRepresentativePortal
   end
 end
 
+module AccreditedRepresentativePortal
+  module AuthenticationHelper
+    def login_as(representative_user, options = {})
+      access_token = options[:access_token] || create(:access_token, user_uuid: representative_user.uuid,
+                                                                     audience: ['arp'])
+      cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] =
+        SignIn::AccessTokenJwtEncoder.new(access_token:).perform
+    end
+  end
+end
+
 RSpec.configure do |config|
+  config.include AccreditedRepresentativePortal::AuthenticationHelper, type: :request
+  config.include AccreditedRepresentativePortal::AuthenticationHelper, type: :controller
   config.include AccreditedRepresentativePortal::RequestHelper, type: :request
 end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../../../support/authentication'
+require_relative '../../../rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, type: :request do
   let(:representative_user) { create(:representative_user) }
@@ -28,7 +27,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
             form_id:
           )
           get("/accredited_representative_portal/v0/in_progress_forms/#{form_id}")
-          expect(JSON.parse(response.body)).to eq(
+          expect(parsed_response).to eq(
             {
               'formData' => {
                 'field' => 'value'
@@ -63,7 +62,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
             params: { 'formData' => form_data }.to_json,
             headers:
           )
-          expect(JSON.parse(response.body)).to eq(
+          expect(parsed_response).to eq(
             {
               'data' => {
                 'id' => '',
@@ -84,7 +83,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
           )
 
           get("/accredited_representative_portal/v0/in_progress_forms/#{form_id}")
-          expect(JSON.parse(response.body)).to eq(
+          expect(parsed_response).to eq(
             {
               'formData' => {
                 'another_field' => 'foo'
@@ -107,7 +106,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
             params: { 'formData' => form_data }.to_json,
             headers:
           )
-          expect(JSON.parse(response.body)).to eq(
+          expect(parsed_response).to eq(
             {
               'data' => {
                 'id' => '',
@@ -128,7 +127,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
           )
 
           get("/accredited_representative_portal/v0/in_progress_forms/#{form_id}")
-          expect(JSON.parse(response.body)).to eq(
+          expect(parsed_response).to eq(
             {
               'formData' => {
                 'another_field' => 'foo',

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative '../../../rails_helper'
-require_relative '../../../support/authentication'
 
 RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
   describe '#show' do
