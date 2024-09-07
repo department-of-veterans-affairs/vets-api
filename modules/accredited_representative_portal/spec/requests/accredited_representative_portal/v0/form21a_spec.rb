@@ -15,7 +15,9 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
   describe 'POST /accredited_representative_portal/v0/form21a' do
     context 'with valid JSON' do
-      it 'returns a successful response from the service' do
+      let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }
+
+      it 'returns a successful response from the service and destroys in progress form' do
         allow(AccreditationService).to receive(:submit_form21a).and_return(
           instance_double(Faraday::Response, success?: true, body: { result: 'success' }.to_json, status: 200)
         )
@@ -25,6 +27,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to eq('result' => 'success')
+        expect(InProgressForm.exists?(in_progress_form.id)).to be false
       end
     end
 

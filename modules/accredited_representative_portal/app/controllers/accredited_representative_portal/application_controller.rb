@@ -23,7 +23,7 @@ module AccreditedRepresentativePortal
     def clear_saved_form(form_id)
       return unless @current_user
 
-      InProgressForm.form_for_user(form_id, @current_user)&.destroy
+      InProgressForm.submission_pending.find_by(form_id:, user_uuid: @current_user.uuid)&.destroy
     end
   end
 end
