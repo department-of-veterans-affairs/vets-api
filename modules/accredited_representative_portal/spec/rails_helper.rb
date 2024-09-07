@@ -22,9 +22,7 @@ module AccreditedRepresentativePortal
         )
 
       cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] =
-        SignIn::AccessTokenJwtEncoder
-          .new(**options.slice(:access_token))
-          .perform
+        SignIn::AccessTokenJwtEncoder.new(**options.slice(:access_token)).perform
     end
   end
 end

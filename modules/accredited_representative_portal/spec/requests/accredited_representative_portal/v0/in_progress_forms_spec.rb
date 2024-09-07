@@ -18,7 +18,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
         # Test for GET and DELETE of existing InProgressForm
         travel_to Time.utc(2022, 3, 4, 5, 6, 7)
 
-        form = create(
+        create(
           :in_progress_form,
           user_uuid: representative_user.uuid,
           form_data: { field: 'value' },

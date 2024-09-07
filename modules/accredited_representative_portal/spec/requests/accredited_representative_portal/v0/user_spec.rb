@@ -39,7 +39,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
           travel_back
         end
 
-        it 'responds with the user and their in progress form'  do
+        it 'responds with the user and their in progress form' do
           get '/accredited_representative_portal/v0/user'
 
           expect(response).to have_http_status(:ok)
