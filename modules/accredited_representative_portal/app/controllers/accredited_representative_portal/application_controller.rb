@@ -22,7 +22,8 @@ module AccreditedRepresentativePortal
 
     def clear_saved_form(form_id)
       return unless @current_user
-      InProgressForm.form_for_user(form_id, @current_user)&.destroy 
+
+      InProgressForm.form_for_user(form_id, @current_user)&.destroy
     end
   end
 end

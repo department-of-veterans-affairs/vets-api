@@ -24,7 +24,7 @@ module AccreditedRepresentativePortal
       private
 
       def form_for_user
-        @form_for_user ||= InProgressForm.submission_pending.form_for_user(form_id, @current_user)
+        @form_for_user ||= InProgressForm.submission_pending.find_by(form_id:, user_uuid: @current_user.uuid)
       end
 
       def form_id

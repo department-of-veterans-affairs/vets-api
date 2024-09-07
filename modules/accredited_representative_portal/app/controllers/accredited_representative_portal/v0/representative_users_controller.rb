@@ -8,23 +8,23 @@ module AccreditedRepresentativePortal
         render json: {
           account: {
             # Correct value?
-            account_uuid: @current_user.uuid,
+            account_uuid: @current_user.uuid
           },
           profile: {
             first_name: @current_user.first_name,
             last_name: @current_user.last_name,
-            verified:,
+            verified:
           },
           # TODO: Should they get prefill for e.g. 21a?
           prefills_available: [],
-          in_progress_forms:,
+          in_progress_forms:
         }
       end
 
       private
 
       def in_progress_forms
-        InProgressForm.submission_pending.for_user(@current_user).map do |form|
+        InProgressForm.submission_pending.where(user_uuid: @current_user.uuid).map do |form|
           {
             form: form.form_id,
             metadata: form.metadata,

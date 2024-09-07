@@ -8,6 +8,13 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
     context 'when authenticated' do
       let(:arp_client_id) { 'arp' }
       let(:current_representative_user) { create(:representative_user) }
+      let!(:in_progress_form) do
+        create(
+          :in_progress_form,
+          user_uuid: current_representative_user.uuid,
+          status: 'pending'
+        )
+      end
 
       before do
         login_as(current_representative_user)
@@ -17,7 +24,16 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
         get '/accredited_representative_portal/v0/user'
 
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['uuid']).to eq(current_representative_user.uuid)
+        response_body = JSON.parse(response.body)
+        expect(response_body['account']['account_uuid']).to eq(current_representative_user.uuid)
+        expect(response_body['profile']).to eq(
+          {
+            'first_name' => current_representative_user.first_name,
+            'last_name' => current_representative_user.last_name,
+            'verified' => true
+          }
+        )
+        expect(response_body['in_progress_forms'][0]['form']).to eq(in_progress_form.form_id)
       end
     end
 

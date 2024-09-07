@@ -17,7 +17,7 @@ module AccreditedRepresentativePortal
           body: { success: true }
         )
 
-        clear_saved_form("21a") if response.success?
+        clear_saved_form('21a') if response.success?
         render_ogc_service_response(response)
       rescue => e
         Rails.logger.error("Form21aController: Unexpected error occurred - #{e.message}")
