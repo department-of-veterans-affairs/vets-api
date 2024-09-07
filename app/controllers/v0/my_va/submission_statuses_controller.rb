@@ -10,7 +10,11 @@ module V0
       before_action { authorize :lighthouse, :access? }
 
       def show
-        report = Forms::SubmissionStatuses::Report.new(@current_user.user_account)
+        report = Forms::SubmissionStatuses::Report.new(
+          user_account: @current_user.user_account,
+          allowed_forms:
+        )
+
         result = report.run
 
         render json: serializable_from(result).to_json, status: status_from(result)
@@ -22,6 +26,10 @@ module V0
         unless Flipper.enabled?(:my_va_form_submission_statuses, @current_user)
           raise Common::Exceptions::Forbidden, detail: 'Submission statuses are disabled.'
         end
+      end
+
+      def allowed_forms
+        %w[20-10207 21-0845 21-0966 21-0972 21-10210 21-4142 21-4142a 21P-0847]
       end
 
       def serializable_from(result)
