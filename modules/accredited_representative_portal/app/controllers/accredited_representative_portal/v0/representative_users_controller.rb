@@ -14,7 +14,7 @@ module AccreditedRepresentativePortal
           profile: {
             first_name: @current_user.first_name,
             last_name: @current_user.last_name,
-            verified:,
+            verified: @current_user.user_account.verified?,
             sign_in: {
               service_name: @current_user.sign_in[:service_name]
             }
@@ -25,13 +25,6 @@ module AccreditedRepresentativePortal
       end
 
       private
-
-      def verified
-        # TODO: Should we make this a genuine derivation of the user's LOA? The
-        # source of truth of the fact that ARP's users are always verified is
-        # ARP's `SignIn::ClientConfig` which requires such a high LOA level.
-        true
-      end
 
       def in_progress_forms
         InProgressForm.for_user(@current_user).map do |form|
