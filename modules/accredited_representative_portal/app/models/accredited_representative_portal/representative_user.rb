@@ -23,11 +23,13 @@ module AccreditedRepresentativePortal
 
     alias_attribute :mhv_icn, :icn
 
-    validates :uuid, :email, :first_name, :last_name, :icn, presence: true
+    validates(
+      :uuid, :user_account_uuid, :email,
+      :first_name, :last_name, :icn,
+      presence: true
+    )
 
     def user_account
-      return unless user_account_uuid
-
       @user_account ||= UserAccount.find_by(id: user_account_uuid)
     end
 
