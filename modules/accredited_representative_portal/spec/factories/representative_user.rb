@@ -2,6 +2,10 @@
 
 FactoryBot.define do
   factory :representative_user, class: 'AccreditedRepresentativePortal::RepresentativeUser' do
+    transient do
+      sign_in_service_name { SignIn::Constants::Auth::IDME }
+    end
+
     authn_context { LOA::IDME_LOA3_VETS }
     email { Faker::Internet.email }
     fingerprint { Faker::Internet.ip_v4_address }
@@ -12,12 +16,32 @@ FactoryBot.define do
     last_signed_in { Time.zone.now }
     loa { { current: LOA::THREE, highest: LOA::THREE } }
     logingov_uuid { SecureRandom.uuid }
+
     sign_in {
       {
-        service_name: SignIn::Constants::Auth::IDME, client_id: SecureRandom.uuid,
-        auth_broker: SignIn::Constants::Auth::BROKER_CODE
+        auth_broker: SignIn::Constants::Auth::BROKER_CODE,
+        client_id: SecureRandom.uuid,
+        service_name: sign_in_service_name
       }
     }
+
+    user_account_uuid { create(:user_account).id }
     uuid { SecureRandom.uuid }
+
+    trait :with_in_progress_form do
+      transient do
+        in_progress_form_id { Faker::Form.id }
+        in_progress_form_return_url { Faker::Internet.url }
+      end
+
+      after(:create) do |user, evaluator|
+        create(:in_progress_form, {
+          form_id: evaluator.in_progress_form_id,
+          return_url: evaluator.in_progress_form_return_url,
+          user_account: user.user_account,
+          user_uuid: user.uuid
+        })
+      end
+    end
   end
 end
