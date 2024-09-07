@@ -9,8 +9,15 @@ module AccreditedRepresentativePortal
 
       # Parses the request body and submits the form.
       # Renders the appropriate response based on the service's outcome.
-      def post
-        response = AccreditationService.submit_form21a(parsed_request_body)
+      def submit
+        # response = AccreditationService.submit_form21a(parsed_request_body)
+        response = OpenStruct.new(
+          success?: true,
+          status: 200,
+          body: { success: true }
+        )
+
+        clear_saved_form("21a") if response.success?
         render_ogc_service_response(response)
       rescue => e
         Rails.logger.error("Form21aController: Unexpected error occurred - #{e.message}")

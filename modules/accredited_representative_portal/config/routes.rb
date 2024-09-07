@@ -11,8 +11,8 @@ AccreditedRepresentativePortal::Engine.routes.draw do
 
     get 'user', to: 'representative_users#show'
 
-    post 'form21a', to: 'form21a#post'
+    post 'form21a', to: 'form21a#submit'
 
-    resources :in_progress_forms, only: %i[update]
+    resources :in_progress_forms, only: %i[update show destroy]
   end
 end

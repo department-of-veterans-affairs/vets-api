@@ -9,6 +9,8 @@ module AccreditedRepresentativePortal
 
     before_action :verify_pilot_enabled_for_user
 
+    private
+
     def verify_pilot_enabled_for_user
       unless Flipper.enabled?(:accredited_representative_portal_pilot, @current_user)
         message = 'The accredited_representative_portal_pilot feature flag is disabled ' \
@@ -16,6 +18,11 @@ module AccreditedRepresentativePortal
 
         raise Common::Exceptions::Forbidden, detail: message
       end
+    end
+
+    def clear_saved_form(form_id)
+      return unless @current_user
+      InProgressForm.form_for_user(form_id, @current_user)&.destroy 
     end
   end
 end

@@ -28,5 +28,10 @@ module AccreditedRepresentativePortal
     def flipper_id
       email&.downcase
     end
+
+    # TODO: What's this for?
+    def user_account
+      nil
+    end
   end
 end
