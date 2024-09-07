@@ -26,7 +26,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: 'foo.com',
+          returnUrl: return_url,
           howNow: {
             'brown-cow' => {
               '-an eas-i-ly corRupted KEY.' => true
@@ -265,7 +265,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: 'foo.com'
+          returnUrl: return_url
         }
       end
       form_data do
@@ -301,7 +301,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: 'foo.com'
+          returnUrl: return_url
         }
       end
       form_data do
@@ -325,7 +325,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: 'foo.com'
+          returnUrl: return_url
         }
       end
       form_data do
@@ -343,7 +343,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: 'foo.com'
+          returnUrl: return_url
         }
       end
       form_data do
@@ -367,7 +367,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: 'foo.com'
+          returnUrl: return_url
         }
       end
       form_data do
@@ -392,7 +392,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: 'foo.com'
+          returnUrl: return_url
         }
       end
       form_data do
