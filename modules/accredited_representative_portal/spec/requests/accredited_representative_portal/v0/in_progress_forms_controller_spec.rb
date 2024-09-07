@@ -5,95 +5,143 @@ require_relative '../../../support/authentication'
 
 RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, type: :request do
   let(:representative_user) { create(:representative_user) }
-  let(:expected_response_body) do
-    {
-      'data' => {
-        'id' => in_progress_form.id.to_s,
-        'type' => 'in_progress_forms',
-        'attributes' => {
-          'formId' => in_progress_form.form_id,
-          'createdAt' => in_progress_form.created_at,
-          'updatedAt' => in_progress_form.updated_at,
-          'metadata' => in_progress_form.metadata
-        }
-      }
-    }
-  end
+  let(:initial_request_date) { Time.utc(2022, 3, 4, 5, 6, 7) }
+  let(:form_id) { '21a' }
+  let(:headers) { { 'Content-Type' => 'application/json' } }
+  let(:in_progress_form_id) { InProgressForm.last.id }
 
   before do
     Flipper.enable(:accredited_representative_portal_pilot)
     login_as(representative_user)
   end
 
-  describe 'PUT /update' do
-    let(:form_data) { { field: 'value' } }
+  describe 'requests' do
+    context 'can make requests to InProgressForms controller' do
+      it 'can make requests to InProgressForms controller' do
+        # Test for GET and DELETE of existing InProgressForm
+        Timecop.freeze(initial_request_date) do
+          form_data = { field: 'value' }
+          initial_in_progress_form = create(
+            :in_progress_form,
+            user_uuid: representative_user.uuid,
+            form_data:,
+            form_id:
+          )
+          get("/accredited_representative_portal/v0/in_progress_forms/#{form_id}")
+          expect(JSON.parse(response.body)).to eq(
+            {
+              'formData' => {
+                'field' => 'value'
+              },
+              'metadata' => {
+                'version' => 1,
+                'return_url' => 'foo.com',
+                'createdAt' => 1_646_370_367,
+                'expiresAt' => 1_651_554_367,
+                'lastUpdated' => 1_646_370_367,
+                'inProgressFormId' => initial_in_progress_form.id
+              }
+            }
+          )
 
-    context 'with an existing InProgressForm' do
-      let!(:in_progress_form) { create(:in_progress_form, user_uuid: representative_user.uuid) }
+          delete("/accredited_representative_portal/v0/in_progress_forms/#{form_id}")
+          expect(response).to have_http_status(:no_content)
+        end
 
-      it 'updates the InProgressForm' do
-        headers = { 'Content-Type' => 'application/json' }
-        put("/accredited_representative_portal/v0/in_progress_forms/#{in_progress_form.form_id}", params: { form_data: form_data }.to_json, headers:)
+        # Test for PUT when InProgressForm does not exist
+        Timecop.freeze(initial_request_date + 1.day) do
+          form_data = { another_field: 'foo' }
+          put(
+            "/accredited_representative_portal/v0/in_progress_forms/#{form_id}",
+            params: { 'formData' => form_data }.to_json,
+            headers:
+          )
+          expect(JSON.parse(response.body)).to eq(
+            {
+              'data' => {
+                'id' => in_progress_form_id.to_s,
+                'type' => 'in_progress_forms',
+                'attributes' => {
+                  'formId' => '21a',
+                  'createdAt' => '2022-03-05T05:06:07.000Z',
+                  'updatedAt' => '2022-03-05T05:06:07.000Z',
+                  'metadata' => {
+                    'createdAt' => 1_646_456_767,
+                    'expiresAt' => 1_651_640_767,
+                    'lastUpdated' => 1_646_456_767,
+                    'inProgressFormId' => in_progress_form_id
+                  }
+                }
+              }
+            }
+          )
 
-        expect(response).to have_http_status(:ok)
-        in_progress_form.reload
-        expect(response.body).to eq(expected_response_body.to_json)
-      end
-    end
+          get("/accredited_representative_portal/v0/in_progress_forms/#{form_id}")
+          expect(JSON.parse(response.body)).to eq(
+            {
+              'formData' => {
+                'another_field' => 'foo'
+              },
+              'metadata' => {
+                'createdAt' => 1_646_456_767,
+                'expiresAt' => 1_651_640_767,
+                'lastUpdated' => 1_646_456_767,
+                'inProgressFormId' => in_progress_form_id
+              }
+            }
+          )
+        end
 
-    context 'without an existing InProgressForm' do
-      let(:form_id) { '21a' }
-      let(:in_progress_form) { InProgressForm.last }
+        # Test for PUT and DELETE when InProgressForm does exist
+        Timecop.freeze(initial_request_date + 2.days) do
+          form_data = { another_field: 'foo', sample_field: 'sample' }
+          put(
+            "/accredited_representative_portal/v0/in_progress_forms/#{form_id}",
+            params: { 'formData' => form_data }.to_json,
+            headers:
+          )
+          expect(JSON.parse(response.body)).to eq(
+            {
+              'data' => {
+                'id' => in_progress_form_id.to_s,
+                'type' => 'in_progress_forms',
+                'attributes' => {
+                  'formId' => '21a',
+                  'createdAt' => '2022-03-05T05:06:07.000Z',
+                  'updatedAt' => '2022-03-06T05:06:07.000Z',
+                  'metadata' => {
+                    'createdAt' => 1_646_456_767,
+                    'expiresAt' => 1_651_727_167,
+                    'lastUpdated' => 1_646_543_167,
+                    'inProgressFormId' => in_progress_form_id
+                  }
+                }
+              }
+            }
+          )
 
-      it 'create InProgressForm' do
-        headers = { 'Content-Type' => 'application/json' }
-        put("/accredited_representative_portal/v0/in_progress_forms/#{form_id}", params: { form_data: form_data }.to_json, headers:)
+          get("/accredited_representative_portal/v0/in_progress_forms/#{form_id}")
+          expect(JSON.parse(response.body)).to eq(
+            {
+              'formData' => {
+                'another_field' => 'foo',
+                'sample_field' => 'sample'
+              },
+              'metadata' => {
+                'createdAt' => 1_646_456_767,
+                'expiresAt' => 1_651_727_167,
+                'lastUpdated' => 1_646_543_167,
+                'inProgressFormId' => in_progress_form_id
+              }
+            }
+          )
 
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to eq(expected_response_body.to_json)
-      end
-    end
-  end
+          delete("/accredited_representative_portal/v0/in_progress_forms/#{form_id}")
+          expect(response).to have_http_status(:no_content)
 
-  describe 'GET /show' do
-    let!(:in_progress_form) { create(:in_progress_form, user_uuid: representative_user.uuid) }
-
-    context 'with an existing InProgressForm' do
-      it 'returns the InProgressForm and form data' do
-        get("/accredited_representative_portal/v0/in_progress_forms/#{in_progress_form.form_id}")
-
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)).to eq(
-          'formData' => JSON.parse(in_progress_form.form_data),
-          'metadata' => in_progress_form.metadata
-        )
-      end
-    end
-  end
-
-  describe 'DELETE /destroy' do
-    context 'with an existing InProgressForm' do
-      let!(:in_progress_form) { create(:in_progress_form, user_uuid: representative_user.uuid) }
-
-      it 'deletes the InProgressForm' do
-        delete("/accredited_representative_portal/v0/in_progress_forms/#{in_progress_form.form_id}")
-
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to eq(expected_response_body.to_json)
-        expect(InProgressForm.exists?(in_progress_form.id)).to be false
-
-        get("/accredited_representative_portal/v0/in_progress_forms/#{in_progress_form.form_id}")
-        expect(response.body).to eq({}.to_json)
-      end
-    end
-
-    context 'with a nonexistant InProgressForm' do
-      let(:form_id) { 'sample_form_id' }
-
-      it 'returns a RecordNotFound error' do
-        delete("/accredited_representative_portal/v0/in_progress_forms/#{form_id}")
-
-        expect(response).to have_http_status(:not_found)
+          get("/accredited_representative_portal/v0/in_progress_forms/#{form_id}")
+          expect(response.body).to eq({}.to_json)
+        end
       end
     end
   end

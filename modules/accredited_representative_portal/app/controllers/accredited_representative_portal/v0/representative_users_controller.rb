@@ -4,10 +4,9 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeUsersController < ApplicationController
       def show
-        # TODO: Move to serializer. Temporary quick and dirty.
+        # TODO: Once we figure out how we're handling serialization and which library we're using, moving this serialization logic out to to a serialization layer.
         render json: {
           account: {
-            # Correct value?
             account_uuid: @current_user.uuid
           },
           profile: {
@@ -18,7 +17,6 @@ module AccreditedRepresentativePortal
               service_name: @current_user.sign_in[:service_name]
             }
           },
-          # TODO: Should they get prefill for e.g. 21a?
           prefills_available: [],
           in_progress_forms:
         }
@@ -34,12 +32,6 @@ module AccreditedRepresentativePortal
             lastUpdated: form.updated_at.to_i
           }
         end
-      end
-
-      # Move to model? Logic taken from elsewhere.
-      def verified
-        loa = @current_user.loa.to_h[:current]&.to_i
-        loa == SignIn::Constants::Auth::LOA_THREE
       end
     end
   end

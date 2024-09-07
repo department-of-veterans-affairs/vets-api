@@ -80,5 +80,10 @@ module AccreditedRepresentativePortal
 
       @current_user = user
     end
+
+    def verified
+      loa = @current_user.loa.to_h[:current]&.to_i
+      loa == SignIn::Constants::Auth::LOA_THREE
+    end
   end
 end

@@ -22,6 +22,7 @@ module AccreditedRepresentativePortal
     attribute :sign_in
     attribute :uuid
     alias_attribute :mhv_icn, :icn
+    attribute :verified
 
     validates :uuid, :email, :first_name, :last_name, :icn, presence: true
 
