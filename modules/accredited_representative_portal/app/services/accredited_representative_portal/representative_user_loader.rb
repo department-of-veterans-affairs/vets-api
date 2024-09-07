@@ -77,19 +77,9 @@ module AccreditedRepresentativePortal
       user.idme_uuid = user_verification.idme_uuid
       user.last_signed_in = session.created_at
       user.sign_in = sign_in
-      user.verified = verified?
       user.save
 
       @current_user = user
-    end
-
-    def verified?
-      # TODO: Should we use the actual logic for `verified?`. The fact that ARP
-      # users are always verified is expressed elsewhere as ARP required LOA
-      # level in ARP `ClientConfig`. An example isntantiation of this is
-      # `db/seeds/development.rb` while it is a DB record in other environments.
-      # session.user_account.verified?
-      true
     end
   end
 end

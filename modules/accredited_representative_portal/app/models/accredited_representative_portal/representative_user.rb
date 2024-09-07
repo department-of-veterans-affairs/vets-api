@@ -20,7 +20,6 @@ module AccreditedRepresentativePortal
     attribute :sign_in, Hash
     attribute :user_account_uuid, String
     attribute :uuid, String
-    attribute :verified, Boolean
 
     alias_attribute :mhv_icn, :icn
 
