@@ -2,13 +2,17 @@
 
 FactoryBot.define do
   factory :in_progress_form do
+    transient do
+      return_url { 'foo.com' }
+    end
+
     user_uuid { SecureRandom.uuid }
     form_id { 'edu_benefits' }
     user_account { nil }
     metadata do
       {
         version: 1,
-        return_url: 'foo.com',
+        return_url:,
         submission: {
           status: false,
           error_message: false,
