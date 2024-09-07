@@ -4,7 +4,8 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeUsersController < ApplicationController
       def show
-        # TODO: Once we figure out how we're handling serialization and which library we're using, moving this serialization logic out to to a serialization layer.
+        # TODO: Once we figure out how we're handling serialization and which library we're using,
+        # moving this serialization logic out to to a serialization layer.
         render json: {
           account: {
             account_uuid: @current_user.uuid
