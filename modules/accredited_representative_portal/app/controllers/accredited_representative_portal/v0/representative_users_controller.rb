@@ -8,7 +8,13 @@ module AccreditedRepresentativePortal
         # moving this serialization logic out to to a serialization layer.
         render json: {
           account: {
-            account_uuid: @current_user.uuid
+            # NOTE: In regard to the in progress form system, this value is only
+            # showing up as error log metadata that identifies a user. To note
+            # is that the VA.gov-wide implementation is exposing the CSP user
+            # ID, while we are improving upon that by exposing the ARP user ID
+            # which will make investigating errors easier. However, it might
+            # confuse someone who is used to debugging the VA.gov-wide scenario.
+            account_uuid: @current_user.user_account_uuid
           },
           profile: {
             first_name: @current_user.first_name,

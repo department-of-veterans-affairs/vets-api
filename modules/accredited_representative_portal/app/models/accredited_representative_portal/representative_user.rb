@@ -18,11 +18,17 @@ module AccreditedRepresentativePortal
     attribute :loa, String
     attribute :logingov_uuid, String
     attribute :sign_in, Hash
+    attribute :user_account_uuid, String
     attribute :uuid, String
 
     alias_attribute :mhv_icn, :icn
 
     validates :uuid, :email, :first_name, :last_name, :icn, presence: true
+
+    def user_account
+      return unless user_account_uuid
+      @user_account ||= UserAccount.find_by(id: user_account_uuid)
+    end
 
     def flipper_id
       email&.downcase
