@@ -33,7 +33,13 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
           )
         end
 
-        it 'responds with the user and their in progress form', run_at: '2024-09-06T16:19:34-04:00' do
+        around do |example|
+          travel_to '2024-09-06T16:19:34-04:00'
+          example.run
+          travel_back
+        end
+
+        it 'responds with the user and their in progress form'  do
           get '/accredited_representative_portal/v0/user'
 
           expect(response).to have_http_status(:ok)
