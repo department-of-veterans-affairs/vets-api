@@ -13,7 +13,10 @@ module AccreditedRepresentativePortal
           profile: {
             first_name: @current_user.first_name,
             last_name: @current_user.last_name,
-            verified:
+            verified:,
+            sign_in: {
+              service_name: @current_user.sign_in[:service_name]
+            }
           },
           # TODO: Should they get prefill for e.g. 21a?
           prefills_available: [],
