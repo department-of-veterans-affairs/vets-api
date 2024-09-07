@@ -12,5 +12,7 @@ AccreditedRepresentativePortal::Engine.routes.draw do
     get 'user', to: 'representative_users#show'
 
     post 'form21a', to: 'form21a#post'
+
+    resources :in_progress_forms, only: %i[update]
   end
 end
