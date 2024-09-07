@@ -35,12 +35,15 @@ FactoryBot.define do
       end
 
       after(:create) do |user, evaluator|
-        create(:in_progress_form, {
-          form_id: evaluator.in_progress_form_id,
-          return_url: evaluator.in_progress_form_return_url,
-          user_account: user.user_account,
-          user_uuid: user.uuid
-        })
+        create(
+          :in_progress_form,
+          {
+            form_id: evaluator.in_progress_form_id,
+            return_url: evaluator.in_progress_form_return_url,
+            user_account: user.user_account,
+            user_uuid: user.uuid
+          }
+        )
       end
     end
   end
