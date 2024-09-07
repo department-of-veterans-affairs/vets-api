@@ -27,6 +27,7 @@ module AccreditedRepresentativePortal
 
     def user_account
       return unless user_account_uuid
+
       @user_account ||= UserAccount.find_by(id: user_account_uuid)
     end
 

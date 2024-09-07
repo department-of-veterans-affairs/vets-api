@@ -41,10 +41,7 @@ module AccreditedRepresentativePortal
 
       def in_progress_form
         @in_progress_form ||=
-          InProgressForm.form_for_user(
-            form_id,
-            @current_user
-          )
+          InProgressForm.form_for_user(form_id, @current_user)
       end
 
       def form_id
