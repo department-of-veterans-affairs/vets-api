@@ -7,7 +7,7 @@ module AccreditedRepresentativePortal
         form = in_progress_form || new_form_for_user(form_id, @current_user)
         form.update!(form_data: params[:formData], metadata: params[:metadata])
 
-        render json: form, key_transform: :unaltered
+        render json: InProgressFormSerializer.new(form)
       end
 
       def show

@@ -77,6 +77,7 @@ module AccreditedRepresentativePortal
       user.idme_uuid = user_verification.idme_uuid
       user.last_signed_in = session.created_at
       user.sign_in = sign_in
+      user.verified = verified?
       user.save
 
       @current_user = user

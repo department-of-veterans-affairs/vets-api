@@ -36,6 +36,13 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
               'metadata' => {
                 'version' => 1,
                 'return_url' => 'foo.com',
+                'submission' => {
+                  'status' => false,
+                  'error_message' => false,
+                  'id' => false,
+                  'timestamp' => false,
+                  'has_attempted_submit' => false
+                },
                 'createdAt' => 1_646_370_367,
                 'expiresAt' => 1_651_554_367,
                 'lastUpdated' => 1_646_370_367,
@@ -59,7 +66,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
           expect(JSON.parse(response.body)).to eq(
             {
               'data' => {
-                'id' => in_progress_form_id.to_s,
+                'id' => '',
                 'type' => 'in_progress_forms',
                 'attributes' => {
                   'formId' => '21a',
@@ -103,7 +110,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
           expect(JSON.parse(response.body)).to eq(
             {
               'data' => {
-                'id' => in_progress_form_id.to_s,
+                'id' => '',
                 'type' => 'in_progress_forms',
                 'attributes' => {
                   'formId' => '21a',
