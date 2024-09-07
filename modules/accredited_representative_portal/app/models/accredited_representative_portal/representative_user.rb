@@ -7,18 +7,19 @@ module AccreditedRepresentativePortal
     redis_key :uuid
 
     # in alphabetical order
-    attribute :authn_context
-    attribute :email
-    attribute :fingerprint
-    attribute :first_name
-    attribute :icn
-    attribute :idme_uuid
-    attribute :last_name
-    attribute :last_signed_in
-    attribute :loa
-    attribute :logingov_uuid
-    attribute :sign_in
-    attribute :uuid
+    attribute :authn_context, String
+    attribute :email, String
+    attribute :fingerprint, String
+    attribute :first_name, String
+    attribute :icn, String
+    attribute :idme_uuid, String
+    attribute :last_name, String
+    attribute :last_signed_in, Common::UTCTime
+    attribute :loa, String
+    attribute :logingov_uuid, String
+    attribute :sign_in, Hash
+    attribute :uuid, String
+
     alias_attribute :mhv_icn, :icn
 
     validates :uuid, :email, :first_name, :last_name, :icn, presence: true
