@@ -14,7 +14,7 @@ module Okta
 
       headers = {
         apiKey: Settings.connected_apps_api.connected_apps.api_key,
-        accesskey: Settings.auth.access_key
+        accesskey: Settings.connected_apps_api.connected_apps.auth_access_key
       }
 
       response = Faraday.get(scopes_url, {}, headers)

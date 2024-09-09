@@ -690,14 +690,12 @@ claims_api:
   poa_v2:
     disable_jobs: false
 
-auth:
-  access_key: ~
-
 connected_apps_api:
   connected_apps:
     url: https://sandbox-api.va.gov/internal/auth/v3/user/connected-apps
     api_key: ~
     revoke_url: https://sandbox-api.va.gov/internal/auth/v3/user/consent
+    auth_access_key: ~
 
 authorization_server_scopes_api:
   auth_server:

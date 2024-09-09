@@ -66,7 +66,7 @@ module V0
 
         headers = {
           apiKey: Settings.connected_apps_api.connected_apps.api_key,
-          accesskey: Settings.auth.access_key
+          accesskey: Settings.connected_apps_api.connected_apps.auth_access_key
         }
 
         [url_with_params, headers]
@@ -79,7 +79,7 @@ module V0
 
         headers = {
           apiKey: Settings.connected_apps_api.connected_apps.api_key,
-          accesskey: Settings.auth.access_key
+          accesskey: Settings.connected_apps_api.connected_apps.auth_access_key
         }
 
         [url_with_params, headers]
