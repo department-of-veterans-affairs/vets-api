@@ -71,6 +71,8 @@ module SimpleFormsApi
 
       private
 
+      attr_reader :attachments
+
       def lighthouse_service
         @lighthouse_service ||= BenefitsIntake::Service.new
       end
@@ -163,7 +165,11 @@ module SimpleFormsApi
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
                                                                         zip_code_is_us_based: form.zip_code_is_us_based)
 
-        form.handle_attachments(file_path) if %w[vba_40_0247 vba_20_10207 vba_40_10007].include? form_id
+        if form_id == 'vba_20_10207'
+          @attachments = form.get_attachments
+        elsif %w[vba_40_0247 vba_40_10007].include?(form_id)
+          form.handle_attachments(file_path)
+        end
 
         [file_path, metadata, form]
       end
@@ -215,7 +221,8 @@ module SimpleFormsApi
         lighthouse_service.perform_upload(
           metadata: metadata.to_json,
           document: file_path,
-          upload_url: location
+          upload_url: location,
+          attachments:
         )
       end
 
