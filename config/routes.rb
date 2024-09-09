@@ -322,7 +322,7 @@ Rails.application.routes.draw do
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
       resources :communication_preferences, only: %i[index create update]
-      resources :contacts, only: %i[index]
+      resources :contacts, only: %i[index create update destroy]
 
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
