@@ -89,8 +89,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
         it 'uploads the document via the LighthouseSupplementalDocumentUploadProvider' do
           lighthouse_document = instance_double(LighthouseDocument)
 
-          allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:generate_upload_document)
-            .and_return(lighthouse_document)
+          expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:generate_upload_document)
+            .with('BDD_Instructions.pdf', 'L023').and_return(lighthouse_document)
 
           expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:submit_upload_document).with(
             lighthouse_document,
@@ -118,8 +118,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
         it 'uploads the document via the EVSSSupplementalDocumentUploadProvider' do
           evss_claim_document = instance_double(EVSSClaimDocument)
 
-          allow_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document)
-            .and_return(evss_claim_document)
+          expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document)
+            .with('BDD_Instructions.pdf', 'L023').and_return(evss_claim_document)
 
           expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:submit_upload_document).with(
             evss_claim_document,

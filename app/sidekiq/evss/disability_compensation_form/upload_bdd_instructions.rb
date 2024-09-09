@@ -76,7 +76,7 @@ module EVSS
         }
       )
 
-      # # Returns the correct SupplementalDocumentUploadProivder based on the state of the
+      # # Returns the correct SupplementalDocumentUploadProvider based on the state of the
       # # ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS feature flag for the current user
       # #
       # @return [EVSSSupplementalDocumentUploadProvider or LighthouseSupplementalDocumentUploadProvider]
@@ -127,7 +127,6 @@ module EVSS
         # revert back to using the EVSS::DocumentsService directly here
         if Flipper.enabled?(:disability_compensation_use_api_provider_for_bdd_instructions)
           upload_via_api_provider
-
           upload_provider.log_upload_success(STATSD_KEY_PREFIX)
         else
           EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
@@ -136,7 +135,8 @@ module EVSS
 
       def upload_via_api_provider
         document = upload_provider.generate_upload_document(
-          BDD_INSTRUCTIONS_DOCUMENT_TYPE, BDD_INSTRUCTIONS_DOCUMENT_TYPE
+          BDD_INSTRUCTIONS_FILE_NAME,
+          BDD_INSTRUCTIONS_DOCUMENT_TYPE
         )
         upload_provider.submit_upload_document(document, file_body)
       end
