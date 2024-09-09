@@ -9,11 +9,17 @@ module DecisionReview
     # No need to retry since the schedule will run this periodically
     sidekiq_options retry: false
 
+    STATSD_KEY_PREFIX = 'worker.decision_review.delete_saved_claim_records'
+
     def perform
       return unless enabled?
 
-      ::SavedClaim.where(delete_date: ..DateTime.now).destroy_all
+      deleted_records = ::SavedClaim.where(delete_date: ..DateTime.now).destroy_all
+      StatsD.increment("#{STATSD_KEY_PREFIX}.count", deleted_records.size)
+
+      nil
     rescue => e
+      StatsD.increment("#{STATSD_KEY_PREFIX}.error")
       Rails.logger.error('DecisionReview::DeleteSavedClaimRecordsJob perform exception', e.message)
     end
 

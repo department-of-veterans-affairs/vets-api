@@ -30,7 +30,11 @@ module TravelClaim
     end
 
     def initialize(opts)
-      @settings = Settings.check_in.travel_reimbursement_api
+      @settings = if Flipper.enabled?('check_in_experience_travel_api_v2_cutover')
+                    Settings.check_in.travel_reimbursement_api_v2
+                  else
+                    Settings.check_in.travel_reimbursement_api
+                  end
       @check_in = opts[:check_in]
     end
 
@@ -195,23 +199,11 @@ module TravelClaim
     end
 
     def auth_url
-      if btsss_ssm_urls_enabled? && settings.auth_url_v2.present?
-        settings.auth_url_v2
-      else
-        settings.auth_url
-      end
+      settings.auth_url_v2
     end
 
     def claims_url
-      if btsss_ssm_urls_enabled? && settings.claims_url_v2.present?
-        settings.claims_url_v2
-      else
-        settings.claims_url
-      end
-    end
-
-    def btsss_ssm_urls_enabled?
-      Flipper.enabled?('check_in_experience_travel_btsss_ssm_urls_enabled') || false
+      settings.claims_url_v2
     end
 
     def mock_enabled?

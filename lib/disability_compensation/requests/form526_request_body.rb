@@ -327,5 +327,6 @@ module Requests
     attribute :service_information, ServiceInformation
     attribute :service_pay, ServicePay
     attribute :direct_deposit, DirectDeposit
+    attribute :claim_notes, String
   end
 end

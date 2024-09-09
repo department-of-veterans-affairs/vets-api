@@ -31,7 +31,7 @@ describe ClaimsApi::BD do
       end
 
       it 'uploads an attachment to BD for L023' do
-        result = subject.send(:generate_upload_body, claim:, doc_type: 'L023', pdf_path:,
+        result = subject.send(:generate_upload_body, claim:, doc_type: 'L023', pdf_path:, action: 'post',
                                                      original_filename: 'stuff.pdf')
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L023'
@@ -42,7 +42,7 @@ describe ClaimsApi::BD do
 
       it 'uploads an attachment to BD for L122' do
         result = subject.send(:generate_upload_body, claim:, doc_type: 'L122', original_filename: '21-526EZ.pdf',
-                                                     pdf_path:)
+                                                     pdf_path:, action: 'post')
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L122'
         expect(js['data']['claimId']).to eq claim.evss_id
@@ -87,7 +87,7 @@ describe ClaimsApi::BD do
       context 'when the doctype is L190' do
         let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
         let(:json_body) do
-          res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:,
+          res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, action: 'post',
                                                     doc_type: 'L190')
           temp_io = res[:parameters].instance_variable_get(:@io).path
           temp_io_contents = File.read(temp_io)
@@ -106,35 +106,69 @@ describe ClaimsApi::BD do
           expect(json_body['data']['fileName']).to end_with('21-22.pdf')
         end
 
-        it 'the claimId is nil' do
-          expect(json_body['data']['claimId']).to be_nil
+        it 'the claimId is not present' do
+          expect(json_body['data']).not_to have_key('claimId')
         end
       end
 
       context 'when the doctype is L075' do
-        let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22A/signed_filled_final.pdf' }
-        let(:json_body) do
-          res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:,
-                                                    doc_type: 'L075')
-          temp_io = res[:parameters].instance_variable_get(:@io).path
-          temp_io_contents = File.read(temp_io)
-          JSON.parse(temp_io_contents)
+        context 'when the api version is v2' do
+          let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22A/signed_filled_final.pdf' }
+          let(:json_body) do
+            res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, action: 'post',
+                                                      doc_type: 'L075')
+            temp_io = res[:parameters].instance_variable_get(:@io).path
+            temp_io_contents = File.read(temp_io)
+            JSON.parse(temp_io_contents)
+          end
+
+          it 'the systemName is Lighthouse' do
+            expect(json_body['data']['systemName']).to eq('Lighthouse')
+          end
+
+          it 'the docType is L075' do
+            expect(json_body['data']['docType']).to eq('L075')
+          end
+
+          it 'the fileName ends in 21-22a.pdf' do
+            expect(json_body['data']['fileName']).to end_with('21-22a.pdf')
+          end
+
+          it 'the claimId is not present' do
+            expect(json_body['data']).not_to have_key('claimId')
+          end
         end
 
-        it 'the systemName is Lighthouse' do
-          expect(json_body['data']['systemName']).to eq('Lighthouse')
-        end
+        context 'when the api version is v1' do
+          context 'the doc type is 21-22a' do
+            let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22A/signed_filled_final.pdf' }
+            let(:json_body) do
+              res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, action: 'put',
+                                                        doc_type: 'L075')
+              temp_io = res[:parameters].instance_variable_get(:@io).path
+              temp_io_contents = File.read(temp_io)
+              JSON.parse(temp_io_contents)
+            end
 
-        it 'the docType is L075' do
-          expect(json_body['data']['docType']).to eq('L075')
-        end
+            it 'the fileName ends in representative.pdf' do
+              expect(json_body['data']['fileName']).to end_with('_representative.pdf')
+            end
+          end
 
-        it 'the fileName ends in 21-22a.pdf' do
-          expect(json_body['data']['fileName']).to end_with('21-22a.pdf')
-        end
+          context 'the doc type is 21-22' do
+            let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
+            let(:json_body) do
+              res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, action: 'put',
+                                                        doc_type: 'L190')
+              temp_io = res[:parameters].instance_variable_get(:@io).path
+              temp_io_contents = File.read(temp_io)
+              JSON.parse(temp_io_contents)
+            end
 
-        it 'the claimId is nil' do
-          expect(json_body['data']['claimId']).to be_nil
+            it 'the fileName ends in representative.pdf' do
+              expect(json_body['data']['fileName']).to end_with('_representative.pdf')
+            end
+          end
         end
       end
     end
@@ -162,7 +196,7 @@ describe ClaimsApi::BD do
     describe '#generate_upload_body' do
       it 'uploads an attachment to BD for L705' do
         result = subject.send(:generate_upload_body, claim: ews, doc_type: 'L705', original_filename: '5103.pdf',
-                                                     pdf_path:)
+                                                     pdf_path:, action: 'post')
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L705'
         expect(js['data']['claimId']).to eq ews.claim_id

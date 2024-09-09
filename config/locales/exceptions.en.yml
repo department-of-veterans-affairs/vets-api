@@ -2123,6 +2123,18 @@ en:
         code: DR_502
         detail: Received an an invalid response from the upstream server
         status: 502
+      DR_503:
+        <<: *defaults
+        title: Service Unavailable
+        code: DR_503
+        detail: The downstream server is currently unavailable
+        status: 503
+      DR_504:
+        <<: *defaults
+        title: Gateway Timeout
+        code: DR_504
+        detail: Did not receive a timely response from the downstream server
+        status: 504
       DR_401:
         <<: *defaults
         title: Invalid API Key

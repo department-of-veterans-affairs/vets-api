@@ -89,9 +89,22 @@ There are two ways to test vets-api
 
 The CI test matches the GitHub CI Code Check - Test Specs as close as possible, including testing the full suite in docker. This flag overrides all other flags provided. 
 
-The non-CI test run based on your developer setup preference. This can run in parallel or not, with code coverage or not, and output to a log or not. The default is parallel, no coverage, and no log. Additionally, bootsnap is disabled by default to more closely match the CI. You can also specify a file or directory to test. 
+The non-CI test run based on your developer setup preference. This can run in parallel or not, with code coverage or not, and output to a log or not. The default is no parallel, no coverage, and no log. Additionally, bootsnap is disabled by default to more closely match the CI. You can also specify a file or directory to test. 
 
-`bin/test spec modules`
+### Examples
+```
+# For running a tests with debugger or a small group of specs
+# run without parallel
+
+bin/test spec/to/file_spec.rb
+
+# For larger groups of tests without debugging
+# run with parallel
+
+bin/test --parallel modules/mobile
+```
+
+
 
 ## Using bin/lint
 

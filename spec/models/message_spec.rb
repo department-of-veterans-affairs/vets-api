@@ -51,9 +51,9 @@ RSpec.describe Message do
 
         context 'file uploads' do
           let(:upload_class) { 'ActionDispatch::Http::UploadedFile' }
-          let(:file1) { instance_double(upload_class, original_filename: 'file1.jpg', size: 1.megabytes) }
+          let(:file1) { instance_double(upload_class, original_filename: 'file1.jpg', size: 1.megabyte) }
           let(:file2) { instance_double(upload_class, original_filename: 'file2.jpg', size: 2.megabytes) }
-          let(:file3) { instance_double(upload_class, original_filename: 'file3.jpg', size: 1.megabytes) }
+          let(:file3) { instance_double(upload_class, original_filename: 'file3.jpg', size: 1.megabyte) }
           let(:file4) { instance_double(upload_class, original_filename: 'file4.jpg', size: 4.megabytes) }
           let(:file5) { instance_double(upload_class, original_filename: 'file5.jpg', size: 6.1.megabytes) }
 

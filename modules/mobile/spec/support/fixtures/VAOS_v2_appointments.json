@@ -144,6 +144,7 @@
     "location_id":"984",
     "start":"2022-01-11T15:00:00Z",
     "created":"2022-01-10T22:02:08Z",
+    "minutes_duration": 60,
     "cancellation_reason":{
       "code":"other"
     },
@@ -205,6 +206,7 @@
     "service_type":"primaryCare",
     "patient_icn":"1012846043V576341",
     "location_id":"984",
+    "minutes_duration": 60,
     "practitioners":[
 
     ],

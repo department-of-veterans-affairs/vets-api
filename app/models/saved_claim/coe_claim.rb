@@ -1,34 +1,24 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
-
 class SavedClaim::CoeClaim < SavedClaim
-  include SentryLogging
-
   FORM = '26-1880'
 
   def send_to_lgy(edipi:, icn:)
     @edipi = edipi
     @icn = icn
 
+    # If the EDIPI is blank, throw an error
     if @edipi.blank?
-      log_message_to_sentry(
-        'COE application cannot be submitted without an edipi!',
-        :error,
-        {},
-        { team: 'vfs-ebenefits' }
-      )
-    end
+      Rails.logger.error('COE application cannot be submitted without an edipi!')
+    # Otherwise, submit the claim to the LGY API
+    else
+      Rails.logger.info('Begin COE claim submission to LGY API', guid:)
+      response = lgy_service.put_application(payload: prepare_form_data)
+      Rails.logger.info('COE claim submitted to LGY API', guid:)
 
-    response = lgy_service.put_application(payload: prepare_form_data)
-    log_message_to_sentry(
-      "COE claim submitted to LGY: #{guid}",
-      :warn,
-      { attachment_id: guid },
-      { team: 'vfs-ebenefits' }
-    )
-    process_attachments!
-    response['reference_number']
+      process_attachments!
+      response['reference_number']
+    end
   end
 
   def regional_office
@@ -176,7 +166,7 @@ class SavedClaim::CoeClaim < SavedClaim
         { 'attachmentType' => '', 'attachmentDescription' => '' }
 
       if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
-        file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
+        file_path = Common::FileHelpers.generate_clamav_temp_file(attachment.file.read)
 
         File.rename(file_path, "#{file_path}#{file_extension}")
         file_path = "#{file_path}#{file_extension}"

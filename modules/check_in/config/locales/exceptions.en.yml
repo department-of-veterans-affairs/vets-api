@@ -52,6 +52,7 @@ en:
         code: 'CHIP-API_404'
         detail: 'Not Found'
         status: 404
+        sentry_type: none
       CHIP-API_500:
         <<: *external_defaults
         title: 'Internal Server Error'

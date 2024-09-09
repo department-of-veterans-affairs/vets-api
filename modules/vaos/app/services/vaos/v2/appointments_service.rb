@@ -7,7 +7,7 @@ require 'memoist'
 
 module VAOS
   module V2
-    class AppointmentsService < VAOS::SessionService
+    class AppointmentsService < VAOS::SessionService # rubocop:disable Metrics/ClassLength
       extend Memoist
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
@@ -20,12 +20,16 @@ module VAOS
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
       APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
 
+      # Output format for preferred dates
+      # Example: "Thu, July 18, 2024 in the ..."
+      OUTPUT_FORMAT_AM = '%a, %B %-d, %Y in the morning'
+      OUTPUT_FORMAT_PM = '%a, %B %-d, %Y in the afternoon'
+
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {})
-        params = date_params(start_date, end_date)
-                 .merge(page_params(pagination_params))
-                 .merge(status_params(statuses))
-                 .compact
+        params = date_params(start_date, end_date).merge(page_params(pagination_params))
+                                                  .merge(status_params(statuses))
+                                                  .compact
 
         cnp_count = 0
 
@@ -40,7 +44,7 @@ module VAOS
           appointments = response.body[:data]
           appointments.each do |appt|
             prepare_appointment(appt)
-            reason_code_service.extract_reason_code_fields(appt)
+            extract_appointment_fields(appt)
             merge_clinic(appt) if include[:clinics]
             merge_facility(appt) if include[:facilities]
             cnp_count += 1 if cnp?(appt)
@@ -68,7 +72,7 @@ module VAOS
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           appointment = response.body[:data]
           prepare_appointment(appointment)
-          reason_code_service.extract_reason_code_fields(appointment)
+          extract_appointment_fields(appointment)
           OpenStruct.new(appointment)
         end
       end
@@ -96,7 +100,7 @@ module VAOS
           new_appointment = response.body
           convert_appointment_time(new_appointment)
           find_and_merge_provider_name(new_appointment) if cc?(new_appointment)
-          reason_code_service.extract_reason_code_fields(new_appointment)
+          extract_appointment_fields(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -105,7 +109,6 @@ module VAOS
       end
 
       # rubocop:enable Metrics/MethodLength
-
       def update_appointment(appt_id, status)
         with_monitoring do
           if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
@@ -113,10 +116,10 @@ module VAOS
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
-            response = update_appointment_vaos(appt_id, status)
-            convert_appointment_time(response.body)
-            reason_code_service.extract_reason_code_fields(response.body)
-            OpenStruct.new(response.body)
+            response = update_appointment_vaos(appt_id, status).body
+            convert_appointment_time(response)
+            extract_appointment_fields(response)
+            OpenStruct.new(response)
           end
         end
       end
@@ -169,6 +172,42 @@ module VAOS
 
       private
 
+      # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
+      # 1. Reason code fields
+      # 2. Preferred dates for requests (if not available from reason code fields)
+      #
+      # @param appointment [Hash] the appointment to modify
+      def extract_appointment_fields(appointment)
+        reason_code_service.extract_reason_code_fields(appointment)
+
+        # Fallback to extracting preferred dates from a request's requested periods
+        extract_request_preferred_dates(appointment)
+      end
+
+      # Extract preferred date from the requested periods if necessary.
+      #
+      # @param @param appointment [Hash] the appointment to modify
+      def extract_request_preferred_dates(appointment)
+        # Do not overwrite preferred dates if they are already present
+        requested_periods = appointment[:requested_periods]
+        if requested_periods.present? && appointment[:preferred_dates].blank?
+          dates = []
+
+          requested_periods.each do |period|
+            unless period&.[](:start).nil?
+              datetime = DateTime.parse(period[:start])
+              if datetime.strftime('%p') == 'AM'
+                dates.push(datetime.strftime(OUTPUT_FORMAT_AM))
+              else
+                dates.push(datetime.strftime(OUTPUT_FORMAT_PM))
+              end
+            end
+          end
+
+          appointment[:preferred_dates] = dates unless dates.nil?
+        end
+      end
+
       # Modifies params so that the facility timezone offset is included in the desired date.
       # The desired date is sent in this format: 2019-12-31T00:00:00-00:00
       # This modifies the params in place. If params does not contain a desired date, it is not modified.
@@ -217,6 +256,8 @@ module VAOS
         convert_appointment_time(appointment)
 
         appointment[:station], appointment[:ien] = extract_station_and_ien(appointment)
+
+        appointment[:minutes_duration] ||= 60 if appointment[:appointment_type] == 'COMMUNITY_CARE'
 
         if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)
