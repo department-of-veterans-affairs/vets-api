@@ -298,7 +298,7 @@ RSpec.describe Vye::UserInfo, type: :model do
       let!(:award) do
         cur_award_ind = Vye::Award.cur_award_inds[:future]
         award_begin_date = Date.parse('2024-07-01')
-        award_end_date = Date.parse('2024-07-18')
+        award_end_date = Date.parse('2024-07-01')
         FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
       end
 

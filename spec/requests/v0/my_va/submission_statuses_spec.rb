@@ -4,14 +4,10 @@ require 'rails_helper'
 require 'forms/submission_statuses/gateway'
 
 RSpec.describe 'V0::MyVA::SubmissionStatuses', type: :request do
-  let(:user_account_id) { '43134f0c-a772-4afa-857a-e5dedf8ea65a' }
+  let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
   before do
-    sign_in_as(build(:user, :loa3))
-
-    allow_any_instance_of(User).to receive(:user_account).and_return(
-      OpenStruct.new(user_account_id:)
-    )
+    sign_in_as(user)
   end
 
   context 'when feature flag disabled' do
@@ -36,31 +32,9 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', type: :request do
 
     context 'when user has submissions' do
       before do
-        allow_any_instance_of(Forms::SubmissionStatuses::Gateway).to receive(:submissions).and_return(
-          [
-            OpenStruct.new(
-              id: 1,
-              form_type: '21-4142',
-              benefits_intake_uuid: '4b846069-e496-4f83-8587-42b570f24483',
-              user_account_id:,
-              created_at: '2024-03-08'
-            ),
-            OpenStruct.new(
-              id: 2,
-              form_type: '21-0966',
-              benefits_intake_uuid: 'd0c6cea6-9885-4e2f-8e0c-708d5933833a',
-              user_account_id:,
-              created_at: '2024-03-13'
-            ),
-            OpenStruct.new(
-              id: 3,
-              form_type: '21-10210',
-              benefits_intake_uuid: 'd772f671-fbca-4392-ab55-b0e4115dee47',
-              user_account_id:,
-              created_at: '2024-03-08'
-            )
-          ]
-        )
+        create(:form_submission, :with_form214142, user_account_id: user.user_account_uuid)
+        create(:form_submission, :with_form210966, user_account_id: user.user_account_uuid)
+        create(:form_submission, :with_form_blocked, user_account_id: user.user_account_uuid)
       end
 
       it 'returns submission statuses' do
@@ -71,7 +45,7 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', type: :request do
         expect(response).to have_http_status(:ok)
 
         results = JSON.parse(response.body)['data']
-        expect(results.size).to eq(3)
+        expect(results.size).to eq(2)
       end
 
       it 'returns all fields' do

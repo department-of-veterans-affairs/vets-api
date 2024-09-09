@@ -74,28 +74,6 @@ describe TravelPay::Client do
     end
   end
 
-  context 'ping' do
-    before do
-      allow_any_instance_of(TravelPay::Client)
-        .to receive(:request_veis_token)
-        .and_return('veis_token')
-    end
-
-    it 'receives response from ping endpoint' do
-      @stubs.get('/api/v1/Sample/ping') do
-        [
-          200,
-          { 'Content-Type': 'application/json' }
-        ]
-      end
-      client = TravelPay::Client.new
-      response = client.ping
-
-      expect(response).to be_success
-      @stubs.verify_stubbed_calls
-    end
-  end
-
   context '/claims' do
     before do
       allow_any_instance_of(TravelPay::Client)
@@ -156,35 +134,6 @@ describe TravelPay::Client do
       actual_claim_ids = claims_response.body['data'].pluck('id')
 
       expect(actual_claim_ids).to eq(expected_ids)
-    end
-  end
-
-  context 'authorized_ping' do
-    before do
-      allow_any_instance_of(TravelPay::Client)
-        .to receive(:request_veis_token)
-        .and_return('veis_token')
-      allow_any_instance_of(TravelPay::Client)
-        .to receive(:request_sts_token)
-        .and_return('sts_token')
-      allow_any_instance_of(TravelPay::Client)
-        .to receive(:request_btsss_token)
-        .with('veis_token', 'sts_token')
-        .and_return('btsss_token')
-    end
-
-    it 'receives response from authorized-ping endpoint' do
-      @stubs.get('/api/v1/Sample/authorized-ping') do
-        [
-          200,
-          { 'Content-Type': 'application/json' }
-        ]
-      end
-      client = TravelPay::Client.new
-      response = client.authorized_ping(user)
-
-      expect(response).to be_success
-      @stubs.verify_stubbed_calls
     end
   end
 

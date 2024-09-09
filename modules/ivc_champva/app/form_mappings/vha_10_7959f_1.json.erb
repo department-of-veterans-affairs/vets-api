@@ -1,5 +1,6 @@
 {
   "form1[0].#subform[0].VetLastName[0]":          "<%= form.data.dig('veteran', 'full_name', 'last') + ' ' + form.data.dig('veteran', 'full_name', 'suffix') %>",
+  "form1[0].#subform[0].VetLastName[0]":          "<%= [form.data.dig('veteran', 'full_name', 'last'), form.data.dig('veteran', 'full_name', 'suffix')].join(' ')  %>",
   "form1[0].#subform[0].VetFirstName[0]":         "<%= form.data.dig('veteran', 'full_name', 'first') %>",
   "form1[0].#subform[0].MiddleInitials[0]":       "<%= form.data.dig('veteran', 'full_name', 'middle')&.first %>",
   "form1[0].#subform[0].SocialSecurityNumber[0]": "<%= form.data.dig('veteran', 'ssn') %>",
