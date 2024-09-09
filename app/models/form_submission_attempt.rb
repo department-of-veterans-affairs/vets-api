@@ -10,6 +10,10 @@ class FormSubmissionAttempt < ApplicationRecord
 
   has_kms_key
   has_encrypted :error_message, :response, key: :kms_key, **lockbox_options
+  # We only have the ignored_columns here because I haven't yet removed the error_message and
+  # response columns from the db. (The correct column names are error_message_ciphertext and response_ciphertext)
+  # If we get around to doing that, we shouldn't need the following line.
+  self.ignored_columns += %w[error_message response]
 
   aasm do
     after_all_transitions :log_status_change

@@ -46,15 +46,34 @@ module DecisionReview
 
     # Get the sanitized file from S3
     #
-    # @param form_attachment [AppealSubmissionUpload]
+    # @param form_attachment [DecisionReviewEvidenceAttachment]
     # @return [CarrierWave::SanitizedFile] The sanitized file from S3
-    def get_sanitized_file!(form_attachment:) # rubocop:disable Metrics/MethodLength
+    def get_sanitized_file!(form_attachment:)
       appeal_submission_upload = form_attachment.appeal_submission_upload
       appeal_submission = appeal_submission_upload.appeal_submission
       # For now, I'm limiting our new `log_formatted` style of logging to the NOD form. In the near future, we will
       # expand this style of logging to every Decision Review form.
       form_id = appeal_submission.type_of_appeal == 'NOD' ? '10182' : '995'
-      common_log_params = {
+      log_params = sanitized_file_log_params(appeal_submission, appeal_submission_upload, form_attachment, form_id)
+
+      begin
+        sanitized_file = form_attachment.get_file
+        log_formatted(**log_params.merge(is_success: true))
+        sanitized_file
+      rescue => e
+        log_formatted(**log_params.merge(is_success: false, response_error: e))
+        raise e
+      end
+    end
+
+    # Get the sanitized file from S3
+    #
+    # @param appeal_submission [AppealSubmission]
+    # @param appeal_submission_upload [AppealSubmissionUpload]
+    # @param form_attachment [DecisionReviewEvidenceAttachment]
+    # @return [Hash] log params for get_sanitized_file! logging
+    def sanitized_file_log_params(appeal_submission, appeal_submission_upload, form_attachment, form_id)
+      {
         key: :evidence_upload_retrieval,
         form_id:,
         user_uuid: appeal_submission.user_uuid,
@@ -64,15 +83,6 @@ module DecisionReview
           form_attachment_id: form_attachment.id
         }
       }
-
-      begin
-        sanitized_file = form_attachment.get_file
-        log_formatted(**common_log_params.merge(is_success: true))
-        sanitized_file
-      rescue => e
-        log_formatted(**common_log_params.merge(is_success: false, response_error: e))
-        raise e
-      end
     end
 
     def get_dr_svc
