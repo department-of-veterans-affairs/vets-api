@@ -756,10 +756,11 @@
                                       "nullable": true
                                     },
                                     "internationalPostalCode": {
-                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                      "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
                                       "type": "string",
-                                      "maxLength": 100,
-                                      "nullable": true
+                                      "maxLength": 16,
+                                      "nullable": true,
+                                      "pattern": "^[a-zA-Z0-9]*$"
                                     }
                                   }
                                 },
@@ -865,10 +866,11 @@
                                   "example": "6789"
                                 },
                                 "internationalPostalCode": {
-                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                  "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
                                   "type": "string",
-                                  "maxLength": 100,
-                                  "nullable": true
+                                  "maxLength": 16,
+                                  "nullable": true,
+                                  "pattern": "^[a-zA-Z0-9]*$"
                                 },
                                 "dates": {
                                   "type": "object",
@@ -2136,10 +2138,11 @@
                                     "nullable": true
                                   },
                                   "internationalPostalCode": {
-                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
                                     "type": "string",
-                                    "maxLength": 100,
-                                    "nullable": true
+                                    "maxLength": 16,
+                                    "nullable": true,
+                                    "pattern": "^[a-zA-Z0-9]*$"
                                   }
                                 }
                               },
@@ -2245,10 +2248,11 @@
                                 "example": "6789"
                               },
                               "internationalPostalCode": {
-                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
                                 "type": "string",
-                                "maxLength": 100,
-                                "nullable": true
+                                "maxLength": 16,
+                                "nullable": true,
+                                "pattern": "^[a-zA-Z0-9]*$"
                               },
                               "dates": {
                                 "type": "object",
@@ -3682,7 +3686,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "0db55941-4811-4fd9-80cd-f743761a64ea",
+                        "id": "f6c279e0-7e00-4c31-86d3-839c896e8865",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3867,7 +3871,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-08-31"
+                              "anticipatedSeparationDate": "2024-09-07"
                             },
                             "confinements": [
                               {
@@ -3913,7 +3917,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "01a05245-ad48-47c0-b044-60bd1a1cf4d5",
+                        "id": "d0634b7d-7919-4546-8730-da0b46241272",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4291,10 +4295,11 @@
                                       "nullable": true
                                     },
                                     "internationalPostalCode": {
-                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                      "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
                                       "type": "string",
-                                      "maxLength": 100,
-                                      "nullable": true
+                                      "maxLength": 16,
+                                      "nullable": true,
+                                      "pattern": "^[a-zA-Z0-9]*$"
                                     }
                                   }
                                 },
@@ -4400,10 +4405,11 @@
                                   "example": "6789"
                                 },
                                 "internationalPostalCode": {
-                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                  "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
                                   "type": "string",
-                                  "maxLength": 100,
-                                  "nullable": true
+                                  "maxLength": 16,
+                                  "nullable": true,
+                                  "pattern": "^[a-zA-Z0-9]*$"
                                 },
                                 "dates": {
                                   "type": "object",
@@ -5671,10 +5677,11 @@
                                     "nullable": true
                                   },
                                   "internationalPostalCode": {
-                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
                                     "type": "string",
-                                    "maxLength": 100,
-                                    "nullable": true
+                                    "maxLength": 16,
+                                    "nullable": true,
+                                    "pattern": "^[a-zA-Z0-9]*$"
                                   }
                                 }
                               },
@@ -5780,10 +5787,11 @@
                                 "example": "6789"
                               },
                               "internationalPostalCode": {
-                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
                                 "type": "string",
-                                "maxLength": 100,
-                                "nullable": true
+                                "maxLength": 16,
+                                "nullable": true,
+                                "pattern": "^[a-zA-Z0-9]*$"
                               },
                               "dates": {
                                 "type": "object",
@@ -7828,10 +7836,11 @@
                                     "nullable": true
                                   },
                                   "internationalPostalCode": {
-                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
                                     "type": "string",
-                                    "maxLength": 100,
-                                    "nullable": true
+                                    "maxLength": 16,
+                                    "nullable": true,
+                                    "pattern": "^[a-zA-Z0-9]*$"
                                   }
                                 }
                               },
@@ -7937,10 +7946,11 @@
                                 "example": "6789"
                               },
                               "internationalPostalCode": {
-                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
                                 "type": "string",
-                                "maxLength": 100,
-                                "nullable": true
+                                "maxLength": 16,
+                                "nullable": true,
+                                "pattern": "^[a-zA-Z0-9]*$"
                               },
                               "dates": {
                                 "type": "object",
@@ -9119,7 +9129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "746039f5-8aa5-49b5-abea-5ed07ac16b35",
+                    "id": "4f521b24-e79b-482f-b85b-7e80ca67701d",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12779,8 +12789,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-08-29",
-                      "expirationDate": "2025-08-29",
+                      "creationDate": "2024-09-05",
+                      "expirationDate": "2025-09-05",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13676,7 +13686,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "69b82793-223a-4d60-ab61-eb67ddb77fc6",
+                    "id": "e3f67c59-3391-445d-9629-f215f8495484",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14369,7 +14379,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5cfd4d55-d0c5-4476-87c1-a1956c8dc02b",
+                    "id": "7bdfdf32-45d7-4724-9e97-ad4762cc5642",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16320,10 +16330,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "22563f3d-74c4-44b8-b2a0-0da7bfe639a4",
+                    "id": "50a3a1dd-2ec2-40a3-9588-7cad8377b515",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-08-29",
+                      "dateRequestAccepted": "2024-09-05",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
