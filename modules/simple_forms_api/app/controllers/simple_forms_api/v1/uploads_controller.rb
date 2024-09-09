@@ -71,8 +71,6 @@ module SimpleFormsApi
 
       private
 
-      attr_reader :attachments
-
       def lighthouse_service
         @lighthouse_service ||= BenefitsIntake::Service.new
       end
