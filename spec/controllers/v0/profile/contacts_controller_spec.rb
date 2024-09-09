@@ -69,7 +69,6 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
       it 'returns 201 created response code' # pending spec
 
       it 'returns 422 unprocessable entity response code' # pending spec
-
     end
 
     context 'feature toggle is disabled' do
@@ -91,7 +90,6 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
       it 'returns 200 success response code' # pending spec
 
       it 'returns 422 unprocessable entity response code' # pending spec
-
     end
 
     context 'feature toggle is disabled' do
@@ -113,7 +111,6 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
       it 'returns 200 success response code' # pending spec
 
       it 'returns 422 unprocessable entity response code' # pending spec
-
     end
 
     context 'feature toggle is disabled' do
