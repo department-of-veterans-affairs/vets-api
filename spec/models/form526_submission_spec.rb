@@ -263,7 +263,7 @@ RSpec.describe Form526Submission do
         )
       end
 
-      it 'handles the edge case where an in process sub succeeds during query building' do
+      it 'handles the edge case where an sub succeeds during query building' do
         expired.update!(submitted_claim_id: 'abc123')
 
         expect(Form526Submission.failure_type).to contain_exactly(
