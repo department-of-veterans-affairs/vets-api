@@ -1,0 +1,53 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://staging-api.va.gov/v0/sign_in/token
+    body:
+      encoding: UTF-8
+      string: '{"grant_type":"urn:ietf:params:oauth:grant-type:jwt-bearer","assertion":"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjQwMDAiLCJzdWIiOiJ0ZXN0QGVtYWlsLmNvbSIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC92MC9zaWduX2luL3Rva2VuIiwiaWF0IjoxNzIxMjQ1MjU2LCJleHAiOjE3MjEyNDU1NTYsImp0aSI6IjJmYjFiYjc4NzFlNmYwYTJlNTkxYzFiYzQyNjQxMWVmIiwic2NvcGVzIjpbImh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9zaWduX2luL2NsaWVudF9jb25maWdzIl0sInNlcnZpY2VfYWNjb3VudF9pZCI6ImludmFsaWQiLCJ1c2VyX2F0dHJpYnV0ZXMiOnsiaWNuIjoiMTIzNDU2In19.T6IJFzaWd7Q3IM8bJqCLm5jWhb49kc_Y6iFJtkIHFnYaDUbxeGB-n_ldGygtO76wsmXOp8fuw1hfupXlchIKCUGsIQFP8l7nhoGkzCsAdzXxll-zmNGhSq8KChNwfc3MsjgBh9IIrEvek1Rr24nUeAh2EVuwz8KPN95ENnAWbNLSsSq23Qw_jfubTtjYGeCprfkvyuia2QyBkLyPSRotFz7cfF2naL-uVnTMLayBA-JEnYeLvH3sCPqNChvmWL7A_9VRa4_2eN21TnnuCptYXjp30f0LgcXg0PwFh-msTUshnRSh0T5emUNmG1EYOTbM_-T62jmdkCOCpc3agTAkqA"}'
+    headers:
+      User-Agent:
+      - Faraday v2.10.0
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      X-Git-Sha:
+      - MISSING_GIT_REVISION
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      Content-Type:
+      - application/json; charset=utf-8
+      Cache-Control:
+      - no-cache
+      X-Request-Id:
+      - 70899a4b-2c90-46ce-a6aa-93e6ae7ecc08
+      X-Runtime:
+      - '0.034253'
+      Vary:
+      - Accept, Origin
+      Content-Length:
+      - '45'
+    body:
+      encoding: UTF-8
+      string: '{"errors":"Service account config not found"}'
+  recorded_at: Wed, 17 Jul 2024 19:40:56 GMT
+recorded_with: VCR 6.2.0

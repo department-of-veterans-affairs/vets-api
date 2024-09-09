@@ -162,10 +162,10 @@ module ClaimsApi
       ClaimsApi::AutoEstablishedClaim::ERRORED
     end
 
-    def log_job_progress(claim_id, detail)
-      ClaimsApi::Logger.log(self.class::LOG_TAG,
-                            claim_id:,
-                            detail:)
+    def log_job_progress(claim_id, detail, transaction_id = nil)
+      log_data = { claim_id:, detail:, transaction_id: }
+      log_data.compact!
+      ClaimsApi::Logger.log(self.class::LOG_TAG, **log_data)
     end
 
     def error_responds_to_original_body?(error)

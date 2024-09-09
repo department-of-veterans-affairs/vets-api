@@ -213,13 +213,13 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       context 'international address' do
         it 'maps the address to overflow' do
           form_attributes['veteranIdentification']['mailingAddress']['country'] = 'Afghanistan'
-          form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = 'asdf1234'
+          form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '151-8557'
           form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = nil
           form_attributes['veteranIdentification']['mailingAddress']['zipLastFour'] = nil
           mapper.map_claim
           zip = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:zip]
 
-          expect(zip).to eq('asdf1234')
+          expect(zip).to eq('151-8557')
         end
       end
     end

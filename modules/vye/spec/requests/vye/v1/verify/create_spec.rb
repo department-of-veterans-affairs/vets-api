@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
-RSpec.describe Vye::V1::VerificationsController, type: :request do
+RSpec.describe 'Vye::V1::Verify#create', type: :request do
   let!(:current_user) { create(:user, :accountable) }
 
   before do
