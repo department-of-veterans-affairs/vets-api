@@ -184,7 +184,7 @@
       "VeteranRelationship": "self",
       "SchoolFacilityCode": "0123",
       "InquiryTopic": "All other Questions",
-      "InquiryLevelOfAuthentication": "Business",
+      "InquiryLevelOfAuthentication": "Personal",
       "AttachmentNames": []
     },
     {
@@ -203,7 +203,7 @@
       "VeteranRelationship": "self",
       "SchoolFacilityCode": "0123",
       "InquiryTopic": "All other Questions",
-      "InquiryLevelOfAuthentication": "Business",
+      "InquiryLevelOfAuthentication": "Personal",
       "AttachmentNames": [
         {
           "Id": "8",

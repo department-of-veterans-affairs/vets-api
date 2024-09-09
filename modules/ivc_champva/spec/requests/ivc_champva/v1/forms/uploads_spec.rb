@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Forms uploader', type: :request do
+RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   # forms_numbers_and_classes is a hash that maps form numbers if they have attachments
   form_numbers_and_classes = {
     '10-10D' => IvcChampva::VHA1010d,
