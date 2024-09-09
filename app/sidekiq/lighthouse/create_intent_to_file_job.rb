@@ -52,9 +52,9 @@ module Lighthouse
     #
     # On success/failure log and increment the respective Datadog counter
     #
-    # @param [Integer] in_progress_form_id
-    # @param [String] veteran's ICN
-    # @param [String] veteran's participant ID
+    # @param in_progress_form_id [Integer]
+    # @param veteran_icn [String] veteran's ICN
+    # @param participant_id [String] veteran's participant ID
     #
     def perform(in_progress_form_id, veteran_icn, participant_id)
       init(in_progress_form_id, veteran_icn, participant_id)
@@ -74,6 +74,8 @@ module Lighthouse
     ##
     # Instantiate instance variables for _this_ job
     #
+    # @param (see #perform)
+    #
     def init(in_progress_form_id, veteran_icn, participant_id)
       raise MissingICNError, 'Init failed. No veteran ICN provided' if veteran_icn.blank?
       raise MissingParticipantIDError, 'Init failed. No veteran participant ID provided' if participant_id.blank?
@@ -89,6 +91,11 @@ module Lighthouse
       raise InvalidITFTypeError, 'Init failed. Form type not supported for auto ITF' if itf_type.blank?
     end
 
+    ##
+    # Track error, prevent retry if will result in known failure, raise again otherwise
+    #
+    # @param exception [Exception] error thrown within #perform
+    #
     def triage_rescued_error(exception)
       if exception.instance_of?(MissingICNError)
         itf_log_monitor.track_missing_user_icn(form, exception)
@@ -104,6 +111,11 @@ module Lighthouse
       end
     end
 
+    ##
+    # retreive a monitor for tracking
+    #
+    # @return [BenefitsClaims::IntentToFile::Monitor]
+    #
     def itf_log_monitor
       @itf_log_monitor ||= BenefitsClaims::IntentToFile::Monitor.new
     end
