@@ -14,41 +14,45 @@ class AppealTypeModel
   end
 end
 
-# rubocop:disable RSpec/PredicateMatcher RSpec/PendingWithoutReason
-describe FakeController do
+RSpec.describe FakeController do
   describe '#status_simulation_requested?' do
-    xit 'with simulation request headers', skip: 'Temporarily disable to pass CI specs' do
-      request.headers['Status-Simulation'] = true
-
-      expect(subject.status_simulation_requested?).to be_truthy
+    context 'with simulation request headers' do
+      it 'returns true' do
+        pending 'Temporarily disable to pass CI specs'
+        request.headers['Status-Simulation'] = true
+        expect(subject.status_simulation_requested?).to be true
+      end
     end
 
-    xit 'without simulation request headers', skip: 'Temporarily disable to pass CI specs' do
-      expect(subject.status_simulation_requested?).to be_falsey
+    context 'without simulation request headers' do
+      it 'returns false' do
+        pending 'Temporarily disable to pass CI specs'
+        expect(subject.status_simulation_requested?).to be false
+      end
     end
   end
 
   describe '#status_simulation_allowed?' do
-    xit 'not allowed in production', skip: 'Temporarily disable to pass CI specs' do
-      with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
-        with_settings(Settings, vsp_environment: 'production') do
-          expect(subject.status_simulation_allowed?).to be_falsey
+    context 'when in production environment' do
+      it 'is not allowed' do
+        pending 'Temporarily disable to pass CI specs'
+        with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
+          with_settings(Settings, vsp_environment: 'production') do
+            expect(subject.status_simulation_allowed?).to be false
+          end
         end
       end
     end
 
-    xit 'is allowed in lower envs', skip: 'Temporarily disable to pass CI specs' do
-      with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
-        with_settings(Settings, vsp_environment: 'development') do
-          expect(subject.status_simulation_allowed?).to be_truthy
-        end
-
-        with_settings(Settings, vsp_environment: 'staging') do
-          expect(subject.status_simulation_allowed?).to be_truthy
-        end
-
-        with_settings(Settings, vsp_environment: 'sandbox') do
-          expect(subject.status_simulation_allowed?).to be_truthy
+    context 'when in lower environments' do
+      it 'is allowed' do
+        pending 'Temporarily disable to pass CI specs'
+        with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
+          %w[development staging sandbox].each do |env|
+            with_settings(Settings, vsp_environment: env) do
+              expect(subject.status_simulation_allowed?).to be true
+            end
+          end
         end
       end
     end
@@ -56,18 +60,21 @@ describe FakeController do
 
   describe '#with_status_simulation' do
     describe 'only allows mocking valid statuses' do
-      xit 'valid status', skip: 'Temporarily disable to pass CI specs' do
-        request.headers['Status-Simulation'] = 'other_status'
-
-        expect(subject.with_status_simulation(AppealTypeModel.new).status).to eq('other_status')
+      context 'with valid status' do
+        it 'returns the mocked status' do
+          pending 'Temporarily disable to pass CI specs'
+          request.headers['Status-Simulation'] = 'other_status'
+          expect(subject.with_status_simulation(AppealTypeModel.new).status).to eq('other_status')
+        end
       end
 
-      xit 'invalid status', skip: 'Temporarily disable to pass CI specs' do
-        request.headers['Status-Simulation'] = 'invalid_status'
-
-        expect(subject.with_status_simulation(AppealTypeModel.new).status).to eq('default_status')
+      context 'with invalid status' do
+        it 'returns the default status' do
+          pending 'Temporarily disable to pass CI specs'
+          request.headers['Status-Simulation'] = 'invalid_status'
+          expect(subject.with_status_simulation(AppealTypeModel.new).status).to eq('default_status')
+        end
       end
     end
   end
 end
-# rubocop:enable RSpec/PredicateMatcher
