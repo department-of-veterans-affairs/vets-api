@@ -1,52 +1,74 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api_submission/service'
+require 'lighthouse/benefits_intake/service'
 
 module SimpleFormsApi
   class PdfUploader
-    attr_reader :file_path, :metadata, :form
+    attr_reader :file_path, :metadata, :form, :form_id, :params, :current_user
 
-    def initialize(file_path, metadata, form)
-      @file_path = file_path
-      @metadata = metadata
-      @form = form
+    def initialize(settings)
+      @file_path = settings[:file_path]
+      @metadata = settings[:metadata]
+      @form = settings[:form]
+      @form_id = settings[:form_id]
+      @params = settings[:params]
+      @current_user = settings[:current_user]
     end
 
-    def upload_to_benefits_intake(params)
-      lighthouse_service = SimpleFormsApiSubmission::Service.new
-      uuid_and_location = get_upload_location_and_uuid(lighthouse_service, form)
-      form_submission = FormSubmission.create(
-        form_type: params[:form_number],
-        benefits_intake_uuid: uuid_and_location[:uuid],
-        form_data: params.to_json,
-        user_account: @current_user&.user_account
-      )
-      FormSubmissionAttempt.create(form_submission:)
+    def upload_to_benefits_intake
+      location, uuid = prepare_for_upload
+      log_upload_details(location, uuid)
+      response = perform_pdf_upload(location, file_path)
 
-      Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
-      Rails.logger.info(
-        'Simple forms api - preparing to upload PDF to benefits intake',
-        { location: uuid_and_location[:location], uuid: uuid_and_location[:uuid] }
-      )
-      response = lighthouse_service.upload_doc(
-        upload_url: uuid_and_location[:location],
-        file: file_path,
-        metadata: metadata.to_json
-      )
-
-      [response.status, uuid_and_location[:uuid]]
+      [response.status, uuid]
     end
 
     private
 
-    def get_upload_location_and_uuid(lighthouse_service, form)
-      upload_location = lighthouse_service.get_upload_location.body
+    def lighthouse_service
+      @lighthouse_service ||= BenefitsIntake::Service.new
+    end
 
+    def prepare_for_upload
+      Rails.logger.info('Simple forms api - preparing to request upload location from Lighthouse', form_id:)
+      location, uuid = lighthouse_service.request_upload
+      stamp_pdf_with_uuid(uuid)
+      create_form_submission_attempt(uuid)
+
+      [location, uuid]
+    end
+
+    def stamp_pdf_with_uuid(uuid)
       # Stamp uuid on 40-10007
-      uuid = upload_location.dig('data', 'id')
-      SimpleFormsApi::PdfStamper.new(stamped_template_path: file_path, form:).stamp_uuid(uuid)
+      pdf_stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path: file_path, form:)
+      pdf_stamper.stamp_uuid(uuid)
+    end
 
-      { uuid:, location: upload_location.dig('data', 'attributes', 'location') }
+    def create_form_submission_attempt(uuid)
+      form_submission = create_form_submission(uuid)
+      FormSubmissionAttempt.create(form_submission:)
+    end
+
+    def create_form_submission(uuid)
+      FormSubmission.create(
+        form_type: form_id,
+        benefits_intake_uuid: uuid,
+        form_data: params.to_json,
+        user_account: current_user&.user_account
+      )
+    end
+
+    def log_upload_details(location, uuid)
+      Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
+      Rails.logger.info('Simple forms api - preparing to upload PDF to benefits intake', { location:, uuid: })
+    end
+
+    def perform_pdf_upload(location, file_path)
+      lighthouse_service.perform_upload(
+        metadata: metadata.to_json,
+        document: file_path,
+        upload_url: location
+      )
     end
   end
 end
