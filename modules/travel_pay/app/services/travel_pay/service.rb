@@ -2,19 +2,22 @@
 
 module TravelPay
   class Service
-    def get_claims(current_user, params)
+    def get_claims(current_user, params = {})
       faraday_response = client.get_claims(current_user)
       claims = faraday_response.body['data'].deep_dup
 
-      if params['appt_datetime']
-        parsed_appt_date = Date.parse(params['appt_datetime'])
-        claims = filter_by_date(parsed_appt_date, claims)
-
-      symbolized_body = claims.deep_symbolize_keys
+      begin
+        if params['appt_datetime'].present?
+          parsed_appt_date = Date.parse(params['appt_datetime'])
+          claims = filter_by_date(parsed_appt_date, claims)
+        end
+      rescue Date::Error => de
+        Rails.logger.debug(message: "#{de}. Not filtering claims by date (given: #{params['appt_datetime']}).")
+      end
 
       {
         data: claims.map do |sc|
-          sc[:claimStatus] = sc[:claimStatus].underscore.titleize
+          sc['claimStatus'] = sc['claimStatus'].underscore.titleize
           sc
         end
       }
@@ -24,7 +27,8 @@ module TravelPay
 
     def filter_by_date(date, claims)
       claims.filter do |claim|
-        date == Date.parse(claim['appointmentDateTime')
+        !claim['appointmentDateTime'].nil? && 
+          date == Date.parse(claim['appointmentDateTime'])
       end
     end
 

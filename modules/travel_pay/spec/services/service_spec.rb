@@ -66,16 +66,43 @@ describe TravelPay::Service do
 
       service = TravelPay::Service.new
       claims = service.get_claims(user)
-      actual_statuses = claims[:data].pluck(:claimStatus)
+      actual_statuses = claims[:data].pluck('claimStatus')
 
       expect(actual_statuses).to match_array(expected_statuses)
     end
 
     context 'filter by appt date' do
-      it 'returns claims that match appt date if specified'
-      it 'returns 0 claims if appt date does not match'
-      it 'returns all claims if appt date is invalid'
-      it 'returns all clailms if appt date is not specified'
+      it 'returns claims that match appt date if specified' do
+        service = TravelPay::Service.new
+        claims = service.get_claims(user, {'appt_datetime' => '2024-01-01'})
+
+        expect(claims.count).to equal(1)
+      end
+
+      it 'returns 0 claims if appt date does not match' do
+        service = TravelPay::Service.new
+        claims = service.get_claims(user, {'appt_datetime' => '1700-01-01'})
+
+        expect(claims[:data].count).to equal(0)
+      end
+
+      it 'returns all claims if appt date is invalid' do
+        service = TravelPay::Service.new
+        claims = service.get_claims(user, {'appt_datetime' => 'banana'})
+
+        expect(claims[:data].count).to equal(claims_data['data'].count)
+      end
+      
+      it 'returns all clailms if appt date is not specified' do
+        service = TravelPay::Service.new
+        claims_empty_date = service.get_claims(user, {'appt_datetime' => ''})
+        claims_nil_date = service.get_claims(user, {'appt_datetime' => 'banana'})
+        claims_no_param = service.get_claims(user)
+
+        expect(claims_empty_date[:data].count).to equal(claims_data['data'].count)
+        expect(claims_nil_date[:data].count).to equal(claims_data['data'].count)
+        expect(claims_no_param[:data].count).to equal(claims_data['data'].count)
+      end
     end
   end
 end
