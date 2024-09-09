@@ -220,7 +220,7 @@ RSpec.describe Form526Submission do
       end
 
       it 'returns Lighthouse submissions with a found PDF with a submitted_claim_id' do
-        expect(Form526Submission.pdf_found).to contain_exactly(happy_lighthouse_path_success)
+        expect(Form526Submission.accepted_to_lighthouse_primary_path).to contain_exactly(happy_lighthouse_path_success)
       end
 
       it 'returns both an EVSS submission and a Lighthouse submission with a found PDF and a submitted_claim_id' do
@@ -232,7 +232,7 @@ RSpec.describe Form526Submission do
       it 'does not return the LH submission when the PDF is not found' do
         happy_lighthouse_path_success.form526_job_statuses.last.update(status: Form526JobStatus::STATUS[:pdf_not_found])
 
-        expect(Form526Submission.pdf_found).to be_empty
+        expect(Form526Submission.accepted_to_lighthouse_primary_path).to be_empty
       end
 
       it 'returns the EVSS submission when the Lighthouse submission is not found' do

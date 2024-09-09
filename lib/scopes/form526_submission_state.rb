@@ -24,7 +24,7 @@ module Scopes
       }
 
       scope :accepted_to_primary_path, lambda {
-        pdf_found.or(accepted_to_evss_primary_path)
+        accepted_to_lighthouse_primary_path.or(accepted_to_evss_primary_path)
       }
       scope :accepted_to_evss_primary_path, lambda {
         where.not(submitted_claim_id: nil)
@@ -44,7 +44,7 @@ module Scopes
         where.not(backup_submitted_claim_id: nil)
              .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:rejected])
       }
-      scope :pdf_found, lambda {
+      scope :accepted_to_lighthouse_primary_path, lambda {
         left_outer_joins(:form526_job_statuses).where.not(submitted_claim_id: nil)
                                                .where(submit_endpoint: 'claims_api', form526_job_statuses: {
                                                         job_class: 'PollForm526Pdf', status: 'success'
