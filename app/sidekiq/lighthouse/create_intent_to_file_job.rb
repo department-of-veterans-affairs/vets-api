@@ -57,19 +57,16 @@ module Lighthouse
     # @param [String] veteran's participant ID
     #
     def perform(in_progress_form_id, veteran_icn, participant_id)
-      raise MissingICNError, 'Init failed. No veteran ICN provided' if icn.blank?
-      raise MissingParticipantIDError, 'Init failed. No veteran participant ID provided' if participant_id.blank?
-
-      init(in_progress_form_id, veteran_icn)
+      init(in_progress_form_id, veteran_icn, participant_id)
 
       itf_log_monitor.track_create_itf_begun(itf_type, form.created_at.to_s, form.user_account_id)
+
+      service = BenefitsClaims::Service.new(veteran_icn)
       service.create_intent_to_file(itf_type, '')
+
       itf_log_monitor.track_create_itf_success(itf_type, form.created_at.to_s, form.user_account_id)
-    rescue MissingICNError, MissingParticipantIDError, InvalidITFTypeError, FormNotFoundError => e
-      triage_rescued_error(veteran_icn, participant_id, e)
     rescue => e
-      itf_log_monitor.track_create_itf_failure(itf_type, form.created_at.to_s, form.user_account_id, e)
-      raise e
+      triage_rescued_error(e)
     end
 
     private
@@ -77,37 +74,38 @@ module Lighthouse
     ##
     # Instantiate instance variables for _this_ job
     #
-    def init(in_progress_form_id, icn)
-      @form = InProgressForm.find(in_progress_form_id)
+    def init(in_progress_form_id, veteran_icn, participant_id)
+      raise MissingICNError, 'Init failed. No veteran ICN provided' if veteran_icn.blank?
+      raise MissingParticipantIDError, 'Init failed. No veteran participant ID provided' if participant_id.blank?
 
+      @form = InProgressForm.find(in_progress_form_id)
       raise FormNotFoundError, 'Init failed. Form not found for given ID' if form.blank?
 
       @itf_type = ITF_FORMS[form&.form_id]
-
-      if form.user_account.blank? || form.user_account&.icn != icn
+      if form.user_account.blank? || form.user_account&.icn != veteran_icn
         raise ActiveRecord::RecordNotFound, 'Init failed. User account not found for given veteran ICN'
       end
+
       raise InvalidITFTypeError, 'Init failed. Form type not supported for auto ITF' if itf_type.blank?
     end
 
-    def triage_rescued_error(veteran_icn, participant_id, e)
-      if veteran_icn.blank?
-        itf_log_monitor.track_missing_user_icn(form, e)
-      elsif participant_id.blank?
-        itf_log_monitor.track_missing_user_pid(form, e)
-      elsif form.blank?
-        itf_log_monitor.track_missing_form(form, e)
-      elsif itf_type.blank?
-        itf_log_monitor.track_invalid_itf_type(form, e)
+    def triage_rescued_error(exception)
+      if exception.instance_of?(MissingICNError)
+        itf_log_monitor.track_missing_user_icn(form, exception)
+      elsif exception.instance_of?(MissingParticipantIDError)
+        itf_log_monitor.track_missing_user_pid(form, exception)
+      elsif exception.instance_of?(InvalidITFTypeError)
+        itf_log_monitor.track_invalid_itf_type(form, exception)
+      elsif exception.instance_of?(FormNotFoundError)
+        itf_log_monitor.track_missing_form(form, exception)
+      else
+        itf_log_monitor.track_create_itf_failure(itf_type, form.created_at.to_s, form.user_account_id, exception)
+        raise exception
       end
     end
 
     def itf_log_monitor
       @itf_log_monitor ||= BenefitsClaims::IntentToFile::Monitor.new
-    end
-
-    def service
-      @service ||= BenefitsClaims::Service.new(icn)
     end
   end
 end

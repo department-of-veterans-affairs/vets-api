@@ -42,7 +42,7 @@ module BenefitsClaims
           error:,
           itf_type:,
           form_start_date: form&.created_at&.to_s,
-          user_account_uuid: form.user_account_id
+          user_account_uuid: form&.user_account_id
         }
         Rails.logger.error("Lighthouse::CreateIntentToFileJob create #{itf_type} ITF exhausted", context)
       end
@@ -51,8 +51,8 @@ module BenefitsClaims
         StatsD.increment('user.icn.blank')
         context = {
           error: error.message,
-          in_progress_form_id: form.id,
-          user_account_uuid: form.user_account_id
+          in_progress_form_id: form&.id,
+          user_account_uuid: form&.user_account_id
         }
         Rails.logger.info('V0 InProgressFormsController async ITF user.icn is blank', context)
       end
@@ -61,8 +61,8 @@ module BenefitsClaims
         StatsD.increment('user.participant_id.blank')
         context = {
           error: error.message,
-          in_progress_form_id: form.id,
-          user_account_uuid: form.user_account_id
+          in_progress_form_id: form&.id,
+          user_account_uuid: form&.user_account_id
         }
         Rails.logger.info('V0 InProgressFormsController async ITF user.participant_id is blank', context)
       end
@@ -71,8 +71,8 @@ module BenefitsClaims
         StatsD.increment('form.missing')
         context = {
           error: error.message,
-          in_progress_form_id: form.id,
-          user_account_uuid: form.user_account_id
+          in_progress_form_id: form&.id,
+          user_account_uuid: form&.user_account_id
         }
         Rails.logger.info('V0 InProgressFormsController async ITF form is missing', context)
       end
@@ -81,8 +81,8 @@ module BenefitsClaims
         StatsD.increment('itf.type.invalid')
         context = {
           error: error.message,
-          in_progress_form_id: form.id,
-          user_account_uuid: form.user_account_id
+          in_progress_form_id: form&.id,
+          user_account_uuid: form&.user_account_id
         }
         Rails.logger.info('V0 InProgressFormsController async ITF invalid ITF type', context)
       end
