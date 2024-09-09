@@ -2,12 +2,18 @@
 
 module TravelPay
   class Service
-    def get_claims(current_user)
-      claims_response = client.get_claims(current_user)
-      symbolized_body = claims_response.body.deep_symbolize_keys
+    def get_claims(current_user, params)
+      faraday_response = client.get_claims(current_user)
+      claims = faraday_response.body['data'].deep_dup
+
+      if params['appt_datetime']
+        parsed_appt_date = Date.parse(params['appt_datetime'])
+        claims = filter_by_date(parsed_appt_date, claims)
+
+      symbolized_body = claims.deep_symbolize_keys
 
       {
-        data: symbolized_body[:data].map do |sc|
+        data: claims.map do |sc|
           sc[:claimStatus] = sc[:claimStatus].underscore.titleize
           sc
         end
@@ -15,6 +21,12 @@ module TravelPay
     end
 
     private
+
+    def filter_by_date(date, claims)
+      claims.filter do |claim|
+        date == Date.parse(claim['appointmentDateTime')
+      end
+    end
 
     def client
       TravelPay::Client.new

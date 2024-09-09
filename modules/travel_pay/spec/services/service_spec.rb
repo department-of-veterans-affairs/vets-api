@@ -70,5 +70,12 @@ describe TravelPay::Service do
 
       expect(actual_statuses).to match_array(expected_statuses)
     end
+
+    context 'filter by appt date' do
+      it 'returns claims that match appt date if specified'
+      it 'returns 0 claims if appt date does not match'
+      it 'returns all claims if appt date is invalid'
+      it 'returns all clailms if appt date is not specified'
+    end
   end
 end
