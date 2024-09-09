@@ -84,14 +84,14 @@ RSpec.describe Lighthouse::CreateIntentToFileJob do
       job.perform(123, user.icn, user.participant_id)
     end
 
-    it 'raises any other error' do
+    it 'raises other errors and logs failure' do
       allow(user_account).to receive(:icn).and_return 'non-matching-icn'
 
       expect(monitor).not_to receive(:track_create_itf_begun)
       expect(monitor).to receive(:track_create_itf_failure)
 
       # as when invoked from in_progress_form_controller
-      expect { job.perform(123, user.icn, user.participant_id) }.to raise_error
+      expect { job.perform(123, user.icn, user.participant_id) }.to raise_error ActiveRecord::RecordNotFound
     end
 
     # Retries exhausted
