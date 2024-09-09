@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # # frozen_string_literal: true
 
 # require 'rails_helper'
@@ -14,7 +16,7 @@
 #   end
 # end
 
-# # rubocop:disable RSpec/PredicateMatcher
+#
 # describe FakeController do
 #   describe '#status_simulation_requested?' do
 #     it 'with simulation request headers' do
