@@ -588,6 +588,10 @@ features:
     actor_type: user
     description: Enables enqueuing a Form4142DocumentUploadFailureEmail if a SubmitForm4142Job job exhausts its retries
     enable_in_development: true
+  form526_send_0781_failure_notification:
+    actor_type: user
+    description: Enables enqueuing a Form0781DocumentUploadFailureEmail if a SubmitForm0781Job job exhausts its retries
+    enable_in_development: true
   form0994_confirmation_email:
     actor_type: user
     description: Enables form 0994 email submission confirmation (VaNotify)
@@ -924,10 +928,6 @@ features:
   mobile_claims_log_decision_letter_sent:
     actor_type: user
     description: Logs decision letter info on both claims and decision letter endpoint
-    enable_in_development: true
-  mobile_v1_lighthouse_facilities:
-    actor_type: user
-    description: change mobile lighthouse facility calls to use new v1 endpoint
     enable_in_development: true
   multiple_address_10_10ez:
     actor_type: cookie_id
