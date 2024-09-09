@@ -22,7 +22,6 @@ module BGS
 
     private
 
-    # rubocop:disable Metrics/MethodLength
     def report_marriage_history(type)
       @dependents_application[type].each do |former_spouse|
         former_marriage = BGSDependents::MarriageHistory.new(former_spouse)
@@ -35,22 +34,25 @@ module BGS
           participant,
           'Spouse',
           'Ex-Spouse',
-          {
-            type:,
-            begin_date: marriage_info['start_date'],
-            marriage_country: marriage_info['marriage_country'],
-            marriage_state: marriage_info['marriage_state'],
-            marriage_city: marriage_info['marriage_city'],
-            divorce_state: marriage_info['divorce_state'],
-            divorce_city: marriage_info['divorce_city'],
-            divorce_country: marriage_info['divorce_country'],
-            end_date: marriage_info['end_date'],
-            marriage_termination_type_code: marriage_info['marriage_termination_type_code']
-          }
+          spouse_dependent_optional_fields(type, marriage_info)
         )
       end
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def spouse_dependent_optional_fields(type, marriage_info)
+      {
+        type:,
+        begin_date: marriage_info['start_date'],
+        marriage_country: marriage_info['marriage_country'],
+        marriage_state: marriage_info['marriage_state'],
+        marriage_city: marriage_info['marriage_city'],
+        divorce_state: marriage_info['divorce_state'],
+        divorce_city: marriage_info['divorce_city'],
+        divorce_country: marriage_info['divorce_country'],
+        end_date: marriage_info['end_date'],
+        marriage_termination_type_code: marriage_info['marriage_termination_type_code']
+      }
+    end
 
     def add_spouse
       spouse = BGSDependents::Spouse.new(@dependents_application)

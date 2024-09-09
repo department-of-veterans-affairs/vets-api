@@ -65,7 +65,7 @@ Rspec.describe 'V0::Search', type: :request do
     end
 
     context 'with un-sanitized parameters' do
-      it 'sanitizes the input, stripping all tags and attributes that are not whitelisted' do
+      it 'sanitizes the input, stripping all tags and attributes that are not allowlisted' do
         VCR.use_cassette('search/success') do
           dirty_params     = '<script>alert(document.cookie);</script>'
           sanitized_params = 'alert(document.cookie);'
