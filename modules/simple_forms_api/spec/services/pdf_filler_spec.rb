@@ -36,8 +36,9 @@ describe SimpleFormsApi::PdfFiller do
     forms.each do |file_name|
       context "when mapping the pdf data given JSON file: #{file_name}" do
         let(:form_number) { file_name.gsub('-min', '') }
-        let(:expected_pdf_path) { Rails.root.join("tmp/#{name}-tmp.pdf") }
-        let(:expected_stamped_path) { Rails.root.join("tmp/#{name}-stamped.pdf") }
+        let(:pseudorandom_value) { 'abc123' }
+        let(:expected_pdf_path) { Rails.root.join("tmp/#{name}-#{pseudorandom_value}-tmp.pdf") }
+        let(:expected_stamped_path) { Rails.root.join("tmp/#{name}-#{pseudorandom_value}-stamped.pdf") }
         let(:data) { JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{file_name}.json")) }
         let(:form) { "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data) }
         let(:name) { SecureRandom.hex }
@@ -46,6 +47,8 @@ describe SimpleFormsApi::PdfFiller do
 
         context 'when a legitimate JSON payload is provided' do
           it 'properly fills out the associated PDF' do
+            allow(SecureRandom).to receive(:hex).and_return(pseudorandom_value)
+
             expect do
               described_class.new(form_number:, form:, name:).generate
             end.to change { File.exist?(expected_pdf_path) }.from(false).to(true)
