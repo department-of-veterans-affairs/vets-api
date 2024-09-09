@@ -3313,6 +3313,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     describe '/v0/profile/contacts' do
+      before { Flipper.enable(:profile_contacts_create_update_delete_enabled) }
+
       context 'unauthenticated user' do
         it 'returns unauthorized status code' do
           expect(subject).to validate(:get, '/v0/profile/contacts', 401)
@@ -3335,6 +3337,24 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_200') do
             expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
           end
+        end
+      end
+
+      context 'post request' do
+        it 'returns 201 created status code' do
+          expect(subject).to validate(:post, '/v0/profile/contacts', 201, headers)
+        end
+      end
+
+      context 'patch request' do
+        it 'returns 200 success status code' do
+          expect(subject).to validate(:patch, '/v0/profile/contacts', 200, headers)
+        end
+      end
+
+      context 'delete request' do
+        it 'returns 200 success status code' do
+          expect(subject).to validate(:delete, '/v0/profile/contacts', 200, headers)
         end
       end
     end

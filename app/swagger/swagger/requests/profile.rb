@@ -1415,6 +1415,113 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/profile/contacts' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ForbiddenError
+
+          key :description, 'Create a Next-of-Kin or Emergency Contact'
+          key :tags, [:profile]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Contact attributes'
+            key :required, true
+
+            schema do
+              key :$ref, :Contacts
+            end
+          end
+
+          response 201 do
+            key :description, 'Contact created'
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            schema do
+              key :$ref, :Errors
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/contacts/{id}' do
+        operation :patch do
+          extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ForbiddenError
+
+          key :description, 'Update a Next-of-Kin or Emergency Contact'
+          key :tags, [:profile]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :id
+            key :in, :path
+            key :description, 'Contact identifier'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Contact attributes'
+            key :required, true
+
+            schema do
+              key :$ref, :Contacts
+            end
+          end
+
+          response 200 do
+            key :description, 'Contact updated'
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            schema do
+              key :$ref, :Errors
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/contacts/{id}' do
+        operation :delete do
+          extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ForbiddenError
+
+          key :description, 'Delete a Next-of-Kin or Emergency Contact'
+          key :tags, [:profile]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :id
+            key :in, :path
+            key :description, 'Contact identifier'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'Contact deleted'
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            schema do
+              key :$ref, :Errors
+            end
+          end
+        end
+      end
     end
   end
 end

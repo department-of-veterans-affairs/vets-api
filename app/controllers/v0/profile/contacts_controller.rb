@@ -18,16 +18,25 @@ module V0
       # POST /v0/profile/contacts
       def create
         # use write_service to create a record
+
+        # placeholder response
+        render json: {}, status: :created
       end
 
       # PUT/PATCH /v0/profile/contacts
       def update
         # use write_service to update a record
+
+        # placeholder response
+        render json: {}, status: :ok
       end
 
       # DELETE /v0/profile/contacts
       def destroy
         # use write_service to set the effectiveEndDate to delete a record
+
+        # placeholder response
+        render json: {}, status: :ok
       end
 
       private
