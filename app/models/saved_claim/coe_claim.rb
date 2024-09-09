@@ -19,6 +19,10 @@ class SavedClaim::CoeClaim < SavedClaim
       process_attachments!
       response['reference_number']
     end
+  rescue Common::Client::Errors::ClientError => e
+    raise e unless [502, 503].include(e.status)
+
+    Rails.logger.info('Received LGY server error:', { status: e.status, messsage: e.message, body: e.body })
   end
 
   def regional_office

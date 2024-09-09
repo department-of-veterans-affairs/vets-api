@@ -56,9 +56,15 @@ module V0
           document_data = build_document_data(attachment)
 
           response = lgy_service.post_document(payload: document_data)
-          unless response.status == 201
-            status = response.status
-            break
+          begin
+            unless response.status == 201
+              status = response.status
+              break
+            end
+          rescue Common::Client::Errors::ClientError => e
+            raise e unless [502, 503].include(e.status)
+
+            Rails.logger.info('Received LGY server error:', { status: e.status, messsage: e.message, body: e.body })
           end
         end
       end
