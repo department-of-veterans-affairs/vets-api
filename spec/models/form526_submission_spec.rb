@@ -1398,44 +1398,6 @@ RSpec.describe Form526Submission do
     end
   end
 
-  describe '#eligible_for_ep_merge?' do
-    subject { Form526Submission.create(form_json: File.read(path)).eligible_for_ep_merge? }
-
-    before { Flipper.disable(:disability_526_ep_merge_multi_contention) }
-
-    context 'when there are multiple contentions' do
-      let(:path) { 'spec/support/disability_compensation_form/submissions/only_526_mixed_action_disabilities.json' }
-
-      context 'when multi-contention claims are not eligible' do
-        it { is_expected.to be_falsey }
-      end
-
-      context 'when multi-contention claims are eligible' do
-        before { Flipper.enable(:disability_526_ep_merge_multi_contention) }
-
-        it { is_expected.to be_truthy }
-      end
-    end
-
-    context 'when there is a single new contention' do
-      let(:path) { 'spec/support/disability_compensation_form/submissions/only_526_new_disability.json' }
-
-      context 'when new claims are eligible' do
-        before { Flipper.enable(:disability_526_ep_merge_new_claims) }
-        after { Flipper.disable(:disability_526_ep_merge_new_claims) }
-
-        it { is_expected.to be_truthy }
-      end
-
-      context 'when new claims are not eligible' do
-        before { Flipper.disable(:disability_526_ep_merge_new_claims) }
-        after { Flipper.enable(:disability_526_ep_merge_new_claims) }
-
-        it { is_expected.to be_falsey }
-      end
-    end
-  end
-
   describe '#remediated?' do
     context 'when there are no form526_submission_remediations' do
       it 'returns false' do

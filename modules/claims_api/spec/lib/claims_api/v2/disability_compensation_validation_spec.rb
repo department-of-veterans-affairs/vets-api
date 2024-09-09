@@ -6,13 +6,9 @@ require 'claims_api/v2/disability_compensation_validation'
 # Calling private methods so needed to wrap it in a class
 class TestDisabilityCompensationValidationClass
   include ClaimsApi::V2::DisabilityCompensationValidation
-end
 
-describe TestDisabilityCompensationValidationClass do
-  subject(:test_526_validation_instance) { described_class.new }
-
-  let(:auto_claim) do
-    JSON.parse(
+  def form_attributes
+    @form_attributes ||= JSON.parse(
       Rails.root.join(
         'modules',
         'claims_api',
@@ -23,14 +19,17 @@ describe TestDisabilityCompensationValidationClass do
         'disability_compensation',
         'form_526_json_api.json'
       ).read
-    )
+    ).dig('data', 'attributes')
   end
+end
+
+describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
+  subject(:test_526_validation_instance) { described_class.new }
 
   let(:created_at) { Timecop.freeze(Time.zone.now) }
-  let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
 
   describe '#remove_chars' do
-    let(:date_string) { form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] }
+    let(:date_string) { subject.form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] }
 
     it 'removes the -DD when the date string has a suffix of -DD' do
       result = test_526_validation_instance.send(:remove_chars, date_string)
@@ -39,8 +38,12 @@ describe TestDisabilityCompensationValidationClass do
   end
 
   describe '#date_has_day?' do
-    let(:date_string_with_day) { form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] }
-    let(:date_string_without_day) { form_attributes['serviceInformation']['confinements'][1]['approximateBeginDate'] }
+    let(:date_string_with_day) do
+      subject.form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate']
+    end
+    let(:date_string_without_day) do
+      subject.form_attributes['serviceInformation']['confinements'][1]['approximateBeginDate']
+    end
 
     it 'returns TRUE when the date is formatted YYYY-MM-DD' do
       result = test_526_validation_instance.send(:date_has_day?, date_string_with_day)
@@ -84,7 +87,7 @@ describe TestDisabilityCompensationValidationClass do
       ] }
     end
 
-    let(:service_periods) { form_attributes['serviceInformation'] }
+    let(:service_periods) { subject.form_attributes['serviceInformation'] }
 
     # rubocop:disable RSpec/SubjectStub
     context 'when a separation location code is present' do
@@ -178,6 +181,107 @@ describe TestDisabilityCompensationValidationClass do
     it 'returns true when a date is valid' do
       result = test_526_validation_instance.send(:date_is_valid?, end_date, end_prop)
       expect(result).to eq(true)
+    end
+  end
+
+  describe 'validation of claimant certification' do
+    context 'when the cert is false' do
+      it 'returns an error array' do
+        subject.form_attributes['claimantCertification'] = false
+        res = test_526_validation_instance.send(:validate_form_526_claimant_certification)
+        expect(res[0][:detail]).to eq('claimantCertification must not be false.')
+        expect(res[0][:source]).to eq('/claimantCertification')
+      end
+    end
+  end
+
+  describe 'validation of claimant mailing address elements' do
+    context 'when the country is valid' do # country is USA in the JSON
+      it 'responds with true' do
+        res = test_526_validation_instance.send(:validate_form_526_current_mailing_address_country)
+        expect(res).to be_nil
+      end
+    end
+
+    context 'when the country is invalid' do
+      it 'returns an error array' do
+        subject.form_attributes['veteranIdentification']['mailingAddress']['country'] = 'United States of Nada'
+        res = test_526_validation_instance.send(:validate_form_526_current_mailing_address_country)
+        expect(res[0][:detail]).to eq('The country provided is not valid.')
+        expect(res[0][:source]).to eq('/veteranIdentification/mailingAddress/country')
+      end
+    end
+
+    context 'when the state is not provided and country is not USA' do
+      it 'responds with true' do
+        subject.form_attributes['veteranIdentification']['mailingAddress']['country'] = 'Afghanistan'
+        subject.form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '151-8557'
+        subject.form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = ''
+        subject.form_attributes['veteranIdentification']['mailingAddress']['state'] = nil
+        res = test_526_validation_instance.send(:validate_form_526_current_mailing_address_state)
+        expect(res).to be_nil
+      end
+    end
+  end
+
+  describe 'validation of claimant change of address elements' do
+    context "when any values present, 'dates','typeOfAddressChange','numberAndStreet','country' are required" do
+      context 'without the required country value present' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['country'] = ''
+          res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
+          expect(res[0][:detail]).to eq('The country provided is not valid.')
+          expect(res[0][:source]).to eq('/changeOfAddress/country')
+        end
+      end
+
+      context 'without the required dates values present' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = ''
+          res = test_526_validation_instance.send(:validate_form_526_change_of_address_beginning_date)
+          expect(res[0][:detail]).to eq('beginDate is not a valid date.')
+          expect(res[0][:source]).to eq('/changeOfAddress/dates/beginDate')
+        end
+      end
+    end
+
+    context 'when the country is valid' do # country is USA in the JSON
+      it 'responds with true' do
+        res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
+        expect(res).to be_nil
+      end
+    end
+
+    context 'when the country is invalid' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['country'] = 'United States of Nada'
+        res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
+        expect(res[0][:detail]).to eq('The country provided is not valid.')
+        expect(res[0][:source]).to eq('/changeOfAddress/country')
+      end
+    end
+
+    context 'when the begin date is after the end date' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
+        subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2022-01-01'
+        res = test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date)
+        expect(res[0][:detail]).to eq('endDate is not a valid date.')
+        expect(res[0][:source]).to eq('/changeOfAddress/dates/endDate')
+      end
+    end
+
+    context 'when the type is permanent the end date is prohibited' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
+        subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '01-01-2023'
+        subject.form_attributes['changeOfAddress']['dates']['endDate'] = '01-01-2024'
+        test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date)
+        errors = test_526_validation_instance.instance_variable_get('@errors')
+        expect(errors[0][:detail]).to eq('Change of address endDate cannot be included ' \
+                                         'when typeOfAddressChange is PERMANENT')
+        expect(errors[0][:source]).to eq('/changeOfAddress/dates/endDate')
+      end
     end
   end
 end
