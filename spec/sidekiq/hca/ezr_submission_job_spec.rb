@@ -34,7 +34,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
 
         described_class.within_sidekiq_retries_exhausted_block(msg) do
           expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+          expect(described_class).to receive(:log_message_to_sentry).with(
             '1010EZR total failure',
             :error,
             {
@@ -73,7 +73,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           # of the 'Form1010Ezr::Service', we need to stub out a new instance of the service
           allow(Form1010Ezr::Service).to receive(:new).with(nil).once.and_return(ezr_service)
 
-          expect_any_instance_of(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
+          expect(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
           expect(ezr_service).to receive(:log_submission_failure).with(
             form
           )
