@@ -130,7 +130,7 @@
         "middle": "MiddleECB",
         "last": "LastECB"
       },
-      "contactType": "Other emergency contact",
+      "contactType": "Emergency Contact",
       "relationship": "UNRELATED FRIEND",
       "address": {
         "street": "823 SE 2nd St",
