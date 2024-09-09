@@ -7,7 +7,7 @@ module Forms
         return [] unless dataset.submissions?
 
         results = merge_records_from(dataset)
-        sort_results(results)
+        dataset.intake_statuses? ? sort_results(results) : results
       end
 
       private
