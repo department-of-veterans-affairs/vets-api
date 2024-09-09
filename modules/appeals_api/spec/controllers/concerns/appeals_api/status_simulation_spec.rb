@@ -14,7 +14,7 @@ class AppealTypeModel
   end
 end
 
-# rubocop:disable RSpec/PredicateMatcher
+# rubocop:disable RSpec/PredicateMatcher RSpec/PendingWithoutReason
 describe FakeController do
   describe '#status_simulation_requested?' do
     xit 'with simulation request headers' do
