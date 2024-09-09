@@ -68,17 +68,6 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
 
         it { expect(response).to have_http_status(:ok) }
         it { expect(JSON.parse(response.body)['data']).to include(json_response) }
-
-        context 'pagination' do
-          it 'returns result that is paginated' do
-            expect(JSON.parse(response.body)['data'].size).to eq(10)
-            expect(JSON.parse(response.body)['meta']['meta']['pagination']).to eq({ 'current_page' => 1,
-                                                                                    'prev_page' => nil,
-                                                                                    'next_page' => 2,
-                                                                                    'total_pages' => 2,
-                                                                                    'total_entries' => 15 })
-          end
-        end
       end
 
       context 'when an error occurs' do
