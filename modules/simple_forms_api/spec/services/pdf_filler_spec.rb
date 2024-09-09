@@ -43,12 +43,11 @@ describe SimpleFormsApi::PdfFiller do
         let(:form) { "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data) }
         let(:name) { SecureRandom.hex }
 
+        before { allow(SecureRandom).to receive(:hex).and_return(pseudorandom_value) }
         after { FileUtils.rm_f(expected_pdf_path) }
 
         context 'when a legitimate JSON payload is provided' do
           it 'properly fills out the associated PDF' do
-            allow(SecureRandom).to receive(:hex).and_return(pseudorandom_value)
-
             expect do
               described_class.new(form_number:, form:, name:).generate
             end.to change { File.exist?(expected_pdf_path) }.from(false).to(true)
