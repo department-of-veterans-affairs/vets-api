@@ -82,6 +82,12 @@ module SimpleFormsApi
         combined_pdf << CombinePDF.load(file_path)
         attachments.each do |attachment|
           combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
+        rescue => e
+          Rails.logger.error(
+            'Simple forms api - failed to load attachment for 20-10207',
+            { message: e.message, attachment: attachment.inspect }
+          )
+          raise
         end
 
         combined_pdf.save file_path
@@ -99,7 +105,7 @@ module SimpleFormsApi
       [{ coords:, text: data['statement_of_truth_signature'], page: 4 }]
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(timestamp = Time.current)
       [
         {
           coords: [460, 710],
@@ -109,7 +115,7 @@ module SimpleFormsApi
         },
         {
           coords: [460, 690],
-          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: 2,
           font_size: 12
         }

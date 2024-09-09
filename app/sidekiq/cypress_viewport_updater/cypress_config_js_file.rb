@@ -22,18 +22,20 @@ module CypressViewportUpdater
       super(github_path: 'config/cypress.config.js', name: 'cypress.config.js')
     end
 
-    # rubocop:disable Metrics/MethodLength
     def update(viewports:)
-      viewport_type = nil
-      viewport_idx = nil
-      skip_next_line = false
       lines = raw_content.split("\n")
+      self.updated_content = "#{process_lines(lines, viewports)}\n"
+      self
+    end
 
-      self.updated_content = "#{lines.each_with_object([]).with_index do |(line, new_lines), idx|
-        if skip_next_line
-          skip_next_line = false
-          next
-        end
+    private
+
+    def process_lines(lines, viewports)
+      viewport_type, viewport_idx = nil
+      skip_next_line = false
+
+      lines.each_with_object([]).with_index do |(line, new_lines), idx|
+        next if skip_next_line.tap { skip_next_line = false }
 
         if (type = VIEWPORT_TYPES.keys.select { |t| line.include?(t.to_s) }.first)
           viewport_type = VIEWPORT_TYPES[type]
@@ -46,42 +48,38 @@ module CypressViewportUpdater
                      rewrite_line(line:, new_value: viewports.desktop[0].height, prop: 'viewportHeight')
                    elsif (prop = VIEWPORT_PROPS.select { |p| line.include?(p.to_s) }.first)
                      viewport_idx += 1 if prop == 'height:'
-                     if prop == 'devicesWithViewport:' && lines[idx + 1].exclude?('percentTraffic:')
-                       skip_next_line = true
-                     end
-                     rewrite_line(line:,
-                                  new_value: viewports
-                                               .send(viewport_type)[prop == 'height:' ? viewport_idx - 1 : viewport_idx]
-                                               .send(prop.chomp(':')),
-                                  prop:)
+                     skip_next_line = true if prop_with_viewport(prop) && line_excludes_traffic(lines, idx)
+                     viewport_prop_new_line(viewports, line, prop, viewport_type, viewport_idx)
                    end
-
         new_lines.push(new_line.nil? ? line : new_line)
-      end.flatten.join("\n")}\n"
-
-      self
+      end.flatten.join("\n")
     end
-    # rubocop:enable Metrics/MethodLength
 
-    private
+    def viewport_prop_new_line(viewports, line, prop, viewport_type, viewport_idx)
+      viewport_type_index = prop == 'height:' ? viewport_idx - 1 : viewport_idx
+      new_value = viewports.send(viewport_type)[viewport_type_index].send(prop.chomp(':'))
+      rewrite_line(line:, new_value:, prop:)
+    end
 
     def rewrite_line(line:, new_value:, prop:)
-      line_parts = line.split(':')
+      line_prefix = line.split(':')[0]
+      wrapped_value = WRAP_VALUE_IN_QUOTES.include?(prop) ? "'#{new_value}'" : new_value.to_s
+      new_line = "#{line_prefix}: #{wrapped_value},"
 
-      new_line = if WRAP_VALUE_IN_QUOTES.include?(prop)
-                   line_parts[0] + ": '#{new_value}',"
-                 else
-                   line_parts[0] + ": #{new_value},"
-                 end
+      return new_line if new_line.length <= 80
 
-      if new_line.length > 80
-        return [
-          "#{line_parts[0]}:",
-          "#{line_parts[0].match(/^\s+/)[0]}  #{new_line.split(': ')[1]}"
-        ]
-      end
+      [
+        "#{line_prefix}:",
+        "#{line_prefix.match(/^\s+/)[0]}  #{wrapped_value},"
+      ]
+    end
 
-      new_line
+    def prop_with_viewport(prop)
+      prop == 'devicesWithViewport:'
+    end
+
+    def line_excludes_traffic(lines, idx)
+      lines[idx + 1].exclude?('percentTraffic:')
     end
   end
 end

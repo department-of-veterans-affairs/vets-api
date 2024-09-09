@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# NOTE: This table was renamed and then dropped in the migration `DropAccreditedRepresentativePortalPilotRepresentatives`
 class CreateAccreditedRepresentativePortalVerifiedRepresentatives < ActiveRecord::Migration[7.1]
   def change
     create_table :accredited_representative_portal_verified_representatives do |t|

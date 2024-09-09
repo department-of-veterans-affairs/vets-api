@@ -35,7 +35,10 @@ module BenefitsIntake
     # Perform the upload to BenefitsIntake
     # parameters should be run through validation functions first, to prevent downstream processing errors
     #
-    # @param metadata [Hash] metadata to be sent with upload
+    # @raise [JSON::ParserError] if metadata is not a valid JSON String
+    # @raise [Errno::ENOENT] if document or each attachment are not valid Files
+    #
+    # @param metadata [JSONString] metadata to be sent with upload, must be valid JSON
     # @param document [String] main document file path
     # @param attachments [Array<String>] attachment file path; optional, default = []
     # @param upload_url [String] override instance upload_url; optional, default = @location
@@ -43,7 +46,8 @@ module BenefitsIntake
     def perform_upload(metadata:, document:, attachments: [], upload_url: nil)
       upload_url, _uuid = request_upload unless upload_url
 
-      meta_tmp = Common::FileHelpers.generate_temp_file(metadata.to_s, "#{STATSD_KEY_PREFIX}.#{@uuid}.metadata.json")
+      metadata = JSON.parse(metadata)
+      meta_tmp = Common::FileHelpers.generate_random_file(metadata.to_json)
 
       params = {}
       params[:metadata] = Faraday::UploadIO.new(meta_tmp, Mime[:json].to_s, 'metadata.json')
@@ -53,6 +57,8 @@ module BenefitsIntake
       end
 
       perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
+    ensure
+      Common::FileHelpers.delete_file_if_exists(meta_tmp) if meta_tmp
     end
 
     ##
@@ -117,6 +123,9 @@ module BenefitsIntake
     ##
     # Validate a file satisfies BenefitsIntake specifications.
     # ** File must be a PDF.
+    #
+    # @raise [InvalidDocumentError] if document is not a valid pdf
+    # @see PDF_VALIDATOR_OPTIONS
     #
     # @param [String] document: path to file
     #

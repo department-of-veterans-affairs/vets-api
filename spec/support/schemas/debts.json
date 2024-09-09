@@ -44,6 +44,9 @@
           "currentAR": {
             "type": "number"
           },
+          "compositeDebtId": {
+            "type": "string"
+          },
           "debtHistory": {
             "type": "array",
             "items": {

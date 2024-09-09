@@ -79,7 +79,7 @@ describe MyHealth::V1::ThreadsSerializer, type: :serializer do
   end
 
   it 'includes :has_attachment' do
-    expect(attributes['has_attachment']).to eq thread.has_attachment
+    expect(attributes['has_attachment']).to eq thread.thread_has_attachment
   end
 
   it 'includes :unsent_drafts' do

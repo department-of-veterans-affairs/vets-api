@@ -236,7 +236,7 @@ module DebtsApi
     end
 
     def send_confirmation_email(template_id)
-      return unless Flipper.enabled?(:fsr_confirmation_email)
+      return unless Settings.vsp_environment == 'production'
 
       email = @user.email&.downcase
       return if email.blank?

@@ -59,14 +59,30 @@ RSpec.describe Vye::UserProfile, type: :model do
 
     context 'when the user_profile is found by icn' do
       let!(:user) { create(:evss_user, :loa3) }
-      let!(:user_profile) { described_class.create(ssn: user.ssn, file_number: user.ssn, icn: user.icn) }
+      let!(:active_user_info) { create(:vye_user_info) }
+      let!(:user_profile) { create(:vye_user_profile, ssn: user.ssn, icn: user.icn, active_user_info:) }
 
       it 'finds the user info by icn' do
+        expect(StatsD).to receive(:increment).with('vye.user_profile.active_user_info_hit')
         expect(StatsD).to receive(:increment).with('vye.user_profile.icn_hit')
 
         u = described_class.find_and_update_icn(user:)
 
         expect(u).to eq(user_profile)
+      end
+    end
+
+    context "when the user_profile is found by icn but doesn't have a active user_info" do
+      let!(:user) { create(:evss_user, :loa3) }
+      let!(:user_profile) { create(:vye_user_profile, ssn: user.ssn, icn: user.icn) }
+
+      it 'finds the user info by icn' do
+        expect(StatsD).to receive(:increment).with('vye.user_profile.active_user_info_miss')
+        expect(StatsD).to receive(:increment).with('vye.user_profile.icn_hit')
+
+        u = described_class.find_and_update_icn(user:)
+
+        expect(u).to be_nil
       end
     end
 
@@ -82,27 +98,61 @@ RSpec.describe Vye::UserProfile, type: :model do
 
     context 'when the user_profile is found by ssn' do
       let!(:user) { create(:evss_user, :loa3) }
-      let!(:user_profile) { described_class.create(ssn: user.ssn, file_number: user.ssn) }
+      let!(:active_user_info) { create(:vye_user_info) }
+      let!(:user_profile) { create(:vye_user_profile, ssn: user.ssn, active_user_info:) }
 
       it 'finds the user info by ssn and updates icn' do
+        expect(StatsD).to receive(:increment).with('vye.user_profile.active_user_info_hit')
         expect(StatsD).to receive(:increment).with('vye.user_profile.ssn_hit')
 
         u = described_class.find_and_update_icn(user:)
+
         expect(u).to eq(user_profile)
         expect(u.icn_in_database).to eq(user.icn)
+      end
+    end
+
+    # user_profile.update!(icn: user.icn)
+
+    context "when the user_profile is found by ssn but doesn't have a active user_info" do
+      let!(:user) { create(:evss_user, :loa3) }
+      let!(:user_profile) { create(:vye_user_profile, ssn: user.ssn) }
+
+      it 'finds the user info by ssn and updates icn' do
+        expect(StatsD).to receive(:increment).with('vye.user_profile.active_user_info_miss')
+        expect(StatsD).to receive(:increment).with('vye.user_profile.ssn_hit')
+
+        u = described_class.find_and_update_icn(user:)
+        user_profile.reload
+
+        expect(u).to be_nil
+        expect(user_profile.icn_in_database).to eq(user.icn)
       end
     end
 
     context 'when the user_profile is not found by ssn' do
       let!(:user) { create(:evss_user, :loa3) }
 
-      it 'increments ssn_miss stat' do
+      it 'increments ssn_miss stat and logs a warning' do
         expect(StatsD).to receive(:increment).with('vye.user_profile.ssn_miss')
+
+        expect(Rails.logger)
+          .to receive(:warn)
+          .with(/could not find by ICN or SSN/)
 
         u = described_class.find_and_update_icn(user:)
 
         expect(u).to be_nil
       end
+    end
+  end
+
+  describe '#confirm_active_user_info_present?' do
+    let!(:user_info) { create(:vye_user_info) }
+    let!(:user_profile) { user_info.user_profile }
+
+    it 'returns true' do
+      expect(user_profile.confirm_active_user_info_present?).to eq(true)
     end
   end
 

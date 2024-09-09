@@ -26,8 +26,8 @@ Rails.application.routes.draw do
 
   unless Settings.vsp_environment == 'production'
     namespace :sign_in do
-      resources :client_configs
-      resources :service_account_configs
+      resources :client_configs, param: :client_id
+      resources :service_account_configs, param: :service_account_id
     end
   end
 
@@ -214,15 +214,9 @@ Rails.application.routes.draw do
 
     resources :appeals, only: :index
 
-    namespace :higher_level_reviews do
-      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
-    end
-    resources :higher_level_reviews, only: %i[create show]
-
     namespace :notice_of_disagreements do
       get 'contestable_issues', to: 'contestable_issues#index'
     end
-    resources :notice_of_disagreements, only: %i[create show]
 
     scope :messaging do
       scope :health do
@@ -300,9 +294,6 @@ Rails.application.routes.draw do
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
-      namespace :direct_deposits do
-        resource :disability_compensations, only: %i[show update]
-      end
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do
@@ -333,15 +324,9 @@ Rails.application.routes.draw do
       resources :communication_preferences, only: %i[index create update]
       resources :contacts, only: %i[index]
 
-      resources :ch33_bank_accounts, only: %i[index]
-      put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
     end
-
-    get '/account_controls/credential_index', to: 'account_controls#credential_index'
-    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
-    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
 
     resources :search, only: :index
     resources :search_typeahead, only: :index
@@ -422,6 +407,8 @@ Rails.application.routes.draw do
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
+
+    resource :decision_review_evidence, only: :create
 
     namespace :higher_level_reviews do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
