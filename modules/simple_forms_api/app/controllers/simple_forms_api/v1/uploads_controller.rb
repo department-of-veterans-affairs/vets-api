@@ -165,12 +165,7 @@ module SimpleFormsApi
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
                                                                         zip_code_is_us_based: form.zip_code_is_us_based)
 
-        @attachments = []
-        if form_id == 'vba_20_10207'
-          @attachments = form.get_attachments
-        elsif %w[vba_40_0247 vba_40_10007].include?(form_id)
-          form.handle_attachments(file_path)
-        end
+        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007].include?(form_id)
 
         [file_path, metadata, form]
       end
@@ -178,7 +173,7 @@ module SimpleFormsApi
       def upload_pdf(file_path, metadata, form)
         location, uuid = prepare_for_upload(form, file_path)
         log_upload_details(location, uuid)
-        response = perform_pdf_upload(location, file_path, metadata)
+        response = perform_pdf_upload(location, file_path, metadata, form)
 
         [response.status, uuid]
       end
@@ -218,13 +213,15 @@ module SimpleFormsApi
         Rails.logger.info('Simple forms api - preparing to upload PDF to benefits intake', { location:, uuid: })
       end
 
-      def perform_pdf_upload(location, file_path, metadata)
-        lighthouse_service.perform_upload(
+      def perform_pdf_upload(location, file_path, metadata, form)
+        upload_params = {
           metadata: metadata.to_json,
           document: file_path,
           upload_url: location,
-          attachments:
-        )
+          attachments: form.data[:form_id] == 'vba_20_10207' ? form.get_attachments : nil
+        }.compact
+
+        lighthouse_service.perform_upload(**upload_params)
       end
 
       def form_is264555_and_should_use_lgy_api
