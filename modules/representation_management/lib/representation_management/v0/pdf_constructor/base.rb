@@ -55,8 +55,6 @@ module RepresentationManagement
         end
 
         def next_steps_part1(pdf)
-          # TODO: - Add a method that takes a text string then adds it to the pdf,
-          # moves down 10, and sets the font size to 12
           add_text_with_spacing(pdf,
                                 'Request help from a VA accredited representative or VSO', size: 20,
                                                                                            style: :bold)
@@ -91,7 +89,12 @@ module RepresentationManagement
 
         private
 
-        def add_text_with_spacing(pdf, text, size: 12, move_down: 10, style: :normal, font: 'bitter')
+        def add_text_with_spacing(pdf, text, options = {})
+          size = options.fetch(:size, 12)
+          move_down = options.fetch(:move_down, 10)
+          style = options.fetch(:style, :normal)
+          font = options.fetch(:font, 'bitter')
+
           pdf.font(font, style:) do
             pdf.font_size(size)
             pdf.text(text)
