@@ -169,26 +169,26 @@ module SimpleFormsApi
       end
 
       def upload_pdf(file_path, metadata, form)
-        location, uuid = prepare_for_upload(form)
+        location, uuid = prepare_for_upload(form, file_path)
         log_upload_details(location, uuid)
         response = perform_pdf_upload(location, file_path, metadata)
 
         [response.status, uuid]
       end
 
-      def prepare_for_upload(form)
+      def prepare_for_upload(form, file_path)
         Rails.logger.info('Simple forms api - preparing to request upload location from Lighthouse',
                           form_id: get_form_id)
         location, uuid = lighthouse_service.request_upload
-        stamp_pdf_with_uuid(form, uuid)
+        stamp_pdf_with_uuid(form, uuid, file_path)
         create_form_submission_attempt(uuid)
 
         [location, uuid]
       end
 
-      def stamp_pdf_with_uuid(form, uuid)
+      def stamp_pdf_with_uuid(form, uuid, stamped_template_path)
         # Stamp uuid on 40-10007
-        pdf_stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path: 'tmp/vba_40_10007-tmp.pdf', form:)
+        pdf_stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path:, form:)
         pdf_stamper.stamp_uuid(uuid)
       end
 
