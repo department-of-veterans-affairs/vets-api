@@ -72,6 +72,10 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_insurance_v2_enabled:
+    actor_type: user
+    description: Enables the the upgraded insurance section of the Health Care Application
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -153,10 +157,6 @@ features:
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
-    enable_in_development: true
-  check_in_experience_travel_btsss_ssm_urls_enabled:
-    actor_type: user
-    description: Uses environment variables populated from SSM Param Store for BTSSS URLs.
     enable_in_development: true
   check_in_experience_travel_api_v2_cutover:
     actor_type: user
@@ -317,6 +317,9 @@ features:
   debts_cache_dmc_empty_response:
     actor_type: user
     description: Enables caching of empty DMC response
+  debts_cache_vbs_copays_empty_response:
+    actor_type: user
+    description: Enables caching of empty VBS medical copay response
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
@@ -424,12 +427,6 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
-  disability_526_ep_merge_new_claims:
-    actor_type: user
-    description: enables EP Merge for single-contention 526 claims for a new condition
-  disability_526_ep_merge_multi_contention:
-    actor_type: user
-    description: enables EP Merge for multi-contention 526 claims
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -521,6 +518,10 @@ features:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
     enable_in_development: true
+  find_forms_show_pdf_modal:
+    actor_type: user
+    description: Shows the PDF modal for the Find VA Forms detail page
+    enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
@@ -586,6 +587,10 @@ features:
   form526_send_4142_failure_notification:
     actor_type: user
     description: Enables enqueuing a Form4142DocumentUploadFailureEmail if a SubmitForm4142Job job exhausts its retries
+    enable_in_development: true
+  form526_send_0781_failure_notification:
+    actor_type: user
+    description: Enables enqueuing a Form0781DocumentUploadFailureEmail if a SubmitForm0781Job job exhausts its retries
     enable_in_development: true
   form0994_confirmation_email:
     actor_type: user
@@ -924,10 +929,6 @@ features:
     actor_type: user
     description: Logs decision letter info on both claims and decision letter endpoint
     enable_in_development: true
-  mobile_v1_lighthouse_facilities:
-    actor_type: user
-    description: change mobile lighthouse facility calls to use new v1 endpoint
-    enable_in_development: true
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -1172,6 +1173,13 @@ features:
   show_meb_service_history_categorize_disagreement:
     actor_type: user
     enable_in_development: false
+  show_meb_5490_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
+    enable_in_development: false
+  meb_1606_30_automation:
+    actor_type: user
+    description: Enables MEB form to handle Chapter 1606/30 forms as well as Chapter 33.
   meb_exclusion_period_enabled:
     actor_type: user
     description: enables exclusion period checks
@@ -1345,10 +1353,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
-  va_online_scheduling_appointment_details_redesign:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for redesigning the appointment details page.
   va_online_scheduling_recent_locations_filter:
     actor_type: user
     enable_in_development: true
@@ -1385,6 +1389,10 @@ features:
   veteran_onboarding_show_to_newly_onboarded:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user, based upon number of days since verified
+  veteran_onboarding_show_welcome_message_to_new_users:
+    actor_type: user
+    description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
+    enable_in_development: true
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1652,10 +1660,25 @@ features:
       When disabled: it will use the old SOB application that only works from 0600 to 2200 hrs
   travel_pay_power_switch:
     actor_type: user
+    enable_in_development: true
     description: >-
       Main switch for the Travel Pay feature on VA.gov using the new BTSSS (travel pay) API.
       Enabled - Requests are handled as normal.
       Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
+  travel_pay_view_claim_details:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A frontend-focused switch that toggles visibility of and access to the Travel Pay claim details page and entry point (features toggled together).
+      Enabled - Entry point link and claim details page are viewable.
+      Disabled - Entry point link and claim details page are not viewable.
+  travel_pay_submit_mileage_expense:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles availability of the submit mileage expense feature.
+      Enabled - Requests are handled as normal. Frontend features are available per toggle settings.
+      Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled. Frontend features are not available.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results

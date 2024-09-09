@@ -60,5 +60,15 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
       expect(response.body).to be_a(String)
       expect(response).to match_camelized_response_schema('all_triage_teams')
     end
+
+    it 'responds to GET #index with requires_oh flag' do
+      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients_require_oh') do
+        get '/my_health/v1/messaging/allrecipients?requires_oh=1'
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      expect(response).to match_response_schema('all_triage_teams')
+    end
   end
 end

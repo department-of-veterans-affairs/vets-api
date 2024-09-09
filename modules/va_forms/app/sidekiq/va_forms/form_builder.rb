@@ -11,6 +11,8 @@ module VAForms
 
     STATSD_KEY_PREFIX = 'api.va_forms.form_builder'
 
+    NON_RETRYABLE_ERROR_CODES = [403, 404].freeze # No need to retry because unlikely to recover
+
     sidekiq_options retry: 7
 
     sidekiq_retries_exhausted do |msg, _ex|
@@ -33,7 +35,7 @@ module VAForms
           VAForms::Slack::Messenger.new(
             {
               class: job_class.to_s,
-              message: "URL for form_name: #{form_name}, row_id: #{row_id} no longer returns a valid PDF or web page.",
+              message: "URL for form #{form_name} no longer returns a valid PDF or web page.",
               form_url: url
             }
           ).notify!
@@ -89,16 +91,16 @@ module VAForms
     # and sends Slack notifications; if response is unsuccessful, raises an error
     def check_form_validity(form, attrs, url)
       response = fetch_form(url)
-      if response.success?
-        attrs[:valid_pdf] = true
-        attrs[:sha256] = Digest::SHA256.hexdigest(response.body)
+      if response.success? || NON_RETRYABLE_ERROR_CODES.include?(response.status)
+        attrs[:valid_pdf] = response.success?
+        attrs[:sha256] = response.success? ? Digest::SHA256.hexdigest(response.body) : nil
         attrs[:url] = url
 
         send_slack_notifications(form, attrs, response.headers['Content-Type'])
 
         attrs
       else
-        raise FormFetchError, 'The form could not be fetched from the url provided.'
+        raise FormFetchError, "The form could not be fetched from the url provided. Response code: #{response.status}"
       end
     end
 
@@ -116,7 +118,13 @@ module VAForms
     # Given a +existing_form+ instance of +VAForms::Form+, +updated_attributes+ for that form, and the +content_type+
     # returned by the form URL, sends appropriate Slack notifications
     def send_slack_notifications(existing_form, updated_attrs, content_type)
-      if existing_form.url != updated_attrs[:url]
+      if existing_form.valid_pdf && !updated_attrs[:valid_pdf]
+        # If the PDF was valid but is no longer valid, notify
+        notify_slack(
+          "URL for form #{updated_attrs[:form_name]} no longer returns a valid PDF or web page.",
+          form_url: updated_attrs[:url]
+        )
+      elsif existing_form.url != updated_attrs[:url]
         # If the URL has changed, we notify regardless of content
         notify_slack(
           "Form #{updated_attrs[:form_name]} has been updated.",
