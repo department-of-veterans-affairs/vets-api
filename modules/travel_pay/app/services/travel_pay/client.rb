@@ -141,29 +141,6 @@ module TravelPay
       }
     end
 
-    def request_ping(veis_token)
-      btsss_url = Settings.travel_pay.base_url
-      api_key = Settings.travel_pay.subscription_key
-
-      connection(server_url: btsss_url).get('api/v1/Sample/ping') do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['Ocp-Apim-Subscription-Key'] = api_key
-        req.headers['X-Correlation-ID'] = SecureRandom.uuid
-      end
-    end
-
-    def request_authorized_ping(veis_token, btsss_token)
-      btsss_url = Settings.travel_pay.base_url
-      api_key = Settings.travel_pay.subscription_key
-
-      connection(server_url: btsss_url).get('api/v1/Sample/authorized-ping') do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['BTSSS-Access-Token'] = btsss_token
-        req.headers['Ocp-Apim-Subscription-Key'] = api_key
-        req.headers['X-Correlation-ID'] = SecureRandom.uuid
-      end
-    end
-
     def request_claims(veis_token, btsss_token)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
