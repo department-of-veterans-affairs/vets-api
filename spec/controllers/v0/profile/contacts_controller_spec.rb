@@ -10,12 +10,12 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
   let(:loa1_user) { build(:user, :loa1) }
   let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_200' }
 
+  around do |ex|
+    VCR.use_cassette(cassette) { ex.run }
+  end
+
   describe 'GET /v0/profile/contacts' do
     subject { get :index }
-
-    around do |ex|
-      VCR.use_cassette(cassette) { ex.run }
-    end
 
     context 'successful request' do
       it 'returns emergency contacts' do
@@ -56,6 +56,72 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         sign_in_as user
         expect(subject).to have_http_status(:gateway_timeout)
+      end
+    end
+  end
+
+  describe 'POST /v0/profile/contacts' do
+    subject { post :create, params: {} }
+
+    context 'feature toggle is enabled' do
+      before { Flipper.enable(:profile_contacts_create_update_delete_enabled) }
+
+      it 'returns 201 created response code' # pending spec
+
+      it 'returns 422 unprocessable entity response code' # pending spec
+
+    end
+
+    context 'feature toggle is disabled' do
+      before { Flipper.disable(:profile_contacts_create_update_delete_enabled) }
+
+      it 'returns a not found status code' do
+        sign_in_as user
+        expect(subject).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe 'PUT/PATCH /v0/profile/contacts' do
+    subject { patch :update, params: { id: 1 } }
+
+    context 'feature toggle is enabled' do
+      before { Flipper.enable(:profile_contacts_create_update_delete_enabled) }
+
+      it 'returns 200 success response code' # pending spec
+
+      it 'returns 422 unprocessable entity response code' # pending spec
+
+    end
+
+    context 'feature toggle is disabled' do
+      before { Flipper.disable(:profile_contacts_create_update_delete_enabled) }
+
+      it 'returns a not found status code' do
+        sign_in_as user
+        expect(subject).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe 'DELETE /v0/profile/contacts' do
+    subject { delete :destroy, params: { id: 1 } }
+
+    context 'feature toggle is enabled' do
+      before { Flipper.enable(:profile_contacts_create_update_delete_enabled) }
+
+      it 'returns 200 success response code' # pending spec
+
+      it 'returns 422 unprocessable entity response code' # pending spec
+
+    end
+
+    context 'feature toggle is disabled' do
+      before { Flipper.disable(:profile_contacts_create_update_delete_enabled) }
+
+      it 'returns a not found status code' do
+        sign_in_as user
+        expect(subject).to have_http_status(:not_found)
       end
     end
   end
