@@ -89,6 +89,16 @@ module RepresentationManagement
 
         private
 
+        # Adds text to the PDF with specified spacing and formatting options.
+        #
+        # @param pdf [PDF::Document] The PDF document to add the text to.
+        # @param text [String] The text to be added.
+        # @param options [Hash] (optional) The formatting options for the text.
+        # @option options [Integer] :size (12) The font size of the text.
+        # @option options [Integer] :move_down (10) The amount of vertical spacing to move down after adding the text.
+        # @option options [Symbol] :style (:normal) The font style of the text.
+        # @option options [String] :font ('bitter') The font family of the text.
+        # @return [void]
         def add_text_with_spacing(pdf, text, options = {})
           size = options.fetch(:size, 12)
           move_down = options.fetch(:move_down, 10)
@@ -103,6 +113,10 @@ module RepresentationManagement
           pdf.font_size(12) # Reset to default size
         end
 
+        # Formats a phone number by removing non-digit characters and adding dashes.
+        #
+        # @param phone_number [String] The phone number to be formatted.
+        # @return [String] The formatted phone number.
         def format_phone_number(phone_number)
           return '' if phone_number.blank?
 
