@@ -9,8 +9,9 @@ module Forms
     class Gateway
       attr_accessor :dataset
 
-      def initialize(user_account)
+      def initialize(user_account:, allowed_forms:)
         @user_account = user_account
+        @allowed_forms = allowed_forms
         @dataset = Forms::SubmissionStatuses::Dataset.new
         @error_handler = Forms::SubmissionStatuses::ErrorHandler.new
       end
@@ -23,7 +24,9 @@ module Forms
       end
 
       def submissions
-        FormSubmission.where(user_account: @user_account).to_a
+        query = FormSubmission.where(user_account: @user_account)
+        query = query.where(form_type: @allowed_forms).order(:created_at) if @allowed_forms.present?
+        query.to_a
       end
 
       def intake_statuses(submissions)

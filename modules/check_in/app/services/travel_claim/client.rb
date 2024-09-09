@@ -199,23 +199,11 @@ module TravelClaim
     end
 
     def auth_url
-      if btsss_ssm_urls_enabled? && settings.auth_url_v2.present?
-        settings.auth_url_v2
-      else
-        settings.auth_url
-      end
+      settings.auth_url_v2
     end
 
     def claims_url
-      if btsss_ssm_urls_enabled? && settings.claims_url_v2.present?
-        settings.claims_url_v2
-      else
-        settings.claims_url
-      end
-    end
-
-    def btsss_ssm_urls_enabled?
-      Flipper.enabled?('check_in_experience_travel_btsss_ssm_urls_enabled') || false
+      settings.claims_url_v2
     end
 
     def mock_enabled?

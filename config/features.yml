@@ -158,10 +158,6 @@ features:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
     enable_in_development: true
-  check_in_experience_travel_btsss_ssm_urls_enabled:
-    actor_type: user
-    description: Uses environment variables populated from SSM Param Store for BTSSS URLs.
-    enable_in_development: true
   check_in_experience_travel_api_v2_cutover:
     actor_type: user
     description: Cuts over to new EIS endpoint path, client_id, and keys for BTSSS
@@ -427,12 +423,6 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
-  disability_526_ep_merge_new_claims:
-    actor_type: user
-    description: enables EP Merge for single-contention 526 claims for a new condition
-  disability_526_ep_merge_multi_contention:
-    actor_type: user
-    description: enables EP Merge for multi-contention 526 claims
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -524,6 +514,10 @@ features:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
     enable_in_development: true
+  find_forms_show_pdf_modal:
+    actor_type: user
+    description: Shows the PDF modal for the Find VA Forms detail page
+    enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
@@ -589,6 +583,10 @@ features:
   form526_send_4142_failure_notification:
     actor_type: user
     description: Enables enqueuing a Form4142DocumentUploadFailureEmail if a SubmitForm4142Job job exhausts its retries
+    enable_in_development: true
+  form526_send_0781_failure_notification:
+    actor_type: user
+    description: Enables enqueuing a Form0781DocumentUploadFailureEmail if a SubmitForm0781Job job exhausts its retries
     enable_in_development: true
   form0994_confirmation_email:
     actor_type: user
@@ -927,10 +925,6 @@ features:
     actor_type: user
     description: Logs decision letter info on both claims and decision letter endpoint
     enable_in_development: true
-  mobile_v1_lighthouse_facilities:
-    actor_type: user
-    description: change mobile lighthouse facility calls to use new v1 endpoint
-    enable_in_development: true
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -1175,6 +1169,13 @@ features:
   show_meb_service_history_categorize_disagreement:
     actor_type: user
     enable_in_development: false
+  show_meb_5490_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
+    enable_in_development: false
+  meb_1606_30_automation:
+    actor_type: user
+    description: Enables MEB form to handle Chapter 1606/30 forms as well as Chapter 33.
   meb_exclusion_period_enabled:
     actor_type: user
     description: enables exclusion period checks

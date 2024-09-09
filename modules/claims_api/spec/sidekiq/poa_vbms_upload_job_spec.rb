@@ -214,7 +214,8 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
         expect_any_instance_of(ClaimsApi::BD).to receive(:upload).with(
           claim: power_of_attorney,
           pdf_path: anything,
-          doc_type: 'L075'
+          doc_type: 'L075',
+          action: 'post'
         )
         subject.new.perform(power_of_attorney.id)
       end
