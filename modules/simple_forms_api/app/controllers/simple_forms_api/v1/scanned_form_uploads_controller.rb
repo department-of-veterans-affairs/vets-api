@@ -30,7 +30,6 @@ module SimpleFormsApi
       def upload_response
         file_path = find_attachment_path(params[:confirmation_code])
         metadata = validated_metadata
-        # TODO: Use SimpleFormsApi::PdfUploader if its use in SimpleFormsApi::UploadsController works well
         status, confirmation_number = upload_pdf(file_path, metadata)
 
         { confirmation_number:, status: }

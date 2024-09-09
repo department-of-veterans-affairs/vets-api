@@ -71,6 +71,10 @@ module SimpleFormsApi
 
       private
 
+      def lighthouse_service
+        @lighthouse_service ||= BenefitsIntake::Service.new
+      end
+
       def skip_authentication?
         UNAUTHENTICATED_FORMS.include?(params[:form_number]) || UNAUTHENTICATED_FORMS.include?(params[:form_id])
       end
@@ -119,9 +123,8 @@ module SimpleFormsApi
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
-        settings = { file_path:, metadata:, form:, form_id:, params:, current_user: @current_user }
-        pdf_uploader = SimpleFormsApi::PdfUploader.new(settings)
-        status, confirmation_number = pdf_uploader.upload_to_benefits_intake
+        status, confirmation_number = upload_pdf(file_path, metadata, form)
+
         form.track_user_identity(confirmation_number)
 
         Rails.logger.info(
@@ -158,6 +161,57 @@ module SimpleFormsApi
         form.handle_attachments(file_path) if %w[vba_40_0247 vba_20_10207 vba_40_10007].include? form_id
 
         [file_path, metadata, form]
+      end
+
+      def upload_pdf(file_path, metadata, form)
+        location, uuid = prepare_for_upload(form, file_path)
+        log_upload_details(location, uuid)
+        response = perform_pdf_upload(location, file_path, metadata)
+
+        [response.status, uuid]
+      end
+
+      def prepare_for_upload(form, file_path)
+        Rails.logger.info('Simple forms api - preparing to request upload location from Lighthouse',
+                          form_id: get_form_id)
+        location, uuid = lighthouse_service.request_upload
+        stamp_pdf_with_uuid(form, uuid, file_path)
+        create_form_submission_attempt(uuid)
+
+        [location, uuid]
+      end
+
+      def stamp_pdf_with_uuid(form, uuid, stamped_template_path)
+        # Stamp uuid on 40-10007
+        pdf_stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path:, form:)
+        pdf_stamper.stamp_uuid(uuid)
+      end
+
+      def create_form_submission_attempt(uuid)
+        form_submission = create_form_submission(uuid)
+        FormSubmissionAttempt.create(form_submission:)
+      end
+
+      def create_form_submission(uuid)
+        FormSubmission.create(
+          form_type: params[:form_number],
+          benefits_intake_uuid: uuid,
+          form_data: params.to_json,
+          user_account: @current_user&.user_account
+        )
+      end
+
+      def log_upload_details(location, uuid)
+        Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
+        Rails.logger.info('Simple forms api - preparing to upload PDF to benefits intake', { location:, uuid: })
+      end
+
+      def perform_pdf_upload(location, file_path, metadata)
+        lighthouse_service.perform_upload(
+          metadata: metadata.to_json,
+          document: file_path,
+          upload_url: location
+        )
       end
 
       def form_is264555_and_should_use_lgy_api

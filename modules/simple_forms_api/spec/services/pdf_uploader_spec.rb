@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
-require 'lighthouse/benefits_intake/service'
+require 'simple_forms_api_submission/service'
 
 describe SimpleFormsApi::PdfUploader do
   describe '#upload_to_benefits_intake' do
@@ -10,21 +10,21 @@ describe SimpleFormsApi::PdfUploader do
       file_path = '/some-path'
       metadata = { 'meta' => 'data' }
       form_id = '12-3456'
-      params = {}
-      current_user = nil
       expected_status = 200
       expected_uuid = 'some-uuid'
       lighthouse_service = double
+      upload_location = double
       form = double
+      body = { 'data' => { 'id' => expected_uuid } }
+      params = { form_number: form_id }
       expected_response = double(status: expected_status)
-      allow(lighthouse_service).to receive_messages(request_upload: ['', expected_uuid],
-                                                    perform_upload: expected_response)
-      allow(BenefitsIntake::Service).to receive(:new).and_return lighthouse_service
-      settings = { file_path:, metadata:, form:, form_id:, params:, current_user: }
+      allow(upload_location).to receive(:body).and_return body
+      allow(lighthouse_service).to receive_messages(get_upload_location: upload_location, upload_doc: expected_response)
+      allow(SimpleFormsApiSubmission::Service).to receive(:new).and_return lighthouse_service
 
-      pdf_uploader = SimpleFormsApi::PdfUploader.new(settings)
+      pdf_uploader = SimpleFormsApi::PdfUploader.new(file_path, metadata, form)
 
-      expect(pdf_uploader.upload_to_benefits_intake).to eq [expected_status, expected_uuid]
+      expect(pdf_uploader.upload_to_benefits_intake(params)).to eq [expected_status, expected_uuid]
     end
   end
 end
