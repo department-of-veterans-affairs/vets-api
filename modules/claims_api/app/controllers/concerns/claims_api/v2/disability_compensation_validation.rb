@@ -706,7 +706,7 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_location_codes(service_information)
+      def validate_form_526_location_codes(service_information) # rubocop:disable Metrics/MethodLength
         service_periods = service_information['servicePeriods']
         any_code_present = service_periods.any? do |service_period|
           service_period['separationLocationCode'].present?
@@ -723,6 +723,9 @@ module ClaimsApi
           )
           return
         end
+
+        ClaimsApi::Logger.log('separation_location_codes', detail: 'Retrieved separation locations',
+                                                           separation_locations:)
 
         separation_location_ids = separation_locations.pluck(:id).to_set(&:to_s)
 
