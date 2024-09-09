@@ -166,7 +166,7 @@ module SimpleFormsApi
                                                                         zip_code_is_us_based: form.zip_code_is_us_based)
 
         if form_id == 'vba_20_10207'
-          @attachments = form.get_attachments
+          @attachments = form.get_attachments || []
         elsif %w[vba_40_0247 vba_40_10007].include?(form_id)
           form.handle_attachments(file_path)
         end
