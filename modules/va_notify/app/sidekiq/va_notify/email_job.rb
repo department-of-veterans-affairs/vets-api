@@ -14,6 +14,7 @@ module VANotify
 
       message = "#{job_class} retries exhausted"
       Rails.logger.error(message, { job_id:, error_class:, error_message: })
+      StatsD.increment("sidekiq.jobs.#{job_class.underscore}.retries_exhausted")
     end
 
     def perform(email, template_id, personalisation = nil, api_key = Settings.vanotify.services.va_gov.api_key)
