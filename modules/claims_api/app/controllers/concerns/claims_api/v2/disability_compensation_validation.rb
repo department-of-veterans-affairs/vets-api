@@ -110,7 +110,7 @@ module ClaimsApi
 
         collect_error_messages(
           source: '/changeOfAddress/country',
-          detail: 'The country provided is not a valid.'
+          detail: 'The country provided is not valid.'
         )
       end
 
@@ -130,11 +130,6 @@ module ClaimsApi
           collect_error_messages(
             source: '/changeOfAddress/zipFirstFive',
             detail: 'The zipFirstFive is required if the country is USA.'
-          )
-        elsif address['country'] != 'USA' && address['internationalPostalCode'].blank?
-          collect_error_messages(
-            source: '/changeOfAddress/internationalPostalCode',
-            detail: 'The internationalPostalCode is required if the country is not USA.'
           )
         elsif address['country'] == 'USA' && address['internationalPostalCode'].present?
           collect_error_messages(
@@ -197,11 +192,6 @@ module ClaimsApi
           collect_error_messages(
             source: '/veteranIdentification/mailingAddress/zipFirstFive',
             detail: 'The zipFirstFive is required if the country is USA.'
-          )
-        elsif mailing_address['country'] != 'USA' && mailing_address['internationalPostalCode'].blank?
-          collect_error_messages(
-            source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-            detail: 'The internationalPostalCode is required if the country is not USA.'
           )
         elsif mailing_address['country'] == 'USA' && mailing_address['internationalPostalCode'].present?
           collect_error_messages(

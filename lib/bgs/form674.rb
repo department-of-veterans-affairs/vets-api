@@ -14,18 +14,17 @@ module BGS
   class Form674
     include SentryLogging
 
-    attr_reader :user, :saved_claim
+    attr_reader :user, :saved_claim, :proc_id
 
     def initialize(user, saved_claim)
       @user = user
+      @proc_id = vnp_proc_id
       @saved_claim = saved_claim
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
     end
 
-    # rubocop:disable Metrics/MethodLength
     def submit(payload)
-      proc_id = create_proc_id_and_form
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN').create
 
       process_relationships(proc_id, veteran, payload)
@@ -38,16 +37,7 @@ module BGS
       # temporary logging to troubleshoot
       log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
 
-      benefit_claim_record = BenefitClaim.new(
-        args: {
-          vnp_benefit_claim: vnp_benefit_claim_record,
-          veteran:,
-          user:,
-          proc_id:,
-          end_product_name: @end_product_name,
-          end_product_code: @end_product_code
-        }
-      ).create
+      benefit_claim_record = BenefitClaim.new(args: benefit_claim_args(vnp_benefit_claim_record, veteran)).create
 
       begin
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
@@ -60,18 +50,22 @@ module BGS
 
         bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
       rescue
-        Rails.logger.warning('BGS::Form674.submit failed after creating benefit claim in BGS',
-                             {
-                               user_uuid: user.uuid,
-                               saved_claim_id: saved_claim.id,
-                               icn: user.icn,
-                               error: e.message
-                             })
+        log_submit_failure(error)
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
+
+    def benefit_claim_args(vnp_benefit_claim_record, veteran)
+      {
+        vnp_benefit_claim: vnp_benefit_claim_record,
+        veteran:,
+        user:,
+        proc_id:,
+        end_product_name: @end_product_name,
+        end_product_code: @end_product_code
+      }
+    end
 
     def process_relationships(proc_id, veteran, payload)
       dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user).create
@@ -96,7 +90,7 @@ module BGS
       ).create
     end
 
-    def create_proc_id_and_form
+    def vnp_proc_id
       vnp_response = bgs_service.create_proc(proc_state: 'MANUAL_VAGOV')
       bgs_service.create_proc_form(
         vnp_response[:vnp_proc_id],
@@ -128,6 +122,16 @@ module BGS
           @end_product_code = '130SCHEBNREJ'
         end
       end
+    end
+
+    def log_submit_failure(error)
+      Rails.logger.warning('BGS::Form674.submit failed after creating benefit claim in BGS',
+                           {
+                             user_uuid: user.uuid,
+                             saved_claim_id: saved_claim.id,
+                             icn: user.icn,
+                             error: error.message
+                           })
     end
 
     def bgs_service

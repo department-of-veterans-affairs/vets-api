@@ -6,18 +6,38 @@ module SimpleFormsApi
   class VBA4010007
     include Virtus.model(nullify_blank: true)
     STATS_KEY = 'api.simple_forms_api.40_10007'
-
     attribute :data
 
     def initialize(data)
       @data = data
     end
 
+    def not_veteran?(form_data)
+      relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
+      relationship != '1' && relationship != 'veteran'
+    end
+
+    def dig_data(form_data, field_veteran, field_claimant)
+      not_veteran?(form_data) ? form_data.dig(*field_veteran) : form_data.dig(*field_claimant)
+    end
+
+    def veteran_or_claimant_first_name(form_data)
+      dig_data(form_data, %w[application veteran current_name first], %w[application claimant name first])
+    end
+
+    def veteran_or_claimant_last_name(form_data)
+      dig_data(form_data, %w[application veteran current_name last], %w[application claimant name last])
+    end
+
+    def veteran_or_claimant_file_number(form_data)
+      dig_data(form_data, %w[application veteran ssn], %w[application claimant ssn]) || ''
+    end
+
     def metadata
       {
-        'veteranFirstName' => @data.dig('application', 'claimant', 'name', 'first'),
-        'veteranLastName' => @data.dig('application', 'claimant', 'name', 'last'),
-        'fileNumber' => @data.dig('application', 'claimant', 'ssn')&.gsub('-', ''),
+        'veteranFirstName' => veteran_or_claimant_first_name(@data),
+        'veteranLastName' => veteran_or_claimant_last_name(@data),
+        'fileNumber' => veteran_or_claimant_file_number(@data)&.gsub('-', ''),
         'zipCode' => @data.dig('application', 'claimant', 'address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],

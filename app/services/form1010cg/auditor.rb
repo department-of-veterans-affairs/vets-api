@@ -50,7 +50,6 @@ module Form1010cg
       increment self.class.metrics.submission.attempt
     end
 
-    # rubocop:disable Metrics/MethodLength
     def record_caregivers(claim)
       secondaries_count = 0
       %w[one two].each do |attr|
@@ -58,24 +57,11 @@ module Form1010cg
       end
 
       if claim.primary_caregiver_data.present?
-        case secondaries_count
-        when 0
-          increment(self.class.metrics.submission.caregivers.primary_no_secondary)
-        when 1
-          increment(self.class.metrics.submission.caregivers.primary_one_secondary)
-        when 2
-          increment(self.class.metrics.submission.caregivers.primary_two_secondary)
-        end
+        increment_primary_caregiver_data(secondaries_count)
       else
-        case secondaries_count
-        when 1
-          increment(self.class.metrics.submission.caregivers.no_primary_one_secondary)
-        when 2
-          increment(self.class.metrics.submission.caregivers.no_primary_two_secondary)
-        end
+        increment_no_primary_caregiver_data(secondaries_count)
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def record_submission_failure_client_data(errors:, claim_guid: nil)
       increment self.class.metrics.submission.failure.client.data
@@ -107,6 +93,28 @@ module Form1010cg
     end
 
     private
+
+    def increment_primary_caregiver_data(secondaries_count)
+      caregivers = self.class.metrics.submission.caregivers
+      case secondaries_count
+      when 0
+        increment(caregivers.primary_no_secondary)
+      when 1
+        increment(caregivers.primary_one_secondary)
+      when 2
+        increment(caregivers.primary_two_secondary)
+      end
+    end
+
+    def increment_no_primary_caregiver_data(secondaries_count)
+      caregivers = self.class.metrics.submission.caregivers
+      case secondaries_count
+      when 1
+        increment(caregivers.no_primary_one_secondary)
+      when 2
+        increment(caregivers.no_primary_two_secondary)
+      end
+    end
 
     def increment(stat)
       StatsD.increment stat

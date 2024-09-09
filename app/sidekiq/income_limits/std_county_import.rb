@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
-
 require 'net/http'
 require 'csv'
 
@@ -24,23 +22,10 @@ module IncomeLimits
         data = fetch_csv_data
         if data
           CSV.parse(data, headers: true) do |row|
-            created = DateTime.strptime(row['CREATED'], '%F %H:%M:%S %z').to_s
-            updated = DateTime.strptime(row['UPDATED'], '%F %H:%M:%S %z').to_s if row['UPDATED']
             std_county = StdCounty.find_or_initialize_by(id: row['ID'].to_i)
             next unless std_county.new_record?
 
-            std_county.assign_attributes(
-              name: row['NAME'].to_s,
-              county_number: row['COUNTYNUMBER'].to_i,
-              description: row['DESCRIPTION'],
-              state_id: row['STATE_ID'].to_i,
-              version: row['VERSION'].to_i,
-              created:,
-              updated:,
-              created_by: row['CREATEDBY'].to_s,
-              updated_by: row['UPDATEDBY'].to_s
-            )
-
+            std_county.assign_attributes(std_county_attributes(row))
             std_county.save!
           end
         else
@@ -51,6 +36,27 @@ module IncomeLimits
       ActiveRecord::Base.rollback_transaction
       raise "error: #{e}"
     end
+
+    private
+
+    def std_county_attributes(row)
+      {
+        name: row['NAME'].to_s,
+        county_number: row['COUNTYNUMBER'].to_i,
+        description: row['DESCRIPTION'],
+        state_id: row['STATE_ID'].to_i,
+        version: row['VERSION'].to_i,
+        created: date_formatter(row['CREATED']),
+        updated: date_formatter(row['UPDATED']),
+        created_by: row['CREATEDBY'].to_s,
+        updated_by: row['UPDATEDBY'].to_s
+      }
+    end
+
+    def date_formatter(date)
+      return nil unless date
+
+      DateTime.strptime(date, '%F %H:%M:%S %z').to_s
+    end
   end
 end
-# rubocop:enable Metrics/MethodLength
