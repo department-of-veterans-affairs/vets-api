@@ -1135,7 +1135,7 @@ features:
     description: Enables VA Form 5655 (Financial Status Report)
     enable_in_development: true
   show_financial_status_report_wizard:
-    actor_type: use
+    actor_type: user
     description: Enables the Wizard for VA Form 5655 (Financial Status Report)
     enable_in_development: true
   show_form_i18n:
