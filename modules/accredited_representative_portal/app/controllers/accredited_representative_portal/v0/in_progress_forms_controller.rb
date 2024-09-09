@@ -4,48 +4,51 @@ module AccreditedRepresentativePortal
   module V0
     class InProgressFormsController < ApplicationController
       def update
-        form = in_progress_form || new_form_for_user(form_id, @current_user)
-        form.update!(form_data: params[:form_data], metadata: params[:metadata])
+        form = find_form || build_form
+        form.update!(
+          form_data: params[:form_data],
+          metadata: params[:metadata]
+        )
 
         render json: InProgressFormSerializer.new(form)
       end
 
       def show
-        render json: in_progress_form&.data_and_metadata || {}
+        form = find_form
+        render json: form&.data_and_metadata || {}
       end
 
       def destroy
-        raise Common::Exceptions::RecordNotFound, form_id if in_progress_form.blank?
+        form = find_form or
+          raise Common::Exceptions::RecordNotFound, params[:id]
+        form.destroy
 
-        in_progress_form.destroy
         head :no_content
       end
 
       private
 
+      def find_form
+        InProgressForm.form_for_user(params[:id], @current_user)
+      end
+
+      def build_form
+        build_form_for_user(params[:id], @current_user)
+      end
+
       # NOTE: The in-progress form module can upstream this convenience that
-      # allows the caller to not know about the details of legacy foreign key
+      # allows the caller to not know about details like legacy foreign key
       # relations. It is totally analogous to the query convenience
       # `form_for_user` that they expose.
-      def new_form_for_user(form_id, user)
-        form =
-          InProgressForm.new(
-            form_id:,
+      def build_form_for_user(form_id, user)
+        InProgressForm.new.tap do |form|
+          form.real_user_uuid = user.uuid
+          form.assign_attributes(
             user_uuid: user.uuid,
-            user_account: user.user_account
+            user_account: user.user_account,
+            form_id:
           )
-
-        form.real_user_uuid = user.uuid
-        form
-      end
-
-      def in_progress_form
-        @in_progress_form ||=
-          InProgressForm.form_for_user(form_id, @current_user)
-      end
-
-      def form_id
-        params[:id]
+        end
       end
     end
   end
