@@ -108,7 +108,9 @@ module Scopes
         filter5 = where(id: filter4 - success_by_age.pluck(:id)).pluck(:id)
         filter_final = where(id: filter5 - incomplete_type.pluck(:id)).pluck(:id)
 
-        where(id: filter_final)
+        # submitted_claim_id: nil addresses an edge case where happy path succeeds
+        # during the above query building
+        where(id: filter_final, submitted_claim_id: nil)
       }
     end
     # rubocop:enable Metrics/BlockLength

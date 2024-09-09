@@ -262,6 +262,17 @@ RSpec.describe Form526Submission do
           exhausted_backup
         )
       end
+
+      it 'handles the edge case where an in process sub succeeds during query building' do
+        expired.update!(submitted_claim_id: 'abc123')
+
+        expect(Form526Submission.failure_type).to contain_exactly(
+          rejected_backup,
+          old_no_longer_remediated,
+          failed_backup,
+          exhausted_backup
+        )
+      end
     end
   end
 
