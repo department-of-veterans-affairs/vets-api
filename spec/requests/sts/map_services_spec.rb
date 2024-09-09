@@ -2,16 +2,16 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::MapServices', type: :request do
-  describe 'POST /v0/map_services/token' do
+RSpec.describe 'Sts::MapServices', type: :request do
+  describe 'POST /sts/map_services/token' do
     subject(:call_endpoint) do
-      post v0_map_services_token_path(application:), headers: service_account_auth_header
+      post sts_map_services_token_path(application:), headers: service_account_auth_header
     end
 
     context 'when MAP STS client is not configured for use by the service account' do
       let(:application) { 'foobar' }
 
-      include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/map_services/foobar/token'], { user_attributes: { icn: 42 } }
+      include_context 'with service account authentication', 'foobar', ['http://www.example.com/sts/map_services/foobar/token'], { user_attributes: { icn: 42 } }
 
       it 'responds with error details in response body' do
         call_endpoint
@@ -33,7 +33,7 @@ RSpec.describe 'V0::MapServices', type: :request do
       let(:application) { 'chatbot' }
 
       context 'when service account access token does not have a user_attributes claim with ICN' do
-        include_context 'with service account authentication', 'chatbot', ['http://www.example.com/v0/map_services/chatbot/token']
+        include_context 'with service account authentication', 'chatbot', ['http://www.example.com/sts/map_services/chatbot/token']
 
         it 'responds with error details in response body' do
           call_endpoint
@@ -52,7 +52,7 @@ RSpec.describe 'V0::MapServices', type: :request do
       end
 
       context 'when service account access token contains user_attributes claim with ICN' do
-        include_context 'with service account authentication', 'chatbot', ['http://www.example.com/v0/map_services/chatbot/token'], { user_attributes: { icn: 42 } }
+        include_context 'with service account authentication', 'chatbot', ['http://www.example.com/sts/map_services/chatbot/token'], { user_attributes: { icn: 42 } }
 
         context 'when MAP STS client raises a client error',
                 vcr: { cassette_name: 'map/security_token_service_401_response' } do
@@ -95,10 +95,6 @@ RSpec.describe 'V0::MapServices', type: :request do
 
         context 'when MAP STS client returns an access token',
                 vcr: { cassette_name: 'map/security_token_service_200_response' } do
-          let(:expected_deprecation_header) { 'true' }
-          let(:expected_link_header) { '<http://www.example.com/sts/map_services/chatbot/token>; rel="alternate"' }
-          let(:expected_sunset_header) { 'Tue, 31 Dec 2024 00:00:00 GMT' }
-
           it 'responds with STS-issued token in response body' do
             call_endpoint
             expect(JSON.parse(response.body)).to include('access_token' => anything, 'expiration' => anything)
@@ -107,13 +103,6 @@ RSpec.describe 'V0::MapServices', type: :request do
           it 'returns HTTP status ok' do
             call_endpoint
             expect(response).to have_http_status(:ok)
-          end
-
-          it 'responds with a warning header' do
-            call_endpoint
-            expect(response.headers['Deprecation']).to eq(expected_deprecation_header)
-            expect(response.headers['Link']).to eq(expected_link_header)
-            expect(response.headers['Sunset']).to eq(expected_sunset_header)
           end
         end
       end
