@@ -9,7 +9,6 @@ RSpec.describe 'Mobile::V0::Health::Locations', type: :request do
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
 
   before do
-    Flipper.enable_actor(:mobile_v1_lighthouse_facilities, user)
     Timecop.freeze(Time.zone.parse('2021-10-20T15:59:16Z'))
     allow_any_instance_of(Mobile::V0::LighthouseAssertion).to receive(:rsa_key).and_return(
       OpenSSL::PKey::RSA.new(rsa_key.to_s)
@@ -18,7 +17,6 @@ RSpec.describe 'Mobile::V0::Health::Locations', type: :request do
 
   after do
     Timecop.return
-    Flipper.disable(:mobile_v1_lighthouse_facilities)
   end
 
   describe 'GET /mobile/v0/health/locations/:id' do
