@@ -4,7 +4,7 @@ module BGS
   class DependencyVerificationService
     include SentryLogging
 
-    attr_reader :participant_id, :ssn, :common_name, :email, :icn
+    attr_reader :participant_id, :ssn, :common_name, :email, :icn, :user_uuid
 
     def initialize(user)
       @participant_id = user.participant_id
@@ -12,10 +12,14 @@ module BGS
       @common_name = user.common_name
       @email = user.email
       @icn = user.icn
+      @user_uuid = user.uuid
     end
 
     def read_diaries
-      return { dependency_decs: nil, diaries: [] } if participant_id.blank?
+      if participant_id.blank?
+        Rails.logger.warn("read_diaries: participant_id is blank", { icn:, user_uuid: })
+        return { dependency_decs: nil, diaries: [] }
+      end
 
       diaries = service.diaries.read_diaries(
         {
