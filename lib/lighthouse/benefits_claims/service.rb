@@ -47,7 +47,7 @@ module BenefitsClaims
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
-    def submit5103(id, tracked_item_id, options = {})
+    def submit5103(id, tracked_item_id = nil, options = {})
       config.post("#{@icn}/claims/#{id}/5103", {
                     data: {
                       type: 'form/5103',
