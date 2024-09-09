@@ -17,7 +17,7 @@ module BGS
 
     def read_diaries
       if participant_id.blank?
-        Rails.logger.warn("read_diaries: participant_id is blank", { icn:, user_uuid: })
+        Rails.logger.warn('read_diaries: participant_id is blank', { icn:, user_uuid: })
         return { dependency_decs: nil, diaries: [] }
       end
 
