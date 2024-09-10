@@ -123,12 +123,7 @@ module SimpleFormsApi
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
-        if Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service)
-          status, confirmation_number = upload_pdf(file_path, metadata, form)
-        else
-          status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
-                                                                        form).upload_to_benefits_intake(params)
-        end
+        status, confirmation_number = upload_pdf(file_path, metadata, form)
 
         form.track_user_identity(confirmation_number)
 
