@@ -65,7 +65,7 @@ module ClaimsApi
 
         change_of_address = form_attributes['changeOfAddress']
 
-        validate_form_526_address_type(change_of_address)
+        validate_form_526_address_type(change_of_address, '/changeOfAddress/')
         validate_form_526_change_of_address_required_fields(change_of_address)
         validate_form_526_change_of_address_beginning_date(change_of_address)
         validate_form_526_change_of_address_ending_date(change_of_address)
@@ -165,18 +165,18 @@ module ClaimsApi
 
         addr = form_attributes.dig('veteranIdentification', 'mailingAddress')
 
-        validate_form_526_address_type(addr)
+        validate_form_526_address_type(addr, '/veteranIdentification/mailingAddress/')
         validate_form_526_current_mailing_address_country
         validate_form_526_current_mailing_address_state
         validate_form_526_current_mailing_address_zip
         validate_form_526_service_number
       end
 
-      def validate_form_526_address_type(addr)
-        validate_military_address(addr) if address_is_military?(addr)
+      def validate_form_526_address_type(addr, form_attr)
+        validate_military_address(addr, form_attr) if address_is_military?(addr)
       end
 
-      def validate_military_address(addr)
+      def validate_military_address(addr, form_attr)
         city = addr['city']
         state = addr['state']
 
@@ -186,8 +186,8 @@ module ClaimsApi
         )
 
         collect_error_messages(
-          source: '/veteranIdentification/mailingAddress/',
-          detail: 'Invalid city and military postal combination.'
+          source: form_attr,
+          detail: "Invalid city and military postal combination for #{form_attr}"
         )
       end
 
