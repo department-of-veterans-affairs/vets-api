@@ -3,12 +3,19 @@
 require 'rails_helper'
 require 'rx/client'
 
+# Mock upstream request to return source app for Rx client
+class UpstreamRequest
+  def self.env
+    { 'SOURCE_APP' => 'myapp' }
+  end
+end
+
 describe Rx::Client do
   before(:all) do
-    VCR.use_cassette 'rx_client/session', record: :new_episodes do
+    VCR.use_cassette 'rx_client/session' do
       @client ||= begin
-        client = Rx::Client.new(upstream_request: { 'env' => { 'SOURCE_APP' => 'myapp' } },
-                                session: { user_id: '12210827' })
+        client = Rx::Client.new(session: { user_id: '12210827' },
+                                upstream_request: UpstreamRequest)
         client.authenticate
         client
       end
