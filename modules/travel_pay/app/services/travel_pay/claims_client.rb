@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'securerandom'
-require_relative './token_service'
 
 module TravelPay
   class ClaimsClient
@@ -68,10 +67,6 @@ module TravelPay
     # fake api responses or actually connect to the BTSSS API
     def mock_enabled?
       Settings.travel_pay.mock
-    end
-
-    def token_service
-      TravelPay::TokenService.new
     end
   end
 end

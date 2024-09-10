@@ -11,8 +11,7 @@ module TravelPay
       veis_token = token_client.request_veis_token
       btsss_token = token_client.request_btsss_token(veis_token, current_user)
 
-      { 'veis_token' => veis_token,
-        'btsss_token' => btsss_token }
+      { veis_token:, btsss_token: }
     end
 
     private
