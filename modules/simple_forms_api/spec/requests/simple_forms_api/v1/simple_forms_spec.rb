@@ -259,8 +259,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
         let(:attachment) { double }
         let(:lighthouse_service) { double }
+        let(:confirmation_number) { 'some_confirmation_number' }
 
         before do
+          sign_in
           allow(attachment).to receive(:to_pdf).and_return(pdf_path)
           allow(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
         end
@@ -278,7 +280,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         end
 
         shared_examples 'handles multiple attachments' do |form_doc|
-          before { allow(lighthouse_service).to receive(:perform_upload) }
+          before do
+            allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(:lighthouse_service).and_return(lighthouse_service)
+            allow(lighthouse_service).to receive(:perform_upload).and_return([200, confirmation_number])
+          end
 
           let(:data) do
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form_doc)
