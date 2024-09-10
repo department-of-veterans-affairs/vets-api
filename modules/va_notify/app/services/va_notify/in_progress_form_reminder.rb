@@ -8,16 +8,19 @@ module VANotify
     include SentryLogging
     sidekiq_options retry: 14
 
-    class MissingICN < StandardError; end
-
     def perform(form_id)
       @in_progress_form = InProgressForm.find(form_id)
       return unless enabled?
 
-      @veteran = VANotify::Veteran.new(in_progress_form)
-      return if veteran.first_name.blank?
-
-      raise MissingICN, "ICN not found for InProgressForm: #{in_progress_form.id}" if veteran.icn.blank?
+      begin
+        @veteran = VANotify::Veteran.new(in_progress_form)
+        return if veteran.first_name.blank?
+        return if veteran.icn.blank?
+      rescue VANotify::Veteran::MPINameError
+        nil
+      rescue VANotify::Veteran::MPIError
+        nil
+      end
 
       if only_one_supported_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch(in_progress_form.form_id)
