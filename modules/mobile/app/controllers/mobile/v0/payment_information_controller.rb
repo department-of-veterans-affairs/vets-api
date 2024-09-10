@@ -110,15 +110,16 @@ module Mobile
         VANotifyDdEmailJob.send_to_emails(@current_user.all_emails, 'comp_and_pen')
       end
 
-      # the upstream team has confirmed that a lack of control_information or payment_account implies that the user
-      # is not found. lighthouse is not handling the case correctly. the lighthouse team has been informed, but it may
-      # but it may take lighthouse a while to fix it and they may not inform us. if you're looking at this comment,
-      # remove this code if the detail below does not exist in the logs
+      # this handles a bug that has been observed in datadog.
+      # lighthouse has been informed that this is happening and will hopefully fix it soon.
+      # remove this code if the detail messages below do not exist in the logs
       def validate_response!(data)
-        if data.control_information.nil? || data.payment_account.nil?
-          detail = 'User not found on payment information system'
-          raise Common::Exceptions::RecordNotFound.new(@current_user.uuid, detail:)
-        end
+        errors = []
+        errors << "Control information missing for user #{current_user.uuid}" if data.control_information.nil?
+        errors << "Payment account info missing for user #{current_user.uuid}" if data.payment_account.nil?
+        return if errors.empty?
+
+        raise Common::Exceptions::UnprocessableEntity.new(detail: errors)
       end
     end
   end

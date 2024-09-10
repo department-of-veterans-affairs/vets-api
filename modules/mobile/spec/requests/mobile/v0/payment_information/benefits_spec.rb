@@ -75,12 +75,29 @@ RSpec.describe 'Mobile::V0::PaymentInformation::Benefits', type: :request do
 
     context 'when response body is missing control_information or payment_account' do
       it 'returns not found' do
-        # i'm choosing to stub instead of creating a new cassette because this is a temporary fix
+        # stubbing instead of creating a new cassette because this is not a real use case supported by
+        # the lighthouse api. We've talked to lighthouse about it and hope they'll fix it in the future.
         allow_any_instance_of(Lighthouse::DirectDeposit::Response).to receive(:control_information).and_return(nil)
+        allow_any_instance_of(Lighthouse::DirectDeposit::Response).to receive(:payment_account).and_return(nil)
 
         VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
           get '/mobile/v0/payment-information/benefits', headers: sis_headers
-          expect(response).to have_http_status(:not_found)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.parsed_body).to eq(
+            {
+              'errors' => [
+                {
+                  'title' => 'Unprocessable Entity',
+                  'detail' => [
+                    "Control information missing for user #{user.uuid}",
+                    "Payment account info missing for user #{user.uuid}"
+                  ],
+                  'code' => '422',
+                  'status' => '422'
+                }
+              ]
+            }
+          )
         end
       end
     end
