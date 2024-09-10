@@ -400,30 +400,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    it 'supports adding a pension' do
-      expect(subject).to validate(
-        :post,
-        '/v0/pension_claims',
-        200,
-        '_data' => {
-          'pension_claim' => {
-            'form' => build(:pension_claim).form
-          }
-        }
-      )
-
-      expect(subject).to validate(
-        :post,
-        '/v0/pension_claims',
-        422,
-        '_data' => {
-          'pension_claim' => {
-            'invalid-form' => { invalid: true }.to_json
-          }
-        }
-      )
-    end
-
     it 'supports adding a burial claim', run_at: 'Thu, 29 Aug 2019 17:45:03 GMT' do
       allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
 

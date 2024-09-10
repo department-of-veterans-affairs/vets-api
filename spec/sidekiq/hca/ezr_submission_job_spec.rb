@@ -12,18 +12,44 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
   end
   let(:ezr_service) { double }
 
-  describe 'when job has failed' do
-    let(:msg) do
-      {
-        'args' => [encrypted_form, nil]
-      }
+  describe 'when retries are exhausted' do
+    context 'when the parsed form is not present' do
+      it 'only increments StatsD' do
+        msg = {
+          'args' => [HealthCareApplication::LOCKBOX.encrypt({}.to_json), nil]
+        }
+
+        described_class.within_sidekiq_retries_exhausted_block(msg) do
+          allow(StatsD).to receive(:increment)
+          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+        end
+      end
     end
 
-    it 'passes unencrypted form to 1010ezr service' do
-      expect_any_instance_of(Form1010Ezr::Service).to receive(:log_submission_failure).with(
-        form
-      )
-      described_class.new.sidekiq_retries_exhausted_block.call(msg)
+    context 'when the parsed form is present' do
+      it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a failure message to sentry" do
+        msg = {
+          'args' => [encrypted_form, nil]
+        }
+
+        described_class.within_sidekiq_retries_exhausted_block(msg) do
+          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+          expect(described_class).to receive(:log_message_to_sentry).with(
+            '1010EZR total failure',
+            :error,
+            {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            },
+            ezr: :total_failure
+          )
+        end
+
+        pii_log = PersonalInformationLog.last
+        expect(pii_log.error_class).to eq('Form1010Ezr FailedWontRetry')
+        expect(pii_log.data).to eq(form)
+      end
     end
   end
 
@@ -47,7 +73,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           # of the 'Form1010Ezr::Service', we need to stub out a new instance of the service
           allow(Form1010Ezr::Service).to receive(:new).with(nil).once.and_return(ezr_service)
 
-          expect_any_instance_of(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
+          expect(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
           expect(ezr_service).to receive(:log_submission_failure).with(
             form
           )
