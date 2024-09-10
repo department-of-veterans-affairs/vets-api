@@ -31,7 +31,6 @@ FactoryBot.define do
     trait :with_in_progress_form do
       transient do
         in_progress_form_id { Faker::Form.id }
-        in_progress_form_return_url { Faker::Internet.url }
       end
 
       after(:create) do |user, evaluator|
@@ -39,7 +38,6 @@ FactoryBot.define do
           :in_progress_form,
           {
             form_id: evaluator.in_progress_form_id,
-            return_url: evaluator.in_progress_form_return_url,
             user_account: user.user_account,
             user_uuid: user.uuid
           }

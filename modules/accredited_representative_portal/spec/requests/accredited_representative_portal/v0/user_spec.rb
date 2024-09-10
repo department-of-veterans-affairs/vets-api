@@ -20,15 +20,15 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
         last_name = Faker::Name.last_name
         sign_in_service_name = Faker::Company.name
         in_progress_form_id = Faker::Form.id
-        in_progress_form_return_url = Faker::Internet.url
 
         let(:user) do
           create(
             :representative_user,
             :with_in_progress_form,
             {
-              first_name:, last_name:, sign_in_service_name:,
-              in_progress_form_id:, in_progress_form_return_url:
+              first_name:, last_name:,
+              sign_in_service_name:,
+              in_progress_form_id:
             }
           )
         end
@@ -62,7 +62,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
                   'form' => in_progress_form_id,
                   'metadata' => {
                     'version' => 1,
-                    'return_url' => in_progress_form_return_url,
+                    'return_url' => 'foo.com',
                     'submission' => {
                       'status' => false,
                       'error_message' => false,

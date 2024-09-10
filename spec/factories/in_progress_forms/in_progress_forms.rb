@@ -2,17 +2,13 @@
 
 FactoryBot.define do
   factory :in_progress_form do
-    transient do
-      return_url { 'foo.com' }
-    end
-
     user_uuid { SecureRandom.uuid }
     form_id { 'edu_benefits' }
     user_account { nil }
     metadata do
       {
         version: 1,
-        return_url:,
+        return_url: 'foo.com',
         submission: {
           status: false,
           error_message: false,
@@ -26,7 +22,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: return_url,
+          returnUrl: 'foo.com',
           howNow: {
             'brown-cow' => {
               '-an eas-i-ly corRupted KEY.' => true
@@ -265,7 +261,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: return_url
+          returnUrl: 'foo.com'
         }
       end
       form_data do
@@ -301,7 +297,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: return_url
+          returnUrl: 'foo.com'
         }
       end
       form_data do
@@ -325,7 +321,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: return_url
+          returnUrl: 'foo.com'
         }
       end
       form_data do
@@ -343,7 +339,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: return_url
+          returnUrl: 'foo.com'
         }
       end
       form_data do
@@ -367,7 +363,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: return_url
+          returnUrl: 'foo.com'
         }
       end
       form_data do
@@ -392,7 +388,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          returnUrl: return_url
+          returnUrl: 'foo.com'
         }
       end
       form_data do
