@@ -55,7 +55,7 @@ module V0
         if %w[jpg jpeg png pdf].include? file_extension.downcase
           document_data = build_document_data(attachment)
 
-          status = post_document(document_data)
+          status = post_document(document_data) unless response.status == 201
         end
       end
       render(json: status)
@@ -63,7 +63,7 @@ module V0
 
     def post_document(document_data)
       response = lgy_service.post_document(payload: document_data)
-      response.status unless response.status == 201
+      response.status
     rescue Common::Client::Errors::ClientError => e
       # 502-503 errors happen frequently from LGY endpoint at the time of implementation
       # and have not been corrected yet. We would like to seperate these from our monitoring for now
