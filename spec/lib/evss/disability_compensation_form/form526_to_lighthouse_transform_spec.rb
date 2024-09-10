@@ -419,6 +419,20 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.length).to eq(0)
     end
 
+    it 'convert_date_no_day converts various dates to YYYY-MM' do
+      date = '2024-03-22'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024-03')
+
+      date = '2024-03-XX'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024-03')
+
+      date = '2024-XX-XX'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024')
+    end
+
     it 'set served_in_herbicide_hazard_locations correctly' do
       result = transformer.send(:transform_herbicide, data['herbicide'], nil)
       expect(result.served_in_herbicide_hazard_locations).to eq('YES')
