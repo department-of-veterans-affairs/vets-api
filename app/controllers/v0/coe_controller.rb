@@ -55,7 +55,8 @@ module V0
         if %w[jpg jpeg png pdf].include? file_extension.downcase
           document_data = build_document_data(attachment)
 
-          status = post_document(document_data) unless response.status == 201
+          doc_status = post_document(document_data)
+          status = doc_status unless doc_status == 201
         end
       end
       render(json: status)
