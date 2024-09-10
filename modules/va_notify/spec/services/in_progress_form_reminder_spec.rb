@@ -45,6 +45,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
       end
 
       expect(result).to eq(nil)
+      expect(VANotify::IcnJob).not_to have_received(:perform_async)
     end
 
     it 'rescues VANotify::Veteran::MPINameError and returns nil' do
@@ -56,6 +57,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
       end
 
       expect(result).to eq(nil)
+      expect(VANotify::IcnJob).not_to have_received(:perform_async)
     end
 
     describe 'single relevant in_progress_form' do
