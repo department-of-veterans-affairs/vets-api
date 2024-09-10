@@ -55,7 +55,7 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
 
   # Generate FormSubmissionAttempt rememdiation statistics from Lighthouse Benefits Intake API
-  mgr.register('0 1 * * 1', 'BenefitsIntakeRemediationJob')
+  mgr.register('0 1 * * 1', 'BenefitsIntakeRemediationStatusJob')
 
   # Update Lighthouse526DocumentUpload statuses according to Lighthouse Benefits Documents service tracking
   mgr.register('15 * * * *', 'Form526DocumentUploadPollingJob')

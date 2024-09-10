@@ -19,18 +19,22 @@ class BenefitsIntakeRemediationStatusJob
     Rails.logger.info('BenefitsIntakeRemediationStatusJob started')
 
     form_submissions = FormSubmission.includes(:form_submission_attempts)
-    fs_saved_claim_ids = form_submissions.map(&:saved_claim_id).uniq
+    form_submission_groups = form_submissions.group(:form_type)
 
-    started = form_submissions.group(:form_type).minimum(:created_at)
+    started = form_submission_groups.minimum(:created_at)
     started.each do |form_id, created_at|
       claim_ids = SavedClaim.where(form_id:).where("created_at > ?", created_at:).map(&:id).uniq
+      fs_saved_claim_ids = form_submission_groups[form_id].map(&:saved_claim_id).uniq
 
 
+      puts "#{form_id} - #{created_at}"
       puts "UNSUBMITTED CLAIMS: #{claim_ids - fs_saved_claim_ids}"
       puts "ORPHAN SUBMISSION: #{fs_saved_claim_ids - claim_ids}"
     end
 
-    failed = form_submissions.where(form_submission_attempts: {aasm_state: 'failure'})
+    return
+
+    failed = form_submissions.where(form_submission_attempts: { aasm_state: 'failure' })
 
     batch_process(submissions)
 
