@@ -5,7 +5,7 @@ module TravelPay
     class ClaimsController < ApplicationController
       def index
         begin
-          claims = service.get_claims(@current_user)
+          claims = service.get_claims(@current_user, params)
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
         end
