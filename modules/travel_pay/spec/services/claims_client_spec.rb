@@ -39,7 +39,7 @@ describe TravelPay::ClaimsClient do
     before do
       allow_any_instance_of(TravelPay::TokenService)
         .to receive(:get_tokens)
-        .and_return({ 'veis_token' => 'veis_token', 'btsss_token' => 'btsss_token' })
+        .and_return('veis_token', 'btsss_token')
     end
 
     it 'returns response from claims endpoint' do
