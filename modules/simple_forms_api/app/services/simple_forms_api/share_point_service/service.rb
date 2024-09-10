@@ -118,6 +118,7 @@ module SimpleFormsApi
         end
       end
 
+      # TODO: update this
       def file_transfer_url(file_name)
         "#{base_path}/_api/Web/GetFolderByServerRelativeUrl('#{base_path}/Submissions')/Files/add(url='#{file_name}.pdf',overwrite=true)"
       end
