@@ -22,16 +22,14 @@
 module SimpleFormsApi
   module S3Service
     class ArchiveSubmissionToPdf < Utils
-      attr_reader :failures, :include_json_archive, :include_text_archive, :metadata,
-                  :parent_dir, :quiet_pdf_failures, :quiet_upload_failures, :run_quiet,
-                  :submission
+      attr_reader :failures, :include_json_archive, :include_text_archive, :metadata, :parent_dir, :submission
 
       VALID_VFF_FORMS = %w[
         20-10206 20-10207 21-0845 21-0966 21-0972 21-10210
         21-4138 21-4142 21P-0847 26-4555 40-0247 40-10007
       ].freeze
 
-      def initialize(submission_id: nil, submission: nil, **options)
+      def initialize(submission_id: nil, submission: nil, **options) # rubocop:disable Lint/MissingSuper
         defaults = default_options.merge(options)
 
         @failures = []
@@ -55,11 +53,8 @@ module SimpleFormsApi
           file_path: nil, # file path for the PDF file to be archived
           include_json_archive: true, # include the form data as a JSON object
           include_text_archive: true, # include the form data as a text file
-          metadata: {},
-          parent_dir: 'vff-simple-forms',
-          quiet_pdf_failures: true, # skip PDF generation silently
-          quiet_upload_failures: true, # skip problematic uploads silently
-          run_quiet: true, # silence but record errors, logged at the end
+          metadata: {}, # pertinent metadata for original file upload/submission
+          parent_dir: 'vff-simple-forms', # S3 bucket base directory where files live
           uploads_path: ['uploadedFile'] # hierarchy where the attachments can be found
         }
       end
@@ -79,8 +74,6 @@ module SimpleFormsApi
           Base64.decode64(encoded_pdf)
         )
         sign_s3_file_url(pdf)
-      rescue => e
-        quiet_pdf_failures ? write_pdf_error(e) : raise(e)
       end
 
       def generate_pdf_content
@@ -90,13 +83,8 @@ module SimpleFormsApi
       end
 
       def sign_s3_file_url(pdf)
-        signed_url = pdf.presigned_url(:get, expires_in: 1.year.to_i)
+        signed_url = pdf.presigned_url(:get, expires_in: 30.minutes.to_i)
         submission.form_submission_attempts&.last&.update(signed_url:)
-      end
-
-      def write_pdf_error(error)
-        log_error("PDF generation failed for submission: #{submission.id}", error)
-        save_file_to_s3("#{output_directory_path}/pdf_generating_failure.txt", error_details(error))
       end
 
       def error_details(error)

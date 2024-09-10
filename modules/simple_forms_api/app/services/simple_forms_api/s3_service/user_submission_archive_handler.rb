@@ -5,7 +5,7 @@ module SimpleFormsApi
     class UserSubmissionArchiveHandler < Utils
       attr_reader :uuid, :user_dir, :submission_ids
 
-      def initialize(uuid:, submission_ids:, parent_dir: 'vff-simple-forms')
+      def initialize(uuid:, submission_ids:, parent_dir: 'vff-simple-forms') # rubocop:disable Lint/MissingSuper
         @submission_ids = submission_ids
         @uuid = uuid
         @user_dir = build_user_directory(parent_dir)
@@ -17,8 +17,7 @@ module SimpleFormsApi
         log_info("Archive completed for user: #{uuid}")
         user_dir
       rescue => e
-        log_error("Error in archive process for user: #{uuid}", e)
-        raise e
+        handle_error("Error in archive process for user: #{uuid}", e)
       end
 
       private

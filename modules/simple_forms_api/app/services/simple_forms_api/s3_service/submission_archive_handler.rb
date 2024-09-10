@@ -3,10 +3,9 @@
 module SimpleFormsApi
   module S3Service
     class SubmissionArchiveHandler < Utils
-      attr_reader :submission_ids, :parent_dir, :successes, :failures,
-                  :bundle_by_user, :run_quiet, :quiet_upload_failures, :quiet_pdf_failures
+      attr_reader :submission_ids, :parent_dir, :successes, :failures, :bundle_by_user
 
-      def initialize(submission_ids:, **options)
+      def initialize(submission_ids:, **options) # rubocop:disable Lint/MissingSuper
         defaults = default_options.merge(options)
 
         @submission_ids = submission_ids
@@ -27,11 +26,8 @@ module SimpleFormsApi
         {
           bundle_by_user: true,
           file_path: nil, # file path for the PDF file to be archived
-          metadata: nil,
-          parent_dir: 'vff-simple-forms',
-          quiet_pdf_failures: false, # granular control over how pdf processing raises errors
-          quiet_upload_failures: false, # granular control over how upload processing raises errors
-          run_quiet: true # silence but record errors until the end
+          metadata: {}, # pertinent metadata for original file upload/submission
+          parent_dir: 'vff-simple-forms' # S3 bucket base directory where files live
         }
       end
 
@@ -77,8 +73,6 @@ module SimpleFormsApi
           file_path:,
           metadata:,
           parent_dir:,
-          quiet_pdf_failures:,
-          quiet_upload_failures:,
           submission_id:
         ).run
       rescue => e

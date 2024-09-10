@@ -23,12 +23,9 @@ module SimpleFormsApi
         {
           bundle_by_user: true,
           file_path: nil, # file path for the PDF file to be archived
-          metadata: nil,
-          parent_dir: 'vff-simple-forms',
-          quiet_pdf_failures: false,
-          quiet_upload_failures: false,
-          run_quiet: true,
-          signed_link: false
+          metadata: {}, # pertinent metadata for original file upload/submission
+          parent_dir: 'vff-simple-forms', # S3 bucket base directory where files live
+          signed_link: false # TODO: Will we ever need to make this optional?
         }
       end
 
