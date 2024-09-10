@@ -1722,22 +1722,22 @@
         }
       }
     },
-    "/veterans/{veteranId}/claims": {
-      "get": {
-        "summary": "Find all benefits claims for a Veteran.",
+    "/veterans/{veteranId}/claims/{id}/5103": {
+      "post": {
+        "summary": "Submit Evidence Waiver 5103",
         "tags": [
-          "Claims"
+          "5103 Waiver"
         ],
-        "operationId": "findClaims",
+        "operationId": "submitEvidenceWaiver5103",
         "security": [
           {
             "productionOauth": [
-              "system/claim.read"
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
-              "system/claim.read"
+              "system/claim.write"
             ]
           },
           {
@@ -1746,282 +1746,7 @@
             ]
           }
         ],
-        "parameters": [
-          {
-            "name": "veteranId",
-            "in": "path",
-            "required": true,
-            "example": "1012667145V762142",
-            "description": "ID of Veteran",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "claim response",
-            "content": {
-              "application/json": {
-                "example": {
-                  "data": [
-                    {
-                      "id": "555555555",
-                      "type": "claim",
-                      "attributes": {
-                        "baseEndProductCode": "400",
-                        "claimDate": "2017-05-02",
-                        "claimPhaseDates": {
-                          "phaseChangeDate": "2017-10-18",
-                          "phaseType": "COMPLETE"
-                        },
-                        "claimType": "Compensation",
-                        "claimTypeCode": "400PREDSCHRG",
-                        "closeDate": "2017-10-18",
-                        "decisionLetterSent": false,
-                        "developmentLetterSent": false,
-                        "documentsNeeded": false,
-                        "endProductCode": "404",
-                        "evidenceWaiverSubmitted5103": false,
-                        "lighthouseId": null,
-                        "status": "COMPLETE"
-                      }
-                    }
-                  ]
-                },
-                "schema": {
-                  "$schema": "http://json-schema.org/draft-04/schema#",
-                  "type": "object",
-                  "required": [
-                    "data"
-                  ],
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "required": [
-                          "id",
-                          "type",
-                          "attributes"
-                        ],
-                        "additionalProperties": false,
-                        "description": "Claim details",
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "nullable": true,
-                            "description": "Claim ID in VBMS. If a claim was submitted with Lighthouse and not successfully established upstream, it could have a null claimId.",
-                            "example": "600131328"
-                          },
-                          "type": {
-                            "type": "string",
-                            "example": "claim"
-                          },
-                          "attributes": {
-                            "type": "object",
-                            "required": [
-                              "baseEndProductCode",
-                              "claimType",
-                              "claimDate",
-                              "claimPhaseDates",
-                              "closeDate",
-                              "developmentLetterSent",
-                              "decisionLetterSent",
-                              "documentsNeeded",
-                              "endProductCode",
-                              "evidenceWaiverSubmitted5103",
-                              "lighthouseId",
-                              "status"
-                            ],
-                            "properties": {
-                              "baseEndProductCode": {
-                                "type": "string",
-                                "description": "Base end product code for claim",
-                                "example": "400"
-                              },
-                              "claimType": {
-                                "type": "string",
-                                "description": "Name of claim type",
-                                "example": "Compensation"
-                              },
-                              "claimDate": {
-                                "format": "date",
-                                "type": "string",
-                                "description": "Date the claim was first filed. In YYYY-MM-DD format.",
-                                "example": "2018-06-04"
-                              },
-                              "claimPhaseDates": {
-                                "type": "object",
-                                "properties": {
-                                  "phaseChangeDate": {
-                                    "format": "date",
-                                    "type": "string",
-                                    "description": "The date that the claim changed to its current phase",
-                                    "example": "2017-10-18"
-                                  },
-                                  "phaseType": {
-                                    "type": "string",
-                                    "enum": [
-                                      "CLAIM_RECEIVED",
-                                      "UNDER_REVIEW",
-                                      "GATHERING_OF_EVIDENCE",
-                                      "REVIEW_OF_EVIDENCE",
-                                      "PREPARATION_FOR_DECISION",
-                                      "PENDING_DECISION_APPROVAL",
-                                      "PREPARATION_FOR_NOTIFICATION",
-                                      "COMPLETE"
-                                    ],
-                                    "description": "The most current phase for the claim",
-                                    "example": "UNDER_REVIEW"
-                                  }
-                                }
-                              },
-                              "closeDate": {
-                                "format": "date",
-                                "type": "string",
-                                "description": "Date claim was closed",
-                                "example": "2019-09-04"
-                              },
-                              "developmentLetterSent": {
-                                "type": "boolean",
-                                "description": "If true, a development letter has been sent to the claimant regarding a benefit claim",
-                                "example": "false"
-                              },
-                              "decisionLetterSent": {
-                                "type": "boolean",
-                                "description": "If true, a decision letter has been sent to the claimant regarding a benefit claim",
-                                "example": "false"
-                              },
-                              "documentsNeeded": {
-                                "type": "boolean",
-                                "description": "If true, the claim requires additional documents to be submitted",
-                                "example": "false"
-                              },
-                              "endProductCode": {
-                                "type": "string",
-                                "description": "End product code of claim"
-                              },
-                              "evidenceWaiverSubmitted5103": {
-                                "type": "boolean",
-                                "nullable": true,
-                                "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
-                                "example": "false"
-                              },
-                              "lighthouseId": {
-                                "type": "string",
-                                "nullable": true,
-                                "description": "Claim ID in Lighthouse",
-                                "example": "0BAEFC26-1CE4-4046-9B3C-3071055603DB"
-                              },
-                              "status": {
-                                "type": "string",
-                                "description": "Status of claim",
-                                "enum": [
-                                  "PENDING",
-                                  "CLAIM_RECEIVED",
-                                  "INITIAL_REVIEW",
-                                  "EVIDENCE_GATHERING_REVIEW_DECISION",
-                                  "PREPARATION_FOR_NOTIFICATION",
-                                  "COMPLETE",
-                                  "ERRORED",
-                                  "CANCELED"
-                                ]
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Not authorized",
-                      "detail": "Not authorized"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error status code"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/veterans/{veteranId}/claims/{id}": {
-      "get": {
-        "summary": "Find claim by ID.",
-        "tags": [
-          "Claims"
-        ],
-        "operationId": "findClaimById",
-        "security": [
-          {
-            "productionOauth": [
-              "system/claim.read"
-            ]
-          },
-          {
-            "sandboxOauth": [
-              "system/claim.read"
-            ]
-          },
-          {
-            "bearer_token": [
-
-            ]
-          }
-        ],
-        "description": "Retrieves a specific claim for a Veteran",
+        "description": "Submit Evidence Waiver 5103 for Veteran.",
         "parameters": [
           {
             "name": "id",
@@ -2045,510 +1770,20 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "claim response",
+          "202": {
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "example": {
-                  "data": {
-                    "id": "555555555",
-                    "type": "claim",
-                    "attributes": {
-                      "claimTypeCode": "400PREDSCHRG",
-                      "claimDate": "2017-05-02",
-                      "claimPhaseDates": {
-                        "phaseChangeDate": "2017-10-18",
-                        "currentPhaseBack": false,
-                        "latestPhaseType": "COMPLETE",
-                        "previousPhases": {
-                          "phase7CompleteDate": "2017-10-18"
-                        }
-                      },
-                      "claimType": "Compensation",
-                      "closeDate": "2017-10-18",
-                      "contentions": [
-                        {
-                          "name": "abnormal heart (New)"
-                        },
-                        {
-                          "name": "abscess kidney (New)"
-                        },
-                        {
-                          "name": "encephalitis lethargica residuals (New)"
-                        },
-                        {
-                          "name": "dracunculiasis (New)"
-                        },
-                        {
-                          "name": "gingivitis (New)"
-                        },
-                        {
-                          "name": "abnormal weight loss (New)"
-                        },
-                        {
-                          "name": "groin condition (New)"
-                        },
-                        {
-                          "name": "metritis (New)"
-                        }
-                      ],
-                      "decisionLetterSent": false,
-                      "developmentLetterSent": false,
-                      "documentsNeeded": false,
-                      "endProductCode": "404",
-                      "evidenceWaiverSubmitted5103": false,
-                      "errors": [
-
-                      ],
-                      "jurisdiction": "National Work Queue",
-                      "lighthouseId": null,
-                      "maxEstClaimDate": null,
-                      "minEstClaimDate": null,
-                      "status": "CANCELED",
-                      "submitterApplicationCode": "EBN",
-                      "submitterRoleCode": "VET",
-                      "supportingDocuments": [
-                        {
-                          "documentId": "{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}",
-                          "documentTypeLabel": "Medical",
-                          "originalFileName": null,
-                          "trackedItemId": null,
-                          "uploadDate": null
-                        }
-                      ],
-                      "tempJurisdiction": null,
-                      "trackedItems": [
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "21-4142a",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293440,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Employment info needed",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293443,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Accidental injury - 21-4176 needed",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293444,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Buddy mentioned - No complete address",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293446,
-                          "uploadsAllowed": false
-                        }
-                      ]
-                    }
-                  }
+                  "success": true
                 },
                 "schema": {
-                  "$schema": "http://json-schema.org/draft-04/schema#",
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "additionalProperties": true,
                   "properties": {
-                    "data": {
-                      "type": "object",
-                      "required": [
-                        "id",
-                        "type",
-                        "attributes"
-                      ],
-                      "additionalProperties": false,
-                      "description": "Claim details",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "nullable": true,
-                          "description": "Claim ID in VBMS. If a claim was submitted with Lighthouse and not successfully established upstream, it could have a null claimId.",
-                          "example": "600131328"
-                        },
-                        "type": {
-                          "type": "string",
-                          "example": "evss_claims"
-                        },
-                        "attributes": {
-                          "type": "object",
-                          "additionalProperties": false,
-                          "required": [
-                            "claimTypeCode",
-                            "claimDate",
-                            "claimPhaseDates",
-                            "claimType",
-                            "closeDate",
-                            "contentions",
-                            "decisionLetterSent",
-                            "developmentLetterSent",
-                            "documentsNeeded",
-                            "endProductCode",
-                            "evidenceWaiverSubmitted5103",
-                            "errors",
-                            "jurisdiction",
-                            "lighthouseId",
-                            "maxEstClaimDate",
-                            "minEstClaimDate",
-                            "status",
-                            "submitterApplicationCode",
-                            "submitterRoleCode",
-                            "supportingDocuments",
-                            "tempJurisdiction",
-                            "trackedItems"
-                          ],
-                          "properties": {
-                            "claimTypeCode": {
-                              "type": "string",
-                              "description": "Type code of benefit claim",
-                              "example": "400PREDSCHRG"
-                            },
-                            "claimType": {
-                              "type": "string",
-                              "description": "Name of claim type",
-                              "example": "Compensation"
-                            },
-                            "contentions": {
-                              "type": "array",
-                              "description": "The contentions being submitted with a claim",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "name": {
-                                    "type": "string",
-                                    "example": "abscess kidney (New)"
-                                  }
-                                }
-                              }
-                            },
-                            "claimDate": {
-                              "format": "date",
-                              "type": "string",
-                              "nullable": true,
-                              "description": "The date a claim was filed",
-                              "example": "2017-10-18"
-                            },
-                            "claimPhaseDates": {
-                              "type": "object",
-                              "properties": {
-                                "currentPhaseBack": {
-                                  "type": "boolean",
-                                  "description": "Indicates whether the current phase is moving backward."
-                                },
-                                "latestPhaseType": {
-                                  "type": "string",
-                                  "enum": [
-                                    "CLAIM_RECEIVED",
-                                    "UNDER_REVIEW",
-                                    "GATHERING_OF_EVIDENCE",
-                                    "REVIEW_OF_EVIDENCE",
-                                    "PREPARATION_FOR_DECISION",
-                                    "PENDING_DECISION_APPROVAL",
-                                    "PREPARATION_FOR_NOTIFICATION",
-                                    "COMPLETE"
-                                  ],
-                                  "nullable": true,
-                                  "description": "The most current phase for the claim"
-                                },
-                                "phaseChangeDate": {
-                                  "format": "date",
-                                  "type": "string",
-                                  "nullable": true,
-                                  "description": "The date that the claim changed to its current phase",
-                                  "example": "2017-10-18"
-                                },
-                                "previousPhases": {
-                                  "type": "object",
-                                  "properties": {
-                                    "phase1CompleteDate": {
-                                      "format": "date",
-                                      "type": "string",
-                                      "description": "Completed date of the claim received phase.",
-                                      "example": "2017-10-18"
-                                    },
-                                    "phase2CompleteDate": {
-                                      "format": "date",
-                                      "type": "string",
-                                      "description": "Completed date of the initial review phase.",
-                                      "example": "2017-10-18"
-                                    },
-                                    "phase3CompleteDate": {
-                                      "format": "date",
-                                      "type": "string",
-                                      "description": "Completed date of the gathering of evidence phase.",
-                                      "example": "2017-10-18"
-                                    },
-                                    "phase4CompleteDate": {
-                                      "format": "date",
-                                      "type": "string",
-                                      "description": "Completed date of the reviewing of evidence phase.",
-                                      "example": "2017-10-18"
-                                    },
-                                    "phase5CompleteDate": {
-                                      "format": "date",
-                                      "type": "string",
-                                      "description": "Completed date of the preparation for decision phase.",
-                                      "example": "2017-10-18"
-                                    },
-                                    "phase6CompleteDate": {
-                                      "format": "date",
-                                      "type": "string",
-                                      "description": "Completed date of the pending decision approval phase.",
-                                      "example": "2017-10-18"
-                                    },
-                                    "phase7CompleteDate": {
-                                      "format": "date",
-                                      "type": "string",
-                                      "description": "Completed date of the preparation for notification phase.",
-                                      "example": "2017-10-18"
-                                    },
-                                    "phase8CompleteDate": {
-                                      "format": "date",
-                                      "type": "string",
-                                      "description": "Completed date of the completed phase.",
-                                      "example": "2017-10-18"
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            "closeDate": {
-                              "format": "date",
-                              "type": "string",
-                              "nullable": true,
-                              "description": "Date claim was closed",
-                              "example": "2019-09-04"
-                            },
-                            "decisionLetterSent": {
-                              "type": "boolean",
-                              "description": "If true, a decision letter has been sent to the claimant regarding a benefit claim"
-                            },
-                            "developmentLetterSent": {
-                              "type": "boolean",
-                              "description": "If true, a development letter has been sent to the claimant regarding a benefit claim"
-                            },
-                            "documentsNeeded": {
-                              "type": "boolean",
-                              "description": "If true, the claim requires additional documents to be submitted"
-                            },
-                            "endProductCode": {
-                              "type": "string",
-                              "description": "End product code of claim",
-                              "example": "930"
-                            },
-                            "evidenceWaiverSubmitted5103": {
-                              "type": "boolean",
-                              "nullable": true,
-                              "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
-                              "example": "false"
-                            },
-                            "errors": {
-                              "type": "array",
-                              "description": "Error details if claim is in an errored state.",
-                              "items": {
-                                "properties": {
-                                  "detail": {
-                                    "type": "string",
-                                    "example": "Something happened"
-                                  },
-                                  "source": {
-                                    "type": "string",
-                                    "example": "some/error/path"
-                                  }
-                                }
-                              }
-                            },
-                            "jurisdiction": {
-                              "type": "string",
-                              "description": "Regional office to which the claim is currently assigned."
-                            },
-                            "lighthouseId": {
-                              "type": "string",
-                              "nullable": true,
-                              "description": "Claim ID in Lighthouse",
-                              "example": "0BAEFC26-1CE4-4046-9B3C-3071055603DB"
-                            },
-                            "minEstClaimDate": {
-                              "format": "date",
-                              "type": "string",
-                              "nullable": true,
-                              "description": "Minimum estimated claim completion date",
-                              "example": "2019-06-04"
-                            },
-                            "maxEstClaimDate": {
-                              "format": "date",
-                              "type": "string",
-                              "nullable": true,
-                              "description": "Maximum estimated claim completion date",
-                              "example": "2019-09-04"
-                            },
-                            "status": {
-                              "type": "string",
-                              "description": "Status of claim",
-                              "enum": [
-                                "PENDING",
-                                "CLAIM_RECEIVED",
-                                "INITIAL_REVIEW",
-                                "EVIDENCE_GATHERING_REVIEW_DECISION",
-                                "PREPARATION_FOR_NOTIFICATION",
-                                "COMPLETE",
-                                "ERRORED",
-                                "CANCELED"
-                              ]
-                            },
-                            "submitterApplicationCode": {
-                              "type": "string",
-                              "description": "Application code of benefit claim submitter",
-                              "example": "EBN"
-                            },
-                            "submitterRoleCode": {
-                              "type": "string",
-                              "description": "Role code of benefit claim submitter",
-                              "example": "VET"
-                            },
-                            "supportingDocuments": {
-                              "type": "array",
-                              "description": "Information regarding any supported documents attached to a claim",
-                              "items": {
-                                "properties": {
-                                  "documentId": {
-                                    "type": "string",
-                                    "description": "Unique identifier of document"
-                                  },
-                                  "documentTypeLabel": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "originalFileName": {
-                                    "type": "string",
-                                    "description": "Name of document",
-                                    "nullable": true
-                                  },
-                                  "trackedItemId": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "uploadDate": {
-                                    "format": "date",
-                                    "type": "string",
-                                    "description": "Date and time document was uploaded",
-                                    "nullable": true
-                                  }
-                                }
-                              }
-                            },
-                            "tempJurisdiction": {
-                              "type": "string",
-                              "description": "Temporary jurisdiction of claim"
-                            },
-                            "trackedItems": {
-                              "type": "array",
-                              "description": "",
-                              "items": {
-                                "type": "object",
-                                "additionalProperties": false,
-                                "properties": {
-                                  "closedDate": {
-                                    "format": "date",
-                                    "type": "string",
-                                    "nullable": true,
-                                    "description": "Date the tracked item was closed",
-                                    "example": "2017-10-18"
-                                  },
-                                  "description": {
-                                    "type": "string",
-                                    "nullable": true,
-                                    "description": "Description of the tracked item",
-                                    "example": "You may also submit statements from individuals having knowledge of your claimed condition."
-                                  },
-                                  "requestedDate": {
-                                    "format": "date",
-                                    "type": "string",
-                                    "nullable": true,
-                                    "description": "Date the tracked item was requested",
-                                    "example": "2017-10-18"
-                                  },
-                                  "id": {
-                                    "type": "integer",
-                                    "description": "ID of the tracked item",
-                                    "example": 293454
-                                  },
-                                  "displayName": {
-                                    "type": "string",
-                                    "nullable": true,
-                                    "description": "Description of the tracked item",
-                                    "example": "Submit buddy statement(s)"
-                                  },
-                                  "receivedDate": {
-                                    "format": "date",
-                                    "type": "string",
-                                    "nullable": true,
-                                    "description": "Date the tracked item was received",
-                                    "example": "2017-10-18"
-                                  },
-                                  "overdue": {
-                                    "type": "boolean",
-                                    "nullable": true,
-                                    "description": "True if the item is overdue",
-                                    "example": true
-                                  },
-                                  "status": {
-                                    "type": "string",
-                                    "nullable": true,
-                                    "description": "Enum with the status of the tracked item",
-                                    "example": "NO_LONGER_REQUIRED",
-                                    "enum": [
-                                      "ACCEPTED",
-                                      "INITIAL_REVIEW_COMPLETE",
-                                      "NEEDED_FROM_YOU",
-                                      "NEEDED_FROM_OTHERS",
-                                      "NO_LONGER_REQUIRED",
-                                      "SUBMITTED_AWAITING_REVIEW"
-                                    ]
-                                  },
-                                  "suspenseDate": {
-                                    "format": "date",
-                                    "type": "string",
-                                    "nullable": true,
-                                    "example": "2017-10-18"
-                                  },
-                                  "uploadsAllowed": {
-                                    "type": "boolean",
-                                    "example": true
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
+                    "success": {
+                      "type": "boolean",
+                      "example": "true"
                     }
                   }
                 }
@@ -2563,6 +1798,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -2613,12 +1849,13 @@
             }
           },
           "404": {
-            "description": "Resource not found",
+            "description": "NotFound",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
+                      "status": "404",
                       "title": "Resource not found",
                       "detail": "Claim not found"
                     }
@@ -2663,6 +1900,50 @@
                           }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "attributes": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "description": "Claims API 5103 Schema",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "trackedItemIds": {
+                            "description": "Array of tracked items ids.",
+                            "type": "array",
+                            "nullable": true,
+                            "uniqueItems": true,
+                            "items": {
+                              "type": "integer",
+                              "additionalProperties": false
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "type": "form/5103",
+                    "attributes": {
+                      "trackedItemIds": [
+                        1234
+                      ]
                     }
                   }
                 }
@@ -2862,10 +2143,11 @@
                                       "nullable": true
                                     },
                                     "internationalPostalCode": {
-                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                      "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
                                       "type": "string",
-                                      "maxLength": 100,
-                                      "nullable": true
+                                      "maxLength": 16,
+                                      "nullable": true,
+                                      "pattern": "^[a-zA-Z0-9]*$"
                                     }
                                   }
                                 },
@@ -2971,10 +2253,11 @@
                                   "example": "6789"
                                 },
                                 "internationalPostalCode": {
-                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                  "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
                                   "type": "string",
-                                  "maxLength": 100,
-                                  "nullable": true
+                                  "maxLength": 16,
+                                  "nullable": true,
+                                  "pattern": "^[a-zA-Z0-9]*$"
                                 },
                                 "dates": {
                                   "type": "object",
@@ -3155,7 +2438,7 @@
                                     "otherLocationsServed": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                      "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                       "maxLength": 5000,
                                       "description": "Other location(s) where Veteran served."
                                     },
@@ -3209,7 +2492,7 @@
                                     "specifyOtherExposures": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                      "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                       "maxLength": 5000,
                                       "description": "Exposure to asbestos."
                                     },
@@ -3255,7 +2538,7 @@
                                       "exposureLocation": {
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                         "maxLength": 1000,
                                         "description": "Location where the exposure happened."
                                       },
@@ -3561,13 +2844,13 @@
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
-                                        "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                        "description": "Date completed active duty.",
                                         "type": "string",
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
                                       "separationLocationCode": {
-                                        "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                        "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                         "type": "string",
                                         "nullable": true,
                                         "example": "98283"
@@ -4242,10 +3525,11 @@
                                     "nullable": true
                                   },
                                   "internationalPostalCode": {
-                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
                                     "type": "string",
-                                    "maxLength": 100,
-                                    "nullable": true
+                                    "maxLength": 16,
+                                    "nullable": true,
+                                    "pattern": "^[a-zA-Z0-9]*$"
                                   }
                                 }
                               },
@@ -4351,10 +3635,11 @@
                                 "example": "6789"
                               },
                               "internationalPostalCode": {
-                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
                                 "type": "string",
-                                "maxLength": 100,
-                                "nullable": true
+                                "maxLength": 16,
+                                "nullable": true,
+                                "pattern": "^[a-zA-Z0-9]*$"
                               },
                               "dates": {
                                 "type": "object",
@@ -4535,7 +3820,7 @@
                                   "otherLocationsServed": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                     "maxLength": 5000,
                                     "description": "Other location(s) where Veteran served."
                                   },
@@ -4589,7 +3874,7 @@
                                   "specifyOtherExposures": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                     "maxLength": 5000,
                                     "description": "Exposure to asbestos."
                                   },
@@ -4635,7 +3920,7 @@
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                      "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                       "maxLength": 1000,
                                       "description": "Location where the exposure happened."
                                     },
@@ -4941,13 +4226,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -5788,7 +5073,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "c41045ef-67ec-456c-906c-cb0155083478",
+                        "id": "40167e4f-703f-48bb-9c06-eea907988788",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5973,7 +5258,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-08-30"
+                              "anticipatedSeparationDate": "2024-09-07"
                             },
                             "confinements": [
                               {
@@ -6019,7 +5304,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "05263a98-41fe-40af-9f1e-0075dccb27cc",
+                        "id": "917204da-61f3-4f0d-a2a5-e5a423b44c1a",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -6397,10 +5682,11 @@
                                       "nullable": true
                                     },
                                     "internationalPostalCode": {
-                                      "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                      "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
                                       "type": "string",
-                                      "maxLength": 100,
-                                      "nullable": true
+                                      "maxLength": 16,
+                                      "nullable": true,
+                                      "pattern": "^[a-zA-Z0-9]*$"
                                     }
                                   }
                                 },
@@ -6506,10 +5792,11 @@
                                   "example": "6789"
                                 },
                                 "internationalPostalCode": {
-                                  "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                  "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
                                   "type": "string",
-                                  "maxLength": 100,
-                                  "nullable": true
+                                  "maxLength": 16,
+                                  "nullable": true,
+                                  "pattern": "^[a-zA-Z0-9]*$"
                                 },
                                 "dates": {
                                   "type": "object",
@@ -6690,7 +5977,7 @@
                                     "otherLocationsServed": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                      "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                       "maxLength": 5000,
                                       "description": "Other location(s) where Veteran served."
                                     },
@@ -6744,7 +6031,7 @@
                                     "specifyOtherExposures": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                      "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                       "maxLength": 5000,
                                       "description": "Exposure to asbestos."
                                     },
@@ -6790,7 +6077,7 @@
                                       "exposureLocation": {
                                         "type": "string",
                                         "nullable": true,
-                                        "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                         "maxLength": 1000,
                                         "description": "Location where the exposure happened."
                                       },
@@ -7096,13 +6383,13 @@
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
-                                        "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                        "description": "Date completed active duty.",
                                         "type": "string",
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
                                       "separationLocationCode": {
-                                        "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                        "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                         "type": "string",
                                         "nullable": true,
                                         "example": "98283"
@@ -7777,10 +7064,11 @@
                                     "nullable": true
                                   },
                                   "internationalPostalCode": {
-                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
                                     "type": "string",
-                                    "maxLength": 100,
-                                    "nullable": true
+                                    "maxLength": 16,
+                                    "nullable": true,
+                                    "pattern": "^[a-zA-Z0-9]*$"
                                   }
                                 }
                               },
@@ -7886,10 +7174,11 @@
                                 "example": "6789"
                               },
                               "internationalPostalCode": {
-                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
                                 "type": "string",
-                                "maxLength": 100,
-                                "nullable": true
+                                "maxLength": 16,
+                                "nullable": true,
+                                "pattern": "^[a-zA-Z0-9]*$"
                               },
                               "dates": {
                                 "type": "object",
@@ -8070,7 +7359,7 @@
                                   "otherLocationsServed": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                     "maxLength": 5000,
                                     "description": "Other location(s) where Veteran served."
                                   },
@@ -8124,7 +7413,7 @@
                                   "specifyOtherExposures": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                     "maxLength": 5000,
                                     "description": "Exposure to asbestos."
                                   },
@@ -8170,7 +7459,7 @@
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                      "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                       "maxLength": 1000,
                                       "description": "Location where the exposure happened."
                                     },
@@ -8476,13 +7765,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -9934,10 +9223,11 @@
                                     "nullable": true
                                   },
                                   "internationalPostalCode": {
-                                    "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                    "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
                                     "type": "string",
-                                    "maxLength": 100,
-                                    "nullable": true
+                                    "maxLength": 16,
+                                    "nullable": true,
+                                    "pattern": "^[a-zA-Z0-9]*$"
                                   }
                                 }
                               },
@@ -10043,10 +9333,11 @@
                                 "example": "6789"
                               },
                               "internationalPostalCode": {
-                                "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+                                "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
                                 "type": "string",
-                                "maxLength": 100,
-                                "nullable": true
+                                "maxLength": 16,
+                                "nullable": true,
+                                "pattern": "^[a-zA-Z0-9]*$"
                               },
                               "dates": {
                                 "type": "object",
@@ -10227,7 +9518,7 @@
                                   "otherLocationsServed": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                     "maxLength": 5000,
                                     "description": "Other location(s) where Veteran served."
                                   },
@@ -10281,7 +9572,7 @@
                                   "specifyOtherExposures": {
                                     "type": "string",
                                     "nullable": true,
-                                    "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                     "maxLength": 5000,
                                     "description": "Exposure to asbestos."
                                   },
@@ -10327,7 +9618,7 @@
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
-                                      "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                                      "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                                       "maxLength": 1000,
                                       "description": "Location where the exposure happened."
                                     },
@@ -10633,13 +9924,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -11225,7 +10516,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b826dcd2-c41b-496e-a746-a983cd216902",
+                    "id": "555d0e33-d296-465c-b054-ab459381dc3e",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13115,13 +12406,13 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.",
                                       "type": "string",
                                       "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                                       "example": "2018-06-06"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                      "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "nullable": true,
                                       "example": "98283"
@@ -13644,22 +12935,22 @@
         }
       }
     },
-    "/veterans/{veteranId}/claims/{id}/5103": {
-      "post": {
-        "summary": "Submit Evidence Waiver 5103",
+    "/veterans/{veteranId}/claims": {
+      "get": {
+        "summary": "Find all benefits claims for a Veteran.",
         "tags": [
-          "5103 Waiver"
+          "Claims"
         ],
-        "operationId": "submitEvidenceWaiver5103",
+        "operationId": "findClaims",
         "security": [
           {
             "productionOauth": [
-              "system/claim.write"
+              "system/claim.read"
             ]
           },
           {
             "sandboxOauth": [
-              "system/claim.write"
+              "system/claim.read"
             ]
           },
           {
@@ -13668,7 +12959,282 @@
             ]
           }
         ],
-        "description": "Submit Evidence Waiver 5103 for Veteran.",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "claim response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "555555555",
+                      "type": "claim",
+                      "attributes": {
+                        "baseEndProductCode": "400",
+                        "claimDate": "2017-05-02",
+                        "claimPhaseDates": {
+                          "phaseChangeDate": "2017-10-18",
+                          "phaseType": "COMPLETE"
+                        },
+                        "claimType": "Compensation",
+                        "claimTypeCode": "400PREDSCHRG",
+                        "closeDate": "2017-10-18",
+                        "decisionLetterSent": false,
+                        "developmentLetterSent": false,
+                        "documentsNeeded": false,
+                        "endProductCode": "404",
+                        "evidenceWaiverSubmitted5103": false,
+                        "lighthouseId": null,
+                        "status": "COMPLETE"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "required": [
+                          "id",
+                          "type",
+                          "attributes"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Claim details",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Claim ID in VBMS. If a claim was submitted with Lighthouse and not successfully established upstream, it could have a null claimId.",
+                            "example": "600131328"
+                          },
+                          "type": {
+                            "type": "string",
+                            "example": "claim"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "required": [
+                              "baseEndProductCode",
+                              "claimType",
+                              "claimDate",
+                              "claimPhaseDates",
+                              "closeDate",
+                              "developmentLetterSent",
+                              "decisionLetterSent",
+                              "documentsNeeded",
+                              "endProductCode",
+                              "evidenceWaiverSubmitted5103",
+                              "lighthouseId",
+                              "status"
+                            ],
+                            "properties": {
+                              "baseEndProductCode": {
+                                "type": "string",
+                                "description": "Base end product code for claim",
+                                "example": "400"
+                              },
+                              "claimType": {
+                                "type": "string",
+                                "description": "Name of claim type",
+                                "example": "Compensation"
+                              },
+                              "claimDate": {
+                                "format": "date",
+                                "type": "string",
+                                "description": "Date the claim was first filed. In YYYY-MM-DD format.",
+                                "example": "2018-06-04"
+                              },
+                              "claimPhaseDates": {
+                                "type": "object",
+                                "properties": {
+                                  "phaseChangeDate": {
+                                    "format": "date",
+                                    "type": "string",
+                                    "description": "The date that the claim changed to its current phase",
+                                    "example": "2017-10-18"
+                                  },
+                                  "phaseType": {
+                                    "type": "string",
+                                    "enum": [
+                                      "CLAIM_RECEIVED",
+                                      "UNDER_REVIEW",
+                                      "GATHERING_OF_EVIDENCE",
+                                      "REVIEW_OF_EVIDENCE",
+                                      "PREPARATION_FOR_DECISION",
+                                      "PENDING_DECISION_APPROVAL",
+                                      "PREPARATION_FOR_NOTIFICATION",
+                                      "COMPLETE"
+                                    ],
+                                    "description": "The most current phase for the claim",
+                                    "example": "UNDER_REVIEW"
+                                  }
+                                }
+                              },
+                              "closeDate": {
+                                "format": "date",
+                                "type": "string",
+                                "description": "Date claim was closed",
+                                "example": "2019-09-04"
+                              },
+                              "developmentLetterSent": {
+                                "type": "boolean",
+                                "description": "If true, a development letter has been sent to the claimant regarding a benefit claim",
+                                "example": "false"
+                              },
+                              "decisionLetterSent": {
+                                "type": "boolean",
+                                "description": "If true, a decision letter has been sent to the claimant regarding a benefit claim",
+                                "example": "false"
+                              },
+                              "documentsNeeded": {
+                                "type": "boolean",
+                                "description": "If true, the claim requires additional documents to be submitted",
+                                "example": "false"
+                              },
+                              "endProductCode": {
+                                "type": "string",
+                                "description": "End product code of claim"
+                              },
+                              "evidenceWaiverSubmitted5103": {
+                                "type": "boolean",
+                                "nullable": true,
+                                "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
+                                "example": "false"
+                              },
+                              "lighthouseId": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Claim ID in Lighthouse",
+                                "example": "0BAEFC26-1CE4-4046-9B3C-3071055603DB"
+                              },
+                              "status": {
+                                "type": "string",
+                                "description": "Status of claim",
+                                "enum": [
+                                  "PENDING",
+                                  "CLAIM_RECEIVED",
+                                  "INITIAL_REVIEW",
+                                  "EVIDENCE_GATHERING_REVIEW_DECISION",
+                                  "PREPARATION_FOR_NOTIFICATION",
+                                  "COMPLETE",
+                                  "ERRORED",
+                                  "CANCELED"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veterans/{veteranId}/claims/{id}": {
+      "get": {
+        "summary": "Find claim by ID.",
+        "tags": [
+          "Claims"
+        ],
+        "operationId": "findClaimById",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Retrieves a specific claim for a Veteran",
         "parameters": [
           {
             "name": "id",
@@ -13692,20 +13258,510 @@
           }
         ],
         "responses": {
-          "202": {
-            "description": "Successful response",
+          "200": {
+            "description": "claim response",
             "content": {
               "application/json": {
                 "example": {
-                  "success": true
+                  "data": {
+                    "id": "555555555",
+                    "type": "claim",
+                    "attributes": {
+                      "claimTypeCode": "400PREDSCHRG",
+                      "claimDate": "2017-05-02",
+                      "claimPhaseDates": {
+                        "phaseChangeDate": "2017-10-18",
+                        "currentPhaseBack": false,
+                        "latestPhaseType": "COMPLETE",
+                        "previousPhases": {
+                          "phase7CompleteDate": "2017-10-18"
+                        }
+                      },
+                      "claimType": "Compensation",
+                      "closeDate": "2017-10-18",
+                      "contentions": [
+                        {
+                          "name": "abnormal heart (New)"
+                        },
+                        {
+                          "name": "abscess kidney (New)"
+                        },
+                        {
+                          "name": "encephalitis lethargica residuals (New)"
+                        },
+                        {
+                          "name": "dracunculiasis (New)"
+                        },
+                        {
+                          "name": "gingivitis (New)"
+                        },
+                        {
+                          "name": "abnormal weight loss (New)"
+                        },
+                        {
+                          "name": "groin condition (New)"
+                        },
+                        {
+                          "name": "metritis (New)"
+                        }
+                      ],
+                      "decisionLetterSent": false,
+                      "developmentLetterSent": false,
+                      "documentsNeeded": false,
+                      "endProductCode": "404",
+                      "evidenceWaiverSubmitted5103": false,
+                      "errors": [
+
+                      ],
+                      "jurisdiction": "National Work Queue",
+                      "lighthouseId": null,
+                      "maxEstClaimDate": null,
+                      "minEstClaimDate": null,
+                      "status": "CANCELED",
+                      "submitterApplicationCode": "EBN",
+                      "submitterRoleCode": "VET",
+                      "supportingDocuments": [
+                        {
+                          "documentId": "{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}",
+                          "documentTypeLabel": "Medical",
+                          "originalFileName": null,
+                          "trackedItemId": null,
+                          "uploadDate": null
+                        }
+                      ],
+                      "tempJurisdiction": null,
+                      "trackedItems": [
+                        {
+                          "closedDate": "2021-06-04",
+                          "description": null,
+                          "displayName": "21-4142a",
+                          "overdue": false,
+                          "receivedDate": null,
+                          "requestedDate": "2021-05-05",
+                          "status": "NO_LONGER_REQUIRED",
+                          "suspenseDate": "2021-06-04",
+                          "id": 293440,
+                          "uploadsAllowed": false
+                        },
+                        {
+                          "closedDate": "2021-06-04",
+                          "description": null,
+                          "displayName": "Employment info needed",
+                          "overdue": false,
+                          "receivedDate": null,
+                          "requestedDate": "2021-05-05",
+                          "status": "NO_LONGER_REQUIRED",
+                          "suspenseDate": "2021-06-04",
+                          "id": 293443,
+                          "uploadsAllowed": false
+                        },
+                        {
+                          "closedDate": "2021-06-04",
+                          "description": null,
+                          "displayName": "Accidental injury - 21-4176 needed",
+                          "overdue": false,
+                          "receivedDate": null,
+                          "requestedDate": "2021-05-05",
+                          "status": "NO_LONGER_REQUIRED",
+                          "suspenseDate": "2021-06-04",
+                          "id": 293444,
+                          "uploadsAllowed": false
+                        },
+                        {
+                          "closedDate": "2021-06-04",
+                          "description": null,
+                          "displayName": "Buddy mentioned - No complete address",
+                          "overdue": false,
+                          "receivedDate": null,
+                          "requestedDate": "2021-05-05",
+                          "status": "NO_LONGER_REQUIRED",
+                          "suspenseDate": "2021-06-04",
+                          "id": 293446,
+                          "uploadsAllowed": false
+                        }
+                      ]
+                    }
+                  }
                 },
                 "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
                   "type": "object",
-                  "additionalProperties": true,
+                  "required": [
+                    "data"
+                  ],
                   "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": "true"
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Claim details",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Claim ID in VBMS. If a claim was submitted with Lighthouse and not successfully established upstream, it could have a null claimId.",
+                          "example": "600131328"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "evss_claims"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "claimTypeCode",
+                            "claimDate",
+                            "claimPhaseDates",
+                            "claimType",
+                            "closeDate",
+                            "contentions",
+                            "decisionLetterSent",
+                            "developmentLetterSent",
+                            "documentsNeeded",
+                            "endProductCode",
+                            "evidenceWaiverSubmitted5103",
+                            "errors",
+                            "jurisdiction",
+                            "lighthouseId",
+                            "maxEstClaimDate",
+                            "minEstClaimDate",
+                            "status",
+                            "submitterApplicationCode",
+                            "submitterRoleCode",
+                            "supportingDocuments",
+                            "tempJurisdiction",
+                            "trackedItems"
+                          ],
+                          "properties": {
+                            "claimTypeCode": {
+                              "type": "string",
+                              "description": "Type code of benefit claim",
+                              "example": "400PREDSCHRG"
+                            },
+                            "claimType": {
+                              "type": "string",
+                              "description": "Name of claim type",
+                              "example": "Compensation"
+                            },
+                            "contentions": {
+                              "type": "array",
+                              "description": "The contentions being submitted with a claim",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "example": "abscess kidney (New)"
+                                  }
+                                }
+                              }
+                            },
+                            "claimDate": {
+                              "format": "date",
+                              "type": "string",
+                              "nullable": true,
+                              "description": "The date a claim was filed",
+                              "example": "2017-10-18"
+                            },
+                            "claimPhaseDates": {
+                              "type": "object",
+                              "properties": {
+                                "currentPhaseBack": {
+                                  "type": "boolean",
+                                  "description": "Indicates whether the current phase is moving backward."
+                                },
+                                "latestPhaseType": {
+                                  "type": "string",
+                                  "enum": [
+                                    "CLAIM_RECEIVED",
+                                    "UNDER_REVIEW",
+                                    "GATHERING_OF_EVIDENCE",
+                                    "REVIEW_OF_EVIDENCE",
+                                    "PREPARATION_FOR_DECISION",
+                                    "PENDING_DECISION_APPROVAL",
+                                    "PREPARATION_FOR_NOTIFICATION",
+                                    "COMPLETE"
+                                  ],
+                                  "nullable": true,
+                                  "description": "The most current phase for the claim"
+                                },
+                                "phaseChangeDate": {
+                                  "format": "date",
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "The date that the claim changed to its current phase",
+                                  "example": "2017-10-18"
+                                },
+                                "previousPhases": {
+                                  "type": "object",
+                                  "properties": {
+                                    "phase1CompleteDate": {
+                                      "format": "date",
+                                      "type": "string",
+                                      "description": "Completed date of the claim received phase.",
+                                      "example": "2017-10-18"
+                                    },
+                                    "phase2CompleteDate": {
+                                      "format": "date",
+                                      "type": "string",
+                                      "description": "Completed date of the initial review phase.",
+                                      "example": "2017-10-18"
+                                    },
+                                    "phase3CompleteDate": {
+                                      "format": "date",
+                                      "type": "string",
+                                      "description": "Completed date of the gathering of evidence phase.",
+                                      "example": "2017-10-18"
+                                    },
+                                    "phase4CompleteDate": {
+                                      "format": "date",
+                                      "type": "string",
+                                      "description": "Completed date of the reviewing of evidence phase.",
+                                      "example": "2017-10-18"
+                                    },
+                                    "phase5CompleteDate": {
+                                      "format": "date",
+                                      "type": "string",
+                                      "description": "Completed date of the preparation for decision phase.",
+                                      "example": "2017-10-18"
+                                    },
+                                    "phase6CompleteDate": {
+                                      "format": "date",
+                                      "type": "string",
+                                      "description": "Completed date of the pending decision approval phase.",
+                                      "example": "2017-10-18"
+                                    },
+                                    "phase7CompleteDate": {
+                                      "format": "date",
+                                      "type": "string",
+                                      "description": "Completed date of the preparation for notification phase.",
+                                      "example": "2017-10-18"
+                                    },
+                                    "phase8CompleteDate": {
+                                      "format": "date",
+                                      "type": "string",
+                                      "description": "Completed date of the completed phase.",
+                                      "example": "2017-10-18"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "closeDate": {
+                              "format": "date",
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Date claim was closed",
+                              "example": "2019-09-04"
+                            },
+                            "decisionLetterSent": {
+                              "type": "boolean",
+                              "description": "If true, a decision letter has been sent to the claimant regarding a benefit claim"
+                            },
+                            "developmentLetterSent": {
+                              "type": "boolean",
+                              "description": "If true, a development letter has been sent to the claimant regarding a benefit claim"
+                            },
+                            "documentsNeeded": {
+                              "type": "boolean",
+                              "description": "If true, the claim requires additional documents to be submitted"
+                            },
+                            "endProductCode": {
+                              "type": "string",
+                              "description": "End product code of claim",
+                              "example": "930"
+                            },
+                            "evidenceWaiverSubmitted5103": {
+                              "type": "boolean",
+                              "nullable": true,
+                              "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
+                              "example": "false"
+                            },
+                            "errors": {
+                              "type": "array",
+                              "description": "Error details if claim is in an errored state.",
+                              "items": {
+                                "properties": {
+                                  "detail": {
+                                    "type": "string",
+                                    "example": "Something happened"
+                                  },
+                                  "source": {
+                                    "type": "string",
+                                    "example": "some/error/path"
+                                  }
+                                }
+                              }
+                            },
+                            "jurisdiction": {
+                              "type": "string",
+                              "description": "Regional office to which the claim is currently assigned."
+                            },
+                            "lighthouseId": {
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Claim ID in Lighthouse",
+                              "example": "0BAEFC26-1CE4-4046-9B3C-3071055603DB"
+                            },
+                            "minEstClaimDate": {
+                              "format": "date",
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Minimum estimated claim completion date",
+                              "example": "2019-06-04"
+                            },
+                            "maxEstClaimDate": {
+                              "format": "date",
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Maximum estimated claim completion date",
+                              "example": "2019-09-04"
+                            },
+                            "status": {
+                              "type": "string",
+                              "description": "Status of claim",
+                              "enum": [
+                                "PENDING",
+                                "CLAIM_RECEIVED",
+                                "INITIAL_REVIEW",
+                                "EVIDENCE_GATHERING_REVIEW_DECISION",
+                                "PREPARATION_FOR_NOTIFICATION",
+                                "COMPLETE",
+                                "ERRORED",
+                                "CANCELED"
+                              ]
+                            },
+                            "submitterApplicationCode": {
+                              "type": "string",
+                              "description": "Application code of benefit claim submitter",
+                              "example": "EBN"
+                            },
+                            "submitterRoleCode": {
+                              "type": "string",
+                              "description": "Role code of benefit claim submitter",
+                              "example": "VET"
+                            },
+                            "supportingDocuments": {
+                              "type": "array",
+                              "description": "Information regarding any supported documents attached to a claim",
+                              "items": {
+                                "properties": {
+                                  "documentId": {
+                                    "type": "string",
+                                    "description": "Unique identifier of document"
+                                  },
+                                  "documentTypeLabel": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "originalFileName": {
+                                    "type": "string",
+                                    "description": "Name of document",
+                                    "nullable": true
+                                  },
+                                  "trackedItemId": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "uploadDate": {
+                                    "format": "date",
+                                    "type": "string",
+                                    "description": "Date and time document was uploaded",
+                                    "nullable": true
+                                  }
+                                }
+                              }
+                            },
+                            "tempJurisdiction": {
+                              "type": "string",
+                              "description": "Temporary jurisdiction of claim"
+                            },
+                            "trackedItems": {
+                              "type": "array",
+                              "description": "",
+                              "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "closedDate": {
+                                    "format": "date",
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Date the tracked item was closed",
+                                    "example": "2017-10-18"
+                                  },
+                                  "description": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Description of the tracked item",
+                                    "example": "You may also submit statements from individuals having knowledge of your claimed condition."
+                                  },
+                                  "requestedDate": {
+                                    "format": "date",
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Date the tracked item was requested",
+                                    "example": "2017-10-18"
+                                  },
+                                  "id": {
+                                    "type": "integer",
+                                    "description": "ID of the tracked item",
+                                    "example": 293454
+                                  },
+                                  "displayName": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Description of the tracked item",
+                                    "example": "Submit buddy statement(s)"
+                                  },
+                                  "receivedDate": {
+                                    "format": "date",
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Date the tracked item was received",
+                                    "example": "2017-10-18"
+                                  },
+                                  "overdue": {
+                                    "type": "boolean",
+                                    "nullable": true,
+                                    "description": "True if the item is overdue",
+                                    "example": true
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "description": "Enum with the status of the tracked item",
+                                    "example": "NO_LONGER_REQUIRED",
+                                    "enum": [
+                                      "ACCEPTED",
+                                      "INITIAL_REVIEW_COMPLETE",
+                                      "NEEDED_FROM_YOU",
+                                      "NEEDED_FROM_OTHERS",
+                                      "NO_LONGER_REQUIRED",
+                                      "SUBMITTED_AWAITING_REVIEW"
+                                    ]
+                                  },
+                                  "suspenseDate": {
+                                    "format": "date",
+                                    "type": "string",
+                                    "nullable": true,
+                                    "example": "2017-10-18"
+                                  },
+                                  "uploadsAllowed": {
+                                    "type": "boolean",
+                                    "example": true
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -13720,7 +13776,6 @@
                   "errors": [
                     {
                       "title": "Not authorized",
-                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -13771,13 +13826,12 @@
             }
           },
           "404": {
-            "description": "NotFound",
+            "description": "Resource not found",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "status": "404",
                       "title": "Resource not found",
                       "detail": "Claim not found"
                     }
@@ -13822,50 +13876,6 @@
                           }
                         }
                       }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "data": {
-                    "type": "object",
-                    "properties": {
-                      "attributes": {
-                        "$schema": "http://json-schema.org/draft-07/schema#",
-                        "description": "Claims API 5103 Schema",
-                        "type": "object",
-                        "additionalProperties": false,
-                        "properties": {
-                          "trackedItemIds": {
-                            "description": "Array of tracked items ids.",
-                            "type": "array",
-                            "nullable": true,
-                            "uniqueItems": true,
-                            "items": {
-                              "type": "integer",
-                              "additionalProperties": false
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "data": {
-                    "type": "form/5103",
-                    "attributes": {
-                      "trackedItemIds": [
-                        1234
-                      ]
                     }
                   }
                 }
@@ -14166,8 +14176,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-08-28",
-                      "expirationDate": "2025-08-28",
+                      "creationDate": "2024-09-05",
+                      "expirationDate": "2025-09-05",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -15063,7 +15073,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5f60ad74-3852-45c3-acea-6dbfc86e9598",
+                    "id": "2042b892-b0c9-4551-8c90-55538b3d6324",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15756,7 +15766,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "95528f1f-e16f-4585-8c58-aa7187fc247b",
+                    "id": "378415a5-f585-44ac-9a66-f97891a7c116",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17707,10 +17717,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e26ca565-f778-43fa-89ee-821af17f8447",
+                    "id": "b17376c2-39a2-44a5-a4bd-3a9d2b1de18f",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-08-28",
+                      "dateRequestAccepted": "2024-09-05",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

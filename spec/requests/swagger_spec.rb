@@ -544,31 +544,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    it 'supports adding a preneed claim' do
-      VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/burial_forms',
-          200,
-          '_headers' => { 'content-type' => 'application/json' },
-          '_data' => {
-            'application' => attributes_for(:burial_form)
-          }.to_json
-        )
-      end
-
-      expect(subject).to validate(
-        :post,
-        '/v0/preneeds/burial_forms',
-        422,
-        '_data' => {
-          'application' => {
-            'invalid-form' => { invalid: true }.to_json
-          }
-        }
-      )
-    end
-
     it 'supports getting cemetaries preneed claim' do
       VCR.use_cassette('preneeds/cemeteries/gets_a_list_of_cemeteries') do
         expect(subject).to validate(
@@ -576,43 +551,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           '/v0/preneeds/cemeteries',
           200,
           '_headers' => { 'content-type' => 'application/json' }
-        )
-      end
-    end
-
-    describe 'preneed attachments upload' do
-      it 'supports uploading a file' do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/preneed_attachments',
-          200,
-          '_data' => {
-            'preneed_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/preneeds/extras.pdf', 'application/pdf')
-            }
-          }
-        )
-      end
-
-      it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/preneed_attachments',
-          400,
-          ''
-        )
-      end
-
-      it 'returns 422 if the attachment is not an allowed type' do
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/preneed_attachments',
-          422,
-          '_data' => {
-            'preneed_attachment' => {
-              'file_data' => fixture_file_upload('invalid_idme_cert.crt')
-            }
-          }
         )
       end
     end
@@ -2119,97 +2057,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'higher_level_reviews' do
-      context 'GET' do
-        it 'documents higher_level_reviews 200' do
-          VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-200') do
-            expect(subject).to validate(:get, '/v0/higher_level_reviews/{uuid}',
-                                        200, headers.merge('uuid' => '75f5735b-c41d-499c-8ae2-ab2740180254'))
-          end
-        end
-
-        it 'documents higher_level_reviews 404' do
-          VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-404') do
-            expect(subject).to validate(:get, '/v0/higher_level_reviews/{uuid}',
-                                        404, headers.merge('uuid' => '0'))
-          end
-        end
-      end
-
-      context 'POST' do
-        it 'documents higher_level_reviews 200' do
-          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200') do
-            # HigherLevelReviewsController is a pass-through, and uses request.body directly (not params[]).
-            # The validate helper does not create a parsable request.body string that works with the controller.
-            allow_any_instance_of(V0::HigherLevelReviewsController).to receive(:request_body_hash).and_return(
-              VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY')
-            )
-            expect(subject).to validate(:post, '/v0/higher_level_reviews', 200, headers)
-          end
-        end
-
-        it 'documents higher_level_reviews 422' do
-          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422') do
-            expect(subject).to validate(
-              :post,
-              '/v0/higher_level_reviews',
-              422,
-              headers.merge('_data' => { '_json' => '' })
-            )
-          end
-        end
-      end
-    end
-
-    describe 'HLR contestable_issues' do
-      let(:benefit_type) { 'compensation' }
-      let(:ssn) { '212222112' }
-      let(:status) { 200 }
-
-      it 'documents contestable_issues 200' do
-        VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-#{status}") do
-          expect(subject).to validate(
-            :get,
-            '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
-            status,
-            headers.merge('benefit_type' => benefit_type)
-          )
-        end
-      end
-
-      context '404' do
-        let(:ssn) { '000000000' }
-        let(:status) { 404 }
-
-        it 'documents contestable_issues 404' do
-          VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-#{status}") do
-            expect(subject).to validate(
-              :get,
-              '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
-              status,
-              headers.merge('benefit_type' => benefit_type)
-            )
-          end
-        end
-      end
-
-      context '422' do
-        let(:benefit_type) { 'apricot' }
-        let(:status) { 422 }
-
-        it 'documents contestable_issues 422' do
-          VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-#{status}") do
-            expect(subject).to validate(
-              :get,
-              '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
-              status,
-              headers.merge('benefit_type' => benefit_type)
-            )
-          end
-        end
-      end
-    end
-
     describe 'NOD contestable_issues' do
       let(:ssn) { '212222112' }
 
@@ -2234,49 +2081,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
               '/v0/notice_of_disagreements/contestable_issues',
               404,
               headers
-            )
-          end
-        end
-      end
-    end
-
-    describe 'notice_of_disagreements' do
-      context 'GET' do
-        it 'documents notice_of_disagreements 200' do
-          VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-200') do
-            expect(subject).to validate(:get, '/v0/notice_of_disagreements/{uuid}',
-                                        200, headers.merge('uuid' => '1234567a-89b0-123c-d456-789e01234f56'))
-          end
-        end
-
-        it 'documents higher_level_reviews 404' do
-          VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-404') do
-            expect(subject).to validate(:get, '/v0/notice_of_disagreements/{uuid}',
-                                        404, headers.merge('uuid' => '0'))
-          end
-        end
-      end
-
-      context 'POST' do
-        it 'documents notice_of_disagreements 200' do
-          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200') do
-            # NoticeOfDisagreementsController is a pass-through, and uses request.body directly (not params[]).
-            # The validate helper does not create a parsable request.body string that works with the controller.
-            allow_any_instance_of(V0::NoticeOfDisagreementsController).to receive(:request_body_hash).and_return(
-              JSON.parse(File.read(Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
-                                                   'valid_NOD_create_request.json')))
-            )
-            expect(subject).to validate(:post, '/v0/notice_of_disagreements', 200, headers)
-          end
-        end
-
-        it 'documents notice_of_disagreements 422' do
-          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE--422') do
-            expect(subject).to validate(
-              :post,
-              '/v0/notice_of_disagreements',
-              422,
-              headers.merge('_data' => { '_json' => '' })
             )
           end
         end

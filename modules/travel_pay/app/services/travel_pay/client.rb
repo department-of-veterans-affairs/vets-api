@@ -44,29 +44,6 @@ module TravelPay
     end
 
     ##
-    # HTTP GET call to the BTSSS 'ping' endpoint to test liveness
-    #
-    # @return [Faraday::Response]
-    #
-    def ping
-      veis_token = request_veis_token
-      request_ping(veis_token)
-    end
-
-    ##
-    # HTTP GET call to the BTSSS 'authorized-ping' endpoint to test liveness
-    #
-    # @return [Faraday::Response]
-    #
-    def authorized_ping(current_user)
-      sts_token = request_sts_token(current_user)
-      veis_token = request_veis_token
-      btsss_token = request_btsss_token(veis_token, sts_token)
-
-      request_authorized_ping(veis_token, btsss_token)
-    end
-
-    ##
     # HTTP GET call to the BTSSS 'claims' endpoint
     # API responds with travel pay claims including status
     #
@@ -162,29 +139,6 @@ module TravelPay
         grant_type: 'client_credentials',
         resource: Settings.travel_pay.veis.resource
       }
-    end
-
-    def request_ping(veis_token)
-      btsss_url = Settings.travel_pay.base_url
-      api_key = Settings.travel_pay.subscription_key
-
-      connection(server_url: btsss_url).get('api/v1/Sample/ping') do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['Ocp-Apim-Subscription-Key'] = api_key
-        req.headers['X-Correlation-ID'] = SecureRandom.uuid
-      end
-    end
-
-    def request_authorized_ping(veis_token, btsss_token)
-      btsss_url = Settings.travel_pay.base_url
-      api_key = Settings.travel_pay.subscription_key
-
-      connection(server_url: btsss_url).get('api/v1/Sample/authorized-ping') do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['BTSSS-Access-Token'] = btsss_token
-        req.headers['Ocp-Apim-Subscription-Key'] = api_key
-        req.headers['X-Correlation-ID'] = SecureRandom.uuid
-      end
     end
 
     def request_claims(veis_token, btsss_token)

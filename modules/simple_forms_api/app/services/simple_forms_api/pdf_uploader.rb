@@ -44,7 +44,7 @@ module SimpleFormsApi
 
       # Stamp uuid on 40-10007
       uuid = upload_location.dig('data', 'id')
-      SimpleFormsApi::PdfStamper.new('tmp/vba_40_10007-tmp.pdf', form).stamp_uuid(uuid)
+      SimpleFormsApi::PdfStamper.new(stamped_template_path: file_path, form:).stamp_uuid(uuid)
 
       { uuid:, location: upload_location.dig('data', 'attributes', 'location') }
     end

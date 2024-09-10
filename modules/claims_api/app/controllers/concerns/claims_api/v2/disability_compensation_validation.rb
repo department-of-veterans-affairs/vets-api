@@ -43,7 +43,7 @@ module ClaimsApi
         # ensure direct deposit information is valid
         validate_form_526_direct_deposit
         # collect errors and pass back to the controller
-        raise_error_collection if @errors
+        error_collection if @errors
       end
 
       private
@@ -65,7 +65,7 @@ module ClaimsApi
 
         form_object_desc = '/changeOfAddress'
 
-        raise_exception_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
+        collect_error_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
       end
 
       def validate_form_526_change_of_address_beginning_date
@@ -96,7 +96,7 @@ module ClaimsApi
 
         form_object_desc = 'a TEMPORARY change of address'
 
-        raise_exception_if_value_not_present('end date', form_object_desc) if date.blank?
+        collect_error_if_value_not_present('end date', form_object_desc) if date.blank?
 
         return if Date.strptime(date,
                                 '%Y-%m-%d') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
@@ -110,7 +110,7 @@ module ClaimsApi
 
         collect_error_messages(
           source: '/changeOfAddress/country',
-          detail: 'The country provided is not a valid.'
+          detail: 'The country provided is not valid.'
         )
       end
 
@@ -130,11 +130,6 @@ module ClaimsApi
           collect_error_messages(
             source: '/changeOfAddress/zipFirstFive',
             detail: 'The zipFirstFive is required if the country is USA.'
-          )
-        elsif address['country'] != 'USA' && address['internationalPostalCode'].blank?
-          collect_error_messages(
-            source: '/changeOfAddress/internationalPostalCode',
-            detail: 'The internationalPostalCode is required if the country is not USA.'
           )
         elsif address['country'] == 'USA' && address['internationalPostalCode'].present?
           collect_error_messages(
@@ -198,11 +193,6 @@ module ClaimsApi
             source: '/veteranIdentification/mailingAddress/zipFirstFive',
             detail: 'The zipFirstFive is required if the country is USA.'
           )
-        elsif mailing_address['country'] != 'USA' && mailing_address['internationalPostalCode'].blank?
-          collect_error_messages(
-            source: '/veteranIdentification/mailingAddress/internationalPostalCode',
-            detail: 'The internationalPostalCode is required if the country is not USA.'
-          )
         elsif mailing_address['country'] == 'USA' && mailing_address['internationalPostalCode'].present?
           collect_error_messages(
             source: '/veteranIdentification/mailingAddress/internationalPostalCode',
@@ -227,7 +217,7 @@ module ClaimsApi
           disability_name = disability&.dig('name')
           if disability_name.blank?
             collect_error_messages(source: "/disabilities/#{idx}/name",
-                                   detail: "The disability name is required for /disabilities/#{idx}/name")
+                                   detail: "The disability name (#{idx}) is required.")
           end
         end
       end
@@ -243,9 +233,8 @@ module ClaimsApi
             validate_form_526_disability_code_enddate(disability['classificationCode'].to_i, idx)
           else
             collect_error_messages(source: "/disabilities/#{idx}/classificationCode",
-                                   detail: 'The classificationCode must match an active code ' \
-                                           'returned from the /disabilities endpoint of the Benefits ' \
-                                           'Reference Data API.')
+                                   detail: "The classificationCode (#{idx}) must match an active code " \
+                                           'returned from the /disabilities endpoint of the Benefits ')
           end
         end
       end
@@ -279,7 +268,7 @@ module ClaimsApi
           next if date_is_valid_against_current_time_after_check_on_format?(approx_begin_date)
 
           collect_error_messages(source: "disabilities/#{idx}/approximateDate",
-                                 detail: 'The approximateDate is not valid.')
+                                 detail: "The approximateDate (#{idx}) is not valid.")
         end
       end
 
@@ -292,8 +281,8 @@ module ClaimsApi
           service_relevance = disability&.dig('serviceRelevance')
           if disability_action_type == 'NEW' && service_relevance.blank?
             collect_error_messages(source: "disabilities/#{idx}/serviceRelevance",
-                                   detail: 'The serviceRelevance is required if ' \
-                                           "disabilityActionType' is NEW.")
+                                   detail: "The serviceRelevance (#{idx}) is required if " \
+                                           "'disabilityActionType' is NEW.")
           end
         end
       end
@@ -307,12 +296,12 @@ module ClaimsApi
           if disability['specialIssues'].include? 'POW'
             if confinements.blank?
               collect_error_messages(source: "disabilities/#{idx}/specialIssues",
-                                     detail: 'serviceInformation.confinements is required if ' \
+                                     detail: "serviceInformation.confinements (#{idx}) is required if " \
                                              'specialIssues includes POW.')
             elsif disability_action_type == 'INCREASE'
               collect_error_messages(source: "disabilities/#{idx}/specialIssues",
-                                     detail: 'disabilityActionType cannot be INCREASE if ' \
-                                             'specialIssues includes POW.')
+                                     detail: "disabilityActionType (#{idx}) cannot be INCREASE if " \
+                                             'specialIssues includes POW for.')
             end
           end
         end
@@ -322,7 +311,7 @@ module ClaimsApi
         form_attributes['disabilities'].each_with_index do |disability, dis_idx|
           if disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].blank?
             collect_error_messages(source: "disabilities/#{dis_idx}/",
-                                   detail: 'If the `disabilityActionType` is set to `NONE` ' \
+                                   detail: "If the `disabilityActionType` (#{dis_idx}) is set to `NONE` " \
                                            'there must be a secondary disability present.')
           end
           next if disability['secondaryDisabilities'].blank?
@@ -353,15 +342,15 @@ module ClaimsApi
 
           form_object_desc = "/disability/#{disability_idx}/secondaryDisability/#{sd_idx}"
 
-          raise_exception_if_value_not_present('name', "#{form_object_desc}/name") if sd_name.blank?
+          collect_error_if_value_not_present('name', "#{form_object_desc}/name") if sd_name.blank?
 
           if sd_disability_action_type.blank?
-            raise_exception_if_value_not_present('disabilityActionType',
-                                                 "#{form_object_desc}/disabilityActionType")
+            collect_error_if_value_not_present('disabilityActionType',
+                                               "#{form_object_desc}/disabilityActionType")
           end
           if sd_service_relevance.blank?
-            raise_exception_if_value_not_present('service relevance',
-                                                 "#{form_object_desc}/serviceRelevance")
+            collect_error_if_value_not_present('service relevance',
+                                               "#{form_object_desc}/serviceRelevance")
           end
         end
       end
@@ -370,7 +359,7 @@ module ClaimsApi
         return if brd_classification_ids.include?(secondary_disability['classificationCode'].to_i)
 
         collect_error_messages(source: "disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/classificationCode",
-                               detail: 'classificationCode must match an active code ' \
+                               detail: "classificationCode (#{dis_idx}) must match an active code " \
                                        'returned from the /disabilities endpoint of the Benefits Reference Data API.')
       end
 
@@ -382,7 +371,7 @@ module ClaimsApi
         return if date_is_valid_against_current_time_after_check_on_format?(secondary_disability['approximateDate'])
 
         collect_error_messages(source: "/disabilities/#{dis_idx}/secondaryDisability/#{sd_idx}/approximateDate",
-                               detail: 'approximateDate must be a date in the past.')
+                               detail: "approximateDate (#{dis_idx}) must be a date in the past.")
       end
 
       def validate_form_526_veteran_homelessness # rubocop:disable Metrics/MethodLength
@@ -636,7 +625,7 @@ module ClaimsApi
 
           collect_error_messages(
             source: "/treatments/#{idx}/beginDate",
-            detail: 'Each treatment begin date must be after the first activeDutyBeginDate.'
+            detail: "Each treatment begin date (#{idx}) must be after the first activeDutyBeginDate"
           )
         end
       end
@@ -679,7 +668,7 @@ module ClaimsApi
         end
       end
 
-      def validate_service_periods(service_information, target_veteran) # rubocop:disable Metrics/MethodLength
+      def validate_service_periods(service_information, target_veteran)
         date_of_birth = Date.strptime(target_veteran.birth_date, '%Y%m%d')
         age_thirteen = date_of_birth.next_year(13)
         service_information['servicePeriods'].each_with_index do |sp, idx|
@@ -700,66 +689,55 @@ module ClaimsApi
               end
             end
           end
-
-          if sp['activeDutyEndDate'] && Date.strptime(sp['activeDutyEndDate'],
-                                                      '%Y-%m-%d') > Time.zone.now && sp['separationLocationCode'].blank?
-            location_code_exception(idx)
-          end
         end
       end
 
       def age_exception(idx)
         collect_error_messages(
           source: "/serviceInformation/servicePeriods/#{idx}/activeDutyBeginDate",
-          detail: "Active Duty Begin Date cannot be on or before Veteran's thirteenth birthday."
+          detail: "Active Duty Begin Date (#{idx}) cannot be on or before Veteran's thirteenth birthday."
         )
       end
 
       def begin_date_exception(idx)
         collect_error_messages(
           source: "/serviceInformation/servicePeriods/#{idx}/activeDutyEndDate",
-          detail: 'activeDutyEndDate needs to be after activeDutyBeginDate'
+          detail: "activeDutyEndDate (#{idx}) needs to be after activeDutyBeginDate."
         )
       end
 
-      def location_code_exception(idx)
-        collect_error_messages(
-          source: "/serviceInformation/servicePeriods/#{idx}/separationLocationCode",
-          detail: 'If Active Duty End Date is in the future a Separation Location Code is required.'
-        )
-      end
-
-      def detect_invalid_active_duty_enddate(service_information)
-        service_information['servicePeriods'].detect do |service_period|
-          errors = date_is_valid?(service_period['activeDutyEndDate'],
-                                  'serviceInformation/servicePeriods/activeDutyEndDate', true)
-          return true if errors.is_a?(Array)
+      def validate_form_526_location_codes(service_information) # rubocop:disable Metrics/MethodLength
+        service_periods = service_information['servicePeriods']
+        any_code_present = service_periods.any? do |service_period|
+          service_period['separationLocationCode'].present?
         end
-      end
 
-      def validate_form_526_location_codes(service_information)
         # only retrieve separation locations if we'll need them
-        invalid_end_date = detect_invalid_active_duty_enddate(service_information).is_a?(Array)
+        return unless any_code_present
 
-        need_locations = service_information['servicePeriods'].detect do |service_period|
-          if invalid_end_date && service_period['activeDutyEndDate']
-            Date.strptime(service_period['activeDutyEndDate'],
-                          '%Y-%m-%d') > Time.zone.today
-          end
+        separation_locations = retrieve_separation_locations
+
+        if separation_locations.nil?
+          collect_error_messages(
+            detail: 'The Reference Data Service is unavailable to verify the separation location code for the claimant'
+          )
+          return
         end
-        separation_locations = retrieve_separation_locations if need_locations
 
-        service_information['servicePeriods'].each do |service_period|
-          if invalid_end_date && (service_period['activeDutyEndDate'] &&
-            Date.strptime(service_period['activeDutyEndDate'], '%Y-%m-%d') <= Time.zone.today)
-            next
-          end
-          next if separation_locations&.any? do |location|
-                    if service_period['separationLocationCode']
-                      @location_code = service_period['separationLocationCode']
-                      location[:id].to_s == @location_code
-                    end
-                  end
+        separation_location_ids = separation_locations.pluck(:id).to_set(&:to_s)
+
+        service_periods.each_with_index do |service_period, idx|
+          separation_location_code = service_period['separationLocationCode']
+
+          next if separation_location_ids.include?(separation_location_code)
+
+          ClaimsApi::Logger.log('separation_location_codes', detail: 'Separation location code not found',
+                                                             separation_locations:, separation_location_code:)
+
+          collect_error_messages(
+            source: "/serviceInformation/servicePeriods/#{idx}/separationLocationCode",
+            detail: "The separation location code (#{idx}) for the claimant is not a valid value."
+          )
         end
       end
 
@@ -774,12 +752,12 @@ module ClaimsApi
 
           form_object_desc = "/confinement/#{idx}"
           if approximate_begin_date.blank?
-            raise_exception_if_value_not_present('approximate begin date',
-                                                 "#{form_object_desc}/approximateBeginDate")
+            collect_error_if_value_not_present('approximate begin date',
+                                               "#{form_object_desc}/approximateBeginDate")
           end
           if approximate_end_date.blank?
-            raise_exception_if_value_not_present('approximate end date',
-                                                 "#{form_object_desc}/approximateEndDate")
+            collect_error_if_value_not_present('approximate end date',
+                                               "#{form_object_desc}/approximateEndDate")
           end
 
           next if approximate_begin_date.blank? || approximate_end_date.blank?
@@ -790,7 +768,7 @@ module ClaimsApi
           if begin_date_is_after_end_date?(approximate_begin_date, approximate_end_date)
             collect_error_messages(
               source: "/confinements/#{idx}/",
-              detail: 'Confinement approximate end date must be after approximate begin date.'
+              detail: "Confinement approximate end date (#{idx}) must be after approximate begin date."
             )
           end
 
@@ -806,7 +784,7 @@ module ClaimsApi
                                                               approximate_begin_date)
             collect_error_messages(
               source: "/confinements/#{idx}/approximateBeginDate",
-              detail: 'Confinement approximate begin date must be after earliest active duty begin date.'
+              detail: "Confinement approximate begin date (#{idx}) must be after earliest active duty begin date."
             )
           end
 
@@ -815,14 +793,14 @@ module ClaimsApi
           if overlapping_confinement_periods?(idx)
             collect_error_messages(
               source: "/confinements/#{idx}/approximateBeginDate",
-              detail: 'Confinement periods may not overlap each other.'
+              detail: "Confinement periods (#{idx}) may not overlap each other."
             )
           end
           unless confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date,
                                                               service_periods)
             collect_error_messages(
               source: "/confinements/#{idx}",
-              detail: 'Confinement dates must be within one of the service period dates.'
+              detail: "Confinement dates (#{idx}) must be within one of the service period dates."
             )
           end
         end
@@ -895,9 +873,9 @@ module ClaimsApi
           unless downcase_branches.include?(sp['serviceBranch'].downcase)
             collect_error_messages(
               source: "/serviceInformation/servicePeriods/#{idx}/serviceBranch",
-              detail: 'serviceBranch must match a service branch ' \
+              detail: "serviceBranch (#{idx}) must match a service branch " \
                       'returned from the /service-branches endpoint of the Benefits ' \
-                      'Reference Data API.'
+                      'Reference Data API.' \
             )
           end
         end
@@ -924,11 +902,11 @@ module ClaimsApi
 
         # if one is present both need to be present
         if tos_start_date.blank? && tos_end_date.present?
-          raise_exception_if_value_not_present('begin date', form_obj_desc)
+          collect_error_if_value_not_present('begin date', form_obj_desc)
         end
         if tos_end_date.blank? && tos_start_date.present?
-          raise_exception_if_value_not_present('end date',
-                                               form_obj_desc)
+          collect_error_if_value_not_present('end date',
+                                             form_obj_desc)
         end
         if tos_start_date.present? && tos_end_date.present? && (Date.strptime(tos_start_date,
                                                                               '%Y-%m-%d') > Date.strptime(tos_end_date,
@@ -949,7 +927,10 @@ module ClaimsApi
 
         form_obj_desc = '/serviceInformation/federalActivation'
 
-        raise_exception_if_value_not_present('federal activation date', form_obj_desc) if federal_activation_date.blank?
+        if federal_activation_date.blank?
+          collect_error_if_value_not_present('federal activation date',
+                                             form_obj_desc)
+        end
 
         return if anticipated_separation_date.blank?
 
@@ -1019,15 +1000,15 @@ module ClaimsApi
       def validate_no_account
         acc_vals = form_attributes['directDeposit']
 
-        raise_exception_on_invalid_account_values('accountType') if acc_vals['accountType'].present?
-        raise_exception_on_invalid_account_values('accountNumber') if acc_vals['accountNumber'].present?
-        raise_exception_on_invalid_account_values('routingNumber') if acc_vals['routingNumber'].present?
+        collect_error_on_invalid_account_values('accountType') if acc_vals['accountType'].present?
+        collect_error_on_invalid_account_values('accountNumber') if acc_vals['accountNumber'].present?
+        collect_error_on_invalid_account_values('routingNumber') if acc_vals['routingNumber'].present?
         if acc_vals['financialInstitutionName'].present?
-          raise_exception_on_invalid_account_values('financialInstitutionName')
+          collect_error_on_invalid_account_values('financialInstitutionName')
         end
       end
 
-      def raise_exception_on_invalid_account_values(account_detail)
+      def collect_error_on_invalid_account_values(account_detail)
         collect_error_messages(
           source: "/directDeposit/#{account_detail}",
           detail: "If the claimant has no account the #{account_detail} field must be left empty."
@@ -1057,7 +1038,7 @@ module ClaimsApi
         end
       end
 
-      def raise_exception_if_value_not_present(val, form_obj_description)
+      def collect_error_if_value_not_present(val, form_obj_description)
         collect_error_messages(
           detail: "The #{val} is required for #{form_obj_description}.",
           source: form_obj_description
@@ -1175,23 +1156,24 @@ module ClaimsApi
 
       # Will check for a real date including leap year
       def date_is_valid?(date, property, is_full_date = false) # rubocop:disable Style/OptionalBooleanParameter
-        return if date.blank?
+        return false if date.blank?
 
-        raise_date_error(date, property) unless /^[\d-]+$/ =~ date # check for something like 'July 2017'
+        collect_date_error(date, property) unless /^[\d-]+$/ =~ date # check for something like 'July 2017'
+
         return false if is_full_date && !date.match(YYYY_MM_DD_REGEX)
+
         return true if date.match(YYYY_YYYYMM_REGEX) # valid YYYY or YYYY-MM date
 
         date_y, date_m, date_d = date.split('-').map(&:to_i)
 
-        if Date.valid_date?(date_y, date_m, date_d)
-          true
-        else
-          raise_date_error(date, property)
-          false
-        end
+        return true if Date.valid_date?(date_y, date_m, date_d)
+
+        collect_date_error(date, property)
+
+        false
       end
 
-      def raise_date_error(date, property = '/')
+      def collect_date_error(date, property = '/')
         collect_error_messages(
           detail: "#{date} is not a valid date.",
           source: "data/attributes/#{property}"
@@ -1208,7 +1190,7 @@ module ClaimsApi
         errors_array.push({ detail:, source:, title:, status: })
       end
 
-      def raise_error_collection
+      def error_collection
         errors_array.uniq! { |e| e[:detail] }
         errors_array # set up the object to match other error returns
       end

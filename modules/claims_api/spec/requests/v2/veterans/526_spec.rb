@@ -6,45 +6,12 @@ require_relative '../../../rails_helper'
 RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
   let(:scopes) { %w[claim.write claim.read] }
   let(:claim_date) { Time.find_zone!('Central Time (US & Canada)').today }
-  let(:no_first_name_target_veteran) do
-    OpenStruct.new(
-      icn: '1012832025V743496',
-      first_name: '',
-      last_name: 'Ford',
-      birth_date: '19630211',
-      loa: { current: 3, highest: 3 },
-      edipi: nil,
-      ssn: '796043735',
-      participant_id: '600061742',
-      mpi: OpenStruct.new(
-        icn: '1012832025V743496',
-        profile: OpenStruct.new(ssn: '796043735')
-      )
-    )
-  end
-
-  let(:no_last_name_target_veteran) do
+  let(:target_veteran) do
     OpenStruct.new(
       icn: '1012832025V743496',
       first_name: 'Wesley',
-      last_name: '',
-      birth_date: '19630211',
-      loa: { current: 3, highest: 3 },
-      edipi: nil,
-      ssn: '796043735',
-      participant_id: '600061742',
-      mpi: OpenStruct.new(
-        icn: '1012832025V743496',
-        profile: OpenStruct.new(ssn: '796043735')
-      )
-    )
-  end
-
-  let(:no_first_last_name_target_veteran) do
-    OpenStruct.new(
-      icn: '1012832025V743496',
-      first_name: '',
-      last_name: '',
+      last_name: 'Ford',
+      middle_name: 'John',
       birth_date: '19630211',
       loa: { current: 3, highest: 3 },
       edipi: nil,
@@ -148,8 +115,9 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         context 'without the first name present' do
           it 'does not allow the submit to occur' do
             mock_ccg(scopes) do |auth_header|
+              target_veteran.first_name = ''
               allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:target_veteran).and_return(no_first_name_target_veteran)
+                .to receive(:target_veteran).and_return(target_veteran)
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
               expect(response.parsed_body['errors'][0]['detail']).to eq('Missing first name')
@@ -160,8 +128,9 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         context 'without the last name present' do
           it 'does not allow the submit to occur' do
             mock_ccg(scopes) do |auth_header|
+              target_veteran.last_name = ''
               allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:target_veteran).and_return(no_last_name_target_veteran)
+                .to receive(:target_veteran).and_return(target_veteran)
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
               expect(response.parsed_body['errors'][0]['detail']).to eq('Missing last name')
@@ -200,339 +169,12 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         end
       end
 
-      describe 'validation of claimant certification' do
-        context 'when the cert is false' do
-          let(:claimant_certification) { false }
-
-          it 'responds with a bad request' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['claimantCertification'] = claimant_certification
-              data = json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-      end
-
       describe 'validation of claimant mailing address elements' do
-        context 'when the country is valid' do
-          let(:country) { 'USA' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
-        context 'when the state is not provided and country is not USA' do
-          let(:country) { 'Afghanistan' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '123'
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['state'] = nil
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
-        context 'when the zip is not provided and country is not USA' do
-          let(:country) { 'Afghanistan' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['zipFirstFive'] = nil
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '12345'
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
-        context 'when the country is invalid' do
-          let(:country) { 'United States of Nada' }
-
-          it 'responds with 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-
         context 'when no mailing address data is found' do
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['mailingAddress'] = {}
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-      end
-
-      describe 'validation of claimant change of address elements' do
-        context "when any values present, 'dates','typeOfAddressChange','numberAndStreet','country' are required" do
-          context 'with the required values present' do
-            let(:valid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-30'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '10 Peach St',
-                addressLine2: 'Unit 4',
-                addressLine3: 'Room 1',
-                city: 'Atlanta',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: 'OH',
-                country: 'USA'
-              }
-            end
-
-            it 'responds with a 202' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = valid_change_of_address
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:accepted)
-              end
-            end
-          end
-
-          context 'without the required numberAndStreet value present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-30',
-                  endDate: '2013-11-12'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '',
-                addressLine2: 'Unit 4',
-                addressLine3: 'Room 1',
-                city: '',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: '',
-                country: 'USA'
-              }
-            end
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT'
-                )
-              end
-            end
-          end
-
-          context 'without the required country value present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-31',
-                  endDate: '2013-11-31'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '10 Peach St',
-                addressLine2: '',
-                addressLine3: '',
-                city: '',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: '',
-                country: ''
-              }
-            end
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to include(
-                  'is not a valid'
-                )
-              end
-            end
-          end
-
-          context 'without the required dates values present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  endDate: '2013-11-30'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '10 Peach St',
-                addressLine2: '22',
-                addressLine3: '',
-                city: 'Atlanta',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: 'GA',
-                country: 'USA'
-              }
-            end
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'The begin date is required for /changeOfAddress.'
-                )
-              end
-            end
-          end
-
-          context 'without the required typeOfAddressChange values present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-31',
-                  endDate: ''
-                },
-                typeOfAddressChange: '',
-                addressLine1: '10 Peach St',
-                addressLine2: '22',
-                addressLine3: '',
-                city: 'Atlanta',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: 'GA',
-                country: 'USA'
-              }
-            end
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-              end
-            end
-          end
-        end
-
-        context 'when the country is valid' do
-          let(:country) { 'USA' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['country'] = country
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
-        context 'when the country is invalid' do
-          let(:country) { 'United States of Nada' }
-
-          it 'responds with 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['country'] = country
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-
-        context 'when the city is valid' do
-          let(:city) { '#Base 6' }
-
-          it 'responds with 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['city'] = city
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
-        context 'when the city is invalid' do
-          it 'responds with 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['city'] = nil
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-
-        context 'when the begin date is after the end date' do
-          let(:begin_date) { '2023-01-01' }
-          let(:end_date) { '2022-01-01' }
-
-          it 'responds with 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['dates']['beginDate'] = begin_date
-              json['data']['attributes']['changeOfAddress']['dates']['endDate'] = end_date
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-
-        context 'when the type is permanent the end date is prohibited' do
-          let(:begin_date) { '01-01-2023' }
-          let(:end_date) { '01-01-2024' }
-
-          it 'responds with bad request' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
-              json['data']['attributes']['changeOfAddress']['dates']['beginDate'] = begin_date
-              json['data']['attributes']['changeOfAddress']['dates']['endDate'] = end_date
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
@@ -1031,14 +673,14 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         context 'when the other_locations_served does not match the regex' do
           let(:other_locations_served) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
 
-          it 'responds with a 422' do
+          it 'responds with a 202' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['toxicExposure']['herbicideHazardService']['otherLocationsServed'] =
                 other_locations_served
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1061,14 +703,14 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         context 'when the specify_other_exposures does not match the regex' do
           let(:specify_other_exposures) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
 
-          it 'responds with a bad request' do
+          it 'responds with a accepted' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['toxicExposure']['additionalHazardExposures']['specifyOtherExposures'] =
                 specify_other_exposures
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1076,14 +718,14 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         context 'when the exposure_location does not match the regex' do
           let(:exposure_location) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
 
-          it 'responds with a bad request' do
+          it 'responds with a accepted' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['toxicExposure']['multipleExposures'][0]['exposureLocation'] =
                 exposure_location
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -2585,7 +2227,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
             context 'and the separationLocationCode is blank' do
               let(:separation_location_code) { nil }
 
-              it 'responds with a 422' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   service_period = json['data']['attributes']['serviceInformation']['servicePeriods'][0]
@@ -2593,7 +2235,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                   service_period['separationLocationCode'] = separation_location_code
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -2601,7 +2243,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
             context 'and the separationLocationCode is an empty string' do
               let(:separation_location_code) { '' }
 
-              it 'responds with a 422' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   service_period = json['data']['attributes']['serviceInformation']['servicePeriods'][0]
@@ -2609,7 +2251,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                   service_period['separationLocationCode'] = separation_location_code
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -3465,7 +3107,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  "The serviceRelevance is required if disabilityActionType' is NEW."
+                  "The serviceRelevance (0) is required if 'disabilityActionType' is NEW."
                 )
               end
             end
@@ -4498,6 +4140,83 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         end
       end
     end
+
+    describe '#generate_pdf' do
+      let(:invalid_scopes) { %w[claim.write claim.read] }
+      let(:generate_pdf_scopes) { %w[system/526-pdf.override] }
+      let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF/minimum-validations" }
+
+      context 'valid data' do
+        it 'responds with a 200' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response.header['Content-Disposition']).to include('filename')
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'invalid scopes' do
+        it 'returns a 401 unauthorized' do
+          mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unauthorized)
+          end
+        end
+      end
+
+      context 'without the first and last name present' do
+        it 'does not allow the generatePDF call to occur' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            target_veteran.first_name = ''
+            target_veteran.last_name = ''
+            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+              .to receive(:target_veteran).and_return(target_veteran)
+
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response.parsed_body['errors'][0]['detail']).to eq('Must have either first or last name')
+          end
+        end
+      end
+
+      context 'without the first name present' do
+        it 'allows the generatePDF call to occur' do
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            target_veteran.first_name = ''
+            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+              .to receive(:target_veteran).and_return(target_veteran)
+
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+
+      context 'when the PDF string is not generated' do
+        it 'returns a 422 response when empty object is returned' do
+          allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+            .to receive(:generate_526_pdf)
+            .and_return({})
+
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+
+        it 'returns a 422 response if nil gets returned' do
+          allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+            .to receive(:generate_526_pdf)
+            .and_return(nil)
+
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+      end
+    end
   end
 
   describe 'POST #submit not using md5 lookup' do
@@ -4535,177 +4254,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
           duplicate_submit_parsed = JSON.parse(response.body)
           duplicate_id = duplicate_submit_parsed['data']['id']
           expect(@original_id).not_to eq(duplicate_id)
-        end
-      end
-    end
-  end
-
-  describe 'POST #generatePDF/minimum-validations', vcr: 'claims_api/disability_comp' do
-    let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-    let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-    let(:data) do
-      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                             'disability_compensation', 'form_526_generate_pdf_json_api.json').read
-      temp = JSON.parse(temp)
-      attributes = temp['data']['attributes']
-      attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
-      attributes['serviceInformation']['servicePeriods'][-1]['activeDutyEndDate'] = active_duty_end_date
-
-      temp.to_json
-    end
-
-    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', 'generate_pdf_526.json').read }
-    let(:veteran_id) { '1012832025V743496' }
-    let(:generate_pdf_scopes) { %w[system/526-pdf.override] }
-    let(:invalid_scopes) { %w[claim.write claim.read] }
-    let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF/minimum-validations" }
-    let(:special_issues) { ['POW'] }
-
-    context 'submission to generatePDF' do
-      it 'returns a 200 response when successful' do
-        mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-          post generate_pdf_path, params: data, headers: auth_header
-          expect(response.header['Content-Disposition']).to include('filename')
-          expect(response).to have_http_status(:ok)
-        end
-      end
-
-      it 'returns a 200 response when specialIssues is present for a disability' do
-        json = JSON.parse data
-        json['data']['attributes']['disabilities'][0]['specialIssues'] = special_issues
-        data = json.to_json
-        mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-          post generate_pdf_path, params: data, headers: auth_header
-          expect(response).to have_http_status(:ok)
-        end
-      end
-
-      it 'returns a 401 unauthorized with incorrect scopes' do
-        mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
-          post generate_pdf_path, params: data, headers: auth_header
-          expect(response).to have_http_status(:unauthorized)
-        end
-      end
-
-      context 'when invalid JSON is submitted' do
-        it 'returns a 422 response' do
-          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-            post generate_pdf_path, params: {}, headers: auth_header
-            expect(response).to have_http_status(:unprocessable_entity)
-          end
-        end
-      end
-
-      context 'handling for missing first and last name' do
-        context 'without the first and last name present' do
-          it 'does not allow the generatePDF call to occur' do
-            mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
-              allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
-                .to receive(:veteran_middle_initial).and_return('')
-
-              post generate_pdf_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-              expect(response.parsed_body['errors'][0]['detail']).to eq('Must have either first or last name')
-            end
-          end
-        end
-
-        context 'without the first name present' do
-          it 'allows the generatePDF call to occur' do
-            mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:target_veteran).and_return(no_first_name_target_veteran)
-              allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
-                .to receive(:veteran_middle_initial).and_return('')
-
-              post generate_pdf_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
-            end
-          end
-        end
-      end
-
-      def set_international_address(json, address_type)
-        address_hash = address_type.reduce(json['data']['attributes']) { |acc, key| acc[key] }
-        address_hash.merge!(
-          'addressLine1' => '1-1',
-          'addressLine2' => 'Yoyogi Kamizono-cho',
-          'addressLine3' => 'Shibuya-ku',
-          'city' => 'Tokyo',
-          'internationalPostalCode' => '151-8557',
-          'country' => 'Japan'
-        )
-        address_hash.delete('state')
-      end
-
-      context 'when the mailing address is international' do
-        it 'returns a 200 response' do
-          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-            json = JSON.parse(data)
-            set_international_address(json, %w[veteranIdentification mailingAddress])
-            data = json.to_json
-            post(generate_pdf_path, params: data, headers: auth_header)
-            expect(response).to have_http_status(:ok)
-          end
-        end
-      end
-
-      context 'when the change of address is international' do
-        it 'returns a 200 response' do
-          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-            json = JSON.parse(data)
-            set_international_address(json, ['changeOfAddress'])
-            data = json.to_json
-            post(generate_pdf_path, params: data, headers: auth_header)
-            expect(response).to have_http_status(:ok)
-          end
-        end
-      end
-
-      context 'when the PDF string is not generated' do
-        it 'returns a 422 response when empty object is returned' do
-          allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
-            .to receive(:generate_526_pdf)
-            .and_return({})
-
-          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-            post generate_pdf_path, params: data, headers: auth_header
-            expect(response).to have_http_status(:unprocessable_entity)
-          end
-        end
-
-        it 'returns a 422 response if nil gets returned' do
-          allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
-            .to receive(:generate_526_pdf)
-            .and_return(nil)
-
-          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-            post generate_pdf_path, params: data, headers: auth_header
-            expect(response).to have_http_status(:unprocessable_entity)
-          end
-        end
-      end
-
-      context 'when overflow text is provided' do
-        it 'responds with a 200' do
-          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-            post generate_pdf_path, params: data, headers: auth_header
-            expect(response).to have_http_status(:ok)
-          end
-        end
-      end
-
-      context 'when overflow text is not provided' do
-        it 'responds with a 200' do
-          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
-            json = JSON.parse(data)
-            json['data']['attributes']['claimNotes'] = nil
-            data = json.to_json
-            post generate_pdf_path, params: data, headers: auth_header
-            expect(response).to have_http_status(:ok)
-          end
         end
       end
     end
@@ -4814,8 +4362,10 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         it 'does not allow the submit to occur' do
           mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
             VCR.use_cassette('claims_api/disability_comp') do
+              target_veteran.first_name = ''
+              target_veteran.last_name = ''
               allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
+                .to receive(:target_veteran).and_return(target_veteran)
               post synchronous_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
               expect(response.parsed_body['errors'][0]['detail']).to eq('Missing first and last name')

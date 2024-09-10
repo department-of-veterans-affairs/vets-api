@@ -17,21 +17,17 @@ module Mobile
       vaos_facilities[:data]
     end
 
-    def get_facilities(facility_ids, v1_facilties_flag)
-      facilities_service(v1_facilties_flag).get_facilities(ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(','))
+    def get_facilities(facility_ids)
+      facilities_service.get_facilities(ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(','))
     end
 
-    def get_facility_names(facility_ids, v1_facilties_flag)
-      facilities = get_facilities(facility_ids, v1_facilties_flag)
+    def get_facility_names(facility_ids)
+      facilities = get_facilities(facility_ids)
       facilities.map(&:name)
     end
 
-    def facilities_service(v1_facilties_flag)
-      if v1_facilties_flag
-        Lighthouse::Facilities::V1::Client.new
-      else
-        Lighthouse::Facilities::Client.new
-      end
+    def facilities_service
+      Lighthouse::Facilities::V1::Client.new
     end
 
     def address_from_facility(facility)
