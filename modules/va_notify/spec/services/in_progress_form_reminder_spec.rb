@@ -36,6 +36,28 @@ describe VANotify::InProgressFormReminder, type: :worker do
       expect(VANotify::IcnJob).not_to have_received(:perform_async)
     end
 
+    it 'rescues VANotify::Veteran::MPIError and returns nil' do
+      allow(VANotify::IcnJob).to receive(:perform_async)
+      allow(VANotify::Veteran).to receive(:new).and_raise(VANotify::Veteran::MPIError)
+
+      result = Sidekiq::Testing.inline! do
+        described_class.new.perform(in_progress_form.id)
+      end
+
+      expect(result).to eq(nil)
+    end
+
+    it 'rescues VANotify::Veteran::MPINameError and returns nil' do
+      allow(VANotify::IcnJob).to receive(:perform_async)
+      allow(VANotify::Veteran).to receive(:new).and_raise(VANotify::Veteran::MPINameError)
+
+      result = Sidekiq::Testing.inline! do
+        described_class.new.perform(in_progress_form.id)
+      end
+
+      expect(result).to eq(nil)
+    end
+
     describe 'single relevant in_progress_form' do
       it 'delegates to VANotify::IcnJob' do
         user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name')
