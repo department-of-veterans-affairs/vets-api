@@ -3306,7 +3306,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
                 'file_name' => 'lgy_file.pdf'
               }]
             }
-            expect(subject).to validate(:post, '/v0/coe/document_upload', 200, headers.merge({ '_data' => params }))
+            expect(subject).to validate(:post, '/v0/coe/document_upload', 201, headers.merge({ '_data' => params }))
           end
         end
       end
