@@ -15,26 +15,19 @@ class BenefitsIntakeRemediationStatusJob
     @total_handled = 0
   end
 
+  def debug(msg)
+    puts
+    puts "#{msg}"
+    puts
+  end
+
   def perform
     Rails.logger.info('BenefitsIntakeRemediationStatusJob started')
 
-    form_submissions = FormSubmission.includes(:form_submission_attempts)
-    form_submission_groups = form_submissions.group(:form_type)
-
-    started = form_submission_groups.minimum(:created_at)
-    started.each do |form_id, created_at|
-      claim_ids = SavedClaim.where(form_id:).where("created_at > ?", created_at:).map(&:id).uniq
-      fs_saved_claim_ids = form_submission_groups[form_id].map(&:saved_claim_id).uniq
-
-
-      puts "#{form_id} - #{created_at}"
-      puts "UNSUBMITTED CLAIMS: #{claim_ids - fs_saved_claim_ids}"
-      puts "ORPHAN SUBMISSION: #{fs_saved_claim_ids - claim_ids}"
-    end
-
-    return
+    record_unsubmitted_and_orphaned
 
     failed = form_submissions.where(form_submission_attempts: { aasm_state: 'failure' })
+    outstanding = failed.reject { |fs| fs.form_submission_attempts.find_by(aasm_state: 'vbms') }
 
     batch_process(submissions)
 
@@ -45,6 +38,21 @@ class BenefitsIntakeRemediationStatusJob
 
   attr_reader :batch_size
   attr_accessor :total_handled
+
+  def record_unsubmitted_and_orphaned
+    form_submission_groups =  form_submissions.all.group_by { |fs| fs.form_type }
+
+    form_submission_groups.each do |form_id, submissions|
+      fs_saved_claim_ids = submissions.map(&:saved_claim_id).uniq
+
+      claims = SavedClaim.where(form_id:).where('saved_claims.created_at > ?', submissions.minimum(:created_at))
+      claim_ids = claims.map(&:id).uniq
+
+      puts "UNSUBMITTED CLAIMS: #{claim_ids - fs_saved_claim_ids}"
+      puts "ORPHAN SUBMISSION: #{fs_saved_claim_ids - claim_ids}"
+      # log metrics/list
+    end
+  end
 
   def batch_process(submissions)
     intake_service = BenefitsIntake::Service.new
@@ -97,6 +105,10 @@ class BenefitsIntakeRemediationStatusJob
     end
   end
   # rubocop:enable Metrics/MethodLength
+
+  def form_submissions
+    @form_submissions ||= FormSubmission.includes(:form_submission_attempts)
+  end
 
   def log_result(result, form_id, uuid, time_to_transition = nil)
     StatsD.increment("#{STATS_KEY}.#{form_id}.#{result}")
