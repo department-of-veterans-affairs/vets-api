@@ -63,16 +63,18 @@ module ClaimsApi
       def validate_form_526_change_of_address
         return if form_attributes['changeOfAddress'].blank?
 
-        validate_form_526_change_of_address_required_fields
-        validate_form_526_change_of_address_beginning_date
-        validate_form_526_change_of_address_ending_date
+        change_of_address = form_attributes['changeOfAddress']
+
+        validate_form_526_address_type(change_of_address)
+        validate_form_526_change_of_address_required_fields(change_of_address)
+        validate_form_526_change_of_address_beginning_date(change_of_address)
+        validate_form_526_change_of_address_ending_date(change_of_address)
         validate_form_526_change_of_address_country
         validate_form_526_change_of_address_state
         validate_form_526_change_of_address_zip
       end
 
-      def validate_form_526_change_of_address_required_fields
-        change_of_address = form_attributes['changeOfAddress']
+      def validate_form_526_change_of_address_required_fields(change_of_address)
         coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
 
         form_object_desc = '/changeOfAddress'
@@ -80,8 +82,7 @@ module ClaimsApi
         collect_error_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
       end
 
-      def validate_form_526_change_of_address_beginning_date
-        change_of_address = form_attributes['changeOfAddress']
+      def validate_form_526_change_of_address_beginning_date(change_of_address)
         date = change_of_address.dig('dates', 'beginDate')
 
         # If the date parse fails, then fall back to the InvalidFieldValue
@@ -92,8 +93,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_change_of_address_ending_date
-        change_of_address = form_attributes&.dig('changeOfAddress')
+      def validate_form_526_change_of_address_ending_date(change_of_address)
         date = change_of_address&.dig('dates', 'endDate')
         return if date.nil? # nullable on schema
 
@@ -163,16 +163,16 @@ module ClaimsApi
       def validate_form_526_identification
         return if form_attributes['veteranIdentification'].blank?
 
-        validate_form_526_address_type
+        addr = form_attributes.dig('veteranIdentification', 'mailingAddress')
+
+        validate_form_526_address_type(addr)
         validate_form_526_current_mailing_address_country
         validate_form_526_current_mailing_address_state
         validate_form_526_current_mailing_address_zip
         validate_form_526_service_number
       end
 
-      def validate_form_526_address_type
-        addr = form_attributes.dig('veteranIdentification', 'mailingAddress')
-
+      def validate_form_526_address_type(addr)
         validate_military_address(addr) if address_is_military?(addr)
       end
 
