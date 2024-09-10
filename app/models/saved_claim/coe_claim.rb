@@ -20,9 +20,13 @@ class SavedClaim::CoeClaim < SavedClaim
       response['reference_number']
     end
   rescue Common::Client::Errors::ClientError => e
-    raise e unless [502, 503].include(e.status)
+    if [502, 503].include(e.status)
+      Rails.logger.info('Received LGY API error:', { status: e.status, messsage: e.message, body: e.body })
+    else
+      Rails.logger.error('Received LGY error:', { status: e.status, messsage: e.message, body: e.body })
+    end
 
-    Rails.logger.info('Received LGY server error:', { status: e.status, messsage: e.message, body: e.body })
+    raise e
   end
 
   def regional_office
