@@ -81,7 +81,7 @@ module ClaimsApi
       end
 
       def validate_form_526_change_of_address_beginning_date
-        change_of_address = form_attributes&.dig('changeOfAddress')
+        change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'beginDate')
 
         # If the date parse fails, then fall back to the InvalidFieldValue
@@ -93,7 +93,7 @@ module ClaimsApi
       end
 
       def validate_form_526_change_of_address_ending_date
-        change_of_address = form_attributes['changeOfAddress']
+        change_of_address = form_attributes&.dig('changeOfAddress')
         date = change_of_address&.dig('dates', 'endDate')
         return if date.nil? # nullable on schema
 
