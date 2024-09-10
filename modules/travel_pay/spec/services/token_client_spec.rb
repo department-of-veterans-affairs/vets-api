@@ -37,9 +37,6 @@ describe TravelPay::TokenClient do
 
   context 'request_btsss_token' do
     before do
-      # allow_any_instance_of(TravelPay::TokenService)
-      #   .to receive(:request_veis_token)
-      #   .and_return('veis_token')
       allow_any_instance_of(TravelPay::TokenClient)
         .to receive(:request_sts_token)
         .and_return('sts_token')

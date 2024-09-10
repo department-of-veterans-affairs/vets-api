@@ -12,12 +12,6 @@ module TravelPay
     # @return [TravelPay::Claim]
     #
     def get_claims(veis_token, btsss_token)
-      # veis_token = token_service.request_veis_token
-
-      # sts_token = request_sts_token(current_user)
-      # btsss_token = request_btsss_token(veis_token, sts_token)
-      # btsss_token = token_service.request_btsss_token(veis_token, current_user)
-
       request_claims(veis_token, btsss_token)
     end
 
