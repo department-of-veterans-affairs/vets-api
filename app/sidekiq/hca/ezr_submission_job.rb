@@ -6,17 +6,32 @@ require 'form1010_ezr/service'
 module HCA
   class EzrSubmissionJob
     include Sidekiq::Job
-    include SentryLogging
+    extend SentryLogging
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError
+    STATSD_KEY_PREFIX = 'api.1010ezr'
 
+    # 14 retries was decided on because it's the closest to a 24-hour time span based on
+    # Sidekiq's backoff formula: https://github.com/sidekiq/sidekiq/wiki/Error-Handling#automatic-job-retry
     sidekiq_options retry: 14
 
     sidekiq_retries_exhausted do |msg, _e|
-      log_submission_failure(decrypt_form(msg['args'][0]))
-    end
+      parsed_form = decrypt_form(msg['args'][0])
 
-    def self.log_submission_failure(parsed_form)
-      Form1010Ezr::Service.new(nil).log_submission_failure(parsed_form)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failed_wont_retry")
+
+      if parsed_form.present?
+        PersonalInformationLog.create!(
+          data: parsed_form,
+          error_class: 'Form1010Ezr FailedWontRetry'
+        )
+
+        log_message_to_sentry(
+          '1010EZR total failure',
+          :error,
+          Form1010Ezr::Service.new(nil).veteran_initials(parsed_form),
+          ezr: :total_failure
+        )
+      end
     end
 
     def self.decrypt_form(encrypted_form)
@@ -29,10 +44,10 @@ module HCA
 
       Form1010Ezr::Service.new(user).submit_sync(parsed_form)
     rescue VALIDATION_ERROR => e
-      self.class.log_submission_failure(parsed_form)
-      log_exception_to_sentry(e)
+      Form1010Ezr::Service.new(nil).log_submission_failure(parsed_form)
+      self.class.log_exception_to_sentry(e)
     rescue
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.async.retries")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.async.retries")
       raise
     end
   end

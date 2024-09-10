@@ -5,7 +5,14 @@ http_interactions:
     uri: https://sandbox-api.va.gov/services/claims/v2/veterans/1008596379V859838/claims/600397108/5103
     body:
       encoding: UTF-8
-      string: "{}"
+      string: "{
+        \"data\": {
+          \"type\": 'form/5103',
+          \"attributes\": {
+            \"trackedItemIds\": [null]
+          }
+        }
+      }"
     headers:
       Accept:
       - application/json

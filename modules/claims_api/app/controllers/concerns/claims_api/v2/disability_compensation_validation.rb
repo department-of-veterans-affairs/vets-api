@@ -732,7 +732,7 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_location_codes(service_information)
+      def validate_form_526_location_codes(service_information) # rubocop:disable Metrics/MethodLength
         service_periods = service_information['servicePeriods']
         any_code_present = service_periods.any? do |service_period|
           service_period['separationLocationCode'].present?
@@ -753,7 +753,12 @@ module ClaimsApi
         separation_location_ids = separation_locations.pluck(:id).to_set(&:to_s)
 
         service_periods.each_with_index do |service_period, idx|
-          next if separation_location_ids.include?(service_period['separationLocationCode'])
+          separation_location_code = service_period['separationLocationCode']
+
+          next if separation_location_ids.include?(separation_location_code)
+
+          ClaimsApi::Logger.log('separation_location_codes', detail: 'Separation location code not found',
+                                                             separation_locations:, separation_location_code:)
 
           collect_error_messages(
             source: "/serviceInformation/servicePeriods/#{idx}/separationLocationCode",
