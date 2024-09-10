@@ -14,7 +14,7 @@ module SimpleFormsApi
         result_dir = runner.run
         log_info("Job completed successfully. Results saved in directory: #{result_dir}")
       rescue => e
-        handle_job_error(e)
+        handle_error('SubmissionArchiveHandlerJob failed.', e)
       end
 
       private
@@ -27,11 +27,6 @@ module SimpleFormsApi
           parent_dir: 'vff-simple-forms', # S3 bucket base directory where files live
           signed_link: false # TODO: Will we ever need to make this optional?
         }
-      end
-
-      def handle_job_error(error)
-        log_error('SubmissionArchiveHandlerJob failed.', error)
-        raise error
       end
     end
   end

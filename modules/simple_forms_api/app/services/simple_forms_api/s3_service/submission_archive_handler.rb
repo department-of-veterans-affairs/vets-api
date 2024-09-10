@@ -69,12 +69,7 @@ module SimpleFormsApi
       end
 
       def process_submission(submission_id)
-        ArchiveSubmissionToPdf.new(
-          file_path:,
-          metadata:,
-          parent_dir:,
-          submission_id:
-        ).run
+        ArchiveSubmissionToPdf.new(file_path:, metadata:, parent_dir:, submission_id:).run
       rescue => e
         handle_error("Submission archiver failure: #{submission_id}", e, submission_id:)
       end
