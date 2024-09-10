@@ -1451,7 +1451,7 @@ module Swagger
       end
 
       swagger_path '/v0/profile/contacts/{id}' do
-        operation :patch do
+        operation :put do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::ForbiddenError
 

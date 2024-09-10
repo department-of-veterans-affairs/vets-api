@@ -81,8 +81,8 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
     end
   end
 
-  describe 'PUT/PATCH /v0/profile/contacts' do
-    subject { patch :update, params: { id: 1 } }
+  describe 'PUT /v0/profile/contacts' do
+    subject { put :update, params: { id: 1 } }
 
     context 'feature toggle is enabled' do
       before { Flipper.enable(:profile_contacts_create_update_delete_enabled) }

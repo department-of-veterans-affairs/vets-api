@@ -28,7 +28,12 @@ module Swagger::Schemas
       )
       property :given_name, type: :string
       property :family_name, type: :string
-      property :relationship, type: :string, nullable: true
+      property(
+        :relationship,
+        type: :string,
+        enum: VAProfile::Models::AssociatedPerson::RELATIONSHIPS,
+        nullable: true
+      )
       property :address_line1, type: :string, nullable: true
       property :address_line2, type: :string, nullable: true
       property :address_line3, type: :string, nullable: true

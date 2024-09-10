@@ -3346,9 +3346,9 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         end
       end
 
-      context 'patch request' do
+      context 'put request' do
         it 'returns 200 success status code' do
-          expect(subject).to validate(:patch, '/v0/profile/contacts', 200, headers)
+          expect(subject).to validate(:put, '/v0/profile/contacts', 200, headers)
         end
       end
 

@@ -23,11 +23,11 @@ module V0
         render json: {}, status: :created
       end
 
-      # PUT/PATCH /v0/profile/contacts
+      # PUT /v0/profile/contacts
       def update
         # use write_service to update a record
 
-        # placeholder response
+        # placeholder response. use 'status: :accepted' if data is not immediately available
         render json: {}, status: :ok
       end
 
