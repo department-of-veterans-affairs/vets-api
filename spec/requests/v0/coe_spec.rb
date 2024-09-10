@@ -87,6 +87,34 @@ Rspec.describe 'V0::Coe', type: :request do
         end
       end
 
+      context 'when receiving 504 from LGY post_document' do
+        it 'adds an attachment tag to the document\'s description' do
+          attachments = {
+            'files' => [{
+              'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+              'document_type' => 'VA home loan documents',
+              'file_type' => 'pdf',
+              'file_name' => 'lgy_file.pdf'
+            }]
+          }
+          expected_payload = {
+            'documentType' => 'pdf',
+            'description' => 'VA home loan documents',
+            'contentsBase64' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+            'fileName' => 'lgy_file.pdf'
+          }
+
+          error = Common::Client::Errors::ClientError.new('Gateway Timeout', 504,
+                                                          'The Service is Down For Maintenance')
+          expect_any_instance_of(LGY::Service).to receive(:post_document).with(payload: expected_payload)
+                                                                         .and_raise(error)
+
+          expect(Rails.logger).to receive(:info)
+          post('/v0/coe/document_upload', params: attachments)
+          expect(response).to have_http_status(:gateway_timeout)
+        end
+      end
+
       it 'adds an attachment tag to the document\'s description' do
         attachments = {
           'files' => [{

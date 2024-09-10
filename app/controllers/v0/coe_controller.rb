@@ -59,7 +59,7 @@ module V0
           status = doc_status unless doc_status == 201
         end
       end
-      render(json: status)
+      render(json: status, status:)
     end
 
     def post_document(document_data)
