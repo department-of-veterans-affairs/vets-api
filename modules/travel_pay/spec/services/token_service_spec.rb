@@ -7,8 +7,8 @@ describe TravelPay::TokenService do
     let(:user) { build(:user) }
     let(:tokens) do
       {
-        veis_token => 'veis_token',
-        btsss_token => 'btsss_token'
+        veis_token: 'fake_veis_token',
+        btsss_token: 'fake_btsss_token'
       }
     end
     let(:tokens_response) do
@@ -19,9 +19,20 @@ describe TravelPay::TokenService do
 
     before do
       allow_any_instance_of(TravelPay::TokenClient)
-        .to receive(:get_tokens)
-        .with(user)
-        .and_return(tokens_response)
+        .to receive(:request_veis_token)
+        .and_return(tokens[:veis_token])
+      allow_any_instance_of(TravelPay::TokenClient)
+        .to receive(:request_btsss_token)
+        .with(tokens[:veis_token], user)
+        .and_return(tokens[:btsss_token])
+    end
+
+    context 'get_tokens' do
+      it 'returns a hash with a veis_token and a btsss_token' do
+        service = TravelPay::TokenService.new
+        response = service.get_tokens(user)
+        expect(response).to eq(tokens)
+      end
     end
   end
 end
