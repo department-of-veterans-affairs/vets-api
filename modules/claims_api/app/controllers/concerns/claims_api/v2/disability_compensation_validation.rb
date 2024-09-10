@@ -724,13 +724,15 @@ module ClaimsApi
           return
         end
 
-        ClaimsApi::Logger.log('separation_location_codes', detail: 'Retrieved separation locations',
-                                                           separation_locations:)
-
         separation_location_ids = separation_locations.pluck(:id).to_set(&:to_s)
 
         service_periods.each_with_index do |service_period, idx|
-          next if separation_location_ids.include?(service_period['separationLocationCode'])
+          separation_location_code = service_period['separationLocationCode']
+
+          next if separation_location_ids.include?(separation_location_code)
+
+          ClaimsApi::Logger.log('separation_location_codes', detail: 'Separation location code not found',
+                                                             separation_locations:, separation_location_code:)
 
           collect_error_messages(
             source: "/serviceInformation/servicePeriods/#{idx}/separationLocationCode",
