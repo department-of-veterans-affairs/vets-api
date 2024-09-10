@@ -621,7 +621,6 @@ RSpec/ClassCheck:
     - 'spec/controllers/v0/virtual_agent/virtual_agent_claim_spec.rb'
     - 'spec/lib/common/models/redis_store_spec.rb'
     - 'spec/lib/iam_ssoe_oauth/session_manager_spec.rb'
-    - 'spec/requests/v1/facilities/va_request_spec.rb'
 
 # Offense count: 67
 # This cop supports safe autocorrection (--autocorrect).
@@ -674,7 +673,7 @@ RSpec/NoExpectationExample:
     - 'modules/check_in/spec/request/v2/sessions_request_spec.rb'
     - 'modules/claims_api/spec/requests/v1/disability_compensation_request_spec.rb'
     - 'modules/claims_api/spec/sidekiq/poa_vbms_updater_spec.rb'
-    - 'modules/va_forms/spec/requests/metadata_request_spec.rb'
+    - 'modules/va_forms/spec/requests/metadata_spec.rb'
     - 'spec/config/initializers/staccato_spec.rb'
     - 'spec/controllers/application_controller_spec.rb'
     - 'spec/controllers/v0/profile/ch33_bank_accounts_controller_spec.rb'
@@ -1051,7 +1050,6 @@ Rails/Pluck:
     - 'rakelib/decision_review_repl.rb'
     - 'spec/controllers/v0/onsite_notifications_controller_spec.rb'
     - 'spec/lib/lighthouse/veterans_health/integration/client_spec.rb'
-    - 'spec/requests/v1/facilities/va_request_spec.rb'
     - 'spec/services/users/profile_spec.rb'
     - 'spec/support/request_helper.rb'
 

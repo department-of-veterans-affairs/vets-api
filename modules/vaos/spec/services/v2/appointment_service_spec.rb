@@ -1384,4 +1384,46 @@ describe VAOS::V2::AppointmentsService do
       end
     end
   end
+
+  describe '#extract_appointment_fields' do
+    it 'do not overwrite existing preferred dates' do
+      # Note that the va_proposed appointment here contains both a reason code text and
+      # requested periods which will not occur in a real scenario. However the example
+      # demonstrates that the preferred dates from reason code text are not overwritten.
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text, user:).attributes
+      subject.send(:extract_appointment_fields, appt)
+      expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
+                                            'Wed, June 26, 2024 in the afternoon'])
+    end
+
+    it 'extracts preferred dates if possible' do
+      appt = FactoryBot.build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
+      subject.send(:extract_appointment_fields, appt)
+      expect(appt[:preferred_dates]).to eq(['Wed, August 28, 2024 in the morning',
+                                            'Wed, August 28, 2024 in the afternoon'])
+    end
+
+    it 'do not extract preferred dates if no requested periods' do
+      appt = FactoryBot.build(:appointment_form_v2, :community_cares_no_request_dates, user:).attributes
+      subject.send(:extract_appointment_fields, appt)
+      expect(appt[:preferred_dates]).to be_nil
+    end
+  end
+
+  describe '#extract_request_preferred_dates' do
+    let(:appt_no_req_periods) do
+      { id: '12345', requestedPeriods: [{ start: nil, end: nil }] }
+    end
+
+    it 'does not extract when requested period start is nil' do
+      subject.send(:extract_request_preferred_dates, appt_no_req_periods)
+      expect(appt_no_req_periods[:preferred_dates]).to be_nil
+    end
+
+    it 'extracts when requested period start is present' do
+      appt = FactoryBot.build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
+      subject.send(:extract_request_preferred_dates, appt)
+      expect(appt[:preferred_dates]).not_to be_nil
+    end
+  end
 end
