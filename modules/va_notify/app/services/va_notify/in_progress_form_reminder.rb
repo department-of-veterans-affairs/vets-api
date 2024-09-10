@@ -8,6 +8,8 @@ module VANotify
     include SentryLogging
     sidekiq_options retry: 14
 
+    class MissingICN < StandardError; end
+
     def perform(form_id)
       @in_progress_form = InProgressForm.find(form_id)
       return unless enabled?
