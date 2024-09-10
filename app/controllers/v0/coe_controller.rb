@@ -66,7 +66,7 @@ module V0
             # and have not been corrected yet. We would like to seperate these from our monitoring for now
             # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/90411
             # and https://github.com/department-of-veterans-affairs/va.gov-team/issues/91111
-            if (502..504).include(e.status)
+            if [503, 504].include(e.status)
               Rails.logger.info('LGY server unavailable or unresponsive',
                                 { status: e.status, messsage: e.message, body: e.body })
             else
