@@ -119,7 +119,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             allow_any_instance_of(BenefitsIntake::Service).to receive(:request_upload)
               .and_return([hardcoded_location_url, benefits_intake_uuid])
             allow(SimpleFormsApi::S3Service::SubmissionArchiveHandler).to receive(:new)
-              .with(benefits_intake_uuid:)
+              .with(benefits_intake_uuid:, file_path: anything)
               .and_return(submission_archive_handler)
 
             post '/simple_forms_api/v1/simple_forms', params: data

@@ -132,10 +132,7 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, uuid: confirmation_number }
         )
 
-        submission_archive_handler = SimpleFormsApi::S3Service::SubmissionArchiveHandler.new(
-          benefits_intake_uuid: confirmation_number
-        )
-        presigned_s3_url = submission_archive_handler.run
+        presigned_s3_url = send_pdf_to_s3(confirmation_number, file_path)
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           SimpleFormsApi::ConfirmationEmail.new(
@@ -218,6 +215,14 @@ module SimpleFormsApi
           document: file_path,
           upload_url: location
         )
+      end
+
+      def send_pdf_to_s3(confirmation_number, file_path)
+        submission_archive_handler = SimpleFormsApi::S3Service::SubmissionArchiveHandler.new(
+          benefits_intake_uuid: confirmation_number,
+          file_path:
+        )
+        submission_archive_handler.run
       end
 
       def form_is264555_and_should_use_lgy_api
