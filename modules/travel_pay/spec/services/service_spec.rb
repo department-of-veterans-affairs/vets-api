@@ -93,7 +93,7 @@ describe TravelPay::Service do
         expect(claims[:data].count).to equal(claims_data['data'].count)
       end
       
-      it 'returns all clailms if appt date is not specified' do
+      it 'returns all claims if appt date is not specified' do
         service = TravelPay::Service.new
         claims_empty_date = service.get_claims(user, {'appt_datetime' => ''})
         claims_nil_date = service.get_claims(user, {'appt_datetime' => 'banana'})
