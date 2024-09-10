@@ -670,9 +670,6 @@ features:
     actor_type: user
     description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
-  simple_forms_lighthouse_benefits_intake_service:
-    actor_type: user
-    description: Enables use of the Lighthouse BenefitsIntake::Service instead of the SimpleFormsApiSubmission::Service
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
