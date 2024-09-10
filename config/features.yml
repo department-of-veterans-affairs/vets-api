@@ -1057,9 +1057,6 @@ features:
   my_va_enable_mhv_link:
     actor_type: user
     description: Enables the "Visit MHV" CTA link under Health care section
-  my_va_enable_new_sip_config:
-    actor_type: user
-    description: Enables use of the new SiP configuration
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
@@ -1598,9 +1595,6 @@ features:
   pension_browser_monitoring_enabled:
     actor_type: user
     description: Pension Datadog RUM monitoring
-  pension_claim_submission_to_lighthouse:
-    actor_type: user
-    description: Pension claim submission uses Lighthouse API
   pension_multiple_page_response:
     actor_type: user
     description: Implement multiple page response pattern
@@ -1617,9 +1611,6 @@ features:
   pension_confirmation_update:
     actor_type: user
     description: Show updated confirmation page
-  pension_module_enabled:
-    actor_type: user
-    description: Enable the pension module routes
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
