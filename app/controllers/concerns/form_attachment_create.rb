@@ -2,6 +2,7 @@
 
 module FormAttachmentCreate
   extend ActiveSupport::Concern
+  include SentryLogging
 
   def create
     validate_file_upload_class!
@@ -22,14 +23,23 @@ module FormAttachmentCreate
     unless filtered_params[:file_data].class.name.include? 'UploadedFile'
       raise Common::Exceptions::InvalidFieldValue.new('file_data', filtered_params[:file_data].class.name)
     end
+  rescue => e
+    log_exception_to_sentry(e, { context: 'FAC_validate', class: filtered_params[:file_data].class.name })
+    raise e
   end
 
   def save_attachment_to_cloud!
     form_attachment.set_file_data!(filtered_params[:file_data], filtered_params[:password])
+  rescue => e
+    log_exception_to_sentry(e, { context: 'FAC_cloud' })
+    raise e
   end
 
   def save_attachment_to_db!
     form_attachment.save!
+  rescue => e
+    log_exception_to_sentry(e, { context: 'FAC_db', errors: form_attachment.errors })
+    raise e
   end
 
   def form_attachment
