@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
+require_relative 'lighthouse_military_address_validator'
+
 module ClaimsApi
   module V2
     class DisabilityCompensationEvssMapper
-      MILITARY_CITY_CODES = %w[
-        APO
-        FPO
-        DPO
-      ].freeze
+      include LighthouseMilitaryAddressValidator
 
       def initialize(auto_claim)
         @auto_claim = auto_claim
@@ -53,23 +51,18 @@ module ClaimsApi
       end
 
       def current_mailing_address
-        if address_is_military?
+        if address_is_military?(@data.dig(:veteranIdentification, :mailingAddress))
           handle_military_address
         else
           handle_domestic_or_international_address
         end
       end
 
-      def address_is_military?
-        city = @data.dig(:veteranIdentification, :mailingAddress, :city)&.strip&.upcase
-        MILITARY_CITY_CODES.include?(city)
-      end
-
       def handle_military_address
         addr = @data.dig(:veteranIdentification, :mailingAddress) || {}
         type = 'MILITARY'
-        addr[:militaryPostOfficeTypeCode] = addr[:city]&.strip&.upcase
-        addr[:militaryStateCode] = addr[:state]&.upcase
+        addr[:militaryPostOfficeTypeCode] = military_city(addr)
+        addr[:militaryStateCode] = military_state(addr)
 
         addr.delete(:city)
         addr.delete(:state)

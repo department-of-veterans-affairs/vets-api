@@ -98,7 +98,6 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           form_data['data']['attributes']['veteranIdentification'] = veteran_identification
           auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
           evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
-
           addr = evss_data[:veteran][:currentMailingAddress]
           expect(addr[:addressLine1]).to eq('CMR 468 Box 1181')
           expect(addr[:militaryPostOfficeTypeCode]).to eq('APO')
