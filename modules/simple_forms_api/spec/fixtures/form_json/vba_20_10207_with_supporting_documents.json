@@ -68,54 +68,54 @@
   "statement_of_truth_signature": "John Veteran",
   "financial_hardship_documents": [
     {
-      "file_name": "Test File Name",
-      "file_size": 100,
-      "confirmation_number": "a-random-uuid",
+      "file_name": "Test File 01",
+      "file_size": 10,
+      "confirmation_code": "a-random-uuid-1",
       "error_message": "",
       "uploading": ""
     }
   ],
   "terminal_illness_documents": [
     {
-      "file_name": "Test File Name",
-      "file_size": 100,
-      "confirmation_number": "a-random-uuid",
+      "file_name": "Test File 02",
+      "file_size": 11,
+      "confirmation_code": "a-random-uuid-2",
       "error_message": "",
       "uploading": ""
     }
   ],
   "als_documents": [
     {
-      "file_name": "Test File Name",
-      "file_size": 100,
-      "confirmation_number": "a-random-uuid",
+      "file_name": "Test File 03",
+      "file_size": 12,
+      "confirmation_code": "a-random-uuid-3",
       "error_message": "",
       "uploading": ""
     }
   ],
   "vsi_documents": [
     {
-      "file_name": "Test File Name",
-      "file_size": 100,
-      "confirmation_number": "a-random-uuid",
+      "file_name": "Test File 04",
+      "file_size": 13,
+      "confirmation_code": "a-random-uuid-4",
       "error_message": "",
       "uploading": ""
     }
   ],
   "pow_documents": [
     {
-      "file_name": "Test File Name",
-      "file_size": 100,
-      "confirmation_number": "a-random-uuid",
+      "file_name": "Test File 05",
+      "file_size": 14,
+      "confirmation_code": "a-random-uuid-5",
       "error_message": "",
       "uploading": ""
     }
   ],
   "medal_award_documents": [
     {
-      "file_name": "Test File Name",
-      "file_size": 100,
-      "confirmation_number": "a-random-uuid",
+      "file_name": "Test File 06",
+      "file_size": 15,
+      "confirmation_code": "a-random-uuid-6",
       "error_message": "",
       "uploading": ""
     }

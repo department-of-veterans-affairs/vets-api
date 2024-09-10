@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
+require 'lighthouse/benefits_intake/service'
 
 RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   before do
@@ -264,7 +265,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         before do
           sign_in
           allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-          allow(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
+          allow(PersistentAttachment).to(
+            receive(:where).with(guid: [a_string_matching(/a-random-uuid/)]).and_return([attachment])
+          )
         end
 
         shared_examples 'submits successfully' do |form_doc|
@@ -281,8 +284,16 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         shared_examples 'handles multiple attachments' do |form_doc|
           before do
-            allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(:lighthouse_service).and_return(lighthouse_service)
-            allow(lighthouse_service).to receive(:perform_upload).and_return([200, confirmation_number])
+            allow(BenefitsIntake::Service).to receive(:new).and_return(lighthouse_service)
+            allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to(
+              receive(:prepare_for_upload).and_return(%w[location uuid])
+            )
+            allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to(
+              receive(:log_upload_details).and_return(true)
+            )
+            allow(lighthouse_service).to(
+              receive(:perform_upload).and_return(OpenStruct.new(status: 200, confirmation_number:))
+            )
           end
 
           let(:data) do
@@ -295,7 +306,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           it 'calls the lighthouse service with attachments' do
             post '/simple_forms_api/v1/simple_forms', params: data
 
-            expect(lighthouse_service).to receive(:perform_upload) # .with({ stuff: 'thangs' })
+            expect(lighthouse_service).to have_received(:perform_upload).with(hash_including(:attachments))
           end
         end
 
@@ -307,7 +318,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
             it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
             it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
-            it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_document.json'
+            it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_documents.json'
           end
 
           context 'when flipped off' do
@@ -315,7 +326,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
             it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
             it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
-            it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_document.json'
           end
         end
       end

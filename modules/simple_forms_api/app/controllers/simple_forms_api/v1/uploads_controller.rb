@@ -216,7 +216,7 @@ module SimpleFormsApi
           metadata: metadata.to_json,
           document: file_path,
           upload_url: location,
-          attachments: form.data[:form_id] == 'vba_20_10207' ? form.get_attachments : nil
+          attachments: get_form_id == 'vba_20_10207' ? form.get_attachments : nil
         }.compact
 
         lighthouse_service.perform_upload(**upload_params)
