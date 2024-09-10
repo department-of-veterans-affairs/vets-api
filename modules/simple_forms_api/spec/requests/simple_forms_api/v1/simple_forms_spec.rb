@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
+require 'lighthouse/benefits_intake/service'
 require 'common/file_helpers'
 
 RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
@@ -111,11 +112,12 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           end
 
           it 'sends the PDF to the SimpleFormsApi::S3Service::SubmissionArchiveHandler' do
+            hardcoded_location_url = 'https://sandbox-api.va.gov/services_user_content/vba_documents/id-path-doesnt-matter'
             benefits_intake_uuid = 'some-benefits-intake-uuid'
             presigned_s3_url = 'some-presigned-url'
             submission_archive_handler = double(run: presigned_s3_url)
-            allow_any_instance_of(SimpleFormsApi::PdfUploader).to receive(:upload_to_benefits_intake)
-              .and_return([200, benefits_intake_uuid])
+            allow_any_instance_of(BenefitsIntake::Service).to receive(:request_upload)
+              .and_return([hardcoded_location_url, benefits_intake_uuid])
             allow(SimpleFormsApi::S3Service::SubmissionArchiveHandler).to receive(:new)
               .with(benefits_intake_uuid:)
               .and_return(submission_archive_handler)

@@ -143,7 +143,8 @@ module SimpleFormsApi
           ).send
         end
 
-        { json: get_json(confirmation_number || nil, form_id, presigned_s3_url), status: }
+        json = get_json(confirmation_number || nil, form_id, presigned_s3_url)
+        { json:, status: }
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
