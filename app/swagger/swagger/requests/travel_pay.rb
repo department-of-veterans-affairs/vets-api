@@ -15,6 +15,12 @@ module Swagger
           key :tags, %w[travel_pay]
 
           parameter :authorization
+          parameter do
+            key :name, :appt_datetime
+            key :in, :query
+            key :description, 'The appointment datetime by which to filter claims. Invalid date values return all claims.'
+            key :required, false
+          end
 
           response 200 do
             key :description, 'Successfully retrieved claims for a user'
