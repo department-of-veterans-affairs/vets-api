@@ -256,31 +256,62 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       context 'request with attached documents' do
-        it 'appends the attachments to the 40-0247 PDF' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'vba_40_0247_with_supporting_document.json')
-          pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
-          data = JSON.parse(fixture_path.read)
-          attachment = double
+        let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
+        let(:attachment) { double }
+        let(:lighthouse_service) { double }
+
+        before do
           allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-
-          expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
-
-          post '/simple_forms_api/v1/simple_forms', params: data
-
-          expect(response).to have_http_status(:ok)
+          allow(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
         end
 
-        it 'appends the attachments to the 40-10007 PDF' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'vba_40_10007_with_supporting_document.json')
-          pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
-          data = JSON.parse(fixture_path.read)
-          attachment = double
-          allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-          expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
-          post '/simple_forms_api/v1/simple_forms', params: data
-          expect(response).to have_http_status(:ok)
+        shared_examples 'submits successfully' do |form_doc|
+          let(:data) do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form_doc)
+            JSON.parse(fixture_path.read)
+          end
+
+          it 'returns a 200 OK response' do
+            post '/simple_forms_api/v1/simple_forms', params: data
+            expect(response).to have_http_status(:ok)
+          end
+        end
+
+        shared_examples 'handles multiple attachments' do |form_doc|
+          before { allow(lighthouse_service).to receive(:perform_upload) }
+
+          let(:data) do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form_doc)
+            JSON.parse(fixture_path.read)
+          end
+
+          it_behaves_like 'submits successfully', form_doc
+
+          it 'calls the lighthouse service with attachments' do
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(lighthouse_service).to receive(:perform_upload) # .with({ stuff: 'thangs' })
+          end
+        end
+
+        context 'Flipper for simple_forms_lighthouse_benefits_intake_service' do
+          after { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
+
+          context 'when flipped on' do
+            before { Flipper.enable(:simple_forms_lighthouse_benefits_intake_service) }
+
+            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
+            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
+            it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_document.json'
+          end
+
+          context 'when flipped off' do
+            before { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
+
+            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
+            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
+            it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_document.json'
+          end
         end
       end
 
