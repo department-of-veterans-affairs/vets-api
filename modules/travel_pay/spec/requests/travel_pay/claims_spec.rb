@@ -42,8 +42,11 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
         context 'filtering claims' do
           it 'returns a subset of claims' do
+            params = { 'appt_datetime' => '2024-04-09' }
+            headers = { 'Authorization' => 'Bearer vagov_token' }
+
             VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[method path]) do
-              get '/travel_pay/v0/claims', params: {'appt_datetime' => '2024-04-09'}, headers: { 'Authorization' => 'Bearer vagov_token' }
+              get('/travel_pay/v0/claims', params:, headers:)
               expect(response).to have_http_status(:ok)
               claim_ids = JSON.parse(response.body)['data'].pluck('id')
               expect(claim_ids.length).to eq(1)

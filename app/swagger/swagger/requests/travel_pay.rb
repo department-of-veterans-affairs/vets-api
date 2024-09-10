@@ -18,7 +18,7 @@ module Swagger
           parameter do
             key :name, :appt_datetime
             key :in, :query
-            key :description, 'The appointment datetime by which to filter claims. Invalid date values return all claims.'
+            key :description, 'Filter claim by appt datetimes. Invalid dates return all claims.'
             key :required, false
           end
 

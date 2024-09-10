@@ -23,14 +23,14 @@ module TravelPay
         parsed_appt_date = Date.parse(date_string)
 
         claims.filter do |claim|
-          !claim['appointmentDateTime'].nil? && 
+          !claim['appointmentDateTime'].nil? &&
             parsed_appt_date == Date.parse(claim['appointmentDateTime'])
         end
       else
         claims
       end
-    rescue Date::Error => de
-      Rails.logger.debug(message: "#{de}. Not filtering claims by date (given: #{date_string}).")
+    rescue Date::Error => e
+      Rails.logger.debug(message: "#{e}. Not filtering claims by date (given: #{date_string}).")
       claims
     end
 
