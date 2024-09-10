@@ -27,7 +27,6 @@ module TravelPay
     # @return [Faraday::Response]
     #
     def request_btsss_token(veis_token, user)
-      # veis_token = request_veis_token
       sts_token = request_sts_token(user)
 
       btsss_url = Settings.travel_pay.base_url
