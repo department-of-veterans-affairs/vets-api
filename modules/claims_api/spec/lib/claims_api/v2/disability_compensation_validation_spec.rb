@@ -28,6 +28,10 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
   let(:created_at) { Timecop.freeze(Time.zone.now) }
 
+  def current_error_array
+    test_526_validation_instance.instance_variable_get('@errors')
+  end
+
   describe '#remove_chars' do
     let(:date_string) { subject.form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] }
 
@@ -140,6 +144,94 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
     # rubocop:enable RSpec/SubjectStub
+  end
+
+  describe 'military address validations' do
+    let(:valid_military_address) do
+      {
+        'addressLine1' => 'CMR 468 Box 1181',
+        'city' => 'DPO',
+        'country' => 'USA',
+        'zipFirstFive' => '09277',
+        'state' => 'AE'
+      }
+    end
+    let(:invalid_military_address) do
+      {
+        'addressLine1' => 'CMR 468 Box 1181',
+        'city' => 'FPO',
+        'country' => 'USA',
+        'zipFirstFive' => '09277',
+        'state' => 'AE'
+      }
+    end
+
+    describe '#address_is_military?' do
+      it 'correctly identifies address as MILITARY' do
+        check = test_526_validation_instance.send(:address_is_military?, valid_military_address)
+        expect(check).to eq(true)
+      end
+
+      it 'correctly identifies address as not MILITARY if no military codes are used' do
+        check = test_526_validation_instance.send(:address_is_military?,
+                                                  subject.form_attributes['veteranIdentification']['mailingAddress'])
+        expect(check).to eq(false)
+      end
+    end
+
+    describe '#valid_combination?' do
+      it 'correctly identifies an invalid address' do
+        check = test_526_validation_instance.send(:valid_combination?,
+                                                  invalid_military_address['city'],
+                                                  invalid_military_address['state'])
+        expect(check).to eq(false)
+      end
+
+      it 'correctly identifies an invalid address due to state code' do
+        check = test_526_validation_instance.send(:valid_combination?,
+                                                  valid_military_address['city'],
+                                                  valid_military_address['state'])
+        expect(check).to eq(true)
+      end
+    end
+
+    describe '#validate_military_address' do
+      it 'adds an error wth an invalid address combination' do
+        test_526_validation_instance.send(:validate_military_address, invalid_military_address)
+        errors = test_526_validation_instance.instance_variable_get('@errors')
+        expect(errors[0][:detail]).to eq('Invalid city and military postal combination.')
+        expect(errors[0][:source]).to eq('/veteranIdentification/mailingAddress/')
+      end
+
+      it 'validates a valid MILITARY address' do
+        test_526_validation_instance.send(:validate_military_address, valid_military_address)
+        errors = test_526_validation_instance.instance_variable_get('@errors')
+        expect(errors).to eq(nil)
+      end
+    end
+
+    describe '#validate_form_526_address_type' do
+      it 'returns an error with an incorrect MILITARY address combination' do
+        subject.form_attributes['veteranIdentification']['mailingAddress'] = invalid_military_address
+        test_526_validation_instance.send(:validate_form_526_address_type)
+
+        expect(current_error_array[0][:detail]).to eq('Invalid city and military postal combination.')
+        expect(current_error_array[0][:source]).to eq('/veteranIdentification/mailingAddress/')
+      end
+
+      it 'handles a correct MILITARY address combination' do
+        subject.form_attributes['veteranIdentification']['mailingAddress'] = valid_military_address
+        test_526_validation_instance.send(:validate_form_526_address_type)
+        test_526_validation_instance.instance_variable_get('@errors')
+        expect(current_error_array).to eq(nil)
+      end
+
+      it 'handles a DOMESTIC address' do
+        test_526_validation_instance.send(:validate_form_526_address_type)
+        test_526_validation_instance.instance_variable_get('@errors')
+        expect(current_error_array).to eq(nil)
+      end
+    end
   end
 
   describe '#date_range_overlap?' do

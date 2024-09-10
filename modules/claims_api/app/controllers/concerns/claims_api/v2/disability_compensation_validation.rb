@@ -11,6 +11,18 @@ module ClaimsApi
         7 => 'yyyy-mm',
         4 => 'yyyy'
       }.freeze
+
+      MILITARY_CITY_CODES = %w[
+        APO
+        FPO
+        DPO
+      ].freeze
+
+      MILITARY_STATE_CODES = %w[
+        AE
+        AP
+      ].freeze
+
       BDD_LOWER_LIMIT = 90
       BDD_UPPER_LIMIT = 180
 
@@ -151,10 +163,32 @@ module ClaimsApi
       def validate_form_526_identification
         return if form_attributes['veteranIdentification'].blank?
 
+        validate_form_526_address_type
         validate_form_526_current_mailing_address_country
         validate_form_526_current_mailing_address_state
         validate_form_526_current_mailing_address_zip
         validate_form_526_service_number
+      end
+
+      def validate_form_526_address_type
+        addr = form_attributes.dig('veteranIdentification', 'mailingAddress')
+
+        validate_military_address(addr) if address_is_military?(addr)
+      end
+
+      def validate_military_address(addr)
+        city = addr['city']
+        state = addr['state']
+
+        # need all three to be true to be valid
+        return if MILITARY_CITY_CODES.include?(city) && MILITARY_STATE_CODES.include?(state) && valid_combination?(
+          city, state
+        )
+
+        collect_error_messages(
+          source: '/veteranIdentification/mailingAddress/',
+          detail: 'Invalid city and military postal combination.'
+        )
       end
 
       def validate_form_526_service_number
@@ -1166,6 +1200,22 @@ module ClaimsApi
         collect_date_error(date, property)
 
         false
+      end
+
+      def address_is_military?(addr)
+        city = addr['city']
+        state = addr['state']
+
+        return true if MILITARY_CITY_CODES.include?(city)
+        return true if MILITARY_STATE_CODES.include?(state)
+
+        false
+      end
+
+      def valid_combination?(city, state)
+        (city == 'APO' && state == 'AE') ||
+          (state == 'AE' && %w[APO DPO].include?(city)) ||
+          (city == 'FPO' && state == 'AP')
       end
 
       def collect_date_error(date, property = '/')
