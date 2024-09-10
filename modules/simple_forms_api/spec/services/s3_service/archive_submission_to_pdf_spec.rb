@@ -3,7 +3,7 @@
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-RSpec.describe SimpleFormsApi::S3Service::ArchiveSubmissionToPdf, type: :model do
+RSpec.describe SimpleFormsApi::S3Service::SubmissionArchiver, type: :model do
   let(:submission_id) { 1 }
   let(:form_id) { '21-10210' }
   let(:form_data) { File.read('modules/simple_forms_api/spec/fixtures/form_json/vba_21_10210.json') }
