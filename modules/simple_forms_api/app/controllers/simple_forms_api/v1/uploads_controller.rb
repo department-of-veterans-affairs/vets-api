@@ -137,13 +137,18 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, uuid: confirmation_number }
         )
 
+        submission_archive_handler = SimpleFormsApi::S3Service::SubmissionArchiveHandler.new(
+          benefits_intake_uuid: confirmation_number
+        )
+        presigned_s3_url = submission_archive_handler.run
+
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           SimpleFormsApi::ConfirmationEmail.new(
             form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @current_user
           ).send
         end
 
-        { json: get_json(confirmation_number || nil, form_id), status: }
+        { json: get_json(confirmation_number || nil, form_id, presigned_s3_url), status: }
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
@@ -234,8 +239,8 @@ module SimpleFormsApi
         FORM_NUMBER_MAP[form_number]
       end
 
-      def get_json(confirmation_number, form_id)
-        json = { confirmation_number: }
+      def get_json(confirmation_number, form_id, presigned_s3_url)
+        json = { confirmation_number:, presigned_s3_url: }
         json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
 
         json

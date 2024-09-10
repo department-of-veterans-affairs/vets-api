@@ -175,6 +175,22 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               post '/simple_forms_api/v1/simple_forms', params: data
             end.to change(InProgressForm, :count).by(-1)
           end
+
+          it 'sends the PDF to the SimpleFormsApi::S3Service::SubmissionArchiveHandler' do
+            benefits_intake_uuid = 'some-benefits-intake-uuid'
+            presigned_s3_url = 'some-presigned-url'
+            submission_archive_handler = double(run: presigned_s3_url)
+            allow_any_instance_of(SimpleFormsApi::PdfUploader).to receive(:upload_to_benefits_intake)
+              .and_return([200, benefits_intake_uuid])
+            allow(SimpleFormsApi::S3Service::SubmissionArchiveHandler).to receive(:new)
+              .with(benefits_intake_uuid:)
+              .and_return(submission_archive_handler)
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(submission_archive_handler).to have_received(:run)
+            expect(JSON.parse(response.body)['presigned_s3_url']).to eq presigned_s3_url
+          end
         end
       end
 
