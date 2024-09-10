@@ -1122,23 +1122,23 @@ describe VAOS::V2::AppointmentsService do
     let(:past_appointment) { { status: 'booked', start: '2023-09-25T10:00:00-07:00' } }
     let(:future_appointment) { { status: 'booked', start: '2023-09-27T11:00:00-07:00' } }
     let(:unbooked_appointment) { { status: 'pending', start: '2023-09-25T10:00:00-07:00' } }
-    let(:avs_param_true) { true }
-    let(:avs_param_false) { false }
+    let(:avs_param_included) { true }
+    let(:avs_param_excluded) { false }
 
-    it 'returns true if the appointment is booked and is in the past' do
-      expect(subject.send(:avs_applicable?, past_appointment, avs_param_true)).to be true
+    it 'returns true if the appointment is booked and is in the past and avs is included' do
+      expect(subject.send(:avs_applicable?, past_appointment, avs_param_included)).to be true
     end
 
     it 'returns false if the appointment is not booked' do
-      expect(subject.send(:avs_applicable?, unbooked_appointment, avs_param_true)).to be false
+      expect(subject.send(:avs_applicable?, unbooked_appointment, avs_param_included)).to be false
     end
 
     it 'returns false on a booked future appointment' do
-      expect(subject.send(:avs_applicable?, future_appointment, avs_param_true)).to be false
+      expect(subject.send(:avs_applicable?, future_appointment, avs_param_included)).to be false
     end
 
-    it 'returns false if the avs param is false' do
-      expect(subject.send(:avs_applicable?, past_appointment, avs_param_false)).to be false
+    it 'returns false if the avs param is not included' do
+      expect(subject.send(:avs_applicable?, past_appointment, avs_param_excluded)).to be false
     end
 
     it 'returns false if the avs param is nil' do

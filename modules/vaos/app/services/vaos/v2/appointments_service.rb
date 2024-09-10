@@ -26,8 +26,7 @@ module VAOS
       OUTPUT_FORMAT_PM = '%a, %B %-d, %Y in the afternoon'
 
       # rubocop:disable Metrics/MethodLength
-      # rubocop:disable Metrics/ParameterLists
-      def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {}, avs = nil)
+      def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {})
         params = date_params(start_date, end_date).merge(page_params(pagination_params))
                                                   .merge(status_params(statuses))
                                                   .compact
@@ -44,7 +43,7 @@ module VAOS
           validate_response_schema(response, 'appointments_index')
           appointments = response.body[:data]
           appointments.each do |appt|
-            prepare_appointment(appt, avs)
+            prepare_appointment(appt, include[:avs])
             extract_appointment_fields(appt)
             merge_clinic(appt) if include[:clinics]
             merge_facility(appt) if include[:facilities]
@@ -66,13 +65,12 @@ module VAOS
       end
 
       # rubocop:enable Metrics/MethodLength
-      # rubocop:enable Metrics/ParameterLists
-      def get_appointment(appointment_id, avs = nil)
+      def get_appointment(appointment_id, include = {})
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           appointment = response.body[:data]
-          prepare_appointment(appointment, avs)
+          prepare_appointment(appointment, include[:avs])
           extract_appointment_fields(appointment)
           OpenStruct.new(appointment)
         end
@@ -427,7 +425,7 @@ module VAOS
       def avs_applicable?(appt, avs)
         return false if appt.nil? || appt[:status].nil? || appt[:start].nil? || avs.nil?
 
-        appt[:status] == 'booked' && appt[:start].to_datetime.past? && avs.to_s == 'true'
+        appt[:status] == 'booked' && appt[:start].to_datetime.past? && avs
       end
 
       # Filters out non-ASCII characters from the reason code text field in the request object body.

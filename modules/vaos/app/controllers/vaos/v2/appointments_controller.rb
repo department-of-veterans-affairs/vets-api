@@ -20,7 +20,7 @@ module VAOS
 
       def index
         appointments[:data].each do |appt|
-          if include_params[:facilities] && appt[:location_id].present? && appt[:location].nil?
+          if include_index_params[:facilities] && appt[:location_id].present? && appt[:location].nil?
             appt[:location] = FACILITY_ERROR_MSG
           end
           scrape_appt_comments_and_log_details(appt, index_method_logging_name, PAP_COMPLIANCE_TELE)
@@ -114,12 +114,12 @@ module VAOS
 
       def appointments
         @appointments ||=
-          appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_params, avs)
+          appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_index_params)
       end
 
       def appointment
         @appointment ||=
-          appointments_service.get_appointment(appointment_id, avs)
+          appointments_service.get_appointment(appointment_id, include_show_params)
       end
 
       def new_appointment
@@ -203,16 +203,14 @@ module VAOS
         params.require(:status)
       end
 
-      def appointment_params
+      def appointment_index_params
         params.require(:start)
         params.require(:end)
         params.permit(:start, :end, :_include)
       end
 
-      # boolean passed in on request to determine if we should look up the after visit summary
-      # if false or nil then we bypass the avs calls
-      def avs
-        params[:avs].to_s == 'true'
+      def appointment_show_params
+        params.permit(:_include)
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -291,22 +289,30 @@ module VAOS
       # rubocop:enable Metrics/MethodLength
 
       def start_date
-        DateTime.parse(appointment_params[:start]).in_time_zone
+        DateTime.parse(appointment_index_params[:start]).in_time_zone
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('start', params[:start])
       end
 
       def end_date
-        DateTime.parse(appointment_params[:end]).in_time_zone
+        DateTime.parse(appointment_index_params[:end]).in_time_zone
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('end', params[:end])
       end
 
-      def include_params
-        included = appointment_params[:_include]&.split(',')
+      def include_index_params
+        included = appointment_index_params[:_include]&.split(',')
         {
           clinics: ActiveModel::Type::Boolean.new.deserialize(included&.include?('clinics')),
-          facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities'))
+          facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities')),
+          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs'))
+        }
+      end
+
+      def include_show_params
+        included = appointment_show_params[:_include]&.split(',')
+        {
+          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs'))
         }
       end
 
