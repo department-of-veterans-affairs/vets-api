@@ -22,21 +22,20 @@
 module SimpleFormsApi
   module S3Service
     class SubmissionArchiver < Utils
-      attr_reader :benefits_intake_uuid, :failures, :include_json_archive, :include_text_archive, :metadata,
-                  :parent_dir, :submission
+      attr_reader :benefits_intake_uuid, :include_json_archive, :include_text_archive, :metadata, :parent_dir,
+                  :submission
 
       class << self
         def fetch_presigned_url(benefits_intake_uuid)
           instance = self.class.new(benefits_intake_uuid:)
           instance.fetch_pdf(benefits_intake_uuid, form_number)
-          # return presigned_url from object
+          # TODO: return presigned_url from object
         end
       end
 
       def initialize(benefits_intake_uuid: nil, submission: nil, **options) # rubocop:disable Lint/MissingSuper
         defaults = default_options.merge(options)
 
-        @failures = []
         @submission = submission || FormSubmission.find_by(benefits_intake_uuid:)
 
         assign_instance_variables(defaults)
@@ -54,12 +53,12 @@ module SimpleFormsApi
 
       def default_options
         {
+          attachments: [], # an array of attachment confirmation codes
           file_path: nil, # file path for the PDF file to be archived
           include_json_archive: true, # include the form data as a JSON object
           include_text_archive: true, # include the form data as a text file
           metadata: {}, # pertinent metadata for original file upload/submission
-          parent_dir: 'vff-simple-forms', # S3 bucket base directory where files live
-          uploads_path: ['uploadedFile'] # hierarchy where the attachments can be found
+          parent_dir: 'vff-simple-forms' # S3 bucket base directory where files live
         }
       end
 
@@ -116,7 +115,7 @@ module SimpleFormsApi
       end
 
       def write_attachments
-        log_info("Moving #{attachments.count} user uploads")
+        log_info("Moving #{attachments.count} attachments")
         attachments.each { |upload| process_attachment(upload) }
         write_attachment_failure_report if attachment_failures.present?
       rescue => e
