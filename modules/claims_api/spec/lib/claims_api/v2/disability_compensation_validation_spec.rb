@@ -196,69 +196,38 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     end
 
     describe '#validate_military_address' do
-      form_attr = '/veteranIdentification/mailingAddress/'
       it 'adds an error wth an invalid address combination' do
-        test_526_validation_instance.send(:validate_military_address, invalid_military_address, form_attr)
-        expect(current_error_array[0][:detail]).to eq("Invalid city and military postal combination for #{form_attr}")
+        test_526_validation_instance.send(:validate_military_address, invalid_military_address)
+        expect(current_error_array[0][:detail]).to eq('Invalid city and military postal combination.')
         expect(current_error_array[0][:source]).to eq('/veteranIdentification/mailingAddress/')
       end
 
       it 'validates a valid MILITARY address' do
-        test_526_validation_instance.send(:validate_military_address, valid_military_address, form_attr)
+        test_526_validation_instance.send(:validate_military_address, valid_military_address)
         expect(current_error_array).to eq(nil)
       end
     end
 
     describe '#validate_form_526_address_type' do
       context 'mailingAddress' do
-        form_attr = '/veteranIdentification/mailingAddress/'
         it 'returns an error with an incorrect MILITARY address combination' do
           subject.form_attributes['veteranIdentification']['mailingAddress'] = invalid_military_address
           test_526_validation_instance.send(:validate_form_526_address_type,
-                                            subject.form_attributes['veteranIdentification']['mailingAddress'],
-                                            form_attr)
-          expect(current_error_array[0][:detail]).to eq("Invalid city and military postal combination for #{form_attr}")
+                                            subject.form_attributes['veteranIdentification']['mailingAddress'])
+          expect(current_error_array[0][:detail]).to eq('Invalid city and military postal combination.')
           expect(current_error_array[0][:source]).to eq('/veteranIdentification/mailingAddress/')
         end
 
         it 'handles a correct MILITARY address combination' do
           subject.form_attributes['veteranIdentification']['mailingAddress'] = valid_military_address
-          test_526_validation_instance.send(:validate_form_526_address_type, valid_military_address, form_attr)
+          test_526_validation_instance.send(:validate_form_526_address_type, valid_military_address)
           test_526_validation_instance.instance_variable_get('@errors')
           expect(current_error_array).to eq(nil)
         end
 
         it 'handles a DOMESTIC address' do
           test_526_validation_instance.send(:validate_form_526_address_type,
-                                            subject.form_attributes['veteranIdentification']['mailingAddress'],
-                                            form_attr)
-          test_526_validation_instance.instance_variable_get('@errors')
-          expect(current_error_array).to eq(nil)
-        end
-      end
-
-      context 'changeOfAddress' do
-        form_attr = '/changeOfAddress/'
-        it 'returns an error with an incorrect MILITARY address combination' do
-          subject.form_attributes['changeOfAddress'] = invalid_military_address
-          test_526_validation_instance.send(:validate_form_526_address_type,
-                                            subject.form_attributes['changeOfAddress'],
-                                            form_attr)
-          expect(current_error_array[0][:detail]).to eq("Invalid city and military postal combination for #{form_attr}")
-          expect(current_error_array[0][:source]).to eq('/changeOfAddress/')
-        end
-
-        it 'handles a correct MILITARY address combination' do
-          subject.form_attributes['changeOfAddress'] = valid_military_address
-          test_526_validation_instance.send(:validate_form_526_address_type, valid_military_address, form_attr)
-          test_526_validation_instance.instance_variable_get('@errors')
-          expect(current_error_array).to eq(nil)
-        end
-
-        it 'handles a DOMESTIC address' do
-          test_526_validation_instance.send(:validate_form_526_address_type,
-                                            subject.form_attributes['changeOfAddress'],
-                                            form_attr)
+                                            subject.form_attributes['veteranIdentification']['mailingAddress'])
           test_526_validation_instance.instance_variable_get('@errors')
           expect(current_error_array).to eq(nil)
         end
@@ -362,8 +331,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       context 'without the required dates values present' do
         it 'returns an error array' do
           subject.form_attributes['changeOfAddress']['dates']['beginDate'] = ''
-          res = test_526_validation_instance.send(:validate_form_526_change_of_address_beginning_date,
-                                                  subject.form_attributes['changeOfAddress'])
+          res = test_526_validation_instance.send(:validate_form_526_change_of_address_beginning_date)
           expect(res[0][:detail]).to eq('beginDate is not a valid date.')
           expect(res[0][:source]).to eq('/changeOfAddress/dates/beginDate')
         end
@@ -390,8 +358,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2022-01-01'
-        res = test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date,
-                                                subject.form_attributes['changeOfAddress'])
+        res = test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date)
         expect(res[0][:detail]).to eq('endDate is not a valid date.')
         expect(res[0][:source]).to eq('/changeOfAddress/dates/endDate')
       end
@@ -402,12 +369,10 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '01-01-2023'
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = '01-01-2024'
-        test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date,
-                                          subject.form_attributes['changeOfAddress'])
-        errors = test_526_validation_instance.instance_variable_get('@errors')
-        expect(errors[0][:detail]).to eq('Change of address endDate cannot be included ' \
-                                         'when typeOfAddressChange is PERMANENT')
-        expect(errors[0][:source]).to eq('/changeOfAddress/dates/endDate')
+        test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date)
+        expect(current_error_array[0][:detail]).to eq('Change of address endDate cannot be included ' \
+                                                      'when typeOfAddressChange is PERMANENT')
+        expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/endDate')
       end
     end
   end
