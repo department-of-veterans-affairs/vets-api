@@ -656,6 +656,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       context 'when the VAOS service returns a single appointment' do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
+          Flipper.enable(:va_online_scheduling_after_visit_summary)
         end
 
         let(:avs_path) do
@@ -666,6 +667,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200',
                            match_requests_on: %i[method path query]) do
             allow(Rails.logger).to receive(:info).at_least(:once)
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_avs_link)
+              .and_return(avs_path)
             get '/vaos/v2/appointments/70060', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
