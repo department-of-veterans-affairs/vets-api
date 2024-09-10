@@ -5,8 +5,8 @@ module TravelPay
     class ClaimsController < ApplicationController
       def index
         begin
-          tokens = token_service.get_tokens(@current_user)
-          claims = claims_service.get_claims(tokens['veis_token'], tokens['btsss_token'])
+          token_service.get_tokens(@current_user) => { veis_token:, btsss_token: }
+          claims = claims_service.get_claims(veis_token, btsss_token)
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
         end
