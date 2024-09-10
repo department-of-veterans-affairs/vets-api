@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe TravelPay::Service do
+describe TravelPay::ClaimsService do
   context 'get_claims' do
     let(:user) { build(:user) }
     let(:claims_data) do
@@ -55,17 +55,17 @@ describe TravelPay::Service do
     end
 
     before do
-      allow_any_instance_of(TravelPay::Client)
+      allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims)
-        .with(user)
+        .with('veis_token', 'btsss_token')
         .and_return(claims_response)
     end
 
     it 'returns sorted and parsed claims' do
       expected_statuses = ['In Progress', 'In Progress', 'Incomplete', 'Claim Submitted']
 
-      service = TravelPay::Service.new
-      claims = service.get_claims(user)
+      service = TravelPay::ClaimsService.new
+      claims = service.get_claims('veis_token', 'btsss_token')
       actual_statuses = claims[:data].pluck(:claimStatus)
 
       expect(actual_statuses).to match_array(expected_statuses)
