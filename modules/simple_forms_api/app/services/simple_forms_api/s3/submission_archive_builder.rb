@@ -3,6 +3,8 @@
 require 'csv'
 require 'fileutils'
 
+# built in accordance with the following documentation:
+# https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
 module SimpleFormsApi
   module S3
     class SubmissionArchiveBuilder < Utils
@@ -112,20 +114,22 @@ module SimpleFormsApi
       end
 
       def write_manifest
-        veteran_id = metadata['fileNumber']
-        submission_datetime = submission.created_at
-        file_name = "submission_#{benefits_intake_uuid}_#{submission_datetime}_manifest.csv"
+        file_name = "submission_#{benefits_intake_uuid}_#{submission.created_at}_manifest.csv"
+        file_path = File.join(temp_directory_path, file_name)
 
-        "#{temp_directory_path}#{file_name}".tap do |file_path|
-          CSV.open(file_path, 'wb') do |csv|
-            csv << ['Veteran ID', 'Submission DateTime']
-            csv << [veteran_id, submission_datetime]
-          end
+        CSV.open(file_path, 'wb') do |csv|
+          csv << ['Submission DateTime', 'Form Type', 'VA.gov ID', 'Veteran ID', 'First Name', 'Last Name']
+          csv << [
+            submission.created_at,
+            submission.form_data['form_number'],
+            benefits_intake_uuid,
+            metadata['fileNumber'],
+            submission.form_data['first_name'],
+            submission.form_data['last_name']
+          ]
         end
-      end
 
-      def write_tempfile(file_name, payload)
-        File.write("#{temp_directory_path}#{file_name}", payload)
+        file_path
       end
 
       def process_attachment(attachment_number, guid)
@@ -142,6 +146,10 @@ module SimpleFormsApi
 
       def write_attachment_failure_report
         write_tempfile('attachment_failures.txt', JSON.pretty_generate(attachment_failures))
+      end
+
+      def write_tempfile(file_name, payload)
+        File.write("#{temp_directory_path}#{file_name}", payload)
       end
 
       def attachment_failures
