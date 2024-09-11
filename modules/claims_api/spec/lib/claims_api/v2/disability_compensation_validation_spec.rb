@@ -235,9 +235,9 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         end
       end
 
-      context 'without the required dates values present' do
+      context 'when beginDate is an invalid date value' do
         it 'returns an error array' do
-          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = ''
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2018-09-45'
           res = test_526_validation_instance.send(:validate_form_526_change_of_address_beginning_date)
           expect(res[0][:detail]).to eq('beginDate is not a valid date.')
           expect(res[0][:source]).to eq('/changeOfAddress/dates/beginDate')

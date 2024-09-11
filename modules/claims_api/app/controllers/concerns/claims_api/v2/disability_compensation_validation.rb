@@ -51,7 +51,6 @@ module ClaimsApi
       def validate_form_526_change_of_address
         return if form_attributes['changeOfAddress'].blank?
 
-        validate_form_526_change_of_address_required_fields
         validate_form_526_change_of_address_beginning_date
         validate_form_526_change_of_address_ending_date
         validate_form_526_change_of_address_country
@@ -59,18 +58,10 @@ module ClaimsApi
         validate_form_526_change_of_address_zip
       end
 
-      def validate_form_526_change_of_address_required_fields
-        change_of_address = form_attributes['changeOfAddress']
-        coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
-
-        form_object_desc = '/changeOfAddress'
-
-        collect_error_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
-      end
-
       def validate_form_526_change_of_address_beginning_date
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'beginDate')
+        return if date.nil? # nullable on schema
 
         # If the date parse fails, then fall back to the InvalidFieldValue
         begin
