@@ -158,8 +158,6 @@ module ClaimsApi
         address = form_attributes['changeOfAddress'] || {}
         if address['country'] == 'USA'
           validate_form_526_usa_coa_conditions(address)
-        else
-          validate_form_526_international_coa_conditions(address)
         end
       end
 
