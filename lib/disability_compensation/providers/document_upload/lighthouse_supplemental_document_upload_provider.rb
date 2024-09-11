@@ -25,8 +25,11 @@ class LighthouseSupplementalDocumentUploadProvider
   #
   # @return [LighthouseDocument]
   def generate_upload_document(file_name, document_type)
+    user = User.find(@form526_submission.user_uuid)
+
     LighthouseDocument.new(
       claim_id: @form526_submission.submitted_claim_id,
+      participant_id: user.participant_id,
       file_name:,
       document_type:
     )
