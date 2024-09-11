@@ -30,7 +30,7 @@ module TravelPay
       private
 
       def service
-        @service ||= TravelPay::Service.new
+        @service ||= TravelPay::ClaimsService.new
       end
     end
   end

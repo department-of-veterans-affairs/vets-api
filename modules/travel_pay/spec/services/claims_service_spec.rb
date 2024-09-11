@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'securerandom'
 
-describe TravelPay::Service do
+describe TravelPay::ClaimsService do
   context 'get_claims' do
     let(:user) { build(:user) }
     let(:claims_data) do
@@ -56,7 +56,7 @@ describe TravelPay::Service do
     end
 
     before do
-      allow_any_instance_of(TravelPay::Client)
+      allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims)
         .with(user)
         .and_return(claims_response)
@@ -65,7 +65,7 @@ describe TravelPay::Service do
     it 'returns sorted and parsed claims' do
       expected_statuses = ['In Progress', 'In Progress', 'Incomplete', 'Claim Submitted']
 
-      service = TravelPay::Service.new
+      service = TravelPay::ClaimsService.new
       claims = service.get_claims(user)
       actual_statuses = claims[:data].pluck(:claimStatus)
 
