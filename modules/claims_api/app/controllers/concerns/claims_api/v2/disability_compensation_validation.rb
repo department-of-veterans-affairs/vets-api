@@ -164,14 +164,11 @@ module ClaimsApi
 
       def validate_form_526_address_type
         addr = form_attributes.dig('veteranIdentification', 'mailingAddress')
+        return unless address_is_military?(addr)
 
-        validate_form_526_military_address(addr) if address_is_military?(addr)
-      end
-
-      def validate_form_526_military_address(addr)
         city = military_city(addr)
         state = military_state(addr)
-        # need all three to be true to be valid
+        # need both to be true to be valid
         return if MILITARY_CITY_CODES.include?(city) && MILITARY_STATE_CODES.include?(state)
 
         collect_error_messages(

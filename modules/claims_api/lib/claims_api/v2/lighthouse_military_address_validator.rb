@@ -12,13 +12,11 @@ module ClaimsApi
       MILITARY_STATE_CODES = %w[
         AE
         AP
+        AA
       ].freeze
 
       def address_is_military?(addr)
-        return true if MILITARY_CITY_CODES.include?(military_city(addr))
-        return true if MILITARY_STATE_CODES.include?(military_state(addr))
-
-        false
+        MILITARY_CITY_CODES.include?(military_city(addr)) || MILITARY_STATE_CODES.include?(military_state(addr))
       end
 
       def military_city(addr)

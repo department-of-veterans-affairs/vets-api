@@ -179,19 +179,6 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
-    describe '#validate_form_526_military_address' do
-      it 'adds an error wth an invalid address combination' do
-        test_526_validation_instance.send(:validate_form_526_military_address, invalid_military_address)
-        expect(current_error_array[0][:detail]).to eq('Invalid city and military postal combination.')
-        expect(current_error_array[0][:source]).to eq('/veteranIdentification/mailingAddress/')
-      end
-
-      it 'validates a valid MILITARY address' do
-        test_526_validation_instance.send(:validate_form_526_military_address, valid_military_address)
-        expect(current_error_array).to eq(nil)
-      end
-    end
-
     describe '#validate_form_526_address_type' do
       context 'mailingAddress' do
         it 'returns an error with an incorrect MILITARY address combination' do
