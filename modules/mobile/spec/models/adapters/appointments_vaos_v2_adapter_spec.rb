@@ -13,6 +13,10 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     raw_data.find { |appt| appt[:id] == id }
   end
 
+  def adapted_appointment_by_id(id)
+    parse_appointment(appointment_by_id(id))
+  end
+
   def parse_appointment(appt)
     subject.parse(Array.wrap(appt)).first
   end
@@ -22,26 +26,27 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json'))
   end
   let(:adapted_appointment) { ->(index) { parse_appointment(appointment_data(index)) } }
-  let(:adapted_appointment_by_id) { ->(id) { parse_appointment(appointment_by_id(id)) } }
+  # let(:adapted_appointment_by_id) { ->(id) { parse_appointment(appointment_by_id(id)) } }
+
   let(:adapted_appointments) do
     subject.parse(appointment_data)
   end
   let(:parsed_appointment) { parse_appointment(appointment) }
 
-  let(:cancelled_va) { adapted_appointment_by_id['121133'] }
-  let(:booked_va) { adapted_appointment_by_id['121134'] }
-  let(:booked_cc) { adapted_appointment_by_id['72106'] }
-  let(:proposed_cc) { adapted_appointment_by_id['72105'] }
-  let(:proposed_va) { adapted_appointment_by_id['50956'] }
-  let(:phone_va) { adapted_appointment_by_id['53352'] }
-  let(:home_va) { adapted_appointment_by_id['50094'] }
-  let(:atlas_va) { adapted_appointment_by_id['50095'] }
-  let(:home_gfe) { adapted_appointment_by_id['50096'] }
-  let(:past_request_date_appt) { adapted_appointment_by_id['53360'] }
-  let(:future_request_date_appt) { adapted_appointment_by_id['53359'] }
-  let(:cancelled_requested_va_appt) { adapted_appointment_by_id['53241'] }
-  let(:acheron_appointment) { adapted_appointment_by_id['145078'] }
-  let(:telehealth_onsite) { adapted_appointment_by_id['50097'] }
+  let(:cancelled_va_id) { '121133' }
+  let(:booked_va_id) { '121134' }
+  let(:booked_cc_id) { '72106' }
+  let(:proposed_cc_id) { '72105' }
+  let(:proposed_va_id) { '50956' }
+  let(:phone_va_id) { '53352' }
+  let(:home_va_id) { '50094' }
+  let(:atlas_va_id) { '50095' }
+  let(:home_gfe_id) { '50096' }
+  let(:past_request_date_appt_id) { '53360' }
+  let(:future_request_date_appt_id) { '53359' }
+  let(:cancelled_requested_va_appt_id) { '53241' }
+  let(:acheron_appointment_id) { '145078' }
+  let(:telehealth_onsite_id) { '50097' }
 
   before do
     Timecop.freeze(Time.zone.parse('2022-08-25T19:25:00Z'))
@@ -60,12 +65,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a cancelled VA appointment' do
+    let(:cancelled_va) { adapted_appointment_by_id(cancelled_va_id) }
+
     it 'has expected fields' do
       expect(cancelled_va[:status_detail]).to eq('CANCELLED BY PATIENT')
       expect(cancelled_va[:status]).to eq('CANCELLED')
       expect(cancelled_va[:appointment_type]).to eq('VA')
       expect(cancelled_va[:is_pending]).to eq(false)
-      expect(cancelled_va.as_json).to eq({ 'id' => '121133',
+      expect(cancelled_va.as_json).to eq({ 'id' => cancelled_va_id,
                                            'appointment_type' => 'VA',
                                            'appointment_ien' => nil,
                                            'cancel_id' => nil,
@@ -116,11 +123,13 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a booked VA appointment' do
+    let(:booked_va) { adapted_appointment_by_id(booked_va_id) }
+
     it 'has expected fields' do
       expect(booked_va[:status]).to eq('BOOKED')
       expect(booked_va[:appointment_type]).to eq('VA')
       expect(booked_va.as_json).to eq({
-                                        'id' => '121134',
+                                        'id' => booked_va_id,
                                         'appointment_type' => 'VA',
                                         'appointment_ien' => nil,
                                         'cancel_id' => nil,
@@ -172,6 +181,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a booked CC appointment' do
+    let(:booked_cc) { adapted_appointment_by_id(booked_cc_id) }
+
     it 'has expected fields' do
       expect(booked_cc[:status]).to eq('BOOKED')
       expect(booked_cc[:appointment_type]).to eq('COMMUNITY_CARE')
@@ -179,10 +190,10 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       expect(booked_cc[:friendly_location_name]).to eq('CC practice name')
       expect(booked_cc[:type_of_care]).to eq('Primary Care')
       expect(booked_cc.as_json).to eq({
-                                        'id' => '72106',
+                                        'id' => booked_cc_id,
                                         'appointment_type' => 'COMMUNITY_CARE',
                                         'appointment_ien' => nil,
-                                        'cancel_id' => '72106',
+                                        'cancel_id' => booked_cc_id,
                                         'comment' => nil,
                                         'facility_id' => '552',
                                         'sta6aid' => '552',
@@ -231,6 +242,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a proposed CC appointment' do
+    let(:proposed_cc) { adapted_appointment_by_id(proposed_cc_id) }
+
     it 'has expected fields' do
       expect(proposed_cc[:is_pending]).to eq(true)
       expect(proposed_cc[:status]).to eq('SUBMITTED')
@@ -238,10 +251,10 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       expect(proposed_cc[:type_of_care]).to eq('Primary Care')
       expect(proposed_cc[:proposed_times]).to eq([{ "date": '01/26/2022', "time": 'AM' }])
       expect(proposed_cc.as_json).to eq({
-                                          'id' => '72105',
+                                          'id' => proposed_cc_id,
                                           'appointment_type' => 'COMMUNITY_CARE',
                                           'appointment_ien' => nil,
-                                          'cancel_id' => '72105',
+                                          'cancel_id' => proposed_cc_id,
                                           'comment' => 'this is a comment',
                                           'facility_id' => '552',
                                           'sta6aid' => '552',
@@ -297,6 +310,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a proposed VA appointment' do
+    let(:proposed_va) { adapted_appointment_by_id(proposed_va_id) }
+
     it 'has expected fields' do
       expect(proposed_va[:is_pending]).to eq(true)
       expect(proposed_va[:status]).to eq('SUBMITTED')
@@ -304,10 +319,10 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       expect(proposed_va[:location][:name]).to eq('Cheyenne VA Medical Center')
       expect(proposed_va[:proposed_times]).to eq([{ "date": '09/28/2021', "time": 'AM' }])
       expect(proposed_va.as_json).to eq({
-                                          'id' => '50956',
+                                          'id' => proposed_va_id,
                                           'appointment_type' => 'VA',
                                           'appointment_ien' => nil,
-                                          'cancel_id' => '50956',
+                                          'cancel_id' => proposed_va_id,
                                           'comment' => nil,
                                           'facility_id' => '442',
                                           'sta6aid' => '442',
@@ -360,14 +375,16 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a phone VA appointment' do
+    let(:phone_va) { adapted_appointment_by_id(phone_va_id) }
+
     it 'has expected fields' do
       expect(phone_va[:appointment_type]).to eq('VA')
       expect(phone_va[:phone_only]).to eq(true)
       expect(phone_va.as_json).to eq({
-                                       'id' => '53352',
+                                       'id' => phone_va_id,
                                        'appointment_type' => 'VA',
                                        'appointment_ien' => nil,
-                                       'cancel_id' => '53352',
+                                       'cancel_id' => phone_va_id,
                                        'comment' => nil,
                                        'facility_id' => '442',
                                        'sta6aid' => '442',
@@ -420,12 +437,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a telehealth Home appointment' do
+    let(:home_va) { adapted_appointment_by_id(home_va_id) }
+
     it 'has expected fields' do
       expect(home_va[:appointment_type]).to eq('VA_VIDEO_CONNECT_HOME')
       expect(home_va[:location][:name]).to eq('Cheyenne VA Medical Center')
       expect(home_va[:location][:url]).to eq('http://www.meeting.com')
 
-      expect(home_va.as_json).to eq({ 'id' => '50094',
+      expect(home_va.as_json).to eq({ 'id' => home_va_id,
                                       'appointment_type' => 'VA_VIDEO_CONNECT_HOME',
                                       'appointment_ien' => nil,
                                       'cancel_id' => nil,
@@ -468,6 +487,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a telehealth Atlas appointment' do
+    let(:atlas_va) { adapted_appointment_by_id(atlas_va_id) }
+
     it 'has expected fields' do
       expect(atlas_va[:appointment_type]).to eq('VA_VIDEO_CONNECT_ATLAS')
       expect(atlas_va[:location][:name]).to eq('Cheyenne VA Medical Center')
@@ -478,7 +499,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       expect(atlas_va[:location][:url]).to eq('http://www.meeting.com')
       expect(atlas_va[:location][:code]).to eq('420835')
 
-      expect(atlas_va.as_json).to eq({ 'id' => '50095',
+      expect(atlas_va.as_json).to eq({ 'id' => atlas_va_id,
                                        'appointment_type' => 'VA_VIDEO_CONNECT_ATLAS',
                                        'appointment_ien' => nil,
                                        'cancel_id' => nil,
@@ -524,12 +545,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a GFE appointment' do
+    let(:home_gfe) { adapted_appointment_by_id(home_gfe_id) }
+
     it 'has expected fields' do
       expect(home_gfe[:appointment_type]).to eq('VA_VIDEO_CONNECT_GFE')
       expect(home_gfe[:location][:name]).to eq('Cheyenne VA Medical Center')
       expect(home_gfe[:location][:url]).to eq('http://www.meeting.com')
 
-      expect(home_gfe.as_json).to eq({ 'id' => '50096',
+      expect(home_gfe.as_json).to eq({ 'id' => home_gfe_id,
                                        'appointment_type' => 'VA_VIDEO_CONNECT_GFE',
                                        'appointment_ien' => nil,
                                        'cancel_id' => nil,
@@ -571,12 +594,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a telehealth on site appointment' do
+    let(:telehealth_onsite) { adapted_appointment_by_id(telehealth_onsite_id) }
+
     it 'has expected fields' do
       expect(telehealth_onsite[:appointment_type]).to eq('VA_VIDEO_CONNECT_ONSITE')
       expect(telehealth_onsite[:location][:name]).to eq('Cheyenne VA Medical Center')
       expect(telehealth_onsite[:location][:url]).to eq(nil)
 
-      expect(telehealth_onsite.as_json).to eq({ 'id' => '50097',
+      expect(telehealth_onsite.as_json).to eq({ 'id' => telehealth_onsite_id,
                                                 'appointment_type' => 'VA_VIDEO_CONNECT_ONSITE',
                                                 'appointment_ien' => nil,
                                                 'cancel_id' => nil,
@@ -624,6 +649,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a cancelled requested VA appointment' do
+    let(:cancelled_requested_va_appt) { adapted_appointment_by_id(cancelled_requested_va_appt_id) }
+
     it 'has expected fields' do
       expect(cancelled_requested_va_appt[:appointment_type]).to eq('VA')
       expect(cancelled_requested_va_appt[:is_pending]).to eq(true)
@@ -687,36 +714,44 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
   end
 
-  context 'request periods that are in the future' do
-    it 'sets start date to earliest date in the future' do
-      expect(future_request_date_appt[:start_date_local]).to eq('2022-08-27T12:00:00Z')
-      expect(future_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2022', time: 'PM' },
-                                                               { date: '08/27/2022', time: 'PM' },
-                                                               { date: '10/03/2022', time: 'PM' }])
-    end
-  end
+  describe 'times' do
+    context 'request periods that are in the future' do
+      let(:future_request_date_appt) { adapted_appointment_by_id(future_request_date_appt_id) }
 
-  context 'request periods that are in the past' do
-    it 'sets start date to earliest date' do
-      expect(past_request_date_appt[:start_date_local]).to eq('2021-08-20T12:00:00Z')
-      expect(past_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2021', time: 'PM' },
-                                                             { date: '08/27/2021', time: 'PM' },
-                                                             { date: '10/03/2021', time: 'PM' }])
-    end
-  end
-
-  context 'with no timezone' do
-    let(:no_timezone_appt) do
-      vaos_data = JSON.parse(appointment_fixtures, symbolize_names: true)
-      vaos_data.dig(0, :location).delete(:timezone)
-      appointments = subject.parse(vaos_data)
-      appointments[0]
+      it 'sets start date to earliest date in the future' do
+        expect(future_request_date_appt[:start_date_local]).to eq('2022-08-27T12:00:00Z')
+        expect(future_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2022', time: 'PM' },
+                                                                { date: '08/27/2022', time: 'PM' },
+                                                                { date: '10/03/2022', time: 'PM' }])
+        expect(future_request_date_appt[:time_zone]).to eq('America/Denver')
+      end
     end
 
-    it 'falls back to hardcoded timezone lookup' do
-      expect(no_timezone_appt[:start_date_local]).to eq('2022-08-27 09:45:00 -0600"')
-      expect(no_timezone_appt[:start_date_utc]).to eq('2022-08-27T15:45:00Z')
-      expect(no_timezone_appt[:time_zone]).to eq('America/Denver')
+    context 'request periods that are in the past' do
+      let(:past_request_date_appt) { adapted_appointment_by_id(past_request_date_appt_id) }
+
+      it 'sets start date to earliest date' do
+        expect(past_request_date_appt[:start_date_local]).to eq('2021-08-20T12:00:00Z')
+        expect(past_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2021', time: 'PM' },
+                                                              { date: '08/27/2021', time: 'PM' },
+                                                              { date: '10/03/2021', time: 'PM' }])
+        expect(past_request_date_appt[:time_zone]).to eq('America/Denver')
+      end
+    end
+
+    context 'with no timezone' do
+      let(:no_timezone_appt) do
+        vaos_data = JSON.parse(appointment_fixtures, symbolize_names: true)
+        vaos_data.dig(0, :location).delete(:timezone)
+        appointments = subject.parse(vaos_data)
+        appointments[0]
+      end
+
+      it 'falls back to hardcoded timezone lookup' do
+        expect(no_timezone_appt[:start_date_local]).to eq('2022-08-27 09:45:00 -0600"')
+        expect(no_timezone_appt[:start_date_utc]).to eq('2022-08-27T15:45:00Z')
+        expect(no_timezone_appt[:time_zone]).to eq('America/Denver')
+      end
     end
   end
 
@@ -745,49 +780,36 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with different patient phone numbers formats' do
-    let(:vaos_data) { JSON.parse(appointment_fixtures, symbolize_names: true)[7] }
-
-    let(:parentheses_phone_num_appt) do
-
-binding.pry
-
-      home_va[:contact][:telecom][0][:value] = '(480)-293-1922'
-      subject.parse([home_va])
-    end
-
-    let(:parentheses_no_dash_phone_num_appt) do
-      home_va[:contact][:telecom][0][:value] = '(480) 293-1922'
-      subject.parse([home_va])
-    end
-
-    let(:no_dashes_phone_num_appt) do
-      home_va[:contact][:telecom][0][:value] = '4802931922'
-      subject.parse([home_va])
-    end
-
-    let(:no_parentheses_phone_num_appt) do
-      home_va[:contact][:telecom][0][:value] = '480-293-1922'
-      subject.parse([vaos_data])
-    end
+    let(:home_va) { appointment_by_id(atlas_va_id) }
 
     it 'formats phone number with parentheses' do
-      expect(parentheses_phone_num_appt.first[:patient_phone_number]).to eq('480-293-1922')
+      home_va[:contact][:telecom][0][:value] = '(480)-293-1922'
+      parentheses_phone_num_appt = subject.parse([home_va]).first
+      expect(parentheses_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
     end
 
     it 'formats phone number with parentheses and no first dash' do
-      expect(parentheses_no_dash_phone_num_appt.first[:patient_phone_number]).to eq('480-293-1922')
+      home_va[:contact][:telecom][0][:value] = '(480) 293-1922'
+      parentheses_no_dash_phone_num_appt = subject.parse([home_va]).first
+      expect(parentheses_no_dash_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
     end
 
     it 'formats phone number with no dashes' do
-      expect(no_dashes_phone_num_appt.first[:patient_phone_number]).to eq('480-293-1922')
+      home_va[:contact][:telecom][0][:value] = '4802931922'
+      no_dashes_phone_num_appt = subject.parse([home_va]).first
+      expect(no_dashes_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
     end
 
     it 'does not change phone number with correct format' do
-      expect(no_parentheses_phone_num_appt.first[:patient_phone_number]).to eq('480-293-1922')
+      home_va[:contact][:telecom][0][:value] = '480-293-1922'
+      no_parentheses_phone_num_appt = subject.parse([home_va]).first
+      expect(no_parentheses_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
     end
   end
 
   describe 'embedded acheron values' do
+    let(:acheron_appointment) { adapted_appointment_by_id(acheron_appointment_id) }
+
     # these tests are duplicative of the full body test but are meant to highlight the relevant data
     it 'parses values out of the reason code' do
       expect(acheron_appointment.patient_email).to eq('melissa.gra@va.gov')
@@ -801,10 +823,10 @@ binding.pry
     it 'parses all fields predictably' do
       expect(acheron_appointment.as_json).to eq(
         {
-          'id' => '145078',
+          'id' => acheron_appointment_id,
           'appointment_type' => 'VA',
           'appointment_ien' => nil,
-          'cancel_id' => '145078',
+          'cancel_id' => acheron_appointment_id,
           'comment' => 'My leg!',
           'facility_id' => '552',
           'sta6aid' => '552',
@@ -965,7 +987,7 @@ binding.pry
 
     context 'with telehealth appointment' do
       it 'sets location from appointment location attributes' do
-        telehealth_appointment = appointment_by_id('50095')
+        telehealth_appointment = appointment_by_id(atlas_va_id)
         result = subject.parse([telehealth_appointment]).first
 
         expect(result[:location].to_h).to eq(
