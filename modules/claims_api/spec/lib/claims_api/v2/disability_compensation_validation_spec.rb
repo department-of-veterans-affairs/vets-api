@@ -398,19 +398,6 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
-    context 'conditional validations when the country is not USA' do
-      context 'internationalPostalCode is not included' do
-        it 'returns an error array' do
-          subject.form_attributes['changeOfAddress']['country'] = 'Brazil'
-          subject.form_attributes['changeOfAddress']['internationalPostalCode'] = ''
-          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
-          expect(current_error_array[0][:detail])
-            .to eq('The internationalPostalCode is required if the country is not USA.')
-          expect(current_error_array[0][:source]).to eq('/changeOfAddress/')
-        end
-      end
-    end
-
     context 'when the country is not provided' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['country'] = ''

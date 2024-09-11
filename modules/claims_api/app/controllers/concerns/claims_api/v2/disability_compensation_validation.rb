@@ -184,15 +184,6 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_international_coa_conditions(address)
-        if address['internationalPostalCode'].blank?
-          collect_error_messages(
-            source: '/changeOfAddress/',
-            detail: 'The internationalPostalCode is required if the country is not USA.'
-          )
-        end
-      end
-
       def validate_form_526_claimant_certification
         return unless form_attributes['claimantCertification'] == false
 
