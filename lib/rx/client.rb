@@ -21,7 +21,7 @@ module Rx
     CACHE_TTL = 3600 * 1 # 1 hour cache
     CACHE_TTL_ZERO = 0
 
-    def initialize(session:, upstream_request: {})
+    def initialize(session:, upstream_request: nil)
       @upstream_request = upstream_request
       super(session:)
     end
@@ -203,7 +203,6 @@ module Rx
       tags = []
       tags.append("source_app:#{@upstream_request.env['SOURCE_APP']}") if @upstream_request
       StatsD.increment("#{STATSD_KEY_PREFIX}.refills.requested", count, tags:)
-      nil
     end
 
     # NOTE: After June 17, MHV will roll out an improvement that collapses these
