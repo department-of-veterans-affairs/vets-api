@@ -199,6 +199,9 @@ development: &defaults
   brd_response_store:
     namespace: brd_response_store
     each_ttl: 82800
+  bgs_find_poas_response:
+    namespace: bgs_find_poas_response
+    each_ttl: 86400
 test:
   <<: *defaults
   redis:
