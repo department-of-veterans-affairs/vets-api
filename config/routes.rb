@@ -22,13 +22,17 @@ Rails.application.routes.draw do
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
 
-  get '/sign_in/openid_connect/certs' => 'sign_in/openid_connect_certificates#index'
+  namespace :sign_in do
+    get '/openid_connect/certs', to: 'openid_connect_certificates#index'
 
-  unless Settings.vsp_environment == 'production'
-    namespace :sign_in do
+    unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
     end
+  end
+
+  namespace :sts do
+    get '/terms_of_use/current_status', to: 'terms_of_use#current_status'
   end
 
   namespace :v0, defaults: { format: 'json' } do
