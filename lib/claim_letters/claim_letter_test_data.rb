@@ -188,7 +188,7 @@ module ClaimLetterTestData
     ),
     OpenStruct.new(
       document_id: '{27832B64-2D88-4DEE-9F6F-DF80E4CAAA93}',
-      series_id: '{350C072A-90A1-43A7-AD50-A5C9C54C357G}',
+      series_id: '{350C072A-90A1-43A7-AD50-A5C9C54C357C}',
       version: '1',
       type_description: 'Correspondence',
       type_id: '34',
