@@ -5,19 +5,21 @@ require 'faraday/multipart'
 module SimpleFormsApi
   module SharePoint
     class ArchiveUploader < Client
-      # TODO: some/most of these parameters are unnecessary
-      def upload(benefits_intake_uuid:, zip_file_path:)
-        upload_response = upload_payload(form_contents:, form_submission:, station_id:)
+      def upload(benefits_intake_uuid:, file_path:)
+        @benefits_intake_uuid = benefits_intake_uuid
+        @file_path = file_path
+
+        upload_response = upload_payload
         list_item_id = fetch_list_item_id(upload_response)
 
-        update_sharepoint_item(list_item_id:, form_submission:, station_id:)
+        update_sharepoint_item(list_item_id:, station_id:)
       rescue => e
         handle_upload_error(e)
       end
 
       private
 
-      def upload_payload(form_contents:, form_submission:, station_id:)
+      def upload_payload
         payload_path = generate_payload_path
         payload_name = build_payload_name
 
@@ -54,7 +56,7 @@ module SimpleFormsApi
         end
       end
 
-      def update_sharepoint_item(list_item_id:, form_submission:, station_id:)
+      def update_sharepoint_item(list_item_id:, station_id:)
         # TODO: this is a placeholder path and will need to be changed
         path = "#{base_path}/_api/Web/Lists/GetByTitle('Submissions')/items(#{list_item_id})"
         with_monitoring do
@@ -62,19 +64,17 @@ module SimpleFormsApi
             req.headers['Content-Type'] = 'application/json;odata=verbose'
             req.headers['X-HTTP-METHOD'] = 'MERGE'
             req.headers['If-Match'] = '*'
-            req.body = build_item_payload(form_submission, station_id).to_json
+            req.body = build_item_payload(station_id).to_json
           end
         end
       end
 
-      # TODO: this is a holdover from VHA logic and will need changed
-      def build_item_payload(form_submission, station_id)
+      # TODO: this is incomplete and needs to be finished
+      def build_item_payload(station_id)
         {
           '__metadata' => { 'type' => 'SP.Data.SubmissionsItem' },
           'StationId' => station_id,
-          'UID' => form_submission.id
-          # 'SSN' => user[:ssn],
-          # 'Name1' => "#{user[:last_name]}, #{user[:first_name]}"
+          'UID' => benefits_intake_uuid
         }
       end
     end
