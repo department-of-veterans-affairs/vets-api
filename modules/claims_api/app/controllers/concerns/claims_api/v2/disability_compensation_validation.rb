@@ -749,7 +749,7 @@ module ClaimsApi
         service_periods.each_with_index do |service_period, idx|
           separation_location_code = service_period['separationLocationCode']
 
-          next if separation_location_ids.include?(separation_location_code)
+          next if separation_location_code.nil? || separation_location_ids.include?(separation_location_code)
 
           ClaimsApi::Logger.log('separation_location_codes', detail: 'Separation location code not found',
                                                              separation_locations:, separation_location_code:)

@@ -72,7 +72,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       ] }
     end
 
-    let(:mixed_separation_codes) do
+    let(:valid_and_invalid_separation_codes) do
       { 'servicePeriods' => [
         {
           'serviceBranch' => 'Public Health Service',
@@ -88,6 +88,24 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
           'activeDutyEndDate' => '2023-10-30',
           'separationLocationCode' => '123456' # invalid
         }
+      ] }
+    end
+
+    let(:valid_and_no_separation_codes) do
+      { 'servicePeriods' => [
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => '2023-10-30',
+          'separationLocationCode' => '24912' # valid
+        },
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => '2023-10-30'
+        } # no separation location code
       ] }
     end
 
@@ -126,10 +144,19 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
       context 'when the location code is valid in some service periods and invalid in others' do
         it 'adds an error to the errors array' do
-          test_526_validation_instance.send(:validate_form_526_location_codes, mixed_separation_codes)
+          test_526_validation_instance.send(:validate_form_526_location_codes, valid_and_invalid_separation_codes)
           errors = test_526_validation_instance.send(:error_collection)
 
           expect(errors.size).to eq(1)
+        end
+      end
+
+      context 'when the location code is valid in some service periods and not present in others' do
+        it 'returns no errors' do
+          test_526_validation_instance.send(:validate_form_526_location_codes, valid_and_no_separation_codes)
+          errors = test_526_validation_instance.send(:error_collection)
+
+          expect(errors).to be_empty
         end
       end
     end
