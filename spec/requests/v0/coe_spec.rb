@@ -82,7 +82,7 @@ Rspec.describe 'V0::Coe', type: :request do
             }
 
             post('/v0/coe/document_upload', params: attachments)
-            expect(response).to have_http_status :ok
+            expect(response).to have_http_status :created
           end
         end
       end
