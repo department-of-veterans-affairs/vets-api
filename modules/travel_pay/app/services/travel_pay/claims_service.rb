@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module TravelPay
-  class Service
+  class ClaimsService
     def get_claims(current_user)
       claims_response = client.get_claims(current_user)
       symbolized_body = claims_response.body.deep_symbolize_keys
@@ -17,7 +17,7 @@ module TravelPay
     private
 
     def client
-      TravelPay::Client.new
+      TravelPay::ClaimsClient.new
     end
   end
 end

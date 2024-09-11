@@ -122,6 +122,7 @@ class SourceAppMiddleware
     search-representative
     secure-messaging
     secure-messaging-pilot
+    survivor-dependent-education-benefit-22-5490
     static-pages
     submitted-appeal
     terms-of-use

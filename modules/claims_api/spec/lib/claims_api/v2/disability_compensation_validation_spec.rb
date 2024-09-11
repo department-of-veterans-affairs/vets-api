@@ -28,6 +28,10 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
   let(:created_at) { Timecop.freeze(Time.zone.now) }
 
+  def current_error_array
+    test_526_validation_instance.instance_variable_get('@errors')
+  end
+
   describe '#remove_chars' do
     let(:date_string) { subject.form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] }
 
@@ -68,7 +72,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       ] }
     end
 
-    let(:mixed_separation_codes) do
+    let(:valid_and_invalid_separation_codes) do
       { 'servicePeriods' => [
         {
           'serviceBranch' => 'Public Health Service',
@@ -84,6 +88,24 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
           'activeDutyEndDate' => '2023-10-30',
           'separationLocationCode' => '123456' # invalid
         }
+      ] }
+    end
+
+    let(:valid_and_no_separation_codes) do
+      { 'servicePeriods' => [
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => '2023-10-30',
+          'separationLocationCode' => '24912' # valid
+        },
+        {
+          'serviceBranch' => 'Public Health Service',
+          'serviceComponent' => 'Active',
+          'activeDutyBeginDate' => '2008-11-14',
+          'activeDutyEndDate' => '2023-10-30'
+        } # no separation location code
       ] }
     end
 
@@ -122,10 +144,19 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
       context 'when the location code is valid in some service periods and invalid in others' do
         it 'adds an error to the errors array' do
-          test_526_validation_instance.send(:validate_form_526_location_codes, mixed_separation_codes)
+          test_526_validation_instance.send(:validate_form_526_location_codes, valid_and_invalid_separation_codes)
           errors = test_526_validation_instance.send(:error_collection)
 
           expect(errors.size).to eq(1)
+        end
+      end
+
+      context 'when the location code is valid in some service periods and not present in others' do
+        it 'returns no errors' do
+          test_526_validation_instance.send(:validate_form_526_location_codes, valid_and_no_separation_codes)
+          errors = test_526_validation_instance.send(:error_collection)
+
+          expect(errors).to be_empty
         end
       end
     end
@@ -140,6 +171,64 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
     # rubocop:enable RSpec/SubjectStub
+  end
+
+  describe 'military address validations' do
+    let(:valid_military_address) do
+      {
+        'addressLine1' => 'CMR 468 Box 1181',
+        'city' => 'DPO',
+        'country' => 'USA',
+        'zipFirstFive' => '09277',
+        'state' => 'AE'
+      }
+    end
+    let(:invalid_military_address) do
+      {
+        'addressLine1' => 'CMR 468 Box 1181',
+        'city' => 'FPO',
+        'country' => 'USA',
+        'zipFirstFive' => '09277',
+        'state' => 'AL'
+      }
+    end
+
+    describe '#address_is_military?' do
+      it 'correctly identifies address as MILITARY' do
+        check = test_526_validation_instance.send(:address_is_military?, valid_military_address)
+        expect(check).to eq(true)
+      end
+
+      it 'correctly identifies address as not MILITARY if no military codes are used' do
+        check = test_526_validation_instance.send(:address_is_military?,
+                                                  subject.form_attributes['veteranIdentification']['mailingAddress'])
+        expect(check).to eq(false)
+      end
+    end
+
+    describe '#validate_form_526_address_type' do
+      context 'mailingAddress' do
+        it 'returns an error with an incorrect MILITARY address combination' do
+          subject.form_attributes['veteranIdentification']['mailingAddress'] = invalid_military_address
+          test_526_validation_instance.send(:validate_form_526_address_type)
+          expect(current_error_array[0][:detail]).to eq('Invalid city and military postal combination.')
+          expect(current_error_array[0][:source]).to eq('/veteranIdentification/mailingAddress/')
+        end
+
+        it 'handles a correct MILITARY address combination' do
+          subject.form_attributes['veteranIdentification']['mailingAddress'] = valid_military_address
+          test_526_validation_instance.send(:validate_form_526_address_type)
+          test_526_validation_instance.instance_variable_get('@errors')
+          expect(current_error_array).to eq(nil)
+        end
+
+        it 'handles a DOMESTIC address' do
+          test_526_validation_instance.send(:validate_form_526_address_type)
+          test_526_validation_instance.instance_variable_get('@errors')
+          expect(current_error_array).to eq(nil)
+        end
+      end
+    end
   end
 
   describe '#date_range_overlap?' do
@@ -277,10 +366,9 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '01-01-2023'
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = '01-01-2024'
         test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date)
-        errors = test_526_validation_instance.instance_variable_get('@errors')
-        expect(errors[0][:detail]).to eq('Change of address endDate cannot be included ' \
-                                         'when typeOfAddressChange is PERMANENT')
-        expect(errors[0][:source]).to eq('/changeOfAddress/dates/endDate')
+        expect(current_error_array[0][:detail]).to eq('Change of address endDate cannot be included ' \
+                                                      'when typeOfAddressChange is PERMANENT')
+        expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/endDate')
       end
     end
   end

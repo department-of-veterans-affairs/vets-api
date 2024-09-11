@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'securerandom'
+require_relative 'base_client'
 
 module TravelPay
-  class Client
+  class ClaimsClient < TravelPay::BaseClient
     ##
     # HTTP POST call to the VEIS Auth endpoint to get the access token
     #
@@ -79,21 +80,6 @@ module TravelPay
 
     private
 
-    def claim_headers
-      if Settings.vsp_environment == 'production'
-        {
-          'Content-Type' => 'application/json',
-          'Ocp-Apim-Subscription-Key-E' => Settings.travel_pay.subscription_key_e,
-          'Ocp-Apim-Subscription-Key-S' => Settings.travel_pay.subscription_key_s
-        }
-      else
-        {
-          'Content-Type' => 'application/json',
-          'Ocp-Apim-Subscription-Key' => Settings.travel_pay.subscription_key
-        }
-      end
-    end
-
     def build_sts_assertion(user)
       service_account_id = Settings.travel_pay.sts.service_account_id
       host_baseurl = build_host_baseurl({ ip_form: false })
@@ -152,31 +138,6 @@ module TravelPay
         req.headers['X-Correlation-ID'] = correlation_id
         req.headers.merge!(claim_headers)
       end
-    end
-
-    ##
-    # Create a Faraday connection object
-    # @return [Faraday::Connection]
-    #
-    def connection(server_url:)
-      service_name = Settings.travel_pay.service_name
-
-      Faraday.new(url: server_url) do |conn|
-        conn.use :breakers
-        conn.response :raise_custom_error, error_prefix: service_name, include_request: true
-        conn.response :betamocks if mock_enabled?
-        conn.response :json
-        conn.request :json
-
-        conn.adapter Faraday.default_adapter
-      end
-    end
-
-    ##
-    # Syntactic sugar for determining if the client should use
-    # fake api responses or actually connect to the BTSSS API
-    def mock_enabled?
-      Settings.travel_pay.mock
     end
   end
 end
