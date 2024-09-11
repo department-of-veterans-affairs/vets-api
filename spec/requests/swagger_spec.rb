@@ -3296,17 +3296,35 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       describe '/v0/coe/document_upload' do
-        it 'validates the route' do
-          VCR.use_cassette 'lgy/document_upload' do
-            params = {
-              'files' => [{
-                'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
-                'document_type' => 'VA home loan documents',
-                'file_type' => 'pdf',
-                'file_name' => 'lgy_file.pdf'
-              }]
-            }
-            expect(subject).to validate(:post, '/v0/coe/document_upload', 201, headers.merge({ '_data' => params }))
+        context 'successful upload' do
+          it 'validates the route' do
+            VCR.use_cassette 'lgy/document_upload' do
+              params = {
+                'files' => [{
+                  'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+                  'document_type' => 'VA home loan documents',
+                  'file_type' => 'pdf',
+                  'file_name' => 'lgy_file.pdf'
+                }]
+              }
+              expect(subject).to validate(:post, '/v0/coe/document_upload', 200, headers.merge({ '_data' => params }))
+            end
+          end
+        end
+
+        context 'failed upload' do
+          it 'validates the route' do
+            VCR.use_cassette 'lgy/document_upload_504' do
+              params = {
+                'files' => [{
+                  'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+                  'document_type' => 'VA home loan documents',
+                  'file_type' => 'pdf',
+                  'file_name' => 'lgy_file.pdf'
+                }]
+              }
+              expect(subject).to validate(:post, '/v0/coe/document_upload', 500, headers.merge({ '_data' => params }))
+            end
           end
         end
       end

@@ -82,7 +82,8 @@ Rspec.describe 'V0::Coe', type: :request do
             }
 
             post('/v0/coe/document_upload', params: attachments)
-            expect(response).to have_http_status :created
+            expect(response).to have_http_status :ok
+            expect(response.body).to eq '201'
           end
         end
       end
@@ -101,7 +102,7 @@ Rspec.describe 'V0::Coe', type: :request do
 
             expect(Rails.logger).to receive(:info)
             post('/v0/coe/document_upload', params: attachments)
-            expect(response).to have_http_status(:gateway_timeout)
+            expect(response).to have_http_status(:server_error)
           end
         end
       end
@@ -122,11 +123,12 @@ Rspec.describe 'V0::Coe', type: :request do
           'fileName' => 'lgy_file.pdf'
         }
 
-        expected_response = double(:fake_response, status: 200)
+        expected_response = double(:fake_response, status: 201)
         expect_any_instance_of(LGY::Service).to receive(:post_document).with(payload: expected_payload)
                                                                        .and_return(expected_response)
         post('/v0/coe/document_upload', params: attachments)
         expect(response).to have_http_status(:ok)
+        expect(response.body).to eq '201'
       end
     end
 
