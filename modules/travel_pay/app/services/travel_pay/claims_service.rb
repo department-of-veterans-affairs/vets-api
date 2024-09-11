@@ -2,8 +2,8 @@
 
 module TravelPay
   class ClaimsService
-    def get_claims(current_user)
-      claims_response = client.get_claims(current_user)
+    def get_claims(veis_token, btsss_token)
+      claims_response = client.get_claims(veis_token, btsss_token)
       symbolized_body = claims_response.body.deep_symbolize_keys
 
       {
