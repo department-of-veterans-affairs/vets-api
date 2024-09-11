@@ -6,8 +6,7 @@ module Mobile
       include JSONAPI::Serializer
 
       set_type :facilities_info
-      attributes :id,
-                 :facilities
+      attribute :facilities
     end
   end
 end

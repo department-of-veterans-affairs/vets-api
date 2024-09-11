@@ -14,7 +14,7 @@ module Mobile
         facilities = Mobile::FacilitiesHelper.fetch_facilities_from_ids(@current_user, facility_ids,
                                                                         include_children: false, schedulable: nil)
 
-        adapted_facilities = Mobile::V0::Adapters::FacilityInfo.new.parse(facilities:, user: @current_user)
+        adapted_facilities = Mobile::V0::Adapters::FacilityInfo.new(@current_user).parse(facilities:)
 
         render json: Mobile::V0::FacilitiesInfoSerializer.new(adapted_facilities)
       end
@@ -25,11 +25,10 @@ module Mobile
         facilities = Mobile::FacilitiesHelper.fetch_facilities_from_ids(@current_user, facility_ids,
                                                                         include_children: true, schedulable: true)
 
-        facilities_info = Mobile::V0::Adapters::FacilityInfo.new.parse(facilities:,
-                                                                       user: @current_user,
-                                                                       sort: params[:sort],
-                                                                       lat: params[:lat],
-                                                                       long: params[:long])
+        facilities_info = Mobile::V0::Adapters::FacilityInfo.new(@current_user).parse(facilities:,
+                                                                                      sort: params[:sort],
+                                                                                      lat: params[:lat],
+                                                                                      long: params[:long])
 
         render json: Mobile::V0::FacilitiesInfoSerializer.new(facilities_info)
       end
