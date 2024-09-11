@@ -132,6 +132,7 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, uuid: confirmation_number }
         )
 
+        concatenate_attachments_to_pdf(file_path)
         presigned_s3_url = send_pdf_to_s3(confirmation_number, file_path)
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
@@ -220,12 +221,16 @@ module SimpleFormsApi
         lighthouse_service.perform_upload(**upload_params)
       end
 
+      def concatenate_attachments_to_pdf(file_path)
+        form.handle_attachments(file_path) if get_form_id == 'vba_20_10207'
+      end
+
       def send_pdf_to_s3(confirmation_number, file_path)
-        submission_archive_handler = SimpleFormsApi::S3Service::SubmissionArchiveHandler.new(
+        submission_archiver = SimpleFormsApi::S3Service::SubmissionArchiver.new(
           benefits_intake_uuid: confirmation_number,
           file_path:
         )
-        submission_archive_handler.run
+        submission_archiver.run
       end
 
       def form_is264555_and_should_use_lgy_api
@@ -244,7 +249,7 @@ module SimpleFormsApi
       end
 
       def get_json(confirmation_number, form_id, presigned_s3_url)
-        json = { confirmation_number:, presigned_s3_url: }
+        json = { confirmation_number:, pdf_url: presigned_s3_url }
         json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
 
         json

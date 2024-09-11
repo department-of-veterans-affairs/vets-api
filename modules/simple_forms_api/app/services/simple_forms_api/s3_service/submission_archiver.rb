@@ -2,7 +2,7 @@
 
 module SimpleFormsApi
   module S3Service
-    class SubmissionArchiveHandler
+    class SubmissionArchiver
       def initialize(benefits_intake_uuid:, file_path:)
         # TODO: Implement me!
       end

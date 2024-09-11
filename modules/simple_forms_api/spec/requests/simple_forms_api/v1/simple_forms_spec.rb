@@ -112,20 +112,20 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             end.to change(InProgressForm, :count).by(-1)
           end
 
-          it 'sends the PDF to the SimpleFormsApi::S3Service::SubmissionArchiveHandler' do
+          it 'sends the PDF to the SimpleFormsApi::S3Service::SubmissionArchiver' do
             hardcoded_location_url = 'https://sandbox-api.va.gov/services_user_content/vba_documents/id-path-doesnt-matter'
             benefits_intake_uuid = 'some-benefits-intake-uuid'
             presigned_s3_url = 'some-presigned-url'
-            submission_archive_handler = double(run: presigned_s3_url)
+            submission_archiver = double(run: presigned_s3_url)
             allow_any_instance_of(BenefitsIntake::Service).to receive(:request_upload)
               .and_return([hardcoded_location_url, benefits_intake_uuid])
-            allow(SimpleFormsApi::S3Service::SubmissionArchiveHandler).to receive(:new)
+            allow(SimpleFormsApi::S3Service::SubmissionArchiver).to receive(:new)
               .with(benefits_intake_uuid:, file_path: anything)
-              .and_return(submission_archive_handler)
+              .and_return(submission_archiver)
 
             post '/simple_forms_api/v1/simple_forms', params: data
 
-            expect(submission_archive_handler).to have_received(:run)
+            expect(submission_archiver).to have_received(:run)
             expect(JSON.parse(response.body)['presigned_s3_url']).to eq presigned_s3_url
           end
         end
