@@ -293,7 +293,7 @@ FactoryBot.define do
 
     factory :in_progress_527_form do
       user_uuid { SecureRandom.uuid }
-      form_id { '21-527EZ' }
+      form_id { '21P-527EZ' }
       metadata do
         {
           version: 1,

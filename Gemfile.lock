@@ -547,7 +547,7 @@ GEM
     hashdiff (1.1.0)
     hashery (2.1.2)
     hashie (5.0.0)
-    hexapdf (0.46.0)
+    hexapdf (0.47.0)
       cmdparse (~> 3.0, >= 3.0.3)
       geom2d (~> 0.4, >= 0.4.1)
       openssl (>= 2.2.1)
@@ -944,7 +944,7 @@ GEM
       rubocop (>= 0.90.0)
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
-    ruby-saml (1.16.0)
+    ruby-saml (1.17.0)
       nokogiri (>= 1.13.10)
       rexml
     ruby-vips (2.2.1)
