@@ -65,11 +65,37 @@ module ClaimsApi
 
       def validate_form_526_change_of_address_required_fields
         change_of_address = form_attributes['changeOfAddress']
-        coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
 
         form_object_desc = '/changeOfAddress'
 
+        validate_form_526_coa_type_of_address_change_presence(change_of_address, form_object_desc)
+        validate_form_526_coa_address_line_one_presence(change_of_address, form_object_desc)
+        validate_form_526_coa_country_presence(change_of_address, form_object_desc)
+        validate_form_526_coa_city_presence(change_of_address, form_object_desc)
+
+        coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
+
         collect_error_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
+      end
+
+      def validate_form_526_coa_type_of_address_change_presence(change_of_address, form_object_desc)
+        type_of_address_change = change_of_address&.dig('typeOfAddressChange')
+        collect_error_if_value_not_present('typeOfAddressChange', form_object_desc) if type_of_address_change.blank?
+      end
+
+      def validate_form_526_coa_address_line_one_presence(change_of_address, form_object_desc)
+        address_line_one = change_of_address&.dig('addressLine1')
+        collect_error_if_value_not_present('addressLine1', form_object_desc) if address_line_one.blank?
+      end
+
+      def validate_form_526_coa_country_presence(change_of_address, form_object_desc)
+        country = change_of_address&.dig('country')
+        collect_error_if_value_not_present('country', form_object_desc) if country.blank?
+      end
+
+      def validate_form_526_coa_city_presence(change_of_address, form_object_desc)
+        city = change_of_address&.dig('city')
+        collect_error_if_value_not_present('city', form_object_desc) if city.blank?
       end
 
       def validate_form_526_change_of_address_beginning_date
