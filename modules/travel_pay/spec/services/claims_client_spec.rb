@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe TravelPay::Client do
+describe TravelPay::ClaimsClient do
   let(:user) { build(:user) }
 
   before do
@@ -14,7 +14,7 @@ describe TravelPay::Client do
       c.request :json
     end
 
-    allow_any_instance_of(TravelPay::Client).to receive(:connection).and_return(conn)
+    allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(conn)
   end
 
   context 'prod settings' do
@@ -45,7 +45,7 @@ describe TravelPay::Client do
           '{"access_token": "fake_veis_token"}'
         ]
       end
-      client = TravelPay::Client.new
+      client = TravelPay::ClaimsClient.new
       token = client.request_veis_token
 
       expect(token).to eq('fake_veis_token')
@@ -66,7 +66,7 @@ describe TravelPay::Client do
         ]
       end
 
-      client = TravelPay::Client.new
+      client = TravelPay::ClaimsClient.new
       token = client.request_btsss_token('fake_veis_token', vagov_token)
 
       expect(token).to eq('fake_btsss_token')
@@ -76,13 +76,13 @@ describe TravelPay::Client do
 
   context '/claims' do
     before do
-      allow_any_instance_of(TravelPay::Client)
+      allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:request_veis_token)
         .and_return('veis_token')
-      allow_any_instance_of(TravelPay::Client)
+      allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:request_sts_token)
         .and_return('sts_token')
-      allow_any_instance_of(TravelPay::Client)
+      allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:request_btsss_token)
         .with('veis_token', 'sts_token')
         .and_return('btsss_token')
@@ -129,7 +129,7 @@ describe TravelPay::Client do
 
       expected_ids = %w[uuid1 uuid2 uuid3]
 
-      client = TravelPay::Client.new
+      client = TravelPay::ClaimsClient.new
       claims_response = client.get_claims(user)
       actual_claim_ids = claims_response.body['data'].pluck('id')
 
@@ -171,7 +171,7 @@ describe TravelPay::Client do
           '{"data": {"access_token": "fake_sts_token"}}'
         ]
       end
-      client = TravelPay::Client.new
+      client = TravelPay::ClaimsClient.new
       sts_token = client.request_sts_token(user)
       expect(sts_token).to eq('fake_sts_token')
       @stubs.verify_stubbed_calls
