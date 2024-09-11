@@ -4,13 +4,13 @@ module SimpleFormsApi
   module S3
     class SubmissionArchiver < Utils
       attr_reader :benefits_intake_uuid, :include_json_archive, :include_text_archive, :metadata, :parent_dir,
-                  :submission
+                  :submission, :file_path
 
       class << self
         def fetch_presigned_url(benefits_intake_uuid)
           instance = self.class.new(benefits_intake_uuid:)
-          instance.fetch_pdf(benefits_intake_uuid, form_number)
-          # TODO: return presigned_url from object
+          pdf = instance.fetch_pdf(benefits_intake_uuid)
+          sign_s3_file_url(pdf)
         end
       end
 
@@ -57,6 +57,7 @@ module SimpleFormsApi
           "#{output_directory_path}/form_#{submission.form_data['form_number']}.pdf",
           Base64.decode64(encoded_pdf)
         )
+        # TODO: do we want to immediately sign the pdf?
         sign_s3_file_url(pdf)
       end
 
@@ -72,9 +73,7 @@ module SimpleFormsApi
       end
 
       def sign_s3_file_url(pdf)
-        signed_url = pdf.presigned_url(:get, expires_in: 30.minutes.to_i)
-        # TODO: How do we want to handle this?
-        # submission.form_submission_attempts&.last&.update(signed_url:)
+        pdf.presigned_url(:get, expires_in: 30.minutes.to_i)
       end
 
       def error_details(error)

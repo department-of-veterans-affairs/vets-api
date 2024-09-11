@@ -3,13 +3,12 @@
 module SimpleFormsApi
   module S3
     class SubmissionArchiveHandler < Utils
-      attr_reader :attachments, :benefits_intake_uuids, :parent_dir, :successes, :failures, :bundle_by_user
+      attr_reader :attachments, :benefits_intake_uuids, :parent_dir, :metadata, :file_path
 
       def initialize(benefits_intake_uuids: [], **options) # rubocop:disable Lint/MissingSuper
         defaults = default_options.merge(options)
 
         @benefits_intake_uuids = benefits_intake_uuids
-        @failures = []
 
         assign_instance_variables(defaults)
       end
@@ -24,8 +23,7 @@ module SimpleFormsApi
 
       def default_options
         {
-          attachments: [],
-          bundle_by_user: true,
+          attachments: [], # an array of attachment confirmation codes
           file_path: nil, # file path for the PDF file to be archived
           metadata: {}, # pertinent metadata for original file upload/submission
           parent_dir: 'vff-simple-forms' # S3 bucket base directory where files live

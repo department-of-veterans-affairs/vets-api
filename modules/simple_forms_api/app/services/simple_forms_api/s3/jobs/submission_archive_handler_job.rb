@@ -22,12 +22,10 @@ module SimpleFormsApi
 
         def default_options
           {
-            attachments: [],
-            bundle_by_user: true,
+            attachments: [], # an array of attachment confirmation codes
             file_path: nil, # file path for the PDF file to be archived
             metadata: {}, # pertinent metadata for original file upload/submission
-            parent_dir: 'vff-simple-forms', # S3 bucket base directory where files live
-            signed_link: false # TODO: Will we ever need to make this optional?
+            parent_dir: 'vff-simple-forms' # S3 bucket base directory where files live
           }
         end
       end
