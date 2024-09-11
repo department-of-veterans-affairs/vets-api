@@ -230,14 +230,19 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
         subject.new.perform(power_of_attorney.id)
       end
 
-      it 'rescues errors from BD' do
-        subject.new.perform(power_of_attorney.id)
-        bd_stub = instance_double(ClaimsApi::BD)
-        allow(ClaimsApi::BD).to receive(:new) { bd_stub }
-        allow(bd_stub).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)
-                                          .and_raise(Common::Exceptions::BackendServiceException.new(errors))
-        power_of_attorney.reload
-        expect(power_of_attorney.status).to eq(ClaimsApi::PowerOfAttorney::ERRORED)
+      it 'rescues errors from BD and sets the status to errored' do
+        VCR.use_cassette('claims_api/bd/upload_error') do
+          subject.new.perform(power_of_attorney.id)
+          bd_stub = instance_double(ClaimsApi::BD)
+          allow(ClaimsApi::BD).to receive(:new) { bd_stub }
+          allow(bd_stub).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)
+                                            .and_raise(Common::Exceptions::BackendServiceException.new(errors))
+        rescue => e
+          expect(e.message).to eq('BackendServiceException: {:status=>400, :detail=>nil, :code=>"VA900", :source=>nil}')
+          power_of_attorney.reload
+          expect(power_of_attorney.status).to eq(ClaimsApi::PowerOfAttorney::ERRORED)
+          expect(power_of_attorney.vbms_error_message).to eq(e.message)
+        end
       end
     end
 

@@ -65,6 +65,8 @@ module ClaimsApi
     def rescue_generic_errors(power_of_attorney, e)
       poa = ClaimsApi::PowerOfAttorney.find(power_of_attorney.id)
       poa.status = ClaimsApi::PowerOfAttorney::ERRORED
+      poa.vbms_error_message = e&.message || e&.original_body
+      poa.save
       ClaimsApi::Logger.log('PoaVBMSUploadJob', message: "In generic rescue, the error is: #{e}")
     end
   end
