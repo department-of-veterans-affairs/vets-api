@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'securerandom'
 
 describe TravelPay::Service do
   context 'get_claims' do
@@ -36,8 +37,8 @@ describe TravelPay::Service do
             'modifiedOn' => '2024-02-01T00:00:00.0Z'
           },
           {
-            'id' => 'uuid4',
-            'claimNumber' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'claimNumber' => 'TC0004',
             'claimName' => '9d81c1a1-cd05-47c6-be97-d14dec579893',
             'claimStatus' => 'Claim Submitted',
             'appointmentDateTime' => nil,
@@ -69,6 +70,35 @@ describe TravelPay::Service do
       actual_statuses = claims[:data].pluck(:claimStatus)
 
       expect(actual_statuses).to match_array(expected_statuses)
+    end
+
+    context 'get claim by id' do
+      it 'returns a single claim when passed a valid id' do
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        expected_claim = claims_data['data'].find { |c| c['id'] == claim_id }
+        service = TravelPay::Service.new
+        actual_claim = service.get_claim_by_id(user, claim_id)
+
+        expect(actual_claim).to eq(expected_claim)
+      end
+
+      it 'returns nil if a claim with the given id was not found' do
+        claim_id = SecureRandom::uuid
+        service = TravelPay::Service.new
+        actual_claim = service.get_claim_by_id(user, claim_id)
+
+        expect(actual_claim).to eq(nil)
+      end
+
+      it 'throws an ArgumentException if claim_id is invalid format' do
+        claim_id = 'this-is-definitely-a-uuid-right'
+        service = TravelPay::Service.new
+        get_claim_method = -> {  }
+
+        expect { 
+          service.get_claim_by_id(user, claim_id)
+        }.to raise_error(ArgumentError, /valid v4 UUID/i)
+      end
     end
   end
 end
