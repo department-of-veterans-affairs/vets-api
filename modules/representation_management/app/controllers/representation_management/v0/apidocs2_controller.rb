@@ -49,7 +49,7 @@ module RepresentationManagement
 
       # A list of all classes that have swagger_* declarations.
       SWAGGERED_CLASSES = [
-        RepresentationManagement::V0::PdfGenerator2122Controller,
+        Requests::PdfGenerator2122,
         self
       ].freeze
 
