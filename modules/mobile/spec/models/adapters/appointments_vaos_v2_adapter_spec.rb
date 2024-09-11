@@ -755,15 +755,37 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
   end
 
-  context 'with non-human readable service type' do
-    let(:no_readable_service_appt) do
-      vaos_data = JSON.parse(appointment_fixtures, symbolize_names: true)[2]
-      vaos_data[:service_type] = 'outpatientMentalHealth'
-      subject.parse([vaos_data])
+  def type_of_care(service_type)
+    return nil if service_type.nil?
+
+    SERVICE_TYPES[service_type] || service_type.titleize
+  end
+
+  describe 'type_of_care' do
+    let(:vaos_data) { appointment_by_id(booked_va_id) }
+
+    context 'with nil service type' do
+      it 'returns nil' do
+        vaos_data[:service_type] = nil
+        nil_service_type = subject.parse([vaos_data]).first
+        expect(nil_service_type[:type_of_care]).to eq(nil)
+      end
     end
 
-    it 'converts to human readable service type' do
-      expect(no_readable_service_appt.first[:type_of_care]).to eq('Mental Health')
+    context 'with known service type' do
+      it 'returns appropriate copy for the service type' do
+        vaos_data[:service_type] = 'outpatientMentalHealth'
+        known_service_type = subject.parse([vaos_data]).first
+        expect(known_service_type[:type_of_care]).to eq('Mental Health')
+      end
+    end
+
+    context 'with unknown service type' do
+      it 'returns a capitalized version of the service type' do
+        vaos_data[:service_type] = 'hey there'
+        unknown_service_type = subject.parse([vaos_data]).first
+        expect(unknown_service_type[:type_of_care]).to eq('Hey There')
+      end
     end
   end
 
