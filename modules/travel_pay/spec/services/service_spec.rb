@@ -83,7 +83,7 @@ describe TravelPay::Service do
       end
 
       it 'returns nil if a claim with the given id was not found' do
-        claim_id = SecureRandom::uuid
+        claim_id = SecureRandom.uuid
         service = TravelPay::Service.new
         actual_claim = service.get_claim_by_id(user, claim_id)
 
@@ -93,11 +93,9 @@ describe TravelPay::Service do
       it 'throws an ArgumentException if claim_id is invalid format' do
         claim_id = 'this-is-definitely-a-uuid-right'
         service = TravelPay::Service.new
-        get_claim_method = -> {  }
 
-        expect { 
-          service.get_claim_by_id(user, claim_id)
-        }.to raise_error(ArgumentError, /valid v4 UUID/i)
+        expect { service.get_claim_by_id(user, claim_id) }
+          .to raise_error(ArgumentError, /valid v4 UUID/i)
       end
     end
   end
