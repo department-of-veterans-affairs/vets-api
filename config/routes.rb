@@ -95,7 +95,6 @@ Rails.application.routes.draw do
 
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
-    resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
 
     resource :user, only: [:show] do
@@ -214,10 +213,6 @@ Rails.application.routes.draw do
     end
 
     resources :appeals, only: :index
-
-    namespace :notice_of_disagreements do
-      get 'contestable_issues', to: 'contestable_issues#index'
-    end
 
     scope :messaging do
       scope :health do
