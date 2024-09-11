@@ -126,7 +126,12 @@ module EVSS
         # as a "kill switch" in the event there are problems with the ApiProviderFactory implementation, so we can
         # revert back to using the EVSS::DocumentsService directly here
         if Flipper.enabled?(:disability_compensation_use_api_provider_for_bdd_instructions)
-          upload_via_api_provider
+          api_response = upload_via_api_provider
+
+          if upload_provider.is_a?(LighthouseSupplementalDocumentUploadProvider)
+            create_lighthouse_polling_record(api_response)
+          end
+
           upload_provider.log_upload_success(STATSD_KEY_PREFIX)
         else
           EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
@@ -143,6 +148,24 @@ module EVSS
 
       def upload_provider
         @upload_provider ||= EVSS::DisabilityCompensationForm::UploadBddInstructions.api_upload_provider(submission)
+      end
+
+      # Creates a Lighthouse526DocumentUpload record, where we save
+      # a unique 'request ID' Lighthouse provides us in the API response after we upload a document.
+      # We use this ID in the Form526DocumentUploadPollingJob chron job to check the status of the document
+      # after Lighthouse has received it.
+      #
+      # @param api_response [Faraday::Response] the response from the Lighthouse Benefits Documents API upload endpoint
+      def create_lighthouse_polling_record(api_response)
+        response_body = api_response.body['data']
+
+        if response_body['success'] == true && response_body['requestId']
+          Lighthouse526DocumentUpload.create!(
+            form526_submission_id: @submission_id,
+            document_type: Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE,
+            lighthouse_document_request_id: response_body['requestId']
+          )
+        end
       end
 
       def retryable_error_handler(error)
