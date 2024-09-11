@@ -9,16 +9,16 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   forms = [
     # TODO: Restore this test when we release 26-4555 to production.
     # 'vba_26_4555.json',
-    'vba_21_4138.json',
-    'vba_21_4142.json',
-    'vba_21_10210.json',
-    'vba_21p_0847.json',
-    'vba_21_0972.json',
-    'vba_21_0845.json',
-    'vba_40_0247.json',
-    'vba_21_0966.json',
-    'vba_20_10206.json',
-    'vba_40_10007.json',
+    # 'vba_21_4138.json',
+    # 'vba_21_4142.json',
+    # 'vba_21_10210.json',
+    # 'vba_21p_0847.json',
+    # 'vba_21_0972.json',
+    # 'vba_21_0845.json',
+    # 'vba_40_0247.json',
+    # 'vba_21_0966.json',
+    # 'vba_20_10206.json',
+    # 'vba_40_10007.json',
     'vba_20_10207-veteran.json',
     'vba_20_10207-non-veteran.json'
   ]

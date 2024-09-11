@@ -132,7 +132,7 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, uuid: confirmation_number }
         )
 
-        concatenate_attachments_to_pdf(file_path)
+        concatenate_attachments_to_pdf(form, file_path)
         presigned_s3_url = send_pdf_to_s3(confirmation_number, file_path)
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
@@ -221,7 +221,7 @@ module SimpleFormsApi
         lighthouse_service.perform_upload(**upload_params)
       end
 
-      def concatenate_attachments_to_pdf(file_path)
+      def concatenate_attachments_to_pdf(form, file_path)
         form.handle_attachments(file_path) if get_form_id == 'vba_20_10207'
       end
 
