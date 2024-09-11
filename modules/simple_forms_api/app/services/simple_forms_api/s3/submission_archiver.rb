@@ -11,7 +11,7 @@ module SimpleFormsApi
 
       class << self
         def fetch_presigned_url(benefits_intake_uuid)
-          pdf = fetch_submission_pdf(benefits_intake_uuid)
+          pdf = fetch_pdf(benefits_intake_uuid)
           sign_s3_file_url(pdf)
         end
 
@@ -29,23 +29,17 @@ module SimpleFormsApi
         end
       end
 
-      def initialize(benefits_intake_uuid: nil, submission: nil, **options) # rubocop:disable Lint/MissingSuper
+      def initialize(benefits_intake_uuid: nil, **options) # rubocop:disable Lint/MissingSuper
         defaults = default_options.merge(options)
 
-        @submission = submission || FormSubmission.find_by(benefits_intake_uuid:)
-        raise 'Submission was not found' unless submission
-
-        @benefits_intake_uuid = submission.benefits_intake_uuid
+        @benefits_intake_uuid = benefits_intake_uuid
+        @temp_directory_path = build_submission_archive(benefits_intake_uuid:, **defaults)
 
         assign_instance_variables(defaults)
       end
 
       def run
         log_info("Processing submission: #{benefits_intake_uuid}")
-
-        FileUtils.mkdir_p(temp_directory_path)
-
-        process_submission_files
 
         upload_temp_folder_to_s3
 
@@ -70,17 +64,8 @@ module SimpleFormsApi
         }
       end
 
-      def process_submission_files
-        write_pdf
-        write_as_json_archive if include_json_archive
-        write_as_text_archive if include_text_archive
-        write_attachments if attachments.present?
-        write_manifest if include_manifest
-        write_metadata
-      end
-
-      def write_pdf
-        write_tempfile(submission_pdf_filename, Base64.decode64(generate_pdf_content))
+      def build_submission_archive(**)
+        SubmissionArchiveBuilder.new(**).run
       end
 
       def upload_temp_folder_to_s3
@@ -107,12 +92,6 @@ module SimpleFormsApi
         end
       end
 
-      def generate_pdf_content
-        raise 'Missing PDF file to upload' unless file_path
-
-        Faraday::UploadIO.new(file_path, Mime[:pdf].to_s, File.basename(file_path))
-      end
-
       def fetch_submission_pdf
         path = "#{output_directory_path}/#{submission_pdf_filename}"
         s3_resource.bucket(target_bucket).object(path)
@@ -126,75 +105,12 @@ module SimpleFormsApi
         pdf.presigned_url(:get, expires_in: 30.minutes.to_i)
       end
 
-      def error_details(error)
-        "#{error.message}\n\n#{error.backtrace.join("\n")}"
-      end
-
-      def write_as_json_archive
-        form_json = JSON.parse(submission.form_data)
-        write_tempfile('form_text_archive.json', JSON.pretty_generate(form_json))
-      end
-
-      def write_as_text_archive
-        form_text_archive = submission.form_data['claimDate'] ||= submission.created_at.iso8601
-        write_tempfile('form_text_archive.txt', form_text_archive.to_json)
-      end
-
-      def write_metadata
-        write_tempfile('metadata.json', metadata.to_json)
-      end
-
-      def write_attachments
-        log_info("Processing #{attachments.count} attachments")
-        attachments.each_with_index { |upload, i| process_attachment(i + 1, upload) }
-        write_attachment_failure_report if attachment_failures.present?
-      rescue => e
-        handle_upload_error(e)
-      end
-
-      def write_manifest
-        veteran_id = metadata['fileNumber']
-        submission_datetime = submission.created_at
-        file_name = "submission_#{benefits_intake_uuid}_#{submission_datetime}_manifest.csv"
-
-        "#{temp_directory_path}#{file_name}".tap do |file_path|
-          CSV.open(file_path, 'wb') do |csv|
-            csv << ['Veteran ID', 'Submission DateTime']
-            csv << [veteran_id, submission_datetime]
-          end
-        end
-      end
-
-      def write_tempfile(file_name, payload)
-        File.write("#{temp_directory_path}#{file_name}", payload)
-      end
-
-      def process_attachment(attachment_number, guid)
-        log_info("Processing attachment ##{attachment_number}: #{guid}")
-        attachment = PersistentAttachment.find_by(guid:).to_pdf
-        raise 'Local record not found' unless attachment
-
-        write_tempfile("attachment_#{attachment_number}.pdf", attachment)
-      rescue => e
-        attachment_failures << e
-        handle_error('Attachment failure.', e)
-        raise e
-      end
-
-      def write_attachment_failure_report
-        write_tempfile('attachment_failures.txt', JSON.pretty_generate(attachment_failures))
-      end
-
       def save_file_to_s3(path, content)
         s3_resource.bucket(target_bucket).object(path).tap { |obj| obj.put(body: content) }
       end
 
       def output_directory_path
         @output_directory_path ||= "#{parent_dir}/#{benefits_intake_uuid}"
-      end
-
-      def attachment_failures
-        @attachment_failures ||= []
       end
 
       def temp_directory_path

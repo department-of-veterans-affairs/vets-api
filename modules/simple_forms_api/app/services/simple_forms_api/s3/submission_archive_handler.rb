@@ -36,7 +36,7 @@ module SimpleFormsApi
 
       def process_individual_submissions
         submissions.each_with_index do |sub, idx|
-          message = "Processing submission: #{sub.benefits_intake_uuid} (non-grouped)" \
+          message = "Processing submission: #{sub.benefits_intake_uuid} " \
                     "##{idx + 1} of #{submissions.count} total submissions"
           log_info(message, benefits_intake_uuid: sub.benefits_intake_uuid, submission_count: submissions.count)
           process_submission(sub.benefits_intake_uuid)
