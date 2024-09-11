@@ -6,7 +6,7 @@ require 'lighthouse/benefits_documents/form526/upload_supplemental_document_serv
 require 'support/disability_compensation_form/shared_examples/supplemental_document_upload_provider'
 
 RSpec.describe LighthouseSupplementalDocumentUploadProvider do
-  let(:submission) { create(:form526_submission) }
+  let(:submission) { create(:form526_submission, :with_submitted_claim_id) }
   let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
   let(:file_name) { Faker::File.file_name }
 

@@ -26,7 +26,7 @@ class LighthouseSupplementalDocumentUploadProvider
   # @return [LighthouseDocument]
   def generate_upload_document(file_name, document_type)
     LighthouseDocument.new(
-      evss_claim_id: @form526_submission.submitted_claim_id,
+      claim_id: @form526_submission.submitted_claim_id,
       file_name:,
       document_type:
     )
