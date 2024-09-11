@@ -137,7 +137,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
         allow(VBMS::Requests::UploadDocument).to receive(:new).and_return({})
         subject.new.perform(power_of_attorney.id)
         power_of_attorney.reload
-        expect(power_of_attorney.status).to eq('updated')
+        expect(power_of_attorney.status).to eq('uploaded')
       end
     end
   end

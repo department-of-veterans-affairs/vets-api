@@ -100,13 +100,18 @@ module ClaimsApi
     #
     # @return {parameters, file}
     # rubocop:disable Metrics/ParameterLists
-    def generate_upload_body(claim:, doc_type:, pdf_path:, action:, file_number: nil, original_filename: nil,
+    def generate_upload_body(claim:, doc_type:, pdf_path:, action:, file_number: nil, original_filename: nil, # rubocop:disable Metrics/MethodLength
                              pctpnt_vet_id: nil)
       payload = {}
       auth_headers = claim.auth_headers
       veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'], auth_headers['va_eauth_lastName'])
-      birls_file_num = auth_headers['va_eauth_birlsfilenumber'] if doc_type == 'L122' ||
-                       file_number if doc_type != 'L705'|| nil if %w[L075 L190].include?(doc_type)
+      if doc_type == 'L122'
+        birls_file_num = auth_headers['va_eauth_birlsfilenumber']
+      elsif doc_type != 'L705'
+        birls_file_num = file_number
+      elsif %w[L075 L190].include?(doc_type)
+        birls_file_num = nil
+      end
       claim_id = get_claim_id(doc_type, claim)
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, action:)
       participant_id = pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)
