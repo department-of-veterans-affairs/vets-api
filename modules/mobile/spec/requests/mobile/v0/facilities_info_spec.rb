@@ -37,7 +37,6 @@ RSpec.describe 'Mobile::V0::FacilitiesInfo', type: :request do
       VCR.use_cassette('mobile/appointments/get_multiple_facilities_without_children_200',
                        match_requests_on: %i[method uri]) do
         get('/mobile/v0/facilities-info', headers: sis_headers)
-
         facility_ids = facilities.pluck('id')
         expect(response).to have_http_status(:ok)
         expect(user.va_treatment_facility_ids).to match_array(facility_ids)
@@ -95,7 +94,6 @@ RSpec.describe 'Mobile::V0::FacilitiesInfo', type: :request do
           VCR.use_cassette('mobile/appointments/get_multiple_mfs_facilities_200',
                            match_requests_on: %i[method uri]) do
             get('/mobile/v0/facilities-info/current', headers: sis_headers, params:)
-
             expect(response).to have_http_status(:ok)
             expect(facilities[0]['id']).to eq('358')
             expect(facilities[1]['id']).to eq('757')
@@ -124,7 +122,6 @@ RSpec.describe 'Mobile::V0::FacilitiesInfo', type: :request do
                            match_requests_on: %i[method uri]) do
             get('/mobile/v0/facilities-info/alphabetical', headers: sis_headers)
             expect(response).to have_http_status(:ok)
-
             expect(facilities[0]['id']).to eq('358')
             expect(facilities[1]['id']).to eq('757')
             facilities.each do |facility|
@@ -145,7 +142,6 @@ RSpec.describe 'Mobile::V0::FacilitiesInfo', type: :request do
             VCR.use_cassette('mobile/appointments/get_multiple_mfs_facilities_200',
                              match_requests_on: %i[method uri]) do
               get('/mobile/v0/facilities-info/appointments', headers: sis_headers)
-
               expect(response).to have_http_status(:ok)
               expect(facilities[0]['id']).to eq('358')
               expect(facilities[1]['id']).to eq('757')
@@ -201,7 +197,6 @@ RSpec.describe 'Mobile::V0::FacilitiesInfo', type: :request do
             VCR.use_cassette('mobile/appointments/get_multiple_facilities_200', match_requests_on: %i[method uri]) do
               get('/mobile/v0/facilities-info/appointments', headers: sis_headers)
               expect(response).to have_http_status(:ok)
-
               expect(facilities[0]['name']).to eq('Cheyenne VA Medical Center')
               expect(facilities[1]['name']).to eq('American Lake VA Medical Center')
               expect(facilities[2]['name']).to eq('Ayton VA Medical Center')
