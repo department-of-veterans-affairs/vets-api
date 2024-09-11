@@ -166,13 +166,13 @@ module ClaimsApi
       def validate_form_526_usa_coa_conditions(address)
         if address['zipFirstFive'].blank?
           collect_error_messages(
-            source: '/changeOfAddress',
+            source: '/changeOfAddress/',
             detail: 'The zipFirstFive is required if the country is USA.'
           )
         end
         if address['state'].blank?
           collect_error_messages(
-            source: '/changeOfAddress',
+            source: '/changeOfAddress/',
             detail: 'The state is required if the country is USA.'
           )
         end
@@ -187,7 +187,7 @@ module ClaimsApi
       def validate_form_526_international_coa_conditions(address)
         if address['internationalPostalCode'].blank?
           collect_error_messages(
-            source: '/changeOfAddress/internationalPostalCode',
+            source: '/changeOfAddress/',
             detail: 'The internationalPostalCode is required if the country is not USA.'
           )
         end

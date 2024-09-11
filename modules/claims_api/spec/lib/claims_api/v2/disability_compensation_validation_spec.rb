@@ -382,20 +382,31 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       context 'zipfirstFive is not included' do
         it 'returns an error array' do
           subject.form_attributes['changeOfAddress']['zipFirstFive'] = ''
-          address = subject.form_attributes['changeOfAddress']
-          test_526_validation_instance.send(:validate_form_526_usa_coa_conditions, address)
+          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
           expect(current_error_array[0][:detail]).to eq('The zipFirstFive is required if the country is USA.')
-          expect(current_error_array[0][:source]).to eq('/changeOfAddress')
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/')
         end
       end
 
       context 'state is not included' do
         it 'returns an error array' do
           subject.form_attributes['changeOfAddress']['state'] = ''
-          address = subject.form_attributes['changeOfAddress']
-          test_526_validation_instance.send(:validate_form_526_usa_coa_conditions, address)
+          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
           expect(current_error_array[0][:detail]).to eq('The state is required if the country is USA.')
-          expect(current_error_array[0][:source]).to eq('/changeOfAddress')
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/')
+        end
+      end
+    end
+
+    context 'conditional validations when the country is not USA' do
+      context 'internationalPostalCode is not included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['country'] = 'Brazil'
+          subject.form_attributes['changeOfAddress']['internationalPostalCode'] = ''
+          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
+          expect(current_error_array[0][:detail])
+            .to eq('The internationalPostalCode is required if the country is not USA.')
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/')
         end
       end
     end
