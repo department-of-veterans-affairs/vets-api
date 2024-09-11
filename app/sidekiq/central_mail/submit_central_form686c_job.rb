@@ -17,8 +17,6 @@ module CentralMail
     STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
     RETRY = 14
 
-    sidekiq_options retry: false
-
     attr_reader :claim, :form_path, :attachment_paths
 
     class CentralMailResponseError < StandardError; end
