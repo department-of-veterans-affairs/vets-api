@@ -158,10 +158,6 @@ features:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
     enable_in_development: true
-  check_in_experience_travel_api_v2_cutover:
-    actor_type: user
-    description: Cuts over to new EIS endpoint path, client_id, and keys for BTSSS
-    enable_in_development: true
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
