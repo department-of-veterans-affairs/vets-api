@@ -51,7 +51,13 @@ module V0
       # for file number here
       ::Rails.logger.info('[5103 Submission] No file number') if @current_user.birls_id.nil?
 
-      res = service.submit5103(params[:id])
+      json_payload = request.body.read
+
+      data = JSON.parse(json_payload)
+
+      tracked_item_id = data['trackedItemId'] || nil
+
+      res = service.submit5103(params[:id], tracked_item_id)
 
       render json: res
     end

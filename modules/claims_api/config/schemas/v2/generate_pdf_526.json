@@ -1017,7 +1017,7 @@
         "accountNumber": {
           "description": "Account number for the direct deposit.",
           "type": ["string", "null"],
-          "maxLength": 14,
+          "maxLength": 1000,
           "nullable": true,
           "example": "123123123123"
         },

@@ -275,11 +275,13 @@ chip:
 check_in:
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
+    auth_url_v2: https://login.microsoftonline.us
     tenant_id: fake_template_id
     client_id: fake_client_id
     client_secret: fake_client_secret
     scope: fake_scope/.default
     claims_url: https://dev.integration.d365.va.gov
+    claims_url_v2: https://dev.integration.d365.va.gov
     claims_base_path: EC/ClaimIngestSvc
     subscription_key: fake_subscription_key
     client_number: fake_cli_number

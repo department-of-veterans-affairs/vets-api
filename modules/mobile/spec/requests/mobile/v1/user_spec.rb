@@ -28,10 +28,6 @@ RSpec.describe 'Mobile::V1::User', type: :request do
       )
     end
 
-    before { Flipper.enable_actor(:mobile_v1_lighthouse_facilities, user) }
-
-    after { Flipper.disable(:mobile_v1_lighthouse_facilities) }
-
     context 'with no upstream errors' do
       before do
         VCR.use_cassette('mobile/payment_information/payment_information') do
