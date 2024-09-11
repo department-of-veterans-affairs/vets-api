@@ -66,10 +66,7 @@ module SimpleFormsApi
       # TODO: update this once OFO/VBA gives guidance
       def generate_payload_path(form_contents, form_submission, station_id); end
 
-      # TODO: a CSV manifest will need to be included with payload
-      def build_manifest_to_include_with_payload; end
-
-      # TODO: change this to interface with S3 or an intermediary job
+      # TODO: change this to interface with S3 or an intermediary job/service
       def upload_to_sharepoint(payload_path, payload_name)
         with_monitoring do
           sharepoint_file_connection.post(file_transfer_url(payload_name)) do |req|
@@ -79,7 +76,7 @@ module SimpleFormsApi
         end
       end
 
-      # TODO: this currently handles a PDF file; determine correct payload url
+      # TODO: this is currently configured for a PDF file; determine correct payload url
       def file_transfer_url(payload_name)
         "#{base_path}/_api/Web/GetFolderByServerRelativeUrl('#{base_path}/Submissions')/" \
           "Files/add(url='#{payload_name}.pdf',overwrite=true)"

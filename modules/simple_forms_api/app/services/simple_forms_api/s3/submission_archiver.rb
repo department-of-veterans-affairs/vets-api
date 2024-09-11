@@ -3,8 +3,8 @@
 module SimpleFormsApi
   module S3
     class SubmissionArchiver < Utils
-      attr_reader :benefits_intake_uuid, :include_json_archive, :include_text_archive, :metadata, :parent_dir,
-                  :submission, :file_path
+      attr_reader :benefits_intake_uuid, :file_path, :include_json_archive, :include_manifest, :include_text_archive,
+                  :metadata, :parent_dir, :submission
 
       class << self
         def fetch_presigned_url(benefits_intake_uuid)
@@ -37,6 +37,7 @@ module SimpleFormsApi
           attachments: [], # an array of attachment confirmation codes
           file_path: nil, # file path for the PDF file to be archived
           include_json_archive: true, # include the form data as a JSON object
+          include_manifest: true, # include a CSV file containing Veteran ID & original submission datetime
           include_text_archive: true, # include the form data as a text file
           metadata: {}, # pertinent metadata for original file upload/submission
           parent_dir: 'vff-simple-forms' # S3 bucket base directory where files live
@@ -48,6 +49,7 @@ module SimpleFormsApi
         write_as_json_archive if include_json_archive
         write_as_text_archive if include_text_archive
         write_attachments if attachments.present?
+        write_manifest if include_manifest
         write_metadata
       end
 
@@ -101,6 +103,9 @@ module SimpleFormsApi
       rescue => e
         handle_upload_error(e)
       end
+
+      # TODO: add this
+      def write_manifest; end
 
       def process_attachment(attachment)
         log_info("Processing attachment: #{attachment}")
