@@ -9,6 +9,7 @@ class Form526StateLoggingJob
 
   END_DATE = Time.zone.today.beginning_of_day
   START_DATE = END_DATE - 1.week
+  STATSD_PREFIX = 'form526.state'
 
   def initialize(start_date: START_DATE, end_date: END_DATE)
     @start_date = start_date
@@ -16,16 +17,56 @@ class Form526StateLoggingJob
   end
 
   def perform
-    Rails.logger.info('Form 526 State Data', state_log)
+    write_as_gauges
+    write_as_log
   rescue => e
-    Rails.logger.error('Error logging 526 state data', class: self.class.name, message: e.try(:message))
+    Rails.logger.error('Error logging 526 state data',
+                       class: self.class.name,
+                       message: e.try(:message),
+                       start_date:,
+                       end_date:)
   end
 
-  def state_log
-    timeboxed_state.merge(all_time_state)
+  def write_as_log
+    Rails.logger.info('Form 526 State Data',
+                      state_log: counts_with_failures,
+                      start_date:,
+                      end_date:)
+  end
+
+  def counts_with_failures
+    counts = state_as_counts
+    counts[:total_failure_type_ids] = total_failure_type
+    counts
+  end
+
+  def base_state
+    @base_state ||= timeboxed_state.merge(all_time_state)
+  end
+
+  def state_as_counts
+    @state_as_counts ||= {}.tap do |abbreviation|
+      base_state.each do |dp, ids|
+        abbreviation[:"#{dp}_count"] = ids.count
+      end
+    end
+  end
+
+  def write_as_gauges
+    state_as_counts.each do |description, count|
+      StatsD.gauge("#{STATSD_PREFIX}.#{description}", count)
+    end
   end
 
   def timeboxed_state
+    @timeboxed_state ||= load_timeboxed_state
+  end
+
+  def all_time_state
+    @all_time_state ||= load_all_time_state
+  end
+
+  def load_timeboxed_state
     {
       timeboxed: timeboxed_submissions.pluck(:id).sort,
       timeboxed_primary_successes: timeboxed_submissions.accepted_to_primary_path.pluck(:id).sort,
@@ -35,12 +76,16 @@ class Form526StateLoggingJob
     }
   end
 
-  def all_time_state
+  def load_all_time_state
     {
       total_awaiting_backup_status: Form526Submission.pending_backup.pluck(:id).sort,
       total_incomplete_type: Form526Submission.incomplete_type.pluck(:id).sort,
-      total_failure_type: Form526Submission.failure_type.pluck(:id).sort
+      total_failure_type:
     }
+  end
+
+  def total_failure_type
+    @total_failure_type ||= Form526Submission.failure_type.pluck(:id).sort
   end
 
   def sub_arel

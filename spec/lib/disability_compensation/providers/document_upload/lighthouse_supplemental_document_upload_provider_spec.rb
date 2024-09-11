@@ -10,12 +10,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
   let(:file_name) { Faker::File.file_name }
 
-  let(:provider) do
-    LighthouseSupplementalDocumentUploadProvider.new(
-      submission,
-      file_body
-    )
-  end
+  let(:provider) { LighthouseSupplementalDocumentUploadProvider.new(submission) }
 
   let(:lighthouse_document) do
     LighthouseDocument.new(
@@ -69,7 +64,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         .with(file_body, lighthouse_document)
         .and_return(faraday_response)
 
-      expect(provider.submit_upload_document(lighthouse_document)).to eq(faraday_response)
+      expect(provider.submit_upload_document(lighthouse_document, file_body)).to eq(faraday_response)
     end
   end
 
@@ -79,12 +74,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     # only the metrics in this class
     let(:submission) { instance_double(Form526Submission) }
 
-    let(:provider) do
-      LighthouseSupplementalDocumentUploadProvider.new(
-        submission,
-        file_body
-      )
-    end
+    let(:provider) { LighthouseSupplementalDocumentUploadProvider.new(submission) }
 
     describe 'log_upload_success' do
       it 'increments a StatsD success metric' do
@@ -95,23 +85,15 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
       end
     end
 
-    describe 'log_upload_error_retry' do
-      it 'increments a StatsD retry metric and re-raises the error' do
-        expect(StatsD).to receive(:increment).with(
-          'my_upload_job_prefix.lighthouse_supplemental_document_upload_provider.retried'
-        )
-        provider.log_upload_error_retry('my_upload_job_prefix')
-      end
-    end
-
     describe 'log_upload_failure' do
-      let(:error) { StandardError.new }
+      let(:error_class) { 'StandardError' }
+      let(:error_message) { 'Something broke' }
 
       it 'increments a StatsD failure metric' do
         expect(StatsD).to receive(:increment).with(
           'my_upload_job_prefix.lighthouse_supplemental_document_upload_provider.failed'
         )
-        provider.log_upload_failure('my_upload_job_prefix', error)
+        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
       end
 
       it 'logs to the Rails logger' do
@@ -119,12 +101,12 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
           'LighthouseSupplementalDocumentUploadProvider upload failure',
           {
             class: 'LighthouseSupplementalDocumentUploadProvider',
-            error_class: error.class,
-            error_message: error.message
+            error_class:,
+            error_message:
           }
         )
 
-        provider.log_upload_failure('my_upload_job_prefix', error)
+        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
       end
     end
   end

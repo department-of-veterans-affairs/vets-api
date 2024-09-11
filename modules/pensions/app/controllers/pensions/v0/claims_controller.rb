@@ -3,13 +3,7 @@
 require 'pensions/tag_sentry'
 require 'pensions/monitor'
 
-##
-# Pensions Module
-#
 module Pensions
-  ##
-  # V0 API
-  #
   module V0
     ##
     # The pensions claim controller that handles form submissions
@@ -17,7 +11,6 @@ module Pensions
     class ClaimsController < ApplicationController
       skip_before_action(:authenticate)
       before_action :load_user, only: :create
-      before_action :check_flipper_flag
 
       service_tag 'pension-application'
 
@@ -74,11 +67,6 @@ module Pensions
       end
 
       private
-
-      # Raises an exception if the pension module enabled flipper flag isn't enabled.
-      def check_flipper_flag
-        raise Common::Exceptions::Forbidden unless Flipper.enabled?(:pension_module_enabled, current_user)
-      end
 
       # Filters out the parameters to form access.
       def filtered_params

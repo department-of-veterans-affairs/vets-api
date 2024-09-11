@@ -62,6 +62,13 @@ RSpec.describe Form1010Ezr::Service do
     )
   end
 
+  def expect_personal_info_log(message)
+    pii_log = PersonalInformationLog.last
+
+    expect(pii_log.error_class).to eq(message)
+    expect(pii_log.data).to eq(form)
+  end
+
   describe '#add_financial_flag' do
     context 'when the form has veteran gross income' do
       let(:parsed_form) do
@@ -91,12 +98,13 @@ RSpec.describe Form1010Ezr::Service do
         'hca/ee/lookup_user',
         VCR::MATCH_EVERYTHING.merge(erb: true)
       ) do
-        expect(form['isEssentialAcaCoverage']).to eq(nil)
-        expect(form['vaMedicalFacility']).to eq(nil)
+        expect(form.keys).not_to include('isEssentialAcaCoverage', 'vaMedicalFacility')
 
         service.send(:post_fill_required_fields, form)
 
         expect(form.keys).to include('isEssentialAcaCoverage', 'vaMedicalFacility')
+        expect(form['isEssentialAcaCoverage']).to eq(false)
+        expect(form['vaMedicalFacility']).to eq('988')
       end
     end
   end
@@ -152,6 +160,38 @@ RSpec.describe Form1010Ezr::Service do
         required_user_fields.each do |key, value|
           expect(parsed_form[key]).to eq(value)
         end
+      end
+    end
+  end
+
+  describe '#log_submission_failure' do
+    context "when 'parsed_form' is not present" do
+      it 'only increments StatsD' do
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+
+        described_class.new(nil).log_submission_failure(nil)
+      end
+    end
+
+    context "when 'parsed_form' is present" do
+      it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a failure message to sentry" do
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+          '1010EZR failure',
+          :error,
+          {
+            first_initial: 'F',
+            middle_initial: 'M',
+            last_initial: 'Z'
+          },
+          ezr: :failure
+        )
+
+        described_class.new(nil).log_submission_failure(form)
+
+        expect_personal_info_log('Form1010Ezr Failed')
       end
     end
   end
@@ -260,7 +300,7 @@ RSpec.describe Form1010Ezr::Service do
         it 'increments StatsD as well as logs and raises the error' do
           allow(StatsD).to receive(:increment)
 
-          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+          expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
           expect { submit_form(form) }.to raise_error(
             StandardError, 'Uh oh. Some bad error occurred.'
           )
@@ -303,14 +343,15 @@ RSpec.describe Form1010Ezr::Service do
           expect(submission_response).to eq(
             {
               success: true,
-              formSubmissionId: 432_775_981,
-              timestamp: '2023-11-21T14:42:44.858-06:00'
+              formSubmissionId: 436_462_561,
+              timestamp: '2024-08-23T13:00:11.005-05:00'
             }
           )
         end
       end
 
-      it 'logs the submission id, payload size, and individual attachment sizes in descending order (if applicable)',
+      it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
+         'order (if applicable)',
          run_at: 'Wed, 17 Jul 2024 18:17:30 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit_with_attachments',
@@ -318,7 +359,15 @@ RSpec.describe Form1010Ezr::Service do
         ) do
           submission_response = service.submit_sync(ezr_form_with_attachments)
 
-          expect(Rails.logger).to have_received(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
+          expect(Rails.logger).to have_received(:info).with(
+            '1010EZR successfully submitted',
+            submission_id: submission_response[:formSubmissionId],
+            veteran_initials: {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            }
+          )
           expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
                                                             'Body size of 362 KB with 2 attachment(s)')
           expect(Rails.logger).to have_received(:info).with(
@@ -342,8 +391,8 @@ RSpec.describe Form1010Ezr::Service do
             expect(service.submit_sync(overridden_form)).to eq(
               {
                 success: true,
-                formSubmissionId: 432_777_930,
-                timestamp: '2023-11-21T16:29:52.432-06:00'
+                formSubmissionId: 436_460_791,
+                timestamp: '2024-08-23T11:49:44.562-05:00'
               }
             )
           end
@@ -365,8 +414,8 @@ RSpec.describe Form1010Ezr::Service do
             expect(service.submit_sync(form)).to eq(
               {
                 success: true,
-                formSubmissionId: 432_861_975,
-                timestamp: '2023-11-30T09:52:37.290-06:00'
+                formSubmissionId: 436_462_887,
+                timestamp: '2024-08-23T13:22:29.157-05:00'
               }
             )
           end
@@ -386,8 +435,8 @@ RSpec.describe Form1010Ezr::Service do
             expect(service.submit_sync(form)).to eq(
               {
                 success: true,
-                formSubmissionId: 433_956_488,
-                timestamp: '2024-03-13T13:14:50.252-05:00'
+                formSubmissionId: 436_462_892,
+                timestamp: '2024-08-23T13:22:59.196-05:00'
               }
             )
           end
@@ -406,8 +455,8 @@ RSpec.describe Form1010Ezr::Service do
               expect(service.submit_sync(ezr_form_with_attachments)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 435_845_348,
-                  timestamp: '2024-07-17T13:17:32.384-05:00'
+                  formSubmissionId: 436_462_804,
+                  timestamp: '2024-08-23T13:20:06.967-05:00'
                 }
               )
               expect(Rails.logger).to have_received(:info).with(
@@ -443,8 +492,8 @@ RSpec.describe Form1010Ezr::Service do
               expect(service.submit_sync(form_with_non_pdf_attachment)).to eq(
                 {
                   success: true,
-                  formSubmissionId: 435_845_365,
-                  timestamp: '2024-07-17T13:17:35.167-05:00'
+                  formSubmissionId: 436_462_905,
+                  timestamp: '2024-08-23T13:23:53.956-05:00'
                 }
               )
               expect(Rails.logger).to have_received(:info).with(

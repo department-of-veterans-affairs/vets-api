@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe IvcChampva::VHA107959f2 do
   let(:data) do
     {
+      'form_number' => '10-7959F-2',
       'primary_contact_info' => {
         'name' => {
           'first' => 'Veteran',
@@ -12,14 +13,19 @@ RSpec.describe IvcChampva::VHA107959f2 do
         },
         'email' => 'email@address.com'
       },
-      'veteran' => {
-        'full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
-        'va_claim_number' => '123456789',
-        'ssn' => '123456789',
-        'mailing_address' => { 'country' => 'USA', 'postal_code' => '12345' }
+      'veteran_full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
+      'veteran_social_security_number' => {
+        'ssn' => '123123123',
+        'va_file_number' => '123123123'
       },
-      'form_number' => '10-7959F-2',
-      'veteran_supporting_documents' => [
+      'veteran_address' => {
+        'country' => 'USA',
+        'street' => '123 Street Lane',
+        'city' => 'Cityburg',
+        'state' => 'AL',
+        'postal_code' => '12312'
+      },
+      'supporting_docs' => [
         { 'confirmation_code' => 'abc123' },
         { 'confirmation_code' => 'def456' }
       ]
@@ -35,9 +41,9 @@ RSpec.describe IvcChampva::VHA107959f2 do
         'veteranFirstName' => 'John',
         'veteranMiddleName' => 'P',
         'veteranLastName' => 'Doe',
-        'fileNumber' => '123456789',
-        'ssn_or_tin' => '123456789',
-        'zipCode' => '12345',
+        'fileNumber' => '123123123',
+        'ssn_or_tin' => '123123123',
+        'zipCode' => '12312',
         'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '10-7959F-2',

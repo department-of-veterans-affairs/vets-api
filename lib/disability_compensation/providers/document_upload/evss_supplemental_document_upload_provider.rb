@@ -8,10 +8,8 @@ class EVSSSupplementalDocumentUploadProvider
   STATSD_PROVIDER_METRIC = 'evss_supplemental_document_upload_provider'
 
   # @param form526_submission [Form526Submission]
-  # @param file_body [String]
-  def initialize(form526_submission, file_body)
+  def initialize(form526_submission)
     @form526_submission = form526_submission
-    @file_body = file_body
   end
 
   # Uploads to EVSS via the EVSS::DocumentsService require both the file body and an instance
@@ -45,29 +43,27 @@ class EVSSSupplementalDocumentUploadProvider
   # Initializes and uploads via our EVSS Document Service API wrapper
   #
   # @param evss_claim_document
+  # @param file_body [String]
+  #
   # @return [Faraday::Response] The EVSS::DocumentsService API calls are implemented with Faraday
-  def submit_upload_document(evss_claim_document)
+  def submit_upload_document(evss_claim_document, file_body)
     client = EVSS::DocumentsService.new(@form526_submission.auth_headers)
-    client.upload(@file_body, evss_claim_document)
+    client.upload(file_body, evss_claim_document)
   end
 
   def log_upload_success(uploading_class_prefix)
     StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_SUCCESS_METRIC}")
   end
 
-  def log_upload_error_retry(uploading_class_prefix)
-    StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_RETRIED_METRIC}")
-  end
-
-  def log_upload_failure(uploading_class_prefix, error)
+  def log_upload_failure(uploading_class_prefix, error_class, error_message)
     StatsD.increment("#{uploading_class_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
 
     Rails.logger.error(
       'EVSSSupplementalDocumentUploadProvider upload failure',
       {
         class: 'EVSSSupplementalDocumentUploadProvider',
-        error_class: error.class,
-        error_message: error.message
+        error_class:,
+        error_message:
       }
     )
   end

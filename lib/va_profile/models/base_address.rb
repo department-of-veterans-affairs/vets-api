@@ -14,11 +14,7 @@ module VAProfile
       VALID_ALPHA_REGEX = /[a-zA-Z ]+/
       VALID_NUMERIC_REGEX = /[0-9]+/
       ADDRESS_FIELD_LIMIT = 35
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        RESIDENCE = 'RESIDENCE'
-      else
-        RESIDENCE = 'RESIDENCE/CHOICE'
-      end
+      RESIDENCE = 'RESIDENCE/CHOICE'
       CORRESPONDENCE = 'CORRESPONDENCE'
       ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
       DOMESTIC       = 'DOMESTIC'

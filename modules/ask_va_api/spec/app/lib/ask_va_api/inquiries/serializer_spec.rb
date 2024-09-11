@@ -5,18 +5,20 @@ require 'rails_helper'
 RSpec.describe AskVAApi::Inquiries::Serializer do
   let(:info) do
     {
-      icn: I18n.t('ask_va_api.test_users.test_user_228_icn'),
+      InquiryHasBeenSplit: true,
+      CategoryName: 'Veteran Affairs  - Debt',
+      CreatedOn: '8/5/2024 4:51:52 PM',
       Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
+      InquiryLevelOfAuthentication: 'Personal',
       InquiryNumber: 'A-123456',
       InquiryStatus: 'In Progress',
-      SubmitterQuestion: 'My question is... ',
+      InquiryTopic: 'Cemetery Debt',
       LastUpdate: '1/1/1900',
-      InquiryHasAttachments: true,
-      InquiryHasBeenSplit: true,
-      VeteranRelationship: 'self',
+      QueueId: '9876t54',
+      QueueName: 'Debt Management Center',
       SchoolFacilityCode: '0123',
-      InquiryTopic: 'topic',
-      InquiryLevelOfAuthentication: 'Personal',
+      SubmitterQuestion: 'My question is... ',
+      VeteranRelationship: 'self',
       AttachmentNames: [
         {
           Id: '012345',
@@ -31,18 +33,21 @@ RSpec.describe AskVAApi::Inquiries::Serializer do
     { data: { id: info[:Id],
               type: :inquiry,
               attributes: {
-                inquiry_number: info[:InquiryNumber],
-                attachments: info[:AttachmentNames],
-                correspondences: nil,
-                has_attachments: info[:InquiryHasAttachments],
                 has_been_split: info[:InquiryHasBeenSplit],
+                category_name: 'Veteran Affairs  - Debt',
+                created_on: info[:CreatedOn],
                 level_of_authentication: info[:InquiryLevelOfAuthentication],
-                last_update: info[:LastUpdate],
+                inquiry_number: info[:InquiryNumber],
                 status: info[:InquiryStatus],
-                submitter_question: info[:SubmitterQuestion],
+                inquiry_topic: info[:InquiryTopic],
+                last_update: info[:LastUpdate],
+                queue_id: info[:QueueId],
+                queue_name: info[:QueueName],
                 school_facility_code: info[:SchoolFacilityCode],
-                topic: info[:InquiryTopic],
-                veteran_relationship: info[:VeteranRelationship]
+                correspondences: nil,
+                submitter_question: info[:SubmitterQuestion],
+                veteran_relationship: info[:VeteranRelationship],
+                attachments: info[:AttachmentNames]
               } } }
   end
 
@@ -62,7 +67,8 @@ RSpec.describe AskVAApi::Inquiries::Serializer do
     let(:correspondences_response) do
       { data: [{ id: '1', type: :correspondence,
                  attributes: { message_type: '722310001: Response from VA',
-                               modified_on: '1/2/23',
+                               created_on: '1/2/23 4:45:45 PM',
+                               modified_on: '1/2/23 5:45:45 PM',
                                status_reason: 'Completed/Sent',
                                description: 'Your claim is still In Progress',
                                enable_reply: true,

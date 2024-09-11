@@ -47,7 +47,7 @@ module BenefitsIntake
       upload_url, _uuid = request_upload unless upload_url
 
       metadata = JSON.parse(metadata)
-      meta_tmp = Common::FileHelpers.generate_temp_file(metadata.to_json, "#{STATSD_KEY_PREFIX}.#{@uuid}.metadata.json")
+      meta_tmp = Common::FileHelpers.generate_random_file(metadata.to_json)
 
       params = {}
       params[:metadata] = Faraday::UploadIO.new(meta_tmp, Mime[:json].to_s, 'metadata.json')
@@ -57,6 +57,8 @@ module BenefitsIntake
       end
 
       perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
+    ensure
+      Common::FileHelpers.delete_file_if_exists(meta_tmp) if meta_tmp
     end
 
     ##

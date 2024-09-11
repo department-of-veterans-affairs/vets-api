@@ -8,11 +8,11 @@ module Forms
       attr_accessor :submissions, :intake_statuses, :errors
 
       def submissions?
-        @submissions.any?
+        @submissions.present?
       end
 
       def intake_statuses?
-        @intake_statuses.any?
+        @intake_statuses.present?
       end
 
       def errors?

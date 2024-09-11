@@ -13,6 +13,7 @@ module VAProfile
     module ContactInformation
       class Service < VAProfile::Service
         CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
+        VA_PROFILE_ID_POSTFIX = '^PI^200VETS^USDVA'
         EMAIL_PERSONALISATIONS = {
           address: 'Address',
           residence_address: 'Home address',
@@ -24,8 +25,6 @@ module VAProfile
           work_phone: 'Work phone number'
         }.freeze
 
-        OID = MPI::Constants::VA_ROOT_OID
-
         include Common::Client::Concerns::Monitoring
 
         configuration VAProfile::V2::ContactInformation::Configuration
@@ -36,8 +35,7 @@ module VAProfile
         def get_person
           with_monitoring do
             vet360_id_present!
-            raw_response = perform(:get, "#{OID}/#{ERB::Util.url_encode(icn_with_aaid)}")
-
+            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{profile_path(@user.vet360_id)}")
             PersonResponse.from(raw_response)
           end
         rescue Common::Client::Errors::ClientError => e
@@ -66,7 +64,7 @@ module VAProfile
 
         def update_address(address)
           address_type =
-            if address.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
+            if address.address_pou == VAProfile::Models::V2::BaseAddress::RESIDENCE
               'residential'
             else
               'mailing'
@@ -118,7 +116,7 @@ module VAProfile
         # @param transaction_id [int] the transaction_id to check
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
         def get_address_transaction_status(transaction_id)
-          route = "#{vet360_id}/addresses/status/#{transaction_id}"
+          route = "addresses/status/#{transaction_id}"
           transaction_status = get_transaction_status(route, AddressTransactionResponse)
 
           changes = transaction_status.changed_field
@@ -160,7 +158,7 @@ module VAProfile
         # @param transaction_id [int] the transaction_id to check
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
         def get_email_transaction_status(transaction_id)
-          route = "#{vet360_id}/emails/status/#{transaction_id}"
+          route = "emails/status/#{transaction_id}"
           transaction_status = get_transaction_status(route, EmailTransactionResponse)
 
           send_email_change_notification(transaction_status)
@@ -187,7 +185,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::TelephoneTransactionResponse] wrapper around
         #   a transaction object
         def get_telephone_transaction_status(transaction_id)
-          route = "#{vet360_id}/telephones/status/#{transaction_id}"
+          route = "telephones/status/#{transaction_id}"
           transaction_status = get_transaction_status(route, TelephoneTransactionResponse)
 
           changes = transaction_status.changed_field
@@ -214,6 +212,10 @@ module VAProfile
         end
 
         private
+
+        def profile_path(vet360_id)
+          ERB::Util.url_encode("#{vet360_id}#{VA_PROFILE_ID_POSTFIX}")
+        end
 
         def icn_with_aaid
           return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
@@ -291,7 +293,7 @@ module VAProfile
         def post_or_put_data(method, model, path, response_class)
           with_monitoring do
             vet360_id_present!
-            request_path = "#{OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
+            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
             raw_response = perform(method, request_path, model.in_json)
             response_class.from(raw_response)
           end
@@ -301,7 +303,6 @@ module VAProfile
 
         def get_transaction_status(path, response_class)
           with_monitoring do
-            vet360_id_present!
             raw_response = perform(:get, path)
             VAProfile::Stats.increment_transaction_results(raw_response)
 
