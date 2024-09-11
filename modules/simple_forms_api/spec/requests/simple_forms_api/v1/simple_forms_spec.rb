@@ -125,7 +125,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(submission_archiver).to have_received(:run)
-            expect(JSON.parse(response.body)['presigned_s3_url']).to eq presigned_s3_url
+            expect(JSON.parse(response.body)['pdf_url']).to eq presigned_s3_url
           end
         end
       end
