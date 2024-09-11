@@ -57,8 +57,7 @@ module BGS
 
     def normalize_dependency_decisions(dependency_decisions)
       set1 = dependency_decisions.delete_if do |dependency_decision|
-        !dependency_decision.key?(:award_effective_date) ||
-          dependency_decision[:award_effective_date].future?
+        invalid_dependency_decision?(dependency_decision)
       end
 
       set2 = set1.group_by { |dependency_decision| dependency_decision[:person_id] }
@@ -82,6 +81,11 @@ module BGS
         key = common_name.presence || email
         key.first(Constants::EXTERNAL_KEY_MAX_LENGTH)
       end
+    end
+
+    def invalid_dependency_decision?(dependency_decision)
+      (dependency_decision.is_a?(Hash) && !dependency_decision.key?(:award_effective_date)) ||
+        dependency_decision[:award_effective_date].future?
     end
   end
 end
