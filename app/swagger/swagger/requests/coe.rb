@@ -248,10 +248,6 @@ module Swagger
             end
           end
 
-          response 200 do
-            key :description, 'Files uploaded successfully'
-          end
-
           response 201 do
             key :description, 'Files uploaded successfully'
           end
