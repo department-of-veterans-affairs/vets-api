@@ -161,12 +161,6 @@ module ClaimsApi
             detail: 'The internationalPostalCode is required if the country is not USA.'
           )
         end
-        if address['zipFirstFive'].present?
-          collect_error_messages(
-            source: '/changeOfAddress/zipFirstFive',
-            detail: 'The zipFirstFive is prohibited if the country is not USA.'
-          )
-        end
       end
 
       def validate_form_526_claimant_certification
