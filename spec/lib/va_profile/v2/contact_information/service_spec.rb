@@ -19,8 +19,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   end
 
   describe '#get_person' do
-    let(:vet360_id) { '11111' }
-
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
@@ -315,8 +313,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   # ADDRESS is failing
   context 'update model methods' do
-    let(:vet360_id) { '11111' }
-
     before do
       VCR.insert_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
@@ -450,7 +446,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       )
     end
     let(:transaction_id) { '123' }
-    let(:vet360_id) { '11111' }
 
     context 'transaction completed success' do
       before do

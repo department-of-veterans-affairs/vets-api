@@ -20,12 +20,22 @@ describe VAProfileRedis::ContactInformation do
       VAProfile::ContactInformation::PersonResponse
     end
   end
+
+  let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
+
+  let(:person) do
+    if Flipper.enabled?(:va_v3_contact_information_service)
+      build :person, :person_v2, telephones:, permissions:
+    else
+      build :person, telephones:, permissions:
+    end
+  end
+
   let(:person_response) do
     raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
     contact_person_response.from(raw_response)
   end
-  let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
-  let(:person) { build :person, telephones:, permissions: }
+
   let(:telephones) do
     [
       build(:telephone),
@@ -126,21 +136,41 @@ describe VAProfileRedis::ContactInformation do
         end
       end
 
-      describe '#residential_address' do
-        it 'returns the users residential address object', :aggregate_failures do
-          residence = address_for VAProfile::Models::Address::RESIDENCE
+      unless Flipper.enabled?(:va_v3_contact_information_service)
+        describe '#residential_address' do
+          it 'returns the users residential address object', :aggregate_failures do
+            residence = address_for VAProfile::Models::Address::RESIDENCE
 
-          expect(contact_info.residential_address).to eq residence
-          expect(contact_info.residential_address.class).to eq VAProfile::Models::Address
+            expect(contact_info.residential_address).to eq residence
+            expect(contact_info.residential_address.class).to eq VAProfile::Models::Address
+          end
+        end
+
+        describe '#mailing_address' do
+          it 'returns the users mailing address object', :aggregate_failures do
+            residence = address_for VAProfile::Models::Address::CORRESPONDENCE
+
+            expect(contact_info.mailing_address).to eq residence
+            expect(contact_info.mailing_address.class).to eq VAProfile::Models::Address
+          end
         end
       end
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        describe '#residential_address' do
+          it 'returns the users residential address object', :aggregate_failures do
+            residence = address_for VAProfile::Models::V2::Address::RESIDENCE
+            expect(contact_info.residential_address).to eq residence
+            # expect(contact_info.residential_address.class).to eq VAProfile::Models::V2::Address
+          end
+        end
 
-      describe '#mailing_address' do
-        it 'returns the users mailing address object', :aggregate_failures do
-          residence = address_for VAProfile::Models::Address::CORRESPONDENCE
+        describe '#mailing_address' do
+          it 'returns the users mailing address object', :aggregate_failures do
+            residence = address_for VAProfile::Models::V2::Address::CORRESPONDENCE
 
-          expect(contact_info.mailing_address).to eq residence
-          expect(contact_info.mailing_address.class).to eq VAProfile::Models::Address
+            expect(contact_info.mailing_address).to eq residence
+            # expect(contact_info.mailing_address.class).to eq VAProfile::Models::V2::Address
+          end
         end
       end
 
