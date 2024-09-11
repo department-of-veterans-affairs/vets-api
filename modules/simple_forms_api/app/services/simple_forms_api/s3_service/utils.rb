@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  module S3Service
+  module S3
     class Utils
       private
 

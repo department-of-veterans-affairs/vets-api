@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  module S3Service
+  module S3
     class SubmissionArchiveHandler < Utils
       attr_reader :attachments, :benefits_intake_uuids, :parent_dir, :successes, :failures, :bundle_by_user
 

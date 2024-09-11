@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  module S3Service
+  module S3
     module Jobs
-      class SubmissionArchiveHandlerJob < SimpleFormsApi::S3Service::Utils
+      class SubmissionArchiveHandlerJob < SimpleFormsApi::S3::Utils
         include Sidekiq::Worker
 
         sidekiq_options retry: 3, queue: 'default'

@@ -1,26 +1,7 @@
 # frozen_string_literal: true
 
-# To use
-# ids = <array of submission ids to archive>
-# parent_dir = <the name of the s3 'folder' where these archives will be put>
-#
-# to see your archive in s3
-# 1. go here https://console.amazonaws-us-gov.com/s3/home?region=us-gov-west-1#
-# 2. login with 2fa
-# 3. search for dsva-vetsgov-prod-reports
-# 4. search for your parent_dir name, e.g. 526archive_aug_21st_2024
-#
-# If you do not provide a parent_dir, the script defaults to a folder called vff-simple-forms
-#
-# OPTION 1: Run the script with user groupings
-# - requires SubmissionDuplicateReport object
-# - SubmissionArchiveHandler.new(submission_ids: ids, parent_dir:).run
-#
-# OPTION 2: Run without user groupings
-# ids.each { |id| SubmissionArchiver.new(submission_id: id, parent_dir:).run }
-# this will just put each submission in a folder by it's id under the parent dir
 module SimpleFormsApi
-  module S3Service
+  module S3
     class SubmissionArchiver < Utils
       attr_reader :benefits_intake_uuid, :include_json_archive, :include_text_archive, :metadata, :parent_dir,
                   :submission

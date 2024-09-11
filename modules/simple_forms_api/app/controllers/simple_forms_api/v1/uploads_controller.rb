@@ -167,7 +167,7 @@ module SimpleFormsApi
         location, uuid, submission_attempt = prepare_for_upload(form, file_path)
         log_upload_details(location, uuid)
         response = perform_pdf_upload(location, file_path, metadata, form)
-        SimpleFormsApi::S3Service::SubmissionArchiveHandlerJob.perform_async(
+        SimpleFormsApi::S3::SubmissionArchiveHandlerJob.perform_async(
           submission_ids: [submission_attempt.form_submission.id],
           metadata:,
           file_path:
