@@ -88,10 +88,8 @@ RSpec.describe 'Mobile::V0::PaymentInformation::Benefits', type: :request do
               'errors' => [
                 {
                   'title' => 'Unprocessable Entity',
-                  'detail' => [
-                    "Control information missing for user #{user.uuid}",
-                    "Payment account info missing for user #{user.uuid}"
-                  ],
+                  'detail' => "Control information missing for user #{user.uuid}. \
+Payment account info missing for user #{user.uuid}",
                   'code' => '422',
                   'status' => '422'
                 }

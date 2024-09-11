@@ -119,7 +119,7 @@ module Mobile
         errors << "Payment account info missing for user #{current_user.uuid}" if data.payment_account.nil?
         return if errors.empty?
 
-        raise Common::Exceptions::UnprocessableEntity.new(detail: errors)
+        raise Common::Exceptions::UnprocessableEntity.new(detail: errors.join('. '))
       end
     end
   end
