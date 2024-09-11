@@ -31,6 +31,10 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :sts do
+    post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
+  end
+
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
 

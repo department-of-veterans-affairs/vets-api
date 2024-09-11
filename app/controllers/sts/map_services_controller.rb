@@ -2,12 +2,10 @@
 
 require 'map/security_token/service'
 
-module V0
+module Sts
   class MapServicesController < SignIn::ServiceAccountApplicationController
     service_tag 'identity'
-    before_action :set_deprecation_headers
 
-    # POST /v0/map_services/:application/token
     def token
       icn = @service_account_access_token.user_attributes['icn']
       result = MAP::SecurityToken::Service.new.token(application: params[:application].to_sym, icn:, cache: false)
@@ -42,29 +40,6 @@ module V0
         error: 'invalid_request',
         error_description: 'Service account access token does not contain an ICN in `user_attributes` claim.'
       }
-    end
-
-    def set_deprecation_headers
-      warn_deprecation
-
-      response.headers['Deprecation'] = 'true'
-      response.headers['Link'] = "<#{alternate_link}>; rel=\"alternate\""
-      response.headers['Sunset'] = sunset_date
-    end
-
-    def warn_deprecation
-      message =  "The endpoint 'v0/map_services/:application/token' is deprecated. " \
-                 "Please use the 'sts/map_services/:application/token' endpoint instead."
-
-      Rails.logger.warn("[V0][MapServicesController] warn: #{message}")
-    end
-
-    def alternate_link
-      request.original_url.gsub('v0', 'sts')
-    end
-
-    def sunset_date
-      Date.new(2024, 12, 31).httpdate
     end
   end
 end
