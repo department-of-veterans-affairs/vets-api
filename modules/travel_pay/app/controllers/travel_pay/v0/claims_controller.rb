@@ -32,15 +32,6 @@ module TravelPay
       def service
         @service ||= TravelPay::Service.new
       end
-
-      def common_exception(e)
-        case e
-        when Faraday::ResourceNotFound
-          Common::Exceptions::ResourceNotFound.new
-        else
-          Common::Exceptions::InternalServerError.new
-        end
-      end
     end
   end
 end
