@@ -26,8 +26,11 @@ class BenefitsIntakeRemediationStatusJob
 
     record_unsubmitted_and_orphaned
 
-    failed = form_submissions.where(form_submission_attempts: { aasm_state: 'failure' })
-    outstanding = failed.reject { |fs| fs.form_submission_attempts.find_by(aasm_state: 'vbms') }
+    submissions = form_submissions.group_by { |fs| fs.saved_claim_id }
+    submissions.each { |claim_id, fs|
+      attempts = fs.map(&:form_submission_attempts).flatten.sort_by! { |a| a.created_at }
+      submissions[claim_id] = (attempts.select { |att| att.aasm_state == 'vbms' }).empty? ? attempts : nil
+    }.compact!
 
     batch_process(submissions)
 
@@ -39,8 +42,12 @@ class BenefitsIntakeRemediationStatusJob
   attr_reader :batch_size
   attr_accessor :total_handled
 
+  def form_submissions
+    @form_submissions ||= FormSubmission.includes(:form_submission_attempts)
+  end
+
   def record_unsubmitted_and_orphaned
-    form_submission_groups =  form_submissions.all.group_by { |fs| fs.form_type }
+    form_submission_groups = form_submissions.all.group_by { |fs| fs.form_type }
 
     form_submission_groups.each do |form_id, submissions|
       fs_saved_claim_ids = submissions.map(&:saved_claim_id).uniq
@@ -66,7 +73,6 @@ class BenefitsIntakeRemediationStatusJob
 
       handle_response(data, batch)
     end
-
   rescue => e
     Rails.logger.error('Error processing Intake Status batch', class: self.class.name, message: e.message)
   end
@@ -101,14 +107,10 @@ class BenefitsIntakeRemediationStatusJob
         log_result('pending', form_id, uuid)
       end
 
-      total_handled += 1
+      total_handled + 1
     end
   end
   # rubocop:enable Metrics/MethodLength
-
-  def form_submissions
-    @form_submissions ||= FormSubmission.includes(:form_submission_attempts)
-  end
 
   def log_result(result, form_id, uuid, time_to_transition = nil)
     StatsD.increment("#{STATS_KEY}.#{form_id}.#{result}")
