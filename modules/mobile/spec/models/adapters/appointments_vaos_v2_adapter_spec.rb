@@ -28,6 +28,22 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
   let(:parsed_appointment) { parse_appointment(appointment) }
 
+  let(:cancelled_va) { adapted_appointment_by_id['121133'] }
+  let(:booked_va) { adapted_appointment_by_id['121134'] }
+  let(:booked_cc) { adapted_appointment_by_id['72106']}
+  let(:proposed_cc) { adapted_appointment_by_id['72105']}
+  let(:proposed_va) { adapted_appointment_by_id['50956']}
+  let(:phone_va) { adapted_appointment_by_id['53352']}
+  let(:home_va) { adapted_appointment_by_id['50094'] }
+  let(:atlas_va) { adapted_appointment_by_id['50095'] }
+  let(:home_gfe) { adapted_appointment_by_id['50096'] }
+  let(:past_request_date_appt) { adapted_appointment_by_id['53360'] }
+  let(:future_request_date_appt) { adapted_appointment_by_id['53359'] }
+  let(:cancelled_requested_va_appt) { adapted_appointment_by_id['53241'] }
+  let(:acheron_appointment) { adapted_appointment_by_id['145078'] }
+  let(:telehealth_onsite) { adapted_appointment_by_id['145078'] }
+
+
   before do
     Timecop.freeze(Time.zone.parse('2022-08-25T19:25:00Z'))
   end
@@ -45,8 +61,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a cancelled VA appointment' do
-    let(:cancelled_va) { adapted_appointment[0] }
-
     it 'has expected fields' do
       expect(cancelled_va[:status_detail]).to eq('CANCELLED BY PATIENT')
       expect(cancelled_va[:status]).to eq('CANCELLED')
@@ -103,8 +117,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a booked VA appointment' do
-    let(:booked_va) { adapted_appointment[1] }
-
     it 'has expected fields' do
       expect(booked_va[:status]).to eq('BOOKED')
       expect(booked_va[:appointment_type]).to eq('VA')
@@ -161,8 +173,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a booked CC appointment' do
-    let(:booked_cc) { adapted_appointment[2] }
-
     it 'has expected fields' do
       expect(booked_cc[:status]).to eq('BOOKED')
       expect(booked_cc[:appointment_type]).to eq('COMMUNITY_CARE')
@@ -222,8 +232,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a proposed CC appointment' do
-    let(:proposed_cc) { adapted_appointment[3] }
-
     it 'has expected fields' do
       expect(proposed_cc[:is_pending]).to eq(true)
       expect(proposed_cc[:status]).to eq('SUBMITTED')
@@ -290,8 +298,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a proposed VA appointment' do
-    let(:proposed_va) { adapted_appointment[4] }
-
     it 'has expected fields' do
       expect(proposed_va[:is_pending]).to eq(true)
       expect(proposed_va[:status]).to eq('SUBMITTED')
@@ -355,8 +361,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a phone VA appointment' do
-    let(:phone_va) { adapted_appointment[5] }
-
     it 'has expected fields' do
       expect(phone_va[:appointment_type]).to eq('VA')
       expect(phone_va[:phone_only]).to eq(true)
@@ -417,8 +421,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a telehealth Home appointment' do
-    let(:home_va) { adapted_appointment[6] }
-
     it 'has expected fields' do
       expect(home_va[:appointment_type]).to eq('VA_VIDEO_CONNECT_HOME')
       expect(home_va[:location][:name]).to eq('Cheyenne VA Medical Center')
@@ -467,8 +469,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a telehealth Atlas appointment' do
-    let(:atlas_va) { adapted_appointment[7] }
-
     it 'has expected fields' do
       expect(atlas_va[:appointment_type]).to eq('VA_VIDEO_CONNECT_ATLAS')
       expect(atlas_va[:location][:name]).to eq('Cheyenne VA Medical Center')
@@ -525,14 +525,12 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a GFE appointment' do
-    let(:gfe_va) { adapted_appointment[8] }
-
     it 'has expected fields' do
-      expect(gfe_va[:appointment_type]).to eq('VA_VIDEO_CONNECT_GFE')
-      expect(gfe_va[:location][:name]).to eq('Cheyenne VA Medical Center')
-      expect(gfe_va[:location][:url]).to eq('http://www.meeting.com')
+      expect(home_gfe[:appointment_type]).to eq('VA_VIDEO_CONNECT_GFE')
+      expect(home_gfe[:location][:name]).to eq('Cheyenne VA Medical Center')
+      expect(home_gfe[:location][:url]).to eq('http://www.meeting.com')
 
-      expect(gfe_va.as_json).to eq({ 'id' => '50094',
+      expect(home_gfe.as_json).to eq({ 'id' => '50096',
                                      'appointment_type' => 'VA_VIDEO_CONNECT_GFE',
                                      'appointment_ien' => nil,
                                      'cancel_id' => nil,
@@ -574,8 +572,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a telehealth on site appointment' do
-    let(:telehealth_onsite) { adapted_appointment[13] }
-
     it 'has expected fields' do
       expect(telehealth_onsite[:appointment_type]).to eq('VA_VIDEO_CONNECT_ONSITE')
       expect(telehealth_onsite[:location][:name]).to eq('Cheyenne VA Medical Center')
@@ -629,8 +625,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'with a cancelled requested VA appointment' do
-    let(:cancelled_requested_va_appt) { adapted_appointment[11] }
-
     it 'has expected fields' do
       expect(cancelled_requested_va_appt[:appointment_type]).to eq('VA')
       expect(cancelled_requested_va_appt[:is_pending]).to eq(true)
@@ -695,8 +689,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'request periods that are in the future' do
-    let(:future_request_date_appt) { adapted_appointment[9] }
-
     it 'sets start date to earliest date in the future' do
       expect(future_request_date_appt[:start_date_local]).to eq('2022-08-27T12:00:00Z')
       expect(future_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2022', time: 'PM' },
@@ -706,8 +698,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   context 'request periods that are in the past' do
-    let(:past_request_date_appt) { adapted_appointment[10] }
-
     it 'sets start date to earliest date' do
       expect(past_request_date_appt[:start_date_local]).to eq('2021-08-20T12:00:00Z')
       expect(past_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2021', time: 'PM' },
@@ -796,8 +786,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   describe 'embedded acheron values' do
-    let(:acheron_appointment) { adapted_appointment[12] }
-
     # these tests are duplicative of the full body test but are meant to highlight the relevant data
     it 'parses values out of the reason code' do
       expect(acheron_appointment.patient_email).to eq('melissa.gra@va.gov')
