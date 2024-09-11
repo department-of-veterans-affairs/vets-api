@@ -20,28 +20,26 @@ module V0
 
     # GET /v0/backend_statuses/:service
     def show
-      @backend_service = params[:service]
-      raise Common::Exceptions::RecordNotFound, @backend_service unless recognized_service?
+      raise Common::Exceptions::RecordNotFound, backend_service unless recognized_service?
 
       # get status
-      be_status = BackendStatus.new(name: @backend_service)
-      case @backend_service
-      when BackendServices::GI_BILL_STATUS
-        be_status.is_available = BenefitsEducation::Service.within_scheduled_uptime?
-        be_status.uptime_remaining = BenefitsEducation::Service.seconds_until_downtime
-      else
-        # default service is up!
-        be_status.is_available = true
-        be_status.uptime_remaining = 0
-      end
+      be_status = BackendStatus.new(name: backend_service)
 
       render json: BackendStatusSerializer.new(be_status)
     end
 
     private
 
+    def backend_service
+      params[:service]
+    end
+
     def recognized_service?
-      BackendServices.all.include?(@backend_service)
+      BackendServices.all.include?(backend_service)
+    end
+
+    def backend_status_is_available
+      backend_service == BackendServices::GI_BILL_STATUS
     end
   end
 end
