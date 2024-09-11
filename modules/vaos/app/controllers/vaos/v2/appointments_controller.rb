@@ -20,7 +20,7 @@ module VAOS
 
       def index
         appointments[:data].each do |appt|
-          set_facility_error_msg(appt) if include_params[:facilities]
+          set_facility_error_msg(appt) if include_index_params[:facilities]
           scrape_appt_comments_and_log_details(appt, index_method_logging_name, PAP_COMPLIANCE_TELE)
           log_appt_creation_time(appt)
         end

@@ -66,7 +66,10 @@ module VAOS
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           appointment = response.body[:data]
-          prepare_appointment(appointment, { facilities: true, clinics: true })
+          # We always fetch facility and clinic information when getting a single appointment
+          include[:facilities] = true
+          include[:clinics] = true
+          prepare_appointment(appointment, include)
           OpenStruct.new(appointment)
         end
       end
