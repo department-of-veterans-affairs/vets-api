@@ -123,12 +123,7 @@ module SimpleFormsApi
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
-        if Flipper.enabled?(:simple_forms_lighthouse_benefits_intake_service)
-          status, confirmation_number = upload_pdf(file_path, metadata, form)
-        else
-          status, confirmation_number = SimpleFormsApi::PdfUploader.new(file_path, metadata,
-                                                                        form).upload_to_benefits_intake(params)
-        end
+        status, confirmation_number = upload_pdf(file_path, metadata, form)
 
         form.track_user_identity(confirmation_number)
 
@@ -169,24 +164,26 @@ module SimpleFormsApi
       end
 
       def upload_pdf(file_path, metadata, form)
-        location, uuid = prepare_for_upload(form)
+        location, uuid = prepare_for_upload(form, file_path)
         log_upload_details(location, uuid)
         response = perform_pdf_upload(location, file_path, metadata)
 
         [response.status, uuid]
       end
 
-      def prepare_for_upload(form)
+      def prepare_for_upload(form, file_path)
+        Rails.logger.info('Simple forms api - preparing to request upload location from Lighthouse',
+                          form_id: get_form_id)
         location, uuid = lighthouse_service.request_upload
-        stamp_pdf_with_uuid(form, uuid)
+        stamp_pdf_with_uuid(form, uuid, file_path)
         create_form_submission_attempt(uuid)
 
         [location, uuid]
       end
 
-      def stamp_pdf_with_uuid(form, uuid)
+      def stamp_pdf_with_uuid(form, uuid, stamped_template_path)
         # Stamp uuid on 40-10007
-        pdf_stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path: 'tmp/vba_40_10007-tmp.pdf', form:)
+        pdf_stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path:, form:)
         pdf_stamper.stamp_uuid(uuid)
       end
 
