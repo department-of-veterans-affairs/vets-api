@@ -89,14 +89,15 @@ module ClaimsApi
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
         return if change_of_address['dates']['beginDate'].blank? # nothing to check against
 
-        # form_object_desc = 'a TEMPORARY change of address'
+        # cannot compare invalid dates so need to return here if date is invalid
+        return unless date_is_valid?(date, 'changeOfAddress/dates/endDate')
 
-        # collect_error_if_value_not_present('end date', form_object_desc) if date.blank?
-
-        return if Date.strptime(date,
-                                '%Y-%m-%d') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
-
-        collect_error_messages(source: '/changeOfAddress/dates/endDate', detail: 'endDate is not a valid date.')
+        if Date.strptime(date, '%Y-%m-%d') < Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
+          collect_error_messages(
+            source: '/changeOfAddress/dates/endDate',
+            detail: 'endDate needs to be after beginDate.'
+          )
+        end
       end
 
       def validate_form_526_change_of_address_country
