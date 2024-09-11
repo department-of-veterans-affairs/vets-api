@@ -147,12 +147,12 @@ module SimpleFormsApi
         File.write("#{temp_directory_path}#{file_name}", payload)
       end
 
-      def process_attachment(attach_num, attachment)
-        log_info("Processing attachment ##{attach_num}: #{attachment}")
-        local_file = PersistentAttachment.find_by(guid: attachment)
-        raise 'Local record not found' unless local_file
+      def process_attachment(attachment_number, guid)
+        log_info("Processing attachment ##{attachment_number}: #{guid}")
+        attachment = PersistentAttachment.find_by(guid:).to_pdf
+        raise 'Local record not found' unless attachment
 
-        write_tempfile("attachment_#{attach_num}.pdf", local_file.to_pdf)
+        write_tempfile("attachment_#{attachment_number}.pdf", attachment)
       rescue => e
         attachment_failures << e
         handle_error('Attachment failure.', e)
@@ -177,10 +177,6 @@ module SimpleFormsApi
 
       def temp_directory_path
         @temp_directory_path ||= Rails.root.join("tmp/#{benefits_intake_uuid}-#{SecureRandom.hex}/").to_s
-      end
-
-      def attachment_path
-        @attachment_path ||= "#{output_directory_path}/attachments"
       end
     end
   end
