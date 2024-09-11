@@ -61,6 +61,8 @@ module Mobile
 
       def get_appeal
         appeal = evss_claims_proxy.get_appeal(params[:id])
+
+        appeal = appeal_adapter.parse(appeal) if Flipper.enabled?(:mobile_appeal_model, @current_user)
         render json: Mobile::V0::AppealSerializer.new(appeal)
       end
 
@@ -156,6 +158,10 @@ module Mobile
 
       def lighthouse_claims_adapter
         Mobile::V0::Adapters::LighthouseIndividualClaims.new
+      end
+
+      def appeal_adapter
+        Mobile::V0::Adapters::Appeal.new
       end
 
       def lighthouse_claims_proxy
