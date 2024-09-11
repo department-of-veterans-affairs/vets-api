@@ -20,18 +20,20 @@ module RepresentationManagement
             #{data.representative_middle_initial}
             #{data.representative_last_name}
           HEREDOC
-          pdf.text(rep_name)
-          pdf.text(data.representative_address_line1)
-          pdf.text(data.representative_address_line2)
-          city_state_zip = <<~HEREDOC.squish
-            #{data.representative_city},
-            #{data.representative_state_code}
-            #{data.representative_zip_code}
-          HEREDOC
-          pdf.text(city_state_zip)
-          pdf.move_down(5)
-          pdf.text(data.representative_phone)
-          pdf.text(data.representative_email_address)
+          add_text_with_spacing(pdf, rep_name, style: :bold, move_down: 8)
+          pdf.font('soursesanspro') do
+            pdf.text(data.representative_address_line1)
+            pdf.text(data.representative_address_line2)
+            city_state_zip = <<~HEREDOC.squish
+              #{data.representative_city},
+              #{data.representative_state_code}
+              #{data.representative_zip_code}
+            HEREDOC
+            pdf.text(city_state_zip)
+            pdf.move_down(5)
+            pdf.text(format_phone_number(data.representative_phone))
+            pdf.text(data.representative_email_address)
+          end
         end
 
         def template_path

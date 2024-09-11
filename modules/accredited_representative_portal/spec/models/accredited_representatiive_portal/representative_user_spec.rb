@@ -91,4 +91,13 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUser, type: :model 
       expect(representative_user.flipper_id).to eq(representative_user.email)
     end
   end
+
+  describe '#user_account' do
+    let(:user_account) { create(:user_account) }
+    let(:representative_user) { build(:representative_user, user_account_uuid: user_account.id) }
+
+    it 'returns expected user_account' do
+      expect(representative_user.user_account).to eq(user_account)
+    end
+  end
 end
