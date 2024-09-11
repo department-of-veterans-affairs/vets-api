@@ -11,9 +11,21 @@ module SimpleFormsApi
 
       class << self
         def fetch_presigned_url(benefits_intake_uuid)
-          instance = self.class.new(benefits_intake_uuid:)
-          pdf = instance.fetch_pdf(benefits_intake_uuid)
+          pdf = fetch_submission_pdf(benefits_intake_uuid)
           sign_s3_file_url(pdf)
+        end
+
+        # TODO: these instance methods are private, assess and update
+        def fetch_pdf(benefits_intake_uuid)
+          instance = new(benefits_intake_uuid:)
+          instance.fetch_submission_pdf(benefits_intake_uuid)
+        end
+
+        # TODO: these instance methods are private, assess and update
+        def fetch_s3_submission(benefits_intake_uuid)
+          instance = new(benefits_intake_uuid:)
+          instance.download_folder_from_s3
+          instance.temp_directory_path
         end
       end
 
@@ -85,13 +97,23 @@ module SimpleFormsApi
         end
       end
 
+      def download_folder_from_s3
+        FileUtils.mkdir_p(temp_directory_path)
+
+        s3_resource.bucket.objects(prefix: output_directory_path).each do |object|
+          local_file_path = File.join(temp_directory_path, object.key.sub(output_directory_path, ''))
+          FileUtils.mkdir_p(File.dirname("#{temp_directory_path}#{local_file_path}"))
+          object.get(response_target: local_file_path)
+        end
+      end
+
       def generate_pdf_content
         raise 'Missing PDF file to upload' unless file_path
 
         Faraday::UploadIO.new(file_path, Mime[:pdf].to_s, File.basename(file_path))
       end
 
-      def fetch_pdf
+      def fetch_submission_pdf
         path = "#{output_directory_path}/#{submission_pdf_filename}"
         s3_resource.bucket(target_bucket).object(path)
       end

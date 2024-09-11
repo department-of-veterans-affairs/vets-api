@@ -5,7 +5,8 @@ require 'faraday/multipart'
 module SimpleFormsApi
   module SharePoint
     class ArchiveUploader < Client
-      def upload(form_contents:, form_submission:, station_id:)
+      # TODO: some/most of these parameters are unnecessary
+      def upload(form_contents:, form_submission:, station_id:, zip_file_path:)
         upload_response = upload_payload(form_contents:, form_submission:, station_id:)
         list_item_id = fetch_list_item_id(upload_response)
 
