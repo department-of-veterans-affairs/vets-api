@@ -369,7 +369,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     let(:address) { build(:va_profile_address_v2, vet360_id: user.vet360_id, source_system_user: user.icn) }
 
     it 'returns an instance with the user uuid', :aggregate_failures do
-    VCR.use_cassette('va_profile/v2/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
+      VCR.use_cassette('va_profile/v2/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
         service = VAProfile::V2::ContactInformation::Service.new(user)
         address.address_line1 = '1493 Martin Luther King Rd'
         address.city = 'Fulton'
