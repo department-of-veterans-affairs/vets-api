@@ -62,7 +62,7 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 2 * * 0', 'Form526ParanoidSuccessPollingJob')
 
   # Log the state of Form 526 submissions to hydrate Datadog monitor
-  mgr.register('5 4 * * 7', 'Form526StateLoggingJob')
+  mgr.register('0 3 * * *', 'Form526StateLoggingJob')
 
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
