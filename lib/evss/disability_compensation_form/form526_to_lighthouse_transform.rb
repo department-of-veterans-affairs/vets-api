@@ -682,8 +682,8 @@ module EVSS
 
         # somehow, partial dates with the 'XX' (i.e. "2020-01-XX or 2020-XX-XX") are getting past FE validation
         # fix here in the backend while a proper FE solution is found
-        return year if month == 'XX'
-        return "#{year}-#{month}" if day == 'XX'
+        return year if month.blank? || month.upcase == 'XX'
+        return "#{year}-#{month}" if day.blank? || day.upcase == 'XX'
 
         Date.parse(date).strftime('%Y-%m')
       end
