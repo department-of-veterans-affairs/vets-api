@@ -51,7 +51,7 @@ module SimpleFormsApi
       end
 
       def upload_payload(form_contents:, form_submission:, station_id:)
-        payload_path = generate_payload_path(form_contents, form_submission, station_id)
+        payload_path = generate_payload_path
         payload_name = build_payload_name
 
         upload_to_sharepoint(payload_path, payload_name)
@@ -64,7 +64,7 @@ module SimpleFormsApi
       def build_payload_name; end
 
       # TODO: update this once OFO/VBA gives guidance
-      def generate_payload_path(form_contents, form_submission, station_id); end
+      def generate_payload_path; end
 
       # TODO: change this to interface with S3 or an intermediary job/service
       def upload_to_sharepoint(payload_path, payload_name)
@@ -76,10 +76,10 @@ module SimpleFormsApi
         end
       end
 
-      # TODO: this is currently configured for a PDF file; determine correct payload url
+      # TODO: confirm this is the correct payload url
       def file_transfer_url(payload_name)
         "#{base_path}/_api/Web/GetFolderByServerRelativeUrl('#{base_path}/Submissions')/" \
-          "Files/add(url='#{payload_name}.pdf',overwrite=true)"
+          "Files/add(url='#{payload_name}.zip',overwrite=true)"
       end
 
       # Get the ID of the uploaded document's list item
@@ -103,8 +103,8 @@ module SimpleFormsApi
         end
       end
 
-      # TODO: this is a holdover from VHA logic and will need changed
       def update_sharepoint_item(list_item_id:, form_submission:, station_id:)
+        # TODO: this is a placeholder path and will need to be changed
         path = "#{base_path}/_api/Web/Lists/GetByTitle('Submissions')/items(#{list_item_id})"
         with_monitoring do
           sharepoint_connection.post(path) do |req|

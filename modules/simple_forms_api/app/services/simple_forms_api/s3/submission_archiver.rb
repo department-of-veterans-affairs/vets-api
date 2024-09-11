@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'csv'
+require 'fileutils'
+
 module SimpleFormsApi
   module S3
     class SubmissionArchiver < Utils
@@ -18,13 +21,24 @@ module SimpleFormsApi
         defaults = default_options.merge(options)
 
         @submission = submission || FormSubmission.find_by(benefits_intake_uuid:)
+        raise 'Submission was not found' unless submission
+
+        @benefits_intake_uuid = submission.benefits_intake_uuid
 
         assign_instance_variables(defaults)
       end
 
       def run
-        log_info("Processing submission ID: #{submission.id}")
+        log_info("Processing submission: #{benefits_intake_uuid}")
+
+        FileUtils.mkdir_p(temp_directory_path)
+
         process_submission_files
+
+        upload_temp_folder_to_s3
+
+        FileUtils.rm_f(temp_directory_path)
+
         output_directory_path
       rescue => e
         handle_error("Failed submission: #{submission.id}", e, { submission_id: submission.id, benefits_intake_uuid: })
@@ -54,13 +68,21 @@ module SimpleFormsApi
       end
 
       def write_pdf
-        encoded_pdf = generate_pdf_content
-        pdf = save_file_to_s3(
-          "#{output_directory_path}/form_#{submission.form_data['form_number']}.pdf",
-          Base64.decode64(encoded_pdf)
-        )
-        # TODO: do we want to immediately sign the pdf?
-        sign_s3_file_url(pdf)
+        write_tempfile(submission_pdf_filename, Base64.decode64(generate_pdf_content))
+      end
+
+      def upload_temp_folder_to_s3
+        Find.find(temp_directory_path) do |path|
+          next if File.directory?(path)
+
+          relative_path = path.sub(temp_directory_path, '')
+          s3_path = "#{output_directory_path}/#{relative_path}"
+
+          File.open(path, 'rb') do |file|
+            pdf = save_file_to_s3(s3_path, file.read)
+            sign_s3_file_url(pdf) if relative_path == submission_pdf_filename
+          end
+        end
       end
 
       def generate_pdf_content
@@ -70,8 +92,12 @@ module SimpleFormsApi
       end
 
       def fetch_pdf
-        path = "#{output_directory_path}/form_#{submission.form_data['form_number']}.pdf"
+        path = "#{output_directory_path}/#{submission_pdf_filename}"
         s3_resource.bucket(target_bucket).object(path)
+      end
+
+      def submission_pdf_filename
+        @submission_pdf_filename ||= "form_#{submission.form_data['form_number']}.pdf"
       end
 
       def sign_s3_file_url(pdf)
@@ -84,55 +110,61 @@ module SimpleFormsApi
 
       def write_as_json_archive
         form_json = JSON.parse(submission.form_data)
-        save_file_to_s3("#{output_directory_path}/form_text_archive.json", JSON.pretty_generate(form_json))
+        write_tempfile('form_text_archive.json', JSON.pretty_generate(form_json))
       end
 
       def write_as_text_archive
         form_text_archive = submission.form_data['claimDate'] ||= submission.created_at.iso8601
-        save_file_to_s3("#{output_directory_path}/form_text_archive.txt", form_text_archive.to_json)
+        write_tempfile('form_text_archive.txt', form_text_archive.to_json)
       end
 
       def write_metadata
-        save_file_to_s3("#{output_directory_path}/metadata.json", metadata.to_json)
+        write_tempfile('metadata.json', metadata.to_json)
       end
 
       def write_attachments
-        log_info("Moving #{attachments.count} attachments")
-        attachments.each { |upload| process_attachment(upload) }
+        log_info("Processing #{attachments.count} attachments")
+        attachments.each_with_index { |upload, i| process_attachment(i + 1, upload) }
         write_attachment_failure_report if attachment_failures.present?
       rescue => e
         handle_upload_error(e)
       end
 
-      # TODO: add this
-      def write_manifest; end
+      def write_manifest
+        veteran_id = metadata['fileNumber']
+        submission_datetime = submission.created_at
+        file_name = "submission_#{benefits_intake_uuid}_#{submission_datetime}_manifest.csv"
 
-      def process_attachment(attachment)
-        log_info("Processing attachment: #{attachment}")
+        "#{temp_directory_path}#{file_name}".tap do |file_path|
+          CSV.open(file_path, 'wb') do |csv|
+            csv << ['Veteran ID', 'Submission DateTime']
+            csv << [veteran_id, submission_datetime]
+          end
+        end
+      end
+
+      def write_tempfile(file_name, payload)
+        File.write("#{temp_directory_path}#{file_name}", payload)
+      end
+
+      def process_attachment(attach_num, attachment)
+        log_info("Processing attachment ##{attach_num}: #{attachment}")
         local_file = PersistentAttachment.find_by(guid: attachment)
         raise 'Local record not found' unless local_file
 
-        copy_file_between_buckets(local_file)
+        write_tempfile("attachment_#{attach_num}.pdf", local_file.to_pdf)
       rescue => e
         attachment_failures << e
         handle_error('Attachment failure.', e)
         raise e
       end
 
-      def copy_file_between_buckets(local_file)
-        source_obj = s3_resource.bucket(local_file.get_file.uploader.aws_bucket).object(local_file.get_file.path)
-        target_obj = s3_resource.bucket(target_bucket).object("#{attachment_path}/#{local_file.get_file.filename}")
-        target_obj.copy_from(source_obj)
-      end
-
       def write_attachment_failure_report
-        save_file_to_s3("#{output_directory_path}/attachment_failures.txt", JSON.pretty_generate(attachment_failures))
+        write_tempfile('attachment_failures.txt', JSON.pretty_generate(attachment_failures))
       end
 
       def save_file_to_s3(path, content)
-        s3_resource.bucket(target_bucket).object(path).tap do |obj|
-          obj.put(body: content)
-        end
+        s3_resource.bucket(target_bucket).object(path).tap { |obj| obj.put(body: content) }
       end
 
       def output_directory_path
@@ -141,6 +173,10 @@ module SimpleFormsApi
 
       def attachment_failures
         @attachment_failures ||= []
+      end
+
+      def temp_directory_path
+        @temp_directory_path ||= Rails.root.join("tmp/#{benefits_intake_uuid}-#{SecureRandom.hex}/").to_s
       end
 
       def attachment_path
