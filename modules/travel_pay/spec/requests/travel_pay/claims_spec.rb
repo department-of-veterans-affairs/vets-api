@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'securerandom'
 
 RSpec.describe TravelPay::V0::ClaimsController, type: :request do
   let(:user) { build(:user) }
@@ -59,6 +60,33 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
             expect(response).to have_http_status(:bad_request)
           end
         end
+      end
+    end
+  end
+
+  describe '#show' do
+    it 'returns a single claim on success' do
+      VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[method path]) do
+        # This claim ID matches a claim ID in the cassette.
+        claim_id = '33016896-ed7f-4d4f-a81b-cc4f2ca0832c'
+        expected_claim_num = 'TC092809828275'
+
+        get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
+        actual_claim_num = JSON.parse(response.body)['claimNumber']
+
+        expect(response).to have_http_status(:ok)
+        expect(actual_claim_num).to eq(expected_claim_num)
+      end
+    end
+
+    it 'returns a Not Found response if claim number valid but claim not found' do
+      VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[method path]) do
+        # This claim ID matches a claim ID in the cassette.
+        claim_id = SecureRandom.uuid
+
+        get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
+
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
