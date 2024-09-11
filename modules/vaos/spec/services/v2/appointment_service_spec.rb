@@ -1122,17 +1122,27 @@ describe VAOS::V2::AppointmentsService do
     let(:past_appointment) { { status: 'booked', start: '2023-09-25T10:00:00-07:00' } }
     let(:future_appointment) { { status: 'booked', start: '2023-09-27T11:00:00-07:00' } }
     let(:unbooked_appointment) { { status: 'pending', start: '2023-09-25T10:00:00-07:00' } }
+    let(:avs_param_included) { true }
+    let(:avs_param_excluded) { false }
 
-    it 'returns true if the appointment is booked and is in the past' do
-      expect(subject.send(:avs_applicable?, past_appointment)).to be true
+    it 'returns true if the appointment is booked and is in the past and avs is included' do
+      expect(subject.send(:avs_applicable?, past_appointment, avs_param_included)).to be true
     end
 
     it 'returns false if the appointment is not booked' do
-      expect(subject.send(:avs_applicable?, unbooked_appointment)).to be false
+      expect(subject.send(:avs_applicable?, unbooked_appointment, avs_param_included)).to be false
     end
 
     it 'returns false on a booked future appointment' do
-      expect(subject.send(:avs_applicable?, future_appointment)).to be false
+      expect(subject.send(:avs_applicable?, future_appointment, avs_param_included)).to be false
+    end
+
+    it 'returns false if the avs param is not included' do
+      expect(subject.send(:avs_applicable?, past_appointment, avs_param_excluded)).to be false
+    end
+
+    it 'returns false if the avs param is nil' do
+      expect(subject.send(:avs_applicable?, past_appointment, nil)).to be false
     end
   end
 
@@ -1242,8 +1252,8 @@ describe VAOS::V2::AppointmentsService do
     let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
     let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
     let(:appt) do
-      { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }], ien: '12345678',
-        station: '983' }
+      { id: '12345', identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }],
+        ien: '12345678', station: '983' }
     end
     let(:avs_error_message) { 'Error retrieving AVS link' }
 
