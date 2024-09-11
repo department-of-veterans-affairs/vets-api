@@ -156,9 +156,7 @@ module ClaimsApi
 
       def validate_form_526_change_of_address_zip
         address = form_attributes['changeOfAddress'] || {}
-        if address['country'] == 'USA'
-          validate_form_526_usa_coa_conditions(address)
-        end
+        validate_form_526_usa_coa_conditions(address) if address['country'] == 'USA'
       end
 
       def validate_form_526_usa_coa_conditions(address)
