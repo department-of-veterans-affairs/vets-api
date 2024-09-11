@@ -27,41 +27,51 @@ module Mobile
         def clinical_status(attributes)
           values = Array.wrap(attributes['coding'])
           coding = values.map do |code|
-            Mobile::V0::AllergyIntolerance::ClinicalStatus::Coding.new(system: code['system'], code: code['code'])
+            {
+              system: code['system'], code: code['code']
+            }
           end
 
-          Mobile::V0::AllergyIntolerance::ClinicalStatus.new(coding:)
+          { coding: }
         end
 
         def code(attributes)
           values = Array.wrap(attributes['coding'])
           coding = values.map do |code|
-            Mobile::V0::AllergyIntolerance::Code::Coding.new(system: code['system'], code: code['code'],
-                                                             display: code['display'])
+            {
+              system: code['system'],
+              code: code['code'],
+              display: code['display']
+            }
           end
 
-          Mobile::V0::AllergyIntolerance::Code.new(coding:, text: attributes['text'])
+          { coding:, text: attributes['text'] }
         end
 
         def patient(attributes)
-          Mobile::V0::AllergyIntolerance::Patient.new(reference: attributes['reference'],
-                                                      display: attributes['display'])
+          {
+            reference: attributes['reference'],
+            display: attributes['display']
+          }
         end
 
         def recorder(attributes)
-          Mobile::V0::AllergyIntolerance::Recorder.new(reference: attributes['reference'],
-                                                       display: attributes['display'])
+          {
+            reference: attributes['reference'],
+            display: attributes['display']
+          }
         end
 
         def notes(attributes)
           Array.wrap(attributes).map do |note|
-            author_reference = Mobile::V0::AllergyIntolerance::Note::AuthorReference.new(
-              reference: note.dig('authorReference', 'reference'),
-              display: note.dig(
-                'authorReference', 'display'
-              )
-            )
-            Mobile::V0::AllergyIntolerance::Note.new(author_reference:, time: note['time'], text: note['text'])
+            {
+              author_reference: {
+                reference: note.dig('authorReference', 'reference'),
+                display: note.dig('authorReference', 'display')
+              },
+              time: note['time'],
+              text: note['text']
+            }
           end
         end
 
@@ -69,19 +79,21 @@ module Mobile
           Array.wrap(attributes).map do |reaction|
             substance_list = Array.wrap(reaction.dig('substance', 'coding'))
 
-            coding = substance_list.map do |code|
-              Mobile::V0::AllergyIntolerance::Reaction::Coding.new(
+            substance_coding = substance_list.map do |code|
+              {
                 system: code['system'],
-                code: code['code'], display: code['display']
-              )
+                code: code['code'],
+                display: code['display']
+              }
             end
-            substance = Mobile::V0::AllergyIntolerance::Reaction::Substance.new(coding:,
-                                                                                text: reaction.dig(
-                                                                                  'substance', 'text'
-                                                                                ))
 
-            manifestation = manifestations(reaction)
-            Mobile::V0::AllergyIntolerance::Reaction.new(substance:, manifestation:)
+            {
+              substance: {
+                text: reaction.dig('substance', 'text'),
+                coding: substance_coding
+              },
+              manifestation: manifestations(reaction)
+            }
           end
         end
 
@@ -92,13 +104,14 @@ module Mobile
             coding_list = Array.wrap(manifestation_hash['coding'])
 
             coding = coding_list.map do |code|
-              Mobile::V0::AllergyIntolerance::Reaction::Coding.new(
+              {
                 system: code['system'],
-                code: code['code'], display: code['display']
-              )
+                code: code['code'],
+                display: code['display']
+              }
             end
 
-            Mobile::V0::AllergyIntolerance::Reaction::Manifestation.new(coding:, text: manifestation_hash['text'])
+            { coding:, text: manifestation_hash['text'] }
           end
         end
       end
