@@ -70,7 +70,7 @@ module Mobile
             substance_list = Array.wrap(reaction.dig('substance', 'coding'))
 
             coding = substance_list.map do |code|
-              Mobile::V0::AllergyIntolerance::Reaction::Substance::Coding.new(
+              Mobile::V0::AllergyIntolerance::Reaction::Coding.new(
                 system: code['system'],
                 code: code['code'], display: code['display']
               )
@@ -92,7 +92,7 @@ module Mobile
             coding_list = Array.wrap(manifestation_hash['coding'])
 
             coding = coding_list.map do |code|
-              Mobile::V0::AllergyIntolerance::Reaction::Manifestation::Coding.new(
+              Mobile::V0::AllergyIntolerance::Reaction::Coding.new(
                 system: code['system'],
                 code: code['code'], display: code['display']
               )
