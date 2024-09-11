@@ -17,18 +17,16 @@ describe TravelPay::TokenService do
       )
     end
 
-    before do
-      allow_any_instance_of(TravelPay::TokenClient)
-        .to receive(:request_veis_token)
-        .and_return(tokens[:veis_token])
-      allow_any_instance_of(TravelPay::TokenClient)
-        .to receive(:request_btsss_token)
-        .with(tokens[:veis_token], user)
-        .and_return(tokens[:btsss_token])
-    end
-
     context 'get_tokens' do
       it 'returns a hash with a veis_token and a btsss_token' do
+        allow_any_instance_of(TravelPay::TokenClient)
+          .to receive(:request_veis_token)
+          .and_return(tokens[:veis_token])
+        allow_any_instance_of(TravelPay::TokenClient)
+          .to receive(:request_btsss_token)
+          .with(tokens[:veis_token], user)
+          .and_return(tokens[:btsss_token])
+
         service = TravelPay::TokenService.new
         response = service.get_tokens(user)
         expect(response).to eq(tokens)
