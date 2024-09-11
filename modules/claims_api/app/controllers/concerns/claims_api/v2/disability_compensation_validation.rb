@@ -1,16 +1,20 @@
 # frozen_string_literal: false
 
 require 'claims_api/v2/disability_compensation_shared_service_module'
+require 'claims_api/v2/lighthouse_military_address_validator'
 
 module ClaimsApi
   module V2
     module DisabilityCompensationValidation # rubocop:disable Metrics/ModuleLength
       include DisabilityCompensationSharedServiceModule
+      include LighthouseMilitaryAddressValidator
+
       DATE_FORMATS = {
         10 => 'yyyy-mm-dd',
         7 => 'yyyy-mm',
         4 => 'yyyy'
       }.freeze
+
       BDD_LOWER_LIMIT = 90
       BDD_UPPER_LIMIT = 180
 
@@ -151,10 +155,26 @@ module ClaimsApi
       def validate_form_526_identification
         return if form_attributes['veteranIdentification'].blank?
 
+        validate_form_526_address_type
         validate_form_526_current_mailing_address_country
         validate_form_526_current_mailing_address_state
         validate_form_526_current_mailing_address_zip
         validate_form_526_service_number
+      end
+
+      def validate_form_526_address_type
+        addr = form_attributes.dig('veteranIdentification', 'mailingAddress')
+        return unless address_is_military?(addr)
+
+        city = military_city(addr)
+        state = military_state(addr)
+        # need both to be true to be valid
+        return if MILITARY_CITY_CODES.include?(city) && MILITARY_STATE_CODES.include?(state)
+
+        collect_error_messages(
+          source: '/veteranIdentification/mailingAddress/',
+          detail: 'Invalid city and military postal combination.'
+        )
       end
 
       def validate_form_526_service_number
