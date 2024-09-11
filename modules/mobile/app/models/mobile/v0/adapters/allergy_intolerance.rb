@@ -26,97 +26,79 @@ module Mobile
 
         def clinical_status(attributes)
           values = Array.wrap(attributes['coding'])
-          coding_hash = values.map do |code|
-            {
-              'system' => code['system'],
-              'code' => code['code']
-            }
+          coding = values.map do |code|
+            Mobile::V0::AllergyIntolerance::ClinicalStatus::Coding.new(system: code['system'], code: code['code'])
           end
 
-          { 'coding' => coding_hash }
+          Mobile::V0::AllergyIntolerance::ClinicalStatus.new(coding:)
         end
 
         def code(attributes)
           values = Array.wrap(attributes['coding'])
-          coding_hash = values.map do |code|
-            {
-              'system' => code['system'],
-              'code' => code['code'],
-              'display' => code['display']
-            }
+          coding = values.map do |code|
+            Mobile::V0::AllergyIntolerance::Code::Coding.new(system: code['system'], code: code['code'],
+                                                             display: code['display'])
           end
 
-          {
-            'coding' => coding_hash,
-            'text' => attributes['text']
-          }
+          Mobile::V0::AllergyIntolerance::Code.new(coding:, text: attributes['text'])
         end
 
         def patient(attributes)
-          {
-            'reference' => attributes['reference'],
-            'display' => attributes['display']
-          }
+          Mobile::V0::AllergyIntolerance::Patient.new(reference: attributes['reference'],
+                                                      display: attributes['display'])
         end
 
         def recorder(attributes)
-          {
-            'reference' => attributes['reference'],
-            'display' => attributes['display']
-          }
+          Mobile::V0::AllergyIntolerance::Recorder.new(reference: attributes['reference'],
+                                                       display: attributes['display'])
         end
 
         def notes(attributes)
           Array.wrap(attributes).map do |note|
-            {
-              'authorReference' => {
-                'reference' => note.dig('authorReference', 'reference'),
-                'display' => note.dig('authorReference', 'display')
-              },
-              'time' => note['time'],
-              'text' => note['text']
-            }
+            author_reference = Mobile::V0::AllergyIntolerance::Note::AuthorReference.new(
+              reference: note.dig('authorReference', 'reference'),
+              display: note.dig(
+                'authorReference', 'display'
+              )
+            )
+            Mobile::V0::AllergyIntolerance::Note.new(author_reference:, time: note['time'], text: note['text'])
           end
         end
 
         def reactions(attributes)
           Array.wrap(attributes).map do |reaction|
-            substance = Array.wrap(reaction.dig('substance', 'coding'))
+            substance_list = Array.wrap(reaction.dig('substance', 'coding'))
 
-            substance_hash = substance.map do |code|
-              {
-                'system' => code['system'],
-                'code' => code['code'],
-                'display' => code['display']
-              }
+            coding = substance_list.map do |code|
+              Mobile::V0::AllergyIntolerance::Reaction::Substance::Coding.new(
+                system: code['system'],
+                code: code['code'], display: code['display']
+              )
             end
+            substance = Mobile::V0::AllergyIntolerance::Reaction::Substance.new(coding:,
+                                                                                text: reaction.dig(
+                                                                                  'substance', 'text'
+                                                                                ))
 
-            {
-              'substance' => {
-                'coding' => substance_hash,
-                'text' => reaction.dig('substance', 'text')
-              },
-              'manifestation' => manifestation_hash(reaction['manifestation'])
-            }
+            manifestation = manifestations(reaction)
+            Mobile::V0::AllergyIntolerance::Reaction.new(substance:, manifestation:)
           end
         end
 
-        def manifestation_hash(manifestation_info)
-          Array.wrap(manifestation_info).map do |manifestation|
-            coding = Array.wrap(manifestation['coding'])
+        def manifestations(reaction)
+          manifestation_list = Array.wrap(reaction['manifestation'])
 
-            coding_hash = coding.map do |code|
-              {
-                'system' => code['system'],
-                'code' => code['code'],
-                'display' => code['display']
-              }
+          manifestation_list.map do |manifestation_hash|
+            coding_list = Array.wrap(manifestation_hash['coding'])
+
+            coding = coding_list.map do |code|
+              Mobile::V0::AllergyIntolerance::Reaction::Manifestation::Coding.new(
+                system: code['system'],
+                code: code['code'], display: code['display']
+              )
             end
 
-            {
-              'coding' => coding_hash,
-              'text' => manifestation['text']
-            }
+            Mobile::V0::AllergyIntolerance::Reaction::Manifestation.new(coding:, text: manifestation_hash['text'])
           end
         end
       end

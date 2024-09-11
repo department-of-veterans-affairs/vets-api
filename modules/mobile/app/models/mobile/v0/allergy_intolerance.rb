@@ -8,13 +8,13 @@ module Mobile
       attribute :id, Types::String
       attribute :resourceType, Types::String
       attribute :type, Types::String
-      attribute :clinicalStatus, Types::Hash
-      attribute :code, Types::Hash
+      attribute :clinicalStatus, ClinicalStatus
+      attribute :code, Code
       attribute :recordedDate, Types::DateTime
-      attribute :patient, Types::Hash
-      attribute :recorder, Types::Hash
-      attribute :notes, Types::Array
-      attribute :reactions, Types::Array
+      attribute :patient, Patient
+      attribute :recorder, Recorder
+      attribute :notes, Types::Array.of(Note)
+      attribute :reactions, Types::Array.of(Reaction)
     end
   end
 end
