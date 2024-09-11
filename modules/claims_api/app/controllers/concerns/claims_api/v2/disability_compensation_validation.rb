@@ -85,9 +85,9 @@ module ClaimsApi
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
         return if change_of_address['dates']['beginDate'].blank? # nothing to check against
 
-        form_object_desc = 'a TEMPORARY change of address'
+        # form_object_desc = 'a TEMPORARY change of address'
 
-        collect_error_if_value_not_present('end date', form_object_desc) if date.blank?
+        # collect_error_if_value_not_present('end date', form_object_desc) if date.blank?
 
         return if Date.strptime(date,
                                 '%Y-%m-%d') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
