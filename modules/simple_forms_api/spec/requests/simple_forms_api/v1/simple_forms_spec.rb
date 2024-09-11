@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
-require 'lighthouse/benefits_intake/service'
 require 'common/file_helpers'
 require 'lighthouse/benefits_intake/service'
 
