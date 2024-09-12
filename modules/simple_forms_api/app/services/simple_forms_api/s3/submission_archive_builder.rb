@@ -32,7 +32,7 @@ module SimpleFormsApi
       private
 
       attr_reader :attachments, :benefits_intake_uuid, :file_path, :include_json_archive, :include_manifest,
-                  :include_text_archive, :metadata, :parent_dir, :submission
+                  :include_text_archive, :metadata, :submission
 
       def default_options
         {
@@ -42,7 +42,6 @@ module SimpleFormsApi
           include_manifest: true, # include a CSV file containing manifest data
           include_text_archive: true, # include the form data as a text file
           metadata: {}, # pertinent metadata for original file upload/submission
-          parent_dir: 'vff-simple-forms' # S3 bucket base directory where files live
         }
       end
 

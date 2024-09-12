@@ -26,8 +26,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
         include_json_archive: true,
         include_manifest: true,
         include_text_archive: true,
-        metadata: {},
-        parent_dir: 'vff-simple-forms'
+        metadata: {}
       }
     end
 
