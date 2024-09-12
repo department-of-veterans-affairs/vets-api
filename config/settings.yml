@@ -562,7 +562,8 @@ mhv:
     x_auth_key: fake-x-auth-key
   account_creation:
     mock: true
-    host: https://mhv-intb-api.myhealth.va.gov
+    host: https://apigw-intb.aws.myhealth.va.gov
+    access_key: some-access-key
     sts:
       service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
       issuer: http://localhost:3000
