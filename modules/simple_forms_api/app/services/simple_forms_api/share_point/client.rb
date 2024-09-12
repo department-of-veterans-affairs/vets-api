@@ -10,13 +10,13 @@ module SimpleFormsApi
 
       class ListItemNotFound < StandardError; end
 
-      # TODO: this is a placeholder; add configuration for OFO/VBA sharepoint access
-      STATSD_KEY_PREFIX = 'api.ofo.submission_error_remediation.sharepoint.request'
+      # TODO: this is a placeholder; add configuration for VBA sharepoint access
+      STATSD_KEY_PREFIX = 'api.vba.submission_error_remediation.sharepoint.request'
 
       attr_reader :settings
       attr_accessor :access_token
 
-      # TODO: these are placeholders; add configuration for OFO/VBA sharepoint access
+      # TODO: these are placeholders; add configuration for VBA sharepoint access
       def_delegators :settings, :authentication_url, :base_path, :client_id, :client_secret, :resource, :service_name,
                      :sharepoint_url, :tenant_id
 
@@ -44,16 +44,17 @@ module SimpleFormsApi
       # TODO: change this to interface with S3 or an intermediary job/service
       def upload_to_sharepoint(payload_path, payload_name)
         with_monitoring do
-          sharepoint_file_connection.post(file_transfer_url(payload_name)) do |req|
+          sharepoint_file_connection.post(file_creation_url(payload_name)) do |req|
             req.headers['Content-Type'] = 'octet/stream'
             req.body = Faraday::UploadIO.new(File.open(payload_path), 'octet/stream')
           end
         end
       end
 
-      # TODO: confirm this is the correct payload url
-      def file_transfer_url(payload_name)
-        "#{base_path}/_api/Web/GetFolderByServerRelativeUrl('#{base_path}/Submissions')/" \
+      # TODO: this url may need tweaking
+      # reference: https://learn.microsoft.com/en-us/sharepoint/dev/sp-add-ins/working-with-folders-and-files-with-rest
+      def file_creation_url(payload_name)
+        "#{base_path}/_api/Web/GetFolderByServerRelativeUrl('Benefits Portfolio/Documents/VBA Manual Form Upload')/" \
           "Files/add(url='#{payload_name}.zip',overwrite=true)"
       end
 
@@ -108,9 +109,9 @@ module SimpleFormsApi
         }
       end
 
-      # TODO: this is a placeholder; add configuration for OFO/VBA sharepoint access
+      # TODO: this is a placeholder; add configuration for VBA sharepoint access
       def initialize_settings
-        Settings.ofo.sharepoint
+        Settings.vba.sharepoint
       end
     end
   end

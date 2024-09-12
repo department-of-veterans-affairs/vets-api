@@ -8,16 +8,13 @@ require 'fileutils'
 module SimpleFormsApi
   module S3
     class SubmissionArchiveBuilder < Utils
-      attr_reader :benefits_intake_uuid, :file_path, :include_json_archive, :include_manifest, :include_text_archive,
-                  :metadata, :parent_dir, :submission
-
       def initialize(benefits_intake_uuid: nil, submission: nil, **options) # rubocop:disable Lint/MissingSuper
         defaults = default_options.merge(options)
 
         @submission = submission || FormSubmission.find_by(benefits_intake_uuid:)
-        raise 'Submission was not found' unless submission
+        raise 'Submission was not found' unless @submission
 
-        @benefits_intake_uuid = submission.benefits_intake_uuid
+        @benefits_intake_uuid = @submission.benefits_intake_uuid
 
         assign_instance_variables(defaults)
       end
@@ -34,12 +31,15 @@ module SimpleFormsApi
 
       private
 
+      attr_reader :attachments, :benefits_intake_uuid, :file_path, :include_json_archive, :include_manifest,
+                  :include_text_archive, :metadata, :parent_dir, :submission
+
       def default_options
         {
           attachments: [], # an array of attachment confirmation codes
           file_path: nil, # file path for the PDF file to be archived
           include_json_archive: true, # include the form data as a JSON object
-          include_manifest: true, # include a CSV file containing Veteran ID & original submission datetime
+          include_manifest: true, # include a CSV file containing manifest data
           include_text_archive: true, # include the form data as a text file
           metadata: {}, # pertinent metadata for original file upload/submission
           parent_dir: 'vff-simple-forms' # S3 bucket base directory where files live
@@ -50,26 +50,21 @@ module SimpleFormsApi
         write_pdf
         write_as_json_archive if include_json_archive
         write_as_text_archive if include_text_archive
-        write_attachments if attachments.present?
+        write_attachments unless attachments.empty?
         write_manifest if include_manifest
         write_metadata
       end
 
       def write_pdf
-        write_tempfile(submission_pdf_filename, Base64.decode64(generate_pdf_content))
-      end
-
-      def generate_pdf_content
-        regenerate_pdf_submission unless file_path
-
-        Faraday::UploadIO.new(file_path, Mime[:pdf].to_s, File.basename(file_path))
+        write_tempfile(submission_pdf_filename, File.read(generate_pdf_content))
       end
 
       # TODO: this will be pulled out to be more team agnostic
-      def regenerate_pdf_submission
+      def generate_pdf_content
+        return file_path if file_path
+
         form_number = SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[submission.form_type]
-        parsed_form_data = JSON.parse(submission.form_data)
-        form = "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
+        form = "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(form_data_hash)
         filler = SimpleFormsApi::PdfFiller.new(form_number:, form:)
 
         @file_path = filler.generate(timestamp: submission.created_at)
@@ -81,10 +76,15 @@ module SimpleFormsApi
         form.handle_attachments(file_path) if %w[vba_40_0247 vba_20_10207 vba_40_10007].include? form_number
 
         @attachments = form.get_attachments if form_number == 'vba_20_10207'
+        @file_path
+      end
+
+      def form_data_hash
+        @form_data_hash ||= JSON.parse(submission.form_data)
       end
 
       def submission_pdf_filename
-        @submission_pdf_filename ||= "form_#{submission.form_data['form_number']}.pdf"
+        @submission_pdf_filename ||= "form_#{form_data_hash['form_number']}.pdf"
       end
 
       def error_details(error)
@@ -92,13 +92,12 @@ module SimpleFormsApi
       end
 
       def write_as_json_archive
-        form_json = JSON.parse(submission.form_data)
-        write_tempfile('form_text_archive.json', JSON.pretty_generate(form_json))
+        write_tempfile('form_json_archive.json', JSON.pretty_generate(form_data_hash))
       end
 
       def write_as_text_archive
-        form_text_archive = submission.form_data['claimDate'] ||= submission.created_at.iso8601
-        write_tempfile('form_text_archive.txt', form_text_archive.to_json)
+        form_data_hash['claim_date'] ||= submission.created_at.iso8601
+        write_tempfile('form_text_archive.txt', form_data_hash.to_s)
       end
 
       def write_metadata
@@ -113,25 +112,6 @@ module SimpleFormsApi
         handle_upload_error(e)
       end
 
-      def write_manifest
-        file_name = "submission_#{benefits_intake_uuid}_#{submission.created_at}_manifest.csv"
-        file_path = File.join(temp_directory_path, file_name)
-
-        CSV.open(file_path, 'wb') do |csv|
-          csv << ['Submission DateTime', 'Form Type', 'VA.gov ID', 'Veteran ID', 'First Name', 'Last Name']
-          csv << [
-            submission.created_at,
-            submission.form_data['form_number'],
-            benefits_intake_uuid,
-            metadata['fileNumber'],
-            submission.form_data['first_name'],
-            submission.form_data['last_name']
-          ]
-        end
-
-        file_path
-      end
-
       def process_attachment(attachment_number, guid)
         log_info("Processing attachment ##{attachment_number}: #{guid}")
         attachment = PersistentAttachment.find_by(guid:).to_pdf
@@ -142,6 +122,25 @@ module SimpleFormsApi
         attachment_failures << e
         handle_error('Attachment failure.', e)
         raise e
+      end
+
+      def write_manifest
+        file_name = "submission_#{benefits_intake_uuid}_#{submission.created_at}_manifest.csv"
+        file_path = File.join(temp_directory_path, file_name)
+
+        CSV.open(file_path, 'wb') do |csv|
+          csv << ['Submission DateTime', 'Form Type', 'VA.gov ID', 'Veteran ID', 'First Name', 'Last Name']
+          csv << [
+            submission.created_at,
+            form_data_hash['form_number'],
+            benefits_intake_uuid,
+            metadata['fileNumber'],
+            metadata['veteranFirstName'],
+            metadata['veteranLastName']
+          ]
+        end
+
+        file_path
       end
 
       def write_attachment_failure_report
