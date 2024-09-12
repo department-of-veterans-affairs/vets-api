@@ -1,4 +1,3 @@
-version: '3.4'
 services:
   redis:
     image: public.ecr.aws/docker/library/redis:6.2-alpine
