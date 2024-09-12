@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require_relative 'lighthouse_military_address_validator'
+
 module ClaimsApi
   module V2
     class DisabilityCompensationEvssMapper
+      include LighthouseMilitaryAddressValidator
+
       def initialize(auto_claim)
         @auto_claim = auto_claim
         @data = auto_claim&.form_data&.deep_symbolize_keys
@@ -47,6 +51,29 @@ module ClaimsApi
       end
 
       def current_mailing_address
+        if address_is_military?(@data.dig(:veteranIdentification, :mailingAddress))
+          handle_military_address
+        else
+          handle_domestic_or_international_address
+        end
+      end
+
+      def handle_military_address
+        addr = @data.dig(:veteranIdentification, :mailingAddress) || {}
+        type = 'MILITARY'
+        addr[:militaryPostOfficeTypeCode] = military_city(addr)
+        addr[:militaryStateCode] = military_state(addr)
+
+        addr.delete(:city)
+        addr.delete(:state)
+
+        @evss_claim[:veteran] ||= {}
+        @evss_claim[:veteran][:currentMailingAddress] = addr.compact_blank
+        @evss_claim[:veteran][:currentMailingAddress].merge!({ type: })
+        @evss_claim[:veteran][:currentMailingAddress].except!(:numberAndStreet, :apartmentOrUnitNumber)
+      end
+
+      def handle_domestic_or_international_address
         addr = @data.dig(:veteranIdentification, :mailingAddress) || {}
         type = addr[:internationalPostalCode].present? ? 'INTERNATIONAL' : 'DOMESTIC'
         @evss_claim[:veteran] ||= {}

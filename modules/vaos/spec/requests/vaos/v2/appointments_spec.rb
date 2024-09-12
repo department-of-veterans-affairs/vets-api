@@ -329,9 +329,30 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         context 'using VAOS' do
           before do
             Flipper.disable(:va_online_scheduling_use_vpg)
+            Flipper.enable(:va_online_scheduling_after_visit_summary)
           end
 
           it 'fetches appointment list and includes avs on past booked appointments' do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_booked_past_avs_200',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
+              allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_avs_link)
+                .and_return(avs_path)
+              get '/vaos/v2/appointments' \
+                  '?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked&_include=avs',
+                  params:, headers: inflection_header
+
+              data = JSON.parse(response.body)['data']
+
+              expect(response).to have_http_status(:ok)
+              expect(response.body).to be_a(String)
+
+              expect(data[0]['attributes']['avsPath']).to eq(avs_path)
+
+              expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+            end
+          end
+
+          it 'fetches appointment list and bypasses avs when query param is not included' do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_booked_past_avs_200',
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
               allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_avs_link)
@@ -344,8 +365,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
 
-              # TODO: currently appointment id 192308 is being used to trigger an avs empty state;
-              # switch back this field to expect avs_path after testing on id 192308 is complete
               expect(data[0]['attributes']['avsPath']).to be_nil
 
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
@@ -637,12 +656,19 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       context 'when the VAOS service returns a single appointment' do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
+          Flipper.enable(:va_online_scheduling_after_visit_summary)
+        end
+
+        let(:avs_path) do
+          '/my-health/medical-records/summaries-and-notes/visit-summary/C46E12AA7582F5714716988663350853'
         end
 
         it 'has access and returns appointment - va proposed' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200',
                            match_requests_on: %i[method path query]) do
             allow(Rails.logger).to receive(:info).at_least(:once)
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_avs_link)
+              .and_return(avs_path)
             get '/vaos/v2/appointments/70060', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
@@ -651,6 +677,29 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             expect(data['id']).to eq('70060')
             expect(data['attributes']['kind']).to eq('clinic')
             expect(data['attributes']['status']).to eq('proposed')
+            expect(data['attributes']['avsPath']).to be_nil
+            expect(Rails.logger).to have_received(:info).with(
+              'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
+              { created: '2021-12-13T14:03:02Z' }.to_json
+            )
+          end
+        end
+
+        it 'has access and returns appointment with avs included' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_avs_link)
+              .and_return(avs_path)
+            get '/vaos/v2/appointments/70060?_include=avs', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            data = JSON.parse(response.body)['data']
+
+            expect(data['id']).to eq('70060')
+            expect(data['attributes']['kind']).to eq('clinic')
+            expect(data['attributes']['status']).to eq('booked')
+            expect(data['attributes']['avsPath']).to eq(avs_path)
             expect(Rails.logger).to have_received(:info).with(
               'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
               { created: '2021-12-13T14:03:02Z' }.to_json
