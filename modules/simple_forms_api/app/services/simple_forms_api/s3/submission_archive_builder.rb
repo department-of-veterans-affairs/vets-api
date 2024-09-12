@@ -41,7 +41,7 @@ module SimpleFormsApi
           include_json_archive: true, # include the form data as a JSON object
           include_manifest: true, # include a CSV file containing manifest data
           include_text_archive: true, # include the form data as a text file
-          metadata: {}, # pertinent metadata for original file upload/submission
+          metadata: {} # pertinent metadata for original file upload/submission
         }
       end
 
@@ -72,7 +72,7 @@ module SimpleFormsApi
           zip_code_is_us_based: form.zip_code_is_us_based
         )
 
-        form.handle_attachments(file_path) if %w[vba_40_0247 vba_20_10207 vba_40_10007].include? form_number
+        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007].include? form_number
 
         @attachments = form.get_attachments if form_number == 'vba_20_10207'
         @file_path
