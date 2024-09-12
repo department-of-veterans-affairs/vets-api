@@ -5,7 +5,8 @@ module TravelPay
     class ClaimsController < ApplicationController
       def index
         begin
-          claims = service.get_claims(@current_user)
+          token_service.get_tokens(@current_user) => { veis_token:, btsss_token: }
+          claims = claims_service.get_claims(veis_token, btsss_token)
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
         end
@@ -15,8 +16,12 @@ module TravelPay
 
       private
 
-      def service
-        @service ||= TravelPay::ClaimsService.new
+      def claims_service
+        @claims_service ||= TravelPay::ClaimsService.new
+      end
+
+      def token_service
+        @token_service ||= TravelPay::TokenService.new
       end
 
       def common_exception(e)

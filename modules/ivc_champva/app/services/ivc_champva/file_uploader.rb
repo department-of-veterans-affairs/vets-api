@@ -80,8 +80,6 @@ module IvcChampva
     def client
       @client ||= IvcChampva::S3.new(
         region: Settings.ivc_forms.s3.region,
-        access_key_id: Settings.ivc_forms.s3.aws_access_key_id,
-        secret_access_key: Settings.ivc_forms.s3.aws_secret_access_key,
         bucket: Settings.ivc_forms.s3.bucket
       )
     end
