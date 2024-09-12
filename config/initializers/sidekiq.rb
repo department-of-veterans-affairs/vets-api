@@ -7,6 +7,7 @@ require 'sidekiq/error_tag'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
+require 'sidekiq/create_veteran_submission_middleware'
 require 'datadog/statsd' # gem 'dogstatsd-ruby'
 
 Rails.application.reloader.to_prepare do
@@ -55,6 +56,7 @@ Rails.application.reloader.to_prepare do
 
     config.client_middleware do |chain|
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
+      chain.add Sidekiq::CreateVeteranSubmissionMiddleware
       chain.add Sidekiq::SetRequestId
       chain.add Sidekiq::SetRequestAttributes
     end
