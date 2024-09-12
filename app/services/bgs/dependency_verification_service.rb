@@ -84,7 +84,8 @@ module BGS
     end
 
     def invalid_dependency_decision?(dependency_decision)
-      (dependency_decision.is_a?(Hash) && !dependency_decision.key?(:award_effective_date)) ||
+      !dependency_decision.is_a?(Hash) ||
+        !dependency_decision.key?(:award_effective_date) ||
         dependency_decision[:award_effective_date].future?
     end
   end
