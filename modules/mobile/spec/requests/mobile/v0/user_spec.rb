@@ -33,7 +33,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     end
 
     before do
-      Flipper.enable_actor(:mobile_v1_lighthouse_facilities, user)
       Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
       VCR.insert_cassette('sm_client/session')
     end
@@ -41,7 +40,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     after do
       Timecop.return
       VCR.eject_cassette
-      Flipper.disable(:mobile_v1_lighthouse_facilities)
     end
 
     context 'with no upstream errors' do

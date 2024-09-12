@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../../../support/authentication'
+require_relative '../../../rails_helper'
 
 RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
   let(:valid_json) { { field: 'value' }.to_json }
@@ -15,7 +14,9 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
   describe 'POST /accredited_representative_portal/v0/form21a' do
     context 'with valid JSON' do
-      it 'returns a successful response from the service' do
+      let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }
+
+      it 'returns a successful response from the service and destroys in progress form' do
         allow(AccreditationService).to receive(:submit_form21a).and_return(
           instance_double(Faraday::Response, success?: true, body: { result: 'success' }.to_json, status: 200)
         )
@@ -24,7 +25,8 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
         post('/accredited_representative_portal/v0/form21a', params: valid_json, headers:)
 
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)).to eq('result' => 'success')
+        expect(parsed_response).to eq('result' => 'success')
+        expect(InProgressForm.exists?(in_progress_form.id)).to be false
       end
     end
 
@@ -34,7 +36,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
         post('/accredited_representative_portal/v0/form21a', params: invalid_json, headers:)
 
         expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)).to eq('errors' => 'Invalid JSON')
+        expect(parsed_response).to eq('errors' => 'Invalid JSON')
       end
     end
 
@@ -62,7 +64,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
         post('/accredited_representative_portal/v0/form21a', params: valid_json, headers:)
 
         expect(response).to have_http_status(:bad_gateway)
-        expect(JSON.parse(response.body)).to eq('errors' => 'Failed to parse response')
+        expect(parsed_response).to eq('errors' => 'Failed to parse response')
       end
     end
 
@@ -74,7 +76,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
         post '/accredited_representative_portal/v0/form21a'
 
         expect(response).to have_http_status(:internal_server_error)
-        expect(JSON.parse(response.body)).to match(
+        expect(parsed_response).to match(
           'errors' => [
             {
               'title' => 'Internal server error',
