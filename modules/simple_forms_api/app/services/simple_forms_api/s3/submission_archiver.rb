@@ -6,9 +6,6 @@ require 'fileutils'
 module SimpleFormsApi
   module S3
     class SubmissionArchiver < Utils
-      attr_reader :benefits_intake_uuid, :file_path, :include_json_archive, :include_manifest, :include_text_archive,
-                  :metadata, :parent_dir, :submission
-
       class << self
         def fetch_presigned_url(benefits_intake_uuid)
           pdf = fetch_pdf(benefits_intake_uuid)
@@ -47,10 +44,13 @@ module SimpleFormsApi
 
         output_directory_path
       rescue => e
-        handle_error("Failed submission: #{submission.id}", e, { submission_id: submission.id, benefits_intake_uuid: })
+        handle_error("Failed submission: #{benefits_intake_uuid}", e, { benefits_intake_uuid: })
       end
 
       private
+
+      attr_reader :benefits_intake_uuid, :file_path, :include_json_archive, :include_manifest, :include_text_archive,
+                  :metadata, :parent_dir, :submission
 
       def default_options
         {
