@@ -364,10 +364,6 @@ features:
     actor_type: user
     description: Enable using MAR 2024 revision of 200996 Higher Level Review form when submitting to EMMS for intake
     enable_in_development: false
-  decision_review_form_store_saved_claims:
-    actor_type: user
-    description: Enable storage of SavedClaim records for Decision Review forms (HLR, NOD, SC)
-    enable_in_development: true
   decision_review_saved_claim_hlr_status_updater_job_enabled:
     actor_type: user
     description: Enable job to set delete_date for completed SavedClaim::HigherLevelReviews
@@ -1527,6 +1523,9 @@ features:
   disability_compensation_lighthouse_upload_supplemental_document:
     actor_type: user
     description: If enabled uses the Lighthouse Benefits Documents API to submit Form 526 documents
+  disablity_benefits_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for disability benefits applications
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment

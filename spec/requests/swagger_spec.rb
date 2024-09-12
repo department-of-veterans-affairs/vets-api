@@ -1373,34 +1373,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'decision review evidence upload' do
-      it 'supports uploading a file' do
-        VCR.use_cassette('decision_review/200_pdf_validation') do
-          expect(subject).to validate(
-            :post,
-            '/v0/decision_review_evidence',
-            200,
-            headers.update(
-              '_data' => {
-                'decision_review_evidence_attachment' => {
-                  'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
-                }
-              }
-            )
-          )
-        end
-      end
-
-      it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(
-          :post,
-          '/v0/decision_review_evidence',
-          400,
-          headers
-        )
-      end
-    end
-
     describe 'secure messaging' do
       include SM::ClientHelpers
 
@@ -2029,36 +2001,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'documents appeals 502' do
         VCR.use_cassette('/caseflow/server_error') do
           expect(subject).to validate(:get, '/v0/appeals', 502, headers)
-        end
-      end
-    end
-
-    describe 'NOD contestable_issues' do
-      let(:ssn) { '212222112' }
-
-      it 'documents contestable_issues 200' do
-        VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200') do
-          expect(subject).to validate(
-            :get,
-            '/v0/notice_of_disagreements/contestable_issues',
-            200,
-            headers
-          )
-        end
-      end
-
-      context '404' do
-        let(:ssn) { '000000000' }
-
-        it 'documents contestable_issues 404' do
-          VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404') do
-            expect(subject).to validate(
-              :get,
-              '/v0/notice_of_disagreements/contestable_issues',
-              404,
-              headers
-            )
-          end
         end
       end
     end
@@ -3385,6 +3327,34 @@ RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :de
         Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 00:15:06'))
         expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 503, headers)
         Timecop.return
+      end
+    end
+
+    describe 'decision review evidence upload' do
+      it 'supports uploading a file' do
+        VCR.use_cassette('decision_review/200_pdf_validation') do
+          expect(subject).to validate(
+            :post,
+            '/v1/decision_review_evidence',
+            200,
+            headers.update(
+              '_data' => {
+                'decision_review_evidence_attachment' => {
+                  'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+                }
+              }
+            )
+          )
+        end
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(
+          :post,
+          '/v1/decision_review_evidence',
+          400,
+          headers
+        )
       end
     end
   end
