@@ -20,7 +20,7 @@ module BenefitsIntake
     # Lighthouse to monitor those submissions. See here for more   #
     # details:                                                     #
     #                                                              #
-    # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/d24831944da993de2163ea622c5698b5138a3a6b/teams/benefits/playbooks/endpoint-monitoring.md
+    # https://depo-platform-documentation.scrollhelp.site/developer-docs/endpoint-monitoring
     ################################################################
     configuration BenefitsIntake::Configuration
 
