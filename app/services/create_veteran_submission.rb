@@ -9,7 +9,8 @@ class CreateVeteranSubmission
   def call
     VeteranSubmission.find_or_create_by!(
       va_gov_submission_id: @va_gov_submission_id,
-      va_gov_submission_type: @va_gov_submission_type
+      va_gov_submission_type: @va_gov_submission_type,
+      status: :created
     )
   end
 end

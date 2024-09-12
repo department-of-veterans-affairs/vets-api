@@ -23,13 +23,19 @@ RSpec.describe CreateVeteranSubmission, type: :service do
         veteran_submission = subject.call
         expect(veteran_submission.va_gov_submission_type).to eq(va_gov_submission_type)
       end
+
+      it 'sets the status to created' do
+        veteran_submission = subject.call
+        expect(veteran_submission.status).to eq('created')
+      end
     end
 
     context 'when the VeteranSubmission already exists' do
       before do
         VeteranSubmission.create!(
-          va_gov_submission_id:,
-          va_gov_submission_type:
+          va_gov_submission_id: va_gov_submission_id,
+          va_gov_submission_type: va_gov_submission_type,
+          status: :created
         )
       end
 
@@ -41,6 +47,7 @@ RSpec.describe CreateVeteranSubmission, type: :service do
         veteran_submission = subject.call
         expect(veteran_submission.va_gov_submission_id).to eq(va_gov_submission_id)
         expect(veteran_submission.va_gov_submission_type).to eq(va_gov_submission_type)
+        expect(veteran_submission.status).to eq('created')
       end
     end
   end
