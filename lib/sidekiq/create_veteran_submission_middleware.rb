@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateVeteranSubmissionMiddleware
+class Sidekiq::CreateVeteranSubmissionMiddleware
   def call(job)
     va_gov_submission_id = job['jid']
     va_gov_submission_type = job['class']
