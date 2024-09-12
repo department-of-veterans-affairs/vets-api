@@ -60,9 +60,10 @@ module BGS
         invalid_dependency_decision?(dependency_decision)
       end
 
-      set2 = set1.group_by { |dependency_decision| dependency_decision[:person_id] }
-
       final = []
+      return final if set1.blank?
+
+      set2 = set1.group_by { |dependency_decision| dependency_decision[:person_id] }
 
       set2.each_value do |array|
         latest = array.max_by { |dd| dd[:award_effective_date] }
