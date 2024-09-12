@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs_service/person_web_service'
+require 'bgs_service/redis/find_poas_service'
 
 module ClaimsApi
   module DependentClaimantVerification
@@ -14,12 +15,18 @@ module ClaimsApi
                  'to add this dependent.'
         raise ::Common::Exceptions::UnprocessableEntity.new(detail:)
       end
+
+      def validate_poa_code_by_participant_id!(participant_id, poa_code)
+        return if valid_participant_poa_combo?(participant_id, poa_code)
+
+        raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'The requested POA code could not be found.')
+      end
     end
 
     private
 
-    def normalize_name(name)
-      name.to_s.strip.upcase
+    def normalize(item)
+      item.to_s.strip.upcase
     end
 
     def valid_participant_dependent_combo?(participant_id, dependent_first_name_to_verify,
@@ -35,16 +42,29 @@ module ClaimsApi
       dependents = response[:dependent]
 
       Array.wrap(dependents).any? do |dependent|
-        normalized_first_name_to_verify = normalize_name(dependent_first_name_to_verify)
-        normalized_last_name_to_verify = normalize_name(dependent_last_name_to_verify)
-        normalized_first_name_service = normalize_name(dependent[:first_nm])
-        normalized_last_name_service = normalize_name(dependent[:last_nm])
+        normalized_first_name_to_verify = normalize(dependent_first_name_to_verify)
+        normalized_last_name_to_verify = normalize(dependent_last_name_to_verify)
+        normalized_first_name_service = normalize(dependent[:first_nm])
+        normalized_last_name_service = normalize(dependent[:last_nm])
 
         return false if [normalized_first_name_to_verify, normalized_last_name_to_verify, normalized_first_name_service,
                          normalized_last_name_service].any?(&:blank?)
 
         normalized_first_name_to_verify == normalized_first_name_service &&
           normalized_last_name_to_verify == normalized_last_name_service
+      end
+    end
+
+    def valid_participant_poa_combo?(participant_id, poa_code)
+      return false unless participant_id.present? && poa_code.present?
+
+      response = FindPOAsService.new.response
+
+      return false if response.nil? || !response.is_a?(Array) || response.empty?
+
+      response.any? do |poa_participant_pair|
+        normalize(poa_participant_pair[:ptcpnt_id]) == normalize(participant_id) &&
+          normalize(poa_participant_pair[:legacy_poa_cd]) == normalize(poa_code)
       end
     end
   end
