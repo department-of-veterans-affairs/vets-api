@@ -88,8 +88,10 @@ class FormProfile
   MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }
 
   ALL_FORMS = {
-    edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
-            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
+    edu: %w[
+      22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E 22-5495
+      22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ
+    ],
     evss: ['21-526EZ'],
     hca: %w[1010ez 10-10EZR],
     pension_burial: %w[21P-530 21P-527EZ 21P-530V2],
@@ -103,51 +105,50 @@ class FormProfile
     adapted_housing: ['26-4555'],
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
-    form_upload_flow: ['FORM-UPLOAD-FLOW'],
+    form_upload: ['FORM-UPLOAD-21-0779'],
     acc_rep_management: %w[21-22 21-22A],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS']
   }.freeze
 
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
-    '1010EZ' => ::FormProfiles::VA1010ez,
     '10-10EZR' => ::FormProfiles::VA1010ezr,
     '10-7959C' => ::FormProfiles::VHA107959c,
+    '1010EZ' => ::FormProfiles::VA1010ez,
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
+    '21-0966' => ::FormProfiles::VA210966,
+    '21-22' => ::FormProfiles::VA2122,
+    '21-22A' => ::FormProfiles::VA2122a,
     '21-526EZ' => ::FormProfiles::VA526ez,
+    '21-686C' => ::FormProfiles::VA21686c,
+    '21P-527EZ' => ::FormProfiles::VA21p527ez,
+    '21P-530' => ::FormProfiles::VA21p530,
+    '21P-530V2' => ::FormProfiles::VA21p530v2,
+    '22-0993' => ::FormProfiles::VA0993,
+    '22-0994' => ::FormProfiles::VA0994,
+    '22-10203' => ::FormProfiles::VA10203,
     '22-1990' => ::FormProfiles::VA1990,
-    '22-1990N' => ::FormProfiles::VA1990n,
     '22-1990E' => ::FormProfiles::VA1990e,
     '22-1990EMEB' => ::FormProfiles::VA1990emeb,
+    '22-1990EZ' => ::FormProfiles::VA1990ez,
+    '22-1990N' => ::FormProfiles::VA1990n,
+    '22-1990S' => ::FormProfiles::VA1990s,
     '22-1995' => ::FormProfiles::VA1995,
     '22-5490' => ::FormProfiles::VA5490,
     '22-5490E' => ::FormProfiles::VA5490e,
     '22-5495' => ::FormProfiles::VA5495,
-    '21P-530' => ::FormProfiles::VA21p530,
-    '21P-530V2' => ::FormProfiles::VA21p530v2,
-    '21-686C' => ::FormProfiles::VA21686c,
-    '686C-674' => ::FormProfiles::VA686c674,
-    '40-10007' => ::FormProfiles::VA4010007,
-    '21P-527EZ' => ::FormProfiles::VA21p527ez,
-    '22-0993' => ::FormProfiles::VA0993,
-    '22-0994' => ::FormProfiles::VA0994,
-    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
-    'MDOT' => ::FormProfiles::MDOT,
-    '22-10203' => ::FormProfiles::VA10203,
-    '22-1990S' => ::FormProfiles::VA1990s,
-    '5655' => ::FormProfiles::VA5655,
-    '28-8832' => ::FormProfiles::VA288832,
-    '28-1900' => ::FormProfiles::VA281900,
-    '22-1990EZ' => ::FormProfiles::VA1990ez,
     '26-1880' => ::FormProfiles::VA261880,
     '26-4555' => ::FormProfiles::VA264555,
-    '21-0966' => ::FormProfiles::VA210966,
-    'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
-    '21-22' => ::FormProfiles::VA2122,
-    '21-22A' => ::FormProfiles::VA2122a,
-    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns
+    '28-1900' => ::FormProfiles::VA281900,
+    '28-8832' => ::FormProfiles::VA288832,
+    '40-10007' => ::FormProfiles::VA4010007,
+    '5655' => ::FormProfiles::VA5655,
+    '686C-674' => ::FormProfiles::VA686c674,
+    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
+    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
+    'MDOT' => ::FormProfiles::MDOT
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -158,16 +159,77 @@ class FormProfile
   attribute :contact_information, FormContactInformation
   attribute :military_information, FormMilitaryInformation
 
-  def self.prefill_enabled_forms
-    forms = %w[21-686C 40-10007 0873]
-    ALL_FORMS.each { |type, form_list| forms += form_list if Settings[type].prefill }
-    forms
-  end
+  class << self
+    FORM_UPLOAD_ID_PREFIX = 'FORM-UPLOAD-'
+    PREDEFINED_FORMS = %w[21-686C 40-10007 0873].freeze
 
-  # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
-  def self.for(form_id:, user:)
-    form_id = form_id.upcase
-    FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id:, user:)
+    def prefill_enabled_forms
+      ALL_FORMS.each_with_object(PREDEFINED_FORMS.dup) do |(type, form_list), forms|
+        forms.concat(form_list) if prefill_enabled?(type)
+      end
+    end
+
+    def for(form_id:, user:)
+      form_id = form_id.upcase
+      form_class = determine_form_class(form_id)
+      form_class.new(form_id:, user:)
+    end
+
+    def mappings_for_form(form_id, user = nil)
+      @mappings ||= {}
+      # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
+      form_id = adjust_form_id_based_on_flags(form_id, user)
+      @mappings[form_id] ||= load_form_mapping(form_id)
+    end
+
+    def load_form_mapping(form_id)
+      form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
+      file_name = upload_form?(form_id) ? 'FORM-UPLOAD.yml' : "#{form_id}.yml"
+      file_path = Rails.root.join('config', 'form_profile_mappings', file_name)
+
+      raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file_path)
+
+      YAML.load_file(file_path)
+    end
+
+    private
+
+    def prefill_enabled?(type)
+      Settings[type].prefill
+    end
+
+    def determine_form_class(form_id)
+      upload_form?(form_id) ? lookup_upload_class(form_id) : form_class_for_id(form_id)
+    end
+
+    def upload_form?(form_id)
+      form_id.include?(FORM_UPLOAD_ID_PREFIX)
+    end
+
+    def lookup_upload_class(form_id)
+      class_name = "::FormProfiles::FormUpload::#{extract_class_string(form_id)}"
+      Object.const_get(class_name)
+    rescue NameError
+      FormProfiles::FormUpload::Base
+    end
+
+    def form_class_for_id(form_id)
+      FORM_ID_TO_CLASS.fetch(form_id, self)
+    end
+
+    def extract_class_string(form_id)
+      form_id.gsub(FORM_UPLOAD_ID_PREFIX, 'VA').delete('-')
+    end
+
+    def adjust_form_id_based_on_flags(form_id, user)
+      return form_id unless user
+
+      if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, user)
+        '21P-527EZ-military'
+      else
+        form_id
+      end
+    end
   end
 
   def initialize(form_id:, user:)
@@ -177,21 +239,6 @@ class FormProfile
 
   def metadata
     {}
-  end
-
-  def self.mappings_for_form(form_id)
-    @mappings ||= {}
-    # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
-    form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
-    @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
-  end
-
-  def self.load_form_mapping(form_id)
-    form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
-    file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
-    raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
-
-    YAML.load_file(file)
   end
 
   # Collects data the VA has on hand for a user. The data may come from many databases/services.
@@ -207,7 +254,7 @@ class FormProfile
     @military_information = initialize_military_information
     form = form_id == '1010EZ' ? '1010ez' : form_id
     if FormProfile.prefill_enabled_forms.include?(form)
-      mappings = self.class.mappings_for_form(form_id)
+      mappings = self.class.mappings_for_form(form_id, @user)
 
       form_data = generate_prefill(mappings)
 
