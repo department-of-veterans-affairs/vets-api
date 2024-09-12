@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 include 'simple_forms_api/s3/submission_archive_builder'
+include 'common/file_helpers'
 
 namespace :simple_forms_api do
   desc 'Build submission archives for a collection of ' \
@@ -23,6 +24,8 @@ namespace :simple_forms_api do
       zip_file_path = zip_directory(archive_dir)
 
       scp_transfer(zip_file_path, download_path)
+
+      delete_temp_file(zip_file_path)
     rescue => e
       puts "Error processing benefits_intake_uuid #{uuid}: #{e.message}"
     end
@@ -33,6 +36,11 @@ def zip_directory(dir_path)
   zip_file_path = "#{dir_path}.zip"
   system("zip -r #{zip_file_path} #{dir_path}")
   zip_file_path
+end
+
+def delete_temp_file(file_path)
+  puts "Deleting temporary file: #{file_path}"
+  FileUtils.rm_f(file_path)
 end
 
 def scp_transfer(local_path, remote_path)
