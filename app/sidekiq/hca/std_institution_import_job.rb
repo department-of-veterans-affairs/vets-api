@@ -67,7 +67,14 @@ module HCA
 
       ActiveRecord::Base.transaction do
         data = fetch_csv_data
-        raise 'Failed to fetch CSV data.' unless data
+        unless data
+          UpdateVeteranSubmission.new(
+            job_id: self.jid,
+            submission_type: self.class.to_s,
+            status: :failed,
+          ).call
+          raise 'Failed to fetch CSV data.'
+        end
 
         CSV.parse(data, headers: true) do |row|
           id = row['ID'].to_i
@@ -86,6 +93,14 @@ module HCA
         end
         Rails.logger.info("Job ended with #{StdInstitutionFacility.count} existing facilities.")
       end
+
+      UpdateVeteranSubmission.new(
+        job_id: self.jid,
+        submission_type: self.class.to_s,
+        status: :succeeded,
+        upstream_system_name: 'vets-api',
+        upstream_submission_id: '12345'
+      ).call
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.ves_facilities_import_complete")
     end
   end
