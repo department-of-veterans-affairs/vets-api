@@ -43,7 +43,8 @@ module EVSS
 
         if Flipper.enabled?(:disability_compensation_use_api_provider_for_bdd_instructions)
           submission = Form526Submission.find(form526_submission_id)
-          api_upload_provider(submission).log_upload_failure(STATSD_KEY_PREFIX, error_class, error_message)
+          # api_upload_provider(submission).log_upload_failure(STATSD_KEY_PREFIX, error_class, error_message)
+          api_upload_provider(submission).log_upload_failure(error_class, error_message)
         end
 
         ::Rails.logger.warn(
@@ -86,7 +87,9 @@ module EVSS
         ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
           options: {
-            form526_submission: submission
+            form526_submission: submission,
+            uploading_class: self,
+            statsd_metric_prefix: STATSD_KEY_PREFIX
           },
           current_user: user,
           feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS
@@ -126,13 +129,14 @@ module EVSS
         # as a "kill switch" in the event there are problems with the ApiProviderFactory implementation, so we can
         # revert back to using the EVSS::DocumentsService directly here
         if Flipper.enabled?(:disability_compensation_use_api_provider_for_bdd_instructions)
-          api_response = upload_via_api_provider
+          upload_via_api_provider
+          # api_response = upload_via_api_provider
 
-          if upload_provider.is_a?(LighthouseSupplementalDocumentUploadProvider)
-            create_lighthouse_polling_record(api_response)
-          end
+          # if upload_provider.is_a?(LighthouseSupplementalDocumentUploadProvider)
+          #   create_lighthouse_polling_record(api_response)
+          # end
 
-          upload_provider.log_upload_success(STATSD_KEY_PREFIX)
+          # upload_provider.log_upload_success(STATSD_KEY_PREFIX)
         else
           EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
         end
@@ -156,17 +160,17 @@ module EVSS
       # after Lighthouse has received it.
       #
       # @param api_response [Faraday::Response] the response from the Lighthouse Benefits Documents API upload endpoint
-      def create_lighthouse_polling_record(api_response)
-        response_body = api_response.body['data']
+      # def create_lighthouse_polling_record(api_response)
+      #   response_body = api_response.body['data']
 
-        if response_body['success'] == true && response_body['requestId']
-          Lighthouse526DocumentUpload.create!(
-            form526_submission_id: @submission_id,
-            document_type: Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE,
-            lighthouse_document_request_id: response_body['requestId']
-          )
-        end
-      end
+      #   if response_body['success'] == true && response_body['requestId']
+      #     Lighthouse526DocumentUpload.create!(
+      #       form526_submission_id: @submission_id,
+      #       document_type: Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE,
+      #       lighthouse_document_request_id: response_body['requestId']
+      #     )
+      #   end
+      # end
 
       def retryable_error_handler(error)
         super(error)

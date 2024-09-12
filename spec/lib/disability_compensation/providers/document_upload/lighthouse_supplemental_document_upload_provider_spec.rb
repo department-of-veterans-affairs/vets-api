@@ -11,7 +11,14 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
   let(:file_name) { Faker::File.file_name }
 
-  let(:provider) { LighthouseSupplementalDocumentUploadProvider.new(submission) }
+  # let(:provider) { LighthouseSupplementalDocumentUploadProvider.new(submission) }
+  let(:provider) do
+    LighthouseSupplementalDocumentUploadProvider.new(
+      submission,
+      'MyUploadingClass',
+      'my_stats_metric_prefix'
+    )
+  end
 
   let(:lighthouse_document) do
     LighthouseDocument.new(
@@ -62,12 +69,26 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   describe 'submit_upload_document' do
     let(:faraday_response) { instance_double(Faraday::Response) }
 
-    it 'submits the document via the UploadSupplementalDocumentService and returns the response' do
+    before do
       allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
         .with(file_body, lighthouse_document)
         .and_return(faraday_response)
+    end
+
+    it 'submits the document via the UploadSupplementalDocumentService and returns the response' do
+      # allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+      #   .with(file_body, lighthouse_document)
+      #   .and_return(faraday_response)
 
       expect(provider.submit_upload_document(lighthouse_document, file_body)).to eq(faraday_response)
+    end
+
+    it 'increments a StatsD success metric' do
+      expect(StatsD).to receive(:increment).with(
+        'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.success'
+      )
+
+      provider.submit_upload_document(lighthouse_document, file_body)
     end
   end
 
@@ -77,16 +98,23 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     # only the metrics in this class
     let(:submission) { instance_double(Form526Submission) }
 
-    let(:provider) { LighthouseSupplementalDocumentUploadProvider.new(submission) }
-
-    describe 'log_upload_success' do
-      it 'increments a StatsD success metric' do
-        expect(StatsD).to receive(:increment).with(
-          'my_upload_job_prefix.lighthouse_supplemental_document_upload_provider.success'
-        )
-        provider.log_upload_success('my_upload_job_prefix')
-      end
+    # let(:provider) { LighthouseSupplementalDocumentUploadProvider.new(submission) }
+    let(:provider) do
+      LighthouseSupplementalDocumentUploadProvider.new(
+        submission,
+        'MyUploadingClass',
+        'my_stats_metric_prefix'
+      )
     end
+
+    # describe 'log_upload_success' do
+    #   it 'increments a StatsD success metric' do
+    #     expect(StatsD).to receive(:increment).with(
+    #       'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.success'
+    #     )
+    #     provider.log_upload_success
+    #   end
+    # end
 
     describe 'log_upload_failure' do
       let(:error_class) { 'StandardError' }
@@ -94,9 +122,9 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
 
       it 'increments a StatsD failure metric' do
         expect(StatsD).to receive(:increment).with(
-          'my_upload_job_prefix.lighthouse_supplemental_document_upload_provider.failed'
+          'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.failed'
         )
-        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
+        provider.log_upload_failure(error_class, error_message)
       end
 
       it 'logs to the Rails logger' do
@@ -109,7 +137,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
           }
         )
 
-        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
+        provider.log_upload_failure(error_class, error_message)
       end
     end
   end
