@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'reports/uploader'
+
 module SimpleFormsApi
   module S3
     class Utils
