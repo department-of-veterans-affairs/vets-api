@@ -7,7 +7,7 @@ class CreateVeteranSubmission
   end
 
   def call
-    VeteranSubmission.create!(
+    VeteranSubmission.find_or_create_by!(
       va_gov_submission_id: @va_gov_submission_id,
       va_gov_submission_type: @va_gov_submission_type
     )
