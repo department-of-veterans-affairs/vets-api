@@ -28,7 +28,7 @@ module V0
 
       if Flipper.enabled?(:intent_to_file_lighthouse_enabled, @current_user) && form.id_previously_changed? &&
          Lighthouse::CreateIntentToFileJob::ITF_FORMS.include?(form.form_id)
-        Lighthouse::CreateIntentToFileJob.perform_async(form.form_id, form.created_at, @current_user.icn,
+        Lighthouse::CreateIntentToFileJob.perform_async(form.id, @current_user.icn,
                                                         @current_user.participant_id)
       end
 
