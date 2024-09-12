@@ -10,7 +10,7 @@ module ClaimsApi
       def validate_dependent_by_participant_id!(participant_id, dependent_first_name, dependent_last_name)
         return if valid_participant_dependent_combo?(participant_id, dependent_first_name, dependent_last_name)
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('participant_id: dependent combo',
+        raise ::Common::Exceptions::InvalidFieldValue.new('participant_id: dependent name combo',
                                                           "#{participant_id}: #{dependent_first_name} " \
                                                           "#{dependent_last_name}")
       end
@@ -24,26 +24,29 @@ module ClaimsApi
       name.strip.upcase
     end
 
-    def valid_participant_dependent_combo?(participant_id, dependent_first_name, dependent_last_name)
+    def valid_participant_dependent_combo?(participant_id, dependent_first_name_to_verify,
+                                           dependent_last_name_to_verify)
       return false if participant_id.blank?
 
       person_web_service = PersonWebService.new(external_uid: 'dependent_claimant_verification_uid',
                                                 external_key: 'dependent_claimant_verification_key')
-      dependents = person_web_service.find_dependents_by_ptcpnt_id(participant_id)
+      bgs_response = person_web_service.find_dependents_by_ptcpnt_id(participant_id)
 
-      return false if dependents.nil? || dependents[:number_of_records].to_i.zero?
+      return false if bgs_response.nil? || bgs_response[:number_of_records].to_i.zero?
+
+      dependents = bgs_response[:dependent]
 
       Array.wrap(dependents).any? do |dependent|
-        normalized_first_name = normalize_name(dependent_first_name)
-        normalized_last_name = normalize_name(dependent_last_name)
-        dependent_first_name_normalized = normalize_name(dependent[:dependent][:first_nm])
-        dependent_last_name_normalized = normalize_name(dependent[:dependent][:last_nm])
+        normalized_first_name_to_verify = normalize_name(dependent_first_name_to_verify)
+        normalized_last_name_to_verify = normalize_name(dependent_last_name_to_verify)
+        normalized_first_name_bgs = normalize_name(dependent[:first_nm])
+        normalized_last_name_bgs = normalize_name(dependent[:last_nm])
 
-        return false if [normalized_first_name, normalized_last_name, dependent_first_name_normalized,
-                         dependent_last_name_normalized].any?(&:blank?)
+        return false if [normalized_first_name_to_verify, normalized_last_name_to_verify, normalized_first_name_bgs,
+                         normalized_last_name_bgs].any?(&:blank?)
 
-        normalized_first_name == dependent_first_name_normalized &&
-          normalized_last_name == dependent_last_name_normalized
+        normalized_first_name_to_verify == normalized_first_name_bgs &&
+          normalized_last_name_to_verify == normalized_last_name_bgs
       end
     end
   end
