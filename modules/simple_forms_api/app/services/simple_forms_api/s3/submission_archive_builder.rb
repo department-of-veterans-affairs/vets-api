@@ -60,22 +60,37 @@ module SimpleFormsApi
 
       # TODO: this will be pulled out to be more team agnostic
       def generate_pdf_content
-        return file_path if file_path
+        file_path || create_pdf_content
+      end
 
+      def create_pdf_content
         form_number = SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[submission.form_type]
-        form = "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(form_data_hash)
+        form = "SimpleFormsApi::#{form_number.titleize.delete(' ')}".constantize.new(form_data_hash)
         filler = SimpleFormsApi::PdfFiller.new(form_number:, form:)
 
-        @file_path = filler.generate(timestamp: submission.created_at)
+        generate_file_data(filler, form, form_number)
+      end
+
+      def generate_file_data(filler, form, form_number)
+        @file_path = filler.generate(timestamp: submission.created_at).tap do |path|
+          validate_metadata(form)
+          handle_attachments(form, form_number, path)
+        end
+      end
+
+      def validate_metadata(form)
         @metadata = SimpleFormsApiSubmission::MetadataValidator.validate(
           form.metadata,
           zip_code_is_us_based: form.zip_code_is_us_based
         )
+      end
 
-        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007].include? form_number
-
-        @attachments = form.get_attachments if form_number == 'vba_20_10207'
-        @file_path
+      def handle_attachments(form, form_number, path)
+        if %w[vba_40_0247 vba_40_10007].include?(form_number)
+          form.handle_attachments(path)
+        elsif form_number == 'vba_20_10207'
+          @attachments = form.get_attachments
+        end
       end
 
       def form_data_hash
@@ -111,6 +126,7 @@ module SimpleFormsApi
         handle_upload_error(e)
       end
 
+      # TODO: PDF attachments are the only attachment type that can be processed, change this
       def process_attachment(attachment_number, guid)
         log_info("Processing attachment ##{attachment_number}: #{guid}")
         attachment = PersistentAttachment.find_by(guid:).to_pdf
