@@ -15,6 +15,13 @@ module BenefitsIntake
   # https://developer.va.gov/explore/api/benefits-intake/docs
   #
   class Service < Common::Client::Base
+    ################################################################
+    # It is the responsibility of any team sending submissions to  #
+    # Lighthouse to monitor those submissions. See here for more   #
+    # details:                                                     #
+    #                                                              #
+    # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/d24831944da993de2163ea622c5698b5138a3a6b/teams/benefits/playbooks/endpoint-monitoring.md
+    ################################################################
     configuration BenefitsIntake::Configuration
 
     # TODO: process document error similar to service exception

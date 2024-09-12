@@ -6,6 +6,22 @@ require_relative 'configuration'
 
 module CentralMail
   class Service < Common::Client::Base
+    ################################################################
+    # Please do not use this module. It has been superceded by the #
+    # Lighthouse::BenefitsIntake::Service module:                  #
+    #                                                              #
+    #   https://github.com/department-of-veterans-affairs/vets-api/blob/94f88d1bb55d961e036d6fed3117735d6b9074cd/lib/lighthouse/benefits_intake/service.rb
+    #
+    # The above-linked module sends submissions to Central Mail    #
+    # Processing through the Lighthouse Benefits Intake API        #
+    #                                                              #
+    # Additionally, it is the responsibility of any team sending   #
+    # submissions to Lighthouse to monitor those submissions. See  #
+    # here for more details:                                       #
+    #                                                              #
+    # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/d24831944da993de2163ea622c5698b5138a3a6b/teams/benefits/playbooks/endpoint-monitoring.md
+    ################################################################
+
     STATSD_KEY_PREFIX = 'api.central_mail'
     include Common::Client::Concerns::Monitoring
 
