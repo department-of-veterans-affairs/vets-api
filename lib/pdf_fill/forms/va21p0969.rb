@@ -169,6 +169,13 @@ module PdfFill
         }
       }.freeze
 
+      # Post-process form data to match the expected format.
+      # Each section of the form is processed in its own expand function.
+      #
+      # @param _options [Hash] any options needed for post-processing
+      #
+      # @return [Hash] the processed form data
+      #
       def merge_fields(_options = {})
         expand_veteran_info
         expand_claimant_info
@@ -181,7 +188,7 @@ module PdfFill
 
       def expand_veteran_info
         veteran_middle_name = form_data['veteranFullName'].try(:[], 'middle')
-        form_data['veteranFullName']['middle'] = get_middle_initial(veteran_middle_name)
+        form_data['veteranFullName']['middle'] = veteran_middle_name.try(:[], 0)&.upcase
       end
 
       def expand_claimant_info
@@ -189,9 +196,7 @@ module PdfFill
         claimant_type = form_data['claimantType']
         net_worth_date_range = form_data['incomeNetWorthDateRange']
 
-        if claimant_middle_name.present?
-          form_data['claimantFullName']['middle'] = get_middle_initial(claimant_middle_name)
-        end
+        form_data['claimantFullName']['middle'] = claimant_middle_name[0].upcase if claimant_middle_name.present?
 
         form_data['claimantType'] = CLAIMANT_TYPES[claimant_type]
 
@@ -237,12 +242,12 @@ module PdfFill
         }
       end
 
-      def get_middle_initial(middle_name)
-        return nil if middle_name.blank?
-
-        middle_name[0].upcase
-      end
-
+      # Format a YYYY-MM-DD date string to MM/DD/YYYY
+      #
+      # @param date_string [String] a date string in the format YYYY-MM-DD
+      #
+      # @return [String] a date string in the format MM/DD/YYYY
+      #
       def format_date_to_mm_dd_yyyy(date_string)
         return nil if date_string.blank?
 
