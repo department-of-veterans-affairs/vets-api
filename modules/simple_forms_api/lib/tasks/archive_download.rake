@@ -45,7 +45,7 @@ def delete_temp_file(dir_path)
 end
 
 def scp_transfer(local_dir_path, remote_path)
-  puts "Transferring zipped temporary directory: #{local_dir_path}"
+  puts "Transferring zipped package: #{local_dir_path}"
   # I think these should already be set by the system, but just in case...
   user = ENV['USER'] || ask_for('username')
   remote_host = ENV['REMOTE_HOST'] || ask_for('remote host')
