@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
+ActiveRecord::Schema[7.1].define(version: 2024_09_12_203841) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1417,6 +1417,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist
     t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
     t.check_constraint "representative_id IS NOT NULL", name: "veteran_representatives_representative_id_null"
+  end
+
+  create_table "veteran_submissions", force: :cascade do |t|
+    t.string "va_gov_submission_id"
+    t.string "va_gov_submission_type"
+    t.integer "status"
+    t.string "upstream_system_name"
+    t.string "upstream_submission_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "vic_submissions", id: :serial, force: :cascade do |t|
