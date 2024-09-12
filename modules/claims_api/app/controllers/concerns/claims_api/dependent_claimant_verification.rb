@@ -10,9 +10,9 @@ module ClaimsApi
       def validate_dependent_by_participant_id!(participant_id, dependent_first_name, dependent_last_name)
         return if valid_participant_dependent_combo?(participant_id, dependent_first_name, dependent_last_name)
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('participant_id: dependent name combo',
-                                                          "#{participant_id}: #{dependent_first_name} " \
-                                                          "#{dependent_last_name}")
+        detail = 'The claimant is not listed as a dependent for the specified Veteran. Please submit VA Form 21-686c ' \
+                 'to add this dependent.'
+        raise ::Common::Exceptions::UnprocessableEntity.new(detail:)
       end
     end
 

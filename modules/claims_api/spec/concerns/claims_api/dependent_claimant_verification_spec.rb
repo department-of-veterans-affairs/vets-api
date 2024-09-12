@@ -32,7 +32,7 @@ describe FakeController do
         VCR.use_cassette('claims_api/bgs/person_web_service/find_dependents_by_ptcpnt_id_one_dependent') do
           expect do
             subject.validate_dependent_by_participant_id!(valid_participant_id_one_dependent, 'BAD', 'NAME')
-          end.to raise_error(Common::Exceptions::InvalidFieldValue)
+          end.to raise_error(Common::Exceptions::UnprocessableEntity)
         end
       end
     end
@@ -57,7 +57,7 @@ describe FakeController do
         VCR.use_cassette('claims_api/bgs/person_web_service/find_dependents_by_ptcpnt_id_two_dependents') do
           expect do
             subject.validate_dependent_by_participant_id!(valid_participant_id_two_dependents, 'bad', 'name')
-          end.to raise_error(Common::Exceptions::InvalidFieldValue)
+          end.to raise_error(Common::Exceptions::UnprocessableEntity)
         end
       end
     end
@@ -67,7 +67,7 @@ describe FakeController do
         VCR.use_cassette('claims_api/bgs/person_web_service/find_dependents_by_ptcpnt_id_no_dependents') do
           expect do
             subject.validate_dependent_by_participant_id!(123, 'any', 'name')
-          end.to raise_error(Common::Exceptions::InvalidFieldValue)
+          end.to raise_error(Common::Exceptions::UnprocessableEntity)
         end
       end
     end
@@ -76,11 +76,11 @@ describe FakeController do
       it 'raises an error' do
         expect do
           subject.validate_dependent_by_participant_id!('', 'any', 'name')
-        end.to raise_error(Common::Exceptions::InvalidFieldValue)
+        end.to raise_error(Common::Exceptions::UnprocessableEntity)
 
         expect do
           subject.validate_dependent_by_participant_id!(nil, 'any', 'name')
-        end.to raise_error(Common::Exceptions::InvalidFieldValue)
+        end.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
   end
