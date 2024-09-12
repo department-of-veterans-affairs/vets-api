@@ -28,23 +28,23 @@ module ClaimsApi
 
       person_web_service = PersonWebService.new(external_uid: 'dependent_claimant_verification_uid',
                                                 external_key: 'dependent_claimant_verification_key')
-      bgs_response = person_web_service.find_dependents_by_ptcpnt_id(participant_id)
+      response = person_web_service.find_dependents_by_ptcpnt_id(participant_id)
 
-      return false if bgs_response.nil? || bgs_response[:number_of_records].to_i.zero?
+      return false if response.nil? || response.fetch(:number_of_records, 0).to_i.zero?
 
-      dependents = bgs_response[:dependent]
+      dependents = response[:dependent]
 
       Array.wrap(dependents).any? do |dependent|
         normalized_first_name_to_verify = normalize_name(dependent_first_name_to_verify)
         normalized_last_name_to_verify = normalize_name(dependent_last_name_to_verify)
-        normalized_first_name_bgs = normalize_name(dependent[:first_nm])
-        normalized_last_name_bgs = normalize_name(dependent[:last_nm])
+        normalized_first_name_service = normalize_name(dependent[:first_nm])
+        normalized_last_name_service = normalize_name(dependent[:last_nm])
 
-        return false if [normalized_first_name_to_verify, normalized_last_name_to_verify, normalized_first_name_bgs,
-                         normalized_last_name_bgs].any?(&:blank?)
+        return false if [normalized_first_name_to_verify, normalized_last_name_to_verify, normalized_first_name_service,
+                         normalized_last_name_service].any?(&:blank?)
 
-        normalized_first_name_to_verify == normalized_first_name_bgs &&
-          normalized_last_name_to_verify == normalized_last_name_bgs
+        normalized_first_name_to_verify == normalized_first_name_service &&
+          normalized_last_name_to_verify == normalized_last_name_service
       end
     end
   end
