@@ -98,7 +98,7 @@ module SimpleFormsApi
       end
 
       def submission_pdf_filename
-        @submission_pdf_filename ||= "form_#{submission.form_data['form_number']}.pdf"
+        @submission_pdf_filename ||= "form_#{JSON.parse(submission.form_data)['form_number']}.pdf"
       end
 
       def sign_s3_file_url(pdf)
