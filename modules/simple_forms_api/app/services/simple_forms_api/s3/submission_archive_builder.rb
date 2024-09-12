@@ -110,7 +110,6 @@ module SimpleFormsApi
       end
 
       def write_as_text_archive
-        form_data_hash['claim_date'] ||= submission.created_at.iso8601
         write_tempfile('form_text_archive.txt', form_data_hash.to_s)
       end
 
@@ -121,7 +120,6 @@ module SimpleFormsApi
       def write_attachments
         log_info("Processing #{attachments.count} attachments")
         attachments.each_with_index { |upload, i| process_attachment(i + 1, upload) }
-        write_attachment_failure_report if attachment_failures.present?
       rescue => e
         handle_upload_error(e)
       end
@@ -136,7 +134,6 @@ module SimpleFormsApi
       rescue => e
         attachment_failures << e
         handle_error('Attachment failure.', e)
-        raise e
       end
 
       def write_manifest
@@ -156,10 +153,6 @@ module SimpleFormsApi
         end
 
         file_path
-      end
-
-      def write_attachment_failure_report
-        write_tempfile('attachment_failures.txt', JSON.pretty_generate(attachment_failures))
       end
 
       def write_tempfile(file_name, payload)
