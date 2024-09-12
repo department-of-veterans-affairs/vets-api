@@ -755,12 +755,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
   end
 
-  def type_of_care(service_type)
-    return nil if service_type.nil?
-
-    SERVICE_TYPES[service_type] || service_type.titleize
-  end
-
   describe 'type_of_care' do
     let(:vaos_data) { appointment_by_id(booked_va_id) }
 
@@ -789,19 +783,22 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
   end
 
-  context 'with arrived status' do
-    let(:arrived_appt) do
-      vaos_data = JSON.parse(appointment_fixtures, symbolize_names: true)[1]
-      vaos_data[:status] = 'arrived'
-      subject.parse([vaos_data])
-    end
+  # very incomplete
+  describe 'status' do
+    context 'when arrived' do
+      let(:arrived_appt) do
+        vaos_data = JSON.parse(appointment_fixtures, symbolize_names: true)[1]
+        vaos_data[:status] = 'arrived'
+        subject.parse([vaos_data])
+      end
 
-    it 'converts status to BOOKED' do
-      expect(arrived_appt.first[:status]).to eq('BOOKED')
+      it 'converts status to BOOKED' do
+        expect(arrived_appt.first[:status]).to eq('BOOKED')
+      end
     end
   end
 
-  context 'with different patient phone numbers formats' do
+  describe 'patient phone number' do
     let(:home_va) { appointment_by_id(atlas_va_id) }
 
     it 'formats phone number with parentheses' do
@@ -970,7 +967,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       end
 
       it 'sets location from practitioners list' do
-        proposed_cc = appointment_by_id('72105')
+        proposed_cc = appointment_by_id(proposed_cc_id)
         proposed_cc[:practitioners] = practitioner_list
         result = subject.parse([proposed_cc]).first
         expect(result[:location].to_h).to eq({
@@ -989,9 +986,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
     context 'with a cc appointment' do
       it 'sets location from cc_location' do
-        booked_cc = appointment_by_id('72106')
-        result = subject.parse([booked_cc]).first
-        expect(result[:location].to_h).to eq(
+        booked_cc = adapted_appointment_by_id(booked_cc_id)
+        expect(booked_cc[:location].to_h).to eq(
           {
             id: nil,
             name: 'CC practice name',
@@ -1009,10 +1005,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
     context 'with telehealth appointment' do
       it 'sets location from appointment location attributes' do
-        telehealth_appointment = appointment_by_id(atlas_va_id)
-        result = subject.parse([telehealth_appointment]).first
-
-        expect(result[:location].to_h).to eq(
+        atlas_va = adapted_appointment_by_id(atlas_va_id)
+        expect(atlas_va[:location].to_h).to eq(
           {
             id: nil,
             name: 'Cheyenne VA Medical Center',
@@ -1029,9 +1023,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
     context 'with a VA appointment' do
       it 'sets location from appointment location attributes' do
-        va_appointment = appointment_by_id('121134')
-        result = subject.parse([va_appointment]).first
-        expect(result[:location].to_h).to eq(
+        booked_va = adapted_appointment_by_id(booked_va_id)
+        expect(booked_va[:location].to_h).to eq(
           {
             id: '442',
             name: 'Cheyenne VA Medical Center',
@@ -1050,41 +1043,41 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   describe 'friendly_location_name' do
     context 'with VA appointment' do
-      let(:appointment) { appointment_by_id('121134') }
+      let(:appointment) { appointment_by_id(booked_va_id) }
 
       it 'is set to location name' do
-        expect(parsed_appointment.friendly_location_name).to eq('Cheyenne VA Medical Center')
+        expect(parsed_appointment[:friendly_location_name]).to eq('Cheyenne VA Medical Center')
       end
 
       it 'is set to nil when location name is absent' do
         appointment.delete(:location)
-        expect(parsed_appointment.friendly_location_name).to eq(nil)
+        expect(parsed_appointment[:friendly_location_name]).to eq(nil)
       end
     end
 
     context 'with CC appointment request' do
-      let(:appointment) { appointment_by_id('72105') }
+      let(:appointment) { appointment_by_id(proposed_cc_id) }
 
       it 'is set to location name' do
-        expect(parsed_appointment.friendly_location_name).to eq('Cheyenne VA Medical Center')
+        expect(parsed_appointment[:friendly_location_name]).to eq('Cheyenne VA Medical Center')
       end
 
       it 'is set to nil when location name is absent' do
         appointment.delete(:location)
-        expect(parsed_appointment.friendly_location_name).to eq(nil)
+        expect(parsed_appointment[:friendly_location_name]).to eq(nil)
       end
     end
 
     context 'with CC appointment' do
-      let(:appointment) { appointment_by_id('72106') }
+      let(:appointment) { appointment_by_id(booked_cc_id) }
 
       it 'is set to cc location practice name' do
-        expect(parsed_appointment.friendly_location_name).to eq('CC practice name')
+        expect(parsed_appointment[:friendly_location_name]).to eq('CC practice name')
       end
 
-      it 'is set to nil when cc locatino practice name is absent' do
+      it 'is set to nil when cc location practice name is absent' do
         appointment.delete(:extension)
-        expect(parsed_appointment.friendly_location_name).to eq(nil)
+        expect(parsed_appointment[:friendly_location_name]).to eq(nil)
       end
     end
   end
