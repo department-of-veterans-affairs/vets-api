@@ -1716,15 +1716,12 @@ form1095_b:
 
 ivc_forms:
   s3:
-    aws_access_key_id: ~
-    aws_secret_access_key: ~
     bucket: "bucket"
     enabled: true
     region: "region"
   sidekiq:
     missing_form_status_job:
       enabled: true
-
 
 coverband:
   github_organization: ~
@@ -1757,7 +1754,6 @@ avs:
 brd:
   api_key: 'fake_key'
   base_name: 'https://something.fake.va.gov'
-
 
 travel_pay:
   sts:
