@@ -5,8 +5,8 @@ module ClaimsApi
     module Exceptions
       module Lighthouse
         # This class is specifically for handling the collected errors
-        # from the 526 validations file
-        class JsonDisabilityCompensationValidationError < StandardError
+        # from form 526 and POA validations
+        class JsonFormValidationError < StandardError
           def initialize(errors)
             @errors = { errors: } # errors comes in as an array from the JSON validator
 
