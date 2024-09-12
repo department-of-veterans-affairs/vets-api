@@ -71,8 +71,8 @@ module SimpleFormsApi
     end
 
     def zip_code_is_us_based
-      @data.dig('veteran_mailing_address',
-                'country') == 'USA' || @data.dig('non_veteran_mailing_address', 'country') == 'USA'
+      @data.dig('veteran_mailing_address', 'country') == 'USA' ||
+        @data.dig('non_veteran_mailing_address', 'country') == 'USA'
     end
 
     def handle_attachments(file_path)
@@ -105,7 +105,7 @@ module SimpleFormsApi
       [{ coords:, text: data['statement_of_truth_signature'], page: 4 }]
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(timestamp = Time.current)
       [
         {
           coords: [460, 710],
@@ -115,7 +115,7 @@ module SimpleFormsApi
         },
         {
           coords: [460, 690],
-          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: 2,
           font_size: 12
         }
@@ -135,34 +135,25 @@ module SimpleFormsApi
                         living_situations:, other_reasons:)
     end
 
-    private
-
     def get_attachments
-      attachments = []
+      [].tap do |attachments|
+        %w[
+          als_documents
+          financial_hardship_documents
+          medal_award_documents
+          pow_documents
+          terminal_illness_documents
+          vsi_documents
+        ].each do |doc_type|
+          next unless @data[doc_type]
 
-      financial_hardship_documents = @data['financial_hardship_documents']
-      als_documents = @data['als_documents']
-      medal_award_documents = @data['medal_award_documents']
-      pow_documents = @data['pow_documents']
-      terminal_illness_documents = @data['terminal_illness_documents']
-      vsi_documents = @data['vsi_documents']
-
-      [
-        financial_hardship_documents,
-        als_documents,
-        medal_award_documents,
-        pow_documents,
-        terminal_illness_documents,
-        vsi_documents
-      ].compact.each do |documents|
-        confirmation_codes = []
-        documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
-
-        PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
+          confirmation_codes = @data[doc_type].pluck('confirmation_code')
+          attachments.concat(PersistentAttachment.where(guid: confirmation_codes).map(&:to_pdf))
+        end
       end
-
-      attachments
     end
+
+    private
 
     def veteran_ssn
       [

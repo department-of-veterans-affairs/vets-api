@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 module Scopes
+  # rubocop:disable Metrics/ModuleLength
   module Form526SubmissionState
     extend ActiveSupport::Concern
 
+    # rubocop:disable Metrics/BlockLength
     # DOCUMENTATION:
     # https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/disability/526ez/engineering_research/526_scopes.md
     included do
@@ -22,7 +24,12 @@ module Scopes
       }
 
       scope :accepted_to_primary_path, lambda {
+        accepted_to_lighthouse_primary_path.or(accepted_to_evss_primary_path)
+      }
+      scope :accepted_to_evss_primary_path, lambda {
         where.not(submitted_claim_id: nil)
+             .and(Form526Submission.where(submit_endpoint: nil)
+             .or(Form526Submission.where.not(submit_endpoint: 'claims_api')))
       }
       scope :accepted_to_backup_path, lambda {
         where.not(backup_submitted_claim_id: nil)
@@ -36,6 +43,12 @@ module Scopes
       scope :rejected_from_backup_path, lambda {
         where.not(backup_submitted_claim_id: nil)
              .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:rejected])
+      }
+      scope :accepted_to_lighthouse_primary_path, lambda {
+        left_outer_joins(:form526_job_statuses).where.not(submitted_claim_id: nil)
+                                               .where(submit_endpoint: 'claims_api', form526_job_statuses: {
+                                                        job_class: 'PollForm526Pdf', status: 'success'
+                                                      })
       }
 
       scope :remediated, lambda {
@@ -96,11 +109,21 @@ module Scopes
         pend_ids = pending_backup.select(:id)
         where(id: proc_ids + pend_ids)
       }
+
       scope :failure_type, lambda {
-        inc_ids = incomplete_type.pluck(:id)
-        suc_ids = success_type.pluck(:id)
-        where.not(id: inc_ids + suc_ids)
+        # filtering in stages avoids timeouts. see doc for more info
+        allids = all.pluck(:id)
+        filter1 = where(id: allids - accepted_to_primary_path.pluck(:id)).pluck(:id)
+        filter2 = where(id: filter1 - accepted_to_backup_path.pluck(:id)).pluck(:id)
+        filter3 = where(id: filter2 - remediated.pluck(:id)).pluck(:id)
+        filter4 = where(id: filter3 - paranoid_success.pluck(:id)).pluck(:id)
+        filter5 = where(id: filter4 - success_by_age.pluck(:id)).pluck(:id)
+        filter_final = where(id: filter5 - incomplete_type.pluck(:id)).pluck(:id)
+
+        where(id: filter_final, submitted_claim_id: nil)
       }
     end
+    # rubocop:enable Metrics/BlockLength
   end
+  # rubocop:enable Metrics/ModuleLength
 end

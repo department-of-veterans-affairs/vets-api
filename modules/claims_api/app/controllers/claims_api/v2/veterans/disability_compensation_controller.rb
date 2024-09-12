@@ -165,7 +165,7 @@ module ClaimsApi
 
         # Only value required by background jobs that is missing in headers is middle name
         def veteran_middle_initial
-          @target_veteran.middle_name ? @target_veteran.middle_name[0].uppercase : ''
+          target_veteran.middle_name&.first&.upcase || ''
         end
 
         def flashes
@@ -187,7 +187,7 @@ module ClaimsApi
           validate_veteran_name(true)
           # if we get here there were only validations file errors
           if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
         end

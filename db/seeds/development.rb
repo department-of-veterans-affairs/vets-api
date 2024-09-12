@@ -105,7 +105,10 @@ identity_dashboard_service_account_config =
   SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: vaid_service_account_id)
 identity_dashboard_service_account_config.update!(service_account_id: vaid_service_account_id,
                                                   description: 'VA Identity Dashboard API',
-                                                  scopes: ['http://localhost:3000/sign_in/client_configs'],
+                                                  scopes: [
+                                                    'http://localhost:3000/sign_in/client_configs',
+                                                    'http://localhost:3000/sign_in/service_account_configs'
+                                                  ],
                                                   access_token_audience: 'http://localhost:4000',
                                                   access_token_duration: vaid_access_token_duration,
                                                   certificates: [vaid_certificate],
@@ -154,6 +157,18 @@ btsss.update!(
   scopes: ['http://localhost:3000/ivc_champva/v1/forms/status_updates'],
   access_token_audience: 'docmp-champva-forms-aws-lambda',
   access_token_user_attributes: [],
+  access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+  certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
+)
+
+# Create Service Account Config for MHV Account Creation
+mhv_ac = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'c34b86f2130ff3cd4b1d309bc09d8740')
+mhv_ac.update!(
+  description: 'MHV Account Creation - localhost',
+  scopes: ['https://mhv-intb-api.myhealth.va.gov/mhvapi/v1/usermgmt/account-service/account',
+           'http://localhost:3000/sts/terms_of_use/current_status'],
+  access_token_audience: 'http://localhost:3000',
+  access_token_user_attributes: ['icn'],
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
   certificates: [File.read('spec/fixtures/sign_in/sts_client.crt')]
 )
