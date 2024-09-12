@@ -33,22 +33,24 @@ namespace :simple_forms_api do
 end
 
 def zip_directory(dir_path)
+  puts "Zipping temporary directory: #{dir_path}"
   zip_file_path = "#{dir_path}.zip"
   system("zip -r #{zip_file_path} #{dir_path}")
   zip_file_path
 end
 
-def delete_temp_file(file_path)
-  puts "Deleting temporary file: #{file_path}"
-  FileUtils.rm_f(file_path)
+def delete_temp_file(dir_path)
+  puts "Deleting temporary directory: #{dir_path}"
+  FileUtils.rm_f(dir_path)
 end
 
-def scp_transfer(local_path, remote_path)
+def scp_transfer(local_dir_path, remote_path)
+  puts "Transferring zipped temporary directory: #{local_dir_path}"
   # I think these should already be set by the system, but just in case...
   user = ENV['USER'] || ask_for('username')
   remote_host = ENV['REMOTE_HOST'] || ask_for('remote host')
 
-  system("scp #{local_path} #{user}@#{remote_host}:#{remote_path}")
+  system("scp #{local_dir_path} #{user}@#{remote_host}:#{remote_path}")
 end
 
 def ask_for(info)
