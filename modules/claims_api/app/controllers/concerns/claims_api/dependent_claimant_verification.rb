@@ -19,9 +19,7 @@ module ClaimsApi
     private
 
     def normalize_name(name)
-      return '' unless name
-
-      name.strip.upcase
+      name.to_s.strip.upcase
     end
 
     def valid_participant_dependent_combo?(participant_id, dependent_first_name_to_verify,
