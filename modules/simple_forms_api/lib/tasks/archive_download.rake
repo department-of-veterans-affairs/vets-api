@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api/s3/submission_archive_builder'
+require_relative '../../app/services/simple_forms_api/s3/submission_archive_builder'
 require 'common/file_helpers'
 
 namespace :simple_forms_api do
