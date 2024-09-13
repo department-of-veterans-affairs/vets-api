@@ -657,9 +657,9 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     let(:cancelled_requested_va_appt) { appointment_by_id(cancelled_requested_va_appt_id) }
 
     it 'has expected fields' do
-      expect(cancelled_requested_va_appt[:appointment_type]).to eq('VA')
-      expect(cancelled_requested_va_appt[:is_pending]).to eq(true)
-      expect(cancelled_requested_va_appt[:status]).to eq('CANCELLED')
+      expect(cancelled_requested_va_appt.appointment_type).to eq('VA')
+      expect(cancelled_requested_va_appt.is_pending).to eq(true)
+      expect(cancelled_requested_va_appt.status).to eq('CANCELLED')
 
       expect(cancelled_requested_va_appt.as_json).to eq({
                                                           'id' => '53241',
@@ -745,7 +745,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   describe 'appointment_type' do
-
   end
 
   describe 'cancel_id' do
@@ -763,7 +762,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
 
     context 'when not telehealth appointment and cancellable is true' do
-      it 'is nil' do
+      it 'is returns the appointment id' do
         appt = appointment_by_id(future_request_date_appt_id)
         expect(appt.cancel_id).to eq(future_request_date_appt_id)
       end
@@ -772,7 +771,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   describe 'facility_id and sta6aid' do
     it 'is set to the result of convert_from_non_prod_id' do
-      # this method is tested in the appointments model
+      # this method is tested in the appointment model and doesn't need to be retested here
       expect(Mobile::V0::Appointment).to receive(:convert_from_non_prod_id!).and_return('anything')
       appt = appointment_by_id(home_va_id)
       expect(appt.facility_id).to eq('anything')
@@ -856,24 +855,24 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
       it 'sets location from practitioners list' do
         proposed_cc = appointment_by_id(proposed_cc_id, overrides: { practitioners: practitioner_list })
-        expect(proposed_cc[:location].to_h).to eq({
-                                                    id: nil,
-                                                    name: nil,
-                                                    address: { street: '161 MADISON AVE STE 7SW', city: 'NEW YORK',
-                                                               state: 'NY', zip_code: '10016-5448' },
-                                                    lat: nil,
-                                                    long: nil,
-                                                    phone: { area_code: nil, number: nil, extension: nil },
-                                                    url: nil,
-                                                    code: nil
-                                                  })
+        expect(proposed_cc.location.to_h).to eq({
+                                                  id: nil,
+                                                  name: nil,
+                                                  address: { street: '161 MADISON AVE STE 7SW', city: 'NEW YORK',
+                                                             state: 'NY', zip_code: '10016-5448' },
+                                                  lat: nil,
+                                                  long: nil,
+                                                  phone: { area_code: nil, number: nil, extension: nil },
+                                                  url: nil,
+                                                  code: nil
+                                                })
       end
     end
 
     context 'with a cc appointment' do
       it 'sets location from cc_location' do
         booked_cc = appointment_by_id(booked_cc_id)
-        expect(booked_cc[:location].to_h).to eq(
+        expect(booked_cc.location.to_h).to eq(
           {
             id: nil,
             name: 'CC practice name',
@@ -892,7 +891,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     context 'with telehealth appointment' do
       it 'sets location from appointment location attributes' do
         atlas_va = appointment_by_id(atlas_va_id)
-        expect(atlas_va[:location].to_h).to eq(
+        expect(atlas_va.location.to_h).to eq(
           {
             id: nil,
             name: 'Cheyenne VA Medical Center',
@@ -910,7 +909,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     context 'with a VA appointment' do
       it 'sets location from appointment location attributes' do
         booked_va = appointment_by_id(booked_va_id)
-        expect(booked_va[:location].to_h).to eq(
+        expect(booked_va.location.to_h).to eq(
           {
             id: '442',
             name: 'Cheyenne VA Medical Center',
@@ -929,23 +928,59 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   describe 'phone_only' do
     context 'when appointment kind is phone' do
+      let(:appt) { appointment_by_id(booked_va_id, overrides: { kind: 'phone' }) }
+
+      it 'is set to true' do
+        expect(appt.phone_only).to eq(true)
+      end
     end
 
     context 'when appointment kind is not phone' do
+      let(:appt) { appointment_by_id(booked_va_id) }
+
+      it 'is set to false' do
+        expect(appt.phone_only).to eq(false)
+      end
     end
   end
 
-  # add start_date_utc to this
+  describe 'start_date_utc' do
+    context 'when start is present' do
+      it 'converts start to datetime' do
+        appt = appointment_by_id(booked_va_id)
+        expect(appt.start_date_utc).to eq('2018-03-07T07:00:00+00:00'.to_datetime)
+      end
+    end
+
+    context 'when start is nil' do
+      context 'and request periods that are in the future' do
+        let(:future_request_date_appt) { appointment_by_id(future_request_date_appt_id) }
+
+        it 'sets start date to earliest date in the future' do
+          expect(future_request_date_appt.start_date_utc).to eq('2022-08-27T12:00:00Z'.to_datetime)
+        end
+      end
+
+      context 'request periods that are in the past' do
+        let(:past_request_date_appt) { appointment_by_id(past_request_date_appt_id) }
+
+        it 'sets start date to earliest date' do
+          expect(past_request_date_appt.start_date_utc).to eq('2021-08-20T12:00:00Z')
+        end
+      end
+    end
+  end
+
   describe 'start_date_local, proposed_times, and time_zone' do
     context 'request periods that are in the future' do
       let(:future_request_date_appt) { appointment_by_id(future_request_date_appt_id) }
 
       it 'sets start date to earliest date in the future' do
-        expect(future_request_date_appt[:start_date_local]).to eq('2022-08-27T12:00:00Z')
-        expect(future_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2022', time: 'PM' },
-                                                                 { date: '08/27/2022', time: 'PM' },
-                                                                 { date: '10/03/2022', time: 'PM' }])
-        expect(future_request_date_appt[:time_zone]).to eq('America/Denver')
+        expect(future_request_date_appt.start_date_local).to eq('2022-08-27T12:00:00Z')
+        expect(future_request_date_appt.proposed_times).to eq([{ date: '08/20/2022', time: 'PM' },
+                                                               { date: '08/27/2022', time: 'PM' },
+                                                               { date: '10/03/2022', time: 'PM' }])
+        expect(future_request_date_appt.time_zone).to eq('America/Denver')
       end
     end
 
@@ -953,11 +988,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       let(:past_request_date_appt) { appointment_by_id(past_request_date_appt_id) }
 
       it 'sets start date to earliest date' do
-        expect(past_request_date_appt[:start_date_local]).to eq('2021-08-20T12:00:00Z')
-        expect(past_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2021', time: 'PM' },
-                                                               { date: '08/27/2021', time: 'PM' },
-                                                               { date: '10/03/2021', time: 'PM' }])
-        expect(past_request_date_appt[:time_zone]).to eq('America/Denver')
+        expect(past_request_date_appt.start_date_local).to eq('2021-08-20T12:00:00Z')
+        expect(past_request_date_appt.proposed_times).to eq([{ date: '08/20/2021', time: 'PM' },
+                                                             { date: '08/27/2021', time: 'PM' },
+                                                             { date: '10/03/2021', time: 'PM' }])
+        expect(past_request_date_appt.time_zone).to eq('America/Denver')
       end
     end
 
@@ -969,9 +1004,9 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
           overrides: { location_id: '358' },
           without: [key: :time_zone, at: [:location]]
         )
-        expect(no_timezone_appt[:start_date_local]).to eq('2022-08-27 09:45:00 -0600"')
-        expect(no_timezone_appt[:start_date_utc]).to eq('2022-08-27T15:45:00Z')
-        expect(no_timezone_appt[:time_zone]).to eq('Asia/Manila')
+        expect(no_timezone_appt.start_date_local).to eq('2022-08-27 09:45:00 -0600"')
+        expect(no_timezone_appt.start_date_utc).to eq('2022-08-27T15:45:00Z')
+        expect(no_timezone_appt.time_zone).to eq('Asia/Manila')
       end
     end
   end
@@ -1004,7 +1039,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     context 'when arrived' do
       it 'converts status to BOOKED' do
         arrived_appt = appointment_by_id(booked_va_id, overrides: { status: 'arrived' })
-        expect(arrived_appt[:status]).to eq('BOOKED')
+        expect(arrived_appt.status).to eq('BOOKED')
       end
     end
   end
@@ -1091,36 +1126,36 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     context 'with VA appointment' do
       it 'is set to location name' do
         appt = appointment_by_id(booked_va_id)
-        expect(appt[:friendly_location_name]).to eq('Cheyenne VA Medical Center')
+        expect(appt.friendly_location_name).to eq('Cheyenne VA Medical Center')
       end
 
       it 'is set to nil when location name is absent' do
         appt = appointment_by_id(booked_va_id, without: [key: :location])
-        expect(appt[:friendly_location_name]).to eq(nil)
+        expect(appt.friendly_location_name).to eq(nil)
       end
     end
 
     context 'with CC appointment request' do
       it 'is set to location name' do
         appt = appointment_by_id(proposed_cc_id)
-        expect(appt[:friendly_location_name]).to eq('Cheyenne VA Medical Center')
+        expect(appt.friendly_location_name).to eq('Cheyenne VA Medical Center')
       end
 
       it 'is set to nil when location name is absent' do
         appt = appointment_by_id(proposed_cc_id, without: [key: :location])
-        expect(appt[:friendly_location_name]).to eq(nil)
+        expect(appt.friendly_location_name).to eq(nil)
       end
     end
 
     context 'with CC appointment' do
       it 'is set to cc location practice name' do
         appt = appointment_by_id(booked_cc_id)
-        expect(appt[:friendly_location_name]).to eq('CC practice name')
+        expect(appt.friendly_location_name).to eq('CC practice name')
       end
 
       it 'is set to nil when cc location practice name is absent' do
         appt = appointment_by_id(booked_cc_id, without: [key: :extension])
-        expect(appt[:friendly_location_name]).to eq(nil)
+        expect(appt.friendly_location_name).to eq(nil)
       end
     end
   end
