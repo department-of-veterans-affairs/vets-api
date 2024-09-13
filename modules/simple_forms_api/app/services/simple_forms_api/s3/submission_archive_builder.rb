@@ -4,19 +4,19 @@ require 'csv'
 require 'fileutils'
 require_relative 'utils'
 
-# built in accordance with the following documentation:
+# Built in accordance with the following documentation:
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
 module SimpleFormsApi
   module S3
     class SubmissionArchiveBuilder < Utils
-      def initialize(benefits_intake_uuid:, file_path:, submission:, attachments:, metadata:, **options) # rubocop:disable Lint/MissingSuper
+      def initialize(benefits_intake_uuid:, **options) # rubocop:disable Lint/MissingSuper
         raise 'No benefits_intake_uuid was provided' unless benefits_intake_uuid
 
         @benefits_intake_uuid = benefits_intake_uuid
-        @file_path = file_path || rebuilt_submission.file_path
-        @submission = submission || rebuilt_submission.submission
-        @attachments = attachments || rebuilt_submission.attachments
-        @metadata = metadata || rebuilt_submission.metadata
+        @file_path = options[:file_path] || rebuilt_submission.file_path
+        @submission = options[:submission] || rebuilt_submission.submission
+        @attachments = options[:attachments] || rebuilt_submission.attachments
+        @metadata = options[:metadata] || rebuilt_submission.metadata
 
         defaults = default_options.merge(options)
         assign_instance_variables(defaults)
@@ -24,9 +24,7 @@ module SimpleFormsApi
 
       def run
         FileUtils.mkdir_p(temp_directory_path)
-
         process_submission_files
-
         temp_directory_path
       rescue => e
         handle_error("Failed building submission: #{benefits_intake_uuid}", e)
@@ -39,9 +37,9 @@ module SimpleFormsApi
 
       def default_options
         {
-          include_json_archive: true, # include the form data as a JSON object
-          include_manifest: true, # include a CSV file containing manifest data
-          include_text_archive: true # include the form data as a text file
+          include_json_archive: true, # Include the form data as a JSON object
+          include_manifest: true,     # Include a CSV file containing manifest data
+          include_text_archive: true  # Include the form data as a text file
         }
       end
 
@@ -52,26 +50,12 @@ module SimpleFormsApi
         write_attachments unless attachments.empty?
         write_manifest if include_manifest
         write_metadata
+      rescue => e
+        handle_error('Error during submission file processing', e)
       end
 
       def write_pdf
         write_tempfile(submission_pdf_filename, File.read(file_path))
-      end
-
-      def rebuilt_submission
-        @rebuilt_submission ||= SubmissionBuilder.new(benefits_intake_uuid:)
-      end
-
-      def form_data_hash
-        @form_data_hash ||= JSON.parse(submission.form_data)
-      end
-
-      def submission_pdf_filename
-        @submission_pdf_filename ||= "form_#{form_data_hash['form_number']}.pdf"
-      end
-
-      def error_details(error)
-        "#{error.message}\n\n#{error.backtrace.join("\n")}"
       end
 
       def write_as_json_archive
@@ -88,27 +72,26 @@ module SimpleFormsApi
 
       def write_attachments
         log_info("Processing #{attachments.count} attachments")
-        attachments.each_with_index { |upload, i| process_attachment(i + 1, upload) }
+        attachments.each_with_index { |guid, i| process_attachment(i + 1, guid) }
       rescue => e
-        handle_upload_error(e)
+        handle_error('Error during attachments processing', e)
       end
 
       def process_attachment(attachment_number, guid)
         log_info("Processing attachment ##{attachment_number}: #{guid}")
         attachment = PersistentAttachment.find_by(guid:).to_pdf
-        raise "Attachment was not found: #{guid}" unless attachment
+        raise "Attachment not found: #{guid}" unless attachment
 
         write_tempfile("attachment_#{attachment_number}.pdf", attachment)
       rescue => e
-        attachment_failures << e
-        handle_error('Attachment failure.', e)
+        handle_error("Failed processing attachment #{attachment_number} (#{guid})", e)
       end
 
       def write_manifest
         file_name = "submission_#{benefits_intake_uuid}_#{submission.created_at}_manifest.csv"
-        file_path = File.join(temp_directory_path, file_name)
+        manifest_path = File.join(temp_directory_path, file_name)
 
-        CSV.open(file_path, 'wb') do |csv|
+        CSV.open(manifest_path, 'wb') do |csv|
           csv << ['Submission DateTime', 'Form Type', 'VA.gov ID', 'Veteran ID', 'First Name', 'Last Name']
           csv << [
             submission.created_at,
@@ -119,16 +102,26 @@ module SimpleFormsApi
             metadata['veteranLastName']
           ]
         end
-
-        file_path
+      rescue => e
+        handle_error("Failed writing manifest for submission: #{benefits_intake_uuid}", e)
       end
 
       def write_tempfile(file_name, payload)
         File.write("#{temp_directory_path}#{file_name}", payload)
+      rescue => e
+        handle_error("Failed writing file #{file_name} for submission: #{benefits_intake_uuid}", e)
       end
 
-      def attachment_failures
-        @attachment_failures ||= []
+      def rebuilt_submission
+        @rebuilt_submission ||= SubmissionBuilder.new(benefits_intake_uuid:)
+      end
+
+      def form_data_hash
+        @form_data_hash ||= JSON.parse(submission.form_data)
+      end
+
+      def submission_pdf_filename
+        @submission_pdf_filename ||= "form_#{form_data_hash['form_number']}.pdf"
       end
     end
   end
