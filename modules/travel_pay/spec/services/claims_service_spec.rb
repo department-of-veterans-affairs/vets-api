@@ -54,7 +54,8 @@ describe TravelPay::ClaimsService do
       )
     end
 
-    let(:tokens) { ['veis_token', 'btsss_token'] }
+    let(:tokens) { %w[veis_token btsss_token] }
+
     before do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims)
