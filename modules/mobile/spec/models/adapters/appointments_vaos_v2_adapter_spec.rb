@@ -10,16 +10,9 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   # still needs work
-  def appointment_by_id(id, overrides: nil, without: [])
+  def appointment_by_id(id, overrides: {}, without: [])
     appointment = raw_data.find { |appt| appt[:id] == id }
-    case overrides
-    when Array
-      overrides.each do |property|
-        appointment.dig(*property[:at]).merge!(property[:to])
-      end
-    when Hash
-      appointment.merge!(overrides)
-    end
+    appointment.merge!(overrides) if overrides.any?
     without.each do |property|
       if property[:at]
         appointment.dig(*property[:at]).delete(property[:key])
@@ -48,10 +41,10 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   let(:home_va_id) { '50094' }
   let(:atlas_va_id) { '50095' }
   let(:home_gfe_id) { '50096' }
+  # change these names
   let(:past_request_date_appt_id) { '53360' }
   let(:future_request_date_appt_id) { '53359' }
   let(:cancelled_requested_va_appt_id) { '53241' }
-  let(:acheron_appointment_id) { '145078' }
   let(:telehealth_onsite_id) { '50097' }
 
   before do
@@ -68,7 +61,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   it 'returns a list of Mobile::V0::Appointments at the expected size' do
     adapted_appointments = subject.parse(appointment_data)
-    expect(adapted_appointments.size).to eq(14)
+    expect(adapted_appointments.size).to eq(13)
     expect(adapted_appointments.map(&:class).uniq).to eq([Mobile::V0::Appointment])
   end
 
@@ -730,174 +723,34 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   ### unit tests ###
   ##################
 
-  describe 'start_date_local, proposed_times, and time_zone' do
-    context 'request periods that are in the future' do
-      let(:future_request_date_appt) { appointment_by_id(future_request_date_appt_id) }
-
-      it 'sets start date to earliest date in the future' do
-        expect(future_request_date_appt[:start_date_local]).to eq('2022-08-27T12:00:00Z')
-        expect(future_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2022', time: 'PM' },
-                                                                 { date: '08/27/2022', time: 'PM' },
-                                                                 { date: '10/03/2022', time: 'PM' }])
-        expect(future_request_date_appt[:time_zone]).to eq('America/Denver')
+  describe 'cancel_id' do
+    context 'when telehealth appointment and cancellable is true' do
+      it 'is nil' do
+        expect(appointment_by_id(home_va_id).cancel_id).to eq(nil)
       end
     end
 
-    context 'request periods that are in the past' do
-      let(:past_request_date_appt) { appointment_by_id(past_request_date_appt_id) }
-
-      it 'sets start date to earliest date' do
-        expect(past_request_date_appt[:start_date_local]).to eq('2021-08-20T12:00:00Z')
-        expect(past_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2021', time: 'PM' },
-                                                               { date: '08/27/2021', time: 'PM' },
-                                                               { date: '10/03/2021', time: 'PM' }])
-        expect(past_request_date_appt[:time_zone]).to eq('America/Denver')
+    context 'when not telehealth appointment and cancellable is false' do
+      it 'is nil' do
+        appt = appointment_by_id(home_va_id, overrides: { cancellable: false })
+        expect(appt.cancel_id).to eq(nil)
       end
     end
 
-    context 'with no timezone' do
-      it 'falls back to hardcoded timezone lookup' do
-        # overriding location id to prevent test from passing if timezone removal fails
-        # which is what was previously happening
-        no_timezone_appt = appointment_by_id(
-          cancelled_va_id,
-          overrides: { location_id: '358' },
-          without: [key: :time_zone, at: [:location]]
-        )
-        expect(no_timezone_appt[:start_date_local]).to eq('2022-08-27 09:45:00 -0600"')
-        expect(no_timezone_appt[:start_date_utc]).to eq('2022-08-27T15:45:00Z')
-        expect(no_timezone_appt[:time_zone]).to eq('Asia/Manila')
+    context 'when not telehealth appointment and cancellable is true' do
+      it 'is nil' do
+        appt = appointment_by_id(future_request_date_appt_id)
+        expect(appt.cancel_id).to eq(future_request_date_appt_id)
       end
     end
   end
 
-  describe 'type_of_care' do
-    context 'with nil service type' do
-      it 'returns nil' do
-        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: nil })
-        expect(vaos_data[:type_of_care]).to eq(nil)
-      end
-    end
-
-    context 'with known service type' do
-      it 'returns appropriate copy for the service type' do
-        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: 'outpatientMentalHealth' })
-        expect(vaos_data[:type_of_care]).to eq('Mental Health')
-      end
-    end
-
-    context 'with unknown service type' do
-      it 'returns a capitalized version of the service type' do
-        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: 'hey there' })
-        expect(vaos_data[:type_of_care]).to eq('Hey There')
-      end
-    end
-  end
-
-  # very incomplete
-  describe 'status' do
-    context 'when arrived' do
-      it 'converts status to BOOKED' do
-        arrived_appt = appointment_by_id(booked_va_id, overrides: { status: 'arrived' })
-        expect(arrived_appt[:status]).to eq('BOOKED')
-      end
-    end
-  end
-
-  describe 'patient phone number' do
-    it 'formats phone number with parentheses' do
-      parentheses_phone_num_appt = appointment_by_id(
-        atlas_va_id, overrides: [at: [:contact, :telecom, 0], to: { value: '(480)-293-1922' }]
-      )
-      expect(parentheses_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
-    end
-
-    it 'formats phone number with parentheses and no first dash' do
-      parentheses_no_dash_phone_num_appt = appointment_by_id(
-        atlas_va_id, overrides: [at: [:contact, :telecom, 0], to: { value: '(480) 293-1922' }]
-      )
-      expect(parentheses_no_dash_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
-    end
-
-    it 'formats phone number with no dashes' do
-      no_dashes_phone_num_appt = appointment_by_id(
-        atlas_va_id, overrides: [at: [:contact, :telecom, 0], to: { value: '4802931922' }]
-      )
-      expect(no_dashes_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
-    end
-
-    it 'does not change phone number with correct format' do
-      no_parentheses_phone_num_appt = appointment_by_id(
-        atlas_va_id, overrides: [at: [:contact, :telecom, 0], to: { value: '480-293-1922' }]
-      )
-      expect(no_parentheses_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
-    end
-  end
-
-  # do these tests even add value anymore?
-  describe 'embedded acheron values' do
-    let(:acheron_appointment) { appointment_by_id(acheron_appointment_id) }
-
-    # these tests are duplicative of the full body test but are meant to highlight the relevant data
-    it 'parses values out of the reason code' do
-      expect(acheron_appointment.patient_email).to eq('melissa.gra@va.gov')
-      expect(acheron_appointment.patient_phone_number).to eq('317-448-5062')
-      expect(acheron_appointment.proposed_times).to eq([{ date: '12/13/2022', time: 'PM' },
-                                                        { date: '12/21/2022', time: 'AM' }])
-      expect(acheron_appointment.comment).to eq('My leg!')
-      expect(acheron_appointment.reason).to eq('Routine Follow-up')
-    end
-
-    it 'parses all fields predictably' do
-      expect(acheron_appointment.as_json).to eq(
-        {
-          'id' => acheron_appointment_id,
-          'appointment_type' => 'VA',
-          'appointment_ien' => nil,
-          'cancel_id' => acheron_appointment_id,
-          'comment' => 'My leg!',
-          'facility_id' => '552',
-          'sta6aid' => '552',
-          'healthcare_provider' => nil,
-          'healthcare_service' => nil,
-          'location' => {
-            'id' => '984',
-            'name' => 'Dayton VA Medical Center',
-            'address' => {
-              'street' => '4100 West Third Street',
-              'city' => 'Dayton',
-              'state' => 'OH',
-              'zip_code' => '45428-9000'
-            },
-            'lat' => 39.74935,
-            'long' => -84.2532,
-            'phone' => { 'area_code' => '937', 'number' => '268-6511',
-                         'extension' => nil },
-            'url' => nil,
-            'code' => nil
-          },
-          'physical_location' => nil,
-          'minutes_duration' => nil,
-          'phone_only' => false,
-          'start_date_local' => '2022-12-12T19:00:00.000-05:00',
-          'start_date_utc' => '2022-12-13T00:00:00.000+00:00',
-          'status' => 'SUBMITTED',
-          'status_detail' => nil,
-          'time_zone' => 'America/New_York',
-          'vetext_id' => '552;3221212.19',
-          'reason' => 'Routine Follow-up',
-          'is_covid_vaccine' => false,
-          'is_pending' => true,
-          'proposed_times' => [{ 'date' => '12/13/2022', 'time' => 'PM' },
-                               { 'date' => '12/21/2022', 'time' => 'AM' }],
-          'type_of_care' => 'Amputation care',
-          'patient_phone_number' => '317-448-5062',
-          'patient_email' => 'melissa.gra@va.gov',
-          'best_time_to_call' => nil,
-          'friendly_location_name' => 'Dayton VA Medical Center',
-          'service_category_name' => 'REGULAR'
-        }
-      )
+  describe 'facility_id and sta6aid' do
+    it 'is set to the result of convert_from_non_prod_id' do
+      allow(Mobile::V0::Appointment).to receive(:convert_from_non_prod_id!).and_return('anything')
+      appt = appointment_by_id(home_va_id)
+      expect(appt.facility_id).to eq('anything')
+      expect(appt.sta6aid).to eq('anything')
     end
   end
 
@@ -1048,6 +901,167 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
   end
 
+  describe 'phone_only' do
+    context 'when appointment kind is phone' do
+    end
+
+    context 'when appointment kind is not phone' do
+    end
+  end
+
+  # add start_date_utc to this
+  describe 'start_date_local, proposed_times, and time_zone' do
+    context 'request periods that are in the future' do
+      let(:future_request_date_appt) { appointment_by_id(future_request_date_appt_id) }
+
+      it 'sets start date to earliest date in the future' do
+        expect(future_request_date_appt[:start_date_local]).to eq('2022-08-27T12:00:00Z')
+        expect(future_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2022', time: 'PM' },
+                                                                 { date: '08/27/2022', time: 'PM' },
+                                                                 { date: '10/03/2022', time: 'PM' }])
+        expect(future_request_date_appt[:time_zone]).to eq('America/Denver')
+      end
+    end
+
+    context 'request periods that are in the past' do
+      let(:past_request_date_appt) { appointment_by_id(past_request_date_appt_id) }
+
+      it 'sets start date to earliest date' do
+        expect(past_request_date_appt[:start_date_local]).to eq('2021-08-20T12:00:00Z')
+        expect(past_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2021', time: 'PM' },
+                                                               { date: '08/27/2021', time: 'PM' },
+                                                               { date: '10/03/2021', time: 'PM' }])
+        expect(past_request_date_appt[:time_zone]).to eq('America/Denver')
+      end
+    end
+
+    context 'with no timezone' do
+      it 'falls back to hardcoded timezone lookup' do
+        # overriding location id to prevent test from passing if timezone removal fails
+        # which is what was previously happening
+        no_timezone_appt = appointment_by_id(
+          cancelled_va_id,
+          overrides: { location_id: '358' },
+          without: [key: :time_zone, at: [:location]]
+        )
+        expect(no_timezone_appt[:start_date_local]).to eq('2022-08-27 09:45:00 -0600"')
+        expect(no_timezone_appt[:start_date_utc]).to eq('2022-08-27T15:45:00Z')
+        expect(no_timezone_appt[:time_zone]).to eq('Asia/Manila')
+      end
+    end
+  end
+
+  describe 'type_of_care' do
+    context 'with nil service type' do
+      it 'returns nil' do
+        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: nil })
+        expect(vaos_data[:type_of_care]).to eq(nil)
+      end
+    end
+
+    context 'with known service type' do
+      it 'returns appropriate copy for the service type' do
+        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: 'outpatientMentalHealth' })
+        expect(vaos_data[:type_of_care]).to eq('Mental Health')
+      end
+    end
+
+    context 'with unknown service type' do
+      it 'returns a capitalized version of the service type' do
+        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: 'hey there' })
+        expect(vaos_data[:type_of_care]).to eq('Hey There')
+      end
+    end
+  end
+
+  # very incomplete
+  describe 'status' do
+    context 'when arrived' do
+      it 'converts status to BOOKED' do
+        arrived_appt = appointment_by_id(booked_va_id, overrides: { status: 'arrived' })
+        expect(arrived_appt[:status]).to eq('BOOKED')
+      end
+    end
+  end
+
+  describe 'status_detail' do
+  end
+
+  describe 'vetext_id' do
+  end
+
+  describe 'is_covid_vaccine' do
+    context 'when service type is covid' do
+      it 'is true' do
+        appt = appointment_by_id(booked_va_id, overrides: { service_type: 'covid' })
+        expect(appt.is_covid_vaccine).to eq(true)
+      end
+    end
+
+    context 'when service type is not covid' do
+      it 'is false' do
+        appt = appointment_by_id(booked_va_id)
+        expect(appt.is_covid_vaccine).to eq(false)
+      end
+    end
+  end
+
+  describe 'patient_phone_number' do
+    let(:appt_with_phone) do
+      appointment_by_id(
+        atlas_va_id, overrides: { contact: { telecom: [{ type: 'phone', value: phone_number }] } }
+      )
+    end
+
+    context 'with area code parentheses' do
+      let(:phone_number) { '(480)-293-1922' }
+
+      it 'formats to all dashes' do
+        expect(appt_with_phone.patient_phone_number).to eq('480-293-1922')
+      end
+    end
+
+    context 'formats to all dashes' do
+      let(:phone_number) { '(480) 293-1922' }
+
+      it 'formats phone number' do
+        expect(appt_with_phone.patient_phone_number).to eq('480-293-1922')
+      end
+    end
+
+    context 'with no delimiters' do
+      let(:phone_number) { '4802931922' }
+
+      it 'formats to all dashes' do
+        expect(appt_with_phone.patient_phone_number).to eq('480-293-1922')
+      end
+    end
+
+    context 'dash separated' do
+      let(:phone_number) { '480-293-1922' }
+
+      it 'uses the number without change' do
+        expect(appt_with_phone.patient_phone_number).to eq('480-293-1922')
+      end
+    end
+  end
+
+  describe 'patient_email' do
+    context 'when contact info is not present' do
+      it 'is nil' do
+        appt = appointment_by_id(proposed_cc_id, without: [key: :contact])
+        expect(appt.patient_email).to eq(nil)
+      end
+    end
+
+    context 'when contact info is present' do
+      it 'is nil' do
+        appt = appointment_by_id(proposed_cc_id)
+        expect(appt.patient_email).to eq('Aarathi.poldass@va.gov')
+      end
+    end
+  end
+
   describe 'friendly_location_name' do
     context 'with VA appointment' do
       it 'is set to location name' do
@@ -1082,6 +1096,23 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       it 'is set to nil when cc location practice name is absent' do
         appt = appointment_by_id(booked_cc_id, without: [key: :extension])
         expect(appt[:friendly_location_name]).to eq(nil)
+      end
+    end
+  end
+
+  describe 'service_category_name' do
+    context 'when service category is present' do
+      it 'is set to the first service category text' do
+        # none of the fixture data contains this
+        appt = appointment_by_id(booked_cc_id, overrides: { service_category: [text: 'therapy'] })
+        expect(appt.service_category_name).to eq('therapy')
+      end
+    end
+
+    context 'when service category is present' do
+      it 'is set to nil' do
+        appt = appointment_by_id(booked_cc_id)
+        expect(appt.service_category_name).to be_nil
       end
     end
   end
