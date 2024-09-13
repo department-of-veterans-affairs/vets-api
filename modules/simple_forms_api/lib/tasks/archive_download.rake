@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-include 'simple_forms_api/s3/submission_archive_builder'
-include 'common/file_helpers'
+require 'simple_forms_api/s3/submission_archive_builder'
+require 'common/file_helpers'
 
 namespace :simple_forms_api do
   desc 'Build submission archives for a collection of ' \
