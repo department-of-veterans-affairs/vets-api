@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module TravelPay
-  class Service
+  class ClaimsService
     def get_claims(veis_token, btsss_token, params = {})
       faraday_response = client.get_claims(veis_token, btsss_token)
       raw_claims = faraday_response.body['data'].deep_dup
