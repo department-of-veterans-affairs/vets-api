@@ -684,6 +684,20 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
         end
       end
+
+      describe 'appointment call returns 500 error' do
+        # This is a requirement due to FE having a bug where a source field in the error
+        # with a hash in it was causing long delays.
+        it 'returns error with no source hash' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_500', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/appointments', headers: sis_headers
+          end
+          expect(response.parsed_body.dig('errors', 0)).to eq({ 'title' => 'Unknown Service Error',
+                                                                'detail' => 'The resource could not be found',
+                                                                'code' => '500',
+                                                                'status' => '500' })
+        end
+      end
     end
   end
 end
