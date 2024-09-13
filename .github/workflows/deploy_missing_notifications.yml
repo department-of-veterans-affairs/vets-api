@@ -1,79 +1,132 @@
-name: Check VA API Status
+name: Check Vets API Prod Deploy goes out
 
 on:
   schedule:
-    - cron: '59 16 * * 1-5'  # Run at 12:59 PM ET (16:59 UTC) on weekdays
-  push:
-    branches:
-      - 'eb-add-prod-deploy-missing-notification'  # Trigger on pushes to this branch
-  workflow_dispatch:  # Allow manual triggering
+    - cron: '0 17 * * *'  # Run at 1:00 PM ET (17:00 UTC) every day
 
 jobs:
   check-api-status:
     runs-on: ubuntu-latest
     outputs:
       status_summary: ${{ steps.check-api.outputs.status_summary }}
-    
+
     steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: "us-gov-west-1"
+
+    - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+      with:
+        ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+        env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+    - name: Checkout VSP infra ArgoCD repo
+      uses: actions/checkout@v4
+      with:
+        repository: department-of-veterans-affairs/vsp-infra-argocd
+        ref: refs/heads/main
+        token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+        persist-credentials: false
+        path: ./vsp-infra-argocd
+
+    - name: Install yq
+      run: |
+        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod a+x /usr/local/bin/yq
+
     - name: Check if today is a valid day
       id: check-day
       run: |
+        set -x  # Enable debug mode
         today=$(date +'%Y-%m-%d')
-        
-        # Check for holidays (adjust dates as needed)
-        holidays=(
-          "2024-01-15"  # MLK Day
-          "2024-05-27"  # Memorial Day
-          "2024-06-19"  # Juneteenth
-          "2024-07-04"  # Independence Day
-          "2024-09-02"  # Labor Day
-          "2024-11-11"  # Veterans Day
-          "2024-11-28"  # Thanksgiving
-          "2024-12-23"  # Start of Holiday Freeze
-          "2024-12-24"
-          "2024-12-25"
-          "2024-12-26"
-          "2024-12-27"
-          "2024-12-28"
-          "2024-12-29"
-          "2024-12-30"
-          "2024-12-31"
-          "2025-01-01"
-          "2025-01-02"
-          "2025-01-03"
-          "2025-01-04"
-          "2025-01-05"
-        )
-        
-        if [[ " ${holidays[@]} " =~ " ${today} " ]]; then
-          echo "Holiday - skipping check"
+        current_time=$(date +'%H:%M')
+        day_of_week=$(date +'%u')
+
+        # Parse the values.yaml file
+        sync_windows=$(yq e '.projects[] | select(.name == "vets-api") | .sync_windows[]' ./vsp-infra-argocd/chart/values.yaml)
+
+        # Debug: Print the extracted sync_windows
+        echo "Extracted sync_windows:"
+        echo "$sync_windows"
+
+        # Check if sync_windows is empty
+        if [ -z "$sync_windows" ]; then
+          echo "Error: No sync windows found for vets-api project"
           echo "run_check=false" >> $GITHUB_OUTPUT
-        else
-          echo "Valid day for check"
-          echo "run_check=true" >> $GITHUB_OUTPUT
+          exit 0
         fi
 
+        # Check for deny windows first
+        deny_active=false
+        while IFS= read -r window; do
+          kind=$(echo "$window" | yq e '.kind' -)
+          schedule=$(echo "$window" | yq e '.schedule' -)
+          if [ "$kind" = "deny" ]; then
+            month=$(echo "$schedule" | awk '{print $4}')
+            day=$(echo "$schedule" | awk '{print $3}')
+
+            if [[ "$(date +'%b' | tr '[:lower:]' '[:upper:]')" == "$month" && "$(date +'%d')" == "$day" ]]; then
+              echo "Deny window active today"
+              deny_active=true
+              break
+            fi
+          fi
+        done <<< "$sync_windows"
+
+        # If no deny window is active, check for allow window
+        if [ "$deny_active" = false ]; then
+          if [[ $day_of_week -le 5 ]]; then
+            while IFS= read -r window; do
+              kind=$(echo "$window" | yq e '.kind' -)
+              if [ "$kind" = "allow" ]; then
+                schedule=$(echo "$window" | yq e '.schedule' -)
+                duration=$(echo "$window" | yq e '.duration' -)
+                allow_time=$(echo "$schedule" | awk '{print $2}')
+
+                # Convert allow_time to minutes since midnight
+                IFS=: read allow_hour allow_minute <<< "$allow_time"
+                allow_minutes=$((10#$allow_hour * 60 + 10#$allow_minute))
+
+                # Convert current_time to minutes since midnight
+                IFS=: read current_hour current_minute <<< "$current_time"
+                current_minutes=$((10#$current_hour * 60 + 10#$current_minute))
+
+                # Convert duration to minutes
+                duration_minutes=$(echo "$duration" | sed 's/m//')
+
+                # Check if current time is within the allow window
+                if ((current_minutes >= allow_minutes && current_minutes < allow_minutes + duration_minutes)); then
+                  echo "Weekday within allowed time window"
+                  echo "run_check=true" >> $GITHUB_OUTPUT
+                  exit 0
+                fi
+              fi
+            done <<< "$sync_windows"
+          fi
+        fi
+
+        echo "Not within allowed window or deny window active"
+        echo "run_check=false" >> $GITHUB_OUTPUT
+      shell: /usr/bin/bash -e {0}
+
     - name: Check API status
-      if: steps.check-day.outputs.run_check == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+      if: steps.check-day.outputs.run_check == 'true'
       id: check-api
       run: |
         initial_response=$(curl -s https://api.va.gov/v0/status)
         initial_revision=$(echo $initial_response | jq -r .git_revision)
         echo "Initial git_revision: $initial_revision"
-        
-        # For testing purposes, we'll reduce the wait time to 1 minute when triggered by a push
-        if [ "${{ github.event_name }}" == "push" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-          sleep 60  # Wait for 1 minute
-        else
-          sleep 1200  # Wait for 20 minutes
-        fi
-        
+        sleep 600  # 99% of deploys are done in 10 minutes
+
         final_response=$(curl -s https://api.va.gov/v0/status)
         final_revision=$(echo $final_response | jq -r .git_revision)
         echo "Final git_revision: $final_revision"
-        
+
         if [ "$initial_revision" == "$final_revision" ]; then
-          echo "status_summary=The git_revision at https://api.va.gov/v0/status did not change between 1:00 PM and 1:20 PM ET." >> $GITHUB_OUTPUT
+          echo "status_summary=The git_revision at https://api.va.gov/v0/status did not change between 1:00 PM and 1:10 PM ET." >> $GITHUB_OUTPUT
           exit 1  # Fail the job if git_revision didn't change
         else
           echo "status_summary=The git_revision changed from $initial_revision to $final_revision." >> $GITHUB_OUTPUT
