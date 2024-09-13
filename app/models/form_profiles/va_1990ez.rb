@@ -5,7 +5,7 @@ class FormProfiles::VA1990ez < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/applicant-information/personal-information'
+      returnUrl: Flipper.enabled?(:meb_1606_30_automation) ? '/benefit-selection' :  '/applicant-information/personal-information'
     }
   end
 end
