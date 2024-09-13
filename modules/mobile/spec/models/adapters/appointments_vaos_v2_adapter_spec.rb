@@ -15,7 +15,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     case overrides
     when Array
       overrides.each do |property|
-        appointment.dig(*property[:at])[property[:target]] = property[:to]
+        appointment.dig(*property[:at]).merge!(property[:to])
       end
     when Hash
       appointment.merge!(overrides)
@@ -807,28 +807,28 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   describe 'patient phone number' do
     it 'formats phone number with parentheses' do
       parentheses_phone_num_appt = appointment_by_id(
-        atlas_va_id, overrides: [at: [:contact, :telecom, 0], target: :value ,to: '(480)-293-1922']
+        atlas_va_id, overrides: [at: [:contact, :telecom, 0], to: { value: '(480)-293-1922' }]
       )
       expect(parentheses_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
     end
 
     it 'formats phone number with parentheses and no first dash' do
       parentheses_no_dash_phone_num_appt = appointment_by_id(
-        atlas_va_id, overrides: [at: [:contact, :telecom, 0], target: :value ,to: '(480) 293-1922']
+        atlas_va_id, overrides: [at: [:contact, :telecom, 0], to: { value: '(480) 293-1922' }]
       )
       expect(parentheses_no_dash_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
     end
 
     it 'formats phone number with no dashes' do
       no_dashes_phone_num_appt = appointment_by_id(
-        atlas_va_id, overrides: [at: [:contact, :telecom, 0], target: :value ,to: '4802931922']
+        atlas_va_id, overrides: [at: [:contact, :telecom, 0], to: { value: '4802931922' }]
       )
       expect(no_dashes_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
     end
 
     it 'does not change phone number with correct format' do
       no_parentheses_phone_num_appt = appointment_by_id(
-        atlas_va_id, overrides: [at: [:contact, :telecom, 0], target: :value ,to: '480-293-1922']
+        atlas_va_id, overrides: [at: [:contact, :telecom, 0], to: { value: '480-293-1922' }]
       )
       expect(no_parentheses_phone_num_appt[:patient_phone_number]).to eq('480-293-1922')
     end
@@ -918,35 +918,35 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
 
     it 'uses the first practitioner name in the list' do
-      appointment = appointment_data[0]
-      appointment[:preferred_provider_name] = 'Dr. Hauser'
-      appointment[:practitioners] = practitioner_list
-      result = subject.parse([appointment]).first
-      expect(result.healthcare_provider).to eq('MATTHEW ENGHAUSER')
+      appt = appointment_by_id(
+        booked_va_id,
+        overrides: { preferred_provider_name: 'Dr. Hauser', practitioners: practitioner_list }
+      )
+      expect(appt.healthcare_provider).to eq('MATTHEW ENGHAUSER')
     end
 
     it 'uses the preferred_provider_name if no practitioner list exists' do
-      appointment = appointment_data[0]
-      appointment[:preferred_provider_name] = 'Dr. Hauser'
-      result = subject.parse([appointment]).first
-
-      expect(result.healthcare_provider).to eq('Dr. Hauser')
+      appt = appointment_by_id(booked_va_id, overrides: { preferred_provider_name: 'Dr. Hauser' })
+      expect(appt.healthcare_provider).to eq('Dr. Hauser')
     end
 
     it 'converts not found message to nil' do
-      appointment = appointment_data[0]
-      appointment[:preferred_provider_name] = VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG
-      result = subject.parse([appointment]).first
-
-      expect(result.healthcare_provider).to eq(nil)
+      appt = appointment_by_id(
+        booked_va_id,
+        overrides: { preferred_provider_name: VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG }
+      )
+      expect(appt.healthcare_provider).to eq(nil)
     end
 
     it 'uses the practitioners list in favor of the not found message' do
-      appointment = appointment_data[0]
-      appointment[:preferred_provider_name] = VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG
-      appointment[:practitioners] = practitioner_list
-      result = subject.parse([appointment]).first
-      expect(result.healthcare_provider).to eq('MATTHEW ENGHAUSER')
+      appt = appointment_by_id(
+        booked_va_id,
+        overrides: {
+          preferred_provider_name: VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG,
+          practitioners: practitioner_list
+        }
+      )
+      expect(appt.healthcare_provider).to eq('MATTHEW ENGHAUSER')
     end
   end
 
