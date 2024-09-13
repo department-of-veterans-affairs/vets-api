@@ -158,10 +158,6 @@ features:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
     enable_in_development: true
-  check_in_experience_travel_api_v2_cutover:
-    actor_type: user
-    description: Cuts over to new EIS endpoint path, client_id, and keys for BTSSS
-    enable_in_development: true
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
     description: Enables travel claims filing for Oracle Health (Cerner) sites
@@ -364,10 +360,6 @@ features:
     actor_type: user
     description: Enable using MAR 2024 revision of 200996 Higher Level Review form when submitting to EMMS for intake
     enable_in_development: false
-  decision_review_form_store_saved_claims:
-    actor_type: user
-    description: Enable storage of SavedClaim records for Decision Review forms (HLR, NOD, SC)
-    enable_in_development: true
   decision_review_saved_claim_hlr_status_updater_job_enabled:
     actor_type: user
     description: Enable job to set delete_date for completed SavedClaim::HigherLevelReviews
@@ -915,6 +907,9 @@ features:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
     enable_in_development: false
+  mobile_allergy_intolerance_model:
+    actor_type: user
+    description: For mobile app, enalbes use of strict models for parsing allergy intolerance
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
@@ -1527,6 +1522,9 @@ features:
   disability_compensation_lighthouse_upload_supplemental_document:
     actor_type: user
     description: If enabled uses the Lighthouse Benefits Documents API to submit Form 526 documents
+  disablity_benefits_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for disability benefits applications
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment

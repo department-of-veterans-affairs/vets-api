@@ -28,6 +28,10 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
   let(:created_at) { Timecop.freeze(Time.zone.now) }
 
+  def current_error_array
+    test_526_validation_instance.instance_variable_get('@errors')
+  end
+
   describe '#remove_chars' do
     let(:date_string) { subject.form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] }
 
@@ -169,6 +173,64 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     # rubocop:enable RSpec/SubjectStub
   end
 
+  describe 'military address validations' do
+    let(:valid_military_address) do
+      {
+        'addressLine1' => 'CMR 468 Box 1181',
+        'city' => 'DPO',
+        'country' => 'USA',
+        'zipFirstFive' => '09277',
+        'state' => 'AE'
+      }
+    end
+    let(:invalid_military_address) do
+      {
+        'addressLine1' => 'CMR 468 Box 1181',
+        'city' => 'FPO',
+        'country' => 'USA',
+        'zipFirstFive' => '09277',
+        'state' => 'AL'
+      }
+    end
+
+    describe '#address_is_military?' do
+      it 'correctly identifies address as MILITARY' do
+        check = test_526_validation_instance.send(:address_is_military?, valid_military_address)
+        expect(check).to eq(true)
+      end
+
+      it 'correctly identifies address as not MILITARY if no military codes are used' do
+        check = test_526_validation_instance.send(:address_is_military?,
+                                                  subject.form_attributes['veteranIdentification']['mailingAddress'])
+        expect(check).to eq(false)
+      end
+    end
+
+    describe '#validate_form_526_address_type' do
+      context 'mailingAddress' do
+        it 'returns an error with an incorrect MILITARY address combination' do
+          subject.form_attributes['veteranIdentification']['mailingAddress'] = invalid_military_address
+          test_526_validation_instance.send(:validate_form_526_address_type)
+          expect(current_error_array[0][:detail]).to eq('Invalid city and military postal combination.')
+          expect(current_error_array[0][:source]).to eq('/veteranIdentification/mailingAddress/')
+        end
+
+        it 'handles a correct MILITARY address combination' do
+          subject.form_attributes['veteranIdentification']['mailingAddress'] = valid_military_address
+          test_526_validation_instance.send(:validate_form_526_address_type)
+          test_526_validation_instance.instance_variable_get('@errors')
+          expect(current_error_array).to eq(nil)
+        end
+
+        it 'handles a DOMESTIC address' do
+          test_526_validation_instance.send(:validate_form_526_address_type)
+          test_526_validation_instance.instance_variable_get('@errors')
+          expect(current_error_array).to eq(nil)
+        end
+      end
+    end
+  end
+
   describe '#date_range_overlap?' do
     let(:date_begin_one) { '2018-06-04' }
     let(:date_end_one) { '2020-07-01' }
@@ -252,7 +314,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
   end
 
   describe 'validation of claimant change of address elements' do
-    context "when any values present, 'dates','typeOfAddressChange','numberAndStreet','country' are required" do
+    context "'typeOfAddressChange','addressLine1','country' are conditionally required" do
       context 'without the required country value present' do
         it 'returns an error array' do
           subject.form_attributes['changeOfAddress']['country'] = ''
@@ -272,6 +334,34 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
+    context 'without the required typeOfAddressChange' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = ''
+        change_of_address = subject.form_attributes['changeOfAddress']
+        res = test_526_validation_instance.send(
+          :validate_form_526_coa_type_of_address_change_presence,
+          change_of_address,
+          '/changeOfAddress'
+        )
+        expect(res[0][:detail]).to eq('The typeOfAddressChange is required for /changeOfAddress.')
+        expect(res[0][:source]).to eq('/changeOfAddress')
+      end
+    end
+
+    context 'without the required addressLine1' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['addressLine1'] = ''
+        change_of_address = subject.form_attributes['changeOfAddress']
+        res = test_526_validation_instance.send(
+          :validate_form_526_coa_address_line_one_presence,
+          change_of_address,
+          '/changeOfAddress'
+        )
+        expect(res[0][:detail]).to eq('The addressLine1 is required for /changeOfAddress.')
+        expect(res[0][:source]).to eq('/changeOfAddress')
+      end
+    end
+
     context 'when the country is valid' do # country is USA in the JSON
       it 'responds with true' do
         res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
@@ -285,6 +375,34 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         res = test_526_validation_instance.send(:validate_form_526_change_of_address_country)
         expect(res[0][:detail]).to eq('The country provided is not valid.')
         expect(res[0][:source]).to eq('/changeOfAddress/country')
+      end
+    end
+
+    context 'when the country is not provided' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['country'] = ''
+        change_of_address = subject.form_attributes['changeOfAddress']
+        res = test_526_validation_instance.send(
+          :validate_form_526_coa_country_presence,
+          change_of_address,
+          '/changeOfAddress'
+        )
+        expect(res[0][:detail]).to eq('The country is required for /changeOfAddress.')
+        expect(res[0][:source]).to eq('/changeOfAddress')
+      end
+    end
+
+    context 'without the required city' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['city'] = ''
+        change_of_address = subject.form_attributes['changeOfAddress']
+        res = test_526_validation_instance.send(
+          :validate_form_526_coa_city_presence,
+          change_of_address,
+          '/changeOfAddress'
+        )
+        expect(res[0][:detail]).to eq('The city is required for /changeOfAddress.')
+        expect(res[0][:source]).to eq('/changeOfAddress')
       end
     end
 
@@ -304,10 +422,9 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '01-01-2023'
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = '01-01-2024'
         test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date)
-        errors = test_526_validation_instance.instance_variable_get('@errors')
-        expect(errors[0][:detail]).to eq('Change of address endDate cannot be included ' \
-                                         'when typeOfAddressChange is PERMANENT')
-        expect(errors[0][:source]).to eq('/changeOfAddress/dates/endDate')
+        expect(current_error_array[0][:detail]).to eq('Change of address endDate cannot be included ' \
+                                                      'when typeOfAddressChange is PERMANENT')
+        expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/endDate')
       end
     end
   end
