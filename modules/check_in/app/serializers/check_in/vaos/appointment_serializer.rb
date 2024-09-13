@@ -10,6 +10,29 @@ module CheckIn
 
       attributes :kind, :status, :serviceType, :locationId, :clinic, :start, :end, :minutesDuration
 
+      attribute :telehealth do |object|
+        {
+          vvsKind: object&.telehealth&.dig('vvsKind'),
+          atlas: object&.telehealth&.dig('atlas')
+        }
+      end
+
+      attribute :extension do |object|
+        {
+          preCheckinAllowed: object&.extension&.dig('preCheckinAllowed'),
+          eCheckinAllowed: object&.extension&.dig('eCheckinAllowed'),
+          patientHasMobileGfe: object&.extension&.dig('patientHasMobileGfe')
+        }
+      end
+
+      attribute :serviceCategory do |object|
+        object.serviceCategory&.map do |category|
+          {
+            text: category&.dig('text')
+          }
+        end
+      end
+
       attribute :facilityName do |object|
         object.dig(:facility, :name)
       end
