@@ -5,8 +5,6 @@ require 'common/file_helpers'
 
 describe IvcChampva::S3 do
   let(:region) { 'test-region' }
-  let(:access_key_id) { 'test-access-key' }
-  let(:secret_access_key) { 'test-secret-key' }
   let(:bucket_name) { 'test-bucket' }
   let(:bucket) { instance_double(Aws::S3::Bucket) }
   let(:object) { instance_double(Aws::S3::Object) }
@@ -15,8 +13,6 @@ describe IvcChampva::S3 do
   let(:s3_instance) do
     IvcChampva::S3.new(
       region: region,
-      access_key_id: access_key_id,
-      secret_access_key: secret_access_key,
       bucket: bucket_name
     )
   end

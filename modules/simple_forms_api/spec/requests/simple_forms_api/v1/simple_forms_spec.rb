@@ -3,16 +3,9 @@
 require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
+require 'lighthouse/benefits_intake/service'
 
 RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
-  before do
-    Flipper.disable(:simple_forms_lighthouse_benefits_intake_service)
-  end
-
-  after do
-    Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
-  end
-
   forms = [
     # TODO: Restore this test when we release 26-4555 to production.
     # 'vba_26_4555.json',
@@ -61,50 +54,21 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
         data = JSON.parse(fixture_path.read)
 
-        context 'through the SimpleFormsApiSubmission::Service' do
-          it 'makes the request' do
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+        it 'makes the request' do
+          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
 
-            post '/simple_forms_api/v1/simple_forms', params: data
+          post '/simple_forms_api/v1/simple_forms', params: data
 
-            expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
-            expect(response).to have_http_status(:ok)
-          end
-
-          it 'saves a FormSubmissionAttempt' do
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-            expect do
-              post '/simple_forms_api/v1/simple_forms', params: data
-            end.to change(FormSubmissionAttempt, :count).by(1)
-          end
+          expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
+          expect(response).to have_http_status(:ok)
         end
 
-        context 'through the Lighthouse BenefitsIntake::Service' do
-          before do
-            Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
-          end
+        it 'saves a FormSubmissionAttempt' do
+          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
 
-          after do
-            Flipper.disable(:simple_forms_lighthouse_benefits_intake_service)
-          end
-
-          it 'makes the request' do
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
+          expect do
             post '/simple_forms_api/v1/simple_forms', params: data
-
-            expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
-            expect(response).to have_http_status(:ok)
-          end
-
-          it 'saves a FormSubmissionAttempt' do
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-            expect do
-              post '/simple_forms_api/v1/simple_forms', params: data
-            end.to change(FormSubmissionAttempt, :count).by(1)
-          end
+          end.to change(FormSubmissionAttempt, :count).by(1)
         end
       end
 
@@ -122,50 +86,21 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
           data = JSON.parse(fixture_path.read)
 
-          context 'through the SimpleFormsApiSubmission::Service' do
-            it 'makes the request' do
-              allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+          it 'makes the request' do
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
 
-              post '/simple_forms_api/v1/simple_forms', params: data
+            post '/simple_forms_api/v1/simple_forms', params: data
 
-              expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
-              expect(response).to have_http_status(:ok)
-            end
-
-            it 'saves a FormSubmissionAttempt' do
-              allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-              expect do
-                post '/simple_forms_api/v1/simple_forms', params: data
-              end.to change(FormSubmissionAttempt, :count).by(1)
-            end
+            expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
+            expect(response).to have_http_status(:ok)
           end
 
-          context 'through the Lighthouse BenefitsIntake::Service' do
-            before do
-              Flipper.enable(:simple_forms_lighthouse_benefits_intake_service)
-            end
+          it 'saves a FormSubmissionAttempt' do
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
 
-            after do
-              Flipper.disable(:simple_forms_lighthouse_benefits_intake_service)
-            end
-
-            it 'makes the request' do
-              allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
+            expect do
               post '/simple_forms_api/v1/simple_forms', params: data
-
-              expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
-              expect(response).to have_http_status(:ok)
-            end
-
-            it 'saves a FormSubmissionAttempt' do
-              allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-              expect do
-                post '/simple_forms_api/v1/simple_forms', params: data
-              end.to change(FormSubmissionAttempt, :count).by(1)
-            end
+            end.to change(FormSubmissionAttempt, :count).by(1)
           end
 
           it 'clears the InProgressForm' do
@@ -233,8 +168,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             end
 
             it 'catches the exception and sends a PDF to Central Mail instead' do
-              expect_any_instance_of(SimpleFormsApi::PdfUploader).to receive(
-                :upload_to_benefits_intake
+              expect_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(
+                :upload_pdf
               ).and_return([:ok, 'confirmation number'])
               fixture_path = Rails.root.join(
                 'modules',
@@ -256,31 +191,76 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       context 'request with attached documents' do
-        it 'appends the attachments to the 40-0247 PDF' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'vba_40_0247_with_supporting_document.json')
-          pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
-          data = JSON.parse(fixture_path.read)
-          attachment = double
+        let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
+        let(:attachment) { double }
+        let(:lighthouse_service) { double }
+        let(:confirmation_number) { 'some_confirmation_number' }
+
+        before do
+          sign_in
           allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-
-          expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
-
-          post '/simple_forms_api/v1/simple_forms', params: data
-
-          expect(response).to have_http_status(:ok)
+          allow(PersistentAttachment).to(
+            receive(:where).with(guid: [a_string_matching(/a-random-uuid/)]).and_return([attachment])
+          )
         end
 
-        it 'appends the attachments to the 40-10007 PDF' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'vba_40_10007_with_supporting_document.json')
-          pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
-          data = JSON.parse(fixture_path.read)
-          attachment = double
-          allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-          expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
-          post '/simple_forms_api/v1/simple_forms', params: data
-          expect(response).to have_http_status(:ok)
+        shared_examples 'submits successfully' do |form_doc|
+          let(:data) do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form_doc)
+            JSON.parse(fixture_path.read)
+          end
+
+          it 'returns a 200 OK response' do
+            post '/simple_forms_api/v1/simple_forms', params: data
+            expect(response).to have_http_status(:ok)
+          end
+        end
+
+        shared_examples 'handles multiple attachments' do |form_doc|
+          before do
+            allow(BenefitsIntake::Service).to receive(:new).and_return(lighthouse_service)
+            allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to(
+              receive(:prepare_for_upload).and_return(%w[location uuid])
+            )
+            allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to(
+              receive(:log_upload_details).and_return(true)
+            )
+            allow(lighthouse_service).to(
+              receive(:perform_upload).and_return(OpenStruct.new(status: 200, confirmation_number:))
+            )
+          end
+
+          let(:data) do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form_doc)
+            JSON.parse(fixture_path.read)
+          end
+
+          it_behaves_like 'submits successfully', form_doc
+
+          it 'calls the lighthouse service with attachments' do
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(lighthouse_service).to have_received(:perform_upload).with(hash_including(:attachments))
+          end
+        end
+
+        context 'Flipper for simple_forms_lighthouse_benefits_intake_service' do
+          after { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
+
+          context 'when flipped on' do
+            before { Flipper.enable(:simple_forms_lighthouse_benefits_intake_service) }
+
+            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
+            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
+            it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_documents.json'
+          end
+
+          context 'when flipped off' do
+            before { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
+
+            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
+            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
+          end
         end
       end
 
@@ -667,8 +647,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::PdfUploader)
-          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+          .to receive(:upload_pdf).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -687,8 +667,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::PdfUploader)
-          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+          .to receive(:upload_pdf).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -708,8 +688,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::PdfUploader)
-          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+          .to receive(:upload_pdf).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -728,8 +708,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::PdfUploader)
-          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+          .to receive(:upload_pdf).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -755,8 +735,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        allow_any_instance_of(SimpleFormsApi::PdfUploader)
-          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+          .to receive(:upload_pdf).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -776,8 +756,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        allow_any_instance_of(SimpleFormsApi::PdfUploader)
-          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+          .to receive(:upload_pdf).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -797,8 +777,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::PdfUploader)
-          .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+          .to receive(:upload_pdf).and_return([200, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -875,8 +855,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         context 'non-veteran preparer' do
           it 'successful submission' do
-            allow_any_instance_of(SimpleFormsApi::PdfUploader)
-              .to receive(:upload_to_benefits_intake).and_return([200, confirmation_number])
+            allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+              .to receive(:upload_pdf).and_return([200, confirmation_number])
 
             post '/simple_forms_api/v1/simple_forms', params: data
 
