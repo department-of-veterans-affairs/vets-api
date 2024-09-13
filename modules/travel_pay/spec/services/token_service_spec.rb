@@ -30,6 +30,7 @@ describe TravelPay::TokenService do
         service = TravelPay::TokenService.new
         response = service.get_tokens(user)
         expect(response).to eq(tokens)
+        expect($redis.ttl("travel-pay-token-store:#{user.account_uuid}")).to eq(1800)
       end
     end
   end
