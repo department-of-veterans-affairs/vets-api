@@ -117,10 +117,6 @@ module SimpleFormsApi
       def local_submission_file_path
         @local_submission_file_path ||= build_local_file_path(s3_submission_file_path)
       end
-
-      def temp_directory_path
-        @temp_directory_path ||= Rails.root.join("tmp/#{benefits_intake_uuid}-#{SecureRandom.hex}/").to_s
-      end
     end
   end
 end

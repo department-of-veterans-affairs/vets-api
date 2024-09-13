@@ -163,10 +163,6 @@ module SimpleFormsApi
       def attachment_failures
         @attachment_failures ||= []
       end
-
-      def temp_directory_path
-        @temp_directory_path ||= Rails.root.join("tmp/#{benefits_intake_uuid}-#{SecureRandom.hex}/").to_s
-      end
     end
   end
 end

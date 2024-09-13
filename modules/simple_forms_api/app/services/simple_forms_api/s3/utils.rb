@@ -26,6 +26,10 @@ module SimpleFormsApi
         raise error
       end
 
+      def temp_directory_path
+        @temp_directory_path ||= Rails.root.join("tmp/#{benefits_intake_uuid}-#{SecureRandom.hex}/").to_s
+      end
+
       def s3_resource
         @s3_resource ||= Reports::Uploader.new_s3_resource
       end
