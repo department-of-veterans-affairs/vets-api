@@ -17,7 +17,7 @@ class BackendStatus
     @service_id = service_id
   end
 
-  def is_available
+  def available?
     gibs_service? ? BenefitsEducation::Service.within_scheduled_uptime? : true
   end
 
