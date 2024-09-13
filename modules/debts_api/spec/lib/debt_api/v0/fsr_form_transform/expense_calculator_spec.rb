@@ -5,6 +5,10 @@ require 'debts_api/v0/fsr_form_transform/expense_calculator'
 
 RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service do
   describe '#get_monthly_expenses' do
+    before do
+      allow(StatsD).to receive(:increment).and_call_original
+    end
+
     let(:enhanced_expenses) do
       get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/enhanced_fsr_expenses')
     end
@@ -29,6 +33,10 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service
   end
 
   describe '#getAllExpenses' do
+    before do
+      allow(StatsD).to receive(:increment).and_call_original
+    end
+
     let(:enhanced_expenses) do
       get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/enhanced_fsr_expenses')
     end
@@ -37,10 +45,19 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service
     end
 
     context 'with enhanced FSR' do
-      it 'gets rent/mortgage expenses from expenseRecords' do
+      it 'gets rent/mortgage expenses from expenseRecords and tracks the expected metric' do
         calculator = described_class.build(enhanced_expenses)
         calculated_expenses = calculator.get_all_expenses
+        expect(StatsD).to have_received(:increment)
+          .once.with('api.fsr_submission.full_transform.expenses.old_rent_mortgage_attr')
         expect(calculated_expenses[:rentOrMortgage]).to eq(2200.53)
+      end
+
+      it 'tracks the expected metric for the new rent mortgage attribute when it is present' do
+        enhanced_expenses['expenses']['monthlyHousingExpenses'] = ['fff']
+        described_class.build(enhanced_expenses)
+        expect(StatsD).to have_received(:increment)
+          .once.with('api.fsr_submission.full_transform.expenses.new_rent_mortgage_attr')
       end
 
       it 'gets food expenses from expenseRecords' do

@@ -793,7 +793,7 @@
                               }
                             },
                             "changeOfAddress": {
-                              "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+                              "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
                               "type": "object",
                               "nullable": true,
                               "additionalProperties": false,
@@ -2175,7 +2175,7 @@
                             }
                           },
                           "changeOfAddress": {
-                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
                             "type": "object",
                             "nullable": true,
                             "additionalProperties": false,
@@ -3686,7 +3686,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "f6c279e0-7e00-4c31-86d3-839c896e8865",
+                        "id": "4c15d1d5-8c78-46c3-b4da-c73baa771a7b",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3871,7 +3871,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-09-07"
+                              "anticipatedSeparationDate": "2024-09-12"
                             },
                             "confinements": [
                               {
@@ -3917,7 +3917,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "d0634b7d-7919-4546-8730-da0b46241272",
+                        "id": "5fe86683-a608-4a7e-90a4-f901ab67abcc",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4332,7 +4332,7 @@
                               }
                             },
                             "changeOfAddress": {
-                              "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+                              "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
                               "type": "object",
                               "nullable": true,
                               "additionalProperties": false,
@@ -5714,7 +5714,7 @@
                             }
                           },
                           "changeOfAddress": {
-                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
                             "type": "object",
                             "nullable": true,
                             "additionalProperties": false,
@@ -7873,7 +7873,7 @@
                             }
                           },
                           "changeOfAddress": {
-                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
                             "type": "object",
                             "nullable": true,
                             "additionalProperties": false,
@@ -9129,7 +9129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4f521b24-e79b-482f-b85b-7e80ca67701d",
+                    "id": "2ae77e9b-75c8-4c18-8e1c-0b3f2c5f5301",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -11293,7 +11293,7 @@
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
                                 "type": "string",
-                                "maxLength": 14,
+                                "maxLength": 1000,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -12789,8 +12789,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-09-05",
-                      "expirationDate": "2025-09-05",
+                      "creationDate": "2024-09-10",
+                      "expirationDate": "2025-09-10",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13686,7 +13686,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e3f67c59-3391-445d-9629-f215f8495484",
+                    "id": "98a32e44-5988-42c3-acc1-65a2991af58a",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14379,7 +14379,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7bdfdf32-45d7-4724-9e97-ad4762cc5642",
+                    "id": "ee98c34c-1121-4289-9f75-7e95df42bba5",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16330,10 +16330,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "50a3a1dd-2ec2-40a3-9588-7cad8377b515",
+                    "id": "525c416e-4c87-43ec-82e8-f609b8560689",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-09-05",
+                      "dateRequestAccepted": "2024-09-10",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
