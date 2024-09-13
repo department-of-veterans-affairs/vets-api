@@ -176,6 +176,11 @@ en:
         detail: The external service sent back an internal server error
         code: 500
         status: 500
+      timeout:
+        <<: *defaults
+        title: Net::ReadTimeout
+        code: 500
+        status: 500
       bad_gateway:
         <<: *defaults
         title: Bad Gateway

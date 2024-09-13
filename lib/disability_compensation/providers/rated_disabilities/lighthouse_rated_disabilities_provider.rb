@@ -17,7 +17,7 @@ class LighthouseRatedDisabilitiesProvider
   # @return [integer] the combined disability rating
   def get_combined_disability_rating(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil)
     data = get_data(lighthouse_client_id, lighthouse_rsa_key_path)
-    data.dig('data', 'attributes', 'combined_disability_rating')
+    data&.dig('data', 'attributes', 'combined_disability_rating')
   end
 
   # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse

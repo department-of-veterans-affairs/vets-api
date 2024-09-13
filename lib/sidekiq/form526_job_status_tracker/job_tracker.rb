@@ -119,7 +119,7 @@ module Sidekiq
       # Metrics and logging for any retryable errors that occurred.
       # Retryable are system recoverable, e.g. an upstream http timeout
       #
-      def retryable_error_handler(error)
+      def btretryable_error_handler(error)
         upsert_job_status(Form526JobStatus::STATUS[:retryable_error], error)
         log_error('retryable_error', error)
         metrics.increment_retryable(error, @is_bdd)
