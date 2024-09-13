@@ -286,6 +286,7 @@ app/models/message_thread_details.rb @department-of-veterans-affairs/vfs-mhv-sec
 app/models/message_thread.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/messaging_preference.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/mhv_opt_in_flag.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/models/mhv_user_account.rb @department-of-veterans-affairs/octo-identity
 app/models/mpi_data.rb @department-of-veterans-affairs/octo-identity
 app/models/old_email.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/onsite_notification.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1561,6 +1562,7 @@ spec/models/ivc_champva_forms_spec.rb @department-of-veterans-affairs/champva-en
 spec/models/lighthouse526_document_upload_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/message_spec.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/mhv_opt_in_flag_spec.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/models/mhv_user_account_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/mpi_data_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/onsite_notification_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/persistent_attachments @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/pensions @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
