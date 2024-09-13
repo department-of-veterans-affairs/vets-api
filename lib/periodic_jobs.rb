@@ -2,7 +2,7 @@
 
 # @see https://crontab.guru/
 # @see https://en.wikipedia.org/wiki/Cron
-PERIODIC_JOBS = lambda { |mgr|
+PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
   # Runs at midnight every Tuesday
@@ -152,6 +152,9 @@ PERIODIC_JOBS = lambda { |mgr|
 
   # Monthly report of submissions
   mgr.register('00 00 1 * *', 'ClaimsApi::ReportMonthlySubmissions')
+
+  # Daily find POAs caching
+  mgr.register('0 2 * * *', 'ClaimsApi::FindPoasJob')
 
   # TODO: Document this job
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
