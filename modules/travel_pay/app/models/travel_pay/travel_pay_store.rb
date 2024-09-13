@@ -4,13 +4,14 @@ require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 
 module TravelPay
-  class TravelPayTokenStore < Common::RedisStore
+  class TravelPayStore < Common::RedisStore
     # include Common::CacheAside
-    redis_store REDIS_CONFIG[:travel_pay_token_store][:namespace]
-    redis_ttl REDIS_CONFIG[:travel_pay_token_store][:each_ttl]
+    redis_store REDIS_CONFIG[:travel_pay_store][:namespace]
+    redis_ttl REDIS_CONFIG[:travel_pay_store][:each_ttl]
     redis_key :account_uuid
 
     attribute :account_uuid, String
-    attribute :tokens, Hash
+    attribute :veis_token, String
+    attribute :btsss_token, String
   end
 end

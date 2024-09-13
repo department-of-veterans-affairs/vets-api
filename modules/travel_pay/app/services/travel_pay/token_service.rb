@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../models/travel_pay/travel_pay_cache'
+require_relative '../../models/travel_pay/travel_pay_store'
 
 module TravelPay
   class TokenService
@@ -30,11 +30,11 @@ module TravelPay
     private
 
     def cached_by_account_uuid(account_uuid)
-      TravelPayTokenStore.find(account_uuid)
+      TravelPayStore.find(account_uuid)
     end
 
     def save_tokens!(account_uuid, tokens)
-      token_store = TravelPayTokenStore.new(
+      token_store = TravelPayStore.new(
         account_uuid:,
         tokens:
       )
@@ -46,7 +46,7 @@ module TravelPay
     end
 
     def redis
-      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:travel_pay_token_store][:namespace], redis: $redis)
+      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:travel_pay_store][:namespace], redis: $redis)
     end
   end
 end
