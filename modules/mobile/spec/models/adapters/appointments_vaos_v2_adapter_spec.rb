@@ -723,6 +723,31 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   ### unit tests ###
   ##################
 
+  describe 'passthrough values' do
+    it 'sets them to the upstream value withou modification', :aggregate_failures do
+      overrides = {
+        ien: 'IEN 1',
+        patient_comments: 'COMMENT',
+        physical_location: 'NYC',
+        reason_for_appointment: 'REASON',
+        preferred_times_for_phone_call: 'WHENEVER'
+      }
+      appt = appointment_by_id(booked_va_id, overrides:)
+      expect(appt.id).to eq(booked_va_id)
+      expect(appt.appointment_ien).to eq('IEN 1')
+      expect(appt.comment).to eq('COMMENT')
+      expect(appt.healthcare_service).to eq(nil) # always nil
+      expect(appt.physical_location).to eq('NYC')
+      expect(appt.minutes_duration).to eq(30)
+      expect(appt.reason).to eq('REASON')
+      expect(appt.best_time_to_call).to eq('WHENEVER')
+    end
+  end
+
+  describe 'appointment_type' do
+
+  end
+
   describe 'cancel_id' do
     context 'when telehealth appointment and cancellable is true' do
       it 'is nil' do
@@ -747,7 +772,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   describe 'facility_id and sta6aid' do
     it 'is set to the result of convert_from_non_prod_id' do
-      allow(Mobile::V0::Appointment).to receive(:convert_from_non_prod_id!).and_return('anything')
+      # this method is tested in the appointments model
+      expect(Mobile::V0::Appointment).to receive(:convert_from_non_prod_id!).and_return('anything')
       appt = appointment_by_id(home_va_id)
       expect(appt.facility_id).to eq('anything')
       expect(appt.sta6aid).to eq('anything')
@@ -937,8 +963,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
     context 'with no timezone' do
       it 'falls back to hardcoded timezone lookup' do
-        # overriding location id to prevent test from passing if timezone removal fails
-        # which is what was previously happening
+        # overriding location id to prevent false positives
         no_timezone_appt = appointment_by_id(
           cancelled_va_id,
           overrides: { location_id: '358' },
@@ -1109,7 +1134,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       end
     end
 
-    context 'when service category is present' do
+    context 'when service category is not present' do
       it 'is set to nil' do
         appt = appointment_by_id(booked_cc_id)
         expect(appt.service_category_name).to be_nil
