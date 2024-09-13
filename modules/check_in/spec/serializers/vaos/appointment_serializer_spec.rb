@@ -7,72 +7,72 @@ RSpec.describe CheckIn::VAOS::AppointmentSerializer do
 
   context 'for valid vaos clinic appointment data' do
     let(:vaos_clinic_appointment_data) do
-    '{
-      "data": [
-        {
-          "id": "180766",
-          "identifier": [
-            {
-              "system": "Appointment/",
-              "value": "413938333130383736"
+      '{
+        "data": [
+          {
+            "id": "180766",
+            "identifier": [
+              {
+                "system": "Appointment/",
+                "value": "413938333130383736"
+              }
+            ],
+            "kind": "clinic",
+            "status": "booked",
+            "serviceType": "amputation",
+            "patientIcn": "1013125218V696863",
+            "locationId": "983GC",
+            "clinic": "1081",
+            "start": "2023-11-13T16:00:00Z",
+            "end": "2023-11-13T16:30:00Z",
+            "minutesDuration": 30,
+            "facility": {
+              "name": "abc facility",
+              "vistaSite": "534",
+              "timezone": { "timeZoneId": "America/New York" },
+              "phone": { "main": "843-577-5011" }
+            },
+            "clinicInfo":{
+              "data": {
+                "serviceName": "CHS NEUROSURGERY VARMA",
+                "physicalLocation": "1ST FL SPECIALTY MODULE 2",
+                "friendlyName": "CHS NEUROSURGERY VARMA"
+              }
             }
-          ],
-          "kind": "clinic",
-          "status": "booked",
-          "serviceType": "amputation",
-          "patientIcn": "1013125218V696863",
-          "locationId": "983GC",
-          "clinic": "1081",
-          "start": "2023-11-13T16:00:00Z",
-          "end": "2023-11-13T16:30:00Z",
-          "minutesDuration": 30,
-          "facility": {
-            "name": "abc facility",
-            "vistaSite": "534",
-            "timezone": { "timeZoneId": "America/New York" },
-            "phone": { "main": "843-577-5011" }
           },
-          "clinicInfo":{
-            "data": {
-              "serviceName": "CHS NEUROSURGERY VARMA",
-              "physicalLocation": "1ST FL SPECIALTY MODULE 2",
-              "friendlyName": "CHS NEUROSURGERY VARMA"
+          {
+            "id": "180770",
+            "identifier": [
+              {
+                "system": "Appointment/",
+                "value": "413938333130383736"
+              }
+            ],
+            "kind": "clinic",
+            "status": "booked",
+            "serviceType": "amputation",
+            "patientIcn": "1013125218V696863",
+            "locationId": "983GC",
+            "clinic": "1081",
+            "start": "2023-11-13T16:00:00Z",
+            "end": "2023-11-13T16:30:00Z",
+            "minutesDuration": 30,
+            "facility": {
+              "name": "def facility",
+              "vistaSite": "909",
+              "timezone": { "timeZoneId": "America/New York" },
+              "phone": { "main": "843-577-5011" }
+            },
+            "clinicInfo":{
+              "data": {
+                "serviceName": "CaregiverSupport",
+                "physicalLocation": "2360 East Pershing Boulevard",
+                "friendlyName": "CaregiverSupport"
+              }
             }
-          }
-        },
-        {
-          "id": "180770",
-          "identifier": [
-            {
-              "system": "Appointment/",
-              "value": "413938333130383736"
-            }
-          ],
-          "kind": "clinic",
-          "status": "booked",
-          "serviceType": "amputation",
-          "patientIcn": "1013125218V696863",
-          "locationId": "983GC",
-          "clinic": "1081",
-          "start": "2023-11-13T16:00:00Z",
-          "end": "2023-11-13T16:30:00Z",
-          "minutesDuration": 30,
-          "facility": {
-            "name": "def facility",
-            "vistaSite": "909",
-            "timezone": { "timeZoneId": "America/New York" },
-            "phone": { "main": "843-577-5011" }
-          },
-          "clinicInfo":{
-            "data": {
-              "serviceName": "CaregiverSupport",
-              "physicalLocation": "2360 East Pershing Boulevard",
-              "friendlyName": "CaregiverSupport"
-            }
-          }
-         }
-       ]
-    }'
+           }
+         ]
+      }'
     end
     let(:appt_struct_data) do
       struct = JSON.parse(vaos_clinic_appointment_data, object_class: OpenStruct)
@@ -273,9 +273,9 @@ RSpec.describe CheckIn::VAOS::AppointmentSerializer do
       struct.data
     end
     let(:atlas_struct_data) do
-      address = OpenStruct.new(streetAddress: "5929 Georgia Ave NW", city: "Washington",state: "DC", zipCode: "20011",
-                               country: "USA", latitutde: 38.961979, longitude: -77.027908, additionalDetails: "")
-      OpenStruct.new(siteCode: "VFW-DC-20011-02", confirmationCode: "075041", address: address)
+      address = OpenStruct.new(streetAddress: '5929 Georgia Ave NW', city: 'Washington', state: 'DC', zipCode: '20011',
+                               country: 'USA', latitutde: 38.961979, longitude: -77.027908, additionalDetails: '')
+      OpenStruct.new(siteCode: 'VFW-DC-20011-02', confirmationCode: '075041', address:)
     end
     let(:appointment1) do
       {
@@ -291,7 +291,7 @@ RSpec.describe CheckIn::VAOS::AppointmentSerializer do
           end: '2023-11-13T16:30:00Z',
           minutesDuration: 30,
           telehealth: {
-            vvsKind: "ADHOC",
+            vvsKind: 'ADHOC',
             atlas: atlas_struct_data
           },
           extension: {
@@ -454,9 +454,9 @@ RSpec.describe CheckIn::VAOS::AppointmentSerializer do
       struct.data
     end
     let(:atlas_struct_data) do
-      address = OpenStruct.new(streetAddress: "5929 Georgia Ave NW", city: "Washington",state: "DC", zipCode: "20011",
-                               country: "USA", latitutde: 38.961979, longitude: -77.027908, additionalDetails: "")
-      OpenStruct.new(siteCode: "VFW-DC-20011-02", confirmationCode: "075041", address: address)
+      address = OpenStruct.new(streetAddress: '5929 Georgia Ave NW', city: 'Washington', state: 'DC', zipCode: '20011',
+                               country: 'USA', latitutde: 38.961979, longitude: -77.027908, additionalDetails: '')
+      OpenStruct.new(siteCode: 'VFW-DC-20011-02', confirmationCode: '075041', address:)
     end
     let(:appointment1) do
       {
@@ -482,7 +482,7 @@ RSpec.describe CheckIn::VAOS::AppointmentSerializer do
           },
           serviceCategory: [
             {
-              text: "REGULAR"
+              text: 'REGULAR'
             }
           ],
           facilityName: 'abc facility',

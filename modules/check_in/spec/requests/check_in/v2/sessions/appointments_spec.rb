@@ -160,7 +160,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                     patientHasMobileGfe: nil
                   },
                   serviceCategory: [{
-                      text: "REGULAR"
+                    text: 'REGULAR'
                   }],
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
@@ -193,7 +193,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                     patientHasMobileGfe: nil
                   },
                   serviceCategory: [{
-                    text: "REGULAR"
+                    text: 'REGULAR'
                   }],
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
@@ -250,7 +250,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                     patientHasMobileGfe: nil
                   },
                   serviceCategory: [{
-                    text: "REGULAR"
+                    text: 'REGULAR'
                   }],
                   facilityName: nil,
                   facilityVistaSite: nil,
@@ -283,7 +283,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                     patientHasMobileGfe: nil
                   },
                   serviceCategory: [{
-                    text: "REGULAR"
+                    text: 'REGULAR'
                   }],
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
@@ -339,7 +339,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                     patientHasMobileGfe: nil
                   },
                   serviceCategory: [{
-                    text: "REGULAR"
+                    text: 'REGULAR'
                   }],
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
@@ -372,7 +372,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                     patientHasMobileGfe: nil
                   },
                   serviceCategory: [{
-                    text: "REGULAR"
+                    text: 'REGULAR'
                   }],
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
