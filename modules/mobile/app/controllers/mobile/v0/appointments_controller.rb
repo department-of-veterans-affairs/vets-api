@@ -25,7 +25,7 @@ module Mobile
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data), status:
       rescue VAOS::ServiceException => e
-        raise Common::Exceptions::ServiceError.new(detail: e.errors.first&.detail)
+        raise Common::Exceptions::BadGateway.new(detail: e.errors.first&.detail)
       end
 
       def cancel
