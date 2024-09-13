@@ -676,6 +676,15 @@ module EVSS
       end
 
       def convert_date_no_day(date)
+        year = date[0, 4]
+        month = date[5, 2]
+        day = date[8, 2]
+
+        # somehow, partial dates with the 'XX' (i.e. "2020-01-XX or 2020-XX-XX") are getting past FE validation
+        # fix here in the backend while a proper FE solution is found
+        return year if month.blank? || month.upcase == 'XX'
+        return "#{year}-#{month}" if day.blank? || day.upcase == 'XX'
+
         Date.parse(date).strftime('%Y-%m')
       end
     end
