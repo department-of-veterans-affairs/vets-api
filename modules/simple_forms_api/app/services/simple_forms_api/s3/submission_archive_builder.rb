@@ -9,14 +9,16 @@ require_relative 'utils'
 module SimpleFormsApi
   module S3
     class SubmissionArchiveBuilder < Utils
-      def initialize(benefits_intake_uuid: nil, submission: nil, **options) # rubocop:disable Lint/MissingSuper
+      def initialize(benefits_intake_uuid:, file_path:, submission:, attachments:, metadata:, **options) # rubocop:disable Lint/MissingSuper
+        raise 'No benefits_intake_uuid was provided' unless benefits_intake_uuid
+
+        @benefits_intake_uuid = benefits_intake_uuid
+        @file_path = file_path || rebuilt_submission.file_path
+        @submission = submission || rebuilt_submission.submission
+        @attachments = attachments || rebuilt_submission.attachments
+        @metadata = metadata || rebuilt_submission.metadata
+
         defaults = default_options.merge(options)
-
-        @submission = submission || FormSubmission.find_by(benefits_intake_uuid:)
-        raise 'Submission was not found' unless @submission
-
-        @benefits_intake_uuid = @submission.benefits_intake_uuid
-
         assign_instance_variables(defaults)
       end
 
@@ -27,7 +29,7 @@ module SimpleFormsApi
 
         temp_directory_path
       rescue => e
-        handle_error("Failed building submission: #{submission.id}", e, { benefits_intake_uuid: })
+        handle_error("Failed building submission: #{benefits_intake_uuid}", e)
       end
 
       private
@@ -37,12 +39,9 @@ module SimpleFormsApi
 
       def default_options
         {
-          attachments: [], # an array of attachment confirmation codes
-          file_path: nil, # file path for the PDF file to be archived
           include_json_archive: true, # include the form data as a JSON object
           include_manifest: true, # include a CSV file containing manifest data
-          include_text_archive: true, # include the form data as a text file
-          metadata: {} # pertinent metadata for original file upload/submission
+          include_text_archive: true # include the form data as a text file
         }
       end
 
@@ -56,42 +55,11 @@ module SimpleFormsApi
       end
 
       def write_pdf
-        write_tempfile(submission_pdf_filename, File.read(generate_pdf_content))
+        write_tempfile(submission_pdf_filename, File.read(file_path))
       end
 
-      # TODO: this will be pulled out to be more team agnostic
-      def generate_pdf_content
-        file_path || create_pdf_content
-      end
-
-      def create_pdf_content
-        form_number = SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[submission.form_type]
-        form = "SimpleFormsApi::#{form_number.titleize.delete(' ')}".constantize.new(form_data_hash)
-        filler = SimpleFormsApi::PdfFiller.new(form_number:, form:)
-
-        generate_file_data(filler, form, form_number)
-      end
-
-      def generate_file_data(filler, form, form_number)
-        @file_path = filler.generate(timestamp: submission.created_at).tap do |path|
-          validate_metadata(form)
-          handle_attachments(form, form_number, path)
-        end
-      end
-
-      def validate_metadata(form)
-        @metadata = SimpleFormsApiSubmission::MetadataValidator.validate(
-          form.metadata,
-          zip_code_is_us_based: form.zip_code_is_us_based
-        )
-      end
-
-      def handle_attachments(form, form_number, path)
-        if %w[vba_40_0247 vba_40_10007].include?(form_number)
-          form.handle_attachments(path)
-        elsif form_number == 'vba_20_10207'
-          @attachments = form.get_attachments
-        end
+      def rebuilt_submission
+        @rebuilt_submission ||= SubmissionBuilder.new(benefits_intake_uuid:)
       end
 
       def form_data_hash
@@ -125,11 +93,10 @@ module SimpleFormsApi
         handle_upload_error(e)
       end
 
-      # TODO: PDF attachments are the only attachment type that can be processed, change this
       def process_attachment(attachment_number, guid)
         log_info("Processing attachment ##{attachment_number}: #{guid}")
         attachment = PersistentAttachment.find_by(guid:).to_pdf
-        raise 'Local record not found' unless attachment
+        raise "Attachment was not found: #{guid}" unless attachment
 
         write_tempfile("attachment_#{attachment_number}.pdf", attachment)
       rescue => e
