@@ -1696,3 +1696,7 @@ features:
   mgib_verifications_maintenance:
     actor_type: user
     description: Used to show  maintenance alert for MGIB Verifications
+  use_updated_search_api_endpoint:
+    actor_type: cookie_id
+    description: Swaps the Search.gov base url with an update api.gsa.gov address
+    enabled_in_development: true

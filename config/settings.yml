@@ -903,13 +903,20 @@ search:
   mock_search: false
   url: https://search.usa.gov/api/v2
 
+# Settings for search using updated url 
+search_gsa:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  mock_search: false
+  url: https://api.gsa.gov/technology/searchgov/v2
+
 # Settings for search-typeahead
 search_typeahead:
   api_key: API_GOV_ACCESS_KEY
   name: va
   url: https://api.gsa.gov/technology/searchgov/v1
 
-  # Settings for search-click-tracking
+# Settings for search-click-tracking
 search_click_tracking:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va

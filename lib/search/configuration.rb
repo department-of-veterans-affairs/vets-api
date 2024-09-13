@@ -7,7 +7,7 @@ module Search
     self.read_timeout = 30
 
     def connection
-      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
+      @conn ||= Faraday.new(search_url, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use      :breakers
         faraday.use      Faraday::Response::RaiseError
 
@@ -18,12 +18,13 @@ module Search
       end
     end
 
+    # Useful for local development testing, see docs/setup/betamocks.md for more info
     def mock_enabled?
-      Settings.search.mock_search || false
+      false
     end
 
-    def base_path
-      "#{Settings.search.url}/search/i14y"
+    def search_url
+      Flipper.enabled?(:use_updated_search_api_endpoint) ? Settings.search_gsa.url : Settings.search.url
     end
 
     def service_name
