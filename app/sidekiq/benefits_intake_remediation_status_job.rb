@@ -2,19 +2,28 @@
 
 require 'lighthouse/benefits_intake/service'
 
+# Reporting job for Lighthouse Benefit Intake Failures
+# @see https://vagov.ddog-gov.com/dashboard/8zk-ja2-xvm/benefits-intake-submission-remediation-report
 class BenefitsIntakeRemediationStatusJob
   include Sidekiq::Job
 
   sidekiq_options retry: false
 
+  # metrics key
   STATS_KEY = 'api.benefits_intake.remediation_status'
+
+  # job batch size
   BATCH_SIZE = Settings.lighthouse.benefits_intake.report.batch_size || 1000
 
+  # create an instance
   def initialize(batch_size: BATCH_SIZE)
     @batch_size = batch_size
     @total_handled = 0
   end
 
+  # search all submissions for outstanding failures
+  # poll LH endpoint to see if status has changed (case if endpoint had an error initially)
+  # report stats on submissions, grouped by form-type
   def perform
     Rails.logger.info('BenefitsIntakeRemediationStatusJob started')
 
@@ -32,6 +41,12 @@ class BenefitsIntakeRemediationStatusJob
 
   attr_reader :batch_size, :total_handled
 
+  # determine if a claim has an outstanding failure
+  # each claim can have multiple FormSubmission, which can have multiple FormSubmissionAttempt
+  # conflate these and search for a non-failure, which rejects the claim from the list
+  #
+  # @param submissions [Array<FormSubmission>]
+  #
   def outstanding_failures(submissions)
     failures = submissions.group_by(&:saved_claim_id)
     failures.map do |_claim_id, fs|
@@ -42,6 +57,11 @@ class BenefitsIntakeRemediationStatusJob
     end.compact
   end
 
+  # perform a bulk_status check in Lighthouse to retrieve current statuses
+  # a processing error will abort the job (no retries)
+  #
+  # @param failures [Array<FormSubmission>] submissions with only 'failure' statuses
+  #
   def batch_process(failures)
     intake_service = BenefitsIntake::Service.new
 
@@ -61,6 +81,11 @@ class BenefitsIntakeRemediationStatusJob
                                                                                     message: e.message)
   end
 
+  # process response from Lighthouse to update outstanding failures
+  #
+  # @param response_date [Hash] Lighthouse Benefits Intake API response
+  # @param failure_batch [Array<FormSubmission>] current batch being processed
+  #
   def handle_response(response_data, failure_batch)
     response_data.each do |submission|
       uuid = submission['id']
@@ -84,7 +109,12 @@ class BenefitsIntakeRemediationStatusJob
     end
   end
 
+  # gather metrics - grouped by form type
+  # - unsubmitted: list of SavedClaim ids that do not have a FormSubmission record
+  # - orphaned: list of saved_claim_ids with a FormSubmission, but no SavedClaim
+  # - failures:  list of outstanding failures
   def submission_audit
+    # requery form_submissions in case there was an update
     form_submissions = FormSubmission.includes(:form_submission_attempts)
     form_submission_groups = form_submissions.all.group_by(&:form_type)
 
