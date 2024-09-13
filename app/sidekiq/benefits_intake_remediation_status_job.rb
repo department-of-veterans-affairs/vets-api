@@ -30,8 +30,7 @@ class BenefitsIntakeRemediationStatusJob
 
   private
 
-  attr_reader :batch_size
-  attr_accessor :total_handled
+  attr_reader :batch_size, :total_handled
 
   def outstanding_failures(submissions)
     failures = submissions.group_by(&:saved_claim_id)
@@ -81,7 +80,7 @@ class BenefitsIntakeRemediationStatusJob
         form_submission_attempt.remediate!
       end
 
-      total_handled + 1
+      @total_handled = total_handled + 1
     end
   end
 
@@ -99,10 +98,9 @@ class BenefitsIntakeRemediationStatusJob
       orphaned = fs_saved_claim_ids - claim_ids
 
       failures = outstanding_failures(submissions)
-      failures = failures.group_by(&:saved_claim_id)
-      failures.each do |claim_id, fs|
+      failures.map! do |fs|
         last_attempt = fs.form_submission_attempts.max_by(&:created_at)
-        failures[claim_id] = [fs.benefits_intake_uuid, last_attempt.error_message]
+        { claim_id: fs.saved_claim_id, uuid: fs.benefits_intake_uuid, error_message: last_attempt.error_message }
       end
 
       StatsD.set("#{STATS_KEY}.#{form_id}.unsubmitted_claims", unsubmitted.length)
