@@ -12,7 +12,6 @@ module VAOS
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
-      AVS_APPT_TEST_ID = '192308'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
@@ -43,10 +42,7 @@ module VAOS
           validate_response_schema(response, 'appointments_index')
           appointments = response.body[:data]
           appointments.each do |appt|
-            prepare_appointment(appt)
-            extract_appointment_fields(appt)
-            merge_clinic(appt) if include[:clinics]
-            merge_facility(appt) if include[:facilities]
+            prepare_appointment(appt, include)
             cnp_count += 1 if cnp?(appt)
           end
 
@@ -65,14 +61,15 @@ module VAOS
       end
 
       # rubocop:enable Metrics/MethodLength
-
-      def get_appointment(appointment_id)
+      def get_appointment(appointment_id, include = {})
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           appointment = response.body[:data]
-          prepare_appointment(appointment)
-          extract_appointment_fields(appointment)
+          # We always fetch facility and clinic information when getting a single appointment
+          include[:facilities] = true
+          include[:clinics] = true
+          prepare_appointment(appointment, include)
           OpenStruct.new(appointment)
         end
       end
@@ -101,6 +98,8 @@ module VAOS
           convert_appointment_time(new_appointment)
           find_and_merge_provider_name(new_appointment) if cc?(new_appointment)
           extract_appointment_fields(new_appointment)
+          merge_clinic(new_appointment)
+          merge_facility(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -119,6 +118,8 @@ module VAOS
             response = update_appointment_vaos(appt_id, status).body
             convert_appointment_time(response)
             extract_appointment_fields(response)
+            merge_clinic(response)
+            merge_facility(response)
             OpenStruct.new(response)
           end
         end
@@ -241,7 +242,7 @@ module VAOS
         get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
       end
 
-      def prepare_appointment(appointment)
+      def prepare_appointment(appointment, include = {})
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
         set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
 
@@ -259,12 +260,19 @@ module VAOS
 
         appointment[:minutes_duration] ||= 60 if appointment[:appointment_type] == 'COMMUNITY_CARE'
 
-        if avs_applicable?(appointment) && Flipper.enabled?(AVS_FLIPPER, user)
+        extract_appointment_fields(appointment)
+
+        if avs_applicable?(appointment, include[:avs]) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)
         end
+
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
         end
+
+        merge_clinic(appointment) if include[:clinics]
+
+        merge_facility(appointment) if include[:facilities]
       end
 
       def find_and_merge_provider_name(appointment)
@@ -398,8 +406,7 @@ module VAOS
       #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
       def fetch_avs_and_update_appt_body(appt)
-        # Testing AVS empty state using the below id - remove after testing is complete
-        if appt[:id] == AVS_APPT_TEST_ID
+        if appt[:id].nil?
           appt[:avs_path] = nil
         else
           avs_link = get_avs_link(appt)
@@ -426,10 +433,10 @@ module VAOS
       # @param appt [Hash] the appointment to check
       # @return [Boolean] true if the appointment is eligible, false otherwise
       #
-      def avs_applicable?(appt)
-        return false if appt.nil? || appt[:status].nil? || appt[:start].nil?
+      def avs_applicable?(appt, avs)
+        return false if appt.nil? || appt[:status].nil? || appt[:start].nil? || avs.nil?
 
-        appt[:status] == 'booked' && appt[:start].to_datetime.past?
+        appt[:status] == 'booked' && appt[:start].to_datetime.past? && avs
       end
 
       # Filters out non-ASCII characters from the reason code text field in the request object body.
