@@ -38,7 +38,7 @@ module Lighthouse
     end
 
     def self.missing_http_status_server_error(error)
-      if error.class == Faraday::TimeoutError
+      if error.instance_of?(Faraday::TimeoutError)
         # we've seen this Faraday error in production so we're adding this to categorize it
         Common::Exceptions::Timeout.new(errors: [{ title: error.class, detail: error.message }])
       else
