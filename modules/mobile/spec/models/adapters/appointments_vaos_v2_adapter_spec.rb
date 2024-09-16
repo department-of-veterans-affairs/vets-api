@@ -159,7 +159,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_GFE')
       end
 
-      it 'sets non-GFE appointments to VA_VIDEO_CONNECT_HOME' do
+      it 'sets home non-GFE appointments to VA_VIDEO_CONNECT_HOME' do
         appt = appointment_by_id(home_va_id)
         expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_HOME')
       end
@@ -191,7 +191,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
 
     context 'when not telehealth appointment and cancellable is true' do
-      it 'is returns the appointment id' do
+      it 'is the appointment id' do
         appt = appointment_by_id(future_request_date_appt_id)
         expect(appt.cancel_id).to eq(future_request_date_appt_id)
       end
@@ -199,7 +199,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   describe 'facility_id and sta6aid' do
-    it 'is set to the result of convert_from_non_prod_id' do
+    it 'are set to the result of convert_from_non_prod_id' do
       # this method is tested in the appointment model and doesn't need to be retested here
       expect(Mobile::V0::Appointment).to receive(:convert_from_non_prod_id!).and_return('anything')
       appt = appointment_by_id(home_va_id)
@@ -417,20 +417,20 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   describe 'proposed_times' do
-    context 'when there are no requested periods' do
-      it 'is set to nil' do
-        # booked appointments never have requested periods
-        appt = appointment_by_id(booked_va_id)
-        expect(appt.proposed_times).to be_nil
-      end
-    end
-
-    context 'request periods that are in the future' do
+    context 'when requested_periods are present' do
       it 'forms a list of dates based on requested_periods' do
         appt = appointment_by_id(future_request_date_appt_id)
         expect(appt.proposed_times).to eq([{ date: '08/20/2022', time: 'PM' },
                                            { date: '08/27/2022', time: 'PM' },
                                            { date: '10/03/2022', time: 'PM' }])
+      end
+    end
+
+    context 'when requested_periods are not present' do
+      it 'is set to nil when there are no requested periods' do
+        # booked appointments never have requested periods
+        appt = appointment_by_id(booked_va_id)
+        expect(appt.proposed_times).to be_nil
       end
     end
   end
@@ -443,7 +443,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       end
     end
 
-    context 'with no timezone' do
+    context 'when timezone is not present in data' do
       it 'falls back to hardcoded timezone lookup' do
         # overriding location id to prevent false positives
         no_timezone_appt = appointment_by_id(
@@ -481,7 +481,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   describe 'status' do
     context 'with known status' do
-      it 'converts status to BOOKED' do
+      it 'converts status to appropriate text' do
         arrived_appt = appointment_by_id(booked_va_id, overrides: { status: 'arrived' })
         expect(arrived_appt.status).to eq('BOOKED')
       end
@@ -510,7 +510,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
 
     context 'when known cancellation reason is provided' do
-      it 'returns appropriate copy' do
+      it 'returns appropriate text' do
         appt = appointment_by_id(cancelled_proposed_va_id)
         expect(appt.status_detail).to eq('CANCELLED BY CLINIC')
       end
@@ -612,7 +612,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
 
     context 'when contact info is present' do
-      it 'is nil' do
+      it 'is set from contact data' do
         appt = appointment_by_id(proposed_cc_id)
         expect(appt.patient_email).to eq('Aarathi.poldass@va.gov')
       end
