@@ -18,7 +18,7 @@ module TravelPay
         # if the btsss token isn't cached, check whether or not the veis token is there
         Rails.logger.info('BTSSS token not cached, requesting new token with existing VEIS token',
                           { request_id: RequestStore.store['request_id'] })
-        request_btsss_token(cached.tokens[:veis_token], current_user)
+        request_btsss_token(cached.veis_token, current_user)
       else
         Rails.logger.info('BTSSS tokens not cached, requesting new tokens',
                           { request_id: RequestStore.store['request_id'] })

@@ -51,12 +51,33 @@ describe TravelPay::TokenService do
         $redis.set("travel-pay-store:#{user.account_uuid}", Oj.dump(cached_tokens))
       end
 
-      it 'returns a hash with a veis_token and a btsss_token' do
+      it 'returns a cached veis_token and btsss_token' do
         service = TravelPay::TokenService.new
         response = service.get_tokens(user)
         cached_tokens => { veis_token:, btsss_token: }
         destructured_cached_tokens = { veis_token:, btsss_token: }
         expect(response).to eq(destructured_cached_tokens)
+      end
+    end
+
+    context 'gets a new btsss token if only veis is cached' do
+      before do
+        $redis.set("travel-pay-store:#{user.account_uuid}", Oj.dump({
+                                                                      account_uuid: user.account_uuid,
+                                                                      veis_token: 'cached_veis_token',
+                                                                      btsss_token: nil
+                                                                    }))
+      end
+
+      it 'returns a cached veis_token and a new btsss_token' do
+        allow_any_instance_of(TravelPay::TokenClient)
+          .to receive(:request_btsss_token)
+          .and_return(tokens[:btsss_token])
+
+        service = TravelPay::TokenService.new
+        response = service.get_tokens(user)
+        expect(response[:veis_token]).to eq(cached_tokens[:veis_token])
+        expect(response[:btsss_token]).to eq(tokens[:btsss_token])
       end
     end
   end
