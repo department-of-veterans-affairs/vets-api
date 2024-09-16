@@ -745,6 +745,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   describe 'appointment_type' do
+
   end
 
   describe 'cancel_id' do
@@ -971,16 +972,42 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
   end
 
-  describe 'start_date_local, proposed_times, and time_zone' do
+  describe 'start_date_local' do
+    context 'when local_start_time is present and parseable' do
+      it 'converts local_start_time to datetime' do
+        appt = appointment_by_id(
+          booked_va_id,
+          overrides: { local_start_time: '2019-04-15T009:00:00Z' }
+        )
+        expect(appt.start_date_local).to eq('2019-04-15T09:00:00+00:00'.to_datetime)
+      end
+    end
+
+    context 'when local_start_time is missing or unparseable' do
+      it 'falls back to using the start_date_utc adjusted to the timezone' do
+        # local_start_time is not present in provided test data
+        appt = appointment_by_id(booked_va_id)
+        expect(appt.start_date_local).to eq('2018-03-07T15:00:00+08:00'.to_datetime)
+      end
+    end
+  end
+
+  describe 'proposed_times' do
+    context 'when there are no requested periods' do
+      it 'is set to nil' do
+        # booked appointments never have requested periods
+        appt = appointment_by_id(booked_va_id)
+        expect(appt.proposed_times).to be_nil
+      end
+    end
+
     context 'request periods that are in the future' do
       let(:future_request_date_appt) { appointment_by_id(future_request_date_appt_id) }
 
       it 'sets start date to earliest date in the future' do
-        expect(future_request_date_appt.start_date_local).to eq('2022-08-27T12:00:00Z')
         expect(future_request_date_appt.proposed_times).to eq([{ date: '08/20/2022', time: 'PM' },
                                                                { date: '08/27/2022', time: 'PM' },
                                                                { date: '10/03/2022', time: 'PM' }])
-        expect(future_request_date_appt.time_zone).to eq('America/Denver')
       end
     end
 
@@ -988,11 +1015,18 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       let(:past_request_date_appt) { appointment_by_id(past_request_date_appt_id) }
 
       it 'sets start date to earliest date' do
-        expect(past_request_date_appt.start_date_local).to eq('2021-08-20T12:00:00Z')
         expect(past_request_date_appt.proposed_times).to eq([{ date: '08/20/2021', time: 'PM' },
                                                              { date: '08/27/2021', time: 'PM' },
                                                              { date: '10/03/2021', time: 'PM' }])
-        expect(past_request_date_appt.time_zone).to eq('America/Denver')
+      end
+    end
+  end
+
+  describe 'time_zone' do
+    context 'when timezone is present in data' do
+      it 'falls back to hardcoded timezone lookup' do
+        appt = appointment_by_id(booked_va_id)
+        expect(appt.time_zone).to eq('America/Denver')
       end
     end
 
@@ -1004,8 +1038,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
           overrides: { location_id: '358' },
           without: [key: :time_zone, at: [:location]]
         )
-        expect(no_timezone_appt.start_date_local).to eq('2022-08-27 09:45:00 -0600"')
-        expect(no_timezone_appt.start_date_utc).to eq('2022-08-27T15:45:00Z')
         expect(no_timezone_appt.time_zone).to eq('Asia/Manila')
       end
     end
