@@ -907,6 +907,9 @@ features:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
     enable_in_development: false
+  mobile_allergy_intolerance_model:
+    actor_type: user
+    description: For mobile app, enalbes use of strict models for parsing allergy intolerance
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
