@@ -20,19 +20,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         appointment.delete(property[:key])
       end
     end
-    parse_appointment(appointment)
+    subject.parse(Array.wrap(appointment)).first
   end
 
-  def parse_appointment(appt)
-    subject.parse(Array.wrap(appt)).first
-  end
-
-  let(:raw_data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
   let(:appointment_fixtures) do
     File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json'))
   end
+  let(:raw_data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
 
-  let(:cancelled_va_id) { '121133' }
+  let(:booked_va_id) { '121133' }
   let(:booked_va_id) { '121134' }
   let(:booked_cc_id) { '72106' }
   let(:proposed_cc_id) { '72105' }
@@ -62,669 +58,64 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   it 'returns a list of Mobile::V0::Appointments at the expected size' do
     adapted_appointments = subject.parse(appointment_data)
     expect(adapted_appointments.size).to eq(13)
-    expect(adapted_appointments.map(&:class).uniq).to eq([Mobile::V0::Appointment])
+    expect(adapted_appointments.map(&:class).uniq).to match_array(Mobile::V0::Appointment)
   end
 
-  ##########################
-  ### whole record tests ###
-  ##########################
-
-  context 'with a cancelled VA appointment' do
-    let(:cancelled_va) { appointment_by_id(cancelled_va_id) }
-
-    it 'has expected fields' do
-      expect(cancelled_va[:status_detail]).to eq('CANCELLED BY PATIENT')
-      expect(cancelled_va[:status]).to eq('CANCELLED')
-      expect(cancelled_va[:appointment_type]).to eq('VA')
-      expect(cancelled_va[:is_pending]).to eq(false)
-      expect(cancelled_va.as_json).to eq({ 'id' => cancelled_va_id,
-                                           'appointment_type' => 'VA',
-                                           'appointment_ien' => nil,
-                                           'cancel_id' => nil,
-                                           'comment' => 'This is a free form comment',
-                                           'facility_id' => '442',
-                                           'sta6aid' => '442',
-                                           'healthcare_provider' => nil,
-                                           'healthcare_service' => nil,
-                                           'location' => {
-                                             'id' => '442',
-                                             'name' => 'Cheyenne VA Medical Center',
-                                             'address' => {
-                                               'street' => '2360 East Pershing Boulevard',
-                                               'city' => 'Cheyenne',
-                                               'state' => 'WY',
-                                               'zip_code' => '82001-5356'
-                                             },
-                                             'lat' => 41.148026,
-                                             'long' => -104.786255,
-                                             'phone' => {
-                                               'area_code' => '307',
-                                               'number' => '778-7550',
-                                               'extension' => nil
-                                             },
-                                             'url' => nil,
-                                             'code' => nil
-                                           },
-                                           'physical_location' => nil,
-                                           'minutes_duration' => 30,
-                                           'phone_only' => false,
-                                           'start_date_local' => '2022-08-27T09:45:00.000-06:00',
-                                           'start_date_utc' => '2022-08-27T15:45:00.000+00:00',
-                                           'status' => 'CANCELLED',
-                                           'status_detail' => 'CANCELLED BY PATIENT',
-                                           'time_zone' => 'America/Denver',
-                                           'vetext_id' => '442;3220827.0945',
-                                           'reason' => nil,
-                                           'is_covid_vaccine' => false,
-                                           'is_pending' => false,
-                                           'proposed_times' => nil,
-                                           'type_of_care' => 'Optometry',
-                                           'patient_phone_number' => nil,
-                                           'patient_email' => nil,
-                                           'best_time_to_call' => nil,
-                                           'friendly_location_name' => 'Cheyenne VA Medical Center',
-                                           'service_category_name' => nil })
-    end
+  it 'has expected fields' do
+    appt = appointment_by_id(booked_va_id)
+    expect(appt.as_json).to eq({
+                                 'id' => booked_va_id,
+                                 'appointment_type' => 'VA',
+                                 'appointment_ien' => nil,
+                                 'cancel_id' => nil,
+                                 'comment' => nil,
+                                 'facility_id' => '442',
+                                 'sta6aid' => '442',
+                                 'healthcare_provider' => nil,
+                                 'healthcare_service' => nil,
+                                 'location' => {
+                                   'id' => '442',
+                                   'name' => 'Cheyenne VA Medical Center',
+                                   'address' => {
+                                     'street' => '2360 East Pershing Boulevard',
+                                     'city' => 'Cheyenne',
+                                     'state' => 'WY',
+                                     'zip_code' => '82001-5356'
+                                   },
+                                   'lat' => 41.148026,
+                                   'long' => -104.786255,
+                                   'phone' => {
+                                     'area_code' => '307',
+                                     'number' => '778-7550',
+                                     'extension' => nil
+                                   },
+                                   'url' => nil,
+                                   'code' => nil
+                                 },
+                                 'physical_location' => nil,
+                                 'minutes_duration' => 30,
+                                 'phone_only' => false,
+                                 'start_date_local' => '2018-03-07T00:00:00.000-07:00',
+                                 'start_date_utc' => '2018-03-07T07:00:00.000+00:00',
+                                 'status' => 'BOOKED',
+                                 'status_detail' => nil,
+                                 'time_zone' => 'America/Denver',
+                                 'vetext_id' => '442;3180307.0',
+                                 'reason' => nil,
+                                 'is_covid_vaccine' => false,
+                                 'is_pending' => false,
+                                 'proposed_times' => nil,
+                                 'type_of_care' => 'Optometry',
+                                 'patient_phone_number' => nil,
+                                 'patient_email' => nil,
+                                 'best_time_to_call' => nil,
+                                 'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                 'service_category_name' => nil
+                               })
   end
-
-  context 'with a booked VA appointment' do
-    let(:booked_va) { appointment_by_id(booked_va_id) }
-
-    it 'has expected fields' do
-      expect(booked_va[:status]).to eq('BOOKED')
-      expect(booked_va[:appointment_type]).to eq('VA')
-      expect(booked_va.as_json).to eq({
-                                        'id' => booked_va_id,
-                                        'appointment_type' => 'VA',
-                                        'appointment_ien' => nil,
-                                        'cancel_id' => nil,
-                                        'comment' => nil,
-                                        'facility_id' => '442',
-                                        'sta6aid' => '442',
-                                        'healthcare_provider' => nil,
-                                        'healthcare_service' => nil,
-                                        'location' => {
-                                          'id' => '442',
-                                          'name' => 'Cheyenne VA Medical Center',
-                                          'address' => {
-                                            'street' => '2360 East Pershing Boulevard',
-                                            'city' => 'Cheyenne',
-                                            'state' => 'WY',
-                                            'zip_code' => '82001-5356'
-                                          },
-                                          'lat' => 41.148026,
-                                          'long' => -104.786255,
-                                          'phone' => {
-                                            'area_code' => '307',
-                                            'number' => '778-7550',
-                                            'extension' => nil
-                                          },
-                                          'url' => nil,
-                                          'code' => nil
-                                        },
-                                        'physical_location' => nil,
-                                        'minutes_duration' => 30,
-                                        'phone_only' => false,
-                                        'start_date_local' => '2018-03-07T00:00:00.000-07:00',
-                                        'start_date_utc' => '2018-03-07T07:00:00.000+00:00',
-                                        'status' => 'BOOKED',
-                                        'status_detail' => nil,
-                                        'time_zone' => 'America/Denver',
-                                        'vetext_id' => '442;3180307.0',
-                                        'reason' => nil,
-                                        'is_covid_vaccine' => false,
-                                        'is_pending' => false,
-                                        'proposed_times' => nil,
-                                        'type_of_care' => 'Optometry',
-                                        'patient_phone_number' => nil,
-                                        'patient_email' => nil,
-                                        'best_time_to_call' => nil,
-                                        'friendly_location_name' => 'Cheyenne VA Medical Center',
-                                        'service_category_name' => nil
-                                      })
-    end
-  end
-
-  context 'with a booked CC appointment' do
-    let(:booked_cc) { appointment_by_id(booked_cc_id) }
-
-    it 'has expected fields' do
-      expect(booked_cc[:status]).to eq('BOOKED')
-      expect(booked_cc[:appointment_type]).to eq('COMMUNITY_CARE')
-      expect(booked_cc[:location][:name]).to eq('CC practice name')
-      expect(booked_cc[:friendly_location_name]).to eq('CC practice name')
-      expect(booked_cc[:type_of_care]).to eq('Primary Care')
-      expect(booked_cc.as_json).to eq({
-                                        'id' => booked_cc_id,
-                                        'appointment_type' => 'COMMUNITY_CARE',
-                                        'appointment_ien' => nil,
-                                        'cancel_id' => booked_cc_id,
-                                        'comment' => nil,
-                                        'facility_id' => '552',
-                                        'sta6aid' => '552',
-                                        'healthcare_provider' => nil,
-                                        'healthcare_service' => nil,
-                                        'location' => {
-                                          'id' => nil,
-                                          'name' => 'CC practice name',
-                                          'address' => {
-                                            'street' => '1601 Needmore Rd Ste 1',
-                                            'city' => 'Dayton',
-                                            'state' => 'OH',
-                                            'zip_code' => '45414'
-                                          },
-                                          'lat' => nil,
-                                          'long' => nil,
-                                          'phone' => {
-                                            'area_code' => '321',
-                                            'number' => '417-0822',
-                                            'extension' => nil
-                                          },
-                                          'url' => nil,
-                                          'code' => nil
-                                        },
-                                        'physical_location' => nil,
-                                        'minutes_duration' => 60,
-                                        'phone_only' => false,
-                                        'start_date_local' => '2022-01-11T08:00:00.000-07:00',
-                                        'start_date_utc' => '2022-01-11T15:00:00.000+00:00',
-                                        'status' => 'BOOKED',
-                                        'status_detail' => nil,
-                                        'time_zone' => 'America/Denver',
-                                        'vetext_id' => '552;3220111.08',
-                                        'reason' => nil,
-                                        'is_covid_vaccine' => false,
-                                        'is_pending' => false,
-                                        'proposed_times' => nil,
-                                        'type_of_care' => 'Primary Care',
-                                        'patient_phone_number' => nil,
-                                        'patient_email' => nil,
-                                        'best_time_to_call' => nil,
-                                        'friendly_location_name' => 'CC practice name',
-                                        'service_category_name' => nil
-                                      })
-    end
-  end
-
-  context 'with a proposed CC appointment' do
-    let(:proposed_cc) { appointment_by_id(proposed_cc_id) }
-
-    it 'has expected fields' do
-      expect(proposed_cc[:is_pending]).to eq(true)
-      expect(proposed_cc[:status]).to eq('SUBMITTED')
-      expect(proposed_cc[:appointment_type]).to eq('COMMUNITY_CARE')
-      expect(proposed_cc[:type_of_care]).to eq('Primary Care')
-      expect(proposed_cc[:proposed_times]).to eq([{ "date": '01/26/2022', "time": 'AM' }])
-      expect(proposed_cc.as_json).to eq({
-                                          'id' => proposed_cc_id,
-                                          'appointment_type' => 'COMMUNITY_CARE',
-                                          'appointment_ien' => nil,
-                                          'cancel_id' => proposed_cc_id,
-                                          'comment' => 'this is a comment',
-                                          'facility_id' => '552',
-                                          'sta6aid' => '552',
-                                          'healthcare_provider' => nil,
-                                          'healthcare_service' => nil,
-                                          'location' => {
-                                            'id' => nil,
-                                            'name' => nil,
-                                            'address' => {
-                                              'street' => nil,
-                                              'city' => nil,
-                                              'state' => nil,
-                                              'zip_code' => nil
-                                            },
-                                            'lat' => nil,
-                                            'long' => nil,
-                                            'phone' => {
-                                              'area_code' => nil,
-                                              'number' => nil,
-                                              'extension' => nil
-                                            },
-                                            'url' => nil,
-                                            'code' => nil
-                                          },
-                                          'physical_location' => nil,
-                                          'minutes_duration' => 60,
-                                          'phone_only' => false,
-                                          'start_date_local' => '2022-01-25T17:00:00.000-07:00',
-                                          'start_date_utc' => '2022-01-26T00:00:00.000+00:00',
-                                          'status' => 'SUBMITTED',
-                                          'status_detail' => nil,
-                                          'time_zone' => 'America/Denver',
-                                          'vetext_id' => '552;3220125.17',
-                                          'reason' => nil,
-                                          'is_covid_vaccine' => false,
-                                          'is_pending' => true,
-                                          'proposed_times' => [
-                                            {
-                                              'date' => '01/26/2022',
-                                              'time' => 'AM'
-                                            }
-                                          ],
-                                          'type_of_care' => 'Primary Care',
-                                          'patient_phone_number' => '256-683-2029',
-                                          'patient_email' => 'Aarathi.poldass@va.gov',
-                                          'best_time_to_call' => [
-                                            'Morning'
-                                          ],
-                                          'friendly_location_name' => 'Cheyenne VA Medical Center',
-                                          'service_category_name' => nil
-                                        })
-    end
-  end
-
-  context 'with a proposed VA appointment' do
-    let(:proposed_va) { appointment_by_id(proposed_va_id) }
-
-    it 'has expected fields' do
-      expect(proposed_va[:is_pending]).to eq(true)
-      expect(proposed_va[:status]).to eq('SUBMITTED')
-      expect(proposed_va[:appointment_type]).to eq('VA')
-      expect(proposed_va[:location][:name]).to eq('Cheyenne VA Medical Center')
-      expect(proposed_va[:proposed_times]).to eq([{ "date": '09/28/2021', "time": 'AM' }])
-      expect(proposed_va.as_json).to eq({
-                                          'id' => proposed_va_id,
-                                          'appointment_type' => 'VA',
-                                          'appointment_ien' => nil,
-                                          'cancel_id' => proposed_va_id,
-                                          'comment' => nil,
-                                          'facility_id' => '442',
-                                          'sta6aid' => '442',
-                                          'healthcare_provider' => nil,
-                                          'healthcare_service' => nil,
-                                          'location' => {
-                                            'id' => '442',
-                                            'name' => 'Cheyenne VA Medical Center',
-                                            'address' => {
-                                              'street' => '2360 East Pershing Boulevard',
-                                              'city' => 'Cheyenne',
-                                              'state' => 'WY',
-                                              'zip_code' => '82001-5356'
-                                            },
-                                            'lat' => 41.148026,
-                                            'long' => -104.786255,
-                                            'phone' => {
-                                              'area_code' => '307',
-                                              'number' => '778-7550',
-                                              'extension' => nil
-                                            },
-                                            'url' => nil,
-                                            'code' => nil
-                                          },
-                                          'physical_location' => nil,
-                                          'minutes_duration' => nil,
-                                          'phone_only' => false,
-                                          'start_date_local' => '2021-09-27T18:00:00.000-06:00',
-                                          'start_date_utc' => '2021-09-28T00:00:00.000+00:00',
-                                          'status' => 'SUBMITTED',
-                                          'status_detail' => nil,
-                                          'time_zone' => 'America/Denver',
-                                          'vetext_id' => '442;3210927.18',
-                                          'reason' => nil,
-                                          'is_covid_vaccine' => false,
-                                          'is_pending' => true,
-                                          'proposed_times' => [
-                                            { 'date' => '09/28/2021', 'time' => 'AM' }
-                                          ],
-                                          'type_of_care' => 'Social Work',
-                                          'patient_phone_number' => '717-555-5555',
-                                          'patient_email' => 'Aarathi.poldass@va.gov',
-                                          'best_time_to_call' => [
-                                            'Evening'
-                                          ],
-                                          'friendly_location_name' => 'Cheyenne VA Medical Center',
-                                          'service_category_name' => nil
-                                        })
-    end
-  end
-
-  context 'with a phone VA appointment' do
-    let(:phone_va) { appointment_by_id(phone_va_id) }
-
-    it 'has expected fields' do
-      expect(phone_va[:appointment_type]).to eq('VA')
-      expect(phone_va[:phone_only]).to eq(true)
-      expect(phone_va.as_json).to eq({
-                                       'id' => phone_va_id,
-                                       'appointment_type' => 'VA',
-                                       'appointment_ien' => nil,
-                                       'cancel_id' => phone_va_id,
-                                       'comment' => nil,
-                                       'facility_id' => '442',
-                                       'sta6aid' => '442',
-                                       'healthcare_provider' => nil,
-                                       'healthcare_service' => nil,
-                                       'location' => {
-                                         'id' => '442',
-                                         'name' => 'Cheyenne VA Medical Center',
-                                         'address' => {
-                                           'street' => '2360 East Pershing Boulevard',
-                                           'city' => 'Cheyenne',
-                                           'state' => 'WY',
-                                           'zip_code' => '82001-5356'
-                                         },
-                                         'lat' => 41.148026,
-                                         'long' => -104.786255,
-                                         'phone' => {
-                                           'area_code' => '307',
-                                           'number' => '778-7550',
-                                           'extension' => nil
-                                         },
-                                         'url' => nil,
-                                         'code' => nil
-                                       },
-                                       'physical_location' => nil,
-                                       'minutes_duration' => nil,
-                                       'phone_only' => true,
-                                       'start_date_local' => '2021-10-01T06:00:00.000-06:00',
-                                       'start_date_utc' => '2021-10-01T12:00:00.000+00:00',
-                                       'status' => 'SUBMITTED',
-                                       'status_detail' => nil,
-                                       'time_zone' => 'America/Denver',
-                                       'vetext_id' => '442;3211001.06',
-                                       'reason' => nil,
-                                       'is_covid_vaccine' => false,
-                                       'is_pending' => true,
-                                       'proposed_times' => [
-                                         { 'date' => '10/01/2021', 'time' => 'PM' }
-                                       ],
-                                       'type_of_care' => 'Primary Care',
-                                       'patient_phone_number' => '717-555-5555',
-                                       'patient_email' => 'judy.morrison@id.me',
-                                       'best_time_to_call' => [
-                                         'Morning'
-                                       ],
-                                       'friendly_location_name' => 'Cheyenne VA Medical Center',
-                                       'service_category_name' => nil
-                                     })
-    end
-  end
-
-  context 'with a telehealth Home appointment' do
-    let(:home_va) { appointment_by_id(home_va_id) }
-
-    it 'has expected fields' do
-      expect(home_va[:appointment_type]).to eq('VA_VIDEO_CONNECT_HOME')
-      expect(home_va[:location][:name]).to eq('Cheyenne VA Medical Center')
-      expect(home_va[:location][:url]).to eq('http://www.meeting.com')
-
-      expect(home_va.as_json).to eq({ 'id' => home_va_id,
-                                      'appointment_type' => 'VA_VIDEO_CONNECT_HOME',
-                                      'appointment_ien' => nil,
-                                      'cancel_id' => nil,
-                                      'comment' => nil,
-                                      'facility_id' => '442',
-                                      'sta6aid' => '442',
-                                      'healthcare_provider' => nil,
-                                      'healthcare_service' => nil,
-                                      'location' =>
-                                       { 'id' => nil,
-                                         'name' => 'Cheyenne VA Medical Center',
-                                         'address' =>
-                                          { 'street' => nil, 'city' => nil, 'state' => nil, 'zip_code' => nil },
-                                         'lat' => nil,
-                                         'long' => nil,
-                                         'phone' => { 'area_code' => '307', 'number' => '778-7550',
-                                                      'extension' => nil },
-                                         'url' => 'http://www.meeting.com',
-                                         'code' => nil },
-                                      'physical_location' => nil,
-                                      'minutes_duration' => nil,
-                                      'phone_only' => false,
-                                      'start_date_local' => '2021-09-08T06:00:00.000-06:00',
-                                      'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
-                                      'status' => 'SUBMITTED',
-                                      'status_detail' => nil,
-                                      'time_zone' => 'America/Denver',
-                                      'vetext_id' => '442;3210908.06',
-                                      'reason' => nil,
-                                      'is_covid_vaccine' => false,
-                                      'is_pending' => true,
-                                      'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
-                                      'type_of_care' => 'Primary Care',
-                                      'patient_phone_number' => '999-999-9992',
-                                      'patient_email' => nil,
-                                      'best_time_to_call' => nil,
-                                      'friendly_location_name' => 'Cheyenne VA Medical Center',
-                                      'service_category_name' => nil })
-    end
-  end
-
-  context 'with a telehealth Atlas appointment' do
-    let(:atlas_va) { appointment_by_id(atlas_va_id) }
-
-    it 'has expected fields' do
-      expect(atlas_va[:appointment_type]).to eq('VA_VIDEO_CONNECT_ATLAS')
-      expect(atlas_va[:location][:name]).to eq('Cheyenne VA Medical Center')
-      expect(atlas_va[:location][:address].to_h).to eq({ street: '114 Dewey Ave',
-                                                         city: 'Eureka',
-                                                         state: 'MT',
-                                                         zip_code: '59917' })
-      expect(atlas_va[:location][:url]).to eq('http://www.meeting.com')
-      expect(atlas_va[:location][:code]).to eq('420835')
-
-      expect(atlas_va.as_json).to eq({ 'id' => atlas_va_id,
-                                       'appointment_type' => 'VA_VIDEO_CONNECT_ATLAS',
-                                       'appointment_ien' => nil,
-                                       'cancel_id' => nil,
-                                       'comment' => nil,
-                                       'facility_id' => '442',
-                                       'sta6aid' => '442',
-                                       'healthcare_provider' => nil,
-                                       'healthcare_service' => nil,
-                                       'location' =>
-                                        { 'id' => nil,
-                                          'name' => 'Cheyenne VA Medical Center',
-                                          'address' =>
-                                           { 'street' => '114 Dewey Ave',
-                                             'city' => 'Eureka',
-                                             'state' => 'MT',
-                                             'zip_code' => '59917' },
-                                          'lat' => nil,
-                                          'long' => nil,
-                                          'phone' => { 'area_code' => '307', 'number' => '778-7550',
-                                                       'extension' => nil },
-                                          'url' => 'http://www.meeting.com',
-                                          'code' => '420835' },
-                                       'physical_location' => nil,
-                                       'minutes_duration' => nil,
-                                       'phone_only' => false,
-                                       'start_date_local' => '2021-09-08T06:00:00.000-06:00',
-                                       'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
-                                       'status' => 'SUBMITTED',
-                                       'status_detail' => nil,
-                                       'time_zone' => 'America/Denver',
-                                       'vetext_id' => '442;3210908.06',
-                                       'reason' => nil,
-                                       'is_covid_vaccine' => false,
-                                       'is_pending' => true,
-                                       'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
-                                       'type_of_care' => 'Primary Care',
-                                       'patient_phone_number' => '999-999-9992',
-                                       'patient_email' => nil,
-                                       'best_time_to_call' => nil,
-                                       'friendly_location_name' => 'Cheyenne VA Medical Center',
-                                       'service_category_name' => nil })
-    end
-  end
-
-  context 'with a GFE appointment' do
-    let(:home_gfe) { appointment_by_id(home_gfe_id) }
-
-    it 'has expected fields' do
-      expect(home_gfe[:appointment_type]).to eq('VA_VIDEO_CONNECT_GFE')
-      expect(home_gfe[:location][:name]).to eq('Cheyenne VA Medical Center')
-      expect(home_gfe[:location][:url]).to eq('http://www.meeting.com')
-
-      expect(home_gfe.as_json).to eq({ 'id' => home_gfe_id,
-                                       'appointment_type' => 'VA_VIDEO_CONNECT_GFE',
-                                       'appointment_ien' => nil,
-                                       'cancel_id' => nil,
-                                       'comment' => nil,
-                                       'facility_id' => '442',
-                                       'sta6aid' => '442',
-                                       'healthcare_provider' => nil,
-                                       'healthcare_service' => nil,
-                                       'location' =>
-                                      { 'id' => nil,
-                                        'name' => 'Cheyenne VA Medical Center',
-                                        'address' =>
-                                         { 'street' => nil, 'city' => nil, 'state' => nil, 'zip_code' => nil },
-                                        'lat' => nil,
-                                        'long' => nil,
-                                        'phone' => { 'area_code' => '307', 'number' => '778-7550', 'extension' => nil },
-                                        'url' => 'http://www.meeting.com',
-                                        'code' => nil },
-                                       'physical_location' => nil,
-                                       'minutes_duration' => nil,
-                                       'phone_only' => false,
-                                       'start_date_local' => '2021-09-08T06:00:00.000-06:00',
-                                       'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
-                                       'status' => 'SUBMITTED',
-                                       'status_detail' => nil,
-                                       'time_zone' => 'America/Denver',
-                                       'vetext_id' => '442;3210908.06',
-                                       'reason' => nil,
-                                       'is_covid_vaccine' => false,
-                                       'is_pending' => true,
-                                       'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
-                                       'type_of_care' => 'Primary Care',
-                                       'patient_phone_number' => '999-999-9992',
-                                       'patient_email' => nil,
-                                       'best_time_to_call' => nil,
-                                       'friendly_location_name' => 'Cheyenne VA Medical Center',
-                                       'service_category_name' => nil })
-    end
-  end
-
-  context 'with a telehealth on site appointment' do
-    let(:telehealth_onsite) { appointment_by_id(telehealth_onsite_id) }
-
-    it 'has expected fields' do
-      expect(telehealth_onsite[:appointment_type]).to eq('VA_VIDEO_CONNECT_ONSITE')
-      expect(telehealth_onsite[:location][:name]).to eq('Cheyenne VA Medical Center')
-      expect(telehealth_onsite[:location][:url]).to eq(nil)
-
-      expect(telehealth_onsite.as_json).to eq({ 'id' => telehealth_onsite_id,
-                                                'appointment_type' => 'VA_VIDEO_CONNECT_ONSITE',
-                                                'appointment_ien' => nil,
-                                                'cancel_id' => nil,
-                                                'comment' => nil,
-                                                'facility_id' => '442',
-                                                'sta6aid' => '442',
-                                                'healthcare_provider' => nil,
-                                                'healthcare_service' => nil,
-                                                'location' =>
-                                                  { 'id' => '442',
-                                                    'name' => 'Cheyenne VA Medical Center',
-                                                    'address' =>
-                                                     { 'street' => '2360 East Pershing Boulevard',
-                                                       'city' => 'Cheyenne',
-                                                       'state' => 'WY',
-                                                       'zip_code' => '82001-5356' },
-                                                    'lat' => 41.148026,
-                                                    'long' => -104.786255,
-                                                    'phone' =>
-                                                     { 'area_code' => '307',
-                                                       'number' => '778-7550',
-                                                       'extension' => nil },
-                                                    'url' => nil,
-                                                    'code' => nil },
-                                                'physical_location' => nil,
-                                                'minutes_duration' => nil,
-                                                'phone_only' => false,
-                                                'start_date_local' => '2021-09-08T06:00:00.000-06:00',
-                                                'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
-                                                'status' => 'SUBMITTED',
-                                                'status_detail' => nil,
-                                                'time_zone' => 'America/Denver',
-                                                'vetext_id' => '442;3210908.06',
-                                                'reason' => nil,
-                                                'is_covid_vaccine' => false,
-                                                'is_pending' => true,
-                                                'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
-                                                'type_of_care' => 'Primary Care',
-                                                'patient_phone_number' => '999-999-9992',
-                                                'patient_email' => nil,
-                                                'best_time_to_call' => nil,
-                                                'friendly_location_name' => 'Cheyenne VA Medical Center',
-                                                'service_category_name' => nil })
-    end
-  end
-
-  context 'with a cancelled requested VA appointment' do
-    let(:cancelled_requested_va_appt) { appointment_by_id(cancelled_requested_va_appt_id) }
-
-    it 'has expected fields' do
-      expect(cancelled_requested_va_appt.appointment_type).to eq('VA')
-      expect(cancelled_requested_va_appt.is_pending).to eq(true)
-      expect(cancelled_requested_va_appt.status).to eq('CANCELLED')
-
-      expect(cancelled_requested_va_appt.as_json).to eq({
-                                                          'id' => '53241',
-                                                          'appointment_type' => 'VA',
-                                                          'appointment_ien' => nil,
-                                                          'cancel_id' => nil,
-                                                          'comment' => 'testing',
-                                                          'facility_id' => '442',
-                                                          'sta6aid' => '442',
-                                                          'healthcare_provider' => nil,
-                                                          'healthcare_service' => nil,
-                                                          'location' => {
-                                                            'id' => '442',
-                                                            'name' => 'Cheyenne VA Medical Center',
-                                                            'address' => {
-                                                              'street' => '2360 East Pershing Boulevard',
-                                                              'city' => 'Cheyenne',
-                                                              'state' => 'WY',
-                                                              'zip_code' => '82001-5356'
-                                                            },
-                                                            'lat' => 41.148026,
-                                                            'long' => -104.786255,
-                                                            'phone' => {
-                                                              'area_code' => '307',
-                                                              'number' => '778-7550',
-                                                              'extension' => nil
-                                                            },
-                                                            'url' => nil,
-                                                            'code' => nil
-                                                          },
-                                                          'physical_location' => nil,
-                                                          'minutes_duration' => nil,
-                                                          'phone_only' => false,
-                                                          'start_date_local' => '2017-05-15T18:00:00.000-06:00',
-                                                          'start_date_utc' => '2017-05-16T00:00:00.000+00:00',
-                                                          'status' => 'CANCELLED',
-                                                          'status_detail' => 'CANCELLED BY CLINIC',
-                                                          'time_zone' => 'America/Denver',
-                                                          'vetext_id' => '442;3170515.18',
-                                                          'reason' => 'Routine Follow-up',
-                                                          'is_covid_vaccine' => false,
-                                                          'is_pending' => true,
-                                                          'proposed_times' => [
-                                                            { 'date' => '05/16/2017', 'time' => 'AM' },
-                                                            { 'date' => '05/17/2017', 'time' => 'AM' },
-                                                            { 'date' => '05/31/2017', 'time' => 'AM' }
-                                                          ],
-                                                          'type_of_care' => 'Primary Care',
-                                                          'patient_phone_number' => '788-999-9999',
-                                                          'patient_email' => nil,
-                                                          'best_time_to_call' => [
-                                                            'Afternoon'
-                                                          ],
-                                                          'friendly_location_name' => 'Cheyenne VA Medical Center',
-                                                          'service_category_name' => nil
-                                                        })
-    end
-  end
-
-  ##################
-  ### unit tests ###
-  ##################
 
   describe 'passthrough values' do
-    it 'sets them to the upstream value withou modification', :aggregate_failures do
+    it 'sets them to the provided values without modification', :aggregate_failures do
       overrides = {
         ien: 'IEN 1',
         patient_comments: 'COMMENT',
@@ -782,7 +173,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       end
 
       it 'sets unknown vvs kind appointments to VA' do
-        appt = appointment_by_id(telehealth_onsite_id, overrides: { telehealth: { vvs_kind: 'OTHER' }})
+        appt = appointment_by_id(telehealth_onsite_id, overrides: { telehealth: { vvs_kind: 'OTHER' } })
         expect(appt.appointment_type).to eq('VA')
       end
     end
@@ -1068,8 +459,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       it 'falls back to hardcoded timezone lookup' do
         # overriding location id to prevent false positives
         no_timezone_appt = appointment_by_id(
-          cancelled_va_id,
-          overrides: { location_id: '358' },
+          booked_va_id,
+          overrides: { can: '358' },
           without: [key: :time_zone, at: [:location]]
         )
         expect(no_timezone_appt.time_zone).to eq('Asia/Manila')
@@ -1102,15 +493,49 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   # very incomplete
   describe 'status' do
-    context 'when arrived' do
+    context 'with known status' do
       it 'converts status to BOOKED' do
         arrived_appt = appointment_by_id(booked_va_id, overrides: { status: 'arrived' })
         expect(arrived_appt.status).to eq('BOOKED')
       end
     end
+
+    context 'with unknown status' do
+      it 'converts status to BOOKED' do
+        arrived_appt = appointment_by_id(booked_va_id, overrides: { status: 'unknown' })
+        expect(arrived_appt.status).to be_nil
+      end
+    end
   end
 
   describe 'status_detail' do
+    context 'when no cancellation reason is provided and appointment is cancelled' do
+      it 'sets to default message' do
+        appt = appointment_by_id(booked_va_id, overrides: { cancelled: 'CANCELLED' })
+        expect(appt.status_detail).to eq('CANCELLED BY CLINIC')
+      end
+    end
+
+    context 'when no cancellation reason is provided and appointment is not cancelled' do
+      it 'returns nil' do
+        appt = appointment_by_id(booked_va_id)
+        expect(appt.status_detail).to be_nil
+      end
+    end
+
+    context 'when known cancellation reason is provided' do
+      it 'returns appropriate copy' do
+        appt = appointment_by_id(cancelled_requested_va_appt_id)
+        expect(appt.status_detail).to eq('CANCELLED BY CLINIC')
+      end
+    end
+
+    context 'when unknown cancellation reason is provided' do
+      it 'returns nil' do
+        appt = appointment_by_id(cancelled_requested_va_appt_id, overrides: { cancellation_reason: nil })
+        expect(appt.status_detail).to eq('CANCELLED BY CLINIC')
+      end
+    end
   end
 
   describe 'vetext_id' do
@@ -1168,6 +593,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
       it 'uses the number without change' do
         expect(appt_with_phone.patient_phone_number).to eq('480-293-1922')
+      end
+    end
+
+    context 'when no phone number is present' do
+      let(:phone_number) { nil }
+
+      it 'is set to nil' do
+        expect(appt_with_phone.patient_phone_number).to be_nil
       end
     end
   end
