@@ -12,6 +12,8 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
     allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return false
+    allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+      .to receive(:get_auth_token).and_return('some-value-here')
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -208,6 +210,14 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
 
   describe 'benefits documents upload feature flag' do
     let(:power_of_attorney) { create(:power_of_attorney) }
+    let(:errors) do
+      {
+        tag: 'some_tag',
+        message: 'bd rejects your document'
+      }
+    end
+    let(:pdf_path) { 'some/path' }
+    let(:doc_type) { 'L075' }
 
     context 'when the bd upload feature flag is enabled' do
       before do
@@ -227,6 +237,21 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
           action: 'post'
         )
         subject.new.perform(power_of_attorney.id)
+      end
+
+      it 'rescues errors from BD and sets the status to errored' do
+        VCR.use_cassette('claims_api/bd/upload_error') do
+          subject.new.perform(power_of_attorney.id)
+          bd_stub = instance_double(ClaimsApi::BD)
+          allow(ClaimsApi::BD).to receive(:new) { bd_stub }
+          allow(bd_stub).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)
+                                            .and_raise(Common::Exceptions::BackendServiceException.new(errors))
+        rescue => e
+          expect(e.message).to eq('BackendServiceException: {:status=>400, :detail=>nil, :code=>"VA900", :source=>nil}')
+          power_of_attorney.reload
+          expect(power_of_attorney.status).to eq(ClaimsApi::PowerOfAttorney::ERRORED)
+          expect(power_of_attorney.vbms_error_message).to eq(e.message)
+        end
       end
     end
 
