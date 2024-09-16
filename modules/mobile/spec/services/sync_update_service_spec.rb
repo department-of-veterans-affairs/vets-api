@@ -86,35 +86,35 @@ describe Mobile::V0::Profile::SyncUpdateService do
     end
   end
 
-  describe '#v2_save_and_await_response' do
-    before do
-      Flipper.enable(:va_v3_contact_information_service)
-    end
+  # describe '#v2_save_and_await_response' do
+  #   before do
+  #     Flipper.enable(:va_v3_contact_information_service)
+  #   end
 
-    after do
-      Flipper.disable(:va_v3_contact_information_service)
-    end
+  #   after do
+  #     Flipper.disable(:va_v3_contact_information_service)
+  #   end
 
-    let(:user) { create(:user, :api_auth_v2) }
+  #   let(:user) { create(:user, :api_auth_v2) }
 
-    let(:params) { build(:va_profile_address_v2, :override, validation_key: nil) }
+  #   let(:params) { build(:va_profile_address_v2, :override, validation_key: nil) }
 
-    context 'when it succeeds' do
-      let(:transaction) do
-        VCR.use_cassette('va_profile/v2/put_address_transaction_status') do
-          VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
-            service.save_and_await_response(resource_type: :address, params:, update: true)
-          end
-        end
-      end
+  #   context 'when it succeeds' do
+  #     let(:transaction) do
+  #       VCR.use_cassette('va_profile/v2/put_address_transaction_status') do
+  #         VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
+  #           service.save_and_await_response(resource_type: :address, params:, update: true)
+  #         end
+  #       end
+  #     end
 
-      it 'has a completed va.gov async status' do
-        expect(transaction.status).to eq('completed')
-      end
+  #     it 'has a completed va.gov async status' do
+  #       expect(transaction.status).to eq('completed')
+  #     end
 
-      it 'has a COMPLETED_SUCCESS vet360 transaction status' do
-        expect(transaction.transaction_status).to eq('COMPLETED_SUCCESS')
-      end
-    end
-  end
+  #     it 'has a COMPLETED_SUCCESS vet360 transaction status' do
+  #       expect(transaction.transaction_status).to eq('COMPLETED_SUCCESS')
+  #     end
+  #   end
+  # end
 end

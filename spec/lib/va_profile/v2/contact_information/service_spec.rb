@@ -206,10 +206,12 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
           address.address_line1 = '1494 Martin Luther King Rd'
           address.city = 'Fulton'
           address.state_code = 'MS'
-          address.source_date = '2024-08-27T18:51:06.012Z'
+          address.source_system_user = '123498767V234859'
+          address.source_date = '2024-09-16T16:09:37.000Z'
           address.zip_code = '38843'
+          address.effective_start_date = '2024-09-16T16:09:37.000Z'
           response = subject.put_address(address)
-          expect(response.transaction.id).to eq('c99ca731-9141-48a3-b4df-264e55fdbf20')
+          expect(response.transaction.id).to eq('7ac85cf3-b229-4034-9897-25c0ef1411eb')
           expect(response).to be_ok
         end
       end
