@@ -28,13 +28,14 @@ namespace :simple_forms_api do
       delete_temp_file(zip_file_path)
     rescue => e
       puts "Error processing benefits_intake_uuid #{uuid}: #{e.message}"
+      raise e
     end
   end
 end
 
 def zip_directory(dir_path)
   puts "Zipping temporary directory: #{dir_path}"
-  zip_file_path = "#{dir_path}.zip"
+  zip_file_path = "#{dir_path.chop}.zip"
   system("zip -r #{zip_file_path} #{dir_path}")
   zip_file_path
 end
