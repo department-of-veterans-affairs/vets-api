@@ -105,7 +105,11 @@ module EVSS
             send_post_evss_notifications(submission, true)
           rescue => e
             send_post_evss_notifications(submission, false)
-            handle_errors(submission, e)
+            if submission.claims_api?
+              handle_lighthouse_errors(submission, e)
+            else
+              handle_errors(submission, e)
+            end
           end
         end
       end
