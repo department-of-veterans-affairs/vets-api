@@ -6,6 +6,8 @@ module SimpleFormsApi
       attr_reader :file_path, :submission, :attachments, :metadata
 
       def initialize(benefits_intake_uuid:) # rubocop:disable Lint/MissingSuper
+        raise 'No benefits_intake_uuid was provided' unless benefits_intake_uuid
+
         @submission = FormSubmission.find_by(benefits_intake_uuid:)
         @attachments = []
 

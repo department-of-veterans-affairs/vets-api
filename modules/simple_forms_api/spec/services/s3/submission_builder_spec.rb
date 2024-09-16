@@ -34,8 +34,22 @@ RSpec.describe SimpleFormsApi::S3::SubmissionBuilder do
         expect(new.submission).to be(submission)
       end
 
-      it 'generates an empty array for attachments' do
+      it 'defaults to an empty array for attachments' do
         expect(new.attachments).to eq([])
+      end
+
+      it 'generates valid metadata' do
+        expect(new.metadata).to eq(
+          {
+            'veteranFirstName' => 'John',
+            'veteranLastName' => 'Veteran',
+            'fileNumber' => '222773333',
+            'zipCode' => '12345',
+            'source' => 'VA Platform Digital Forms',
+            'docType' => '21-10210',
+            'businessLine' => 'CMP'
+          }
+        )
       end
 
       context 'when the form is 20-10207 and has attachments' do
@@ -48,7 +62,32 @@ RSpec.describe SimpleFormsApi::S3::SubmissionBuilder do
       end
     end
 
-    context 'when benefits_intake_uuid is invalid'
-    context 'when form submission is not VFF in nature'
+    context 'when benefits_intake_uuid is nil' do
+      let(:benefits_intake_uuid) { nil }
+
+      before { allow(FormSubmission).to receive(:find_by).and_call_original }
+
+      it 'raises an error' do
+        expect { new }.to raise_exception('No benefits_intake_uuid was provided')
+      end
+    end
+
+    context 'when benefits_intake_uuid is invalid' do
+      let(:benefits_intake_uuid) { 'complete-nonsense' }
+
+      before { allow(FormSubmission).to receive(:find_by).and_call_original }
+
+      it 'raises an error' do
+        expect { new }.to raise_exception('Submission was not found or invalid')
+      end
+    end
+
+    context 'when the associated form submission is not VFF in nature' do
+      let(:submission) { create(:form_submission, :pending, form_type: '12-34567', form_data:) }
+
+      it 'raises an error' do
+        expect { new }.to raise_exception('Submission cannot be built: Only VFF forms are supported')
+      end
+    end
   end
 end
