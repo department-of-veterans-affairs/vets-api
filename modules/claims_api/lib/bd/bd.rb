@@ -100,7 +100,7 @@ module ClaimsApi
     #
     # @return {parameters, file}
     # rubocop:disable Metrics/ParameterLists
-    def generate_upload_body(claim:, doc_type:, pdf_path:, action:, file_number: nil, original_filename: nil,
+    def generate_upload_body(claim:, doc_type:, pdf_path:, action:, original_filename: nil,
                              pctpnt_vet_id: nil)
       payload = {}
       auth_headers = claim.auth_headers
