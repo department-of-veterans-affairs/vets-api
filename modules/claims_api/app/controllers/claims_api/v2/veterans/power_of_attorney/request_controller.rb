@@ -19,7 +19,7 @@ module ClaimsApi
 
           # if we get here, the only errors not raised are form value validation errors
           if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
 

@@ -30,11 +30,7 @@ module TravelClaim
     end
 
     def initialize(opts)
-      @settings = if Flipper.enabled?('check_in_experience_travel_api_v2_cutover')
-                    Settings.check_in.travel_reimbursement_api_v2
-                  else
-                    Settings.check_in.travel_reimbursement_api
-                  end
+      @settings = Settings.check_in.travel_reimbursement_api_v2
       @check_in = opts[:check_in]
     end
 
