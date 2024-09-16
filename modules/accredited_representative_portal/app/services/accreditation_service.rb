@@ -30,17 +30,22 @@ class AccreditationService
     end
   end
 
+  # NOTE: The interface between GCLAWS/OGC and vets-api is not yet established due to ongoing ESECC and MOU requests.
+  # TODO: Update the service URL based on the actual production and QA URLs once the below issue is resolved. See:
+  # https://github.com/department-of-veterans-affairs/va.gov-team/issues/85933
+  # https://dsva.slack.com/archives/C06ABHUNBRS/p1721769692072489
   # self.service_url: Determines and returns the service URL based on the current environment.
   def self.service_url
-    # TODO: Update the service URL based on the actual production and QA URLs once available.
-    # See ZH 85933: https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/85933
     case Rails.env
     when 'development', 'test'
-      'http://localhost:5000/api/v1/accreditation/applications/form21a' # TODO: Update with OGC URLs
-      # See ZH: https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/87177
+      # NOTE: the below is a temporary URL for development purposes only.
+      # TODO: Update this once ESECC request goes through. See: https://github.com/department-of-veterans-affairs/va.gov-team/
+      'http://localhost:5000/api/v1/accreditation/applications/form21a'
     when 'production'
-      # TODO: Update with actual OGC production URL
-      # See ZH: https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/87177
+      # TODO: Update this once MOU has been signed and the ESECC request has gone through. See:
+      # https://dsva.slack.com/archives/C06ABHUNBRS/p1721769692072489
+      # https://github.com/department-of-veterans-affairs/va.gov-team/issues/85933
+      raise 'Accreditation service URL not configured for production'
     end
   end
 end
