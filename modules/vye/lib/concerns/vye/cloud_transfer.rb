@@ -8,6 +8,7 @@ module Vye
       Vye.settings.s3.to_h.slice(:region, :access_key_id, :secret_access_key)
     end
 
+    # this is the internal bucket. # TODO: rename here and in the settings?
     def bucket
       Vye.settings.s3.bucket
     end
@@ -67,7 +68,18 @@ module Vye
         .contents
         .map { |obj| obj.key unless obj.key.ends_with?('/') }
         .compact
-        .each { |key| s3_client.delete_object(bucket:, key:) }
+        .each { |key| delete_file_from_bucket(bucket, key) }
+    end
+
+    def delete_file_from_bucket(bucket, key)
+      s3_client.delete_object(bucket:, key:)
+    rescue Aws::S3::Errors::NoSuchBucket,
+           Aws::S3::Errors::NoSuchKey,
+           Aws::S3::Errors::AccessDenied,
+           Aws::S3::Errors::ServiceError => e
+      log_exception_to_sentry(e)
+
+      raise
     end
 
     def check_s3_location!(bucket:, path:)
@@ -91,6 +103,19 @@ module Vye
 
         s3_client.put_object(bucket:, key:, body:)
       end
+    end
+
+    # We need to clear out two buckets, scanned and chunked.
+    # in scanned, we are only concerned with removing 2 files,
+    # but in chunked, we want to remove everything.
+    def self.remove_aws_files_from_s3_buckets
+      # remove from the scanned bucket
+      [Vye::BatchTransfer::TimsChunk::FEED_FILENAME, Vye::BatchTransfer::BdnChunk::FEED_FILENAME].each do |filename|
+        delete_file_from_bucket(:internal, "scanned/#{filename}")
+      end
+
+      # remove everything from the chunked bucket
+      clear_from(bucket_sym: :internal, path: 'chunked')
     end
   end
 end
