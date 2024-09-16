@@ -46,7 +46,7 @@ module ClaimsApi
       end
 
       @multipart = true
-      body = generate_upload_body(claim:, doc_type:, pdf_path:, action:, file_number:, original_filename:,
+      body = generate_upload_body(claim:, doc_type:, pdf_path:, action:, original_filename:,
                                   pctpnt_vet_id:)
       res = client.post('documents', body)&.body
 
