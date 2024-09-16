@@ -3,7 +3,7 @@
 module SimpleFormsApi
   module S3
     class SubmissionBuilder < Utils
-      attr_reader :file_path, :submission
+      attr_reader :file_path, :submission, :attachments, :metadata
 
       def initialize(benefits_intake_uuid:) # rubocop:disable Lint/MissingSuper
         @submission = FormSubmission.find_by(benefits_intake_uuid:)
@@ -16,8 +16,6 @@ module SimpleFormsApi
       end
 
       private
-
-      attr_reader :metadata
 
       def rebuild_submission
         form_number = vff_forms_map[submission.form_type]

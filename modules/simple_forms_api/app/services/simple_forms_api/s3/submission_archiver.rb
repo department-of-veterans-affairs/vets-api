@@ -3,6 +3,8 @@
 require 'csv'
 require 'fileutils'
 
+# Built in accordance with the following documentation:
+# https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
 module SimpleFormsApi
   module S3
     class SubmissionArchiver < Utils
