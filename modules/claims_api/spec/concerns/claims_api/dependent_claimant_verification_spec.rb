@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs_service/person_web_service'
 
 class FakeController < ApplicationController
   include ClaimsApi::DependentClaimantVerification
@@ -85,72 +84,38 @@ describe FakeController do
     end
   end
 
-  describe '#validate_poa_code_by_participant_id!' do
-    let(:valid_participant_poa_combo) do
-      { ptcpnt_id: '46004', legacy_poa_cd: '002' }
-    end
+  describe '#validate_poa_code_exists!' do
+    let(:valid_poa_code) { '002' }
 
-    let(:another_valid_participant_poa_combo) do
-      { ptcpnt_id: '46028', legacy_poa_cd: '003' }
-    end
-
-    context 'when the participant_id and poa_code are valid' do
+    context 'when the poa_code is valid' do
       it 'returns nil and does not raise an error' do
         VCR.use_cassette('claims_api/bgs/standard_data_web_service/find_poas') do
           expect do
-            ret = subject.validate_poa_code_by_participant_id!(valid_participant_poa_combo[:ptcpnt_id],
-                                                               valid_participant_poa_combo[:legacy_poa_cd])
-            expect(ret).to eq(nil)
-
-            ret = subject.validate_poa_code_by_participant_id!(another_valid_participant_poa_combo[:ptcpnt_id],
-                                                               another_valid_participant_poa_combo[:legacy_poa_cd])
+            ret = subject.validate_poa_code_exists!(valid_poa_code)
             expect(ret).to eq(nil)
           end.not_to raise_error
         end
       end
     end
 
-    context 'when the participant_id and poa_code are mismatched' do
+    context 'when the poa_code is invalid' do
       it 'raises an error' do
         VCR.use_cassette('claims_api/bgs/standard_data_web_service/find_poas') do
           expect do
-            subject.validate_poa_code_by_participant_id!(valid_participant_poa_combo[:ptcpnt_id],
-                                                         another_valid_participant_poa_combo[:legacy_poa_cd])
+            subject.validate_poa_code_exists!('bad')
           end.to raise_error(Common::Exceptions::UnprocessableEntity)
         end
-      end
-    end
-
-    context 'when the participant_id and poa_code are invalid' do
-      it 'raises an error' do
-        VCR.use_cassette('claims_api/bgs/standard_data_web_service/find_poas') do
-          expect do
-            subject.validate_poa_code_by_participant_id!(123, 'any')
-          end.to raise_error(Common::Exceptions::UnprocessableEntity)
-        end
-      end
-    end
-
-    context 'when the participant_id is blank or nil' do
-      it 'raises an error' do
-        expect do
-          subject.validate_poa_code_by_participant_id!('', 'any')
-        end.to raise_error(Common::Exceptions::UnprocessableEntity)
-
-        expect do
-          subject.validate_poa_code_by_participant_id!(nil, 'any')
-        end.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
 
     context 'when the poa_code is blank or nil' do
       it 'raises an error' do
         expect do
-          subject.validate_poa_code_by_participant_id!(123, '')
+          subject.validate_poa_code_exists!('')
         end.to raise_error(Common::Exceptions::UnprocessableEntity)
 
         expect do
-          subject.validate_poa_code_by_participant_id!(123, nil)
+          subject.validate_poa_code_exists!(nil)
         end.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end

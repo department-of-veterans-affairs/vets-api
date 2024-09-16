@@ -16,8 +16,8 @@ module ClaimsApi
         raise ::Common::Exceptions::UnprocessableEntity.new(detail:)
       end
 
-      def validate_poa_code_by_participant_id!(participant_id, poa_code)
-        return if valid_participant_poa_combo?(participant_id, poa_code)
+      def validate_poa_code_exists!(poa_code)
+        return if valid_poa_code?(poa_code)
 
         raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'The requested POA code could not be found.')
       end
@@ -55,16 +55,16 @@ module ClaimsApi
       end
     end
 
-    def valid_participant_poa_combo?(participant_id, poa_code)
-      return false unless participant_id.present? && poa_code.present?
+    def valid_poa_code?(poa_code)
+      return false if poa_code.blank?
 
       response = FindPOAsService.new.response
 
       return false if response.nil? || !response.is_a?(Array) || response.empty?
 
       response.any? do |poa_participant_pair|
-        normalize(poa_participant_pair[:ptcpnt_id]) == normalize(participant_id) &&
-          normalize(poa_participant_pair[:legacy_poa_cd]) == normalize(poa_code)
+        normalize(poa_participant_pair[:legacy_poa_cd]) == normalize(poa_code) &&
+          poa_participant_pair[:ptcpnt_id].present?
       end
     end
   end

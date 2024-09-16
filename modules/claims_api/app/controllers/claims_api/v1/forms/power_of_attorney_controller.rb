@@ -141,7 +141,7 @@ module ClaimsApi
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
           if Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
-            validate_poa_code_by_participant_id!(target_veteran.participant_id, poa_code)
+            validate_poa_code_exists!(poa_code)
             validate_dependent_by_participant_id!(target_veteran.participant_id,
                                                   form_attributes.dig('claimant', 'firstName'),
                                                   form_attributes.dig('claimant', 'lastName'))
