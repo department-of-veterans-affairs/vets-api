@@ -118,7 +118,7 @@ module ClaimsApi
             source: '/changeOfAddress/dates/endDate'
           )
         end
-        return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
+
         return if change_of_address['dates']['beginDate'].blank? # nothing to check against
 
         # cannot compare invalid dates so need to return here if date is invalid
