@@ -807,6 +807,10 @@ features:
     actor_type: user
     description: Enables MHV integration to point the Medical Records application on VA.gov
     enable_in_development: true
+  mhv_interstitial_enabled:
+    actor_type: user
+    descriptiom: Enables interstitial for upcoming mhv deprecation
+    enable_in_development: false
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
