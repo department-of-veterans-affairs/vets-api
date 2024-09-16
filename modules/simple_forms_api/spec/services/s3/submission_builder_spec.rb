@@ -17,14 +17,14 @@ RSpec.describe SimpleFormsApi::S3::SubmissionBuilder do
   before do
     allow(FormSubmission).to receive(:find_by).and_return(submission)
     allow(SecureRandom).to receive(:hex).and_return('random-letters-n-numbers')
-    allow_any_instance_of(described_class).to receive(:rebuild_submission).and_call_original
+    allow_any_instance_of(described_class).to receive(:hydrate_submission).and_call_original
   end
 
   describe '#initialize' do
     subject(:new) { builder_instance }
 
     context 'when benefits_intake_uuid is valid' do
-      it { is_expected.to have_received(:rebuild_submission) } # rubocop:disable RSpec/SubjectStub
+      it { is_expected.to have_received(:hydrate_submission) } # rubocop:disable RSpec/SubjectStub
 
       it 'generates a valid file_path' do
         expect(new.file_path).to include('/tmp/vba_21_10210-random-letters-n-numbers-tmp.pdf')
