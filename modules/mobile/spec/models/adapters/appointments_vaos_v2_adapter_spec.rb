@@ -745,7 +745,47 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   describe 'appointment_type' do
+    it 'sets phone appointments to VA' do
+      appt = appointment_by_id(phone_va_id)
+      expect(appt.appointment_type).to eq('VA')
+    end
 
+    it 'sets clinic appointments to VA' do
+      appt = appointment_by_id(booked_va_id)
+      expect(appt.appointment_type).to eq('VA')
+    end
+
+    it 'sets CC appointments to COMMUNITY_CARE' do
+      appt = appointment_by_id(booked_cc_id)
+      expect(appt.appointment_type).to eq('COMMUNITY_CARE')
+    end
+
+    context 'telehealth' do
+      it 'sets atlas appointments to VA_VIDEO_CONNECT_ATLAS' do
+        appt = appointment_by_id(atlas_va_id)
+        expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_ATLAS')
+      end
+
+      it 'sets GFE appointments to VA_VIDEO_CONNECT_GFE' do
+        appt = appointment_by_id(home_gfe_id)
+        expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_GFE')
+      end
+
+      it 'sets non-GFE appointments to VA_VIDEO_CONNECT_HOME' do
+        appt = appointment_by_id(home_va_id)
+        expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_HOME')
+      end
+
+      it 'sets onsite appointments to VA_VIDEO_CONNECT_ONSITE' do
+        appt = appointment_by_id(telehealth_onsite_id)
+        expect(appt.appointment_type).to eq('VA_VIDEO_CONNECT_ONSITE')
+      end
+
+      it 'sets unknown vvs kind appointments to VA' do
+        appt = appointment_by_id(telehealth_onsite_id, overrides: { telehealth: { vvs_kind: 'OTHER' }})
+        expect(appt.appointment_type).to eq('VA')
+      end
+    end
   end
 
   describe 'cancel_id' do
@@ -929,17 +969,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   describe 'phone_only' do
     context 'when appointment kind is phone' do
-      let(:appt) { appointment_by_id(booked_va_id, overrides: { kind: 'phone' }) }
-
       it 'is set to true' do
+        appt = appointment_by_id(booked_va_id, overrides: { kind: 'phone' })
         expect(appt.phone_only).to eq(true)
       end
     end
 
     context 'when appointment kind is not phone' do
-      let(:appt) { appointment_by_id(booked_va_id) }
-
       it 'is set to false' do
+        appt = appointment_by_id(booked_va_id)
         expect(appt.phone_only).to eq(false)
       end
     end
@@ -955,17 +993,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
     context 'when start is nil' do
       context 'and request periods that are in the future' do
-        let(:future_request_date_appt) { appointment_by_id(future_request_date_appt_id) }
-
         it 'sets start date to earliest date in the future' do
+          future_request_date_appt = appointment_by_id(future_request_date_appt_id)
           expect(future_request_date_appt.start_date_utc).to eq('2022-08-27T12:00:00Z'.to_datetime)
         end
       end
 
       context 'request periods that are in the past' do
-        let(:past_request_date_appt) { appointment_by_id(past_request_date_appt_id) }
-
         it 'sets start date to earliest date' do
+          past_request_date_appt = appointment_by_id(past_request_date_appt_id)
           expect(past_request_date_appt.start_date_utc).to eq('2021-08-20T12:00:00Z')
         end
       end
@@ -1002,9 +1038,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
 
     context 'request periods that are in the future' do
-      let(:future_request_date_appt) { appointment_by_id(future_request_date_appt_id) }
-
       it 'sets start date to earliest date in the future' do
+        future_request_date_appt = appointment_by_id(future_request_date_appt_id)
         expect(future_request_date_appt.proposed_times).to eq([{ date: '08/20/2022', time: 'PM' },
                                                                { date: '08/27/2022', time: 'PM' },
                                                                { date: '10/03/2022', time: 'PM' }])
@@ -1012,9 +1047,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
 
     context 'request periods that are in the past' do
-      let(:past_request_date_appt) { appointment_by_id(past_request_date_appt_id) }
-
       it 'sets start date to earliest date' do
+        past_request_date_appt = appointment_by_id(past_request_date_appt_id)
         expect(past_request_date_appt.proposed_times).to eq([{ date: '08/20/2021', time: 'PM' },
                                                              { date: '08/27/2021', time: 'PM' },
                                                              { date: '10/03/2021', time: 'PM' }])
