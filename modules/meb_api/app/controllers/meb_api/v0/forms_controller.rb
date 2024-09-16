@@ -16,7 +16,7 @@ module MebApi
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, 'toe')
         claim_letter_response = letter_service.get_claim_letter(claimant_id, 'toe')
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
-        response = claimant_response.status == 201 ? claim_letter_response : claimant_response
+        response = claimant_response.status == 200 ? claim_letter_response : claimant_response
 
         date = Time.now.getlocal
         timestamp = date.strftime('%m/%d/%Y %I:%M:%S %p')

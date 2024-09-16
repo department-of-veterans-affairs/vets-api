@@ -31,6 +31,9 @@ module DebtsApi
             exclude_expenses_by(@other_expenses, [FOOD]),
             exclude_expenses_by(@expense_records, [RENT, MORTGAGE_PAYMENT])
           )
+
+          update_rent_mortgage_tracking_metrics
+
           @all_expenses ||= get_all_expenses
         end
 
@@ -126,6 +129,13 @@ module DebtsApi
           installment_monthly_due = @installment_contracts.pluck('amountDueMonthly')
           credit_card_monthly_due = @credit_card_bills.pluck('amountDueMonthly')
           safe_sum([installment_monthly_due, credit_card_monthly_due].flatten)
+        end
+
+        def update_rent_mortgage_tracking_metrics
+          return unless @new_rent_mortgage_attr.present? || @old_rent_mortgage_attr.present?
+
+          tracking_label = "#{@new_rent_mortgage_attr.present? ? 'new' : 'old'}_rent_mortgage_attr"
+          StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.full_transform.expenses.#{tracking_label}")
         end
       end
     end
