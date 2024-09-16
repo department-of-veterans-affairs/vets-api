@@ -61,6 +61,15 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUser, type: :model 
         expect(representative_user.errors[:icn]).to include(expected_error_message)
       end
     end
+
+    context 'when user_account_uuid is missing' do
+      let(:representative_user) { build(:representative_user, user_account_uuid: nil) }
+
+      it 'is invalid' do
+        expect(representative_user).not_to be_valid
+        expect(representative_user.errors[:user_account_uuid]).to include(expected_error_message)
+      end
+    end
   end
 
   describe 'alias attributes' do
