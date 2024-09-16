@@ -62,7 +62,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 2 * * 0', 'Form526ParanoidSuccessPollingJob')
 
   # Log the state of Form 526 submissions to hydrate Datadog monitor
-  mgr.register('5 4 * * 7', 'Form526StateLoggingJob')
+  mgr.register('0 3 * * *', 'Form526StateLoggingJob')
 
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
@@ -229,4 +229,11 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Clean SavedClaim records that are past delete date
   mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
+
+  # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
+  mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
+  mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
+
+  # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
+  mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
 }
