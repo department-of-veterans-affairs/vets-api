@@ -20,7 +20,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     end
 
     before(:all) do
-      Flipper.disable(va_v3_contact_information_service)
       Flipper.disable(:mobile_lighthouse_letters)
     end
 
@@ -472,7 +471,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     end
 
     before do
-      Flipper.enable(:va_v3_contact_information_service)
       Flipper.disable(:mobile_lighthouse_letters)
       Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
       VCR.insert_cassette('sm_client/session')

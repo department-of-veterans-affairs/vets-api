@@ -196,7 +196,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   describe '#put_address' do
     let(:address) do
-      build(:va_profile_address_v2, vet360_id: user.vet360_id, source_system_user: user.icn)
+      build(:va_profile_address_v2, :override, vet360_id: user.vet360_id, source_system_user: user.icn)
     end
 
     context 'when successful' do

@@ -361,7 +361,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   describe '.start v2' do
     before do
       Flipper.enable(:va_v3_contact_information_service)
-      allow(user).to receive_messages(vet360_id: '1', icn: '1234')
+      allow(user).to receive_messages(vet360_id: '1781151', icn: '1234')
     end
 
     let(:user) { build(:user, :loa3) }

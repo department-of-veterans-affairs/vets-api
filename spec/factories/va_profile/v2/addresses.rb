@@ -3,7 +3,6 @@
 # This will be removed after ContactInformation has been updated
 FactoryBot.define do
   factory :va_profile_address_v2, class: 'VAProfile::Models::V2::Address' do
-    id { '577127' }
     address_line1 { '140 Rock Creek Rd' }
     address_pou { VAProfile::Models::V2::Address::RESIDENCE }
     address_type { VAProfile::Models::V2::Address::DOMESTIC }
@@ -52,7 +51,6 @@ FactoryBot.define do
 
     trait :override do
       address_pou { VAProfile::Models::V2::Address::CORRESPONDENCE }
-      id { 577127 }
       address_line1 { '1494 Martin Luther King Rd' }
       address_line2 { '' }
       city { 'Fulton' }
