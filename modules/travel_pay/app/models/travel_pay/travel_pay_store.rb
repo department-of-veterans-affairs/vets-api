@@ -5,7 +5,6 @@ require 'common/models/concerns/cache_aside'
 
 module TravelPay
   class TravelPayStore < Common::RedisStore
-    # include Common::CacheAside
     redis_store REDIS_CONFIG[:travel_pay_store][:namespace]
     redis_ttl REDIS_CONFIG[:travel_pay_store][:each_ttl]
     redis_key :account_uuid

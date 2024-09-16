@@ -11,6 +11,13 @@ describe TravelPay::TokenService do
         btsss_token: 'fake_btsss_token'
       }
     end
+    let(:cached_tokens) do
+      {
+        account_uuid: user.account_uuid,
+        veis_token: 'cached_veis_token',
+        btsss_token: 'cached_btsss_token'
+      }
+    end
     let(:tokens_response) do
       Faraday::Response.new(
         body: tokens
@@ -31,6 +38,25 @@ describe TravelPay::TokenService do
         response = service.get_tokens(user)
         expect(response).to eq(tokens)
         expect($redis.ttl("travel-pay-store:#{user.account_uuid}")).to eq(3600)
+        saved_tokens = $redis.get("travel-pay-store:#{user.account_uuid}")
+        # The Oj.load method is normally handled by the RedisStore
+        Oj.load(saved_tokens) => { veis_token:, btsss_token: }
+        destructured_tokens = { veis_token:, btsss_token: }
+        expect(destructured_tokens).to eq(tokens)
+      end
+    end
+
+    context 'uses cached tokens' do
+      before do
+        $redis.set("travel-pay-store:#{user.account_uuid}", Oj.dump(cached_tokens))
+      end
+
+      it 'returns a hash with a veis_token and a btsss_token' do
+        service = TravelPay::TokenService.new
+        response = service.get_tokens(user)
+        cached_tokens => { veis_token:, btsss_token: }
+        destructured_cached_tokens = { veis_token:, btsss_token: }
+        expect(response).to eq(destructured_cached_tokens)
       end
     end
   end
