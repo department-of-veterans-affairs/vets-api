@@ -290,7 +290,6 @@ module VAProfile
           with_monitoring do
             vet360_id_present!
             request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
-            binding.pry
             raw_response = perform(method, request_path, model.in_json)
             response_class.from(raw_response)
           end

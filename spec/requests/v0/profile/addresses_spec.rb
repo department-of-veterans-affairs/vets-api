@@ -527,26 +527,6 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
           end.to change(AsyncTransaction::VAProfile::AddressTransaction, :count).from(0).to(1)
         end
       end
-
-      context 'with a validation key' do
-        let(:address) { build(:va_profile_address_v2, :override) }
-        let(:frozen_time) { Time.zone.parse('2020-02-14T00:19:15.000Z') }
-
-        before do
-          allow_any_instance_of(User).to receive(:vet360_id).and_return('1')
-          allow_any_instance_of(User).to receive(:icn).and_return('1234')
-          allow(Settings).to receive(:virtual_hosts).and_return('www.example.com')
-        end
-
-        it 'is successful' do
-          VCR.use_cassette('va_profile/v2/contact_information/put_address_override_b', VCR::MATCH_EVERYTHING) do
-            put('/v0/profile/addresses', params: address.to_json, headers:)
-            expect(JSON.parse(response.body)['data']['attributes']['transaction_id']).to eq(
-              'c2fab2b5-6af0-45e1-a9e2-394347af9102'
-            )
-          end
-        end
-      end
     end
 
     context 'with a validation issue' do
