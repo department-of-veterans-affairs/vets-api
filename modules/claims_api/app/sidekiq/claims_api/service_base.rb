@@ -196,7 +196,7 @@ module ClaimsApi
       power_of_attorney.status = ClaimsApi::PowerOfAttorney::ERRORED
       power_of_attorney.vbms_error_message = e&.message || e&.original_body
       power_of_attorney.save
-      ClaimsApi::Logger.log('PoaVBMSUploadJob', message: "In generic rescue, the error is: #{e}")
+      ClaimsApi::Logger.log('ServiceBase', message: "In generic rescue, the error is: #{e}")
     end
   end
 end
