@@ -21,6 +21,8 @@ module ClaimsApi
       validate_form_526_service_information_confinements!
       # ensure conflicting homelessness values are not provided
       validate_form_526_veteran_homelessness!
+      # ensure that the active duty start date is not prior to the claimants 13th birthday
+      validate_service_after_13th_birthday!
       # ensure 'militaryRetiredPay.receiving' and 'militaryRetiredPay.willReceiveInFuture' are not same non-null values
       validate_form_526_service_pay!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
@@ -228,6 +230,19 @@ module ClaimsApi
         raise ::Common::Exceptions::UnprocessableEntity.new(
           detail: "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is "\
                   "defined, then 'veteran.homelessness.pointOfContact' is required"
+        )
+      end
+    end
+
+    def validate_service_after_13th_birthday!
+      age_thirteen = auth_headers['va_eauth_birthdate'].to_datetime.next_year(13).to_time
+      started_after_age_thirteen = form_attributes['serviceInformation']['servicePeriods'].any? do |period|
+        period['activeDutyBeginDate'] < age_thirteen
+      end
+      if started_after_age_thirteen
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "If any 'serviceInformation.servicePeriods.activeDutyBeginDate' is "\
+                  "before the Veteran's 13th birthdate: #{age_thirteen.to_date}, the claim can not be processed."
         )
       end
     end

@@ -9,7 +9,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-Consumer-Username': 'TestConsumer',
-      'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
+      'X-VA-Birth-Date': '1956-05-06T00:00:00+00:00',
       'X-VA-Gender': 'M' }
   end
   let(:scopes) { %w[claim.write] }
@@ -599,6 +599,21 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               title10ActivationDate: title10_activation_date
             }
           }
+        end
+
+        context "When an activeDutyBeginDate is before a Veteran's 13th birthday" do
+          it 'raise an error' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  headers['X-VA-Birth-Date'] = '1986-05-06T00:00:00+00:00'
+
+                  post path, params: json_data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
         end
 
         context "'title10ActivationDate' validations" do
