@@ -15,36 +15,18 @@ describe Service do
       Rails.root.join('spec', 'fixtures', 'notice_of_disagreements', 'valid_NOD_create_request.json').read
     end
 
-    context 'when an invalid class is passed in' do
-      before do
-        Flipper.enable :decision_review_form_store_saved_claims
-      end
-
-      it 'handles the exception' do
-        expect { described_class.new.store_saved_claim(claim_class: SavedClaim, guid:, form:) }.not_to raise_error
+    context 'when an invalid claim_class is passed in' do
+      it 'throws an exception' do
+        expect { described_class.new.store_saved_claim(claim_class: SavedClaim, guid:, form:) }
+          .to raise_error(RuntimeError, "Invalid class type 'SavedClaim'")
         expect(claim_class.find_by(guid:)).to be_nil
       end
     end
 
-    context 'when flipper is enabled' do
-      before do
-        Flipper.enable :decision_review_form_store_saved_claims
-      end
-
+    context 'when a valid claim_class is passed in' do
       it 'saves the SavedClaim record' do
         described_class.new.store_saved_claim(claim_class:, guid:, form:)
         expect(claim_class.find_by(guid:).form).to eq form
-      end
-    end
-
-    context 'when flipper is disabled' do
-      before do
-        Flipper.disable :decision_review_form_store_saved_claims
-      end
-
-      it 'does not save the SavedClaim record' do
-        described_class.new.store_saved_claim(claim_class:, guid:, form:)
-        expect(claim_class.find_by(guid:)).to be_nil
       end
     end
   end

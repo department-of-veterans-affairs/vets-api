@@ -22,13 +22,17 @@ Rails.application.routes.draw do
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
 
-  get '/sign_in/openid_connect/certs' => 'sign_in/openid_connect_certificates#index'
+  namespace :sign_in do
+    get '/openid_connect/certs', to: 'openid_connect_certificates#index'
 
-  unless Settings.vsp_environment == 'production'
-    namespace :sign_in do
+    unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
     end
+  end
+
+  namespace :sts do
+    get '/terms_of_use/current_status', to: 'terms_of_use#current_status'
   end
 
   namespace :v0, defaults: { format: 'json' } do
@@ -91,7 +95,6 @@ Rails.application.routes.draw do
 
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
-    resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
 
     resource :user, only: [:show] do
@@ -133,10 +136,7 @@ Rails.application.routes.draw do
 
     resources :dependents_verifications, only: %i[create index]
 
-    if Settings.central_mail.upload.enabled
-      resources :pension_claims, only: %i[create show]
-      resources :burial_claims, only: %i[create show]
-    end
+    resources :burial_claims, only: %i[create show] if Settings.central_mail.upload.enabled
 
     post 'form0969', to: 'income_and_assets_claims#create'
     get 'form0969', to: 'income_and_assets_claims#show'
@@ -213,16 +213,6 @@ Rails.application.routes.draw do
     end
 
     resources :appeals, only: :index
-
-    namespace :higher_level_reviews do
-      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
-    end
-    resources :higher_level_reviews, only: %i[create show]
-
-    namespace :notice_of_disagreements do
-      get 'contestable_issues', to: 'contestable_issues#index'
-    end
-    resources :notice_of_disagreements, only: %i[create show]
 
     scope :messaging do
       scope :health do
@@ -413,6 +403,8 @@ Rails.application.routes.draw do
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
+
+    resource :decision_review_evidence, only: :create
 
     namespace :higher_level_reviews do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'

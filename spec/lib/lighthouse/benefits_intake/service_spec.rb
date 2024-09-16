@@ -63,15 +63,13 @@ RSpec.describe BenefitsIntake::Service do
       service.instance_variable_set(:@location, 'location')
       service.instance_variable_set(:@uuid, 'uuid')
 
-      allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_return 'a-temp-file'
+      allow(Common::FileHelpers).to receive(:generate_random_file).and_return 'a-temp-file'
     end
 
     it 'performs the upload' do
       allow(Faraday::UploadIO).to receive(:new).and_return 'a-file-io-object'
 
-      expect(Common::FileHelpers).to(
-        receive(:generate_clamav_temp_file).once.with(metadata.to_json, 'api.benefits_intake.uuid.metadata.json')
-      )
+      expect(Common::FileHelpers).to receive(:generate_random_file).once.with(metadata.to_json)
 
       expect(Faraday::UploadIO).to receive(:new).once.with('a-temp-file', mime_json, 'metadata.json')
       expect(Faraday::UploadIO).to receive(:new).once.with('file-path', mime_pdf, 'file-path')
@@ -94,7 +92,7 @@ RSpec.describe BenefitsIntake::Service do
     it 'errors on invalid JSON metadata' do
       args[:metadata] = 'not a json string'
 
-      expect(Common::FileHelpers).not_to receive(:generate_clamav_temp_file)
+      expect(Common::FileHelpers).not_to receive(:generate_random_file)
       expect(service).not_to receive(:perform)
       expect { service.perform_upload(**args) }.to raise_error JSON::ParserError
     end

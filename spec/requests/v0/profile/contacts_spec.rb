@@ -57,14 +57,14 @@ RSpec.describe 'V0::Profile::Contacts', type: :request do
       end
     end
 
-    context '500 response' do
+    context '500 response from VA Profile' do
       let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
       let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_500' }
 
-      it 'responds with 500 status' do
+      it 'responds with 400 status (excluding 5xx response from SLO)' do
         sign_in_as(user)
         get '/v0/profile/contacts'
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
