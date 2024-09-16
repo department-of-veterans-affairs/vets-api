@@ -146,7 +146,11 @@ module EVSS
             response_handler(response)
           rescue => e
             send_notifications = false
-            handle_errors(submission, e)
+            if submission.claims_api?
+              handle_lighthouse_errors(submission, e)
+            else
+              handle_errors(submission, e)
+            end
           end
 
           if Flipper.enabled?(:disability_compensation_production_tester,
@@ -181,6 +185,35 @@ module EVSS
              Common::Exceptions::GatewayTimeout,
              Breakers::OutageException,
              EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
+        retryable_error_handler(submission, e)
+      rescue EVSS::DisabilityCompensationForm::ServiceException => e
+        # retry submitting the form for specific upstream errors
+        retry_form526_error_handler!(submission, e)
+      rescue => e
+        non_retryable_error_handler(submission, e)
+      end
+
+      def handle_lighthouse_errors(submission, error) # rubocop:disable Metrics/MethodLength
+        if error.instance_of?(Common::Exceptions::UnprocessableEntity)
+          error_clone = error.deep_dup
+          upstream_error = error_clone.errors.first.stringify_keys
+          unless upstream_error['source'].present? && upstream_error['source']['pointer'].present?
+            error = Common::Exceptions::UpstreamUnprocessableEntity.new(errors: error.errors)
+          end
+        end
+        raise error
+      rescue Common::Exceptions::BackendServiceException,
+             Common::Exceptions::Unauthorized, # 401 (UnauthorizedError?)
+             # 422 (UpstreamUnprocessableEntity, i.e. EVSS container validation)
+             Common::Exceptions::UpstreamUnprocessableEntity,
+             Common::Exceptions::TooManyRequests, # 429
+             Common::Exceptions::ClientDisconnected, # 499
+             Common::Exceptions::ExternalServerInternalServerError, # 500
+             Common::Exceptions::NotImplemented, # 501
+             Common::Exceptions::BadGateway, # 502
+             Common::Exceptions::ServiceUnavailable, # 503 (ServiceUnavailableException?)
+             Common::Exceptions::GatewayTimeout, # 504 (already here)
+             Breakers::OutageException => e
         retryable_error_handler(submission, e)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         # retry submitting the form for specific upstream errors

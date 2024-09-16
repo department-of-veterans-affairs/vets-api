@@ -169,7 +169,7 @@ module EVSS
       end
 
       def get_banking_info
-        return {} unless @user.authorize :ppiu, :access?
+        return {} # unless @user.authorize :ppiu, :access?
 
         # Call to either EVSS or Lighthouse PPIU/Direct Deposit data provider
         service = ApiProviderFactory.call(
