@@ -29,11 +29,8 @@ jobs:
 # Exit when pull request is in draft mode
       - name: Exit when draft pull request
         if: |
-          github.event.pull_request.draft == true ||
-          (
             !contains(github.event.pull_request.labels.*.name, 'require-backend-approval') &&
             !contains(github.event.pull_request.labels.*.name, 'omit-backend-approval')
-          )
         run: exit 1
 
 # Find Backend Labels, Approvals and Comments
