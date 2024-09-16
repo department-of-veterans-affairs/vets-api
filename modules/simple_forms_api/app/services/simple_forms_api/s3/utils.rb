@@ -21,8 +21,8 @@ module SimpleFormsApi
         Rails.logger.error(message, details.merge(error: error.message, backtrace: error.backtrace.first(5)))
       end
 
-      def handle_error(message, error, context)
-        log_error(message, error, **context)
+      def handle_error(message, error, **)
+        log_error(message, error, **)
         raise error
       end
 

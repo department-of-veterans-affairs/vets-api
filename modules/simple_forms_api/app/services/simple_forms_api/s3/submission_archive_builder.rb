@@ -9,17 +9,12 @@ require_relative 'utils'
 module SimpleFormsApi
   module S3
     class SubmissionArchiveBuilder < Utils
-      def initialize(benefits_intake_uuid:, **options) # rubocop:disable Lint/MissingSuper
-        raise 'No benefits_intake_uuid was provided' unless benefits_intake_uuid
-
-        @benefits_intake_uuid = benefits_intake_uuid
-        @file_path = options[:file_path] || rebuilt_submission.file_path
-        @submission = options[:submission] || rebuilt_submission.submission
-        @attachments = options[:attachments] || rebuilt_submission.attachments
-        @metadata = options[:metadata] || rebuilt_submission.metadata
-
+      def initialize(**options) # rubocop:disable Lint/MissingSuper
         defaults = default_options.merge(options)
+        hydrate_submission_data(defaults[:benefits_intake_uuid]) unless valid_submission_data?(defaults)
         assign_instance_variables(defaults)
+      rescue => e
+        handle_error('SubmissionArchiveBuilder initialization failed', e)
       end
 
       def run
@@ -37,10 +32,19 @@ module SimpleFormsApi
 
       def default_options
         {
+          attachments: nil,
+          benefits_intake_uuid: nil,
+          file_path: nil,
           include_json_archive: true, # Include the form data as a JSON object
           include_manifest: true,     # Include a CSV file containing manifest data
-          include_text_archive: true  # Include the form data as a text file
+          include_text_archive: true, # Include the form data as a text file
+          metadata: nil,
+          submission: nil
         }
+      end
+
+      def valid_submission_data?(data)
+        data[:submission] && data[:file_path] && data[:attachments] && data[:metadata]
       end
 
       def process_submission_files
@@ -112,8 +116,13 @@ module SimpleFormsApi
         handle_error("Failed writing file #{file_name} for submission: #{benefits_intake_uuid}", e)
       end
 
-      def rebuilt_submission
-        @rebuilt_submission ||= SubmissionBuilder.new(benefits_intake_uuid:)
+      def hydrate_submission_data(benefits_intake_uuid)
+        built_submission = SubmissionBuilder.new(benefits_intake_uuid:)
+        @file_path = built_submission.file_path
+        @submission = built_submission.submission
+        @benefits_intake_uuid = @submission&.benefits_intake_uuid
+        @attachments = built_submission.attachments
+        @metadata = built_submission.metadata
       end
 
       def form_data_hash
