@@ -9,7 +9,7 @@ module Requests
         key :summary, 'Generate a PDF for form 21-22'
         key :operationId, 'createPdfForm2122'
         key :produces, ['application/pdf']
-        key :tags, ['PDF Generator 2122']
+        key :tags, ['PDF Generation']
 
         parameter name: :pdf_generator2122 do
           key :in, :body

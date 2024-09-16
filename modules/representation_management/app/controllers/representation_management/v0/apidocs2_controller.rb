@@ -12,8 +12,8 @@ module RepresentationManagement
         key :swagger, '2.0'
         info do
           key :version, '1.0.0'
-          key :title, 'va.gov API'
-          key :description, 'The API for managing va.gov'
+          key :title, 'va.gov Representation Management API'
+          key :description, 'The API for managing representation for VA Forms 21-22 and 21-22a'
           key :termsOfService, ''
           contact do
             key :name, 'va.gov team'
@@ -26,10 +26,7 @@ module RepresentationManagement
         # Groups/tags are displayed in the order declared here, followed
         # by the order they first appear in the swaggered_classes below, so
         # declare all tags here in desired order.
-        tag do
-          key :name, 'representation_management'
-          key :description, 'Representation Management'
-        end
+
         key :host, Settings.hostname
         key :schemes, %w[https http]
         key :basePath, '/'
