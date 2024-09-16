@@ -28,7 +28,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
   let(:raw_data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
 
-  let(:booked_va_id) { '121133' }
+  # let(:cancelled_va_id) { '121133' }
   let(:booked_va_id) { '121134' }
   let(:booked_cc_id) { '72106' }
   let(:proposed_cc_id) { '72105' }
@@ -429,20 +429,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
 
     context 'request periods that are in the future' do
-      it 'sets start date to earliest date in the future' do
-        future_request_date_appt = appointment_by_id(future_request_date_appt_id)
-        expect(future_request_date_appt.proposed_times).to eq([{ date: '08/20/2022', time: 'PM' },
-                                                               { date: '08/27/2022', time: 'PM' },
-                                                               { date: '10/03/2022', time: 'PM' }])
-      end
-    end
-
-    context 'request periods that are in the past' do
-      it 'sets start date to earliest date' do
-        past_request_date_appt = appointment_by_id(past_request_date_appt_id)
-        expect(past_request_date_appt.proposed_times).to eq([{ date: '08/20/2021', time: 'PM' },
-                                                             { date: '08/27/2021', time: 'PM' },
-                                                             { date: '10/03/2021', time: 'PM' }])
+      it 'forms a list of dates based on requested_periods' do
+        appt = appointment_by_id(future_request_date_appt_id)
+        expect(appt.proposed_times).to eq([{ date: '08/20/2022', time: 'PM' },
+                                           { date: '08/27/2022', time: 'PM' },
+                                           { date: '10/03/2022', time: 'PM' }])
       end
     end
   end
@@ -460,7 +451,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         # overriding location id to prevent false positives
         no_timezone_appt = appointment_by_id(
           booked_va_id,
-          overrides: { can: '358' },
+          overrides: { location_id: '358' },
           without: [key: :time_zone, at: [:location]]
         )
         expect(no_timezone_appt.time_zone).to eq('Asia/Manila')
@@ -491,7 +482,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
   end
 
-  # very incomplete
   describe 'status' do
     context 'with known status' do
       it 'converts status to BOOKED' do
@@ -501,9 +491,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
 
     context 'with unknown status' do
-      it 'converts status to BOOKED' do
-        arrived_appt = appointment_by_id(booked_va_id, overrides: { status: 'unknown' })
-        expect(arrived_appt.status).to be_nil
+      it 'raises an error' do
+        expect { appointment_by_id(booked_va_id, overrides: { status: 'unknown' }) }.to raise_error(Dry::Struct::Error)
       end
     end
   end
@@ -511,7 +500,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   describe 'status_detail' do
     context 'when no cancellation reason is provided and appointment is cancelled' do
       it 'sets to default message' do
-        appt = appointment_by_id(booked_va_id, overrides: { cancelled: 'CANCELLED' })
+        appt = appointment_by_id(booked_va_id, overrides: { status: 'cancelled' })
         expect(appt.status_detail).to eq('CANCELLED BY CLINIC')
       end
     end
@@ -539,21 +528,21 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   describe 'vetext_id' do
+    it 'combines the facility id and a timestamp' do
+      appt = appointment_by_id(booked_cc_id)
+      expect(appt.vetext_id).to eq('552;3220111.08')
+    end
   end
 
   describe 'is_covid_vaccine' do
-    context 'when service type is covid' do
-      it 'is true' do
-        appt = appointment_by_id(booked_va_id, overrides: { service_type: 'covid' })
-        expect(appt.is_covid_vaccine).to eq(true)
-      end
+    it 'is true when service type is covid' do
+      appt = appointment_by_id(booked_va_id, overrides: { service_type: 'covid' })
+      expect(appt.is_covid_vaccine).to eq(true)
     end
 
-    context 'when service type is not covid' do
-      it 'is false' do
-        appt = appointment_by_id(booked_va_id)
-        expect(appt.is_covid_vaccine).to eq(false)
-      end
+    it 'is false when service type is not covid' do
+      appt = appointment_by_id(booked_va_id)
+      expect(appt.is_covid_vaccine).to eq(false)
     end
   end
 
@@ -602,6 +591,18 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       it 'is set to nil' do
         expect(appt_with_phone.patient_phone_number).to be_nil
       end
+    end
+  end
+
+  describe 'is_pending' do
+    it 'is true for appointment requests' do
+      appt = appointment_by_id(proposed_va_id)
+      expect(appt.is_pending).to eq(true)
+    end
+
+    it 'is false for confirmed appointments' do
+      appt = appointment_by_id(booked_va_id)
+      expect(appt.is_pending).to eq(false)
     end
   end
 
