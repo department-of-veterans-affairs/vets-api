@@ -3,21 +3,19 @@
 require 'rails_helper'
 
 describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
-  # while hashes will work for these tests, this better reflects the data returned from the VAOS service
   def appointment_data(index = nil)
     appts = index ? raw_data[index] : raw_data
     Array.wrap(appts).map { |appt| OpenStruct.new(appt) }
   end
 
-  # still needs work
   def appointment_by_id(id, overrides: {}, without: [])
     appointment = raw_data.find { |appt| appt[:id] == id }
     appointment.merge!(overrides) if overrides.any?
     without.each do |property|
-      if property[:at]
+      if property.is_a?(Hash)
         appointment.dig(*property[:at]).delete(property[:key])
       else
-        appointment.delete(property[:key])
+        appointment.delete(property)
       end
     end
     subject.parse(Array.wrap(appointment)).first
@@ -28,19 +26,18 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
   let(:raw_data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
 
-  # let(:cancelled_va_id) { '121133' }
   let(:booked_va_id) { '121134' }
   let(:booked_cc_id) { '72106' }
-  let(:proposed_cc_id) { '72105' }
   let(:proposed_va_id) { '50956' }
+  let(:proposed_cc_id) { '72105' }
+  let(:cancelled_va_id) { '121133' }
+  let(:cancelled_proposed_va_id) { '53241' }
   let(:phone_va_id) { '53352' }
   let(:home_va_id) { '50094' }
   let(:atlas_va_id) { '50095' }
   let(:home_gfe_id) { '50096' }
-  # change these names
   let(:past_request_date_appt_id) { '53360' }
   let(:future_request_date_appt_id) { '53359' }
-  let(:cancelled_requested_va_appt_id) { '53241' }
   let(:telehealth_onsite_id) { '50097' }
 
   before do
@@ -115,7 +112,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   describe 'passthrough values' do
-    it 'sets them to the provided values without modification', :aggregate_failures do
+    it 'sets them to the provided values without modification' do
       overrides = {
         ien: 'IEN 1',
         patient_comments: 'COMMENT',
@@ -452,7 +449,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         no_timezone_appt = appointment_by_id(
           booked_va_id,
           overrides: { location_id: '358' },
-          without: [key: :time_zone, at: [:location]]
+          without: [key: :time_zone, at: :location]
         )
         expect(no_timezone_appt.time_zone).to eq('Asia/Manila')
       end
@@ -514,14 +511,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
     context 'when known cancellation reason is provided' do
       it 'returns appropriate copy' do
-        appt = appointment_by_id(cancelled_requested_va_appt_id)
+        appt = appointment_by_id(cancelled_proposed_va_id)
         expect(appt.status_detail).to eq('CANCELLED BY CLINIC')
       end
     end
 
     context 'when unknown cancellation reason is provided' do
       it 'returns nil' do
-        appt = appointment_by_id(cancelled_requested_va_appt_id, overrides: { cancellation_reason: nil })
+        appt = appointment_by_id(cancelled_proposed_va_id, overrides: { cancellation_reason: nil })
         expect(appt.status_detail).to eq('CANCELLED BY CLINIC')
       end
     end
@@ -609,7 +606,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   describe 'patient_email' do
     context 'when contact info is not present' do
       it 'is nil' do
-        appt = appointment_by_id(proposed_cc_id, without: [key: :contact])
+        appt = appointment_by_id(proposed_cc_id, without: [:contact])
         expect(appt.patient_email).to eq(nil)
       end
     end
@@ -630,7 +627,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       end
 
       it 'is set to nil when location name is absent' do
-        appt = appointment_by_id(booked_va_id, without: [key: :location])
+        appt = appointment_by_id(booked_va_id, without: [:location])
         expect(appt.friendly_location_name).to eq(nil)
       end
     end
@@ -642,7 +639,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       end
 
       it 'is set to nil when location name is absent' do
-        appt = appointment_by_id(proposed_cc_id, without: [key: :location])
+        appt = appointment_by_id(proposed_cc_id, without: [:location])
         expect(appt.friendly_location_name).to eq(nil)
       end
     end
@@ -654,7 +651,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       end
 
       it 'is set to nil when cc location practice name is absent' do
-        appt = appointment_by_id(booked_cc_id, without: [key: :extension])
+        appt = appointment_by_id(booked_cc_id, without: [:extension])
         expect(appt.friendly_location_name).to eq(nil)
       end
     end
