@@ -17,6 +17,10 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
       let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }
 
       it 'returns a successful response from the service and destroys in progress form' do
+        get('/accredited_representative_portal/v0/in_progress_forms/21a')
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response.keys).to contain_exactly('formData', 'metadata')
+
         allow(AccreditationService).to receive(:submit_form21a).and_return(
           instance_double(Faraday::Response, success?: true, body: { result: 'success' }.to_json, status: 200)
         )
@@ -26,7 +30,10 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(parsed_response).to eq('result' => 'success')
-        expect(InProgressForm.exists?(in_progress_form.id)).to be false
+
+        get('/accredited_representative_portal/v0/in_progress_forms/21a')
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response).to eq({})
       end
     end
 
