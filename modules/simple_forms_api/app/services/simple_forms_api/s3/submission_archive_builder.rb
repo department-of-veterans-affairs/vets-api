@@ -2,6 +2,7 @@
 
 require 'csv'
 require 'fileutils'
+require_relative 'utils'
 
 # built in accordance with the following documentation:
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
