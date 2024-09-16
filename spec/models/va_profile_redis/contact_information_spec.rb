@@ -25,7 +25,7 @@ describe VAProfileRedis::ContactInformation do
 
   let(:person) do
     if Flipper.enabled?(:va_v3_contact_information_service)
-      build :person, :person_v2, telephones:, permissions:
+      build :person_v2, telephones:
     else
       build :person, telephones:, permissions:
     end

@@ -35,11 +35,11 @@ module VAProfile
         def get_person
           with_monitoring do
             vet360_id_present!
-            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{profile_path(@user.vet360_id)}")
+            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}")
             PersonResponse.from(raw_response)
           end
         rescue Common::Client::Errors::ClientError => e
-          if e.status == 404
+          if e.status == 400
             log_exception_to_sentry(
               e,
               { vet360_id: },
@@ -213,10 +213,6 @@ module VAProfile
 
         private
 
-        def profile_path(vet360_id)
-          ERB::Util.url_encode("#{vet360_id}#{VA_PROFILE_ID_POSTFIX}")
-        end
-
         def icn_with_aaid
           return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
           return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
@@ -294,6 +290,7 @@ module VAProfile
           with_monitoring do
             vet360_id_present!
             request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
+            binding.pry
             raw_response = perform(method, request_path, model.in_json)
             response_class.from(raw_response)
           end

@@ -166,7 +166,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:address_transaction,
-             transaction_id: 'b2ac8ceb-9d68-4709-b084-917d91945068',
+             transaction_id: '0ea91332-4713-4008-bd57-40541ee8d4d4',
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED')
     end

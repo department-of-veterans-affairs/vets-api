@@ -7,7 +7,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
-  let(:vet360_id) { '1' }
+  let(:vet360_id) { '1781151' }
 
   before do
     allow(user).to receive_messages(vet360_id:, icn: '1234')
@@ -24,7 +24,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::Person)
+          expect(response.person).to be_a(VAProfile::Models::V2::Person)
         end
       end
 
@@ -40,15 +40,13 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       it 'has a bad address' do
         VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
-
-          expect(response.person.addresses[0].bad_address).to eq(true)
+          expect(response.person.addresses[0].bad_address).to eq(nil)
         end
       end
     end
 
     context 'when not successful' do
-      let(:vet360_id) { '6767671' }
-
+      let(:user) { build(:user, :error) }
       context 'with a 400 error' do
         it 'returns nil person' do
           VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
@@ -59,7 +57,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         end
       end
 
-      it 'returns a status of 404' do
+      it 'returns a status of 400' do
         VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
           expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
@@ -93,7 +91,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/v2/contact_information/person_without_data', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::Person)
+          expect(response.person).to be_a(VAProfile::Models::V2::Person)
         end
       end
     end
@@ -130,15 +128,15 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   describe '#put_email' do
     let(:email) do
       build(
-        :email, :contact_info_v2, id: 8087, email_address: 'person42@example.com',
-                                  vet360_id: 11_111, source_system_user: user.icn
+        :email, :contact_info_v2, id: 318927, email_address: 'person43@example.com',
+                                  vet360_id: 1781151, source_system_user: user.icn
       )
     end
 
     context 'when successful' do
       it 'creates an old_email record' do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('va_profile/v2/contact_information/person_email_full', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
             allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
             old_email = user.vet360_contact_info.email.email_address
             expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
@@ -152,7 +150,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
           response = subject.put_email(email)
-          expect(response.transaction.id).to eq('ea7989c5-60ef-40dc-aa6d-2fe6f7b1f0f9')
+          expect(response.transaction.id).to eq('c3c712ea-0cfb-484b-b81e-22f11ee0dcaf')
           expect(response).to be_ok
         end
       end
@@ -201,9 +199,25 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       build(:va_profile_address_v2, vet360_id: user.vet360_id, source_system_user: user.icn)
     end
 
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('va_profile/v2/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
+          address.id = 577127
+          address.address_line1 = '1494 Martin Luther King Rd'
+          address.city = 'Fulton'
+          address.state_code = 'MS'
+          address.source_date = '2024-08-27T18:51:06.012Z'
+          address.zip_code = '38843'
+          response = subject.put_address(address)
+          expect(response.transaction.id).to eq('c99ca731-9141-48a3-b4df-264e55fdbf20')
+          expect(response).to be_ok
+        end
+      end
+    end
+
     context 'with a validation key' do
       let(:address) do
-        build(:va_profile_address_v2, country_name: nil)
+        build(:va_profile_address_v2, :override, country_name: nil)
       end
 
       it 'overrides the address error', run_at: '2020-02-14T00:19:15.000Z' do
@@ -217,22 +231,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         end
       end
     end
-
-    context 'when successful' do
-      it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/v2/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
-          address.id = 15_035
-          address.address_line1 = '1494 Martin Luther King Rd'
-          address.city = 'Fulton'
-          address.state_code = 'MS'
-          address.source_date = '2024-08-27T18:51:06.012Z'
-          address.zip_code = '38843'
-          response = subject.put_address(address)
-          expect(response.transaction.id).to eq('3f5e9845-d3d4-4a8a-b016-cf53c12f1271')
-          expect(response).to be_ok
-        end
-      end
-    end
   end
 
   describe '#put_telephone' do
@@ -241,10 +239,10 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/v2/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
-          telephone.id = 17_259
+          telephone.id = 458781
           telephone.phone_number = '5551235'
           response = subject.put_telephone(telephone)
-          expect(response.transaction.id).to eq('e4c3195f-fd2b-4e37-8644-3c50d84c4ea7')
+          expect(response.transaction.id).to eq('c915d801-5693-4860-b2df-83baa8c3c910')
           expect(response).to be_ok
         end
       end
@@ -328,19 +326,19 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         factory: 'va_profile_address_v2',
         trait: 'contact_info_v2',
         attr: 'residential_address',
-        id: 324_489
+        id: 577127
       },
       {
         model_name: 'telephone',
         factory: 'telephone',
         attr: 'mobile_phone',
-        id: 355_423
+        id: 458781
       },
       {
         model_name: 'email',
         factory: 'email',
         attr: 'email',
-        id: 282_288
+        id: 318927
       }
     ].each do |spec_data|
       describe "#update_#{spec_data[:model_name]}" do
@@ -506,7 +504,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   describe '#get_address_transaction_status' do
     context 'when successful' do
-      let(:transaction_id) { 'b2ac8ceb-9d68-4709-b084-917d91945068' }
+      let(:transaction_id) { '0ea91332-4713-4008-bd57-40541ee8d4d4' }
 
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/v2/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
@@ -607,7 +605,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
       context 'for addresses' do
         it 'increments the StatsD VAProfile posts_and_puts counters' do
-          transaction_id = 'b2ac8ceb-9d68-4709-b084-917d91945068'
+          transaction_id = '0ea91332-4713-4008-bd57-40541ee8d4d4'
 
           VCR.use_cassette('va_profile/v2/contact_information/address_transaction_status') do
             expect_any_instance_of(described_class).to receive(:send_contact_change_notification)

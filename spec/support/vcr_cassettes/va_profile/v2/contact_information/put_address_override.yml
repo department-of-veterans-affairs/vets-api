@@ -5,7 +5,7 @@ http_interactions:
     uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA/addresses
     body:
       encoding: UTF-8
-      string: '{"bio":{"addressId":null,"addressLine1":"140 Rock Creek Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE","addressType":"Domestic","cityName":"Washington","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":null,"county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"DC","zipCode5":"20011","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":null,"sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"12345","effectiveStartDate":null,"effectiveEndDate":null}}'
+      string: '{"bio":{"addressId":11193,"addressLine1":"1494 Martin Luther King Rd","addressLine2":"c/o foo","addressLine3":null,"addressPOU":"CORRESPONDENCE","addressType":"Domestic","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":null,"county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2024-08-27T18:51:06.012Z","vet360Id":"1781151","effectiveStartDate":"2024-08-27T18:51:06.012Z","effectiveEndDate":null,"validationKey":713117306,"overrideIndicator":true,"badAddress":false}}'
     headers:
       User-Agent:
       - Vets.gov Agent

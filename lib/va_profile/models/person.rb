@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'address'
-require_relative 'v2/address'
 require_relative 'base'
 require_relative 'email'
 require_relative 'telephone'
@@ -26,11 +25,7 @@ module VAProfile
       # @return [VAProfile::Models::Person] the model built from the response body
       def self.build_from(body)
         body ||= {}
-        addresses = if Flipper.enabled?(:va_v3_contact_information_service)
-                      body['addresses']&.map { |a| VAProfile::Models::V2::Address.build_from(a) }
-                    else
-                      body['addresses']&.map { |a| VAProfile::Models::Address.build_from(a) }
-                    end
+        addresses = body['addresses']&.map { |a| VAProfile::Models::Address.build_from(a) }
         emails = body['emails']&.map { |e| VAProfile::Models::Email.build_from(e) }
         telephones = body['telephones']&.map { |t| VAProfile::Models::Telephone.build_from(t) }
         permissions = body['permissions']&.map { |t| VAProfile::Models::Permission.build_from(t) }

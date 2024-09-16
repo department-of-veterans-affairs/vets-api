@@ -7,7 +7,7 @@ describe Common::CacheAside do
   let(:user) { build :user, :loa3 }
 
   if Flipper.enabled?(:va_v3_contact_information_service)
-    let(:person) { build :person, :person_v2 }
+    let(:person) { build :person_v2 }
   else
     let(:person) { build :person }
   end

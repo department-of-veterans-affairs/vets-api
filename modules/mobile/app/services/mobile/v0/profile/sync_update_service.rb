@@ -52,16 +52,22 @@ module Mobile
         def save!(http_method, resource_type, params)
           record = build_record(resource_type, params)
           raise Common::Exceptions::ValidationErrors, record unless record.valid?
-
           response = contact_information_service.send("#{http_method}_#{resource_type.downcase}", record)
           "AsyncTransaction::VAProfile::#{resource_type.capitalize}Transaction".constantize.start(@user, response)
         end
 
         def build_record(type, params)
-          "VAProfile::Models::#{type.capitalize}"
-            .constantize
-            .new(params)
-            .set_defaults(@user)
+          if type == :address && Flipper.enabled?(:va_v3_contact_information_service, @user)
+            'VAProfile::Models::V2::Address'
+              .constantize
+              .new(params)
+              .set_defaults(@user)
+          else
+            "VAProfile::Models::#{type.capitalize}"
+              .constantize
+              .new(params)
+              .set_defaults(@user)
+          end
         end
 
         def poll_with_backoff
@@ -122,7 +128,11 @@ module Mobile
         end
 
         def contact_information_service
-          VAProfile::ContactInformation::Service.new @user
+          if Flipper.enabled?(:va_v3_contact_information_service)
+            VAProfile::V2::ContactInformation::Service.new @user
+          else
+            VAProfile::ContactInformation::Service.new @user
+          end
         end
 
         def raise_timeout_error(_elapsed, _try)
