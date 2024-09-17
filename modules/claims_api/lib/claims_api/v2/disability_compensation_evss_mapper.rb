@@ -38,7 +38,7 @@ module ClaimsApi
         info = @data[:serviceInformation]
 
         map_service_periods(info)
-        map_federal_activation(info) if info&.dig(:federalActivation).present?
+        map_federal_activation_to_reserves(info) if info&.dig(:federalActivation).present?
         map_reserves_title_ten(info) if info&.dig(:reservesNationalGuardService, :title10Activation).present?
         map_confinements(info) if info&.dig(:confinements).present?
       end
@@ -51,35 +51,18 @@ module ClaimsApi
         }
       end
 
-      def map_federal_activation(info)
+      def map_federal_activation_to_reserves(info)
         activation_date = info&.dig(:federalActivation, :activationDate)
         separation_date = info&.dig(:federalActivation, :anticipatedSeparationDate)
 
-        activation_date = Date.strptime(activation_date, '%Y-%m-%d') if activationDate
-        separation_date = Date.strptime(separation_date, '%Y-%m-%d') if anticipatedSeparationDate
-
         return if activation_date.blank? && separation_date.blank?
 
-        federal_activation = {}
-        federal_activation[:activation_date] = activation_date if activation_date.present?
-        federal_activation[:separation_date] = separation_date if separation_date.present?
+        title_ten = {}
+        title_ten[:title10ActivationDate] = activation_date if activation_date.present?
+        title_ten[:anticipatedSeparationDate] = separation_date if separation_date.present?
 
-        @evss_claim[:serviceInformation][:federalActivation] = federalActivation
-      end
-
-      def map_reserves_title_ten(info)
-        title_ten_date = info&.dig(:reservesNationalGuardService, :title10Activation, :title10ActivationDate)
-        separation_date = info&.dig(:reservesNationalGuardService, :title10Activation, 
-            :anticipatedSeparationDate)
-
-        title_ten_date = Date.strptime(title_ten_date, '%Y-%m-%d') if title_ten_date
-        separation_date = Date.strptime(separation_date, '%Y-%m-%d') if separation_date
-
-        return if title_ten_date.blank? && separation_date.blank?
-
-        @evss_claim[:serviceInformation][:federalActivation] = {
-          title_ten_date:,
-          separation_date:
+        @evss_claim[:serviceInformation][:reservesNationalGuardService] = {
+          title10Activation: title_ten
         }
       end
 
@@ -187,9 +170,6 @@ module ClaimsApi
 
           end_year = Date.strptime(sp[:activeDutyEndDate], '%Y-%m-%d')
           sp[:activeDutyEndDate] = end_year.strftime('%Y-%m-%d')
-
-          # next if sp[:serviceBranch].nil?
-          # if sp[:separationLocationCode].nil?
         end
       end
 

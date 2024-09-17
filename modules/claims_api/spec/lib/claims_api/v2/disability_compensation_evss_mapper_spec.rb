@@ -263,6 +263,13 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         expect(service_periods[:separationLocationCode]).to eq('98282')
       end
 
+      it 'maps the federalActivation attributes correctly' do
+        reserves_addition = evss_data[:serviceInformation][:reservesNationalGuardService]
+
+        expect(reserves_addition[:title10Activation][:activationDate]).to eq('2023-10-01')
+        expect(reserves_addition[:title10Activation][:anticipatedSeparationDate]).to eq('2024-10-31')
+      end
+
       it 'maps the confinements attribute correctly' do
         first_confinement = evss_data[:serviceInformation][:confinements][0]
         second_confinement = evss_data[:serviceInformation][:confinements][1]
