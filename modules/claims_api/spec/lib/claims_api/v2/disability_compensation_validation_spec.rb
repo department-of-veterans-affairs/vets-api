@@ -324,9 +324,9 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         end
       end
 
-      context 'without the required dates values present' do
+      context 'when beginDate is an invalid date value' do
         it 'returns an error array' do
-          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = ''
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2018-09-45'
           res = test_526_validation_instance.send(:validate_form_526_change_of_address_beginning_date)
           expect(res[0][:detail]).to eq('beginDate is not a valid date.')
           expect(res[0][:source]).to eq('/changeOfAddress/dates/beginDate')
@@ -378,6 +378,36 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
+    context 'conditional validations when the country is USA' do
+      context 'zipfirstFive is not included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['zipFirstFive'] = ''
+          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
+          expect(current_error_array[0][:detail]).to eq('The zipFirstFive is required if the country is USA.')
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/')
+        end
+      end
+
+      context 'state is not included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['state'] = ''
+          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
+          expect(current_error_array[0][:detail]).to eq('The state is required if the country is USA.')
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/')
+        end
+      end
+
+      context 'internationalPostalCode is included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['internationalPostalCode'] = '333-444'
+          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
+          expect(current_error_array[0][:detail])
+            .to eq('The internationalPostalCode should not be provided if the country is USA.')
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/internationalPostalCode')
+        end
+      end
+    end
+
     context 'when the country is not provided' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['country'] = ''
@@ -406,12 +436,23 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
+    context 'when the end date is an invalid date' do
+      end_date = '2022-91-99'
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
+        subject.form_attributes['changeOfAddress']['dates']['endDate'] = end_date
+        test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date)
+        expect(current_error_array[0][:detail]).to eq("#{end_date} is not a valid date.")
+        expect(current_error_array[0][:source]).to eq('data/attributes/changeOfAddress/dates/endDate')
+      end
+    end
+
     context 'when the begin date is after the end date' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2022-01-01'
         res = test_526_validation_instance.send(:validate_form_526_change_of_address_ending_date)
-        expect(res[0][:detail]).to eq('endDate is not a valid date.')
+        expect(res[0][:detail]).to eq('endDate needs to be after beginDate.')
         expect(res[0][:source]).to eq('/changeOfAddress/dates/endDate')
       end
     end
