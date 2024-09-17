@@ -13,6 +13,8 @@ describe MHV::AccountCreation::Service do
     let(:tou_version) { 'v1' }
     let(:tou_occurred_at) { Time.current }
     let(:log_prefix) { '[MHV][AccountCreation][Service]' }
+    let(:account_creation_base_url) { 'https://apigw-intb.aws.myhealth.va.gov' }
+    let(:account_creation_path) { 'v1/usermgmt/account-service/account' }
 
     before do
       allow(Rails.logger).to receive(:info)
@@ -32,6 +34,16 @@ describe MHV::AccountCreation::Service do
           is_sm_account_created: true,
           message: 'Existing MHV Account Found for ICN'
         }
+      end
+
+      let(:expected_tou_datetime) { tou_occurred_at.iso8601 }
+
+      it 'sends vaTermsOfUseDateTime in the correct format' do
+        VCR.use_cassette('mhv/account_creation/account_creation_service_200_response') do
+          subject
+          expect(a_request(:post, "#{account_creation_base_url}/#{account_creation_path}")
+          .with(body: /"vaTermsOfUseDateTime":"#{expected_tou_datetime}"/)).to have_been_made
+        end
       end
 
       it 'logs the create account request' do

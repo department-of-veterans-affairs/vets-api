@@ -284,9 +284,9 @@ module ClaimsApi
       end
 
       ##
-      # VdcBean
+      # Vdc
       #
-      module VdcBean
+      module Vdc
         DEFINITION =
           Bean.new(
             path: 'VDC',
@@ -300,7 +300,7 @@ module ClaimsApi
       module ManageRepresentativeService
         DEFINITION =
           Service.new(
-            bean: VdcBean::DEFINITION,
+            bean: Vdc::DEFINITION,
             path: 'ManageRepresentativeService'
           )
 
@@ -344,7 +344,7 @@ module ClaimsApi
       module VeteranRepresentativeService
         DEFINITION =
           Service.new(
-            bean: VdcBean::DEFINITION,
+            bean: Vdc::DEFINITION,
             path: 'VeteranRepresentativeService'
           )
 
