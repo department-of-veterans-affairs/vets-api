@@ -53,6 +53,8 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::StreamlinedCalculator, type: :ser
         allow(GmtThreshold).to receive(:first)
           .and_return(gmt_threshold_data)
 
+        allow(StatsD).to receive(:increment).and_call_original
+
         get_streamlined_data
       end
 
@@ -75,6 +77,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::StreamlinedCalculator, type: :ser
         it 'gets streamlined data correct' do
           skip 'The pre_data variable needs to be modified as needed to make this pass'
           expect(expected_post_streamlined_data).to eq(@data)
+          expect(StatsD).to receive(:increment).once.with('api.fsr_submission.full_transform.has_streamlined_data')
         end
       end
 
@@ -93,6 +96,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::StreamlinedCalculator, type: :ser
         it 'gets streamlined data correct' do
           skip 'The pre_data variable needs to be modified as needed to make this pass'
           expect(expected_post_streamlined_data).to eq(@data)
+          expect(StatsD).to receive(:increment).once.with('api.fsr_submission.full_transform.has_streamlined_data')
         end
       end
     end

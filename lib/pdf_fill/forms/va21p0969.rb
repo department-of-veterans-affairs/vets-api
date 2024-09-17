@@ -10,6 +10,14 @@ module PdfFill
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
+      CLAIMANT_TYPES = {
+        'VETERAN' => 0,
+        'SPOUSE' => 1,
+        'CHILD' => 2,
+        'PARENT' => 3,
+        'CUSTODIAN' => 4
+      }.freeze
+
       RECIPIENTS = {
         'VETERAN' => 0,
         'SPOUSE' => 1,
@@ -29,6 +37,70 @@ module PdfFill
       }.freeze
 
       KEY = {
+        # 1a
+        'veteranFullName' => {
+          # form allows up to 39 characters but validation limits to 30,
+          # so no overflow is needed
+          'first' => {
+            key: 'F[0].Page_4[0].VeteransName.First[0]'
+          },
+          'middle' => {
+            key: 'F[0].Page_4[0].VeteransName.MI[0]'
+          },
+          # form allows up to 34 characters but validation limits to 30,
+          # so no overflow is needed
+          'last' => {
+            key: 'F[0].Page_4[0].VeteransName.Last[0]'
+          }
+        },
+        # 1b
+        'veteranSocialSecurityNumber' => {
+          key: 'F[0].Page_4[0].VeteransSSN[0]'
+        },
+        # 1c
+        'vaFileNumber' => {
+          key: 'F[0].Page_4[0].VeteransFileNumber[0]'
+        },
+        # 2a
+        'claimantFullName' => {
+          # form allows up to 39 characters but validation limits to 30,
+          # so no overflow is needed
+          'first' => {
+            key: 'F[0].Page_4[0].ClaimantsName.First[0]'
+          },
+          'middle' => {
+            key: 'F[0].Page_4[0].ClaimantsName.MI[0]'
+          },
+          # form allows up to 34 characters but validation limits to 30,
+          # so no overflow is needed
+          'last' => {
+            key: 'F[0].Page_4[0].ClaimantsName.Last[0]'
+          }
+        },
+        # 2b
+        'claimantSocialSecurityNumber' => {
+          key: 'F[0].Page_4[0].ClaimantsSSN[0]'
+        },
+        # 2c
+        'claimantPhone' => {
+          key: 'F[0].Page_4[0].ClaimantTelephoneNumber[0]'
+        },
+        # 2d
+        'claimantType' => {
+          key: 'F[0].Page_4[0].TypeofClaimant[0]'
+        },
+        # 2e
+        'incomeNetWorthDateRange' => {
+          'from' => {
+            key: 'F[0].Page_4[0].DateStarting[0]'
+          },
+          'to' => {
+            key: 'F[0].Page_4[0].DateEnding[0]'
+          },
+          'useDateReceivedByVA' => {
+            key: 'F[0].Page_4[0].DateReceivedByVA[0]'
+          }
+        },
         # 3a
         'unassociatedIncome' => {
           key: 'F[0].Page_4[0].DependentsReceiving3a[0]'
@@ -97,13 +169,51 @@ module PdfFill
         }
       }.freeze
 
+      # Post-process form data to match the expected format.
+      # Each section of the form is processed in its own expand function.
+      #
+      # @param _options [Hash] any options needed for post-processing
+      #
+      # @return [Hash] the processed form data
+      #
       def merge_fields(_options = {})
+        expand_veteran_info
+        expand_claimant_info
         expand_unassociated_incomes
 
         form_data
       end
 
       private
+
+      def expand_veteran_info
+        veteran_middle_name = form_data['veteranFullName'].try(:[], 'middle')
+        form_data['veteranFullName']['middle'] = veteran_middle_name.try(:[], 0)&.upcase
+      end
+
+      def expand_claimant_info
+        claimant_middle_name = form_data['claimantFullName'].try(:[], 'middle')
+        claimant_type = form_data['claimantType']
+        net_worth_date_range = form_data['incomeNetWorthDateRange']
+
+        form_data['claimantFullName']['middle'] = claimant_middle_name[0].upcase if claimant_middle_name.present?
+
+        form_data['claimantType'] = CLAIMANT_TYPES[claimant_type]
+
+        if net_worth_date_range.blank? || net_worth_date_range['from'].blank? || net_worth_date_range['to'].blank?
+          form_data['incomeNetWorthDateRange'] = {
+            'from' => nil,
+            'to' => nil,
+            'useDateReceivedByVA' => true
+          }
+        else
+          form_data['incomeNetWorthDateRange'] = {
+            'from' => format_date_to_mm_dd_yyyy(net_worth_date_range['from']),
+            'to' => format_date_to_mm_dd_yyyy(net_worth_date_range['to']),
+            'useDateReceivedByVA' => false
+          }
+        end
+      end
 
       def expand_unassociated_incomes
         unassociated_incomes = form_data['unassociatedIncomes']
@@ -130,6 +240,18 @@ module PdfFill
           'grossMonthlyIncomeOverflow' => gross_monthly_income,
           'payer' => income['payer']
         }
+      end
+
+      # Format a YYYY-MM-DD date string to MM/DD/YYYY
+      #
+      # @param date_string [String] a date string in the format YYYY-MM-DD
+      #
+      # @return [String] a date string in the format MM/DD/YYYY
+      #
+      def format_date_to_mm_dd_yyyy(date_string)
+        return nil if date_string.blank?
+
+        Date.parse(date_string).strftime('%m/%d/%Y')
       end
 
       def split_currency_amount(amount)

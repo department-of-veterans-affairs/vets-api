@@ -43,7 +43,6 @@ jobs:
         run: |
           echo "ready_for_review=true" >> $GITHUB_OUTPUT
 
-
       - name: Check backend-review-group approval status
         if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: check_backend_review_group_approval_status
@@ -79,6 +78,7 @@ jobs:
       - name: Add Review label
         uses: actions-ecosystem/action-add-labels@v1
         if: |
+          github.event.pull_request.draft == false &&
           steps.audit_passing_labels.outputs.ready_for_review == 'true' &&
           steps.audit_pr_labels.outputs.no_failures == 'true' &&
           steps.verify_approval.outputs.approval_status == 'required'
@@ -90,10 +90,13 @@ jobs:
       - name: Remove Review label
         uses: actions-ecosystem/action-remove-labels@v1
         if: |
-          contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review') &&
-          steps.audit_passing_labels.outputs.ready_for_review != 'true' ||
-          steps.audit_pr_labels.outputs.no_failures != 'true' ||
-          steps.verify_approval.outputs.approval_status == 'confirmed'
+          github.event.pull_request.draft == true ||
+          (
+            contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review') &&
+            steps.audit_passing_labels.outputs.ready_for_review != 'true' ||
+            steps.audit_pr_labels.outputs.no_failures != 'true' ||
+            steps.verify_approval.outputs.approval_status == 'confirmed'
+          )
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
