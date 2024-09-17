@@ -52,6 +52,7 @@ module RepresentationManagement
       SWAGGERED_CLASSES = [
         Requests::PdfGenerator2122,
         Requests::PowerOfAttorney,
+        Responses::PowerOfAttorneyResponse,
         Errors,
         self
       ].freeze
