@@ -10,8 +10,6 @@ module Swagger
 
         swagger_path '/v0/my_va/submission_statuses' do
           operation :get do
-            extend Swagger::Responses::AuthenticationError
-
             key :description, 'Get list of submitted forms for the current session'
             key :operationId, 'getSubmissionStatuses'
             key :tags, %w[
