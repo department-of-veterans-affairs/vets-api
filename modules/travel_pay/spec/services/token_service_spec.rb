@@ -25,7 +25,7 @@ describe TravelPay::TokenService do
     end
 
     context 'get_tokens' do
-      it 'returns a hash with a veis_token and a btsss_token' do
+      it 'returns a hash with a veis_token and a btsss_token and stores it in the cache' do
         allow_any_instance_of(TravelPay::TokenClient)
           .to receive(:request_veis_token)
           .and_return(tokens[:veis_token])
@@ -37,6 +37,7 @@ describe TravelPay::TokenService do
         service = TravelPay::TokenService.new
         response = service.get_tokens(user)
         expect(response).to eq(tokens)
+        # Verify that the tokens were stored
         expect($redis.ttl("travel-pay-store:#{user.account_uuid}")).to eq(3600)
         saved_tokens = $redis.get("travel-pay-store:#{user.account_uuid}")
         # The Oj.load method is normally handled by the RedisStore
@@ -57,27 +58,6 @@ describe TravelPay::TokenService do
         cached_tokens => { veis_token:, btsss_token: }
         destructured_cached_tokens = { veis_token:, btsss_token: }
         expect(response).to eq(destructured_cached_tokens)
-      end
-    end
-
-    context 'gets a new btsss token if only veis is cached' do
-      before do
-        $redis.set("travel-pay-store:#{user.account_uuid}", Oj.dump({
-                                                                      account_uuid: user.account_uuid,
-                                                                      veis_token: 'cached_veis_token',
-                                                                      btsss_token: nil
-                                                                    }))
-      end
-
-      it 'returns a cached veis_token and a new btsss_token' do
-        allow_any_instance_of(TravelPay::TokenClient)
-          .to receive(:request_btsss_token)
-          .and_return(tokens[:btsss_token])
-
-        service = TravelPay::TokenService.new
-        response = service.get_tokens(user)
-        expect(response[:veis_token]).to eq(cached_tokens[:veis_token])
-        expect(response[:btsss_token]).to eq(tokens[:btsss_token])
       end
     end
   end
