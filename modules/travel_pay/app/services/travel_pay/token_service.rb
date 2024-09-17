@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../models/travel_pay/travel_pay_store'
-
 module TravelPay
   class TokenService
     #
@@ -9,7 +7,6 @@ module TravelPay
     #
     def get_tokens(current_user)
       cached = cached_by_account_uuid(current_user.account_uuid)
-      # Check that btsss token exists, if so, veis token must also be present
       if cached
         Rails.logger.info('BTSSS tokens retrieved from cache',
                           { request_id: RequestStore.store['request_id'] })
