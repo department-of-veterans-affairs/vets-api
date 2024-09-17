@@ -8,9 +8,9 @@ RSpec.describe 'transactions v2' do
   describe 'GET /v0/profile/status/:transaction_id v2' do
     let(:vet360_id) { '1781151' }
     let(:user) { build(:user, :loa3, vet360_id:) }
-
     Flipper.enable(:va_v3_contact_information_service)
     before do
+      Flipper.enable(:va_v3_contact_information_service)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
       sign_in_as(user)

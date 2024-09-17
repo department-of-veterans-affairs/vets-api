@@ -202,7 +202,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/v2/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/v2/contact_information/put_address_success_copy', VCR::MATCH_EVERYTHING) do
           address.id = 577_127
           address.address_line1 = '1494 Martin Luther King Rd'
           address.city = 'Fulton'
@@ -224,10 +224,8 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       end
 
       it 'overrides the address error', run_at: '2020-02-14T00:19:15.000Z' do
-        VCR.use_cassette(
-          'va_profile/v2/contact_information/put_address_override',
-          VCR::MATCH_EVERYTHING
-        ) do
+        VCR.use_cassette('va_profile/v2/contact_information/put_address_override', VCR::MATCH_EVERYTHING) do
+          address.id = 577_127
           response = subject.put_address(address)
           expect(response.status).to eq(200)
           expect(response.transaction.id).to eq('cd7036df-630c-43e2-8911-063daa10021c')

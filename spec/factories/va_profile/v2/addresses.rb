@@ -52,7 +52,7 @@ FactoryBot.define do
     trait :override do
       address_pou { VAProfile::Models::V2::Address::CORRESPONDENCE }
       address_line1 { '1494 Martin Luther King Rd' }
-      address_line2 { '' }
+      address_line2 { 'null' }
       city { 'Fulton' }
       state_code { 'MS' }
       zip_code { '38843' }
