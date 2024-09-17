@@ -12,8 +12,8 @@ module CheckIn
 
       attribute :telehealth do |object|
         {
-          vvsKind: object&.telehealth&.dig('vvsKind'),
-          atlas: object&.telehealth&.dig('atlas')
+          vvsKind: object.dig('telehealth','vvsKind'),
+          atlas: object.dig('telehealth', 'atlas')
         }
       end
 
