@@ -203,31 +203,16 @@ module Requests
 
         response 200 do
           key :description, 'PDF generated successfully'
-          content 'application/pdf' do
-            schema do
-              key :type, :string
-              key :format, :binary
-            end
-          end
-          header 'Content-Disposition' do
-            key :type, :string
-            key :example, 'attachment; filename="21-22.pdf"'
+
+          schema do
+            property :data, type: :string, format: 'binary'
           end
         end
 
         response 422 do
-          key :description, 'Unprocessable Entity'
-          content 'application/json' do
-            schema do
-              key :type, :object
-              property :errors do
-                key :type, :array
-                items do
-                  key :type, :string
-                end
-                key :example, ["Organization name can't be blank", 'Record consent must be accepted']
-              end
-            end
+          key :description, 'unprocessable entity response'
+          schema do
+            key :$ref, :Errors
           end
         end
       end

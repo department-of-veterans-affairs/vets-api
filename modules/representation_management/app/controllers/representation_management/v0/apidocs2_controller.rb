@@ -26,6 +26,10 @@ module RepresentationManagement
         # Groups/tags are displayed in the order declared here, followed
         # by the order they first appear in the swaggered_classes below, so
         # declare all tags here in desired order.
+        tag do
+          key :name, 'PDF Generation'
+          key :description, 'Generate a PDF form from user input'
+        end
 
         key :host, Settings.hostname
         key :schemes, %w[https http]
@@ -47,6 +51,8 @@ module RepresentationManagement
       # A list of all classes that have swagger_* declarations.
       SWAGGERED_CLASSES = [
         Requests::PdfGenerator2122,
+        Requests::PowerOfAttorney,
+        Errors,
         self
       ].freeze
 
