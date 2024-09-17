@@ -9,7 +9,9 @@ module SimpleFormsApi
 
       def assign_instance_variables(defaults)
         defaults.each do |key, value|
-          instance_variable_set("@#{key}", value)
+          instance_var = instance_variable_get("@#{key}")
+
+          instance_variable_set("@#{key}", value) if value && instance_var.to_s.empty?
         end
       end
 

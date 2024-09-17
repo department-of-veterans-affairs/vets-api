@@ -12,8 +12,8 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
 
   before do
     allow(FormSubmission).to receive(:find_by).and_return(submission)
-    allow_any_instance_of(described_class).to receive(:assign_instance_variables).and_call_original
     allow(SecureRandom).to receive(:hex).and_return('random-letters-n-numbers')
+    allow_any_instance_of(described_class).to receive(:assign_instance_variables).and_call_original
   end
 
   describe '#initialize' do
@@ -75,9 +75,11 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
   describe '#run' do
     subject(:run) { archive_builder_instance.run }
 
+    let(:temp_file_path) { Rails.root.join("tmp/#{benefits_intake_uuid}-random-letters-n-numbers/").to_s }
+
     context 'when properly initialized' do
-      xit 'completes successfully' do
-        expect(run).to eq(Rails.root.join("tmp/#{benefits_intake_uuid}-random-letters-n-numbers/").to_s)
+      it 'completes successfully' do
+        expect(run).to eq(temp_file_path)
       end
     end
   end

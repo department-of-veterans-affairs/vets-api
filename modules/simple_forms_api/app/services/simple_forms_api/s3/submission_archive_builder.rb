@@ -32,14 +32,14 @@ module SimpleFormsApi
 
       def default_options
         {
-          attachments: nil,
-          benefits_intake_uuid: nil,
-          file_path: nil,
+          attachments: nil,           # Any additional attachments which were originally submitted
+          benefits_intake_uuid: nil,  # The UUID returned from the Benefits Intake API upon original submission
+          file_path: nil,             # The local path where the submission PDF is stored
           include_json_archive: true, # Include the form data as a JSON object
           include_manifest: true,     # Include a CSV file containing manifest data
           include_text_archive: true, # Include the form data as a text file
-          metadata: nil,
-          submission: nil
+          metadata: nil,              # Data appended to the original submission headers
+          submission: nil             # The FormSubmission object representing the original data payload submitted
         }
       end
 
@@ -121,7 +121,7 @@ module SimpleFormsApi
         @file_path = built_submission.file_path
         @submission = built_submission.submission
         @benefits_intake_uuid = @submission&.benefits_intake_uuid
-        @attachments = built_submission.attachments
+        @attachments = built_submission.attachments || []
         @metadata = built_submission.metadata
       end
 
