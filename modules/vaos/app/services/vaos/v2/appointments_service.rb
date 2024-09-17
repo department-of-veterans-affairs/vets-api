@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'common/client/errors'
+require 'map/security_token/errors'
 require 'json'
 require 'memoist'
 
@@ -58,6 +59,15 @@ module VAOS
             meta: pagination(pagination_params).merge(partial_errors(response))
           }
         end
+      rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError,
+             Common::Exceptions::GatewayTimeout, MAP::SecurityToken::Errors::ApplicationMismatchError,
+             MAP::SecurityToken::Errors::MissingICNError => e
+        {
+          data: {},
+          meta: pagination(pagination_params).merge({
+                                                      failures: parse_possible_token_related_errors(e)
+                                                    })
+        }
       end
 
       # rubocop:enable Metrics/MethodLength
@@ -172,6 +182,32 @@ module VAOS
       memoize :get_facility_timezone_memoized
 
       private
+
+      def parse_possible_token_related_errors(e) # rubocop:disable Metrics/MethodLength
+        prefix = 'VAOS::V2::AppointmentService#get_appointments'
+        sanitized_icn = VAOS::Anonymizers.anonymize_icns(user.icn)
+        sanitized_message = VAOS::Anonymizers.anonymize_icns(e.message)
+        case e
+        when Common::Client::Errors::ParsingError
+          Rails.logger.warn("#{prefix} token failed, parsing error", icn: sanitized_icn, context: sanitized_message)
+          sanitized_message
+        when Common::Exceptions::GatewayTimeout
+          Rails.logger.warn("#{prefix} token failed, gateway timeout", icn: sanitized_icn)
+          sanitized_message
+        when MAP::SecurityToken::Errors::ApplicationMismatchError
+          Rails.logger.warn("#{prefix} application mismatch", icn: sanitized_icn, context: sanitized_message)
+          sanitized_message
+        when MAP::SecurityToken::Errors::MissingICNError
+          Rails.logger.warn("#{prefix} missing ICN")
+          sanitized_message
+        when Common::Client::Errors::ClientError
+          status = e.status
+          context = e.body
+          message = "#{prefix} token failed, status: #{status}"
+          Rails.logger.warn(message.to_s, status:, icn: sanitized_icn, context:)
+          { message:, status:, icn: sanitized_icn, context: }
+        end
+      end
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
       # 1. Reason code fields
