@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class WebauthnController < ActionController::API
+  class WebauthnController < ApplicationController
     def generate_registration_options
       user.update!(webauthn_id: WebAuthn.generate_user_id) unless user.webauthn_id
 
@@ -24,7 +24,7 @@ module V0
       begin
         webauthn_credential.verify(session[:creation_challenge])
 
-        # Store `Credential ID, Publick Key, and Sign count for further authentications`
+        # Store `Credential ID, Public Key, and Sign count for further authentications`
         user.credentials.create!(
           webauthn_id: webauthn_credential.id,
           public_key: webauthn_credential.public_key,
