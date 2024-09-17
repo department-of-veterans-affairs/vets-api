@@ -2,6 +2,7 @@
 
 require 'json'
 
+# rubocop:disable Metrics/ClassLength
 module SimpleFormsApi
   class VBA4010007
     include Virtus.model(nullify_blank: true)
@@ -221,13 +222,9 @@ module SimpleFormsApi
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def create_attachment_page(file_path)
       veteran_sex = get_gender(@data.dig('application', 'veteran', 'gender'))
-
       race_comment = @data.dig('application', 'veteran', 'race_comment')
-
       place_of_birth = @data.dig('application', 'veteran', 'place_of_birth')
-
       city_of_birth = @data.dig('application', 'veteran', 'city_of_birth')
-
       state_of_birth = @data.dig('application', 'veteran', 'state_of_birth')
 
       service_branch_value_a = get_service_label(@data.dig('application', 'veteran', 'service_records', 0,
@@ -335,19 +332,23 @@ module SimpleFormsApi
       end
     end
 
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     def handle_attachments(file_path)
       attachments = get_attachments
-      combined_pdf = CombinePDF.new
-      combined_pdf << CombinePDF.load(file_path)
 
+      merged_pdf = HexaPDF::Document.open(file_path)
       attachment_page_path = 'attachment_page.pdf'
       create_attachment_page(attachment_page_path)
-      combined_pdf << CombinePDF.load(attachment_page_path)
+      attachment_pdf = HexaPDF::Document.open(attachment_page_path)
+      attachment_pdf.pages.each do |page|
+        merged_pdf.pages << merged_pdf.import(page)
+      end
 
       if attachments.count.positive?
         attachments.each do |attachment|
-          combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
+          attachment_pdf = HexaPDF::Document.open(attachment)
+          attachment_pdf.pages.each do |page|
+            merged_pdf.pages << merged_pdf.import(page)
+          end
         rescue => e
           Rails.logger.error(
             'Simple forms api - failed to load attachment for 40-10007',
@@ -356,10 +357,11 @@ module SimpleFormsApi
           raise
         end
       end
-      combined_pdf.save file_path
 
+      merged_pdf.write(file_path, optimize: true)
       FileUtils.rm_f(attachment_page_path)
     end
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def track_user_identity(confirmation_number)
       identity = get_relationship_to_vet(@data.dig('application', 'claimant', 'relationship_to_vet'))
@@ -464,3 +466,4 @@ module SimpleFormsApi
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
