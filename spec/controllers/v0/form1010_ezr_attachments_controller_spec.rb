@@ -5,6 +5,8 @@ require 'support/1010_forms/shared_examples/form_attachment'
 
 RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
   let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
+  let(:file) { fixture_file_upload('spec/fixtures/files/empty_file.txt', 'text/plain') }
+  let(:params) { { 'form1010_ezr_attachment' => { 'file_data' => file } } }
 
   describe '::FORM_ATTACHMENT_MODEL' do
     it_behaves_like 'inherits the FormAttachment model'
@@ -13,7 +15,7 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
   describe '#create' do
     context 'unauthenticated' do
       it 'returns a 401' do
-        post(:create)
+        post(:create, params:)
 
         expect(response).to have_http_status(:unauthorized)
         expect(response.body).to include('Not authorized')
@@ -33,11 +35,14 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
         sign_in(current_user)
       end
 
-      it 'raises an error' do
+      it 'increments StatsD and raises an error' do
         file = fixture_file_upload('spec/fixtures/files/empty_file.txt', 'text/plain')
         params = { 'form1010_ezr_attachment' => { 'file_data' => file } }
         error_msg = "The 'txt' file extension is not currently supported. Follow the instructions " \
                     'on your device on how to convert the file extension and try again to continue.'
+
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('api.1010ezr.attachments.invalid_file_extension')
 
         post(:create, params:)
 

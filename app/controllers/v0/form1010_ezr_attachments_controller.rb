@@ -1,16 +1,21 @@
 # frozen_string_literal: true
 
+require 'form1010_ezr/service'
+
 module V0
   class Form1010EzrAttachmentsController < ApplicationController
     include FormAttachmentCreate
     service_tag 'health-information-update'
 
-    before_action :validate_file_extension, only: :create
-
     FORM_ATTACHMENT_MODEL = Form1010EzrAttachment
 
     def create
-      super
+      validate_file_upload_class!
+      validate_file_extension
+      save_attachment_to_cloud!
+      save_attachment_to_db!
+
+      render json: serializer_klass.new(form_attachment)
     end
 
     private
@@ -24,10 +29,12 @@ module V0
     # the actual extension and ensure the Enrollment System accepts it
     def validate_file_extension
       extension = MIME::Types[
-        params['form1010_ezr_attachment']['file_data'].content_type.to_s
+        filtered_params['file_data'].content_type.to_s
       ]&.first&.extensions&.first
 
       unless HCAAttachmentUploader.new(nil).extension_allowlist.include?(extension)
+        StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.attachments.invalid_file_extension")
+
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: "The '#{extension}' file extension is not currently supported. Follow the instructions " \
                   'on your device on how to convert the file extension and try again to continue.'
