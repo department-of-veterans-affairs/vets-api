@@ -7,8 +7,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
   include JsonSchemaMatchers
 
   let(:contact_information_service) do
-      VAProfile::ContactInformation::Service
-    end
+    VAProfile::ContactInformation::Service
   end
 
   describe 'GET /mobile/v1/user' do
