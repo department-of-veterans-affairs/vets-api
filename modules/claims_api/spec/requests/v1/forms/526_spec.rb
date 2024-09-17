@@ -16,7 +16,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
   let(:multi_profile) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
+      profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321],
+                                              birth_date: '19560506')
     )
   end
 
@@ -1084,7 +1085,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           icn: '1012832025V743496',
           first_name: 'Wesley',
           last_name: 'Ford',
-          birth_date: '19630211',
+          birth_date: '19590211',
           loa: { current: 3, highest: 3 },
           edipi: nil,
           ssn: '796043735',
@@ -1138,10 +1139,10 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         let(:profile_with_edipi) do
           MPI::Responses::FindProfileResponse.new(
             status: 'OK',
-            profile: FactoryBot.build(:mpi_profile, edipi: '2536798')
+            profile: FactoryBot.build(:mpi_profile, edipi: '2536798', birth_date: '19560506')
           )
         end
-        let(:profile) { build(:mpi_profile) }
+        let(:profile) { build(:mpi_profile, birth_date: '19560506') }
         let(:mpi_profile_response) { build(:find_profile_response, profile:) }
 
         it 'returns a 422 without an edipi' do
@@ -1188,7 +1189,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
 
       context 'when consumer is Veteran, but is missing a participant id' do
-        let(:profile) { build(:mpi_profile) }
+        let(:profile) { build(:mpi_profile, birth_date: '19560506') }
         let(:mpi_profile_response) { build(:find_profile_response, profile:) }
 
         it 'raises a 422, with message' do
@@ -1220,7 +1221,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     context 'when Veteran has participant_id' do
       context 'when Veteran is missing a birls_id' do
         before do
-          stub_mpi(build(:mpi_profile, birls_id: nil))
+          stub_mpi(build(:mpi_profile, birls_id: nil, birth_date: '19560506'))
         end
 
         it 'returns an unprocessible entity status' do
@@ -1236,7 +1237,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
     context 'when Veteran has multiple participant_ids' do
       before do
-        stub_mpi(build(:mpi_profile, birls_id: nil))
+        stub_mpi(build(:mpi_profile, birls_id: nil, birth_date: '19560506'))
       end
 
       it 'returns an unprocessible entity status' do

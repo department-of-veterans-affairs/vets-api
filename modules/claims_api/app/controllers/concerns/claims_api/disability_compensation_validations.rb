@@ -235,9 +235,9 @@ module ClaimsApi
     end
 
     def validate_service_after_13th_birthday!
-      age_thirteen = auth_headers['va_eauth_birthdate'].to_datetime.next_year(13).to_time
-      started_after_age_thirteen = form_attributes['serviceInformation']['servicePeriods'].any? do |period|
-        period['activeDutyBeginDate'] < age_thirteen
+      age_thirteen = auth_headers&.dig('va_eauth_birthdate')&.to_datetime&.next_year(13)&.to_time
+      started_after_age_thirteen = form_attributes&.dig('serviceInformation', 'servicePeriods')&.any? do |period|
+        period&.dig('activeDutyBeginDate')&.< age_thirteen
       end
       if started_after_age_thirteen
         raise ::Common::Exceptions::UnprocessableEntity.new(
