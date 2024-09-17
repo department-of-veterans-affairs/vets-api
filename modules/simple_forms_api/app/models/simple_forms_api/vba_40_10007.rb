@@ -334,6 +334,7 @@ module SimpleFormsApi
       end
     end
 
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     def handle_attachments(file_path)
       attachments = get_attachments
       combined_pdf = CombinePDF.new
@@ -345,34 +346,20 @@ module SimpleFormsApi
 
       if attachments.count.positive?
         attachments.each do |attachment|
-          file_size = File.size(attachment)
-          Rails.logger.info("Processing attachment: #{attachment.inspect}, File size: #{file_size} bytes")
-
-          memory_before = `ps -o rss= -p #{Process.pid}`.to_i
-          Rails.logger.info("Memory usage before loading attachment: #{memory_before} KB")
-
-          pdf = CombinePDF.load(attachment, allow_optional_content: true)
-          Rails.logger.info("Successfully loaded attachment: #{attachment.inspect}, Pages: #{pdf.pages.count}")
-
-          combined_pdf << pdf
-
-          memory_after = `ps -o rss= -p #{Process.pid}`.to_i
-          Rails.logger.info("Memory usage after loading attachment: #{memory_after} KB")
+          combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
         rescue => e
           Rails.logger.error(
             'Simple forms api - failed to load attachment for 40-10007',
-            {
-              message: e.message,
-              backtrace: e.backtrace.take(5),
-              attachment: attachment.inspect
-            }
+            { message: e.message, attachment: attachment.inspect }
           )
           raise
         end
       end
+      combined_pdf.save file_path
+
+      FileUtils.rm_f(attachment_page_path)
     end
 
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     def track_user_identity(confirmation_number)
       identity = get_relationship_to_vet(@data.dig('application', 'claimant', 'relationship_to_vet'))
       StatsD.increment("#{STATS_KEY}.#{identity}")
