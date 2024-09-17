@@ -38,8 +38,8 @@ jobs:
         env:
           DOCKER_BUILD_SUMMARY: false
         with:
-          context: ./.postman
-          file: ./.postman/Dockerfile
+          context: ./postman
+          file: ./postman/Dockerfile
           push: true
           tags: |
             ${{ steps.ecr-login.outputs.registry }}/dsva/vets-api-postman:${{ steps.version.outputs.version }}
