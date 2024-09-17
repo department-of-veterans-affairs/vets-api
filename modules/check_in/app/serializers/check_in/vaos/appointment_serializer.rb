@@ -26,11 +26,7 @@ module CheckIn
       end
 
       attribute :serviceCategory do |object|
-        object.serviceCategory&.map do |category|
-          {
-            text: category&.dig('text')
-          }
-        end
+        object.serviceCategory&.map { |category| { text: category['text'] } }
       end
 
       attribute :facilityName do |object|
