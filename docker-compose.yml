@@ -56,8 +56,6 @@ services:
   worker:
     <<: *common
     command: bundle exec sidekiq -q critical,4 -q tasker,3 -q default,2 -q low,1
-    deploy:
-      replicas: 10
 
 volumes:
  shared-vol:

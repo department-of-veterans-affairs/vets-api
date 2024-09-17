@@ -8,7 +8,6 @@ module Vye
       Vye.settings.s3.to_h.slice(:region, :access_key_id, :secret_access_key)
     end
 
-    # this is the internal bucket. # TODO: rename here and in the settings?
     def bucket
       Vye.settings.s3.bucket
     end
@@ -53,9 +52,9 @@ module Vye
     def upload_report(filename, &)
       path = tmp_path filename
       path.open('w', &)
-      # upload(path)
-      # ensure
-      # path.delete
+      upload(path)
+    ensure
+      path.delete
     end
 
     def clear_from(bucket_sym: :internal, path: 'processed')
