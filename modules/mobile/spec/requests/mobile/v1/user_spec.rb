@@ -7,9 +7,6 @@ RSpec.describe 'Mobile::V1::User', type: :request do
   include JsonSchemaMatchers
 
   let(:contact_information_service) do
-    if Flipper.enabled?(:va_v3_contact_information_service)
-      VAProfile::V2::ContactInformation::Service
-    else
       VAProfile::ContactInformation::Service
     end
   end
