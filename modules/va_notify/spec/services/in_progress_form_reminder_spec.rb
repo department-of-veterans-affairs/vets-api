@@ -13,13 +13,13 @@ describe VANotify::InProgressFormReminder, type: :worker do
       allow(VANotify::Veteran).to receive(:new).and_return(user_without_icn)
       allow(user_without_icn).to receive_messages(first_name: 'first_name', icn: nil)
 
-      allow(VANotify::IcnJob).to receive(:perform_async)
+      allow(VANotify::UserAccountJob).to receive(:perform_async)
 
       Sidekiq::Testing.inline! do
         described_class.new.perform(in_progress_form.id)
       end
 
-      expect(VANotify::IcnJob).not_to have_received(:perform_async)
+      expect(VANotify::UserAccountJob).not_to have_received(:perform_async)
     end
 
     it 'skips sending reminder email if there is no first name' do
@@ -27,17 +27,17 @@ describe VANotify::InProgressFormReminder, type: :worker do
       allow(veteran_double).to receive_messages(icn: 'icn', first_name: nil)
       allow(VANotify::Veteran).to receive(:new).and_return(veteran_double)
 
-      allow(VANotify::IcnJob).to receive(:perform_async)
+      allow(VANotify::UserAccountJob).to receive(:perform_async)
 
       Sidekiq::Testing.inline! do
         described_class.new.perform(in_progress_form.id)
       end
 
-      expect(VANotify::IcnJob).not_to have_received(:perform_async)
+      expect(VANotify::UserAccountJob).not_to have_received(:perform_async)
     end
 
     it 'rescues VANotify::Veteran::MPIError and returns nil' do
-      allow(VANotify::IcnJob).to receive(:perform_async)
+      allow(VANotify::UserAccountJob).to receive(:perform_async)
       allow(VANotify::Veteran).to receive(:new).and_raise(VANotify::Veteran::MPIError)
 
       result = Sidekiq::Testing.inline! do
@@ -45,11 +45,11 @@ describe VANotify::InProgressFormReminder, type: :worker do
       end
 
       expect(result).to eq(nil)
-      expect(VANotify::IcnJob).not_to have_received(:perform_async)
+      expect(VANotify::UserAccountJob).not_to have_received(:perform_async)
     end
 
     it 'rescues VANotify::Veteran::MPINameError and returns nil' do
-      allow(VANotify::IcnJob).to receive(:perform_async)
+      allow(VANotify::UserAccountJob).to receive(:perform_async)
       allow(VANotify::Veteran).to receive(:new).and_raise(VANotify::Veteran::MPINameError)
 
       result = Sidekiq::Testing.inline! do
@@ -57,22 +57,22 @@ describe VANotify::InProgressFormReminder, type: :worker do
       end
 
       expect(result).to eq(nil)
-      expect(VANotify::IcnJob).not_to have_received(:perform_async)
+      expect(VANotify::UserAccountJob).not_to have_received(:perform_async)
     end
 
     describe 'single relevant in_progress_form' do
-      it 'delegates to VANotify::IcnJob' do
+      it 'delegates to VANotify::UserAccountJob' do
         user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name')
         allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
 
-        allow(VANotify::IcnJob).to receive(:perform_async)
+        allow(VANotify::UserAccountJob).to receive(:perform_async)
         expiration_date = in_progress_form.expires_at.strftime('%B %d, %Y')
 
         Sidekiq::Testing.inline! do
           described_class.new.perform(in_progress_form.id)
         end
 
-        expect(VANotify::IcnJob).to have_received(:perform_async).with('icn', 'fake_template_id',
+        expect(VANotify::UserAccountJob).to have_received(:perform_async).with('icn', 'fake_template_id',
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
                                                                          'date' => expiration_date,
@@ -102,21 +102,21 @@ describe VANotify::InProgressFormReminder, type: :worker do
         allow(veteran_double).to receive_messages(icn: 'icn', first_name: 'first_name')
         allow(VANotify::Veteran).to receive(:new).and_return(veteran_double)
 
-        allow(VANotify::IcnJob).to receive(:perform_async)
+        allow(VANotify::UserAccountJob).to receive(:perform_async)
         stub_const('VANotify::FindInProgressForms::RELEVANT_FORMS', %w[686C-674 form_2_id form_3_id])
 
         Sidekiq::Testing.inline! do
           described_class.new.perform(in_progress_form_3.id)
         end
 
-        expect(VANotify::IcnJob).not_to have_received(:perform_async)
+        expect(VANotify::UserAccountJob).not_to have_received(:perform_async)
       end
 
-      it 'delegates to VANotify::IcnJob if its the oldest in_progress_form' do
+       it 'delegates to VANotify::UserAccountJob if its the oldest in_progress_form' do
         user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name')
         allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
 
-        allow(VANotify::IcnJob).to receive(:perform_async)
+        allow(VANotify::UserAccountJob).to receive(:perform_async)
         stub_const('VANotify::FindInProgressForms::RELEVANT_FORMS', %w[686C-674 form_2_id form_3_id])
         stub_const('VANotify::InProgressFormHelper::FRIENDLY_FORM_SUMMARY', {
                      '686C-674' => '686c something',
@@ -139,7 +139,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
         end
 
         # rubocop:disable Layout/LineLength
-        expect(VANotify::IcnJob).to have_received(:perform_async).with('icn', 'fake_template_id',
+        expect(VANotify::UserAccountJob).to have_received(:perform_async).with('icn', 'fake_template_id',
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
 

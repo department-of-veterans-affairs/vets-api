@@ -20,10 +20,10 @@ module VANotify
 
       if only_one_supported_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch(in_progress_form.form_id)
-        IcnJob.perform_async(veteran.icn, template_id, personalisation_details_single)
+        UserAccountJob.perform_async(veteran.icn, template_id, personalisation_details_single)
       elsif oldest_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch('generic')
-        IcnJob.perform_async(veteran.icn, template_id, personalisation_details_multiple)
+        UserAccountJob.perform_async(veteran.icn, template_id, personalisation_details_multiple)
       end
     rescue VANotify::Veteran::MPINameError, VANotify::Veteran::MPIError
       nil
