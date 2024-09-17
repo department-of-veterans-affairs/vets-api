@@ -54,7 +54,7 @@ http_interactions:
   recorded_at: Thu, 29 Aug 2024 02:31:02 GMT
 - request:
     method: post
-    uri: "https://mhv-intb-api.myhealth.va.gov/mhvapi/v1/usermgmt/account-service/account"
+    uri: "https://apigw-intb.aws.myhealth.va.gov/v1/usermgmt/account-service/account"
     body:
       encoding: UTF-8
       string: '{"icn":"10101V964144","email":"some-email@email.com","vaTermsOfUseStatus":"accepted","vaTermsOfUseDateTime":"2017-07-26T19:56:07Z","vaTermsOfUseRevision":"3","vaTermsOfUseLegalVersion":"1.0","vaTermsOfUseDocTitle":"VA Enterprise Terms of Use"}'
