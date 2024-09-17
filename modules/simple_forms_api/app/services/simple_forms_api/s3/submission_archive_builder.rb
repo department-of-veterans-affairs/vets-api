@@ -51,7 +51,7 @@ module SimpleFormsApi
         write_pdf
         write_as_json_archive if include_json_archive
         write_as_text_archive if include_text_archive
-        write_attachments unless attachments.empty?
+        write_attachments unless attachments && attachments.empty?
         write_manifest if include_manifest
         write_metadata
       rescue => e
