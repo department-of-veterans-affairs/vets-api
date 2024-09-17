@@ -4,8 +4,9 @@ require 'rails_helper'
 
 describe Mobile::V0::Profile::SyncUpdateService do
   let(:user) { create(:user, :api_auth) }
-  Flipper.disable(:va_v3_contact_information_service)
   let(:service) { Mobile::V0::Profile::SyncUpdateService.new(user) }
+
+  Flipper.disable(:va_v3_contact_information_service)
 
   # DO THIS
   describe '#save_and_await_response' do
