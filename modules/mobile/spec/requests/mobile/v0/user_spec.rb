@@ -18,13 +18,12 @@ RSpec.describe 'Mobile::V0::User', type: :request do
         vha_facility_ids: %w[757 358 999]
       )
     end
-
-    before(:all) do
-      Flipper.disable(:mobile_lighthouse_letters)
-    end
-
     let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
+    before(:all) do
+      Flipper.disable(va_v3_contact_information_service)
+      Flipper.disable(:mobile_lighthouse_letters)
+    end
 
     before do
       Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
@@ -469,15 +468,13 @@ RSpec.describe 'Mobile::V0::User', type: :request do
         vha_facility_ids: %w[757 358 999]
       )
     end
+    let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
     before do
       Flipper.disable(:mobile_lighthouse_letters)
       Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
       VCR.insert_cassette('sm_client/session')
     end
-
-    let(:attributes) { response.parsed_body.dig('data', 'attributes') }
-
 
     after do
       Timecop.return

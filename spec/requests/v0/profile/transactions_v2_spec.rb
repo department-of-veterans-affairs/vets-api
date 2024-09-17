@@ -2,21 +2,24 @@
 
 require 'rails_helper'
 
-RSpec.describe 'transactions' do
+RSpec.describe 'transactions v2' do
   include SchemaMatchers
 
   describe 'GET /v0/profile/status/:transaction_id v2' do
     let(:vet360_id) { '1781151' }
     let(:user) { build(:user, :loa3, vet360_id:) }
+
     Flipper.enable(:va_v3_contact_information_service)
     before do
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
       sign_in_as(user)
     end
+
     after do
       Flipper.disable(:va_v3_contact_information_service)
     end
+
     context 'when the requested transaction exists' do
       context 'with a va profile transaction' do
         it 'responds with a serialized transaction', :aggregate_failures do
@@ -91,6 +94,7 @@ RSpec.describe 'transactions' do
   describe 'GET /v0/profile/status/ v2' do
     let(:vet360_id) { '1781151' }
     let(:user) { build(:user, :loa3, vet360_id:) }
+
     before do
       Flipper.enable(:va_v3_contact_information_service)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)

@@ -52,6 +52,7 @@ module Mobile
         def save!(http_method, resource_type, params)
           record = build_record(resource_type, params)
           raise Common::Exceptions::ValidationErrors, record unless record.valid?
+
           response = contact_information_service.send("#{http_method}_#{resource_type.downcase}", record)
           "AsyncTransaction::VAProfile::#{resource_type.capitalize}Transaction".constantize.start(@user, response)
         end

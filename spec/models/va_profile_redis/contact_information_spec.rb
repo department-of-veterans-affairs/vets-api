@@ -218,7 +218,7 @@ describe VAProfileRedis::ContactInformation do
         end
       end
 
-      if !Flipper.enabled?(:va_v3_contact_information_service)
+      unless Flipper.enabled?(:va_v3_contact_information_service)
         describe '#text_permission' do
           it 'returns the users text permission object', :aggregate_failures do
             permission = permission_for VAProfile::Models::Permission::TEXT
@@ -300,7 +300,8 @@ describe VAProfileRedis::ContactInformation do
           )
         end
       end
-      if !Flipper.enabled?(:va_v3_contact_information_service)
+
+      unless Flipper.enabled?(:va_v3_contact_information_service)
         describe '#text_permission' do
           it 'raises a Common::Exceptions::BackendServiceException error' do
             expect { contact_info.text_permission }.to raise_error(
@@ -366,12 +367,14 @@ describe VAProfileRedis::ContactInformation do
           expect(contact_info.temporary_phone).to be_nil
         end
       end
+
       describe '#fax_number' do
         it 'returns nil' do
           expect(contact_info.fax_number).to be_nil
         end
       end
-      if !Flipper.enabled?(:va_v3_contact_information_service)
+
+      unless Flipper.enabled?(:va_v3_contact_information_service)
         describe '#text_permission' do
           it 'returns nil' do
             expect(contact_info.text_permission).to be_nil

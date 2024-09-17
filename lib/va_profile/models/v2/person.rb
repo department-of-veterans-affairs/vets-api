@@ -27,7 +27,7 @@ module VAProfile
           addresses = body['addresses']&.map { |a| VAProfile::Models::V2::Address.build_from(a) }
           emails = body['emails']&.map { |e| VAProfile::Models::Email.build_from(e) }
           telephones = body['telephones']&.map { |t| VAProfile::Models::Telephone.build_from(t) }
-          permissions = body['permissions']&.map { |t| VAProfile::Models::Permission.build_from(t) }
+          body['permissions']&.map { |t| VAProfile::Models::Permission.build_from(t) }
 
           VAProfile::Models::V2::Person.new(
             created_at: body['create_date'],

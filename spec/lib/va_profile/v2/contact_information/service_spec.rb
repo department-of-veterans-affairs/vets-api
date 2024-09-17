@@ -47,6 +47,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
     context 'when not successful' do
       let(:user) { build(:user, :error) }
+
       context 'with a 400 error' do
         it 'returns nil person' do
           VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
@@ -128,8 +129,8 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   describe '#put_email' do
     let(:email) do
       build(
-        :email, :contact_info_v2, id: 318927, email_address: 'person43@example.com',
-                                  vet360_id: 1781151, source_system_user: user.icn
+        :email, :contact_info_v2, id: 318_927, email_address: 'person43@example.com',
+                                  vet360_id: 1_781_151, source_system_user: user.icn
       )
     end
 
@@ -202,7 +203,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/v2/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
-          address.id = 577127
+          address.id = 577_127
           address.address_line1 = '1494 Martin Luther King Rd'
           address.city = 'Fulton'
           address.state_code = 'MS'
@@ -241,7 +242,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/v2/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
-          telephone.id = 458781
+          telephone.id = 458_781
           telephone.phone_number = '5551235'
           response = subject.put_telephone(telephone)
           expect(response.transaction.id).to eq('c915d801-5693-4860-b2df-83baa8c3c910')
@@ -328,19 +329,19 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         factory: 'va_profile_address_v2',
         trait: 'contact_info_v2',
         attr: 'residential_address',
-        id: 577127
+        id: 577_127
       },
       {
         model_name: 'telephone',
         factory: 'telephone',
         attr: 'mobile_phone',
-        id: 458781
+        id: 458_781
       },
       {
         model_name: 'email',
         factory: 'email',
         attr: 'email',
-        id: 318927
+        id: 318_927
       }
     ].each do |spec_data|
       describe "#update_#{spec_data[:model_name]}" do

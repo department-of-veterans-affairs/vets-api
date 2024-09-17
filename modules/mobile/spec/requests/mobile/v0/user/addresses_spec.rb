@@ -6,6 +6,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user }
+
   describe 'update endpoints' do
     Flipper.disable(:va_v3_contact_information_service)
     let(:address) do
@@ -15,6 +16,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
       address.province = 'null'
       address
     end
+
     describe 'POST /mobile/v0/user/addresses' do
       context 'with a valid address that takes two tries to complete' do
         before do

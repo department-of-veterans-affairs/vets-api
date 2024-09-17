@@ -8,11 +8,13 @@ RSpec.describe 'transactions' do
   describe 'GET /v0/profile/status/:transaction_id' do
     let(:vet360_id) { '1' }
     let(:user) { build(:user, :loa3, vet360_id:) }
+
     before do
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
       sign_in_as(user)
     end
+
     context 'when the requested transaction exists' do
       context 'with a va profile transaction' do
         it 'responds with a serialized transaction', :aggregate_failures do
@@ -87,12 +89,14 @@ RSpec.describe 'transactions' do
   describe 'GET /v0/profile/status/' do
     let(:vet360_id) { '1' }
     let(:user) { build(:user, :loa3, vet360_id:) }
+
     Flipper.disable(:va_v3_contact_information_service)
     before do
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
       sign_in_as(user)
     end
+
     context 'when transaction(s) exists' do
       context 'with va profile transactions' do
         it 'responds with an array of transaction(s)', :aggregate_failures do
@@ -169,5 +173,4 @@ RSpec.describe 'transactions' do
       end
     end
   end
-
 end
