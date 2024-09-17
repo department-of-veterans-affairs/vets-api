@@ -6,11 +6,11 @@ module EVSS
   module DisabilityCompensationForm
     class Form526ToLighthouseTransform # rubocop:disable Metrics/ClassLength
       TOXIC_EXPOSURE_CAUSE_MAP = {
-        NEW: 'My condition was caused by an injury or exposure during my military service.',
+        NEW: 'My condition was caused by an injury or exposure during my military service; toxic exposure.',
         WORSENED: 'My condition existed before I served in the military, but it got worse because of my military ' \
-                  'service.',
-        VA: 'My condition was caused by an injury or event that happened when I was receiving VA care.',
-        SECONDARY: 'My condition was caused by another service-connected disability I already have.'
+                  'service; toxic exposure.',
+        VA: 'My condition was caused by an injury or event that happened when I was receiving VA care; toxic exposure.',
+        SECONDARY: 'My condition was caused by another service-connected disability I already have; toxic exposure.'
       }.freeze
 
       GULF_WAR_LOCATIONS = {
