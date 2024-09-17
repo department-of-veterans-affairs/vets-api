@@ -11,6 +11,7 @@ require 'va_profile/models/permission'
 
 # rubocop:disable Metrics/MethodLength
 def stub_vet360(person = nil)
+  Flipper.disable(:va_v3_contact_information_service)
   service = if Flipper.enabled?(:va_v3_contact_information_service)
               VAProfile::V2::ContactInformation::Service
             else

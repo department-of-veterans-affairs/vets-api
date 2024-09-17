@@ -118,7 +118,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         end
       end
 
-      context 'VdcBean' do
+      context 'Vdc' do
         let(:endpoint) { 'VDC/ManageRepresentativeService' }
         let(:action) { 'readPOARequest' }
         let(:key) { 'POARequestRespondReturnVO' }
@@ -322,7 +322,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         end
       end
 
-      context 'VdcBean' do
+      context 'Vdc' do
         let(:endpoint) { 'VDC/ManageRepresentativeService' }
 
         it 'response with the correct namespace' do

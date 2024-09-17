@@ -12,6 +12,7 @@ RSpec.describe BenefitsDocuments::Service do
 
   describe '#queue_document_upload' do
     before do
+      Flipper.disable(:va_v3_contact_information_service)
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
       token = 'abcd1234'
       allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return(token)

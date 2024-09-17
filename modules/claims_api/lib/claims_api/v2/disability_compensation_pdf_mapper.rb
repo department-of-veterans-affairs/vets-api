@@ -137,21 +137,8 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:changeOfAddress].merge!(
           newAddress: { country: abbr_country }
         )
-        if @pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginDate].present?
-          begin_date = @pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginDate]
 
-          @pdf_data[:data][:attributes][:changeOfAddress].merge!(
-            effectiveDates: {
-              start:
-              make_date_object(begin_date, begin_date.length)
-            }
-          )
-        end
-        if @pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate].present?
-          end_date = @pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate]
-          @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:end] =
-            make_date_object(end_date, end_date.length)
-        end
+        chg_addr_dates if @pdf_data[:data][:attributes][:changeOfAddress][:dates].present?
 
         change_addr = @pdf_data[:data][:attributes][:changeOfAddress]
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:numberAndStreet] =
@@ -162,8 +149,7 @@ module ClaimsApi
         state = @pdf_data[:data][:attributes][:changeOfAddress][:state]
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:state] = state
         chg_addr_zip
-        @pdf_data[:data][:attributes][:changeOfAddress][:dates].delete(:beginDate)
-        @pdf_data[:data][:attributes][:changeOfAddress][:dates].delete(:endDate)
+
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:dates)
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:addressLine1)
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:addressLine2)
@@ -177,6 +163,28 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:country)
 
         @pdf_data
+      end
+
+      def chg_addr_dates
+        if @pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginDate].present?
+          begin_date = @pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginDate]
+
+          @pdf_data[:data][:attributes][:changeOfAddress].merge!(
+            effectiveDates: {
+              start:
+              make_date_object(begin_date, begin_date.length)
+            }
+          )
+
+          @pdf_data[:data][:attributes][:changeOfAddress][:dates].delete(:beginDate)
+        end
+        if @pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate].present?
+          end_date = @pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate]
+          @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:end] =
+            make_date_object(end_date, end_date.length)
+
+          @pdf_data[:data][:attributes][:changeOfAddress][:dates].delete(:endDate)
+        end
       end
 
       def chg_addr_zip

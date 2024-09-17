@@ -33,17 +33,15 @@ module Vet360
     private
 
     def build_record(type, params)
-      if type == 'address' && Flipper.enabled?(:va_v3_contact_information_service, @current_user)
-        'VAProfile::Models::V2::Address'
-          .constantize
-          .new(params)
-          .set_defaults(@current_user)
-      else
-        "VAProfile::Models::#{type.capitalize}"
-          .constantize
-          .new(params)
-          .set_defaults(@current_user)
-      end
+      # This needs to be refactored after V2 upgrade is complete
+      model = if type == 'address' && Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+                'VAProfile::Models::V2::Address'
+              else
+                "VAProfile::Models::#{type.capitalize}"
+              end
+      model.constantize
+           .new(params)
+           .set_defaults(@current_user)
     end
 
     def validate!(record)

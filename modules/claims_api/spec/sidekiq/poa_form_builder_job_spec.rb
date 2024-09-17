@@ -13,6 +13,8 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
   before do
     Flipper.disable(:lighthouse_claims_api_poa_use_bd)
     Sidekiq::Job.clear_all
+    allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+      .to receive(:get_auth_token).and_return('some-value-here')
     b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
     power_of_attorney.form_data = {
       recordConcent: true,
@@ -173,12 +175,32 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
   end
 
   context 'when the BD upload feature flag is enabled' do
+    let(:errors) { 'some errors' }
+    let(:pdf_path) { 'some/path' }
+    let(:doc_type) { 'L075' }
+
     it 'calls the benefits document API upload instead of VBMS' do
       Flipper.enable(:lighthouse_claims_api_poa_use_bd)
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
 
       subject.new.perform(power_of_attorney.id)
+    end
+
+    it 'rescues errors from BD and sets the status to errored' do
+      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
+
+      VCR.use_cassette('claims_api/bd/upload_error') do
+        allow(ClaimsApi::BD.new).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)
+                                                    .and_raise(Common::Exceptions::BackendServiceException.new(errors))
+        subject.new.perform(power_of_attorney.id)
+      rescue
+        power_of_attorney.reload
+        expect(power_of_attorney.vbms_error_message).to eq(
+          'BackendServiceException: {:status=>400, :detail=>nil, :code=>"VA900", :source=>nil}'
+        )
+        expect(power_of_attorney.status).to eq(ClaimsApi::PowerOfAttorney::ERRORED)
+      end
     end
   end
 end
