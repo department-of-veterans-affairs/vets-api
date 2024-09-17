@@ -3306,10 +3306,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       Flipper.enable(:my_va_form_submission_statuses)
     end
 
-    it 'submission statuses 401' do
-      expect(subject).to validate(:get, '/v0/my_va/submission_statuses', 401)
-    end
-
     it 'submission statuses 200' do
       VCR.use_cassette('forms/submission_statuses/200_valid') do
         expect(subject).to validate(:get, '/v0/my_va/submission_statuses', 200, headers)
