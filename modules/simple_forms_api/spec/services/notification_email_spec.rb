@@ -108,13 +108,13 @@ describe SimpleFormsApi::NotificationEmail do
           data['claimant_type'] = 'veteran'
 
           subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number')
+                                        confirmation_number: 'confirmation_number', notification_type:)
 
           subject.send
 
           expect(VANotify::EmailJob).to have_received(:perform_async).with(
             'my.long.email.address@email.com',
-            'form21_10210_confirmation_email_template_id',
+            "form21_10210_#{notification_type}_email_template_id",
             {
               'first_name' => 'JACK',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
@@ -129,13 +129,13 @@ describe SimpleFormsApi::NotificationEmail do
           data['claimant_type'] = 'non-veteran'
 
           subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number')
+                                        confirmation_number: 'confirmation_number', notification_type:)
 
           subject.send
 
           expect(VANotify::EmailJob).to have_received(:perform_async).with(
             'my.long.email.address@email.com',
-            'form21_10210_confirmation_email_template_id',
+            "form21_10210_#{notification_type}_email_template_id",
             {
               'first_name' => 'JACK',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
