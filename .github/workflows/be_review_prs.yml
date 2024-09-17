@@ -26,13 +26,6 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-# Exit when pull request is in draft mode
-      - name: Exit when draft pull request
-        if: |
-            !contains(github.event.pull_request.labels.*.name, 'require-backend-approval') &&
-            !contains(github.event.pull_request.labels.*.name, 'omit-backend-approval')
-        run: exit 1
-
 # Find Backend Labels, Approvals and Comments
       - name: Find Approval  Comment
         uses: peter-evans/find-comment@v3
