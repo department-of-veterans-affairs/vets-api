@@ -2,7 +2,6 @@
 
 require 'json'
 
-# rubocop:disable Metrics/ClassLength
 module SimpleFormsApi
   class VBA4010007
     include Virtus.model(nullify_blank: true)
@@ -466,4 +465,3 @@ module SimpleFormsApi
     end
   end
 end
-# rubocop:enable Metrics/ClassLength
