@@ -81,8 +81,7 @@ module SimpleFormsApi
     end
 
     def words_to_remove
-      race_and_privacy + veteran_ssn_and_file_number + veteran_dates_of_birth_and_death + postal_code +
-        phone_number + email
+      veteran_dates_of_birth_and_death + postal_code + phone_number + email
     end
 
     def format_date(date)
@@ -376,19 +375,6 @@ module SimpleFormsApi
     end
 
     private
-
-    def race_and_privacy
-      [
-        @data.dig('application', 'veteran', 'race', 'is_american_indian_or_alaskan_native'),
-        @data.dig('application', 'veteran', 'race', 'is_asian'),
-        @data.dig('application', 'veteran', 'race', 'is_black_or_african_american'),
-        @data.dig('application', 'veteran', 'race', 'is_spanish_hispanic_latino'),
-        @data.dig('application', 'veteran', 'race', 'not_spanish_hispanic_latino'),
-        @data.dig('application', 'veteran', 'race', 'is_native_hawaiian_or_other_pacific_islander'),
-        @data.dig('application', 'veteran', 'race', 'is_white'),
-        @data.dig('application', 'privacy_agreement_accepted')
-      ]
-    end
 
     def veteran_ssn_and_file_number
       [
