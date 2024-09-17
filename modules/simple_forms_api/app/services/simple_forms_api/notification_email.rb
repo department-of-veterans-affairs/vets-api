@@ -2,7 +2,8 @@
 
 module SimpleFormsApi
   class NotificationEmail
-    attr_reader :form_number, :confirmation_number, :notification_type, :user
+    attr_reader :form_number, :confirmation_number, :lighthouse_updated_at, :originally_submitted_at,
+                :notification_type, :user
 
     TEMPLATE_IDS = {
       'vba_21_0845' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email },
@@ -21,10 +22,12 @@ module SimpleFormsApi
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
-    def initialize(form_data:, form_number:, confirmation_number:, notification_type: :confirmation, user: nil)
-      @form_data = form_data
-      @form_number = form_number
-      @confirmation_number = confirmation_number
+    def initialize(form_submission_attempt:, notification_type: :confirmation, user: nil)
+      @form_data = form_submission_attempt.form_data
+      @form_number = form_submission_attempt.form_type
+      @confirmation_number = form_submission_attempt.benefits_intake_uuid
+      @lighthouse_updated_at = form_submission_attempt.lighthouse_updated_at
+      @originally_submitted_at = form_submission_attempt.created_at
       @notification_type = notification_type
       @user = user
     end
@@ -119,12 +122,13 @@ module SimpleFormsApi
       { email: '', personalization: {} }
     end
 
-    # personalization hash shared by all simple form confirmation emails
+    # personalization hash shared by all simple form notification emails
     def default_personalization(first_name)
       {
         'first_name' => first_name&.upcase,
-        'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-        'confirmation_number' => confirmation_number
+        'date_submitted' => originally_submitted_at.strftime('%B %d, %Y'),
+        'confirmation_number' => confirmation_number,
+        'lighthouse_updated_at' => lighthouse_updated_at&.strftime('%B %d, %Y')
       }
     end
 

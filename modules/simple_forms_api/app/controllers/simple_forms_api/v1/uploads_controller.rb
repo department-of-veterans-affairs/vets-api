@@ -121,20 +121,21 @@ module SimpleFormsApi
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
-        status, confirmation_number = upload_pdf(file_path, metadata, form)
+        status, form_submission_attempt = upload_pdf(file_path, metadata, form)
+        uuid = form_submission_attempt.benefits_intake_uuid
 
-        form.track_user_identity(confirmation_number)
+        form.track_user_identity(uuid)
 
         Rails.logger.info(
           'Simple forms api - sent to benefits intake',
-          { form_number: params[:form_number], status:, uuid: confirmation_number }
+          { form_number: params[:form_number], status:, uuid: }
         )
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
-          send_confirmation_email(parsed_form_data, form_id, confirmation_number)
+          send_confirmation_email(form_submission_attempt)
         end
 
-        { json: get_json(confirmation_number || nil, form_id), status: }
+        { json: get_json(uuid || nil, form_id), status: }
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
@@ -160,11 +161,11 @@ module SimpleFormsApi
       end
 
       def upload_pdf(file_path, metadata, form)
-        location, uuid = prepare_for_upload(form, file_path)
-        log_upload_details(location, uuid)
+        location, form_submission_attempt = prepare_for_upload(form, file_path)
+        log_upload_details(location, form_submission_attempt.benefits_intake_uuid)
         response = perform_pdf_upload(location, file_path, metadata, form)
 
-        [response.status, uuid]
+        [response.status, form_submission_attempt]
       end
 
       def prepare_for_upload(form, file_path)
@@ -172,9 +173,9 @@ module SimpleFormsApi
                           form_id: get_form_id)
         location, uuid = lighthouse_service.request_upload
         stamp_pdf_with_uuid(form, uuid, file_path)
-        create_form_submission_attempt(uuid)
+        form_submission_attempt = create_form_submission_attempt(uuid)
 
-        [location, uuid]
+        [location, form_submission_attempt]
       end
 
       def stamp_pdf_with_uuid(form, uuid, stamped_template_path)
@@ -263,11 +264,9 @@ module SimpleFormsApi
         } }
       end
 
-      def send_confirmation_email(parsed_form_data, form_id, confirmation_number)
+      def send_confirmation_email(form_submission_attempt)
         SimpleFormsApi::NotificationEmail.new(
-          form_data: parsed_form_data,
-          form_number: form_id,
-          confirmation_number:,
+          form_submission_attempt:,
           notification_type: :confirmation,
           user: @current_user
         ).send

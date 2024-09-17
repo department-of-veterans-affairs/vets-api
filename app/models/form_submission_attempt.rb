@@ -15,6 +15,10 @@ class FormSubmissionAttempt < ApplicationRecord
   # If we get around to doing that, we shouldn't need the following line.
   self.ignored_columns += %w[error_message response]
 
+  def benefits_intake_uuid
+    benefits_intake_uuid || form_submission.benefits_intake_uuid
+  end
+
   aasm do
     after_all_transitions :log_status_change
 
