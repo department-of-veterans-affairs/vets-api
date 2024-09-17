@@ -607,9 +607,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
               allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                 .to receive(:validate_json_schema).and_return(nil)
 
-              expect_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
                 .to receive(:validate_poa_code_exists!)
-              expect_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
                 .to receive(:validate_dependent_by_participant_id!)
 
               post "#{path}/validate", params: data_with_claimant, headers: headers.merge(auth_header)
@@ -623,9 +623,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
               allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                 .to receive(:check_request_ssn_matches_mpi).and_return(nil)
 
-              expect_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
                 .not_to receive(:validate_poa_code_exists!)
-              expect_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
                 .not_to receive(:validate_dependent_by_participant_id!)
 
               post "#{path}/validate", params: data, headers: headers.merge(auth_header)
@@ -646,9 +646,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
             allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
               .to receive(:validate_json_schema).and_return(nil)
 
-            expect_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+            expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
               .not_to receive(:validate_poa_code_exists!)
-            expect_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+            expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
               .not_to receive(:validate_dependent_by_participant_id!)
 
             post "#{path}/validate", params: data_with_claimant, headers: headers.merge(auth_header)
