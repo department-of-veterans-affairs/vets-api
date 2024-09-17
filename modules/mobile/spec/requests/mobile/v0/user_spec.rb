@@ -10,7 +10,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     VAProfile::ContactInformation::Service
   end
 
-  Flipper.disable(:va_v3_contact_information_service)
 
   describe 'GET /mobile/v0/user' do
     let!(:user) do
@@ -27,6 +26,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     end
 
     before(:all) do
+      Flipper.disable(:va_v3_contact_information_service)
       Flipper.disable(:mobile_lighthouse_letters)
     end
 
