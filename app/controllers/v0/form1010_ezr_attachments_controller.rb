@@ -9,6 +9,10 @@ module V0
 
     FORM_ATTACHMENT_MODEL = Form1010EzrAttachment
 
+    def create
+      super
+    end
+
     private
 
     def serializer_klass
