@@ -5,6 +5,7 @@ require_relative '../../../../support/helpers/rails_helper'
 RSpec.describe 'Mobile::V0::PreNeedBurial', type: :request do
   include SchemaMatchers
   describe 'POST /mobile/v0/claims/pre-need-burial' do
+    Flipper.disable(:va_v3_contact_information_service)
     let!(:user) { sis_user(icn: '1012846043V576341') }
     let(:params) do
       { application: attributes_for(:burial_form) }
