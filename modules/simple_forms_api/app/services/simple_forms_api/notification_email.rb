@@ -21,7 +21,7 @@ module SimpleFormsApi
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
-    def initialize(form_data:, form_number:, confirmation_number:, notification_type:, user: nil)
+    def initialize(form_data:, form_number:, confirmation_number:, notification_type: :confirmation, user: nil)
       @form_data = form_data
       @form_number = form_number
       @confirmation_number = confirmation_number
