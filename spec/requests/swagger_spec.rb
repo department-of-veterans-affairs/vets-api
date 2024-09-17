@@ -3304,6 +3304,9 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
   describe 'submission statuses' do
     before do
       Flipper.enable(:my_va_form_submission_statuses)
+      create(:form_submission, :with_form214142, user_account_id: mhv_user.uuid)
+      create(:form_submission, :with_form210966, user_account_id: mhv_user.uuid)
+      create(:form_submission, :with_form_blocked, user_account_id: mhv_user.uuid)
     end
 
     it 'submission statuses 200' do
