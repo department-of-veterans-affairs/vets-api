@@ -13,3 +13,4 @@ spec:
         - name: "API_URL"
           value: "http://vets-api-service"
   restartPolicy: Never
+  
