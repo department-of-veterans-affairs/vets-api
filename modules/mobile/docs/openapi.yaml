@@ -843,6 +843,7 @@ paths:
                     properties:
                       id:
                         type: string
+                        description: Upstream identifier. Appointment id.
                       type:
                         type: string
                       attributes:

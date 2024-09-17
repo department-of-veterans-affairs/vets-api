@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
+require_relative 'lighthouse_military_address_validator'
+
 module ClaimsApi
   module V2
     class DisabilityCompensationEvssMapper
-      def initialize(auto_claim, file_number)
+      include LighthouseMilitaryAddressValidator
+
+      def initialize(auto_claim)
         @auto_claim = auto_claim
         @data = auto_claim&.form_data&.deep_symbolize_keys
         @evss_claim = {}
-        @file_number = file_number
       end
 
       def map_claim
@@ -48,14 +51,35 @@ module ClaimsApi
       end
 
       def current_mailing_address
-        addr = @data.dig(:veteranIdentification, :mailingAddress) || {}
-        @evss_claim[:veteran] ||= {}
-        @evss_claim[:veteran][:currentMailingAddress] = addr
-        @evss_claim[:veteran][:currentMailingAddress].merge!({ type: 'DOMESTIC' })
-        @evss_claim[:veteran][:currentMailingAddress].except!(:numberAndStreet, :apartmentOrUnitNumber)
-        if @evss_claim[:veteran][:currentMailingAddress][:zipLastFour].blank?
-          @evss_claim[:veteran][:currentMailingAddress].except!(:zipLastFour)
+        if address_is_military?(@data.dig(:veteranIdentification, :mailingAddress))
+          handle_military_address
+        else
+          handle_domestic_or_international_address
         end
+      end
+
+      def handle_military_address
+        addr = @data.dig(:veteranIdentification, :mailingAddress) || {}
+        type = 'MILITARY'
+        addr[:militaryPostOfficeTypeCode] = military_city(addr)
+        addr[:militaryStateCode] = military_state(addr)
+
+        addr.delete(:city)
+        addr.delete(:state)
+
+        @evss_claim[:veteran] ||= {}
+        @evss_claim[:veteran][:currentMailingAddress] = addr.compact_blank
+        @evss_claim[:veteran][:currentMailingAddress].merge!({ type: })
+        @evss_claim[:veteran][:currentMailingAddress].except!(:numberAndStreet, :apartmentOrUnitNumber)
+      end
+
+      def handle_domestic_or_international_address
+        addr = @data.dig(:veteranIdentification, :mailingAddress) || {}
+        type = addr[:internationalPostalCode].present? ? 'INTERNATIONAL' : 'DOMESTIC'
+        @evss_claim[:veteran] ||= {}
+        @evss_claim[:veteran][:currentMailingAddress] = addr.compact_blank
+        @evss_claim[:veteran][:currentMailingAddress].merge!({ type: })
+        @evss_claim[:veteran][:currentMailingAddress].except!(:numberAndStreet, :apartmentOrUnitNumber)
       end
 
       def disabilities
@@ -107,7 +131,6 @@ module ClaimsApi
         @evss_claim[:veteran][:currentlyVAEmployee] = @data.dig(:veteranIdentification, :currentVaEmployee)
         email_address = @data.dig(:veteranIdentification, :emailAddress, :email)
         @evss_claim[:veteran][:emailAddress] = email_address unless email_address.nil?
-        @evss_claim[:veteran][:fileNumber] = @file_number
       end
 
       # Convert 12-05-1984 to 1984-12-05 for Docker container

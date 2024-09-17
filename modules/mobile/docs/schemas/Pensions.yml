@@ -15,6 +15,7 @@ properties:
       id:
         type: string
         example: "f26bc1f0-c389-4f3c-86e0-7712fb08fbe6"
+        description: Upstream veteran id field
       attributes:
         type: object
         required:

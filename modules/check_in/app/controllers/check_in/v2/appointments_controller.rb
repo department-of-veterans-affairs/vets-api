@@ -14,12 +14,8 @@ module CheckIn
         end
 
         appointments
-        # find the facility and clinic IDs from all appointments
-        # make a call to facilities and clinic endpoints
-        # combine the appointments payload with facilities and clinics data
 
-        merge_facilities(appointments[:data])
-
+        merge_facilities_and_clinic(appointments[:data])
         serializer = VAOS::AppointmentSerializer.new(appt_struct_data)
 
         render json: serializer.serializable_hash.to_json, status: :ok
@@ -36,10 +32,15 @@ module CheckIn
         struct.data
       end
 
-      def merge_facilities(appointments)
+      def merge_facilities_and_clinic(appointments)
         appointments.each do |appt|
-          unless appt[:locationId].nil?
-            appt[:facility] = facility_service.get_facility_with_cache(facility_id: appt[:locationId])
+          next if appt[:locationId].blank?
+
+          appt[:facility] = facility_service.get_facility_with_cache(facility_id: appt[:locationId])
+
+          if appt[:clinic].present?
+            appt[:clinicInfo] =
+              facility_service.get_clinic_with_cache(facility_id: appt[:locationId], clinic_id: appt[:clinic])
           end
         end
       end

@@ -32,16 +32,22 @@ class AccreditedOrganization < ApplicationRecord
   # @return [AccreditedOrganization::ActiveRecord_Relation] an ActiveRecord_Relation of
   #   all organizations matching the search criteria
   def self.find_within_max_distance(long, lat, max_distance = AccreditedRepresentation::Constants::DEFAULT_MAX_DISTANCE)
-    query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography, location, :max_distance)'
+    query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography,' \
+            'accredited_organizations.location, :max_distance)'
     params = { long:, lat:, max_distance: }
 
     where(query, params)
   end
 
-  # return all registration_numbers associated with the individual
+  # return all registration_numbers associated with the organization
   #
   # @return [Array<String>]
   def registration_numbers
     accredited_individuals.pluck(:registration_number)
+  end
+
+  # This method needs to exist on the model so [Common::Collection] doesn't blow up when trying to paginate
+  def self.max_per_page
+    AccreditedRepresentation::Constants::MAX_PER_PAGE
   end
 end

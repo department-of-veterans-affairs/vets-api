@@ -10,6 +10,7 @@ module ClaimsApi
         include ClaimsApi::DocumentValidations
         include ClaimsApi::EndpointDeprecation
         include ClaimsApi::PoaVerification
+        include ClaimsApi::DependentClaimantVerification
 
         before_action except: %i[schema] do
           permit_scopes %w[claim.read] if request.get?
@@ -38,7 +39,7 @@ module ClaimsApi
               status: ClaimsApi::PowerOfAttorney::PENDING,
               auth_headers:,
               form_data: form_attributes,
-              current_poa: current_poa_code,
+              current_poa: power_of_attorney_verifier.current_poa_code,
               header_md5:,
               cid: token.payload['cid']
             }
@@ -47,7 +48,7 @@ module ClaimsApi
             unless power_of_attorney.persisted?
               power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5)
             end
-
+            power_of_attorney.auth_headers['participant_id'] = target_veteran.participant_id
             power_of_attorney.save!
           end
 
@@ -76,11 +77,12 @@ module ClaimsApi
 
           @power_of_attorney.set_file_data!(documents.first, params[:doc_type])
           @power_of_attorney.status = ClaimsApi::PowerOfAttorney::SUBMITTED
+          @power_of_attorney.auth_headers['participant_id'] = target_veteran.participant_id
           @power_of_attorney.save!
           @power_of_attorney.reload
 
           # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
-          ClaimsApi::PoaVBMSUploadJob.perform_async(@power_of_attorney.id)
+          ClaimsApi::PoaVBMSUploadJob.perform_async(@power_of_attorney.id, 'put')
 
           render json: ClaimsApi::PowerOfAttorneySerializer.new(@power_of_attorney)
         end
@@ -100,12 +102,12 @@ module ClaimsApi
         def active # rubocop:disable Metrics/MethodLength
           validate_user_is_accredited! if header_request? && !token.client_credentials_token?
 
-          unless current_poa_code
+          unless power_of_attorney_verifier.current_poa_code
             claims_v1_logging('poa_active', message: "POA not found, poa: #{@power_of_attorney&.id}")
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found')
           end
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
 
-          representative_info = build_representative_info(current_poa_code)
+          representative_info = build_representative_info(power_of_attorney_verifier.current_poa_code)
 
           render json: {
             data: {
@@ -120,10 +122,10 @@ module ClaimsApi
                     last_name: representative_info[:last_name],
                     organization_name: representative_info[:organization_name],
                     phone_number: representative_info[:phone_number],
-                    poa_code: current_poa_code
+                    poa_code: power_of_attorney_verifier.current_poa_code
                   }
                 },
-                previous_poa: previous_poa_code
+                previous_poa: power_of_attorney_verifier.previous_poa_code
               }
             }
           }
@@ -139,6 +141,11 @@ module ClaimsApi
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
+          if Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
+            validate_dependent_by_participant_id!(target_veteran.participant_id,
+                                                  form_attributes.dig('claimant', 'firstName'),
+                                                  form_attributes.dig('claimant', 'lastName'))
+          end
 
           render json: validation_success
         end
@@ -146,21 +153,13 @@ module ClaimsApi
         private
 
         def current_poa_begin_date
-          return nil if current_poa.try(:begin_date).blank?
+          return nil if power_of_attorney_verifier.current_poa.try(:begin_date).blank?
 
-          Date.strptime(current_poa.begin_date, '%m/%d/%Y')
+          Date.strptime(power_of_attorney_verifier.current_poa.begin_date, '%m/%d/%Y')
         end
 
-        def current_poa_code
-          current_poa.try(:code)
-        end
-
-        def current_poa
-          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
-        end
-
-        def previous_poa_code
-          @previous_poa_code ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).previous_poa_code
+        def power_of_attorney_verifier
+          @verifier ||= BGS::PowerOfAttorneyVerifier.new(target_veteran)
         end
 
         def header_md5

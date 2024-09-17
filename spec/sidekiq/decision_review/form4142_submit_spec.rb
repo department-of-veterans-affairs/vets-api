@@ -49,6 +49,15 @@ RSpec.describe DecisionReview::Form4142Submit, type: :job do
           Flipper.enable :decision_review_sc_use_lighthouse_api_for_form4142
         end
 
+        it '#decrypt_form properly decrypts encrypted payloads' do
+          form4142 = request_body['form4142']
+          payload = get_and_rejigger_required_info(
+            request_body:, form4142:, user:
+          )
+          enc_payload = payload_encrypted_string(payload)
+          expect(subject.new.decrypt_form(enc_payload)).to eq(payload)
+        end
+
         it 'generates a 4142 PDF and sends it to Lighthouse API' do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do

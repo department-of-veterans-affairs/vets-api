@@ -36,12 +36,14 @@ describe SimpleFormsApi::PdfFiller do
     forms.each do |file_name|
       context "when mapping the pdf data given JSON file: #{file_name}" do
         let(:form_number) { file_name.gsub('-min', '') }
-        let(:expected_pdf_path) { "tmp/#{name}-tmp.pdf" }
-        let(:expected_stamped_path) { "tmp/#{name}-stamped.pdf" }
+        let(:pseudorandom_value) { 'abc123' }
+        let(:expected_pdf_path) { Rails.root.join("tmp/#{name}-#{pseudorandom_value}-tmp.pdf") }
+        let(:expected_stamped_path) { Rails.root.join("tmp/#{name}-#{pseudorandom_value}-stamped.pdf") }
         let(:data) { JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{file_name}.json")) }
         let(:form) { "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data) }
         let(:name) { SecureRandom.hex }
 
+        before { allow(SecureRandom).to receive(:hex).and_return(pseudorandom_value) }
         after { FileUtils.rm_f(expected_pdf_path) }
 
         context 'when a legitimate JSON payload is provided' do
@@ -56,7 +58,7 @@ describe SimpleFormsApi::PdfFiller do
 
             described_class.new(form_number:, form:, name:).generate
 
-            expect(FileUtils).to have_received(:copy_file).with(anything, expected_stamped_path)
+            expect(FileUtils).to have_received(:copy_file).with(anything, expected_stamped_path.to_s)
           end
         end
       end

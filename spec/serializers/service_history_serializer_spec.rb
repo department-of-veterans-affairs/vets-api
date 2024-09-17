@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe ServiceHistorySerializer, type: :serializer do
-  subject { serialize(service_history, serializer_class: described_class) }
+  subject { serialize(service_history, { serializer_class: described_class, is_collection: false }) }
 
   let(:service_history) do
     histories = [build(:service_history, :with_deployments)]

@@ -3,8 +3,8 @@
 require 'sm/client'
 
 class SMController < ApplicationController
-  include ActionController::Serialization
   include MHVControllerConcerns
+  include JsonApiPaginationLinks
   service_tag 'legacy-mhv'
 
   protected

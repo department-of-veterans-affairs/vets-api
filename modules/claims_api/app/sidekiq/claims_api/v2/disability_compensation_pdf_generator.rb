@@ -10,7 +10,7 @@ module ClaimsApi
       LOG_TAG = '526_v2_PDF_Generator_job'
       sidekiq_options expires_in: 48.hours, retry: true
 
-      def perform(claim_id, middle_initial, perform_async = true) # rubocop:disable Metrics/MethodLength,Style/OptionalBooleanParameter
+      def perform(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
         log_job_progress(claim_id,
                          "526EZ PDF generator started for claim #{claim_id}")
 
@@ -38,7 +38,7 @@ module ClaimsApi
                            '526EZ PDF generator PDF string returned')
 
           file_name = "#{SecureRandom.hex}.pdf"
-          path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
+          path = ::Common::FileHelpers.generate_clamav_temp_file(pdf_string, file_name)
           upload = ActionDispatch::Http::UploadedFile.new({
                                                             filename: file_name,
                                                             type: 'application/pdf',

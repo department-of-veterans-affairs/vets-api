@@ -30,26 +30,26 @@ module V0
     end
 
     def get_all_features
-      return old_get_all_features unless Flipper.enabled?(:use_new_get_all_features)
-
       features = fetch_features_with_gate_keys
       add_feature_gate_values(features)
       format_features(features)
     end
 
     def fetch_features_with_gate_keys
-      FLIPPER_FEATURE_CONFIG['features']
-        .map { |name, config| { name:, enabled: false, actor_type: config['actor_type'] } }
-        .tap do |features|
-          # Update enabled to true if globally enabled
-          feature_gates.each do |row|
-            feature = features.find { |f| f[:name] == row['feature_name'] }
-            next unless feature # Ignore features not in config/features.yml
+      Rails.cache.fetch('features_with_gate_keys', expires_in: 1.minute) do
+        FLIPPER_FEATURE_CONFIG['features']
+          .map { |name, config| { name:, enabled: false, actor_type: config['actor_type'] } }
+          .tap do |features|
+            # Update enabled to true if globally enabled
+            feature_gates.each do |row|
+              feature = features.find { |f| f[:name] == row['feature_name'] }
+              next unless feature # Ignore features not in config/features.yml
 
-            feature[:gate_key] = row['gate_key'] # Add gate_key for use in add_feature_gate_values
-            feature[:enabled] = true if row['gate_key'] == 'boolean' && row['value'] == 'true'
+              feature[:gate_key] = row['gate_key'] # Add gate_key for use in add_feature_gate_values
+              feature[:enabled] = true if row['gate_key'] == 'boolean' && row['value'] == 'true'
+            end
           end
-        end
+      end
     end
 
     def add_feature_gate_values(features)
@@ -87,36 +87,11 @@ module V0
     end
 
     def feature_gates
-      Rails.cache.fetch('global_feature_gates', expires_in: 1.minute) do
-        ActiveRecord::Base.connection.select_all(<<-SQL.squish)
-          SELECT flipper_features.key AS feature_name, flipper_gates.key AS gate_key, flipper_gates.value
-          FROM flipper_features
-          LEFT JOIN flipper_gates ON flipper_features.key = flipper_gates.feature_key
-        SQL
-      end
-    end
-
-    def flipper_id
-      params[:cookie_id] || @current_user&.flipper_id
-    end
-
-    def old_get_all_features
-      features = []
-
-      FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
-        flipper_enabled = if Settings.flipper.mute_logs
-                            ActiveRecord::Base.logger.silence do
-                              Flipper.enabled?(feature_name, resolve_actor(values['actor_type']))
-                            end
-                          else
-                            Flipper.enabled?(feature_name, resolve_actor(values['actor_type']))
-                          end
-        # returning both camel and snakecase for uniformity on FE
-        features << { name: feature_name.camelize(:lower), value: flipper_enabled }
-        features << { name: feature_name, value: flipper_enabled }
-      end
-
-      features
+      ActiveRecord::Base.connection.select_all(<<-SQL.squish)
+        SELECT flipper_features.key AS feature_name, flipper_gates.key AS gate_key, flipper_gates.value
+        FROM flipper_features
+        LEFT JOIN flipper_gates ON flipper_features.key = flipper_gates.feature_key
+      SQL
     end
   end
 end

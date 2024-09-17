@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-class ReceiveApplicationSerializer < ActiveModel::Serializer
-  def id
-    object.receive_application_id
-  end
+class ReceiveApplicationSerializer
+  include JSONAPI::Serializer
+
+  set_id :receive_application_id
+  set_type :preneeds_receive_applications
 
   attribute :receive_application_id
   attribute :tracking_number

@@ -16,6 +16,10 @@ describe AttachmentSerializer do
     expect(data['id']).to eq attachment.id.to_s
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq 'attachments'
+  end
+
   it 'includes :name' do
     expect(attributes['name']).to eq attachment.name
   end

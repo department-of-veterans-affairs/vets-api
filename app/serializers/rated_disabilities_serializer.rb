@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-class RatedDisabilitiesSerializer < ActiveModel::Serializer
-  attribute :rated_disabilities
+class RatedDisabilitiesSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  set_id { '' }
+  attribute :rated_disabilities
 end

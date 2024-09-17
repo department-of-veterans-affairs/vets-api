@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require 'decision_review/utilities/saved_claim/service'
+
 module V1
   class HigherLevelReviewsController < AppealsBaseControllerV1
+    include DecisionReview::SavedClaim::Service
     service_tag 'higher-level-review'
 
     def show
@@ -21,6 +24,10 @@ module V1
       ActiveRecord::Base.transaction do
         AppealSubmission.create!(user_uuid: @current_user.uuid, user_account: @current_user.user_account,
                                  type_of_appeal: 'HLR', submitted_appeal_uuid:)
+
+        store_saved_claim(claim_class: SavedClaim::HigherLevelReview, form: request_body_hash.to_json,
+                          guid: submitted_appeal_uuid)
+
         # Clear in-progress form since submit was successful
         InProgressForm.form_for_user('20-0996', current_user)&.destroy!
       end

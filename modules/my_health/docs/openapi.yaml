@@ -1236,6 +1236,15 @@ paths:
       summary: /v1/messaging/allrecipients
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
+        - name: requires_oh
+          in: query
+          description: Includes Oracle Health recipients if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
   /v1/messaging/threads/{id}/move:
     patch:
       description:
@@ -1272,6 +1281,37 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/threads/{id}/move
+  /v1/messaging/preferences/recipients:
+    post:
+      description: Update recipients `preferredTeam` value
+      operationId: update_triage_team_preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/SecureMessagingUpdateTriageTeamRequest.yml
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              type: string
+              example: "Success"
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/recipients
   /v1/prescriptions:
     get:
       description: List medications.

@@ -287,27 +287,21 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def send_failure_email
-    if Flipper.enabled?(:hca_submission_failure_email_va_notify)
-      begin
-        first_name = parsed_form.dig('veteranFullName', 'first')
-        template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email
-        api_key = Settings.vanotify.services.health_apps_1010.api_key
+    first_name = parsed_form.dig('veteranFullName', 'first')
+    template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email
+    api_key = Settings.vanotify.services.health_apps_1010.api_key
 
-        salutation = first_name ? "Dear #{first_name}," : ''
+    salutation = first_name ? "Dear #{first_name}," : ''
 
-        VANotify::EmailJob.perform_async(
-          email,
-          template_id,
-          { 'salutation' => salutation },
-          api_key
-        )
-        StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
-      rescue => e
-        log_exception_to_sentry(e)
-      end
-    else
-      HCASubmissionFailureMailer.build(email, google_analytics_client_id).deliver_now
-    end
+    VANotify::EmailJob.perform_async(
+      email,
+      template_id,
+      { 'salutation' => salutation },
+      api_key
+    )
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
+  rescue => e
+    log_exception_to_sentry(e)
   end
 
   # If the hca_use_facilities_API flag is on then vaMedicalFacility will only

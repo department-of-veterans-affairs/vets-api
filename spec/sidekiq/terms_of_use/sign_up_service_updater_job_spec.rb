@@ -26,11 +26,12 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     let(:family_name) { 'family_name' }
     let(:common_name) { "#{given_names.first} #{family_name}" }
     let(:sec_id) { 'some-sec-id' }
+    let(:sec_ids) { [sec_id] }
     let(:service_instance) { instance_double(MAP::SignUp::Service) }
     let(:version) { terms_of_use_agreement&.agreement_version }
     let(:expires_in) { 72.hours }
     let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
-    let(:mpi_profile) { build(:mpi_profile, icn:, sec_id:, given_names:, family_name:) }
+    let(:mpi_profile) { build(:mpi_profile, icn:, sec_id:, sec_ids:, given_names:, family_name:) }
     let(:mpi_service) { instance_double(MPI::Service, find_profile_by_identifier: find_profile_response) }
 
     before do
@@ -79,16 +80,70 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     end
 
     context 'when sec_id is present' do
+      context 'sec_id validation' do
+        before do
+          allow(service_instance).to receive(:agreements_accept)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        context 'when a single sec_id value is detected' do
+          it 'does not log a warning message' do
+            job.perform(user_account_uuid, version)
+
+            expect(Rails.logger).not_to have_received(:info)
+          end
+        end
+
+        context 'when multiple sec_id values are detected' do
+          let(:sec_ids) { [sec_id, 'other-sec-id'] }
+          let(:expected_log) { '[TermsOfUse][SignUpServiceUpdaterJob] Multiple sec_id values detected' }
+
+          it 'logs a warning message' do
+            job.perform(user_account_uuid, version)
+
+            expect(Rails.logger).to have_received(:info).with(expected_log, icn:)
+          end
+
+          it 'updates the terms of use agreement in sign up service' do
+            job.perform(user_account_uuid, version)
+
+            expect(MAP::SignUp::Service).to have_received(:new)
+            expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
+                                                                               signature_name: common_name,
+                                                                               version:)
+          end
+        end
+      end
+
       context 'when the terms of use agreement is accepted' do
         before do
           allow(service_instance).to receive(:agreements_accept)
+        end
+
+        context 'and user account icn does not equal the mpi profile icn' do
+          let(:expected_log) do
+            '[TermsOfUse][SignUpServiceUpdaterJob] Detected changed ICN for user'
+          end
+          let(:mpi_profile) { build(:mpi_profile, icn: mpi_icn, sec_id:, given_names:, family_name:) }
+          let(:mpi_icn) { 'some-mpi-icn' }
+
+          before do
+            allow(Rails.logger).to receive(:info)
+          end
+
+          it 'logs a detected changed ICN message' do
+            job.perform(user_account_uuid, version)
+
+            expect(MAP::SignUp::Service).to have_received(:new)
+            expect(Rails.logger).to have_received(:info).with(expected_log, { icn:, mpi_icn: })
+          end
         end
 
         it 'updates the terms of use agreement in sign up service' do
           job.perform(user_account_uuid, version)
 
           expect(MAP::SignUp::Service).to have_received(:new)
-          expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
+          expect(service_instance).to have_received(:agreements_accept).with(icn: mpi_profile.icn,
                                                                              signature_name: common_name,
                                                                              version:)
         end
@@ -101,11 +156,30 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
           allow(service_instance).to receive(:agreements_decline)
         end
 
+        context 'and user account icn does not equal the mpi profile icn' do
+          let(:expected_log) do
+            '[TermsOfUse][SignUpServiceUpdaterJob] Detected changed ICN for user'
+          end
+          let(:mpi_profile) { build(:mpi_profile, icn: mpi_icn, sec_id:, given_names:, family_name:) }
+          let(:mpi_icn) { 'some-mpi-icn' }
+
+          before do
+            allow(Rails.logger).to receive(:info)
+          end
+
+          it 'logs a detected changed ICN message' do
+            job.perform(user_account_uuid, version)
+
+            expect(MAP::SignUp::Service).to have_received(:new)
+            expect(Rails.logger).to have_received(:info).with(expected_log, { icn:, mpi_icn: })
+          end
+        end
+
         it 'updates the terms of use agreement in sign up service' do
           job.perform(user_account_uuid, version)
 
           expect(MAP::SignUp::Service).to have_received(:new)
-          expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)
+          expect(service_instance).to have_received(:agreements_decline).with(icn: mpi_profile.icn)
         end
       end
     end

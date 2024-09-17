@@ -12,6 +12,7 @@ properties:
       id:
         type: string
         example: bf01349c-585d-480f-8afc-7a2f88697a1a
+        description: Randomly generated UUID
       type:
         type: string
         example: dependents

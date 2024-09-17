@@ -14,6 +14,10 @@ describe TrackingSerializer, type: :serializer do
     expect(data['id']).to eq tracking.tracking_number.to_s
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq 'trackings'
+  end
+
   it 'includes :tracking_number' do
     expect(attributes['tracking_number']).to eq tracking.tracking_number
   end

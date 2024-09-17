@@ -1,13 +1,21 @@
 # frozen_string_literal: true
 
-class TrackingSerializer < ActiveModel::Serializer
-  def id
-    object.tracking_number
+class TrackingSerializer
+  include JSONAPI::Serializer
+  singleton_class.include Rails.application.routes.url_helpers
+
+  set_id :tracking_number
+  set_type :trackings
+
+  link :self do |object|
+    v0_prescription_trackings_url(object.prescription_id)
   end
 
-  link(:self) { v0_prescription_trackings_url(object.prescription_id) }
-  link(:prescription) { v0_prescription_url(object.prescription_id) }
-  link(:tracking_url) do
+  link :prescription do |object|
+    v0_prescription_url(object.prescription_id)
+  end
+
+  link :tracking_url do |object|
     case object.delivery_service.upcase
     when 'UPS'
       "https://wwwapps.ups.com/WebTracking/track?track=yes&trackNums=#{object.tracking_number}"

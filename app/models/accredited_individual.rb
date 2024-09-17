@@ -33,6 +33,8 @@ class AccreditedIndividual < ApplicationRecord
     'representative' => 'representative'
   }
 
+  DEFAULT_FUZZY_THRESHOLD = AccreditedRepresentation::Constants::FUZZY_SEARCH_THRESHOLD
+
   # Find all [AccreditedIndividuals] that are located within a distance of a specific location
   # @param long [Float] longitude of the location of interest
   # @param lat [Float] latitude of the location of interest
@@ -41,10 +43,24 @@ class AccreditedIndividual < ApplicationRecord
   # @return [AccreditedIndividual::ActiveRecord_Relation] an ActiveRecord_Relation of
   #   all individuals matching the search criteria
   def self.find_within_max_distance(long, lat, max_distance = AccreditedRepresentation::Constants::DEFAULT_MAX_DISTANCE)
-    query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography, location, :max_distance)'
+    query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography,' \
+            'accredited_individuals.location, :max_distance)'
     params = { long:, lat:, max_distance: }
 
     where(query, params)
+  end
+
+  #
+  # Find all [AccreditedIndividuals] with a full name with at least the threshold value of
+  #   word similarity. This gives us a way to fuzzy search for names.
+  # @param search_phrase [String] the word, words, or phrase we want individuals with full names similar to
+  # @param threshold [Float] the strictness of word matching between 0 and 1. Values closer to zero allow for words to
+  #   be less similar.
+  #
+  # @return [AccreditedIndividual::ActiveRecord_Relation] an ActiveRecord_Relation of
+  #   all individuals matching the search criteria
+  def self.find_with_full_name_similar_to(search_phrase, threshold = DEFAULT_FUZZY_THRESHOLD)
+    where('word_similarity(?, accredited_individuals.full_name) >= ?', search_phrase, threshold)
   end
 
   # return all poa_codes associated with the individual
@@ -52,5 +68,10 @@ class AccreditedIndividual < ApplicationRecord
   # @return [Array<String>]
   def poa_codes
     ([poa_code] + accredited_organizations.pluck(:poa_code)).compact
+  end
+
+  # This method needs to exist on the model so [Common::Collection] doesn't blow up when trying to paginate
+  def self.max_per_page
+    AccreditedRepresentation::Constants::MAX_PER_PAGE
   end
 end

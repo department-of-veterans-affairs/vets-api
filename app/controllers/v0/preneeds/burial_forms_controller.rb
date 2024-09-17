@@ -22,7 +22,7 @@ module V0
         send_confirmation_email
 
         clear_saved_form(FORM)
-        render json: @resource, serializer: ReceiveApplicationSerializer
+        render json: ReceiveApplicationSerializer.new(@resource)
       end
 
       def send_confirmation_email

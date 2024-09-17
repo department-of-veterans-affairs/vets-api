@@ -14,7 +14,24 @@ require 'bgs_service/local_bgs_refactored'
 
 module ClaimsApi
   class LocalBGS
-    CACHED_SERVICES = %w[ClaimantServiceBean/ClaimantWebService].freeze
+    CACHED_SERVICES = %w[
+      ClaimantServiceBean/ClaimantWebService
+      EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
+      IntentToFileWebServiceBean/IntentToFileWebService
+      OrgWebServiceBean/OrgWebService
+      PersonWebServiceBean/PersonWebService
+      StandardDataWebServiceBean/StandardDataWebService
+      TrackedItemService/TrackedItemService
+      VDC/VeteranRepresentativeService
+      VDC/ManageRepresentativeService
+      VnpAtchmsWebServiceBean/VnpAtchmsService
+      VnpPersonWebServiceBean/VnpPersonService
+      VnpProcFormWebServiceBean/VnpProcFormService
+      VnpProcWebServiceBeanV2/VnpProcServiceV2
+      VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
+      VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
+      VnpPtcpntWebServiceBean/VnpPtcpntService
+    ].freeze
 
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
@@ -311,7 +328,8 @@ module ClaimsApi
       soap_error_handler.handle_errors(response) if response
 
       log_duration(event: 'parsed_response', key:) do
-        parsed_response(response, action:, key:, transform: transform_response)
+        parsed_response = parse_response(response, action:, key:)
+        transform_response ? transform_keys(parsed_response) : parsed_response
       end
     end
 
@@ -415,6 +433,32 @@ module ClaimsApi
         jrn_user_id: Settings.bgs.client_username,
         jrn_obj_id: Settings.bgs.application
       }
+    end
+
+    private
+
+    def transform_keys(hash_or_array)
+      transformer = lambda do |object|
+        case object
+        when Hash
+          object.deep_transform_keys! { |k| k.underscore.to_sym }
+        when Array
+          object.map { |item| transformer.call(item) }
+        else
+          object
+        end
+      end
+
+      transformer.call(hash_or_array)
+    end
+
+    def parse_response(response, action:, key:)
+      keys = ['Envelope', 'Body', "#{action}Response"]
+      keys << key if key.present?
+
+      result = Hash.from_xml(response.body).dig(*keys)
+
+      result.is_a?(Array) ? result : result.to_h
     end
   end
 end

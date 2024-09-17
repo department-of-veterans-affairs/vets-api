@@ -22,9 +22,11 @@ class Form526StatusPollingJob
       response = api_to_poll.get_bulk_status_of_uploads(batch_ids)
       handle_response(response)
     end
-    Rails.logger.info('Form 526 Intake Status polling complete', total_handled: @total_handled)
+    Rails.logger.info('Form 526 Intake Status polling complete',
+                      total_handled: @total_handled)
   rescue => e
-    Rails.logger.error('Error processing 526 Intake Status batch', class: self.class.name, message: e.message)
+    Rails.logger.error('Error processing 526 Intake Status batch',
+                       class: self.class.name, message: e.message)
   end
 
   private
@@ -34,7 +36,7 @@ class Form526StatusPollingJob
   end
 
   def submissions
-    @submissions ||= Form526Submission.pending_backup_submissions
+    @submissions ||= Form526Submission.pending_backup
   end
 
   def handle_response(response)
@@ -42,22 +44,27 @@ class Form526StatusPollingJob
       status = submission.dig('attributes', 'status')
       form_submission = Form526Submission.find_by(backup_submitted_claim_id: submission['id'])
 
-      if %w[error expired].include? status
-        log_result('failure')
-        form_submission.rejected!
-      elsif status == 'success'
-        Rails.logger.info('Form526StatusPollingJob', status: 'pending', submission_id: form_submission.id)
-      elsif status == 'vbms'
-        log_result('success')
-        form_submission.accepted!
-      else
-        Rails.logger.warn(
-          'Unknown status returned from Benefits Intake API for 526 submission',
-          status:,
-          submission_id: form_submission.id
-        )
-      end
+      handle_submission(status, form_submission)
       @total_handled += 1
+    end
+  end
+
+  def handle_submission(status, form_submission)
+    if %w[error expired].include? status
+      log_result('failure')
+      form_submission.rejected!
+    elsif status == 'vbms'
+      log_result('true_success')
+      form_submission.accepted!
+    elsif status == 'success'
+      log_result('paranoid_success')
+      form_submission.paranoid_success!
+    else
+      Rails.logger.info(
+        'Unknown or incomplete status returned from Benefits Intake API for 526 submission',
+        status:,
+        submission_id: form_submission.id
+      )
     end
   end
 

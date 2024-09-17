@@ -13,6 +13,10 @@ describe HealthCareApplicationSerializer, type: :serializer do
     expect(data['id']).to eq application.id.to_s
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq 'health_care_applications'
+  end
+
   it 'includes :state' do
     expect(attributes['state']).to eq application.state
   end

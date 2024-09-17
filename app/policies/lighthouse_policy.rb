@@ -23,7 +23,6 @@ LighthousePolicy = Struct.new(:user, :lighthouse) do
       user.icn.present? && user.participant_id.present?
   end
 
-  alias_method :access_disability_compensations?, :direct_deposit_access?
   alias_method :mobile_access?, :access_update?
   alias_method :rating_info_access?, :access?
 

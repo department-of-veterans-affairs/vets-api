@@ -7,6 +7,7 @@ properties:
   id:
     type: string
     example: "13650544"
+    description: Upstream identifier
   type:
     type: string
     example: "Prescription"

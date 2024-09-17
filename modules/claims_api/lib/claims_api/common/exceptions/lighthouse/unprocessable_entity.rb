@@ -13,7 +13,7 @@ module ClaimsApi
 
           def errors
             errors_array = []
-            @errors[:errors].each do |err|
+            @errors[:errors].flatten.each do |err|
               errors_array << {
                 title: err[:title] || 'Unprocessable entity',
                 detail: err[:detail],

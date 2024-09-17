@@ -28,10 +28,10 @@ module ClaimsApi
 
           resp
         rescue => e
-          detail = e.respond_to?(:original_body) ? e.original_body : e
-          log_outcome_for_claims_api('validate', 'error', detail, claim)
+          detail = get_error_message(e)
+          log_outcome_for_claims_api('submit', 'error', detail, claim)
 
-          error_handler(e, async)
+          error_handler(e, detail, async)
         end
       end
 
@@ -44,10 +44,10 @@ module ClaimsApi
 
           resp
         rescue => e
-          detail = e.respond_to?(:original_body) ? e.original_body : e
+          detail = get_error_message(e)
           log_outcome_for_claims_api('validate', 'error', detail, claim)
 
-          error_handler(e, async)
+          error_handler(e, detail, async)
         end
       end
 
@@ -90,12 +90,26 @@ module ClaimsApi
       end
 
       def log_outcome_for_claims_api(action, status, response, claim)
-        ClaimsApi::Logger.log('526_docker_container',
-                              detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
+        ClaimsApi::Logger.log('526_docker_container', detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}",
+                                                      claim: claim&.id, transaction_id: claim&.transaction_id)
       end
 
-      def error_handler(error, async = true) # rubocop:disable Style/OptionalBooleanParameter
-        ClaimsApi::CustomError.new(error, async).build_error
+      def error_handler(error, detail, async = true) # rubocop:disable Style/OptionalBooleanParameter
+        ClaimsApi::CustomError.new(error, detail, async).build_error
+      end
+
+      def get_error_message(error)
+        if error.respond_to? :original_body
+          error.original_body
+        elsif error.respond_to? :message
+          error.message
+        elsif error.respond_to? :errors
+          error.errors
+        elsif error.respond_to? :detailed_message
+          error.detailed_message
+        else
+          error
+        end
       end
     end
   end

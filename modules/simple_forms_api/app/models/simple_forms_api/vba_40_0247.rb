@@ -60,6 +60,12 @@ module SimpleFormsApi
         combined_pdf << CombinePDF.load(file_path)
         attachments.each do |attachment|
           combined_pdf << CombinePDF.load(attachment)
+        rescue => e
+          Rails.logger.error(
+            'Simple forms api - failed to load attachment for 40-0247',
+            { message: e.message, attachment: attachment.inspect }
+          )
+          raise
         end
 
         combined_pdf.save file_path
@@ -70,7 +76,11 @@ module SimpleFormsApi
       veteran_ssn_and_file_number + veteran_dates_of_birth_and_death + applicant_zip + applicant_phone
     end
 
-    def submission_date_stamps
+    def desired_stamps
+      []
+    end
+
+    def submission_date_stamps(_timestamp)
       []
     end
 

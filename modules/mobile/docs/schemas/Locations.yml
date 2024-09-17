@@ -15,6 +15,7 @@ properties:
       id:
         type: string
         example: "I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000"
+        description: Upstream identifier. Same as id provided.
       attributes:
         type: object
         required:

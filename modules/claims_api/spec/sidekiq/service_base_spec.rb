@@ -52,6 +52,14 @@ RSpec.describe ClaimsApi::ServiceBase do
     end
   end
 
+  describe '#preserve_original_form_data' do
+    it 'preserves the form data as expected' do
+      preserved_form_data = @service.send(:preserve_original_form_data, claim.form_data)
+      claim.reload
+      expect(claim.form_data).to eq(preserved_form_data)
+    end
+  end
+
   describe '#set_errored_state_on_claim' do
     it 'updates claim status as ERRORED with error details' do
       @service.send(:set_errored_state_on_claim, claim)
@@ -119,6 +127,14 @@ RSpec.describe ClaimsApi::ServiceBase do
       expect(ClaimsApi::Logger).to receive(:log).with('claims_api_sidekiq_service_base', claim_id: claim.id, detail:)
 
       @service.send(:log_job_progress, claim.id, detail)
+    end
+
+    it 'logs job progress with transaction_id when provided' do
+      transaction_id = '00000000-0000-0000-000000000000'
+      expect(ClaimsApi::Logger).to receive(:log).with('claims_api_sidekiq_service_base', claim_id: claim.id, detail:,
+                                                                                         transaction_id:)
+
+      @service.send(:log_job_progress, claim.id, detail, transaction_id)
     end
   end
 end

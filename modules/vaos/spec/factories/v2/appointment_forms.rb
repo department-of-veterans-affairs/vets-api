@@ -58,7 +58,7 @@ FactoryBot.define do
       community_cares_base
       status { 'proposed' }
       reason_code do
-        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+        { 'text': 'test request' }
       end
     end
 
@@ -88,6 +88,29 @@ FactoryBot.define do
           ],
           'text': 'string'
         }
+      end
+    end
+
+    trait :community_cares_multiple_request_dates do
+      community_cares
+      requested_periods do
+        [
+          {
+            'start': '2024-08-28T06:00:00Z',
+            'end': '2024-08-28T17:59:00Z'
+          },
+          {
+            'start': '2024-08-28T18:00:00Z',
+            'end': '2024-08-29T05:59:00Z'
+          }
+        ]
+      end
+    end
+
+    trait :community_cares_no_request_dates do
+      community_cares
+      requested_periods do
+        []
       end
     end
 
@@ -162,9 +185,8 @@ FactoryBot.define do
       end
     end
 
-    trait :va_booked_base do
+    trait :va_base do
       kind { 'clinic' }
-      status { 'booked' }
       location_id { '983' }
       clinic { '999' } # this is the clinic id for audiology
       slot do
@@ -180,7 +202,8 @@ FactoryBot.define do
     end
 
     trait :va_booked do
-      va_booked_base
+      va_base
+      status { 'booked' }
       reason_code do
         { 'coding' => [
             'code': 'Routine Follow-up'
@@ -190,9 +213,18 @@ FactoryBot.define do
     end
 
     trait :va_booked_valid_reason_code_text do
-      va_booked_base
+      va_base
+      status { 'booked' }
       reason_code do
-        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+        { 'text': 'reasonCode:ROUTINEVISIT|comments:test' }
+      end
+    end
+
+    trait :va_cancelled_valid_reason_code_text do
+      va_base
+      status { 'cancelled' }
+      reason_code do
+        { 'text': 'reasonCode:ROUTINEVISIT|comments:test' }
       end
     end
 
@@ -202,17 +234,28 @@ FactoryBot.define do
       service_type { 'audiology' }
       comment { 'Follow-up/Routine: testing' }
       requested_periods do
-        {
-          'end': '2022-01-04T11:59:00Z',
-          'start': '2022-01-04T00:00:00Z'
-        }
+        [
+          {
+            'end': '2022-01-04T11:59:00Z',
+            'start': '2022-01-04T00:00:00Z'
+          }
+        ]
       end
     end
 
     trait :va_proposed_valid_reason_code_text do
       va_proposed_base
+      kind { 'clinic' }
       reason_code do
         { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+      end
+    end
+
+    trait :va_proposed_valid_and_invalid_reason_code_text do
+      va_proposed_base
+      kind { 'clinic' }
+      reason_code do
+        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code|comments:|test:gwef:fwege' } # rubocop:disable Layout/LineLength
       end
     end
 
@@ -246,10 +289,12 @@ FactoryBot.define do
         }
       end
       requested_periods do
-        {
-          'end': '2022-01-04T11:59:00Z',
-          'start': '2022-01-04T00:00:00Z'
-        }
+        [
+          {
+            'end': '2022-01-04T11:59:00Z',
+            'start': '2022-01-04T00:00:00Z'
+          }
+        ]
       end
     end
 
@@ -263,13 +308,26 @@ FactoryBot.define do
       kind { 'phone' }
     end
 
-    trait :with_direct_scheduling do
+    trait :with_direct_scheduling_base do
       kind { 'cc' }
       status { 'booked' }
       location_id { '983' }
       practitioner_ids { [{ system: 'HSRM', value: '1234567890' }] }
       preferred_language { 'English' }
       reason { 'Testing' }
+      service_type { 'CCPOD' }
+    end
+
+    trait :ds_cc_booked_valid_reason_code_text do
+      with_direct_scheduling_base
+
+      reason_code do
+        { 'text': 'test booked' }
+      end
+    end
+
+    trait :with_direct_scheduling do
+      with_direct_scheduling_base
 
       contact do
         {
@@ -286,7 +344,6 @@ FactoryBot.define do
         }
       end
 
-      service_type { 'CCPOD' }
       requested_periods do
         [
           {

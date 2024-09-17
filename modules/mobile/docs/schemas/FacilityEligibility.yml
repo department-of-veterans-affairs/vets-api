@@ -10,6 +10,7 @@ properties:
   id:
     type: string
     example: "100"
+    description: Facility Id
   attributes:
     type: object
     required:

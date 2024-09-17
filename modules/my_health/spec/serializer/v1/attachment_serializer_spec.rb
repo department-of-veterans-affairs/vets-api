@@ -2,28 +2,32 @@
 
 require 'rails_helper'
 
-describe MyHealth::V1::AttachmentSerializer do
-  let(:attachment) { build_stubbed(:attachment) }
+describe MyHealth::V1::AttachmentSerializer, type: :serializer do
+  subject { serialize(attachment, serializer_class: described_class) }
 
-  let(:rendered_hash) do
-    ActiveModelSerializers::SerializableResource.new(attachment, { serializer: described_class }).as_json
-  end
-  let(:rendered_attributes) { rendered_hash[:data][:attributes] }
+  let(:attachment) { build_stubbed(:attachment) }
+  let(:data) { JSON.parse(subject)['data'] }
+  let(:attributes) { data['attributes'] }
+  let(:links) { data['links'] }
 
   it 'includes :id' do
-    expect(rendered_hash[:data][:id]).to eq attachment.id.to_s
+    expect(data['id']).to eq attachment.id.to_s
+  end
+
+  it 'includes :type' do
+    expect(data['type']).to eq 'attachments'
   end
 
   it 'includes :name' do
-    expect(rendered_attributes[:name]).to eq attachment.name
+    expect(attributes['name']).to eq attachment.name
   end
 
   it 'includes :attachment_size' do
-    expect(rendered_attributes[:attachment_size]).to eq attachment.attachment_size
+    expect(attributes['attachment_size']).to eq attachment.attachment_size
   end
 
   it 'includes :download link' do
     expected_url = MyHealth::UrlHelper.new.v1_message_attachment_url(attachment.message_id, attachment.id)
-    expect(rendered_hash[:data][:links][:download]).to eq expected_url
+    expect(links['download']).to eq expected_url
   end
 end

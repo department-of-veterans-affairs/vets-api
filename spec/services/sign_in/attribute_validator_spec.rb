@@ -500,51 +500,6 @@ RSpec.describe SignIn::AttributeValidator do
           it_behaves_like 'missing credential attribute'
         end
 
-        context 'and credential is missing first_name' do
-          let(:first_name) { nil }
-          let(:attribute) { 'first_name' }
-
-          context 'and credential has been auto-uplevelled' do
-            let(:auto_uplevel) { true }
-            let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
-            let(:mpi_profile) do
-              build(:mpi_profile,
-                    id_theft_flag:,
-                    deceased_date:,
-                    ssn:,
-                    icn:,
-                    edipis:,
-                    edipi: edipis.first,
-                    mhv_ien: mhv_iens.first,
-                    mhv_iens:,
-                    birls_id: birls_ids.first,
-                    birls_ids:,
-                    participant_id: participant_ids.first,
-                    participant_ids:,
-                    birth_date:,
-                    given_names: [first_name],
-                    family_name: last_name)
-            end
-            let(:id_theft_flag) { false }
-            let(:deceased_date) { nil }
-            let(:icn) { 'some-icn' }
-            let(:edipis) { ['some-edipi'] }
-            let(:mhv_iens) { ['some-mhv-ien'] }
-            let(:participant_ids) { ['some-participant-id'] }
-            let(:birls_ids) { ['some-birls-id'] }
-
-            it 'does not raise an error' do
-              expect { subject }.not_to raise_error
-            end
-          end
-
-          context 'and credential is a verified non-auto-uplevelled credential' do
-            let(:auto_uplevel) { false }
-
-            it_behaves_like 'missing credential attribute'
-          end
-        end
-
         context 'and credential is missing last_name' do
           let(:last_name) { nil }
           let(:attribute) { 'last_name' }
@@ -593,51 +548,6 @@ RSpec.describe SignIn::AttributeValidator do
         context 'and credential is missing birth_date' do
           let(:birth_date) { nil }
           let(:attribute) { 'birth_date' }
-
-          context 'and credential has been auto-uplevelled' do
-            let(:auto_uplevel) { true }
-            let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
-            let(:mpi_profile) do
-              build(:mpi_profile,
-                    id_theft_flag:,
-                    deceased_date:,
-                    ssn:,
-                    icn:,
-                    edipis:,
-                    edipi: edipis.first,
-                    mhv_ien: mhv_iens.first,
-                    mhv_iens:,
-                    birls_id: birls_ids.first,
-                    birls_ids:,
-                    participant_id: participant_ids.first,
-                    participant_ids:,
-                    birth_date:,
-                    given_names: [first_name],
-                    family_name: last_name)
-            end
-            let(:id_theft_flag) { false }
-            let(:deceased_date) { nil }
-            let(:icn) { 'some-icn' }
-            let(:edipis) { ['some-edipi'] }
-            let(:mhv_iens) { ['some-mhv-ien'] }
-            let(:participant_ids) { ['some-participant-id'] }
-            let(:birls_ids) { ['some-birls-id'] }
-
-            it 'does not raise an error' do
-              expect { subject }.not_to raise_error
-            end
-          end
-
-          context 'and credential is a verified non-auto-uplevelled credential' do
-            let(:auto_uplevel) { false }
-
-            it_behaves_like 'missing credential attribute'
-          end
-        end
-
-        context 'and credential is missing ssn' do
-          let(:ssn) { nil }
-          let(:attribute) { 'ssn' }
 
           context 'and credential has been auto-uplevelled' do
             let(:auto_uplevel) { true }
@@ -718,13 +628,6 @@ RSpec.describe SignIn::AttributeValidator do
           it_behaves_like 'missing credential attribute'
         end
 
-        context 'and credential is missing first_name' do
-          let(:first_name) { nil }
-          let(:attribute) { 'first_name' }
-
-          it_behaves_like 'missing credential attribute'
-        end
-
         context 'and credential is missing last_name' do
           let(:last_name) { nil }
           let(:attribute) { 'last_name' }
@@ -735,13 +638,6 @@ RSpec.describe SignIn::AttributeValidator do
         context 'and credential is missing birth_date' do
           let(:birth_date) { nil }
           let(:attribute) { 'birth_date' }
-
-          it_behaves_like 'missing credential attribute'
-        end
-
-        context 'and credential is missing ssn' do
-          let(:ssn) { nil }
-          let(:attribute) { 'ssn' }
 
           it_behaves_like 'missing credential attribute'
         end
@@ -781,13 +677,6 @@ RSpec.describe SignIn::AttributeValidator do
           it_behaves_like 'missing credential attribute'
         end
 
-        context 'and credential is missing first_name' do
-          let(:first_name) { nil }
-          let(:attribute) { 'first_name' }
-
-          it_behaves_like 'missing credential attribute'
-        end
-
         context 'and credential is missing last_name' do
           let(:last_name) { nil }
           let(:attribute) { 'last_name' }
@@ -798,13 +687,6 @@ RSpec.describe SignIn::AttributeValidator do
         context 'and credential is missing birth_date' do
           let(:birth_date) { nil }
           let(:attribute) { 'birth_date' }
-
-          it_behaves_like 'missing credential attribute'
-        end
-
-        context 'and credential is missing ssn' do
-          let(:ssn) { nil }
-          let(:attribute) { 'ssn' }
 
           it_behaves_like 'missing credential attribute'
         end

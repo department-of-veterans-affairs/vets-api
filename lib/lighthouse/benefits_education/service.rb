@@ -49,6 +49,8 @@ module BenefitsEducation
     def get_gi_bill_status
       raw_response = begin
         config.get(@icn)
+      rescue Breakers::OutageException => e
+        raise e
       rescue => e
         handle_error(e, config.service_name, config.base_path)
       end

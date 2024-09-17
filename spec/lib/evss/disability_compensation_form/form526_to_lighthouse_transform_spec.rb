@@ -51,6 +51,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.toxic_exposure.herbicide_hazard_service.class).to eq(Requests::HerbicideHazardService)
       expect(result.toxic_exposure.additional_hazard_exposures.class).to eq(Requests::AdditionalHazardExposures)
       expect(result.toxic_exposure.multiple_exposures.class).to eq(Array)
+      expect(result.claim_notes).to eq('some overflow text')
     end
   end
 
@@ -121,7 +122,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_veteran, data['form526']['veteran'])
       expect(result.mailing_address.city).to eq('APO')
       expect(result.mailing_address.state).to eq('AE')
-      expect(result.mailing_address.zip_first_five).to eq('817')
+      expect(result.mailing_address.international_postal_code).to eq('817')
     end
 
     it 'trims leading/trailing spaces from address line 1' do
@@ -149,7 +150,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_change_of_address, data['form526']['veteran'])
       expect(result.city).to eq('APO')
       expect(result.state).to eq('AE')
-      expect(result.zip_first_five).to eq('817')
+      expect(result.international_postal_code).to eq('817')
       expect(result.dates).not_to be_nil
     end
   end
@@ -416,6 +417,28 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                        })
       result = transformer.send(:transform_multiple_exposures, no_location_details['gulfWar1990Details'])
       expect(result.length).to eq(0)
+    end
+
+    it 'convert_date_no_day converts various dates to YYYY-MM or YYYY' do
+      date = '2024-03-22'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024-03')
+
+      date = '2024-03-XX'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024-03')
+
+      date = '2024-XX-XX'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024')
+
+      date = '2024-03'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024-03')
+
+      date = '2024'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024')
     end
 
     it 'set served_in_herbicide_hazard_locations correctly' do

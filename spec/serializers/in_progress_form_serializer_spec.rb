@@ -3,35 +3,33 @@
 require 'rails_helper'
 
 RSpec.describe InProgressFormSerializer do
-  subject { JSON.parse serialize(in_progress_form, serializer_class: described_class) }
+  subject { serialize(in_progress_form, serializer_class: described_class) }
 
-  let(:in_progress_form) { build :in_progress_form }
-  let(:top_level_keys) { subject.keys }
-  let(:data) { subject['data'] }
-  let(:type) { data['type'] }
+  let(:in_progress_form) { build(:in_progress_form) }
+  let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:metadata) { attributes['metadata'] }
 
-  it 'has the correct shape (JSON:API)' do
-    expect(subject).to be_a Hash
-    expect(top_level_keys).to contain_exactly 'data'
-    expect(data.keys).to contain_exactly('id', 'type', 'attributes')
-    expect(type).to eq 'in_progress_forms'
-    expect(attributes.keys).to contain_exactly('form_id', 'created_at', 'updated_at', 'metadata')
+  it 'includes :id' do
+    expect(data['id']).to be_blank
+  end
+
+  it 'includes :type' do
+    expect(data['type']).to eq 'in_progress_forms'
+  end
+
+  it 'includes :createdAt' do
+    expect(attributes['createdAt']).to eq in_progress_form.created_at
+  end
+
+  it 'includes :metadata' do
+    expect(metadata).to eq in_progress_form.metadata
   end
 
   context 'with nested metadata' do
-    let(:in_progress_form) { build :in_progress_form, :with_nested_metadata }
-
-    it 'deeply transformed the keys to snake_case' do
-      expect(metadata['how_now']['brown_cow']).to be_present
-    end
-
-    it 'corrupts complicated keys' do
-      expect(in_progress_form.metadata['howNow']['brown-cow']['-an eas-i-ly corRupted KEY.'])
-        .to be_present
-      expect(metadata['how_now']['brown_cow']['-an eas-i-ly corRupted KEY.'])
-        .not_to be_present
+    it 'keep the original case of metadata' do
+      expect(metadata).to eq in_progress_form.metadata
+      expect(metadata.keys).to eq(in_progress_form.metadata.keys)
     end
   end
 end

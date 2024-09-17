@@ -10,7 +10,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
   let(:claim) { create(:pensions_module_pension_claim) }
   let(:service) { double('service') }
   let(:monitor) { double('monitor') }
-  let(:user_uuid) { 123 }
+  let(:user_account_uuid) { 123 }
 
   describe '#perform' do
     let(:response) { double('response') }
@@ -42,6 +42,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       expect(FormSubmission).to receive(:create)
       expect(FormSubmissionAttempt).to receive(:create)
       expect(Datadog::Tracing).to receive(:active_trace)
+      expect(UserAccount).to receive(:find)
 
       expect(service).to receive(:perform_upload).with(
         upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
@@ -51,15 +52,30 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       job.perform(claim.id, :user_uuid)
     end
 
+    it 'is unable to find user_account' do
+      expect(Pensions::SavedClaim).not_to receive(:find)
+      expect(BenefitsIntake::Service).not_to receive(:new)
+      expect(claim).not_to receive(:to_pdf)
+
+      expect(job).to receive(:cleanup_file_paths)
+
+      expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
+        ActiveRecord::RecordNotFound,
+        "Couldn't find UserAccount with 'id'=user_account_uuid"
+      )
+    end
+
     it 'is unable to find saved_claim_id' do
       allow(Pensions::SavedClaim).to receive(:find).and_return(nil)
+
+      expect(UserAccount).to receive(:find)
 
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
       expect(job).to receive(:cleanup_file_paths)
 
-      expect { job.perform(claim.id, :user_uuid) }.to raise_error(
+      expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         Pensions::PensionBenefitIntakeJob::PensionBenefitIntakeError,
         "Unable to find SavedClaim::Pension #{claim.id}"
       )
@@ -78,10 +94,10 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
     it 'returns a datestamp pdf path' do
       run_count = 0
-      allow_any_instance_of(CentralMail::DatestampPdf).to receive(:run) {
-                                                            run_count += 1
-                                                            pdf_path
-                                                          }
+      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) {
+                                                             run_count += 1
+                                                             pdf_path
+                                                           }
       allow(service).to receive(:valid_document?).and_return(pdf_path)
       new_path = job.send(:process_document, 'test/path')
 

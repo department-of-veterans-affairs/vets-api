@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class IntentToFileSerializer < ActiveModel::Serializer
-  attribute :intent_to_file
+class IntentToFileSerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
-  end
+  set_id { '' }
+
+  attribute :intent_to_file
 end

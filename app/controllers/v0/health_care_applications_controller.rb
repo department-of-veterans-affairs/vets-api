@@ -21,12 +21,9 @@ module V0
     def rating_info
       service = BGS::Service.new(current_user)
       disability_rating = service.find_rating_data[:disability_rating_record][:service_connected_combined_degree]
-      render(
-        json: {
-          user_percent_of_disability: disability_rating
-        },
-        serializer: HCARatingInfoSerializer
-      )
+
+      hca_rating_info = { user_percent_of_disability: disability_rating }
+      render json: HCARatingInfoSerializer.new(hca_rating_info)
     end
 
     def create
@@ -42,11 +39,16 @@ module V0
 
       clear_saved_form(FORM_ID)
 
-      render(json: result)
+      if result[:id]
+        render json: HealthCareApplicationSerializer.new(result)
+      else
+        render json: result
+      end
     end
 
     def show
-      render(json: HealthCareApplication.find(params[:id]))
+      application = HealthCareApplication.find(params[:id])
+      render json: HealthCareApplicationSerializer.new(application)
     end
 
     def enrollment_status
@@ -70,10 +72,18 @@ module V0
     end
 
     def facilities
-      render(json: lighthouse_facilities_service.get_facilities(lighthouse_facilities_params))
+      lighthouse_facilities = lighthouse_facilities_service.get_facilities(lighthouse_facilities_params)
+
+      render(json: active_facilities(lighthouse_facilities))
     end
 
     private
+
+    def active_facilities(lighthouse_facilities)
+      active_ids = StdInstitutionFacility.active.pluck(:station_number).compact
+
+      lighthouse_facilities.select { |facility| active_ids.include?(facility.unique_id) }
+    end
 
     def health_care_application
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))

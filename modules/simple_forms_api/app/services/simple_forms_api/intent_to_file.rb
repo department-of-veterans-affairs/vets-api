@@ -12,6 +12,10 @@ module SimpleFormsApi
       @params = params
     end
 
+    def use_intent_api?
+      params[:form_number] == '21-0966' && participant_id && icn && params[:preparer_identification] == 'VETERAN'
+    end
+
     def submit
       benefit_selections = []
       params['benefit_selection'].each { |benefit_type, is_selected| benefit_selections << benefit_type if is_selected }
@@ -36,14 +40,22 @@ module SimpleFormsApi
     end
 
     def existing_intents
-      @existing_intents ||= {
-        'compensation' => existing_compensation_intent,
-        'pension' => existing_pension_intent,
-        'survivor' => existing_survivor_intent
-      }
+      @existing_intents ||= if icn && participant_id
+                              {
+                                'compensation' => existing_compensation_intent,
+                                'pension' => existing_pension_intent,
+                                'survivor' => existing_survivor_intent
+                              }
+                            else
+                              {}
+                            end
     end
 
     private
+
+    def participant_id
+      user&.participant_id
+    end
 
     def benefits_claims_lighthouse_service
       @benefits_claims_lighthouse_service ||= BenefitsClaims::Service.new(icn)

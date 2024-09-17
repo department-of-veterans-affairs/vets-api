@@ -20,6 +20,7 @@ module V1
         decision_review_service:,
         version_number:
       )
+
       render json: nod_response_body
     rescue => e
       ::Rails.logger.error(

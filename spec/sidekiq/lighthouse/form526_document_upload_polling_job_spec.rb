@@ -20,7 +20,7 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
 
   describe '#perform' do
     shared_examples 'document status updates' do |state, request_id, cassette|
-      around { |example| VCR.use_cassette(cassette) { example.run } }
+      around { |example| VCR.use_cassette(cassette, match_requests_on: [:body]) { example.run } }
 
       let!(:document) { create(:lighthouse526_document_upload, lighthouse_document_request_id: request_id) }
 
@@ -63,7 +63,8 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
       end
 
       around do |example|
-        VCR.use_cassette('lighthouse/benefits_claims/documents/form526_document_upload_status_not_found') do
+        VCR.use_cassette('lighthouse/benefits_claims/documents/form526_document_upload_status_not_found',
+                         match_requests_on: [:body]) do
           example.run
         end
       end
@@ -87,7 +88,8 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
       let!(:unknown_document) { create(:lighthouse526_document_upload, lighthouse_document_request_id: '21') }
 
       around do |example|
-        VCR.use_cassette('lighthouse/benefits_claims/documents/form526_document_upload_with_request_ids_not_found') do
+        VCR.use_cassette('lighthouse/benefits_claims/documents/form526_document_upload_with_request_ids_not_found',
+                         match_requests_on: [:body]) do
           example.run
         end
       end

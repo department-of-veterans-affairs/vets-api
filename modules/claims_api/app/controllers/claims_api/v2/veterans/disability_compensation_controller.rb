@@ -110,8 +110,8 @@ module ClaimsApi
             auto_claim.reload
           end
 
-          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
-            auto_claim, root: :data, async: false
+          render json: ClaimsApi::V2::Blueprints::MetaBlueprint.render(
+            auto_claim, async: false
           ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
         end
 
@@ -119,6 +119,7 @@ module ClaimsApi
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:, form_data: form_attributes,
+            transaction_id: claim_transaction_id,
             flashes:,
             cid: token&.payload&.[]('cid'), veteran_icn: target_veteran&.mpi&.icn,
             validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
@@ -164,7 +165,7 @@ module ClaimsApi
 
         # Only value required by background jobs that is missing in headers is middle name
         def veteran_middle_initial
-          @target_veteran.middle_name ? @target_veteran.middle_name[0].uppercase : ''
+          target_veteran.middle_name&.first&.upcase || ''
         end
 
         def flashes
@@ -186,7 +187,7 @@ module ClaimsApi
           validate_veteran_name(true)
           # if we get here there were only validations file errors
           if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
         end

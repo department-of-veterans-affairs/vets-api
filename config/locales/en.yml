@@ -25,6 +25,9 @@ en:
       pdf_stamp: "%Y-%m-%d"
       pdf_stamp4010007: "%m/%d/%Y"
       pdf_stamp_utc: "%Y-%m-%d %I:%M %p %Z"
+  date:
+    formats:
+      pdf_stamp4010007: "%m/%d/%Y"
   dependency_claim_failure_mailer:
     subject: We can’t process your dependents application
     body_html: >
@@ -54,10 +57,10 @@ en:
       # end carrierwave messages
 
       uploads:
-        content_type_mismatch: 'We couldn’t upload your file because the content doesn’t match the extension.'
-        document_type_unknown: 'We couldn’t upload your file because it’s not a known document type.'
-        encrypted: 'We couldn’t upload your PDF because it’s encrypted. Save your file without a password and try uploading it again'
-        malformed_pdf: 'We couldn’t upload your PDF because the file is corrupted'
+        content_type_mismatch: "We couldn’t upload your file because the content doesn’t match the extension."
+        document_type_unknown: "We couldn’t upload your file because it’s not a known document type."
+        encrypted: "We couldn’t upload your PDF because it’s encrypted. Save your file without a password and try uploading it again"
+        malformed_pdf: "We couldn’t upload your PDF because the file is corrupted"
         ascii_encoded: "We couldn’t upload your file because we can’t read its characters. Text files must be ASCII-encoded."
         pdf:
           locked: We couldn’t upload your PDF because it’s encrypted. Save your file without a password and try uploading it again.

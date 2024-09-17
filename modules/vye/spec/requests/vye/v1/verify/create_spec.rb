@@ -3,8 +3,8 @@
 require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
-RSpec.describe Vye::V1::VerificationsController, type: :request do
-  let!(:current_user) { create(:user, :loa3) }
+RSpec.describe 'Vye::V1::Verify#create', type: :request do
+  let!(:current_user) { create(:user, :accountable) }
 
   before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)

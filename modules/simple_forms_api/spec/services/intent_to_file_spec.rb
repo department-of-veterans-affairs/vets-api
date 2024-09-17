@@ -19,6 +19,7 @@ describe SimpleFormsApi::IntentToFile do
 
     it 'returns no confirmation number and no expiration date if no new ITF is filed' do
       user = build(:user)
+      allow(user).to receive_messages(icn: '123498767V234859', participant_id: 'fake-participant-id')
       intent_to_file_service = SimpleFormsApi::IntentToFile.new(user, params)
       expiration_date = 'fake-expiration-date'
       compensation_intent = {

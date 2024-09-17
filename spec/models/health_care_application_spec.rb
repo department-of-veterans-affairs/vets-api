@@ -491,26 +491,51 @@ RSpec.describe HealthCareApplication, type: :model do
     end
 
     describe '#send_failure_email' do
-      context 'VANotify flipper enabled' do
-        before do
-          Flipper.enable(:hca_submission_failure_email_va_notify)
-        end
+      context 'has form' do
+        context 'with email address' do
+          let(:email_address) { health_care_application.parsed_form['email'] }
+          let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
+          let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email }
+          let(:template_params) do
+            [
+              email_address,
+              template_id,
+              {
+                'salutation' => "Dear #{health_care_application.parsed_form['veteranFullName']['first']},"
+              },
+              api_key
+            ]
+          end
 
-        after do
-          Flipper.disable(:hca_submission_failure_email_va_notify)
-        end
+          let(:standard_error) { StandardError.new('Test error') }
 
-        context 'has form' do
-          context 'with email address' do
-            let(:email_address) { health_care_application.parsed_form['email'] }
-            let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
-            let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email }
-            let(:template_params) do
+          it 'sends a failure email to the email address provided on the form' do
+            subject
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params)
+          end
+
+          it 'logs error to sentry if email job throws error' do
+            allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+            expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
+            expect { subject }.not_to raise_error
+          end
+
+          it 'increments statsd' do
+            expect { subject }.to trigger_statsd_increment('api.1010ez.submission_failure_email_sent')
+          end
+
+          context 'without first name' do
+            subject do
+              health_care_application.parsed_form['veteranFullName'] = nil
+              super()
+            end
+
+            let(:template_params_no_name) do
               [
                 email_address,
                 template_id,
                 {
-                  'salutation' => "Dear #{health_care_application.parsed_form['veteranFullName']['first']},"
+                  'salutation' => ''
                 },
                 api_key
               ]
@@ -518,9 +543,9 @@ RSpec.describe HealthCareApplication, type: :model do
 
             let(:standard_error) { StandardError.new('Test error') }
 
-            it 'sends a failure email to the email address provided on the form' do
+            it 'sends a failure email without personalisations to the email address provided on the form' do
               subject
-              expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params)
+              expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_no_name)
             end
 
             it 'logs error to sentry if email job throws error' do
@@ -528,127 +553,44 @@ RSpec.describe HealthCareApplication, type: :model do
               expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
               expect { subject }.not_to raise_error
             end
-
-            it 'increments statsd' do
-              expect { subject }.to trigger_statsd_increment('api.1010ez.submission_failure_email_sent')
-            end
-
-            context 'without first name' do
-              subject do
-                health_care_application.parsed_form['veteranFullName'] = nil
-                super()
-              end
-
-              let(:template_params_no_name) do
-                [
-                  email_address,
-                  template_id,
-                  {
-                    'salutation' => ''
-                  },
-                  api_key
-                ]
-              end
-
-              it 'sends email without personalisations' do
-                subject
-                expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_no_name)
-              end
-            end
-          end
-
-          context 'without email address' do
-            subject do
-              health_care_application.parsed_form['email'] = nil
-              super()
-            end
-
-            it 'does not send email' do
-              expect(health_care_application).not_to receive(:send_failure_email)
-              subject
-            end
           end
         end
 
-        context 'does not have form' do
+        context 'without email address' do
           subject do
-            health_care_application.form = nil
+            health_care_application.parsed_form['email'] = nil
             super()
           end
 
-          context 'with email address' do
-            it 'does not send email' do
-              expect(health_care_application).not_to receive(:send_failure_email)
-              subject
-            end
-          end
-
-          context 'without email address' do
-            subject do
-              health_care_application.parsed_form['email'] = nil
-              super()
-            end
-
-            it 'does not send email' do
-              expect(health_care_application).not_to receive(:send_failure_email)
-              subject
-            end
+          it 'does not send email' do
+            expect(health_care_application).not_to receive(:send_failure_email)
+            subject
           end
         end
       end
 
-      context 'VANotify flipper disabled' do
-        before do
-          Flipper.disable(:hca_submission_failure_email_va_notify)
+      context 'does not have form' do
+        subject do
+          health_care_application.form = nil
+          super()
         end
 
-        context 'has form' do
-          context 'with email address' do
-            let(:email_address) { health_care_application.parsed_form['email'] }
-
-            it 'sends a failure email to the email address provided on the form' do
-              expect(health_care_application).to receive(:send_failure_email).and_call_original
-              expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
-              subject
-            end
-          end
-
-          context 'without email address' do
-            subject do
-              health_care_application.parsed_form['email'] = nil
-              super()
-            end
-
-            it 'does not send email' do
-              expect(health_care_application).not_to receive(:send_failure_email)
-              subject
-            end
+        context 'with email address' do
+          it 'does not send email' do
+            expect(health_care_application).not_to receive(:send_failure_email)
+            subject
           end
         end
 
-        context 'does not have form' do
+        context 'without email address' do
           subject do
-            health_care_application.form = nil
+            health_care_application.parsed_form['email'] = nil
             super()
           end
 
-          context 'with email address' do
-            it 'does not send email' do
-              expect(health_care_application).not_to receive(:send_failure_email)
-              subject
-            end
-          end
-
-          context 'without email address' do
-            subject do
-              health_care_application.parsed_form['email'] = nil
-              super()
-            end
-
-            it 'does not send email' do
-              expect(health_care_application).not_to receive(:send_failure_email)
-              subject
-            end
+          it 'does not send email' do
+            expect(health_care_application).not_to receive(:send_failure_email)
+            subject
           end
         end
       end
