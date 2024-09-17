@@ -10,7 +10,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     VAProfile::ContactInformation::Service
   end
 
-
   describe 'GET /mobile/v0/user' do
     let!(:user) do
       sis_user(
