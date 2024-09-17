@@ -1,10 +1,24 @@
 {
+  "vaFileNumber": "123456789",
   "veteranFullName": {
     "first": "John",
-    "middle": "Edmund",
+    "middle": "E",
     "last": "Doe"
   },
   "veteranSocialSecurityNumber": "333224444",
+  "claimantFullName": {
+    "first": "Jane",
+    "middle": "E",
+    "last": "Doe"
+  },
+  "claimantSocialSecurityNumber": "333224445",
+  "claimantPhone": "5552345555",
+  "claimantType": 1,
+  "incomeNetWorthDateRange": {
+    "from": "01/01/2020",
+    "to": "12/31/2020",
+    "useDateReceivedByVA": false
+  },
   "statementOfTruthCertified": true,
   "statementOfTruthSignature": "John Edmund Doe",
   "unassociatedIncomes": [
