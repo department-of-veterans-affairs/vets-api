@@ -22,6 +22,11 @@ Rails.application.routes.draw do
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
 
+  get '/v0/webauthn/generate_registration_options', to: 'v0/webauthn#generate_registration_options'
+  post '/v0/webauthn/verify_registration', to: 'v0/webauthn#verify_registration'
+  get '/v0/webauthn/generate_authentication_options', to: 'v0/webauthn#generate_authentication_options'
+  post '/v0/webauthn/verify_authnetication', to: 'v0/webauthn#verify_authentication'
+
   get '/sign_in/openid_connect/certs' => 'sign_in/openid_connect_certificates#index'
 
   unless Settings.vsp_environment == 'production'
