@@ -16,7 +16,6 @@ module Responses
         end
 
         property :type do
-          key :required, true
           key :type, :string
           key :description, <<-DESC
           Specifies the category of Power of Attorney (POA) representation. This field differentiates between two primary forms of POA:
@@ -38,31 +37,26 @@ module Responses
           end
 
           property :name do
-            key :required, true
             key :type, :string
             key :example, 'Veterans Association'
           end
 
           property :address_line1 do
-            key :required, true
             key :type, :string
             key :example, '1234 Freedom Blvd'
           end
 
           property :city do
-            key :required, true
             key :type, :string
             key :example, 'Arlington'
           end
 
           property :state_code do
-            key :required, true
             key :type, :string
             key :example, 'VA'
           end
 
           property :zip_code do
-            key :required, true
             key :type, :string
             key :example, '22204'
           end
