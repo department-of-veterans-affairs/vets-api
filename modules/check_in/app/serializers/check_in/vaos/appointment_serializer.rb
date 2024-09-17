@@ -12,16 +12,16 @@ module CheckIn
 
       attribute :telehealth do |object|
         {
-          vvsKind: object.dig('telehealth','vvsKind'),
+          vvsKind: object.dig('telehealth', 'vvsKind'),
           atlas: object.dig('telehealth', 'atlas')
         }
       end
 
       attribute :extension do |object|
         {
-          preCheckinAllowed: object&.extension&.dig('preCheckinAllowed'),
-          eCheckinAllowed: object&.extension&.dig('eCheckinAllowed'),
-          patientHasMobileGfe: object&.extension&.dig('patientHasMobileGfe')
+          preCheckinAllowed: object.dig('extension', 'preCheckinAllowed'),
+          eCheckinAllowed: object.dig('extension', 'eCheckinAllowed'),
+          patientHasMobileGfe: object.dig('extension', 'patientHasMobileGfe')
         }
       end
 
