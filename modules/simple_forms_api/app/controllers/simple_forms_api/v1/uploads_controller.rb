@@ -91,7 +91,12 @@ module SimpleFormsApi
         form.track_user_identity(confirmation_number)
 
         if Flipper.enabled?(:simple_forms_email_confirmations)
-          send_confirmation_email(parsed_form_data, get_form_id, confirmation_number)
+          # We're using this struct here because send_confirmation_email requires a form_submission_attempt
+          # but the Intent API does not deal in form_submission_attempts.
+          # The proper refactor is probably to extend the form_submission_attempt table to
+          # accommodate submissions for the Benefits Claims API (in addition to the Benefits Intake API).
+          form_submission_attempt_struct = create_form_submission_attempt_struct(confirmation_number, params.to_json)
+          send_confirmation_email(form_submission_attempt_struct)
         end
 
         json_for210966(confirmation_number, expiration_date, existing_intents)
@@ -270,6 +275,19 @@ module SimpleFormsApi
           notification_type: :confirmation,
           user: @current_user
         ).send
+      end
+
+      def create_form_submission_attempt_struct(confirmation_number, form_data)
+        form_submission_struct = Struct.new(:form_data, :form_type)
+        form_submission_attempt_struct = Struct.new(:form_submission, :confirmation_number, :lighthouse_updated_at,
+                                                    :created_at, :benefits_intake_uuid)
+        form_submission_attempt_struct.new(
+          form_submission_struct.new(form_data, '21-0966'),
+          confirmation_number,
+          nil,
+          Time.zone.now,
+          nil
+        )
       end
     end
   end

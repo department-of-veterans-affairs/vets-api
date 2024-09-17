@@ -170,7 +170,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             it 'catches the exception and sends a PDF to Central Mail instead' do
               expect_any_instance_of(SimpleFormsApi::V1::UploadsController).to receive(
                 :upload_pdf
-              ).and_return([:ok, 'confirmation number'])
+              ).and_return([:ok, build(:form_submission_attempt)])
               fixture_path = Rails.root.join(
                 'modules',
                 'simple_forms_api',
@@ -220,7 +220,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           before do
             allow(BenefitsIntake::Service).to receive(:new).and_return(lighthouse_service)
             allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to(
-              receive(:prepare_for_upload).and_return(%w[location uuid])
+              receive(:prepare_for_upload).and_return(['location', build(:form_submission_attempt)])
             )
             allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to(
               receive(:log_upload_details).and_return(true)
@@ -635,7 +635,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       sign_in
     end
 
-    let(:confirmation_number) { 'some_confirmation_number' }
+    let(:confirmation_number) { SecureRandom.uuid }
 
     describe '21_4142' do
       let(:data) do
@@ -644,11 +644,15 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '21-4142') }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, benefits_intake_uuid: confirmation_number, form_submission:)
+      end
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
         allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf).and_return([200, confirmation_number])
+          .to receive(:upload_pdf).and_return([200, form_submission_attempt])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -660,7 +664,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'VETERAN',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -668,7 +673,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
         allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf).and_return([500, confirmation_number])
+          .to receive(:upload_pdf).and_return([500, form_submission_attempt])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -685,11 +690,15 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '21-10210') }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, benefits_intake_uuid: confirmation_number, form_submission:)
+      end
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
         allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf).and_return([200, confirmation_number])
+          .to receive(:upload_pdf).and_return([200, form_submission_attempt])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -701,7 +710,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'JACK',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -709,7 +719,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
         allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf).and_return([500, confirmation_number])
+          .to receive(:upload_pdf).and_return([500, form_submission_attempt])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -731,12 +741,16 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '21P-0847') }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, benefits_intake_uuid: confirmation_number, form_submission:)
+      end
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
         allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf).and_return([200, confirmation_number])
+          .to receive(:upload_pdf).and_return([200, form_submission_attempt])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -748,7 +762,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'ARTHUR',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -757,7 +772,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
         allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf).and_return([500, confirmation_number])
+          .to receive(:upload_pdf).and_return([500, form_submission_attempt])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -774,11 +789,15 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '21-0972') }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, benefits_intake_uuid: confirmation_number, form_submission:)
+      end
 
       it 'successful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
         allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-          .to receive(:upload_pdf).and_return([200, confirmation_number])
+          .to receive(:upload_pdf).and_return([200, form_submission_attempt])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -790,7 +809,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'PREPARE',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -815,6 +835,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0966.json'
           )
           JSON.parse(fixture_path.read)
+        end
+        let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '21-0966') }
+        let(:form_submission_attempt) do
+          create(:form_submission_attempt, benefits_intake_uuid: confirmation_number, form_submission:)
         end
 
         before do
@@ -846,6 +870,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'first_name' => 'ABRAHAM',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
+                'lighthouse_updated_at' => nil,
                 'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
                                              ' (VA Form 21P-534 or VA Form 21P-534EZ)'
               }
@@ -856,7 +881,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         context 'non-veteran preparer' do
           it 'successful submission' do
             allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
-              .to receive(:upload_pdf).and_return([200, confirmation_number])
+              .to receive(:upload_pdf).and_return([200, form_submission_attempt])
 
             post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -869,6 +894,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'first_name' => 'ABRAHAM',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
+                'lighthouse_updated_at' => nil,
                 'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
                                              ' (VA Form 21P-534 or VA Form 21P-534EZ)'
               }
