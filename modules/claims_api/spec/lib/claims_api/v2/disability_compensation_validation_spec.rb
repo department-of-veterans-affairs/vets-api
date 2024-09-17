@@ -378,6 +378,36 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
+    context 'conditional validations when the country is USA' do
+      context 'zipfirstFive is not included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['zipFirstFive'] = ''
+          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
+          expect(current_error_array[0][:detail]).to eq('The zipFirstFive is required if the country is USA.')
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/')
+        end
+      end
+
+      context 'state is not included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['state'] = ''
+          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
+          expect(current_error_array[0][:detail]).to eq('The state is required if the country is USA.')
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/')
+        end
+      end
+
+      context 'internationalPostalCode is included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['internationalPostalCode'] = '333-444'
+          test_526_validation_instance.send(:validate_form_526_change_of_address_zip)
+          expect(current_error_array[0][:detail])
+            .to eq('The internationalPostalCode should not be provided if the country is USA.')
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/internationalPostalCode')
+        end
+      end
+    end
+
     context 'when the country is not provided' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['country'] = ''
