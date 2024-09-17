@@ -22,6 +22,17 @@ RSpec.describe DecisionReview::SavedClaimNodStatusUpdaterJob, type: :job do
     instance_double(Faraday::Response, body: VetsJsonSchema::EXAMPLES.fetch('NOD-SHOW-RESPONSE-200_V2'))
   end
 
+  let(:upload_response_vbms) do
+    response = JSON.parse(File.read('spec/fixtures/notice_of_disagreements/NOD_upload_show_response_200.json'))
+    instance_double(Faraday::Response, body: response)
+  end
+
+  let(:upload_response_processing) do
+    response = JSON.parse(File.read('spec/fixtures/notice_of_disagreements/NOD_upload_show_response_200.json'))
+    response['data']['attributes']['status'] = 'processing'
+    instance_double(Faraday::Response, body: response)
+  end
+
   before do
     allow(DecisionReviewV1::Service).to receive(:new).and_return(service)
   end
@@ -33,7 +44,7 @@ RSpec.describe DecisionReview::SavedClaimNodStatusUpdaterJob, type: :job do
         allow(StatsD).to receive(:increment)
       end
 
-      context 'SavedClaim records are present' do
+      context 'SavedClaim records are present and there are no evidence uploads' do
         before do
           SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}')
           SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}')
@@ -42,7 +53,7 @@ RSpec.describe DecisionReview::SavedClaimNodStatusUpdaterJob, type: :job do
           SavedClaim::SupplementalClaim.create(form: '{}')
         end
 
-        it 'updates SavedClaim::SupplementalClaim delete_date for completed records without a delete_date' do
+        it 'updates SavedClaim::NoticeOfDisagreement delete_date for completed records without a delete_date' do
           expect(service).to receive(:get_notice_of_disagreement).with(guid1).and_return(response_complete)
           expect(service).to receive(:get_notice_of_disagreement).with(guid2).and_return(response_pending)
           expect(service).not_to receive(:get_notice_of_disagreement).with(guid3)
@@ -73,6 +84,93 @@ RSpec.describe DecisionReview::SavedClaimNodStatusUpdaterJob, type: :job do
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.saved_claim_nod_status_updater.status', tags: ['status:pending'])
             .exactly(1).time
+        end
+      end
+
+      context 'SavedClaim records are present with completed status in LH and have associated evidence uploads' do
+        let(:upload_id) { SecureRandom.uuid }
+        let(:upload_id2) { SecureRandom.uuid }
+        let(:upload_id3) { SecureRandom.uuid }
+        let(:upload_id4) { SecureRandom.uuid }
+
+        before do
+          SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}')
+          SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}')
+          SavedClaim::NoticeOfDisagreement.create(guid: guid3, form: '{}')
+
+          appeal_submission = create(:appeal_submission, submitted_appeal_uuid: guid1)
+          create(:appeal_submission_upload, appeal_submission:, lighthouse_upload_id: upload_id)
+
+          appeal_submission2 = create(:appeal_submission, submitted_appeal_uuid: guid2)
+          create(:appeal_submission_upload, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id2)
+
+          # One upload vbms, other one still processing
+          appeal_submission3 = create(:appeal_submission, submitted_appeal_uuid: guid3)
+          create(:appeal_submission_upload, appeal_submission: appeal_submission3, lighthouse_upload_id: upload_id3)
+          create(:appeal_submission_upload, appeal_submission: appeal_submission3, lighthouse_upload_id: upload_id4)
+        end
+
+        it 'only sets delete_date for SavedClaim::NoticeOfDisagreement with all attachments in vbms status' do
+          expect(service).to receive(:get_notice_of_disagreement_upload).with(guid: upload_id)
+                                                                        .and_return(upload_response_vbms)
+          expect(service).to receive(:get_notice_of_disagreement_upload).with(guid: upload_id2)
+                                                                        .and_return(upload_response_processing)
+          expect(service).to receive(:get_notice_of_disagreement_upload).with(guid: upload_id3)
+                                                                        .and_return(upload_response_vbms)
+          expect(service).to receive(:get_notice_of_disagreement_upload).with(guid: upload_id4)
+                                                                        .and_return(upload_response_processing)
+
+          expect(service).to receive(:get_notice_of_disagreement).with(guid1).and_return(response_complete)
+          expect(service).to receive(:get_notice_of_disagreement).with(guid2).and_return(response_complete)
+          expect(service).to receive(:get_notice_of_disagreement).with(guid3).and_return(response_complete)
+
+          frozen_time = DateTime.new(2024, 1, 1).utc
+
+          Timecop.freeze(frozen_time) do
+            subject.new.perform
+
+            claim1 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid1)
+            expect(claim1.delete_date).to eq frozen_time + 59.days
+            expect(claim1.metadata_updated_at).to eq frozen_time
+            expect(claim1.metadata).to include 'complete'
+            expect(claim1.metadata).to include 'vbms'
+
+            claim2 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid2)
+            expect(claim2.delete_date).to be_nil
+            expect(claim2.metadata_updated_at).to eq frozen_time
+            expect(claim2.metadata).to include 'complete'
+            expect(claim2.metadata).to include 'processing'
+
+            claim3 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid3)
+            expect(claim3.delete_date).to be_nil
+            expect(claim3.metadata_updated_at).to eq frozen_time
+
+            metadata3 = JSON.parse(claim3.metadata)
+            expect(metadata3['status']).to eq 'complete'
+            expect(metadata3['uploads'].pluck('id', 'status'))
+              .to contain_exactly([upload_id3, 'vbms'], [upload_id4, 'processing'])
+          end
+
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_nod_status_updater.processing_records', 3).exactly(1).time
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_nod_status_updater.delete_date_update').exactly(1).time
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_nod_status_updater.status', tags: ['status:complete'])
+            .exactly(2).times
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_nod_status_updater_upload.status', tags: ['status:vbms'])
+            .exactly(2).times
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_nod_status_updater_upload.status', tags: ['status:processing'])
+            .exactly(2).times
+        end
+      end
+
+      context 'an error occurs while processing' do
+        before do
+          SavedClaim::NoticeOfDisagreement.create(guid: SecureRandom.uuid, form: '{}')
+          SavedClaim::NoticeOfDisagreement.create(guid: SecureRandom.uuid, form: '{}')
         end
 
         it 'handles request errors and increments the statsd metric' do

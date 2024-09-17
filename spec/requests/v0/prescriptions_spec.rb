@@ -137,7 +137,7 @@ RSpec.describe 'V0::Prescriptions', type: :request do
         expect(response).to match_camelized_response_schema('prescriptions_filtered')
       end
 
-      it 'responds to POST #refill' do
+      it 'responds to PATCH #refill' do
         VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
           patch '/v0/prescriptions/13650545/refill'
         end
