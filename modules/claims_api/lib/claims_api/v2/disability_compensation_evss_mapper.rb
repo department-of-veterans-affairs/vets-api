@@ -54,6 +54,8 @@ module ClaimsApi
       def map_federal_activation_to_reserves(info)
         activation_date = info&.dig(:federalActivation, :activationDate)
         separation_date = info&.dig(:federalActivation, :anticipatedSeparationDate)
+        terms_of_service = info&.dig(:reservesNationalGuardService, :obligationTermsOfService)
+        unit_name = info&.dig(:reservesNationalGuardService, :unitName)
 
         return if activation_date.blank? && separation_date.blank?
 
@@ -61,7 +63,13 @@ module ClaimsApi
         title_ten[:title10ActivationDate] = activation_date if activation_date.present?
         title_ten[:anticipatedSeparationDate] = separation_date if separation_date.present?
 
+        begin_date = terms_of_service&.dig(:beginDate)
+        end_date = terms_of_service&.dig(:endDate)
+
         @evss_claim[:serviceInformation][:reservesNationalGuardService] = {
+          unitName: unit_name,
+          obligationTermOfServiceFromDate: begin_date,
+          obligationTermOfServiceToDate: end_date,
           title10Activation: title_ten
         }
       end

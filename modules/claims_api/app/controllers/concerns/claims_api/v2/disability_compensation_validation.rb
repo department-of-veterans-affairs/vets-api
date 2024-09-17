@@ -982,13 +982,25 @@ module ClaimsApi
 
         form_obj_desc = '/serviceInformation/federalActivation'
 
+        # For a valid BDD EP code to be assgned we need these values in reserves
+        validate_required_values_for_federal_activation(federal_activation_date, anticipated_separation_date)
+
+        validate_federal_activation_activation_date(federal_activation_date, form_obj_desc)
+
+        validate_federal_activation_date_order(federal_activation_date) if federal_activation_date.present?
+        if anticipated_separation_date.present?
+          validate_anticipated_separation_date_in_past(anticipated_separation_date)
+        end
+      end
+
+      def validate_federal_activation_activation_date(federal_activation_date, form_obj_desc)
         if federal_activation_date.blank?
           collect_error_if_value_not_present('federal activation date',
                                              form_obj_desc)
         end
+      end
 
-        return if anticipated_separation_date.blank?
-
+      def validate_federal_activation_date_order(federal_activation_date)
         # we know the dates are present
         if activation_date_not_after_duty_begin_date?(federal_activation_date)
           collect_error_messages(
@@ -996,9 +1008,41 @@ module ClaimsApi
             detail: 'The federalActivation date must be after the earliest service period active duty begin date.'
           )
         end
-
-        validate_anticipated_separation_date_in_past(anticipated_separation_date)
       end
+
+      # rubocop:disable Metrics/MethodLength
+      def validate_required_values_for_federal_activation(activation_date, separation_date)
+        activation_form_obj_desc = '/federalActivation'
+        reserves_dates_form_obj_desc = 'serviceInformation/reservesNationalGuardServce/obligationTermsOfService/'
+        reserves_unit_form_obj_desc = 'serviceInformation/reservesNationalGuardServce/'
+
+        reserves = form_attributes.dig('serviceInformation', 'reservesNationalGuardService')
+        tos_start_date = reserves&.dig('obligationTermsOfService', 'beginDate')
+        tos_end_date = reserves&.dig('obligationTermsOfService', 'endDate')
+        reserves&.dig('unitName')
+
+        if activation_date.blank?
+          collect_error_messages(detail: 'activationDate is missing or blank',
+                                 source: activation_form_obj_desc)
+        end
+        if separation_date.blank?
+          collect_error_messages(detail: 'anticipatedSeparationDate is missing or blank',
+                                 source: activation_form_obj_desc)
+        end
+        if tos_start_date.blank?
+          collect_error_messages(detail: 'beginDate is missing or blank',
+                                 source: reserves_dates_form_obj_desc)
+        end
+        if tos_end_date.blank?
+          collect_error_messages(detail: 'endDate is missing or blank',
+                                 source: reserves_dates_form_obj_desc)
+        end
+        if tos_end_date.blank?
+          collect_error_messages(detail: 'unitName is missing or blank',
+                                 source: reserves_unit_form_obj_desc)
+        end
+      end
+      # rubocop:enable Metrics/MethodLength
 
       def activation_date_not_after_duty_begin_date?(activation_date)
         service_information = form_attributes['serviceInformation']

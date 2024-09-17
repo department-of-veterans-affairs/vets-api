@@ -17,7 +17,7 @@ module ClaimsApi
         update_auth_headers(auto_claim) if auto_claim.transaction_id.present?
 
         evss_data = get_evss_data(auto_claim)
-
+byebug
         log_job_progress(claim_id, 'Submitting mapped data to Docker container', auto_claim.transaction_id)
 
         evss_res = evss_service.submit(auto_claim, evss_data, false)
