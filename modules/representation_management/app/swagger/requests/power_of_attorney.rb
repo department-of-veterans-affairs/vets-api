@@ -13,7 +13,9 @@ module Requests
 
         response 200 do
           key :description,
-              'Successfully checked for Power of Attorney information. Returns Power of Attorney details if available; otherwise, returns an empty object.'
+              'Successfully checked for Power of Attorney information. ' \
+              'Returns Power of Attorney details if available; otherwise, ' \
+              'returns an empty object.'
           schema do
             key :$ref, :PowerOfAttorneyResponse
           end
