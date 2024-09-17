@@ -120,9 +120,9 @@ module Lighthouse
 
     def generate_log_details(e = nil)
       details = {
-        claim_id: @claim.id,
-        benefits_intake_uuid: @lighthouse_service.uuid,
-        confirmation_number: @claim.confirmation_number
+        claim_id: @claim&.id,
+        benefits_intake_uuid: @lighthouse_service&.uuid,
+        confirmation_number: @claim&.confirmation_number
       }
       details['error'] = e.message if e
       details
