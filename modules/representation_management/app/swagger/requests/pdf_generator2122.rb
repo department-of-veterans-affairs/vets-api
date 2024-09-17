@@ -4,7 +4,7 @@ module Requests
   class PdfGenerator2122
     include Swagger::Blocks
 
-    swagger_path '/representation_management/v0/pdf_generator_2122' do
+    swagger_path '/representation_management/v0/pdf_generator2122' do
       operation :post do
         key :summary, 'Generate a PDF for form 21-22'
         key :operationId, 'createPdfForm2122'
@@ -203,10 +203,6 @@ module Requests
 
         response 200 do
           key :description, 'PDF generated successfully'
-
-          schema do
-            property :data, type: :string, format: 'binary'
-          end
         end
 
         response 422 do
