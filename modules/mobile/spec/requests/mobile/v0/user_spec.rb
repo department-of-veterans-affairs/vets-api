@@ -21,7 +21,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
     before(:all) do
-      Flipper.disable(va_v3_contact_information_service)
+      Flipper.disable(:va_v3_contact_information_service)
       Flipper.disable(:mobile_lighthouse_letters)
     end
 
