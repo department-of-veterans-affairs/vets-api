@@ -879,6 +879,7 @@
                                       "description": "Begin date for the Veteran's new address.",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "type": "string",
+                                      "nullable": true,
                                       "example": "2018-06-04"
                                     },
                                     "endDate": {
@@ -2261,6 +2262,7 @@
                                     "description": "Begin date for the Veteran's new address.",
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
+                                    "nullable": true,
                                     "example": "2018-06-04"
                                   },
                                   "endDate": {
@@ -3686,7 +3688,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "4c15d1d5-8c78-46c3-b4da-c73baa771a7b",
+                        "id": "b636aeb7-88c0-4451-bd9b-73fd63697834",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3871,7 +3873,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-09-12"
+                              "anticipatedSeparationDate": "2024-09-18"
                             },
                             "confinements": [
                               {
@@ -3917,7 +3919,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "5fe86683-a608-4a7e-90a4-f901ab67abcc",
+                        "id": "bf5dc2c7-c4f6-497c-b263-c9cf2ef097d0",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4418,6 +4420,7 @@
                                       "description": "Begin date for the Veteran's new address.",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "type": "string",
+                                      "nullable": true,
                                       "example": "2018-06-04"
                                     },
                                     "endDate": {
@@ -5800,6 +5803,7 @@
                                     "description": "Begin date for the Veteran's new address.",
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
+                                    "nullable": true,
                                     "example": "2018-06-04"
                                   },
                                   "endDate": {
@@ -7959,6 +7963,7 @@
                                     "description": "Begin date for the Veteran's new address.",
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
+                                    "nullable": true,
                                     "example": "2018-06-04"
                                   },
                                   "endDate": {
@@ -9129,7 +9134,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2ae77e9b-75c8-4c18-8e1c-0b3f2c5f5301",
+                    "id": "cc98ad06-eee9-4a56-b089-f891410097a5",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12789,8 +12794,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-09-10",
-                      "expirationDate": "2025-09-10",
+                      "creationDate": "2024-09-16",
+                      "expirationDate": "2025-09-16",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13686,7 +13691,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "98a32e44-5988-42c3-acc1-65a2991af58a",
+                    "id": "46dd81ce-150a-46af-ab26-fd631d7a8c30",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14379,7 +14384,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ee98c34c-1121-4289-9f75-7e95df42bba5",
+                    "id": "25afc8c7-aeba-47c9-aaec-31654a9c954e",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16330,10 +16335,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "525c416e-4c87-43ec-82e8-f609b8560689",
+                    "id": "0d361496-a409-41d3-9946-5c796ba0febe",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-09-10",
+                      "dateRequestAccepted": "2024-09-16",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
