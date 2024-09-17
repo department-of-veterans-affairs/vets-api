@@ -77,6 +77,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           expect(response).to have_http_status(:ok)
           location = response.parsed_body.dig('data', 0, 'attributes', 'location')
           physical_location = response.parsed_body.dig('data', 0, 'attributes', 'physicalLocation')
+          comments = response.parsed_body.dig('data', 0, 'attributes', 'comment')
+          reason = response.parsed_body.dig('data', 0, 'attributes', 'reason')
           expect(response.body).to match_json_schema('VAOS_v2_appointments')
           expect(location).to eq({ 'id' => '983',
                                    'name' => 'Cheyenne VA Medical Center',
@@ -93,6 +95,8 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
                                    'url' => nil,
                                    'code' => nil })
           expect(physical_location).to eq('MTZ OPC, LAB')
+          expect(comments).to eq('My leg!')
+          expect(reason).to eq('Routine/Follow-up')
           expect(response.parsed_body['meta']).to eq({
                                                        'pagination' => { 'currentPage' => 1,
                                                                          'perPage' => 10,
@@ -678,6 +682,20 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           expect(expected_upcoming_pending_count).to eq(1)
           expect(response.parsed_body['meta']['upcomingAppointmentsCount']).to eq(expected_upcoming_pending_count)
           expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
+        end
+      end
+
+      describe 'appointment call returns 500 error' do
+        # This is a requirement due to FE having a bug where a source field in the error
+        # with a hash in it was causing long delays.
+        it 'returns 502 error with no source hash' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_500', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/appointments', headers: sis_headers
+          end
+          expect(response.parsed_body.dig('errors', 0)).to eq({ 'title' => 'Bad Gateway',
+                                                                'detail' => 'The resource could not be found',
+                                                                'code' => '502',
+                                                                'status' => '502' })
         end
       end
     end

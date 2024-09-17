@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe MebApi::V0::FormsController, type: :request do
+Rspec.describe 'MebApi::V0 Forms', type: :request do
   include SchemaMatchers
   include ActiveSupport::Testing::TimeHelpers
 

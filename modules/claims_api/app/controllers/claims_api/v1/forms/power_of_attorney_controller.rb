@@ -10,6 +10,7 @@ module ClaimsApi
         include ClaimsApi::DocumentValidations
         include ClaimsApi::EndpointDeprecation
         include ClaimsApi::PoaVerification
+        include ClaimsApi::DependentClaimantVerification
 
         before_action except: %i[schema] do
           permit_scopes %w[claim.read] if request.get?
@@ -80,7 +81,7 @@ module ClaimsApi
           @power_of_attorney.reload
 
           # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
-          ClaimsApi::PoaVBMSUploadJob.perform_async(@power_of_attorney.id)
+          ClaimsApi::PoaVBMSUploadJob.perform_async(@power_of_attorney.id, 'put')
 
           render json: ClaimsApi::PowerOfAttorneySerializer.new(@power_of_attorney)
         end
@@ -139,6 +140,11 @@ module ClaimsApi
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
+          if Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
+            validate_dependent_by_participant_id!(target_veteran.participant_id,
+                                                  form_attributes.dig('claimant', 'firstName'),
+                                                  form_attributes.dig('claimant', 'lastName'))
+          end
 
           render json: validation_success
         end
