@@ -12,6 +12,8 @@ describe SimpleFormsApi::NotificationEmail do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '21-10210') }
+      let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
 
       context 'flipper is on' do
         before do
@@ -23,8 +25,7 @@ describe SimpleFormsApi::NotificationEmail do
           data['claim_ownership'] = 'self'
           data['claimant_type'] = 'veteran'
 
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(form_submission_attempt:, notification_type:)
 
           subject.send
 
@@ -39,8 +40,7 @@ describe SimpleFormsApi::NotificationEmail do
 
         it 'does not send the email' do
           allow(VANotify::EmailJob).to receive(:perform_async)
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(form_submission_attempt:, notification_type:)
 
           subject.send
 
@@ -56,6 +56,8 @@ describe SimpleFormsApi::NotificationEmail do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '21-10210') }
+      let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
 
       describe 'users own claim' do
         it 'is a veteran' do
@@ -63,8 +65,7 @@ describe SimpleFormsApi::NotificationEmail do
           data['claim_ownership'] = 'self'
           data['claimant_type'] = 'veteran'
 
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(form_submission_attempt:, notification_type:)
 
           subject.send
 
@@ -74,7 +75,8 @@ describe SimpleFormsApi::NotificationEmail do
             {
               'first_name' => 'JOHN',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+              'lighthouse_updated_at' => nil
             }
           )
         end
@@ -84,8 +86,7 @@ describe SimpleFormsApi::NotificationEmail do
           data['claim_ownership'] = 'self'
           data['claimant_type'] = 'non-veteran'
 
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(form_submission_attempt:, notification_type:)
 
           subject.send
 
@@ -95,7 +96,8 @@ describe SimpleFormsApi::NotificationEmail do
             {
               'first_name' => 'JOE',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+              'lighthouse_updated_at' => nil
             }
           )
         end
@@ -107,8 +109,7 @@ describe SimpleFormsApi::NotificationEmail do
           data['claim_ownership'] = 'third-party'
           data['claimant_type'] = 'veteran'
 
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(form_submission_attempt:, notification_type:)
 
           subject.send
 
@@ -118,7 +119,8 @@ describe SimpleFormsApi::NotificationEmail do
             {
               'first_name' => 'JACK',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+              'lighthouse_updated_at' => nil
             }
           )
         end
@@ -128,8 +130,7 @@ describe SimpleFormsApi::NotificationEmail do
           data['claim_ownership'] = 'third-party'
           data['claimant_type'] = 'non-veteran'
 
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(form_submission_attempt:, notification_type:)
 
           subject.send
 
@@ -139,7 +140,8 @@ describe SimpleFormsApi::NotificationEmail do
             {
               'first_name' => 'JACK',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+              'lighthouse_updated_at' => nil
             }
           )
         end
@@ -155,15 +157,13 @@ describe SimpleFormsApi::NotificationEmail do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '40-0247') }
+      let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
 
       it 'sends the confirmation email' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_40_0247',
-          confirmation_number: 'confirmation_number'
-        )
+        subject = described_class.new(form_submission_attempt:, notification_type: :confirmation)
 
         subject.send
 
@@ -173,7 +173,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOE',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -186,6 +187,8 @@ describe SimpleFormsApi::NotificationEmail do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '40-0247') }
+      let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
 
       context 'when user is signed in' do
         let(:user) { create(:user, :loa3) }
@@ -194,12 +197,7 @@ describe SimpleFormsApi::NotificationEmail do
           allow(VANotify::EmailJob).to receive(:perform_async)
           expect(data['applicant_email']).to be_nil
 
-          subject = described_class.new(
-            form_data: data,
-            form_number: 'vba_40_0247',
-            confirmation_number: 'confirmation_number',
-            user:
-          )
+          subject = described_class.new(form_submission_attempt:, notification_type: :confirmation)
 
           subject.send
 
@@ -212,12 +210,7 @@ describe SimpleFormsApi::NotificationEmail do
           allow(VANotify::EmailJob).to receive(:perform_async)
           expect(data['applicant_email']).to be_nil
 
-          subject = described_class.new(
-            form_data: data,
-            form_number: 'vba_40_0247',
-            confirmation_number: 'confirmation_number',
-            user: nil
-          )
+          subject = described_class.new(form_submission_attempt:, notification_type: :confirmation)
 
           subject.send
 
@@ -234,18 +227,15 @@ describe SimpleFormsApi::NotificationEmail do
       )
       JSON.parse(fixture_path.read)
     end
+    let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '21-0845') }
+    let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
 
     describe 'signed in user' do
       it 'non-veteran authorizer' do
         allow(VANotify::EmailJob).to receive(:perform_async)
         data['authorizer_email'] = 'authorizer_email@example.com'
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_21_0845',
-          confirmation_number: 'confirmation_number',
-          user: create(:user)
-        )
+        subject = described_class.new(form_submission_attempt:, notification_type: :confirmation, user: create(:user))
 
         subject.send
 
@@ -255,7 +245,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JACK',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -264,12 +255,7 @@ describe SimpleFormsApi::NotificationEmail do
         allow(VANotify::EmailJob).to receive(:perform_async)
         data['authorizer_type'] = 'veteran'
 
-        subject = described_class.new(
-          user: create(:user),
-          form_data: data,
-          form_number: 'vba_21_0845',
-          confirmation_number: 'confirmation_number'
-        )
+        subject = described_class.new(form_submission_attempt:, notification_type: :confirmation, user: create(:user))
 
         allow(subject.user).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
 
@@ -281,7 +267,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOHN',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -293,11 +280,7 @@ describe SimpleFormsApi::NotificationEmail do
         # form requires email
         data['authorizer_email'] = 'authorizer_email@example.com'
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_21_0845',
-          confirmation_number: 'confirmation_number'
-        )
+        subject = described_class.new(form_submission_attempt:, notification_type: :confirmation)
 
         subject.send
 
@@ -307,7 +290,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JACK',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -317,11 +301,7 @@ describe SimpleFormsApi::NotificationEmail do
         # form does not require email
         data['authorizer_type'] = 'veteran'
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_21_0845',
-          confirmation_number: 'confirmation_number'
-        )
+        subject = described_class.new(form_submission_attempt:, notification_type: :confirmation)
 
         subject.send
 
@@ -337,17 +317,14 @@ describe SimpleFormsApi::NotificationEmail do
       )
       JSON.parse(fixture_path.read)
     end
+    let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '21-0966') }
+    let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
     let(:user) { create(:user, :loa3) }
 
     it 'sends the confirmation email' do
       allow(VANotify::EmailJob).to receive(:perform_async)
 
-      subject = described_class.new(
-        form_data: data,
-        form_number: 'vba_21_0966',
-        confirmation_number: 'confirmation_number',
-        user:
-      )
+      subject = described_class.new(form_submission_attempt:, notification_type: :confirmation, user:)
 
       subject.send
 
@@ -357,7 +334,8 @@ describe SimpleFormsApi::NotificationEmail do
         {
           'first_name' => user.first_name.upcase,
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => 'confirmation_number',
+          'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+          'lighthouse_updated_at' => nil,
           'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
                                        ' (VA Form 21P-534 or VA Form 21P-534EZ)'
         }
@@ -372,15 +350,13 @@ describe SimpleFormsApi::NotificationEmail do
       )
       JSON.parse(fixture_path.read)
     end
+    let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '20-10206') }
+    let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
 
     it 'sends the confirmation email' do
       allow(VANotify::EmailJob).to receive(:perform_async)
 
-      subject = described_class.new(
-        form_data: data,
-        form_number: 'vba_20_10206',
-        confirmation_number: 'confirmation_number'
-      )
+      subject = described_class.new(form_submission_attempt:, notification_type: :confirmation)
 
       subject.send
 
@@ -390,7 +366,8 @@ describe SimpleFormsApi::NotificationEmail do
         {
           'first_name' => 'JOHN',
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => 'confirmation_number'
+          'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+          'lighthouse_updated_at' => nil
         }
       )
     end
@@ -404,17 +381,14 @@ describe SimpleFormsApi::NotificationEmail do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '20-10207') }
+      let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
       let(:user) { create(:user, :loa3) }
 
       it 'sends the confirmation email' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_20_10207',
-          confirmation_number: 'confirmation_number',
-          user:
-        )
+        subject = described_class.new(form_submission_attempt:, notification_type: :confirmation, user:)
 
         subject.send
 
@@ -424,7 +398,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOHN',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -437,17 +412,14 @@ describe SimpleFormsApi::NotificationEmail do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '20-10207') }
+      let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
       let(:user) { create(:user, :loa3) }
 
       it 'sends the confirmation email' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_20_10207',
-          confirmation_number: 'confirmation_number',
-          user:
-        )
+        subject = described_class.new(form_submission_attempt:, notification_type: :confirmation, user:)
 
         subject.send
 
@@ -457,7 +429,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOE',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -470,17 +443,14 @@ describe SimpleFormsApi::NotificationEmail do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '20-10207') }
+      let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
       let(:user) { create(:user, :loa3) }
 
       it 'sends the confirmation email' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_20_10207',
-          confirmation_number: 'confirmation_number',
-          user:
-        )
+        subject = described_class.new(form_submission_attempt:, notification_type: :confirmation, user:)
 
         subject.send
 
@@ -490,7 +460,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOHN',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -503,17 +474,14 @@ describe SimpleFormsApi::NotificationEmail do
         )
         JSON.parse(fixture_path.read)
       end
+      let(:form_submission) { create(:form_submission, form_data: data.to_json, form_type: '20-10207') }
+      let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
       let(:user) { create(:user, :loa3) }
 
       it 'sends the confirmation email' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_20_10207',
-          confirmation_number: 'confirmation_number',
-          user:
-        )
+        subject = described_class.new(form_submission_attempt:, notification_type: :confirmation, user:)
 
         subject.send
 
@@ -523,7 +491,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOE',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => form_submission_attempt.benefits_intake_uuid,
+            'lighthouse_updated_at' => nil
           }
         )
       end

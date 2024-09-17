@@ -23,8 +23,8 @@ module SimpleFormsApi
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
     def initialize(form_submission_attempt:, notification_type: :confirmation, user: nil)
-      @form_data = form_submission_attempt.form_data
-      @form_number = form_submission_attempt.form_type
+      @form_data = JSON.parse(form_submission_attempt.form_submission.form_data)
+      @form_number = V1::UploadsController::FORM_NUMBER_MAP[form_submission_attempt.form_submission.form_type]
       @confirmation_number = form_submission_attempt.benefits_intake_uuid
       @lighthouse_updated_at = form_submission_attempt.lighthouse_updated_at
       @originally_submitted_at = form_submission_attempt.created_at

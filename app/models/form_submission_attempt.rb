@@ -16,7 +16,7 @@ class FormSubmissionAttempt < ApplicationRecord
   self.ignored_columns += %w[error_message response]
 
   def benefits_intake_uuid
-    benefits_intake_uuid || form_submission.benefits_intake_uuid
+    self[:benefits_intake_uuid] || form_submission.benefits_intake_uuid
   end
 
   aasm do
