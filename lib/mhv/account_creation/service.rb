@@ -25,7 +25,7 @@ module MHV
         {
           icn:,
           email:,
-          vaTermsOfUseDateTime: tou_occurred_at,
+          vaTermsOfUseDateTime: tou_occurred_at.iso8601,
           vaTermsOfUseStatus: config.tou_status,
           vaTermsOfUseRevision: config.tou_revision,
           vaTermsOfUseLegalVersion: config.tou_legal_version,

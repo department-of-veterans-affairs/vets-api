@@ -67,10 +67,12 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
         '@new_document_version_ref_id' => '{52300B69-1D6E-43B2-8BEB-67A7C55346A2}',
         '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
       }.with_indifferent_access)
+
+      allow_any_instance_of(ClaimsApi::PoaVBMSUploadJob).to receive(:fetch_file_path).and_return('/tmp/path.pdf')
       allow_any_instance_of(BGS::PersonWebService)
         .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-      allow_any_instance_of(ClaimsApi::PoaVBMSUploadJob).to receive(:fetch_file_path).and_return('/tmp/path.pdf')
-
+      allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
+        .and_return({ return_code: 'BMOD0001' })
       allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
       allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_return(document_response)
       VCR.use_cassette('claims_api/vbms/document_upload_success') do
@@ -130,6 +132,8 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
 
         allow_any_instance_of(BGS::PersonWebService)
           .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+        allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
+          .and_return({ return_code: 'BMOD0001' })
         allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
         allow_any_instance_of(VBMS::Client).to receive(:send_request).and_return(response)
         allow(VBMS::Requests::UploadDocument).to receive(:new).and_return({})
@@ -221,8 +225,13 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
       end
 
       it 'calls the benefits document API with doc_type L075' do
+        allow_any_instance_of(BGS::PersonWebService)
+          .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+        allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
+          .and_return({ return_code: 'BMOD0001' })
         expect_any_instance_of(ClaimsApi::BD).to receive(:upload).with(
           claim: power_of_attorney,
+          pctpnt_vet_id: nil,
           pdf_path: anything,
           doc_type: 'L075',
           action: 'post'
@@ -248,6 +257,10 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
 
     context 'when the bd upload feature flag is disabled' do
       it 'calls the VBMS uploader' do
+        allow_any_instance_of(BGS::PersonWebService)
+          .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+        allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
+          .and_return({ return_code: 'BMOD0001' })
         expect_any_instance_of(subject).to receive(:upload_to_vbms)
         subject.new.perform(power_of_attorney.id)
       end
