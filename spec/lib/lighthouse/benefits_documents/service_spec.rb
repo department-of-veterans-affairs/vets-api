@@ -6,7 +6,6 @@ require 'lighthouse_document'
 require 'lighthouse/benefits_documents/configuration'
 
 RSpec.describe BenefitsDocuments::Service do
-  Flipper.disable(:va_v3_contact_information_service)
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:service) { BenefitsDocuments::Service.new(user) }
 
