@@ -91,9 +91,7 @@ module SimpleFormsApi
         form.track_user_identity(confirmation_number)
 
         if Flipper.enabled?(:simple_forms_email_confirmations)
-          SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: get_form_id, confirmation_number:, user: @current_user
-          ).send
+          send_confirmation_email(parsed_form_data, get_form_id, confirmation_number)
         end
 
         json_for210966(confirmation_number, expiration_date, existing_intents)
@@ -133,9 +131,7 @@ module SimpleFormsApi
         )
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
-          SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @current_user
-          ).send
+          send_confirmation_email(parsed_form_data, form_id, confirmation_number)
         end
 
         { json: get_json(confirmation_number || nil, form_id), status: }
@@ -265,6 +261,16 @@ module SimpleFormsApi
           pension_intent: existing_intents['pension'],
           survivor_intent: existing_intents['survivor']
         } }
+      end
+
+      def send_confirmation_email(parsed_form_data, form_id, confirmation_number)
+        SimpleFormsApi::NotificationEmail.new(
+          form_data: parsed_form_data,
+          form_number: form_id,
+          confirmation_number:,
+          notification_type: :confirmation,
+          user: @current_user
+        ).send
       end
     end
   end

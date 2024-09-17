@@ -48,7 +48,7 @@ module ClaimsApi
             unless power_of_attorney.persisted?
               power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5)
             end
-
+            power_of_attorney.auth_headers['participant_id'] = target_veteran.participant_id
             power_of_attorney.save!
           end
 
@@ -77,6 +77,7 @@ module ClaimsApi
 
           @power_of_attorney.set_file_data!(documents.first, params[:doc_type])
           @power_of_attorney.status = ClaimsApi::PowerOfAttorney::SUBMITTED
+          @power_of_attorney.auth_headers['participant_id'] = target_veteran.participant_id
           @power_of_attorney.save!
           @power_of_attorney.reload
 

@@ -9,7 +9,9 @@ module SimpleFormsApi
 
       def assign_instance_variables(defaults)
         defaults.each do |key, value|
-          instance_variable_set("@#{key}", value)
+          instance_var = instance_variable_get("@#{key}")
+
+          instance_variable_set("@#{key}", value) if value && instance_var.to_s.empty?
         end
       end
 
@@ -21,9 +23,13 @@ module SimpleFormsApi
         Rails.logger.error(message, details.merge(error: error.message, backtrace: error.backtrace.first(5)))
       end
 
-      def handle_error(message, error, context)
-        log_error(message, error, **context)
+      def handle_error(message, error, **)
+        log_error(message, error, **)
         raise error
+      end
+
+      def temp_directory_path
+        @temp_directory_path ||= Rails.root.join("tmp/#{benefits_intake_uuid}-#{SecureRandom.hex}/").to_s
       end
 
       def s3_resource
