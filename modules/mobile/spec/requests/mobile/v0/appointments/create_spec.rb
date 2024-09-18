@@ -107,7 +107,6 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
         VCR.use_cassette('mobile/appointments/post_appointments_va_proposed_clinic_200',
                          match_requests_on: %i[method uri]) do
           post '/mobile/v0/appointment', params: va_proposed_request_body, headers: sis_headers
-
         end
       end
 
