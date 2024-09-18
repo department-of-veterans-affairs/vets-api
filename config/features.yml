@@ -1346,10 +1346,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
-  va_online_scheduling_med_review_instructions:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to update the Medication Review instructions on the Appointment Details page.
   va_online_scheduling_OH_direct_schedule:
     actor_type: user
     enable_in_development: true

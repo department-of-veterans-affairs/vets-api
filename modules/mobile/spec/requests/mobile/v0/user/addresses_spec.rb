@@ -256,6 +256,10 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
   end
 
   describe 'POST /mobile/v0/user/addresses/validate' do
+    before do
+      Flipper.disable(:va_v3_contact_information_service)
+    end
+
     context 'with an invalid address' do
       let(:invalid_address) { build(:va_profile_validation_address) }
 

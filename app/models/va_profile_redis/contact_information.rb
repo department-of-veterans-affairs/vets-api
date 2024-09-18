@@ -5,6 +5,7 @@ require 'va_profile/v2/contact_information/person_response'
 require 'va_profile/contact_information/service'
 require 'va_profile/v2/contact_information/service'
 require 'va_profile/models/address'
+require 'va_profile/models/v2/address'
 require 'va_profile/models/telephone'
 require 'va_profile/models/permission'
 require 'common/models/redis_store'
@@ -56,7 +57,11 @@ module VAProfileRedis
     def residential_address
       return unless @user.loa3?
 
-      dig_out('addresses', 'address_pou', VAProfile::Models::Address::RESIDENCE)
+      if Flipper.enabled?(:va_v3_contact_information_service, @user)
+        dig_out('addresses', 'address_pou', VAProfile::Models::V2::Address::RESIDENCE)
+      else
+        dig_out('addresses', 'address_pou', VAProfile::Models::Address::RESIDENCE)
+      end
     end
 
     # Returns the user's mailing address. In VA Profile, a user can only have one
@@ -67,7 +72,11 @@ module VAProfileRedis
     def mailing_address
       return unless @user.loa3?
 
-      dig_out('addresses', 'address_pou', VAProfile::Models::Address::CORRESPONDENCE)
+      if Flipper.enabled?(:va_v3_contact_information_service, @user)
+        dig_out('addresses', 'address_pou', VAProfile::Models::V2::Address::CORRESPONDENCE)
+      else
+        dig_out('addresses', 'address_pou', VAProfile::Models::Address::CORRESPONDENCE)
+      end
     end
 
     # Returns the user's home phone. In VA Profile, a user can only have one

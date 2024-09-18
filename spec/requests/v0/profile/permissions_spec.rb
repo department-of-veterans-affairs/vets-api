@@ -6,25 +6,17 @@ RSpec.describe 'V0::Profile::Permissions', type: :request do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3, vet360_id: '1411684') }
+  let(:service) do
+    VAProfile::ContactInformation::Service
+  end
+  let(:cassette_path) do
+    'va_profile/contact_information'
+  end
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
   let(:frozen_time) { Time.zone.local(2019, 11, 5, 16, 49, 18) }
 
-  let(:service) do
-    if Flipper.enabled?(:va_v3_contact_information_service)
-      VAProfile::V2::ContactInformation::Service
-    else
-      VAProfile::ContactInformation::Service
-    end
-  end
-
-  let(:cassette_path) do
-    if Flipper.enabled?(:va_v3_contact_information_service)
-      'va_profile/v2/contact_information'
-    else
-      'va_profile/contact_information'
-    end
-  end
+  Flipper.disable(:va_v3_contact_information_service)
 
   before do
     Timecop.freeze(frozen_time)
