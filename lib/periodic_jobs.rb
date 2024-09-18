@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# @see https://crontab.guru/
+# @see https://en.wikipedia.org/wiki/Cron
 PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
@@ -49,8 +51,11 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Update static data cache
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
 
-  # Update static data cache for form 526
+  # Update FormSubmissionAttempt status from Lighthouse Benefits Intake API
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
+
+  # Generate FormSubmissionAttempt rememdiation statistics from Lighthouse Benefits Intake API
+  mgr.register('0 1 * * 1', 'BenefitsIntakeRemediationStatusJob')
 
   # Update Lighthouse526DocumentUpload statuses according to Lighthouse Benefits Documents service tracking
   mgr.register('15 * * * *', 'Form526DocumentUploadPollingJob')
