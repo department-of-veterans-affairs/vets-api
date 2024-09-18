@@ -13,7 +13,6 @@ require 'va_profile/models/permission'
 def stub_vet360(person = nil)
   Flipper.disable(:va_v3_contact_information_service)
   service = VAProfile::ContactInformation::Service
-
   person_response = VAProfile::ContactInformation::PersonResponse
 
   person ||= build(
