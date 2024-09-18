@@ -9,8 +9,6 @@ describe VAProfileRedis::Cache, :skip_vet360 do
     before do
       allow(user).to receive(:vet360_id).and_return('1')
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-      allow(user).to receive(:vet360_id).and_return('11111')
-      allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
     end
 
     describe '.invalidate' do
@@ -37,7 +35,10 @@ describe VAProfileRedis::Cache, :skip_vet360 do
     end
   end
   if Flipper.enabled?(:va_v3_contact_information_service)
-
+    before do
+      allow(user).to receive(:vet360_id).and_return('11111')
+      allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+    end
     describe '.invalidate v2' do
       context 'when user.vet360_contact_info is present' do
         it 'invalidates the va-profile-contact-info-response cache' do
