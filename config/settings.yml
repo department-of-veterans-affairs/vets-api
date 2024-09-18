@@ -233,6 +233,7 @@ edu:
       - ariana.adili@govcio.com
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
+      - engin.akman@va.gov
 
 dependents:
   prefill: true
@@ -561,7 +562,8 @@ mhv:
     x_auth_key: fake-x-auth-key
   account_creation:
     mock: true
-    host: https://mhv-intb-api.myhealth.va.gov
+    host: https://apigw-intb.aws.myhealth.va.gov
+    access_key: some-access-key
     sts:
       service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
       issuer: http://localhost:3000
@@ -1308,6 +1310,8 @@ vanotify:
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
+        form21_10210_error_email: form21_10210_error_email_template_id
+        form21_10210_received_email: form21_10210_received_email_template_id
         form20_10206_confirmation_email: form20_10206_confirmation_email_template_id
         form20_10207_confirmation_email: form20_10207_confirmation_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
@@ -1715,15 +1719,12 @@ form1095_b:
 
 ivc_forms:
   s3:
-    aws_access_key_id: ~
-    aws_secret_access_key: ~
     bucket: "bucket"
     enabled: true
     region: "region"
   sidekiq:
     missing_form_status_job:
       enabled: true
-
 
 coverband:
   github_organization: ~
@@ -1756,7 +1757,6 @@ avs:
 brd:
   api_key: 'fake_key'
   base_name: 'https://something.fake.va.gov'
-
 
 travel_pay:
   sts:

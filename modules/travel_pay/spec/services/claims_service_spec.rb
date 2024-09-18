@@ -58,7 +58,7 @@ describe TravelPay::ClaimsService do
     before do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims)
-        .with(user)
+        .with('veis_token', 'btsss_token')
         .and_return(claims_response)
     end
 
@@ -66,7 +66,7 @@ describe TravelPay::ClaimsService do
       expected_statuses = ['In Progress', 'In Progress', 'Incomplete', 'Claim Submitted']
 
       service = TravelPay::ClaimsService.new
-      claims = service.get_claims(user)
+      claims = service.get_claims('veis_token', 'btsss_token')
       actual_statuses = claims[:data].pluck(:claimStatus)
 
       expect(actual_statuses).to match_array(expected_statuses)

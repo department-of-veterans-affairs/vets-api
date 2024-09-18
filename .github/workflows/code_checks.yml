@@ -184,10 +184,36 @@ jobs:
           labels: |
             test-passing
 
+      - name: Add omit-backend-approval label
+        if: |
+          github.event_name == 'pull_request' && github.event.pull_request.draft == false &&
+          (
+            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
+            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
+            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
+          )
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            omit-backend-approval
+
+      - name: Add require-backend-approval label
+        uses: actions-ecosystem/action-add-labels@v1
+        if: |
+            github.event_name == 'pull_request' && github.event.pull_request.draft == false &&
+            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') &&
+            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') &&
+            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            require-backend-approval
+
       - name: Add Review label
         uses: actions-ecosystem/action-add-labels@v1
         if: |
-          github.event_name == 'pull_request' && success() &&
+          github.event_name == 'pull_request' && success() && github.event.pull_request.draft == false &&
           !contains(github.event.pull_request.labels.*.name, 'code-health-failure') &&
           !contains(github.event.pull_request.labels.*.name, 'codeowners-addition-failure') &&
           !contains(github.event.pull_request.labels.*.name, 'codeowners-delete-failure') &&
