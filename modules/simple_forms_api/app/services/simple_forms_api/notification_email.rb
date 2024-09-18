@@ -21,10 +21,11 @@ module SimpleFormsApi
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
-    def initialize(form_data:, form_number:, confirmation_number:, notification_type: :confirmation, user: nil)
-      @form_data = form_data
-      @form_number = form_number
-      @confirmation_number = confirmation_number
+    def initialize(config, notification_type: :confirmation, user: nil)
+      @form_data = config[:form_data]
+      @form_number = config[:form_number]
+      @confirmation_number = config[:confirmation_number]
+      @lighthouse_updated_at = config[:lighthouse_updated_at]
       @notification_type = notification_type
       @user = user
     end
