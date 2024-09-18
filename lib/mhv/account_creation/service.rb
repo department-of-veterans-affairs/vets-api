@@ -25,7 +25,7 @@ module MHV
         {
           icn:,
           email:,
-          vaTermsOfUseDateTime: tou_occurred_at,
+          vaTermsOfUseDateTime: tou_occurred_at.iso8601,
           vaTermsOfUseStatus: config.tou_status,
           vaTermsOfUseRevision: config.tou_revision,
           vaTermsOfUseLegalVersion: config.tou_legal_version,
@@ -34,7 +34,10 @@ module MHV
       end
 
       def authenticated_header(icn:)
-        { 'Authorization' => "Bearer #{config.sts_token(user_identifier: icn)}" }
+        {
+          'Authorization' => "Bearer #{config.sts_token(user_identifier: icn)}",
+          'x-api-key' => config.access_key
+        }
       end
 
       def normalize_response_body(response_body)

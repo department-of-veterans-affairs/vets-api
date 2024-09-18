@@ -46,7 +46,6 @@ module Vye
         bdn_clone.update!(is_active: false)
 
         Rails.logger.info "#{self.class.name}: Ingress completed successfully for BdnClone(#{bdn_clone_id})"
-        IngressTims.perform_async
       end
     end
   end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# @see https://crontab.guru/
+# @see https://en.wikipedia.org/wiki/Cron
 PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
@@ -49,8 +51,11 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Update static data cache
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
 
-  # Update static data cache for form 526
+  # Update FormSubmissionAttempt status from Lighthouse Benefits Intake API
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
+
+  # Generate FormSubmissionAttempt rememdiation statistics from Lighthouse Benefits Intake API
+  mgr.register('0 1 * * 1', 'BenefitsIntakeRemediationStatusJob')
 
   # Update Lighthouse526DocumentUpload statuses according to Lighthouse Benefits Documents service tracking
   mgr.register('15 * * * *', 'Form526DocumentUploadPollingJob')
@@ -62,7 +67,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 2 * * 0', 'Form526ParanoidSuccessPollingJob')
 
   # Log the state of Form 526 submissions to hydrate Datadog monitor
-  mgr.register('5 4 * * 7', 'Form526StateLoggingJob')
+  mgr.register('0 3 * * *', 'Form526StateLoggingJob')
 
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
@@ -229,4 +234,11 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Clean SavedClaim records that are past delete date
   mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
+
+  # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
+  mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
+  mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
+
+  # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
+  mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
 }

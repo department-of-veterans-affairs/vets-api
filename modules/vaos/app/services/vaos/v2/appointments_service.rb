@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'common/client/errors'
+require 'map/security_token/errors'
 require 'json'
 require 'memoist'
 
@@ -42,10 +43,7 @@ module VAOS
           validate_response_schema(response, 'appointments_index')
           appointments = response.body[:data]
           appointments.each do |appt|
-            prepare_appointment(appt, include[:avs])
-            extract_appointment_fields(appt)
-            merge_clinic(appt) if include[:clinics]
-            merge_facility(appt) if include[:facilities]
+            prepare_appointment(appt, include)
             cnp_count += 1 if cnp?(appt)
           end
 
@@ -61,6 +59,15 @@ module VAOS
             meta: pagination(pagination_params).merge(partial_errors(response))
           }
         end
+      rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError,
+             Common::Exceptions::GatewayTimeout, MAP::SecurityToken::Errors::ApplicationMismatchError,
+             MAP::SecurityToken::Errors::MissingICNError => e
+        {
+          data: {},
+          meta: pagination(pagination_params).merge({
+                                                      failures: parse_possible_token_related_errors(e)
+                                                    })
+        }
       end
 
       # rubocop:enable Metrics/MethodLength
@@ -69,8 +76,10 @@ module VAOS
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           appointment = response.body[:data]
-          prepare_appointment(appointment, include[:avs])
-          extract_appointment_fields(appointment)
+          # We always fetch facility and clinic information when getting a single appointment
+          include[:facilities] = true
+          include[:clinics] = true
+          prepare_appointment(appointment, include)
           OpenStruct.new(appointment)
         end
       end
@@ -99,6 +108,8 @@ module VAOS
           convert_appointment_time(new_appointment)
           find_and_merge_provider_name(new_appointment) if cc?(new_appointment)
           extract_appointment_fields(new_appointment)
+          merge_clinic(new_appointment)
+          merge_facility(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -117,6 +128,8 @@ module VAOS
             response = update_appointment_vaos(appt_id, status).body
             convert_appointment_time(response)
             extract_appointment_fields(response)
+            merge_clinic(response)
+            merge_facility(response)
             OpenStruct.new(response)
           end
         end
@@ -169,6 +182,32 @@ module VAOS
       memoize :get_facility_timezone_memoized
 
       private
+
+      def parse_possible_token_related_errors(e) # rubocop:disable Metrics/MethodLength
+        prefix = 'VAOS::V2::AppointmentService#get_appointments'
+        sanitized_icn = VAOS::Anonymizers.anonymize_icns(user.icn)
+        sanitized_message = VAOS::Anonymizers.anonymize_icns(e.message)
+        case e
+        when Common::Client::Errors::ParsingError
+          Rails.logger.warn("#{prefix} token failed, parsing error", icn: sanitized_icn, context: sanitized_message)
+          sanitized_message
+        when Common::Exceptions::GatewayTimeout
+          Rails.logger.warn("#{prefix} token failed, gateway timeout", icn: sanitized_icn)
+          sanitized_message
+        when MAP::SecurityToken::Errors::ApplicationMismatchError
+          Rails.logger.warn("#{prefix} application mismatch", icn: sanitized_icn, context: sanitized_message)
+          sanitized_message
+        when MAP::SecurityToken::Errors::MissingICNError
+          Rails.logger.warn("#{prefix} missing ICN")
+          sanitized_message
+        when Common::Client::Errors::ClientError
+          status = e.status
+          context = e.body
+          message = "#{prefix} token failed, status: #{status}"
+          Rails.logger.warn(message.to_s, status:, icn: sanitized_icn, context:)
+          { message:, status:, icn: sanitized_icn, context: }
+        end
+      end
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
       # 1. Reason code fields
@@ -239,7 +278,7 @@ module VAOS
         get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
       end
 
-      def prepare_appointment(appointment, avs)
+      def prepare_appointment(appointment, include = {})
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
         set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
 
@@ -257,12 +296,19 @@ module VAOS
 
         appointment[:minutes_duration] ||= 60 if appointment[:appointment_type] == 'COMMUNITY_CARE'
 
-        if avs_applicable?(appointment, avs) && Flipper.enabled?(AVS_FLIPPER, user)
+        extract_appointment_fields(appointment)
+
+        if avs_applicable?(appointment, include[:avs]) && Flipper.enabled?(AVS_FLIPPER, user)
           fetch_avs_and_update_appt_body(appointment)
         end
+
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
         end
+
+        merge_clinic(appointment) if include[:clinics]
+
+        merge_facility(appointment) if include[:facilities]
       end
 
       def find_and_merge_provider_name(appointment)

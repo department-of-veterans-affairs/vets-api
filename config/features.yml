@@ -807,6 +807,10 @@ features:
     actor_type: user
     description: Enables MHV integration to point the Medical Records application on VA.gov
     enable_in_development: true
+  mhv_interstitial_enabled:
+    actor_type: user
+    descriptiom: Enables interstitial for upcoming mhv deprecation
+    enable_in_development: false
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
@@ -907,6 +911,9 @@ features:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
     enable_in_development: false
+  mobile_allergy_intolerance_model:
+    actor_type: user
+    description: For mobile app, enalbes use of strict models for parsing allergy intolerance
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
@@ -1339,10 +1346,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
-  va_online_scheduling_med_review_instructions:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to update the Medication Review instructions on the Appointment Details page.
   va_online_scheduling_OH_direct_schedule:
     actor_type: user
     enable_in_development: true
