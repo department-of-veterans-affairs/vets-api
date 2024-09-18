@@ -204,7 +204,7 @@ development: &defaults
     each_ttl: 86400
   travel_pay_store:
     namespace: travel-pay-store
-    each_ttl: 3600 # matches expiration of BTSSS and VEIS tokens
+    each_ttl: 3300 # 55 minutes
 test:
   <<: *defaults
   redis:
