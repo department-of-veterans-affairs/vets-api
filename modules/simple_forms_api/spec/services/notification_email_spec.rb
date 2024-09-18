@@ -96,8 +96,7 @@ describe SimpleFormsApi::NotificationEmail do
         it 'sends the email at the specified time' do
           time = double
           allow(VANotify::EmailJob).to receive(:perform_at)
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(config, notification_type:)
 
           subject.send(at: time)
 
@@ -134,7 +133,8 @@ describe SimpleFormsApi::NotificationEmail do
             {
               'first_name' => 'JOHN',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
             }
           )
         end
@@ -154,7 +154,8 @@ describe SimpleFormsApi::NotificationEmail do
             {
               'first_name' => 'JOE',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
             }
           )
         end
@@ -176,7 +177,8 @@ describe SimpleFormsApi::NotificationEmail do
             {
               'first_name' => 'JACK',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
             }
           )
         end
@@ -196,7 +198,8 @@ describe SimpleFormsApi::NotificationEmail do
             {
               'first_name' => 'JACK',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
             }
           )
         end
@@ -231,7 +234,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOE',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -302,7 +306,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JACK',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -323,7 +328,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOHN',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -345,7 +351,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JACK',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -391,6 +398,7 @@ describe SimpleFormsApi::NotificationEmail do
           'first_name' => user.first_name.upcase,
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
           'confirmation_number' => 'confirmation_number',
+          'lighthouse_updated_at' => nil,
           'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
                                        ' (VA Form 21P-534 or VA Form 21P-534EZ)'
         }
@@ -423,7 +431,8 @@ describe SimpleFormsApi::NotificationEmail do
         {
           'first_name' => 'JOHN',
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => 'confirmation_number'
+          'confirmation_number' => 'confirmation_number',
+          'lighthouse_updated_at' => nil
         }
       )
     end
@@ -457,7 +466,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOHN',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -485,7 +495,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOE',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -513,7 +524,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOHN',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -541,7 +553,8 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'first_name' => 'JOE',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end

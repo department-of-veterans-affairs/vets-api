@@ -2,7 +2,7 @@
 
 module SimpleFormsApi
   class NotificationEmail
-    attr_reader :form_number, :confirmation_number, :notification_type, :user
+    attr_reader :form_number, :confirmation_number, :lighthouse_updated_at, :notification_type, :user
 
     TEMPLATE_IDS = {
       'vba_21_0845' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email },
@@ -27,6 +27,7 @@ module SimpleFormsApi
       @form_data = config[:form_data]
       @form_number = config[:form_number]
       @confirmation_number = config[:confirmation_number]
+      @lighthouse_updated_at = config[:lighthouse_updated_at]
       @notification_type = notification_type
       @user = user
     end
@@ -140,7 +141,8 @@ module SimpleFormsApi
       {
         'first_name' => first_name&.upcase,
         'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-        'confirmation_number' => confirmation_number
+        'confirmation_number' => confirmation_number,
+        'lighthouse_updated_at' => lighthouse_updated_at
       }
     end
 

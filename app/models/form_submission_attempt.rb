@@ -73,11 +73,15 @@ class FormSubmissionAttempt < ApplicationRecord
   def enqueue_result_email(notification_type)
     now = Time.zone.now
     next_9am = now.hour < 9 ? now.change(hour: 9, min: 0) : now.tomorrow.change(hour: 9, min: 0)
-
-    SimpleFormsApi::NotificationEmail.new(
+    config = {
       form_data: form_submission.form_data,
       form_number: form_submission.form_type,
       confirmation_number: form_submission.benefits_intake_uuid,
+      lighthouse_updated_at:
+    }
+
+    SimpleFormsApi::NotificationEmail.new(
+      config,
       notification_type:,
       user: user_account
     ).send(at: next_9am)
