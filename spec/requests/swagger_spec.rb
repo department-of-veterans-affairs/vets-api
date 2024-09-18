@@ -3302,22 +3302,27 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
   end
 
   describe 'submission statuses' do
-    before do
-      Flipper.enable(:my_va_form_submission_statuses)
-      create(:form_submission, :with_form214142, user_account_id: mhv_user.uuid)
-      create(:form_submission, :with_form210966, user_account_id: mhv_user.uuid)
-      create(:form_submission, :with_form_blocked, user_account_id: mhv_user.uuid)
-    end
+    context 'loa3 user' do
+      let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
+      let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
-    it 'submission statuses 200' do
-      VCR.use_cassette('forms/submission_statuses/200_valid') do
-        expect(subject).to validate(:get, '/v0/my_va/submission_statuses', 200, headers)
+      before do
+        Flipper.enable(:my_va_form_submission_statuses)
+        create(:form_submission, :with_form214142, user_account_id: user.user_account_uuid)
+        create(:form_submission, :with_form210966, user_account_id: user.user_account_uuid)
+        create(:form_submission, :with_form_blocked, user_account_id: user.user_account_uuid)
       end
-    end
 
-    it 'submission statuses 296' do
-      VCR.use_cassette('forms/submission_statuses/413_invalid') do
-        expect(subject).to validate(:get, '/v0/my_va/submission_statuses', 296, headers)
+      it 'submission statuses 200' do
+        VCR.use_cassette('forms/submission_statuses/200_valid') do
+          expect(subject).to validate(:get, '/v0/my_va/submission_statuses', 200, headers)
+        end
+      end
+
+      it 'submission statuses 296' do
+        VCR.use_cassette('forms/submission_statuses/413_invalid') do
+          expect(subject).to validate(:get, '/v0/my_va/submission_statuses', 296, headers)
+        end
       end
     end
   end
