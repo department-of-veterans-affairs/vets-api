@@ -26,8 +26,8 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-# Find Backend Labels, Approvals and Comments
 
+# Find Backend Labels, Approvals and Comments
       - name: Find Approval  Comment
         uses: peter-evans/find-comment@v3
         id: find_backend_approval_comment
