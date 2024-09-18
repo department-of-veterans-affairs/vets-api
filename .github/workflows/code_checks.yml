@@ -161,7 +161,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Add Test Failure label
-        if: failure() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'test-failure')
+        if: failure() && github.event_name == 'pull_request'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -169,7 +169,7 @@ jobs:
             test-failure
 
       - name: Remove Test Failure label
-        if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'test-failure')
+        if: success() && github.event_name == 'pull_request'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -177,7 +177,7 @@ jobs:
             test-failure
 
       - name: Add Test Passing label
-        if: success() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'test-passing')
+        if: success() && github.event_name == 'pull_request'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}

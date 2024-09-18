@@ -17,6 +17,7 @@ module MHV
       rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError => e
         Rails.logger.error("#{config.logging_prefix} create_account #{e.class.name.demodulize.underscore}",
                            { error_message: e.message, body: e.body, icn: })
+        raise
       end
 
       private
@@ -41,7 +42,14 @@ module MHV
       end
 
       def normalize_response_body(response_body)
-        response_body.deep_transform_keys { |key| key.underscore.to_sym }
+        {
+          user_profile_id: response_body['mhv_userprofileid'],
+          premium: response_body['isPremium'],
+          champ_va: response_body['isChampVA'],
+          patient: response_body['isPatient'],
+          sm_account_created: response_body['isSMAccountCreated'],
+          message: response_body['message']
+        }
       end
     end
   end
