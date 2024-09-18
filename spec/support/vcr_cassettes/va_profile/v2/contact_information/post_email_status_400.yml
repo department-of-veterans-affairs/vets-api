@@ -1,11 +1,11 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/addresses/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
+    method: post
+    uri:  <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA/emails
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":42,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2024-05-21T05:03:23Z","vet360Id":"1","effectiveStartDate":null,"effectiveEndDate":null}}'
     headers:
       User-Agent:
       - Vets.gov Agent
@@ -19,17 +19,17 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 404
+      code: 400
       message: ''
     headers:
       X-Oneagent-Js-Injection:
       - 'true'
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-66447977", dtSInfo;desc="0"
-      - dtRpid;desc="153331753", dtSInfo;desc="0"
+      - dtRpid;desc="-7966182", dtSInfo;desc="0"
+      - dtRpid;desc="1445182561", dtSInfo;desc="0"
       Vaprofiletxauditid:
-      - f37139e3-b76c-4623-8cb4-71e2e9bb6a21
+      - 6e500ac2-2467-4312-b85e-8274a91db027
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
@@ -46,7 +46,7 @@ http_interactions:
       - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
         about: blob: ws: wss:'
       Date:
-      - Thu, 05 Sep 2024 17:18:30 GMT
+      - Tue, 27 Aug 2024 18:03:51 GMT
       Referrer-Policy:
       - no-referrer
       Content-Type:
@@ -57,8 +57,7 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","text":"The tx
-        for id/criteria d47b3d96-9ddd-42be-ac57-8e564aa38029 could not be found. Please
-        correct your request and try again!","severity":"ERROR"}],"status":"COMPLETED_FAILURE"}'
-  recorded_at: Thu, 05 Sep 2024 17:18:30 GMT
+      string: '{"messages":[{"code":"EMAIL200","key":"emailId.Null","text":"must be
+        null","severity":"ERROR"}],"txAuditId":"3a06771a-94ee-4303-acd8-48695811372e","status":"REJECTED"}'
+  recorded_at: Tue, 27 Aug 2024 18:03:52 GMT
 recorded_with: VCR 6.3.1
