@@ -8,7 +8,19 @@ RSpec.describe FormSubmissionAttempt, type: :model do
   end
 
   describe 'state machine' do
+    let(:config) do
+      {
+        form_data: anything,
+        form_number: anything,
+        date_submitted: anything,
+        lighthouse_updated_at: anything,
+        confirmation_number: anything
+      }
+    end
+
     context 'transitioning to a failure state' do
+      let(:notification_type) { :error }
+
       it 'transitions to a failure state' do
         form_submission_attempt = create(:form_submission_attempt)
 
@@ -20,10 +32,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         notification_email = double
         allow(notification_email).to receive(:send)
         allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
-          notification_type: :error,
-          form_data: anything,
-          form_number: anything,
-          confirmation_number: anything,
+          config,
+          notification_type:,
           user: anything
         ).and_return(notification_email)
         form_submission_attempt = create(:form_submission_attempt)
@@ -42,6 +52,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
     end
 
     context 'transitioning to a vbms state' do
+      let(:notification_type) { :received }
+
       it 'transitions to a vbms state' do
         form_submission_attempt = create(:form_submission_attempt)
 
@@ -53,10 +65,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         notification_email = double
         allow(notification_email).to receive(:send)
         allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
-          notification_type: :received,
-          form_data: anything,
-          form_number: anything,
-          confirmation_number: anything,
+          config,
+          notification_type:,
           user: anything
         ).and_return(notification_email)
         form_submission_attempt = create(:form_submission_attempt)
