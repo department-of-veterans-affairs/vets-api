@@ -31,6 +31,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiver do
     allow_any_instance_of(described_class).to receive(:log_info).and_call_original
     allow_any_instance_of(described_class).to receive(:upload_temp_folder_to_s3).and_return('/things/stuff/')
     allow_any_instance_of(described_class).to receive(:cleanup).and_return(true)
+    allow_any_instance_of(described_class).to receive(:generate_presigned_url).and_return('/s3_url/stuff.pdf')
     allow_any_instance_of(SimpleFormsApi::S3::SubmissionArchiveBuilder).to receive(:run).and_return(file_path)
   end
 
@@ -53,21 +54,21 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiver do
       end
 
       it 'returns the s3 directory' do
-        expect(upload).to eq("vff-simple-forms/#{benefits_intake_uuid}")
+        expect(upload).to eq('/s3_url/stuff.pdf')
       end
 
       context 'when a different parent_dir is provided' do
         let(:instance) { described_class.new(parent_dir: 'super-great-forms-team', benefits_intake_uuid:) }
 
         it 'returns the s3 directory' do
-          expect(upload).to eq("super-great-forms-team/#{benefits_intake_uuid}")
+          expect(upload).to eq('/s3_url/stuff.pdf')
         end
       end
     end
 
     context 'when an error occurs' do
       before do
-        allow(Find).to receive(:find).and_raise(StandardError, 'oopsy')
+        allow(Dir).to receive(:glob).and_raise(StandardError, 'oopsy')
         allow(Rails.logger).to receive(:error).and_call_original
         allow(instance).to receive(:upload_temp_folder_to_s3).and_call_original
       end
@@ -83,14 +84,13 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiver do
   describe '#download' do
     subject(:download) { instance.download(type) }
 
-    before do
-      allow(instance).to receive(:download_archive_from_s3).and_return('/s3_directory_path/')
-      allow(instance).to receive(:download_submission_from_s3).and_return('/s3_directory_path/submission.pdf')
-    end
-
     let(:instance) { described_class.new(benefits_intake_uuid:) }
 
     context 'submission' do
+      before do
+        allow(instance).to receive(:download_submission_from_s3).and_return('/s3_directory_path/submission.pdf')
+      end
+
       let(:type) { :submission }
 
       context 'when no errors occur' do
@@ -121,6 +121,10 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiver do
     end
 
     context 'archive' do
+      before do
+        allow(instance).to receive(:download_archive_from_s3).and_return('/s3_directory_path/')
+      end
+
       let(:type) { :archive }
 
       context 'when no errors occur' do
