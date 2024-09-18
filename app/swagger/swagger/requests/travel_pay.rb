@@ -16,10 +16,11 @@ module Swagger
 
           parameter :authorization
           parameter do
-            key :name, :appt_datetime
+            key :name, 'appt_datetime'
             key :in, :query
             key :description, 'Filter claim by appt datetimes. Invalid dates return all claims.'
             key :required, false
+            key :type, :string
           end
 
           response 200 do
