@@ -660,7 +660,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'VETERAN',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -701,7 +702,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'JACK',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -748,7 +750,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'ARTHUR',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -790,7 +793,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'PREPARE',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -846,6 +850,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'first_name' => 'ABRAHAM',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
+                'lighthouse_updated_at' => nil,
                 'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
                                              ' (VA Form 21P-534 or VA Form 21P-534EZ)'
               }
@@ -869,6 +874,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'first_name' => 'ABRAHAM',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
+                'lighthouse_updated_at' => nil,
                 'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
                                              ' (VA Form 21P-534 or VA Form 21P-534EZ)'
               }
