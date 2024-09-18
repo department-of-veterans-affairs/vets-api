@@ -12,7 +12,7 @@ module Preneeds
     # This class variable is an acceptable use case, because
     # the values are only set via implicit receiver and I want
     # subclasses to have shared attributes
-    @@attributes = {}
+    @@attributes = {} # rubocop:disable Style/ClassVars
 
     class << self
       # Class method to define a setter & getter for attribute

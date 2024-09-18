@@ -1228,7 +1228,3 @@ ThreadSafety/InstanceVariableInClassMethod:
     - 'lib/va_profile/contact_information/transaction_response.rb'
     - 'lib/vic/url_helper.rb'
     - 'modules/mobile/app/models/mobile/v0/concerns/redis_caching.rb'
-
-Style/ClassVars:
-  Exclude:
-    - 'app/models/preneeds/base.rb'
