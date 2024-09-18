@@ -22,22 +22,20 @@ module SimpleFormsApi
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
     def initialize(config, notification_type: :confirmation, user: nil)
-def initialize(config, notification_type: :confirmation, user: nil)
-  check_missing_keys(config)
+      check_missing_keys(config)
 
-  @form_data = config[:form_data]
-  @form_number = config[:form_number]
-  @confirmation_number = config[:confirmation_number]
-  @notification_type = notification_type
-  @user = user
-end
+      @form_data = config[:form_data]
+      @form_number = config[:form_number]
+      @confirmation_number = config[:confirmation_number]
+      @notification_type = notification_type
+      @user = user
+    end
 
-private
+    private
 
-def check_missing_keys(config)
-  missing_keys = %i[form_data form_number confirmation_number].select { |key| config[key].nil? }
-  raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
-end
+    def check_missing_keys(config)
+      missing_keys = %i[form_data form_number confirmation_number].select { |key| config[key].nil? }
+      raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
     end
 
     def send
