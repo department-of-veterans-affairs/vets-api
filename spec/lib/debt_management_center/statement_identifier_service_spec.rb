@@ -6,6 +6,7 @@ require 'debt_management_center/statement_identifier_service'
 RSpec.describe DebtManagementCenter::StatementIdentifierService, :skip_vet360,
                type: :service do
   describe '#get_mpi_data' do
+    Flipper.disable(:va_v3_contact_information_service)
     let(:cassette_path) do
       if Flipper.enabled?(:va_v3_contact_information_service)
         'va_profile/v2/contact_information'

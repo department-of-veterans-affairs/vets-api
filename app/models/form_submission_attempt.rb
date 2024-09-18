@@ -41,6 +41,10 @@ class FormSubmissionAttempt < ApplicationRecord
       transitions from: :pending, to: :vbms
       transitions from: :success, to: :vbms
     end
+
+    event :remediate do
+      transitions from: :failure, to: :vbms
+    end
   end
 
   def log_status_change
