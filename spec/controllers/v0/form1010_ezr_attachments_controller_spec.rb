@@ -35,28 +35,53 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
         sign_in(current_user)
       end
 
-      it 'increments StatsD and raises an error' do
-        file = fixture_file_upload('spec/fixtures/files/empty_file.txt', 'text/plain')
-        params = { 'form1010_ezr_attachment' => { 'file_data' => file } }
-        error_msg = 'File type not supported. Follow the instructions on your device ' \
-                    'on how to convert the file type and try again to continue.'
+      context 'when an exception occurs' do
+        before do
+          allow(Rails.logger).to receive(:error)
+          allow(IO).to receive(:popen).and_return(nil)
+        end
 
-        allow(StatsD).to receive(:increment)
-        expect(StatsD).to receive(:increment).with('api.1010ezr.attachments.invalid_file_type')
+        it 'increments StatsD and logs and raises an error' do
+          allow(StatsD).to receive(:increment)
+          expect(StatsD).to receive(:increment).with('api.1010ezr.attachments.failed')
 
-        post(:create, params:)
+          post(:create, params:)
 
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)).to eq(
-          {
-            'errors' => [{
-              'title' => 'Unprocessable Entity',
-              'detail' => error_msg,
-              'code' => '422',
-              'status' => '422'
-            }]
-          }
-        )
+          expect(Rails.logger).to have_received(:error).with(
+            "Form1010EzrAttachment validate file type failed undefined method `split' for nil.",
+            backtrace: anything
+          )
+
+          error = JSON.parse(response.body)['errors'].first
+
+          expect(response).to have_http_status(:internal_server_error)
+          expect(error['title']).to eq('Internal server error')
+          expect(error['code']).to eq('500')
+        end
+      end
+
+      context 'when no exception occurs' do
+        it 'increments StatsD and raises an error' do
+          error_msg = 'File type not supported. Follow the instructions on your device ' \
+                      'on how to convert the file type and try again to continue.'
+
+          allow(StatsD).to receive(:increment)
+          expect(StatsD).to receive(:increment).with('api.1010ezr.attachments.invalid_file_type')
+
+          post(:create, params:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)).to eq(
+            {
+              'errors' => [{
+                'title' => 'Unprocessable Entity',
+                'detail' => error_msg,
+                'code' => '422',
+                'status' => '422'
+              }]
+            }
+          )
+        end
       end
     end
   end

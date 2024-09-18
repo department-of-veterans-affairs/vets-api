@@ -919,6 +919,27 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
               headers
             )
           end
+
+          context 'when a server error occurs' do
+            before do
+              allow(IO).to receive(:popen).and_return(nil)
+            end
+
+            it 'returns a 500' do
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezr_attachments',
+                500,
+                headers.merge(
+                  '_data' => {
+                    'form1010_ezr_attachment' => {
+                      file_data: fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+                    }
+                  }
+                )
+              )
+            end
+          end
         end
       end
 
