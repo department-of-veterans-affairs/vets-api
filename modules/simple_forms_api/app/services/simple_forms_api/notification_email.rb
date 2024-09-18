@@ -31,13 +31,6 @@ module SimpleFormsApi
       @user = user
     end
 
-    private
-
-    def check_missing_keys(config)
-      missing_keys = %i[form_data form_number confirmation_number].select { |key| config[key].nil? }
-      raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
-    end
-
     def send
       return unless SUPPORTED_FORMS.include?(form_number)
 
@@ -55,6 +48,11 @@ module SimpleFormsApi
     end
 
     private
+
+    def check_missing_keys(config)
+      missing_keys = %i[form_data form_number confirmation_number].select { |key| config[key].nil? }
+      raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
+    end
 
     # rubocop:disable Metrics/MethodLength
     # email and personalization hash
