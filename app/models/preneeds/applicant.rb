@@ -18,14 +18,14 @@ module Preneeds
   # @!attribute name
   #   @return [Preneeds::FullName] applicant's name
   #
-  class Applicant < Preneeds::VirtusBase
-    attribute :applicant_email, String
-    attribute :applicant_phone_number, String
-    attribute :applicant_relationship_to_claimant, String
-    attribute :completing_reason, String, default: 'vets.gov application'
+class Applicant < Preneeds::Base
+  attribute :applicant_email, String
+  attribute :applicant_phone_number, String
+  attribute :applicant_relationship_to_claimant, String
+  attribute :completing_reason, String, default: 'vets.gov application'
 
-    attribute :mailing_address, Preneeds::Address
-    attribute :name, Preneeds::FullName
+  attribute :mailing_address, Preneeds::Address
+  attribute :name, Preneeds::FullName
 
     # (see Preneeds::BurialForm#as_eoas)
     #
