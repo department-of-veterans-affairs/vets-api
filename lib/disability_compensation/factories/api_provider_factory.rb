@@ -57,6 +57,7 @@ class ApiProviderFactory
   FEATURE_TOGGLE_GENERATE_PDF = 'disability_compensation_lighthouse_generate_pdf'
 
   FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS = 'disability_compensation_lighthouse_upload_bdd_instructions'
+  FEATURE_TOGGLE_UPLOAD_0781 = 'disability_compensation_lighthouse_upload_0781'
 
   attr_reader :type
 

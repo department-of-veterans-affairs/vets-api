@@ -289,6 +289,27 @@ RSpec.describe ApiProviderFactory do
       end
     end
 
+    context 'for 0781 uploads' do
+      def provider
+        ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
+          options: {
+            form526_submission: submission
+          },
+          current_user:,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781
+        )
+      end
+
+      it 'provides a SupplementalDocumentUploadProvider based on a Flipper' do
+        Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781)
+        expect(provider.class).to equal(LighthouseSupplementalDocumentUploadProvider)
+
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781)
+        expect(provider.class).to equal(EVSSSupplementalDocumentUploadProvider)
+      end
+    end
+
     it 'throw error if provider unknown' do
       expect do
         provider(:random)
