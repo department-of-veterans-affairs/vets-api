@@ -56,8 +56,7 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
           source: request.headers['X-Consumer-Username'],
           supportable_id: params[:scId],
           supportable_type: 'AppealsApi::SupplementalClaim',
-          upload_submission: upload,
-          s3_deleted: false
+          upload_submission: upload
         }
       )
 
