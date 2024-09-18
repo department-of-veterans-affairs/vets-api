@@ -15,6 +15,8 @@ class FormSubmissionAttempt < ApplicationRecord
   # If we get around to doing that, we shouldn't need the following line.
   self.ignored_columns += %w[error_message response]
 
+  HOUR_TO_SEND_NOTIFICATIONS = 9
+
   aasm do
     after_all_transitions :log_status_change
 
@@ -72,7 +74,14 @@ class FormSubmissionAttempt < ApplicationRecord
 
   def enqueue_result_email(notification_type)
     now = Time.zone.now
-    next_9am = now.hour < 9 ? now.change(hour: 9, min: 0) : now.tomorrow.change(hour: 9, min: 0)
+    time_to_send = if now.hour < HOUR_TO_SEND_NOTIFICATIONS
+                     now.change(hour: HOUR_TO_SEND_NOTIFICATIONS,
+                                min: 0)
+                   else
+                     now.tomorrow.change(
+                       hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0
+                     )
+                   end
     config = {
       form_data: form_submission.form_data,
       form_number: form_submission.form_type,
@@ -84,6 +93,6 @@ class FormSubmissionAttempt < ApplicationRecord
       config,
       notification_type:,
       user: user_account
-    ).send(at: next_9am)
+    ).send(at: time_to_send)
   end
 end
