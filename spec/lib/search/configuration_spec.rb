@@ -32,7 +32,7 @@ describe Search::Configuration do
 
     context 'Flipper raises a ActiveRecord::NoDatabaseError' do
       before do
-        expect(Flipper).to receive(:enabled?).and_return(ActiveRecord::NoDatabaseError)
+        expect(Flipper).to receive(:enabled?).and_raise(ActiveRecord::NoDatabaseError)
       end
 
       it 'provides search.usa.gov search URL' do
