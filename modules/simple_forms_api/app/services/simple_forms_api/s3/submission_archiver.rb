@@ -34,9 +34,9 @@ module SimpleFormsApi
       def upload
         log_info("Uploading archive: #{benefits_intake_uuid} to S3 bucket")
 
-        upload_temp_folder_to_s3
+        presigned_url = upload_temp_folder_to_s3
         cleanup
-        s3_directory_path
+        presigned_url
       rescue => e
         handle_error("Failed archive upload: #{benefits_intake_uuid}", e)
       end
@@ -71,11 +71,12 @@ module SimpleFormsApi
       end
 
       def upload_temp_folder_to_s3
-        Find.find(temp_directory_path) do |path|
+        Dir.glob("#{temp_directory_path}/**/*").each do |path|
           next if File.directory?(path)
 
           relative_path = path.sub(temp_directory_path, '')
           File.open(path, 'rb') { |file| save_file_to_s3(file.read) }
+
           generate_presigned_url if relative_path == submission_pdf_filename
         end
       end
