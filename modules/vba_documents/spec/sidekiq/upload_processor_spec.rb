@@ -191,6 +191,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(capture_body).to have_key('document')
       metadata = JSON.parse(capture_body['metadata'])
       expect(metadata['uuid']).to eq(upload.guid)
+      # leading\trailing whitespace should have been removed
+      expect(metadata['fileNumber']).to eq(metadata['fileNumber']&.strip) 
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
     end
