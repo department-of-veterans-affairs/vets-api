@@ -38,7 +38,7 @@ describe TravelPay::TokenService do
         response = service.get_tokens(user)
         expect(response).to eq(tokens)
         # Verify that the tokens were stored
-        expect($redis.ttl("travel-pay-store:#{user.account_uuid}")).to eq(3600)
+        expect($redis.ttl("travel-pay-store:#{user.account_uuid}")).to eq(3300)
         saved_tokens = $redis.get("travel-pay-store:#{user.account_uuid}")
         # The Oj.load method is normally handled by the RedisStore
         Oj.load(saved_tokens) => { veis_token:, btsss_token: }
