@@ -78,7 +78,7 @@ class FormSubmissionAttempt < ApplicationRecord
       form_number: form_submission.form_type,
       confirmation_number: form_submission.benefits_intake_uuid,
       date_submitted: created_at.strftime('%B %d, %Y'),
-      lighthouse_updated_at:
+      lighthouse_updated_at: lighthouse_updated_at.strftime('%B %d, %Y')
     }
 
     SimpleFormsApi::NotificationEmail.new(
