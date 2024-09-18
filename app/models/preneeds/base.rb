@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+# This will be moved after virtus is removed
+module Boolean; end
+class TrueClass; include Boolean; end
+class FalseClass; include Boolean; end
+
 # Parent class for other Preneeds Burial form related models
 # Should not be initialized directly
 #
@@ -26,12 +31,10 @@ module Preneeds
       def attribute(name, klass, default: nil)
         @@attributes[name] = { type: klass, default: }
 
-        # Define a getter method for the attribute
         define_method(name) do
           instance_variable_get("@#{name}") || default
         end
 
-        # Define a setter method for the attribute
         define_method("#{name}=") do |value|
           value = klass.new(value) if value.is_a?(Hash)
 

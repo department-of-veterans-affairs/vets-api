@@ -34,7 +34,7 @@ module Preneeds
   # @!attribute service_records
   #   @return [Array<Preneeds::ServiceRecord>] veteran's service records
   #
-  class Veteran < Preneeds::VirtusBase
+  class Veteran < Preneeds::Base
     attribute :date_of_birth, String
     attribute :date_of_death, String
     attribute :gender, String
