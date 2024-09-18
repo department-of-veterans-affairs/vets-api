@@ -1,26 +1,33 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class ConfirmationEmail
-    attr_reader :form_number, :confirmation_number, :user
+  class NotificationEmail
+    attr_reader :form_number, :confirmation_number, :notification_type, :user
 
     TEMPLATE_IDS = {
-      'vba_21_0845' => Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email,
-      'vba_21p_0847' => Settings.vanotify.services.va_gov.template_id.form21p_0847_confirmation_email,
-      'vba_21_0966' => Settings.vanotify.services.va_gov.template_id.form21_0966_confirmation_email,
-      'vba_21_0972' => Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email,
-      'vba_21_4142' => Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email,
-      'vba_21_10210' => Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email,
-      'vba_20_10206' => Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email,
-      'vba_20_10207' => Settings.vanotify.services.va_gov.template_id.form20_10207_confirmation_email,
-      'vba_40_0247' => Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email
+      'vba_21_0845' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email },
+      'vba_21p_0847' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21p_0847_confirmation_email },
+      'vba_21_0966' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0966_confirmation_email },
+      'vba_21_0972' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email },
+      'vba_21_4142' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email },
+      'vba_21_10210' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form21_10210_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form21_10210_received_email
+      },
+      'vba_20_10206' => { confirmation: Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email },
+      'vba_20_10207' => { confirmation: Settings.vanotify.services.va_gov.template_id.form20_10207_confirmation_email },
+      'vba_40_0247' => { confirmation: Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email }
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
-    def initialize(form_data:, form_number:, confirmation_number:, user: nil)
-      @form_data = form_data
-      @form_number = form_number
-      @confirmation_number = confirmation_number
+    def initialize(config, notification_type: :confirmation, user: nil)
+      check_missing_keys(config)
+
+      @form_data = config[:form_data]
+      @form_number = config[:form_number]
+      @confirmation_number = config[:confirmation_number]
+      @notification_type = notification_type
       @user = user
     end
 
@@ -31,7 +38,7 @@ module SimpleFormsApi
 
       return if data[:email].blank? || data[:personalization]['first_name'].blank?
 
-      template_id = TEMPLATE_IDS[form_number]
+      template_id = TEMPLATE_IDS[form_number][notification_type]
 
       VANotify::EmailJob.perform_async(
         data[:email],
@@ -41,6 +48,11 @@ module SimpleFormsApi
     end
 
     private
+
+    def check_missing_keys(config)
+      missing_keys = %i[form_data form_number confirmation_number].select { |key| config[key].nil? }
+      raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
+    end
 
     # rubocop:disable Metrics/MethodLength
     # email and personalization hash
