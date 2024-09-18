@@ -9,7 +9,7 @@ module Preneeds
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
 
-    @attributes = {}
+    @attributes = {}.freeze
 
     class << self
 
@@ -26,7 +26,7 @@ module Preneeds
       # @param default [String|Integer] the default value of the attribute
       #
       def attribute(name, klass, default: nil)
-        attributes[name] = { type: klass, default: default }
+        attributes[name] = { type: klass, default: }
 
         # Define a getter method for the attribute
         define_method(name) do
@@ -35,9 +35,7 @@ module Preneeds
 
         # Define a setter method for the attribute
         define_method("#{name}=") do |value|
-          if value.is_a?(Hash)
-            value = klass.new(value)
-          end
+          value = klass.new(value) if value.is_a?(Hash)
 
           if value.is_a?(klass) || value.nil?
             instance_variable_set("@#{name}", value)
