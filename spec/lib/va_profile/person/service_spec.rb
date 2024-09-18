@@ -27,9 +27,9 @@ describe VAProfile::Person::Service, :skip_vet360 do
       end
     end
 
-    Flipper.disable(:va_v3_contact_information_service)
-
-    Flipper.disable(:va_v3_contact_information_service)
+    before do
+      Flipper.disable(:va_v3_contact_information_service)
+    end
 
     context 'with a user present, that has a icn_with_aaid, and no passed in ICN' do
       it 'returns a status of 200', :aggregate_failures do
