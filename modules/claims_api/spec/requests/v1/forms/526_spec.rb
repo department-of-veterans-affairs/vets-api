@@ -539,6 +539,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     VCR.use_cassette('claims_api/brd/countries') do
                       par = json_data
                       par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
+                      par['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                        '2007-08-01'
 
                       post path, params: par.to_json, headers: headers.merge(auth_header)
                       expect(response).to have_http_status(:bad_request)
@@ -609,7 +611,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 VCR.use_cassette('claims_api/brd/countries') do
                   headers['X-VA-Birth-Date'] = '1986-05-06T00:00:00+00:00'
                   par = json_data
-                  par['data']['attributes']['serviceInformation']['servicePeriods'][0] = '2007-08-01'
+                  par['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                    '2007-08-01'
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
                   expect(response).to have_http_status(:unprocessable_entity)
