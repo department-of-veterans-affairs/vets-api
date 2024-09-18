@@ -55,7 +55,8 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
           source: request.headers['X-Consumer-Username'],
           supportable_id: params[:nodId],
           supportable_type: 'AppealsApi::NoticeOfDisagreement',
-          upload_submission: upload
+          upload_submission: upload,
+          s3_deleted: false
         }
       )
 

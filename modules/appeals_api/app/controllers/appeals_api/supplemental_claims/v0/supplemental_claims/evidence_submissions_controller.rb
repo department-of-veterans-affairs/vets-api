@@ -49,13 +49,15 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
         return render json: { errors: [error] }, status: error[:title].to_sym
       end
 
-      upload = VBADocuments::UploadSubmission.create!(consumer_name: 'appeals_api_sc_evidence_submission')
+      upload = VBADocuments::UploadSubmission.create!(consumer_name: 'appeals_api_sc_evidence_submission',
+                                                      s3_deleted: false)
       submission = AppealsApi::EvidenceSubmission.create!(
         {
           source: request.headers['X-Consumer-Username'],
           supportable_id: params[:scId],
           supportable_type: 'AppealsApi::SupplementalClaim',
-          upload_submission: upload
+          upload_submission: upload,
+          s3_deleted: false
         }
       )
 
