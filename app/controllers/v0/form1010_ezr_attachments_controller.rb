@@ -11,7 +11,7 @@ module V0
 
     def create
       validate_file_upload_class!
-      validate_file_extension
+      validate_file_type
       save_attachment_to_cloud!
       save_attachment_to_db!
 
@@ -24,20 +24,29 @@ module V0
       Form1010EzrAttachmentSerializer
     end
 
+    # These MIME types correspond to the extensions accepted by enrollment system: PDF,WORD,JPG,RTF
+    def mime_subtype_allow_list
+      %w[pdf msword vnd.openxmlformats-officedocument.wordprocessingml.document jpeg rtf png]
+    end
+
     # This method was created because there's an issue on the frontend where a user can manually 'change' a
     # file's extension via its name in order to circumvent frontend validation. With that said, we need to check
-    # the actual extension and ensure the Enrollment System accepts it
-    def validate_file_extension
-      extension = MIME::Types[
-        filtered_params['file_data'].content_type.to_s
-      ]&.first&.extensions&.first
+    # the actual file type and ensure the Enrollment System accepts it
+    def validate_file_type
+      file_path = File.open(filtered_params['file_data']).path
+      # Using 'MIME::Types' doesn't work here because it will
+      # return, for example, 'application/zip' for .docx files.
+      mime_subtype =
+        IO.popen(
+          ['file', '--mime-type', '--brief', file_path]
+        ) { |io| io.read.chomp.to_s }.split('/').last
 
-      unless HCAAttachmentUploader.new(nil).extension_allowlist.include?(extension)
-        StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.attachments.invalid_file_extension")
+      unless mime_subtype_allow_list.include?(mime_subtype)
+        StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.attachments.invalid_file_type")
 
         raise Common::Exceptions::UnprocessableEntity.new(
-          detail: "The '#{extension}' file extension is not currently supported. Follow the instructions " \
-                  'on your device on how to convert the file extension and try again to continue.'
+          detail: 'File type not supported. Follow the instructions on your device ' \
+                  'on how to convert the file type and try again to continue.'
         )
       end
     end

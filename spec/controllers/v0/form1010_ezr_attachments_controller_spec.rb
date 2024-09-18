@@ -30,7 +30,7 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
       it_behaves_like 'create 1010 form attachment'
     end
 
-    context 'when the file in the request does not have a valid Enrollment System extension' do
+    context 'when the file type of the attachment is not valid in the Enrollment System' do
       before do
         sign_in(current_user)
       end
@@ -38,11 +38,11 @@ RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
       it 'increments StatsD and raises an error' do
         file = fixture_file_upload('spec/fixtures/files/empty_file.txt', 'text/plain')
         params = { 'form1010_ezr_attachment' => { 'file_data' => file } }
-        error_msg = "The 'txt' file extension is not currently supported. Follow the instructions " \
-                    'on your device on how to convert the file extension and try again to continue.'
+        error_msg = 'File type not supported. Follow the instructions on your device ' \
+                    'on how to convert the file type and try again to continue.'
 
         allow(StatsD).to receive(:increment)
-        expect(StatsD).to receive(:increment).with('api.1010ezr.attachments.invalid_file_extension')
+        expect(StatsD).to receive(:increment).with('api.1010ezr.attachments.invalid_file_type')
 
         post(:create, params:)
 
