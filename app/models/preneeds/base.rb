@@ -9,11 +9,12 @@ module Preneeds
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
 
+    # This class variable is an acceptable use case, because
+    # the values are only set via implicit receiver and I want
+    # subclasses to have shared attributes
     @@attributes = {}
 
     class << self
-      attr_reader :attributes
-
       # Class method to define a setter & getter for attribute
       # this will also coerce a hash to the require class
       # doesn't currently coerce scalar classes such as string to int
@@ -25,10 +26,12 @@ module Preneeds
       def attribute(name, klass, default: nil)
         @@attributes[name] = { type: klass, default: }
 
+        # Define a getter method for the attribute
         define_method(name) do
           instance_variable_get("@#{name}") || default
         end
 
+        # Define a setter method for the attribute
         define_method("#{name}=") do |value|
           value = klass.new(value) if value.is_a?(Hash)
 
