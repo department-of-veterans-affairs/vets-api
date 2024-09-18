@@ -19,6 +19,7 @@ RSpec.describe Preneeds::Applicant do
 
   describe 'when converting to eoas' do
     it 'produces an ordered hash' do
+      binding.pry
       expect(subject.as_eoas.keys).to eq(
         %i[
           applicantEmail applicantPhoneNumber applicantRelationshipToClaimant

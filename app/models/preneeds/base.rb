@@ -9,13 +9,10 @@ module Preneeds
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
 
-    @attributes = {}.freeze
+    @@attributes = {}
 
     class << self
-
-      def attributes
-        @attributes ||= {}
-      end
+      attr_reader :attributes
 
       # Class method to define a setter & getter for attribute
       # this will also coerce a hash to the require class
@@ -26,14 +23,12 @@ module Preneeds
       # @param default [String|Integer] the default value of the attribute
       #
       def attribute(name, klass, default: nil)
-        attributes[name] = { type: klass, default: }
+        @@attributes[name] = { type: klass, default: }
 
-        # Define a getter method for the attribute
         define_method(name) do
           instance_variable_get("@#{name}") || default
         end
 
-        # Define a setter method for the attribute
         define_method("#{name}=") do |value|
           value = klass.new(value) if value.is_a?(Hash)
 
@@ -46,7 +41,7 @@ module Preneeds
       end
 
       def attribute_set
-        attributes.keys
+        @@attributes.keys
       end
     end
 
