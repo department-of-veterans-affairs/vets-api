@@ -22,10 +22,11 @@ module SimpleFormsApi
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
     def initialize(config, notification_type: :confirmation, user: nil)
-      @form_data = config[:form_data]
-      @form_number = config[:form_number]
-      @confirmation_number = config[:confirmation_number]
-      @lighthouse_updated_at = config[:lighthouse_updated_at]
+      @form_data = config.fetch(:form_data) { raise ArgumentError, 'Missing key: :form_data' }
+      @form_number = config.fetch(:form_number) { raise ArgumentError, 'Missing key: :form_number' }
+      @confirmation_number = config.fetch(:confirmation_number) do
+        raise ArgumentError, 'Missing key: :confirmation_number'
+      end
       @notification_type = notification_type
       @user = user
     end
