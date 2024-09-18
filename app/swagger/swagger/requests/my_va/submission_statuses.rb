@@ -96,23 +96,24 @@ module Swagger
 
           property :id, type: :string, example: '3b03b5a0-3ad9-4207-b61e-3a13ed1c8b80',
                         description: 'Submitted form UID from lighthouse'
-          property :detail, type: :string, example: '',
+          property :detail, type: [:string, 'null'], example: '',
                             description: 'Error details (only when errors are present)'
           property :form_type, type: :string, example: '21-0845', description: 'The type of form'
-          property :message, type: :string
-          property :status, type: :string, enum: %w[
-            pending
-            uploaded
-            received
-            processing
-            success
-            vbms
-            error
-            expired
+          property :message, type: [:string, 'null']
+          property :status, type: [:string, 'null'], enum: [
+            nil,
+            'pending',
+            'uploaded',
+            'received',
+            'processing',
+            'success',
+            'vbms',
+            'error',
+            'expired'
           ], example: 'received', description: 'The current status of the submission'
           property :created_at, type: :string, example: '2023-12-15T20:40:47.583Z',
                                 description: 'The submission record created in VA.gov'
-          property :updated_at, type: :string, example: '2023-12-15T20:40:54.474Z',
+          property :updated_at, type: [:string, 'null'], example: '2023-12-15T20:40:54.474Z',
                                 description: 'The last time the submission status was updated'
         end
       end
