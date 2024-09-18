@@ -73,20 +73,11 @@ class FormSubmissionAttempt < ApplicationRecord
   private
 
   def enqueue_result_email(notification_type)
-    now = Time.zone.now
-    time_to_send = if now.hour < HOUR_TO_SEND_NOTIFICATIONS
-                     now.change(hour: HOUR_TO_SEND_NOTIFICATIONS,
-                                min: 0)
-                   else
-                     now.tomorrow.change(
-                       hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0
-                     )
-                   end
     config = {
       form_data: form_submission.form_data,
       form_number: form_submission.form_type,
       confirmation_number: form_submission.benefits_intake_uuid,
-      date_submitted: created_at,
+      date_submitted: created_at.strftime('%B %d, %Y'),
       lighthouse_updated_at:
     }
 
@@ -95,5 +86,17 @@ class FormSubmissionAttempt < ApplicationRecord
       notification_type:,
       user: user_account
     ).send(at: time_to_send)
+  end
+
+  def time_to_send
+    now = Time.zone.now
+    if now.hour < HOUR_TO_SEND_NOTIFICATIONS
+      now.change(hour: HOUR_TO_SEND_NOTIFICATIONS,
+                 min: 0)
+    else
+      now.tomorrow.change(
+        hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0
+      )
+    end
   end
 end
