@@ -2,7 +2,7 @@
 
 module SimpleFormsApi
   class NotificationEmail
-    attr_reader :form_number, :confirmation_number, :lighthouse_updated_at, :notification_type, :user
+    attr_reader :form_number, :confirmation_number, :date_submitted, :lighthouse_updated_at, :notification_type, :user
 
     TEMPLATE_IDS = {
       'vba_21_0845' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email },
@@ -27,6 +27,7 @@ module SimpleFormsApi
       @form_data = config[:form_data]
       @form_number = config[:form_number]
       @confirmation_number = config[:confirmation_number]
+      @date_submitted = config[:date_submitted]
       @lighthouse_updated_at = config[:lighthouse_updated_at]
       @notification_type = notification_type
       @user = user
@@ -60,7 +61,7 @@ module SimpleFormsApi
     private
 
     def check_missing_keys(config)
-      missing_keys = %i[form_data form_number confirmation_number].select { |key| config[key].nil? }
+      missing_keys = %i[form_data form_number confirmation_number date_submitted].select { |key| config[key].nil? }
       raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
     end
 
@@ -140,7 +141,7 @@ module SimpleFormsApi
     def default_personalization(first_name)
       {
         'first_name' => first_name&.upcase,
-        'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+        'date_submitted' => date_submitted,
         'confirmation_number' => confirmation_number,
         'lighthouse_updated_at' => lighthouse_updated_at
       }

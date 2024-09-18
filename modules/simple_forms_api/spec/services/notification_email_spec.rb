@@ -8,7 +8,8 @@ describe SimpleFormsApi::NotificationEmail do
     describe '#initialize' do
       context 'when all required arguments are passed in' do
         let(:config) do
-          { form_data: {}, form_number: 'vba_21_10210', confirmation_number: 'confirmation_number' }
+          { form_data: {}, form_number: 'vba_21_10210', confirmation_number: 'confirmation_number',
+            date_submitted: Time.zone.today.strftime('%B %d, %Y') }
         end
 
         it 'succeeds' do
@@ -18,7 +19,8 @@ describe SimpleFormsApi::NotificationEmail do
 
       context 'missing form_data' do
         let(:config) do
-          { form_number: 'vba_21_10210', confirmation_number: 'confirmation_number' }
+          { form_number: 'vba_21_10210', confirmation_number: 'confirmation_number',
+            date_submitted: Time.zone.today.strftime('%B %d, %Y') }
         end
 
         it 'fails' do
@@ -28,7 +30,8 @@ describe SimpleFormsApi::NotificationEmail do
 
       context 'missing form_number' do
         let(:config) do
-          { form_data: {}, confirmation_number: 'confirmation_number' }
+          { form_data: {}, confirmation_number: 'confirmation_number',
+            date_submitted: Time.zone.today.strftime('%B %d, %Y') }
         end
 
         it 'fails' do
@@ -38,7 +41,17 @@ describe SimpleFormsApi::NotificationEmail do
 
       context 'missing confirmation_number' do
         let(:config) do
-          { form_data: {}, form_number: 'vba_21_10210' }
+          { form_data: {}, form_number: 'vba_21_10210', date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        end
+
+        it 'fails' do
+          expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+        end
+      end
+
+      context 'missing date_submitted' do
+        let(:config) do
+          { form_data: {}, form_number: 'vba_21_10210', confirmation_number: 'confirmation_number' }
         end
 
         it 'fails' do
@@ -48,6 +61,7 @@ describe SimpleFormsApi::NotificationEmail do
     end
 
     describe '#send' do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
       let(:data) do
         fixture_path = Rails.root.join(
           'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_10210.json'
@@ -56,7 +70,7 @@ describe SimpleFormsApi::NotificationEmail do
       end
       let(:config) do
         { form_data: data, form_number: 'vba_21_10210',
-          confirmation_number: 'confirmation_number' }
+          confirmation_number: 'confirmation_number', date_submitted: }
       end
 
       context 'flipper is on' do
@@ -106,6 +120,7 @@ describe SimpleFormsApi::NotificationEmail do
     end
 
     describe '21_10210' do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
       let(:data) do
         fixture_path = Rails.root.join(
           'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_10210.json'
@@ -114,7 +129,7 @@ describe SimpleFormsApi::NotificationEmail do
       end
       let(:config) do
         { form_data: data, form_number: 'vba_21_10210',
-          confirmation_number: 'confirmation_number' }
+          confirmation_number: 'confirmation_number', date_submitted: }
       end
 
       describe 'users own claim' do
@@ -132,7 +147,7 @@ describe SimpleFormsApi::NotificationEmail do
             "form21_10210_#{notification_type}_email_template_id",
             {
               'first_name' => 'JOHN',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+              'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil
             }
@@ -208,9 +223,10 @@ describe SimpleFormsApi::NotificationEmail do
   end
 
   describe '40_0247' do
+    let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
     let(:config) do
       { form_data: data, form_number: 'vba_40_0247',
-        confirmation_number: 'confirmation_number' }
+        confirmation_number: 'confirmation_number', date_submitted: }
     end
 
     context 'when email is entered' do
@@ -233,7 +249,7 @@ describe SimpleFormsApi::NotificationEmail do
           'form40_0247_confirmation_email_template_id',
           {
             'first_name' => 'JOE',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => nil
           }
@@ -280,6 +296,7 @@ describe SimpleFormsApi::NotificationEmail do
   end
 
   describe '21_0845' do
+    let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
     let(:data) do
       fixture_path = Rails.root.join(
         'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0845.json'
@@ -287,8 +304,7 @@ describe SimpleFormsApi::NotificationEmail do
       JSON.parse(fixture_path.read)
     end
     let(:config) do
-      { form_data: data, form_number: 'vba_21_0845',
-        confirmation_number: 'confirmation_number' }
+      { form_data: data, form_number: 'vba_21_0845', confirmation_number: 'confirmation_number', date_submitted: }
     end
 
     describe 'signed in user' do
@@ -305,7 +321,7 @@ describe SimpleFormsApi::NotificationEmail do
           'form21_0845_confirmation_email_template_id',
           {
             'first_name' => 'JACK',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => nil
           }
@@ -327,7 +343,7 @@ describe SimpleFormsApi::NotificationEmail do
           'form21_0845_confirmation_email_template_id',
           {
             'first_name' => 'JOHN',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => nil
           }
@@ -350,7 +366,7 @@ describe SimpleFormsApi::NotificationEmail do
           'form21_0845_confirmation_email_template_id',
           {
             'first_name' => 'JACK',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => nil
           }
@@ -372,6 +388,7 @@ describe SimpleFormsApi::NotificationEmail do
   end
 
   describe '21_0966' do
+    let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
     let(:data) do
       fixture_path = Rails.root.join(
         'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0966.json'
@@ -380,7 +397,7 @@ describe SimpleFormsApi::NotificationEmail do
     end
     let(:config) do
       { form_data: data, form_number: 'vba_21_0966',
-        confirmation_number: 'confirmation_number' }
+        confirmation_number: 'confirmation_number', date_submitted: }
     end
     let(:user) { create(:user, :loa3) }
 
@@ -396,7 +413,7 @@ describe SimpleFormsApi::NotificationEmail do
         'form21_0966_confirmation_email_template_id',
         {
           'first_name' => user.first_name.upcase,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'date_submitted' => date_submitted,
           'confirmation_number' => 'confirmation_number',
           'lighthouse_updated_at' => nil,
           'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
@@ -407,6 +424,7 @@ describe SimpleFormsApi::NotificationEmail do
   end
 
   describe '20_10206' do
+    let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
     let(:data) do
       fixture_path = Rails.root.join(
         'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_20_10206.json'
@@ -415,7 +433,7 @@ describe SimpleFormsApi::NotificationEmail do
     end
     let(:config) do
       { form_data: data, form_number: 'vba_20_10206',
-        confirmation_number: 'confirmation_number' }
+        confirmation_number: 'confirmation_number', date_submitted: }
     end
 
     it 'sends the confirmation email' do
@@ -430,7 +448,7 @@ describe SimpleFormsApi::NotificationEmail do
         'form20_10206_confirmation_email_template_id',
         {
           'first_name' => 'JOHN',
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'date_submitted' => date_submitted,
           'confirmation_number' => 'confirmation_number',
           'lighthouse_updated_at' => nil
         }
@@ -439,9 +457,10 @@ describe SimpleFormsApi::NotificationEmail do
   end
 
   describe '20_10207' do
+    let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
     let(:config) do
       { form_data: data, form_number: 'vba_20_10207',
-        confirmation_number: 'confirmation_number' }
+        confirmation_number: 'confirmation_number', date_submitted: }
     end
 
     context 'veteran' do
@@ -465,7 +484,7 @@ describe SimpleFormsApi::NotificationEmail do
           'form20_10207_confirmation_email_template_id',
           {
             'first_name' => 'JOHN',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => nil
           }
@@ -494,7 +513,7 @@ describe SimpleFormsApi::NotificationEmail do
           'form20_10207_confirmation_email_template_id',
           {
             'first_name' => 'JOE',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => nil
           }
@@ -523,7 +542,7 @@ describe SimpleFormsApi::NotificationEmail do
           'form20_10207_confirmation_email_template_id',
           {
             'first_name' => 'JOHN',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => nil
           }
@@ -552,7 +571,7 @@ describe SimpleFormsApi::NotificationEmail do
           'form20_10207_confirmation_email_template_id',
           {
             'first_name' => 'JOE',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => nil
           }
