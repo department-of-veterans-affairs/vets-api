@@ -47,6 +47,19 @@ describe SimpleFormsApi::NotificationEmail do
           expect(VANotify::EmailJob).not_to have_received(:perform_async)
         end
       end
+
+      context 'send at time is specified' do
+        it 'sends the email at the specified time' do
+          time = double
+          allow(VANotify::EmailJob).to receive(:perform_at)
+          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
+                                        confirmation_number: 'confirmation_number', notification_type:)
+
+          subject.send(at: time)
+
+          expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything)
+        end
+      end
     end
 
     describe '21_10210' do

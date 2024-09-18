@@ -22,6 +22,10 @@ class FormSubmissionAttempt < ApplicationRecord
     state :failure, :success, :vbms
 
     event :fail do
+      after do
+        enqueue_result_email(:error) if Flipper.enabled?(:simple_forms_email_notifications)
+      end
+
       transitions from: :pending, to: :failure
     end
 
@@ -30,6 +34,10 @@ class FormSubmissionAttempt < ApplicationRecord
     end
 
     event :vbms do
+      after do
+        enqueue_result_email(:received) if Flipper.enabled?(:simple_forms_email_notifications)
+      end
+
       transitions from: :pending, to: :vbms
       transitions from: :success, to: :vbms
     end
@@ -54,5 +62,20 @@ class FormSubmissionAttempt < ApplicationRecord
       log_hash[:message] = 'Form Submission Attempt State change'
       Rails.logger.info(log_hash)
     end
+  end
+
+  private
+
+  def enqueue_result_email(notification_type)
+    now = Time.zone.now
+    next_9am = now.hour < 9 ? now.change(hour: 9, min: 0) : now.tomorrow.change(hour: 9, min: 0)
+
+    SimpleFormsApi::NotificationEmail.new(
+      form_data: form_submission.form_data,
+      form_number: form_submission.form_type,
+      confirmation_number: form_submission.benefits_intake_uuid,
+      notification_type:,
+      user: user_account
+    ).send(at: next_9am)
   end
 end

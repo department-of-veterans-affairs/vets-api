@@ -8,11 +8,30 @@ RSpec.describe FormSubmissionAttempt, type: :model do
   end
 
   describe 'state machine' do
-    it 'transitions to a failure state' do
-      form_submission_attempt = create(:form_submission_attempt)
+    context 'transitioning to a failure state' do
+      it 'transitions to a failure state' do
+        form_submission_attempt = create(:form_submission_attempt)
 
-      expect(form_submission_attempt)
-        .to transition_from(:pending).to(:failure).on_event(:fail)
+        expect(form_submission_attempt)
+          .to transition_from(:pending).to(:failure).on_event(:fail)
+      end
+
+      it 'sends an error email' do
+        notification_email = double
+        allow(notification_email).to receive(:send)
+        allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
+          notification_type: :error,
+          form_data: anything,
+          form_number: anything,
+          confirmation_number: anything,
+          user: anything
+        ).and_return(notification_email)
+        form_submission_attempt = create(:form_submission_attempt)
+
+        form_submission_attempt.fail!
+
+        expect(notification_email).to have_received(:send)
+      end
     end
 
     it 'transitions to a success state' do
@@ -22,11 +41,30 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         .to transition_from(:pending).to(:success).on_event(:succeed)
     end
 
-    it 'transitions to a vbms state' do
-      form_submission_attempt = create(:form_submission_attempt)
+    context 'transitioning to a vbms state' do
+      it 'transitions to a vbms state' do
+        form_submission_attempt = create(:form_submission_attempt)
 
-      expect(form_submission_attempt)
-        .to transition_from(:pending).to(:vbms).on_event(:vbms)
+        expect(form_submission_attempt)
+          .to transition_from(:pending).to(:vbms).on_event(:vbms)
+      end
+
+      it 'sends a received email' do
+        notification_email = double
+        allow(notification_email).to receive(:send)
+        allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
+          notification_type: :received,
+          form_data: anything,
+          form_number: anything,
+          confirmation_number: anything,
+          user: anything
+        ).and_return(notification_email)
+        form_submission_attempt = create(:form_submission_attempt)
+
+        form_submission_attempt.vbms!
+
+        expect(notification_email).to have_received(:send)
+      end
     end
   end
 
