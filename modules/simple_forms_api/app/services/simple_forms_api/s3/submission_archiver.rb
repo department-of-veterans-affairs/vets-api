@@ -22,12 +22,13 @@ module SimpleFormsApi
         end
       end
 
-      def initialize(benefits_intake_uuid:, **options) # rubocop:disable Lint/MissingSuper
-        raise 'No benefits_intake_uuid was provided' unless benefits_intake_uuid
-
-        @benefits_intake_uuid = benefits_intake_uuid
-        @temp_directory_path = build_submission_archive(benefits_intake_uuid:, **options)
-        @parent_dir = options[:parent_dir] || 'vff-simple-forms'
+      def initialize(parent_dir: 'vff-simple-forms', **options) # rubocop:disable Lint/MissingSuper
+        @parent_dir = parent_dir
+        defaults = default_options.merge(options)
+        @temp_directory_path = build_submission_archive(**defaults)
+        assign_instance_variables(defaults)
+      rescue => e
+        handle_error('SubmissionArchiver initialization failed', e)
       end
 
       def upload
@@ -54,6 +55,16 @@ module SimpleFormsApi
       private
 
       attr_reader :benefits_intake_uuid, :parent_dir, :submission
+
+      def default_options
+        {
+          attachments: nil,           # The confirmation codes of any attachments which were originally submitted
+          benefits_intake_uuid: nil,  # The UUID returned from the Benefits Intake API upon original submission
+          file_path: nil,             # The local path where the submission PDF is stored
+          metadata: nil,              # Data appended to the original submission headers
+          submission: nil             # The FormSubmission object representing the original data payload submitted
+        }
+      end
 
       def build_submission_archive(**)
         SubmissionArchiveBuilder.new(**).run
