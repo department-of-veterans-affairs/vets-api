@@ -75,7 +75,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       subject.perform_async(submission.id)
       expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
       expect(Form526JobStatus).to receive(:upsert).thrice
-      expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:non_retryable_error_handler).and_call_original
+      expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to
+      receive(:non_retryable_error_handler).and_call_original
       described_class.drain
     end
 
@@ -473,50 +474,35 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           body = { 'errors' => [{ 'status' => '422', 'title' => 'Backend Service Exception',
                                   'detail' => 'The claim failed to establish' }] }
           headers = { 'content-type' => 'application/json' }
-          allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body).and_raise(Faraday::UnprocessableEntityError.new(
-                                                                                                          body:, status: 422, headers:
-                                                                                                        ))
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
+            .and_raise(Faraday::UnprocessableEntityError.new(
+                         body:,
+                         status: 422,
+                         headers:
+                       ))
           expect_retryable_error(Common::Exceptions::UpstreamUnprocessableEntity)
         end
 
         it 'does not retry UnprocessableEntity errors with "pointer" defined' do
           body = { 'errors' => [{ 'status' => '422', 'title' => 'Backend Service Exception',
-                                  'detail' => 'The claim failed to establish', 'source' => { 'pointer' => 'data/attributes/' } }] }
+                                  'detail' => 'The claim failed to establish',
+                                  'source' => { 'pointer' => 'data/attributes/' } }] }
           headers = { 'content-type' => 'application/json' }
-          allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body).and_raise(Faraday::UnprocessableEntityError.new(
-                                                                                                          body:, status: 422, headers:
-                                                                                                        ))
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
+            .and_raise(Faraday::UnprocessableEntityError.new(
+                         body:, status: 422, headers:
+                       ))
           expect_non_retryable_error
         end
 
-        it 'retries Lighthouse-specific error types' do
-          errors = [{ error_type: Common::Exceptions::TooManyRequests, status: 545 },
-                    { error_type: Common::Exceptions::ClientDisconnected, status: 499 },
-                    { error_type: Common::Exceptions::ExternalServerInternalServerError, status: 500 },
-                    { error_type: Common::Exceptions::NotImplemented, status: 501 },
-                    { error_type: Common::Exceptions::BadGateway, status: 502 },
-                    { error_type: Common::Exceptions::ServiceUnavailable, status: 503 }]
-
-          errors.each do |error|
+        Lighthouse::ServiceException::ERROR_MAP.slice(429, 499, 500, 501, 502, 503).each do |status, error_class|
+          it "throws a #{status} error if Lighthouse sends it back" do
             allow_any_instance_of(Form526Submission).to receive(:prepare_for_evss!).and_return(nil)
-            allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body).and_raise(error[:error_type].new(status: error[:status]))
-            expect_retryable_error(error[:error_type])
+            allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
+              .and_raise(error_class.new(status:))
+            expect_retryable_error(error_class)
           end
         end
-
-        # it 'retries Lighthouse-specific error types 2' do
-        #   headers = { 'content-type' => 'application/json' }
-        #
-        #   allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body).and_raise(Common::Exceptions::ClientDisconnected.new(status: 666))
-        #   expect_retryable_error(Common::Exceptions::ClientDisconnected)
-        #
-        #
-        #   # errors.each do |error|
-        #   #   allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body).and_raise(error[:error_type].new(body: body, status: error[:status], headers: headers))
-        #   #   expect_retryable_error(error[:error_type])
-        #   #   # submission.reload
-        #   # end
-        # end
       end
     end
 
