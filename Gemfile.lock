@@ -1046,8 +1046,6 @@ GEM
     uber (0.1.0)
     unicode-display_width (2.6.0)
     uri (0.13.1)
-    utf8-cleaner (1.0.0)
-      activesupport
     vcr (6.3.1)
       base64
     version_gem (1.1.3)
@@ -1290,7 +1288,6 @@ DEPENDENCIES
   timecop
   travel_pay!
   tzinfo-data
-  utf8-cleaner
   va_forms!
   va_notify!
   vaos!
