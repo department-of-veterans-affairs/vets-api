@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/veteran_verification/v2/disability_rating/123498767V234859"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 499
+      message: Client Closed Request
+    headers:
+      Date:
+      - Thu, 19 Sep 2024 16:35:51 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Reset:
+      - '9'
+      Ratelimit-Limit:
+      - '120'
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      Www-Authenticate:
+      - Bearer
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: "{ \n  \"status\": 401,\n  \"error\": \"Invalid token.\"\n}\n"
+  recorded_at: Thu, 19 Sep 2024 16:35:52 GMT
+recorded_with: VCR 6.3.1
