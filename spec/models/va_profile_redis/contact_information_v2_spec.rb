@@ -3,15 +3,14 @@
 require 'rails_helper'
 
 describe VAProfileRedis::ContactInformation do
-  let(:user) { build :user, :loa3 }
-  Flipper.disable(:va_v3_contact_information_service)
+  let(:user) { build(:user, :loa3) }
   let(:person_response) do
     raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
 
-    VAProfile::ContactInformation::PersonResponse.from(raw_response)
+    VAProfile::V2::ContactInformation::PersonResponse.from(raw_response)
   end
   let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
-  let(:person) { build :person, telephones:, permissions: }
+  let(:person) { build(:person_v2, telephones:) }
   let(:telephones) do
     [
       build(:telephone),
@@ -21,14 +20,12 @@ describe VAProfileRedis::ContactInformation do
       build(:telephone, :fax)
     ]
   end
-  let(:permissions) do
-    [
-      build(:permission)
-    ]
-  end
+
+  Flipper.enable(:va_v3_contact_information_service)
 
   before do
-    allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
+    Flipper.enable(:va_v3_contact_information_service)
+    allow(VAProfile::Models::V2::Person).to receive(:build_from).and_return(person)
   end
 
   [404, 400].each do |status|
@@ -39,24 +36,28 @@ describe VAProfileRedis::ContactInformation do
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
 
         service = double
-        allow(VAProfile::ContactInformation::Service).to receive(:new).with(user).and_return(service)
+        allow(VAProfile::V2::ContactInformation::Service).to receive(:new).with(user).and_return(service)
         expect(service).to receive(:get_person).public_send(
           get_person_calls
         ).and_return(
-          VAProfile::ContactInformation::PersonResponse.new(status, person: nil)
+          VAProfile::V2::ContactInformation::PersonResponse.new(status, person: nil)
         )
       end
 
       it 'caches the empty response' do
-        expect(contact_info.email).to eq(nil)
-        expect(contact_info.home_phone).to eq(nil)
+        VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+          expect(contact_info.email).to eq(nil)
+          expect(contact_info.home_phone).to eq(nil)
+        end
       end
 
       context 'when the cache is destroyed' do
         let(:get_person_calls) { 'twice' }
 
         it 'makes a new request' do
-          expect(contact_info.email).to eq(nil)
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+            expect(contact_info.email).to eq(nil)
+          end
           VAProfileRedis::Cache.invalidate(user)
 
           expect(VAProfileRedis::ContactInformation.for_user(user).email).to eq(nil)
@@ -67,7 +68,9 @@ describe VAProfileRedis::ContactInformation do
 
   describe '.new' do
     it 'creates an instance with user attributes' do
-      expect(contact_info.user).to eq(user)
+      VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+        expect(contact_info.user).to eq(user)
+      end
     end
   end
 
@@ -75,24 +78,27 @@ describe VAProfileRedis::ContactInformation do
     context 'when the cache is empty' do
       it 'caches and return the response', :aggregate_failures do
         allow_any_instance_of(
-          VAProfile::ContactInformation::Service
+          VAProfile::V2::ContactInformation::Service
         ).to receive(:get_person).and_return(person_response)
 
-        if VAProfile::Configuration::SETTINGS.contact_information.cache_enabled
-          expect(contact_info.redis_namespace).to receive(:set).once
+        VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+          if VAProfile::Configuration::SETTINGS.contact_information.cache_enabled
+            expect(contact_info.redis_namespace).to receive(:set).once
+          end
+          expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:get_person).twice
+          expect(contact_info.status).to eq 200
+          expect(contact_info.response.person).to have_deep_attributes(person)
         end
-        expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).twice
-        expect(contact_info.status).to eq 200
-        expect(contact_info.response.person).to have_deep_attributes(person)
       end
     end
 
     context 'when there is cached data' do
       it 'returns the cached data', :aggregate_failures do
-        contact_info.cache(user.uuid, person_response)
-
-        expect_any_instance_of(VAProfile::ContactInformation::Service).not_to receive(:get_person)
-        expect(contact_info.response.person).to have_deep_attributes(person)
+        VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+          contact_info.cache(user.uuid, person_response)
+          expect_any_instance_of(VAProfile::V2::ContactInformation::Service).not_to receive(:get_person)
+          expect(contact_info.response.person).to have_deep_attributes(person)
+        end
       end
     end
   end
@@ -100,95 +106,95 @@ describe VAProfileRedis::ContactInformation do
   describe 'contact information attributes' do
     context 'with a successful response' do
       before do
-        allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
+        allow(VAProfile::Models::V2::Person).to receive(:build_from).and_return(person)
         allow_any_instance_of(
-          VAProfile::ContactInformation::Service
+          VAProfile::V2::ContactInformation::Service
         ).to receive(:get_person).and_return(person_response)
       end
 
       describe '#email' do
         it 'returns the users email address object', :aggregate_failures do
-          expect(contact_info.email).to eq person.emails.first
-          expect(contact_info.email.class).to eq VAProfile::Models::Email
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+            expect(contact_info.email).to eq person.emails.first
+            expect(contact_info.email.class).to eq VAProfile::Models::Email
+          end
         end
       end
 
       describe '#residential_address' do
         it 'returns the users residential address object', :aggregate_failures do
-          residence = address_for VAProfile::Models::Address::RESIDENCE
-
-          expect(contact_info.residential_address).to eq residence
-          expect(contact_info.residential_address.class).to eq VAProfile::Models::Address
+          residence = address_for VAProfile::Models::V2::Address::RESIDENCE
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+            expect(contact_info.residential_address).to eq residence
+            expect(contact_info.residential_address.class).to eq VAProfile::Models::V2::Address
+          end
         end
       end
 
       describe '#mailing_address' do
         it 'returns the users mailing address object', :aggregate_failures do
-          residence = address_for VAProfile::Models::Address::CORRESPONDENCE
-
-          expect(contact_info.mailing_address).to eq residence
-          expect(contact_info.mailing_address.class).to eq VAProfile::Models::Address
+          residence = address_for VAProfile::Models::V2::Address::CORRESPONDENCE
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+            expect(contact_info.mailing_address).to eq residence
+            expect(contact_info.mailing_address.class).to eq VAProfile::Models::V2::Address
+          end
         end
       end
 
       describe '#home_phone' do
         it 'returns the users home phone object', :aggregate_failures do
           phone = phone_for VAProfile::Models::Telephone::HOME
-
-          expect(contact_info.home_phone).to eq phone
-          expect(contact_info.home_phone.class).to eq VAProfile::Models::Telephone
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+            expect(contact_info.home_phone).to eq phone
+            expect(contact_info.home_phone.class).to eq VAProfile::Models::Telephone
+          end
         end
       end
 
       describe '#mobile_phone' do
         it 'returns the users mobile phone object', :aggregate_failures do
           phone = phone_for VAProfile::Models::Telephone::MOBILE
-
-          expect(contact_info.mobile_phone).to eq phone
-          expect(contact_info.mobile_phone.class).to eq VAProfile::Models::Telephone
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+            expect(contact_info.mobile_phone).to eq phone
+            expect(contact_info.mobile_phone.class).to eq VAProfile::Models::Telephone
+          end
         end
       end
 
       describe '#work_phone' do
         it 'returns the users work phone object', :aggregate_failures do
           phone = phone_for VAProfile::Models::Telephone::WORK
-
-          expect(contact_info.work_phone).to eq phone
-          expect(contact_info.work_phone.class).to eq VAProfile::Models::Telephone
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+            expect(contact_info.work_phone).to eq phone
+            expect(contact_info.work_phone.class).to eq VAProfile::Models::Telephone
+          end
         end
       end
 
       describe '#temporary_phone' do
         it 'returns the users temporary phone object', :aggregate_failures do
           phone = phone_for VAProfile::Models::Telephone::TEMPORARY
-
-          expect(contact_info.temporary_phone).to eq phone
-          expect(contact_info.temporary_phone.class).to eq VAProfile::Models::Telephone
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+            expect(contact_info.temporary_phone).to eq phone
+            expect(contact_info.temporary_phone.class).to eq VAProfile::Models::Telephone
+          end
         end
       end
 
       describe '#fax_number' do
         it 'returns the users FAX object', :aggregate_failures do
           phone = phone_for VAProfile::Models::Telephone::FAX
-
-          expect(contact_info.fax_number).to eq phone
-          expect(contact_info.fax_number.class).to eq VAProfile::Models::Telephone
-        end
-      end
-
-      describe '#text_permission' do
-        it 'returns the users text permission object', :aggregate_failures do
-          permission = permission_for VAProfile::Models::Permission::TEXT
-
-          expect(contact_info.text_permission).to eq permission
-          expect(contact_info.text_permission.class).to eq VAProfile::Models::Permission
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+            expect(contact_info.fax_number).to eq phone
+            expect(contact_info.fax_number.class).to eq VAProfile::Models::Telephone
+          end
         end
       end
     end
 
     context 'with an error response' do
       before do
-        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:get_person).and_raise(
           Common::Exceptions::BackendServiceException
         )
       end
@@ -256,27 +262,19 @@ describe VAProfileRedis::ContactInformation do
           )
         end
       end
-
-      describe '#text_permission' do
-        it 'raises a Common::Exceptions::BackendServiceException error' do
-          expect { contact_info.text_permission }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
-        end
-      end
     end
 
     context 'with an empty respose body' do
       let(:empty_response) do
         raw_response = OpenStruct.new(status: 500, body: nil)
 
-        VAProfile::ContactInformation::PersonResponse.from(raw_response)
+        VAProfile::V2::ContactInformation::PersonResponse.from(raw_response)
       end
 
       before do
-        allow(VAProfile::Models::Person).to receive(:build_from).and_return(nil)
+        allow(VAProfile::Models::V2::Person).to receive(:build_from).and_return(nil)
         allow_any_instance_of(
-          VAProfile::ContactInformation::Service
+          VAProfile::V2::ContactInformation::Service
         ).to receive(:get_person).and_return(empty_response)
       end
 
@@ -327,12 +325,6 @@ describe VAProfileRedis::ContactInformation do
           expect(contact_info.fax_number).to be_nil
         end
       end
-
-      describe '#text_permission' do
-        it 'returns nil' do
-          expect(contact_info.text_permission).to be_nil
-        end
-      end
     end
   end
 end
@@ -343,8 +335,4 @@ end
 
 def phone_for(phone_type)
   person.telephones.find { |telephone| telephone.phone_type == phone_type }
-end
-
-def permission_for(permission_type)
-  person.permissions.find { |permission| permission.permission_type == permission_type }
 end

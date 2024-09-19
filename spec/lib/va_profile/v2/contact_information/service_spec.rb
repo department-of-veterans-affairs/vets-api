@@ -47,7 +47,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
     context 'when not successful' do
       let(:user) { build(:user, :error) }
-      let(:vet360_id) { '6767671'}
+      let(:vet360_id) { '6767671' }
 
       context 'with a 400 error' do
         it 'returns nil person' do
