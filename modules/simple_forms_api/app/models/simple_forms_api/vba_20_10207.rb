@@ -78,10 +78,12 @@ module SimpleFormsApi
     def handle_attachments(file_path)
       attachments = get_attachments
       if attachments.count.positive?
-        combined_pdf = CombinePDF.new
-        combined_pdf << CombinePDF.load(file_path)
+        merged_pdf = HexaPDF::Document.open(file_path)
         attachments.each do |attachment|
-          combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
+          attachment_pdf = HexaPDF::Document.open(attachment)
+          attachment_pdf.pages.each do |page|
+            merged_pdf.pages << merged_pdf.import(page)
+          end
         rescue => e
           Rails.logger.error(
             'Simple forms api - failed to load attachment for 20-10207',
@@ -90,7 +92,7 @@ module SimpleFormsApi
           raise
         end
 
-        combined_pdf.save file_path
+        merged_pdf.write(file_path, optimize: true)
       end
     end
 
