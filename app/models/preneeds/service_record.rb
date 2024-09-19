@@ -29,8 +29,8 @@ module Preneeds
     def as_eoas
       hash = {
         branchOfService: service_branch, dischargeType: discharge_type,
-        enteredOnDutyDate: date_range.try(:[], :from), highestRank: highest_rank,
-        nationalGuardState: national_guard_state, releaseFromDutyDate: date_range.try(:[], :to)
+        enteredOnDutyDate: date_range.try(:from), highestRank: highest_rank,
+        nationalGuardState: national_guard_state, releaseFromDutyDate: date_range.try(:to)
       }
 
       %i[

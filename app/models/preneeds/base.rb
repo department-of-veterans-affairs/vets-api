@@ -15,45 +15,78 @@ module Preneeds
     include ActiveModel::Serializers::JSON
 
     # This class variable is an acceptable use case, because
-    # the values are only set via implicit receiver and I want
-    # subclasses to have shared attributes
+    # the values are only set via implicit receiver and the
+    # subclasses should have shared attributes
     @@attributes = {} # rubocop:disable Style/ClassVars
 
     class << self
       # Class method to define a setter & getter for attribute
       # this will also coerce a hash to the require class
       # doesn't currently coerce scalar classes such as string to int
+      # In the future this could become it's own class e.g., Vets::Model::Attribute
       #
       # @param name [Symbol] the name of the attribute
       # @param klass [Class] the class of the attribute
       # @param default [String|Integer] the default value of the attribute
       #
-      def attribute(name, klass, default: nil)
-        @@attributes[name] = { type: klass, default: }
+      def attribute(name, klass, **options)
+        default = options[:default]
+        array = options[:array] || false
 
+        @@attributes[name] = { type: klass, default:, array: }
+
+        define_getter(name, default)
+        define_setter(name, klass, array)
+      end
+
+      def attribute_set
+        @@attributes.keys
+      end
+
+      private
+
+      def define_getter(name, default)
         define_method(name) do
-          instance_variable_get("@#{name}") || default
-        end
+          instance_variable_get("@#{name}") || begin
+            return nil unless defined?(default)
 
+            if default.is_a?(Symbol) && respond_to?(default)
+              send(default)
+            else
+              default
+            end
+          end
+        end
+      end
+
+      def define_setter(name, klass, array)
         define_method("#{name}=") do |value|
+          if array
+            unless value.is_a?(Array)
+              raise TypeError, "#{name} must be an Array"
+            end
+
+            value = value.map do |item|
+              item.is_a?(Hash) ? klass.new(item) : item
+            end
+
+            unless value.all? { |item| item.is_a?(klass) }
+              raise TypeError, "All elements of #{name} must be of type #{klass}"
+            end
+          end
+
           value = klass.new(value) if value.is_a?(Hash)
 
-          if value.is_a?(klass) || value.nil?
+          if (array && value.is_a?(Array)) || value.is_a?(klass) || value.nil?
             instance_variable_set("@#{name}", value)
           else
             raise TypeError, "#{name} must be a #{klass}"
           end
         end
       end
-
-      def attribute_set
-        @@attributes.keys
-      end
     end
 
-    # Acts as ActiveRecord::Base#attributes which is needed
-    # for serialization
-    #
+    # Acts as ActiveRecord::Base#attributes which is needed for serialization
     def attributes
       nested_attributes(instance_values)
     end

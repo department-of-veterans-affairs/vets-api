@@ -50,7 +50,7 @@ module Preneeds
     attribute :address, Preneeds::Address
     attribute :current_name, Preneeds::FullName
     attribute :service_name, Preneeds::FullName
-    attribute :service_records, Array[Preneeds::ServiceRecord]
+    attribute :service_records, Preneeds::ServiceRecord, array: true
 
     # (see Preneeds::BurialForm#as_eoas)
     #
