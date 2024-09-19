@@ -24,8 +24,11 @@ module Forms
       end
 
       def submissions
-        query = FormSubmission.where(user_account: @user_account)
-        query = query.where(form_type: @allowed_forms).order(:created_at) if @allowed_forms.present?
+        query = FormSubmission.with_latest_intake(@user_account)
+                              .with_form_types(@allowed_forms)
+                              .order(:created_at)
+
+        # query = query.where(form_type: @allowed_forms).order(:created_at) if @allowed_forms.present?
         query.to_a
       end
 
