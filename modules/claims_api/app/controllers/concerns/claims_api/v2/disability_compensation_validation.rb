@@ -982,7 +982,7 @@ module ClaimsApi
 
         form_obj_desc = '/serviceInformation/federalActivation'
 
-        # For a valid BDD EP code to be assgned we need these values in reserves
+        # For a valid BDD EP code to be assigned we need these values
         validate_required_values_for_federal_activation(federal_activation_date, anticipated_separation_date)
 
         validate_federal_activation_activation_date(federal_activation_date, form_obj_desc)
@@ -1012,14 +1012,14 @@ module ClaimsApi
 
       # rubocop:disable Metrics/MethodLength
       def validate_required_values_for_federal_activation(activation_date, separation_date)
-        activation_form_obj_desc = '/federalActivation'
+        activation_form_obj_desc = 'serviceInformation/federalActivation/'
         reserves_dates_form_obj_desc = 'serviceInformation/reservesNationalGuardServce/obligationTermsOfService/'
         reserves_unit_form_obj_desc = 'serviceInformation/reservesNationalGuardServce/'
 
         reserves = form_attributes.dig('serviceInformation', 'reservesNationalGuardService')
         tos_start_date = reserves&.dig('obligationTermsOfService', 'beginDate')
         tos_end_date = reserves&.dig('obligationTermsOfService', 'endDate')
-        reserves&.dig('unitName')
+        unit_name = reserves&.dig('unitName')
 
         if activation_date.blank?
           collect_error_messages(detail: 'activationDate is missing or blank',
@@ -1037,7 +1037,7 @@ module ClaimsApi
           collect_error_messages(detail: 'endDate is missing or blank',
                                  source: reserves_dates_form_obj_desc)
         end
-        if tos_end_date.blank?
+        if unit_name.blank?
           collect_error_messages(detail: 'unitName is missing or blank',
                                  source: reserves_unit_form_obj_desc)
         end
