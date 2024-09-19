@@ -2,7 +2,7 @@
 
 module SimpleFormsApi
   class NotificationEmail
-    attr_reader :form_number, :confirmation_number, :notification_type, :user
+    attr_reader :form_number, :confirmation_number, :date_submitted, :lighthouse_updated_at, :notification_type, :user
 
     TEMPLATE_IDS = {
       'vba_21_0845' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email },
@@ -21,15 +21,19 @@ module SimpleFormsApi
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
-    def initialize(form_data:, form_number:, confirmation_number:, notification_type: :confirmation, user: nil)
-      @form_data = form_data
-      @form_number = form_number
-      @confirmation_number = confirmation_number
+    def initialize(config, notification_type: :confirmation, user: nil)
+      check_missing_keys(config)
+
+      @form_data = config[:form_data]
+      @form_number = config[:form_number]
+      @confirmation_number = config[:confirmation_number]
+      @date_submitted = config[:date_submitted]
+      @lighthouse_updated_at = config[:lighthouse_updated_at]
       @notification_type = notification_type
       @user = user
     end
 
-    def send
+    def send(at: nil)
       return unless SUPPORTED_FORMS.include?(form_number)
 
       data = form_specific_data || empty_form_specific_data
@@ -38,14 +42,28 @@ module SimpleFormsApi
 
       template_id = TEMPLATE_IDS[form_number][notification_type]
 
-      VANotify::EmailJob.perform_async(
-        data[:email],
-        template_id,
-        data[:personalization]
-      )
+      if at
+        VANotify::EmailJob.perform_at(
+          at,
+          data[:email],
+          template_id,
+          data[:personalization]
+        )
+      else
+        VANotify::EmailJob.perform_async(
+          data[:email],
+          template_id,
+          data[:personalization]
+        )
+      end
     end
 
     private
+
+    def check_missing_keys(config)
+      missing_keys = %i[form_data form_number confirmation_number date_submitted].select { |key| config[key].nil? }
+      raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
+    end
 
     # rubocop:disable Metrics/MethodLength
     # email and personalization hash
@@ -123,8 +141,9 @@ module SimpleFormsApi
     def default_personalization(first_name)
       {
         'first_name' => first_name&.upcase,
-        'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-        'confirmation_number' => confirmation_number
+        'date_submitted' => date_submitted,
+        'confirmation_number' => confirmation_number,
+        'lighthouse_updated_at' => lighthouse_updated_at
       }
     end
 

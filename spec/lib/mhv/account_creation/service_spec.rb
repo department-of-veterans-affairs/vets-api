@@ -27,11 +27,11 @@ describe MHV::AccountCreation::Service do
       let(:expected_log_payload) { { icn: } }
       let(:expected_response_body) do
         {
-          mhv_userprofileid: '12345678',
-          is_premium: true,
-          is_champ_va: true,
-          is_patient: true,
-          is_sm_account_created: true,
+          user_profile_id: '12345678',
+          premium: true,
+          champ_va: true,
+          patient: true,
+          sm_account_created: true,
           message: 'Existing MHV Account Found for ICN'
         }
       end
@@ -70,9 +70,9 @@ describe MHV::AccountCreation::Service do
         }
       end
 
-      it 'logs the client error' do
+      it 'logs and re-raises the client error' do
         VCR.use_cassette('mhv/account_creation/account_creation_service_400_response') do
-          subject
+          expect { subject }.to raise_error(Common::Client::Errors::ClientError)
           expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
         end
       end
@@ -88,9 +88,9 @@ describe MHV::AccountCreation::Service do
         }
       end
 
-      it 'logs the parsing error' do
+      it 'logs and re-raises the parsing error' do
         VCR.use_cassette('mhv/account_creation/account_creation_service_500_response') do
-          subject
+          expect { subject }.to raise_error(Common::Client::Errors::ParsingError)
           expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
         end
       end
@@ -100,9 +100,9 @@ describe MHV::AccountCreation::Service do
       let(:expected_log_message) { "#{log_prefix} sts token request failed" }
       let(:expected_log_payload) { { user_identifier: icn, error_message: 'Service account config not found' } }
 
-      it 'logs the STS token request failure' do
+      it 'logs and re-raises the STS token request failure' do
         VCR.use_cassette('sign_in_service/sts/sts_token_400_response') do
-          subject
+          expect { subject }.to raise_error(Common::Client::Errors::ClientError)
           expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
         end
       end

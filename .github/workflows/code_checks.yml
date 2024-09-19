@@ -135,14 +135,9 @@ jobs:
 
       - name: Run Specs
         timeout-minutes: 20
-        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
-        with:
-          timeout_minutes: 20
-          retry_wait_seconds: 3 # Seconds
-          max_attempts: 3
-          command: |
-            docker compose -f docker-compose.test.yml run web bash \
-              -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
+        run: |
+          docker compose -f docker-compose.test.yml run web bash \
+          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
@@ -161,7 +156,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Add Test Failure label
-        if: failure() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'test-failure')
+        if: failure() && github.event_name == 'pull_request'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -169,7 +164,7 @@ jobs:
             test-failure
 
       - name: Remove Test Failure label
-        if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'test-failure')
+        if: success() && github.event_name == 'pull_request'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -177,7 +172,7 @@ jobs:
             test-failure
 
       - name: Add Test Passing label
-        if: success() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'test-passing')
+        if: success() && github.event_name == 'pull_request'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}

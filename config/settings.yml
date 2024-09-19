@@ -259,6 +259,7 @@ bip:
 vet360:
   url: "https://int.vet360.va.gov"
   contact_information:
+    url: "https://qa.vaprofile.va.gov"
     cache_enabled: false
     enabled: true
     timeout: 30
@@ -281,8 +282,6 @@ vet360:
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
-  health_benefit:
-    mock: true
   profile_information:
     enabled: true
     timeout: 30
