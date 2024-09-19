@@ -39,7 +39,7 @@ class AccreditationService
     case Rails.env
     when 'development', 'test'
       # NOTE: the below is a temporary URL for development purposes only.
-      # TODO: Update this once ESECC request goes through. See: https://github.com/department-of-veterans-affairs/va.gov-team/
+      # TODO: Update this once ESECC request goes through. See: https://github.com/department-of-veterans-affairs/va.gov-team/issues/88288
       'http://localhost:5000/api/v1/accreditation/applications/form21a'
     when 'production'
       # TODO: Update this once MOU has been signed and the ESECC request has gone through. See:

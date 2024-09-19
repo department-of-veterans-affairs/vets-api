@@ -25,6 +25,11 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
           instance_double(Faraday::Response, success?: true, body: { result: 'success' }.to_json, status: 200)
         )
 
+        expect(Rails.logger).to receive(:info).with(
+          'Form21aController: Form 21a successfully submitted to OGC service ' \
+          "by user with user_uuid=#{representative_user.uuid} - Response: {\"result\":\"success\"}"
+        )
+
         headers = { 'Content-Type' => 'application/json' }
         post('/accredited_representative_portal/v0/form21a', params: valid_json, headers:)
 

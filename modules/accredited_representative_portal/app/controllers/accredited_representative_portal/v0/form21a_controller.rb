@@ -37,6 +37,10 @@ module AccreditedRepresentativePortal
       # Renders the response based on the service call's success or failure.
       def render_ogc_service_response(response)
         if response.success?
+          Rails.logger.info(
+            'Form21aController: Form 21a successfully submitted to OGC service ' \
+            "by user with user_uuid=#{@current_user&.uuid} - Response: #{response.body}"
+          )
           render json: response.body, status: response.status
         elsif response.body.blank?
           Rails.logger.info('Form21aController: Blank response from OGC service')
