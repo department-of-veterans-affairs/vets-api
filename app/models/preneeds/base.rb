@@ -62,9 +62,7 @@ module Preneeds
       def define_setter(name, klass, array)
         define_method("#{name}=") do |value|
           if array
-            unless value.is_a?(Array)
-              raise TypeError, "#{name} must be an Array"
-            end
+            raise TypeError, "#{name} must be an Array" unless value.is_a?(Array)
 
             value = value.map do |item|
               item.is_a?(Hash) ? klass.new(item) : item
