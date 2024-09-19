@@ -39,8 +39,12 @@ describe VAProfileRedis::Cache, :skip_vet360 do
   describe 'ContactInformationServiceV2' do
     before do
       Flipper.enable(:va_v3_contact_information_service)
-      allow(user).to receive(:vet360_id).and_return('11111')
+      allow(user).to receive(:vet360_id).and_return('1781151')
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+    end
+
+    after do
+      Flipper.disable(:va_v3_contact_information_service)
     end
 
     describe '.invalidate v2' do
