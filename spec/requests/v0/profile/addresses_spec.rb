@@ -398,10 +398,15 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
     end
 
     let(:address) { build(:va_profile_address, :id_error, vet360_id: user.vet360_id) }
+    let(:frozen_time) { Time.zone.parse('2024-08-27T18:51:06.012Z') }
 
     context 'with a 400 response' do
+      before do
+        allow_any_instance_of(User).to receive(:vet360_id).and_return('1781151')
+      end
+
       it 'matches the errors schema', :aggregate_failures do
-        VCR.use_cassette('va_profile/v2/contact_information/post_address_w_id_error_b') do
+        VCR.use_cassette('va_profile/v2/contact_information/post_address_w_id_error') do
           post('/v0/profile/addresses', params: address.to_json, headers:)
 
           expect(response).to have_http_status(:bad_request)
@@ -410,7 +415,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       it 'matches the errors camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette('va_profile/v2/contact_information/post_address_w_id_error_b') do
+        VCR.use_cassette('va_profile/v2/contact_information/post_address_w_id_error') do
           post('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:bad_request)
@@ -530,19 +535,20 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
       context 'with a validation key' do
         let(:address) { build(:va_profile_address_v2, :override) }
-        let(:frozen_time) { Time.zone.parse('2020-02-14T00:19:15.000Z') }
+        let(:frozen_time) { Time.zone.parse('2024-09-16T16:09:37.000Z') }
 
         before do
-          allow_any_instance_of(User).to receive(:vet360_id).and_return('1')
-          allow_any_instance_of(User).to receive(:icn).and_return('1234')
+          allow_any_instance_of(User).to receive(:vet360_id).and_return('1781151')
+          allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
           allow(Settings).to receive(:virtual_hosts).and_return('www.example.com')
         end
 
         it 'is successful' do
-          VCR.use_cassette('va_profile/v2/contact_information/put_address_override_b', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/put_address_override', VCR::MATCH_EVERYTHING) do
+            address.id = 577_127
             put('/v0/profile/addresses', params: address.to_json, headers:)
             expect(JSON.parse(response.body)['data']['attributes']['transaction_id']).to eq(
-              'c2fab2b5-6af0-45e1-a9e2-394347af9102'
+              'cd7036df-630c-43e2-8911-063daa10021c'
             )
           end
         end
