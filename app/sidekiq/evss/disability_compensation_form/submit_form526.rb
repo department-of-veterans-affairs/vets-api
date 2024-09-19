@@ -105,16 +105,20 @@ module EVSS
             send_post_evss_notifications(submission, true)
           rescue => e
             send_post_evss_notifications(submission, false)
-            if submission.claims_api?
-              handle_lighthouse_errors(submission, e)
-            else
-              handle_errors(submission, e)
-            end
+            conditionally_handle_errors(e)
           end
         end
       end
 
       private
+
+      def conditionally_handle_errors(e)
+        if submission.claims_api?
+          handle_lighthouse_errors(submission, e)
+        else
+          handle_errors(submission, e)
+        end
+      end
 
       def fail_submission_feature_enabled?(submission)
         if Flipper.enabled?(:disability_compensation_fail_submission,
