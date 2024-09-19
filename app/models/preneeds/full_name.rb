@@ -16,7 +16,7 @@ module Preneeds
   # @!attribute suffix
   #   @return [String] name suffix
   #
-  class FullName < Preneeds::Base
+  class FullName < Preneeds::VirtusBase
     attribute :first, String
     attribute :last, String
     attribute :maiden, String
