@@ -351,6 +351,23 @@ RSpec.describe V0::InProgressFormsController do
             expect(Oj.load(response.body)['errors'].first['detail']).to eq('Internal server error')
           end
         end
+
+        context 'when form type is pension' do
+          before { allow(Lighthouse::CreateIntentToFileJob).to receive(:perform_async) }
+
+          it 'calls the CreateIntentToFileJob for newly created forms' do
+            put v0_in_progress_form_url('21P-527EZ'),
+                params: {
+                  formData: new_form.form_data,
+                  metadata: new_form.metadata
+                }.to_json,
+                headers: { 'CONTENT_TYPE' => 'application/json' }
+
+            latest_form = InProgressForm.last
+            expect(Lighthouse::CreateIntentToFileJob).to have_received(:perform_async).with(latest_form.id, user.icn,
+                                                                                            user.participant_id)
+          end
+        end
       end
 
       context 'with an existing form' do

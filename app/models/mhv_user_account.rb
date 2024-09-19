@@ -5,10 +5,12 @@ class MHVUserAccount
   include ActiveModel::Attributes
 
   attribute :user_profile_id, :string
+  attribute :premium, :boolean
   attribute :champ_va, :boolean
   attribute :patient, :boolean
-  attribute :sm_account, :boolean
+  attribute :sm_account_created, :boolean
+  attribute :message, :string
 
   validates :user_profile_id, presence: true
-  validates :champ_va, :patient, :sm_account, inclusion: { in: [true, false] }
+  validates :premium, :champ_va, :patient, :sm_account_created, inclusion: { in: [true, false] }
 end
