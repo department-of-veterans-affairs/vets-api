@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: "vets-api-postman-test"
   annotations:
-    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook": post-install,post-upgrade,test
 spec:
   containers:
     - name: postman
