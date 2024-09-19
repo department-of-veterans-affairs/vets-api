@@ -59,7 +59,12 @@ module Pensions
 
       upload_document
 
-      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
+      begin
+        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
+      rescue e
+        @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
+      end
+
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
       @intake_service.uuid

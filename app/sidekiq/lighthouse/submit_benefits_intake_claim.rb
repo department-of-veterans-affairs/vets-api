@@ -46,7 +46,7 @@ module Lighthouse
       raise BenefitsIntakeClaimError, response.body unless response.success?
 
       Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_log_details)
-      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
+      send_confirmation_email
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', generate_log_details(e))
       @form_submission_attempt&.fail!
@@ -151,6 +151,14 @@ module Lighthouse
 
     def check_zipcode(address)
       address['country'].upcase.in?(%w[USA US])
+    end
+
+    def send_confirmation_email
+      @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
+    rescue e
+      Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
+                        generate_log_details(e))
+      StatsD.increment("#{STATSD_KEY_PREFIX}.send_confirmation_email.failure")
     end
   end
 end
