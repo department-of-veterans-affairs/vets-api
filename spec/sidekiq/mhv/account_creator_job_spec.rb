@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'sidekiq/testing'
 
@@ -8,10 +10,22 @@ RSpec.describe MHV::AccountCreatorJob, type: :job do
   let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
   let(:icn) { '10101V964144' }
   let(:email) { 'some-email@email.com' }
+  let(:mhv_client) { instance_double(MHV::AccountCreation::Service) }
   let(:job) { described_class.new }
+  let(:mhv_response_body) do
+    {
+      user_profile_id: '12345678',
+      premium: true,
+      champ_va: true,
+      patient: true,
+      sm_account_created: true
+    }
+  end
 
   before do
     Sidekiq::Testing.inline!
+    allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
+    allow(mhv_client).to receive(:create_account).and_return(mhv_response_body)
   end
 
   describe '#perform' do
