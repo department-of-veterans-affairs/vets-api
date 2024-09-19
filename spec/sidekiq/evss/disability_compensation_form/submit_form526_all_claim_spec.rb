@@ -75,8 +75,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       subject.perform_async(submission.id)
       expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
       expect(Form526JobStatus).to receive(:upsert).thrice
-      expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to
-      receive(:non_retryable_error_handler).and_call_original
+      expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to(
+        receive(:non_retryable_error_handler).and_call_original
+      )
       described_class.drain
     end
 
