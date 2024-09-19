@@ -21,7 +21,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   describe '#get_person' do
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
           expect(response.person).to be_a(VAProfile::Models::V2::Person)
@@ -38,7 +38,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       # end
 
       it 'has a bad address' do
-        VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response.person.addresses[0].bad_address).to eq(nil)
         end
@@ -47,6 +47,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
     context 'when not successful' do
       let(:user) { build(:user, :error) }
+      let(:vet360_id) { '6767671'}
 
       context 'with a 400 error' do
         it 'returns nil person' do
@@ -73,19 +74,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         end
       end
     end
-    # VCR 503 errors help
-    # context 'when service returns a 503 error code' do
-    #   let(:vet360_id) { '' }
-    #   it 'raises a BackendServiceException error' do
-    #     VCR.use_cassette('va_profile/v2/contact_information/person_status_500', VCR::MATCH_EVERYTHING) do
-    #       expect { subject.get_person }.to raise_error do |e|
-    #         expect(e).to be_a(Common::Exceptions::BackendServiceException)
-    #         expect(e.status_code).to eq(500)
-    #         expect(e.errors.first.code).to eq('VET360_CORE500')
-    #       end
-    #     end
-    #   end
-    # end
 
     context 'when person response has no body data' do
       it 'returns 200' do
@@ -137,7 +125,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     context 'when successful' do
       it 'creates an old_email record' do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
             old_email = user.vet360_contact_info.email.email_address
             expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
@@ -313,7 +301,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   # ADDRESS is failing
   context 'update model methods' do
     before do
-      VCR.insert_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING)
+      VCR.insert_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
     end
 
@@ -475,7 +463,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
         context 'users email exists' do
           it 'sends an email' do
-            VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
               allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
 
               expect(VANotifyEmailJob).to receive(:perform_async).with(

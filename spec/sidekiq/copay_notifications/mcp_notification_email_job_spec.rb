@@ -123,7 +123,7 @@ RSpec.describe CopayNotifications::McpNotificationEmailJob, :skip_vet360, type: 
         let(:vet_id) { '6767671' }
 
         it 'uses backup email' do
-          VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/person_response_error', VCR::MATCH_EVERYTHING) do
             job = described_class.new
             client = double
             expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.dmc.api_key).and_return(client)
@@ -137,7 +137,7 @@ RSpec.describe CopayNotifications::McpNotificationEmailJob, :skip_vet360, type: 
         end
 
         it 'logs an error' do
-          VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/person_response_error', VCR::MATCH_EVERYTHING) do
             job = described_class.new
             expect(job).to receive(:log_exception_to_sentry).with(
               instance_of(CopayNotifications::ProfileMissingEmail), {}, { error: :mcp_notification_email_job }, 'info'
