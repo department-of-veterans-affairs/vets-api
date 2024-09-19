@@ -6,11 +6,11 @@ module EVSS
   module DisabilityCompensationForm
     class Form526ToLighthouseTransform # rubocop:disable Metrics/ClassLength
       TOXIC_EXPOSURE_CAUSE_MAP = {
-        NEW: 'My condition was caused by an injury or exposure during my military service; toxic exposure.',
+        NEW: 'My condition was caused by an injury or exposure during my military service.',
         WORSENED: 'My condition existed before I served in the military, but it got worse because of my military ' \
-                  'service; toxic exposure.',
-        VA: 'My condition was caused by an injury or event that happened when I was receiving VA care; toxic exposure.',
-        SECONDARY: 'My condition was caused by another service-connected disability I already have; toxic exposure.'
+                  'service.',
+        VA: 'My condition was caused by an injury or event that happened when I was receiving VA care.',
+        SECONDARY: 'My condition was caused by another service-connected disability I already have.'
       }.freeze
 
       GULF_WAR_LOCATIONS = {
@@ -566,7 +566,8 @@ module EVSS
             dis.is_related_to_toxic_exposure = is_related_to_toxic_exposure(dis.name, toxic_exposure_conditions)
           end
           dis.classification_code = disability_source['classificationCode'] if disability_source['classificationCode']
-          dis.service_relevance = disability_source['serviceRelevance'] || ''
+          dis.service_relevance = set_service_relevance(dis.is_related_to_toxic_exposure,
+                                                        disability_source['serviceRelevance'])
           dis.rated_disability_id = disability_source['ratedDisabilityId'] if disability_source['ratedDisabilityId']
           dis.diagnostic_code = disability_source['diagnosticCode'] if disability_source['diagnosticCode']
           if disability_source['secondaryDisabilities']
@@ -577,6 +578,16 @@ module EVSS
           end
 
           dis
+        end
+      end
+
+      def set_service_relevance(related_to_toxic_exposure, service_relevance)
+        if related_to_toxic_exposure && service_relevance.present?
+          "#{service_relevance}; toxic exposure".to_s
+        elsif service_relevance.present?
+          service_relevance
+        else
+          ''
         end
       end
 
