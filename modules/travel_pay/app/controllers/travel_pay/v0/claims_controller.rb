@@ -6,7 +6,7 @@ module TravelPay
       def index
         begin
           token_service.get_tokens(@current_user) => { veis_token:, btsss_token: }
-          claims = claims_service.get_claims(veis_token, btsss_token)
+          claims = claims_service.get_claims(veis_token, btsss_token, params)
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
         end
@@ -22,15 +22,6 @@ module TravelPay
 
       def token_service
         @token_service ||= TravelPay::TokenService.new
-      end
-
-      def common_exception(e)
-        case e
-        when Faraday::ResourceNotFound
-          Common::Exceptions::ResourceNotFound.new
-        else
-          Common::Exceptions::InternalServerError.new
-        end
       end
     end
   end
