@@ -202,26 +202,31 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
       end
     end
 
-    # Do after connection to staging is up
-    # context 'with an error response' do
-    #   it 'matches the errors response schema', :aggregate_failures do
-    #     VCR.use_cassette('va_profile/v2/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
-    #       post('/v0/profile/initialize_vet360_id', params: empty_body, headers:)
+    context 'with an error response' do
+      let(:user) { build(:user, :error) }
 
-    #       expect(response).to have_http_status(:bad_request)
-    #       expect(response).to match_response_schema('errors')
-    #     end
-    #   end
+      before do
+        allow_any_instance_of(User).to receive(:vet360_id).and_return('6767671')
+      end
 
-    #   it 'matches the errors response camel-inflected schema', :aggregate_failures do
-    #     VCR.use_cassette('va_profile/v2/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
-    #       post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers_with_camel)
+      it 'matches the errors response schema', :aggregate_failures do
+        VCR.use_cassette('va_profile/v2/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
+          post('/v0/profile/initialize_vet360_id', params: empty_body, headers:)
 
-    #       expect(response).to have_http_status(:bad_request)
-    #       expect(response).to match_camelized_response_schema('errors')
-    #     end
-    #   end
-    # end
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_response_schema('errors')
+        end
+      end
+
+      it 'matches the errors response camel-inflected schema', :aggregate_failures do
+        VCR.use_cassette('va_profile/v2/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
+          post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('errors')
+        end
+      end
+    end
   end
 
   describe 'GET /v0/profile/person/status/:transaction_id v2' do

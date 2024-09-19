@@ -37,18 +37,9 @@ describe VAProfile::V2::Person::Service, :skip_vet360 do
       end
     end
 
-    context 'with a passed in ICN' do
-      it 'initiates an asynchronous VAProfile transaction', :aggregate_failures do
-        VCR.use_cassette('va_profile/v2/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
-          response = subject.init_vet360_id
-
-          expect(response.transaction.id).to be_present
-          expect(response.transaction.status).to be_present
-        end
-      end
-    end
-
     context 'with a 400 response' do
+      let(:user) { build(:user, :error) }
+
       it 'raises an exception', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
           expect { subject.init_vet360_id }.to raise_error do |e|

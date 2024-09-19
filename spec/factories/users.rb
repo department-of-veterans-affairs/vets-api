@@ -165,8 +165,8 @@ FactoryBot.define do
       loa do
         { current: LOA::THREE, highest: LOA::THREE }
       end
-
-      idme_uuid { '6767671' }
+      vet360_id { '6767671' }
+      idme_uuid { nil }
     end
 
     trait :accountable do

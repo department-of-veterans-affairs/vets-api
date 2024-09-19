@@ -47,11 +47,10 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
     context 'when not successful' do
       let(:user) { build(:user, :error) }
-      let(:vet360_id) { '6767671' }
 
       context 'with a 400 error' do
         it 'returns nil person' do
-          VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/person_response_error', VCR::MATCH_EVERYTHING) do
             response = subject.get_person
             expect(response).not_to be_ok
             expect(response.person).to be_nil

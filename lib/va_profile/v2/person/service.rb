@@ -27,7 +27,8 @@ module VAProfile
         #
         def init_vet360_id
           with_monitoring do
-            raw_response = perform(:post, path, empty_body)
+            raw_response = perform(:post, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}",
+                                   empty_body)
             VAProfile::V2::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
           end
         rescue => e
@@ -41,13 +42,9 @@ module VAProfile
         def icn_with_aaid
           return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
           return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
-          return "#{vet360_id}^PI^200VETS^USDVA" if @user.idme_uuid.blank? && @user.logingov_uuid.blank?
+          return "#{@user.vet360_id}^PI^200VETS^USDVA" if @user.idme_uuid.blank? && @user.logingov_uuid.blank?
 
           nil
-        end
-
-        def path
-          "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}"
         end
 
         def empty_body
