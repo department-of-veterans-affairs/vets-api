@@ -18,4 +18,10 @@ FactoryBot.define do
     file_number { (1..9).map(&digit).join }
     icn { SecureRandom.uuid }
   end
+
+  factory :vye_user_profile_td_number, class: 'Vye::UserProfile' do
+    ssn { '123456789' }
+    file_number { '123456789' }
+    icn { SecureRandom.uuid }
+  end
 end

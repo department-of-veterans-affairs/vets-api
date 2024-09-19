@@ -282,8 +282,6 @@ vet360:
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
-  health_benefit:
-    mock: true
   profile_information:
     enabled: true
     timeout: 30
