@@ -172,7 +172,8 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload = FactoryBot.create(:upload_submission,
                                  status: 'error',
                                  code: 'MAV505',
-                                 detail: 'Mav Error')
+                                 s3_deleted: false)
+      upload.s3_deleted = true
       upload.save!
       expect(upload.detail).to eq('Mav Error')
       expect(upload.code).to eq('MAV505')

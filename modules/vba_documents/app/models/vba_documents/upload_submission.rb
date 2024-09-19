@@ -20,8 +20,6 @@ module VBADocuments
     after_find :set_initial_status
     attr_reader :current_status
 
-
-
     COMPLETED_UPLOAD_SUCCEEDED = 'UploadSucceeded'
     COMPLETED_DOWNLOAD_CONFIRMED = 'DownloadConfirmed'
     COMPLETED_UNIDENTIFIABLE_MAIL = 'UnidentifiableMail'

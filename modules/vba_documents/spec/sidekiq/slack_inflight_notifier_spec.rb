@@ -32,6 +32,7 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
 
   context 'summary notification' do
     let(:upload_submission) { VBADocuments::UploadSubmission.create(status: 'received') }
+
     before do
       upload_submission.metadata['status']['received']['start'] = 15.minutes.ago.to_i
       upload_submission.save!

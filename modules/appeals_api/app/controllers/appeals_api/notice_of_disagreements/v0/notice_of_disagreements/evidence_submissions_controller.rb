@@ -49,7 +49,7 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
         return render json: { errors: [error] }, status: error[:title].to_sym
       end
 
-      upload = VBADocuments::UploadSubmission.create!(consumer_name: 'appeals_api_nod_evidence_submission')
+      upload = VBADocuments::UploadSubmission.create! consumer_name: 'appeals_api_nod_evidence_submission'
       submission = AppealsApi::EvidenceSubmission.create!(
         {
           source: request.headers['X-Consumer-Username'],

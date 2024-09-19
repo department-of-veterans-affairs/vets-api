@@ -23,7 +23,7 @@ module AppealsApi::V1
                                                                              'NoticeOfDisagreement').call
 
           if status == :ok
-            upload = VBADocuments::UploadSubmission.create!(consumer_name: 'appeals_api_nod_evidence_submission')
+            upload = VBADocuments::UploadSubmission.create! consumer_name: 'appeals_api_nod_evidence_submission'
             submission = AppealsApi::EvidenceSubmission.create! submission_attributes.merge(upload_submission: upload)
 
             render status: :accepted,
