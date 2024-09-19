@@ -216,6 +216,7 @@ module VAProfile
         def icn_with_aaid
           return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
           return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
+          return "#{vet360_id}^PI^200VETS^USDVA" if @user.idme_uuid.blank? && @user.logingov_uuid.blank?
 
           nil
         end
