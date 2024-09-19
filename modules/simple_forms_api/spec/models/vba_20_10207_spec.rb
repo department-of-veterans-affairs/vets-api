@@ -131,30 +131,4 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       end
     end
   end
-
-  describe 'handle_attachments' do
-    it 'saves the merged pdf' do
-      merged_pdf = double(pages: [])
-      attachment = double
-      page = double
-      attachment_pdf = double(pages: [page])
-      original_file_path = 'original-file-path'
-      raw_attachment = double(to_pdf: attachment)
-      allow(PersistentAttachment).to receive(:where).and_return([raw_attachment])
-      form = SimpleFormsApi::VBA2010207.new(
-        {
-          'financial_hardship_documents' => [{ confirmation_code: double }],
-          'als_documents' => [{ confirmation_code: double }]
-        }
-      )
-      allow(HexaPDF::Document).to receive(:open).with(original_file_path).and_return(merged_pdf)
-      allow(HexaPDF::Document).to receive(:open).with(attachment).and_return(attachment_pdf)
-      allow(merged_pdf).to receive(:import).with(page)
-      allow(merged_pdf).to receive(:write).with(original_file_path, optimize: true)
-
-      form.handle_attachments(original_file_path)
-
-      expect(merged_pdf).to have_received(:write).with(original_file_path, optimize: true)
-    end
-  end
 end

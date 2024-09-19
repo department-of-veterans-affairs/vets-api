@@ -75,27 +75,6 @@ module SimpleFormsApi
         @data.dig('non_veteran_mailing_address', 'country') == 'USA'
     end
 
-    def handle_attachments(file_path)
-      attachments = get_attachments
-      if attachments.count.positive?
-        merged_pdf = HexaPDF::Document.open(file_path)
-        attachments.each do |attachment|
-          attachment_pdf = HexaPDF::Document.open(attachment)
-          attachment_pdf.pages.each do |page|
-            merged_pdf.pages << merged_pdf.import(page)
-          end
-        rescue => e
-          Rails.logger.error(
-            'Simple forms api - failed to load attachment for 20-10207',
-            { message: e.message, attachment: attachment.inspect }
-          )
-          raise
-        end
-
-        merged_pdf.write(file_path, optimize: true)
-      end
-    end
-
     def desired_stamps
       coords = if %w[veteran non-veteran].include? data['preparer_type']
                  [[50, 685]]
