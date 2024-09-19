@@ -7,8 +7,12 @@ describe Mobile::V0::Profile::SyncUpdateService do
   let(:service) { Mobile::V0::Profile::SyncUpdateService.new(user) }
 
   # DO THIS
-  Flipper.disable(:va_v3_contact_information_service)
   describe '#save_and_await_response' do
+    before do
+      Flipper.disable(:mobile_v2_contact_info)
+      Flipper.disable(:va_v3_contact_information_service)
+    end
+
     let(:params) { build(:va_profile_address, vet360_id: user.vet360_id, validation_key: nil) }
 
     context 'when it succeeds after one incomplete status check' do
@@ -83,16 +87,28 @@ describe Mobile::V0::Profile::SyncUpdateService do
       end
     end
   end
+
   # Correct in another PR
   # describe '#v2_save_and_await_response' do
   #   before do
+  #     Flipper.enable(:mobile_v2_contact_info)
   #     Flipper.enable(:va_v3_contact_information_service)
   #   end
 
   #   after do
+  #     Flipper.disable(:mobile_v2_contact_info)
   #     Flipper.disable(:va_v3_contact_information_service)
   #   end
 
+  #   let(:user) { create(:user, :api_auth_v2) }
+
+  #   let(:params) { build(:va_profile_address_v2, :override, validation_key: nil) }
+
+  #   context 'when it succeeds' do
+  #     let(:transaction) do
+  #       VCR.use_cassette('va_profile/v2/put_address_transaction_status') do
+  #         VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
+  #           service.save_and_await_response(resource_type: :address, params:, update: true)
   #   let(:params) { build(:va_profile_address, :contact_info_v2, validation_key: nil) }
 
   #   context 'when it succeeds after one incomplete status check' do
