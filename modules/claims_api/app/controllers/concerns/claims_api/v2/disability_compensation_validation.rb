@@ -72,10 +72,6 @@ module ClaimsApi
         validate_form_526_coa_address_line_one_presence(change_of_address, form_object_desc)
         validate_form_526_coa_country_presence(change_of_address, form_object_desc)
         validate_form_526_coa_city_presence(change_of_address, form_object_desc)
-
-        coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
-
-        collect_error_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
       end
 
       def validate_form_526_coa_type_of_address_change_presence(change_of_address, form_object_desc)
@@ -101,6 +97,7 @@ module ClaimsApi
       def validate_form_526_change_of_address_beginning_date
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'beginDate')
+        return if date.nil? # nullable on schema
 
         # If the date parse fails, then fall back to the InvalidFieldValue
         begin
@@ -121,17 +118,18 @@ module ClaimsApi
             source: '/changeOfAddress/dates/endDate'
           )
         end
-        return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
+
         return if change_of_address['dates']['beginDate'].blank? # nothing to check against
 
-        form_object_desc = 'a TEMPORARY change of address'
+        # cannot compare invalid dates so need to return here if date is invalid
+        return unless date_is_valid?(date, 'changeOfAddress/dates/endDate')
 
-        collect_error_if_value_not_present('end date', form_object_desc) if date.blank?
-
-        return if Date.strptime(date,
-                                '%Y-%m-%d') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
-
-        collect_error_messages(source: '/changeOfAddress/dates/endDate', detail: 'endDate is not a valid date.')
+        if Date.strptime(date, '%Y-%m-%d') < Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
+          collect_error_messages(
+            source: '/changeOfAddress/dates/endDate',
+            detail: 'endDate needs to be after beginDate.'
+          )
+        end
       end
 
       def validate_form_526_change_of_address_country
@@ -156,12 +154,23 @@ module ClaimsApi
 
       def validate_form_526_change_of_address_zip
         address = form_attributes['changeOfAddress'] || {}
-        if address['country'] == 'USA' && address['zipFirstFive'].blank?
+        validate_form_526_usa_coa_conditions(address) if address['country'] == 'USA'
+      end
+
+      def validate_form_526_usa_coa_conditions(address)
+        if address['zipFirstFive'].blank?
           collect_error_messages(
-            source: '/changeOfAddress/zipFirstFive',
+            source: '/changeOfAddress/',
             detail: 'The zipFirstFive is required if the country is USA.'
           )
-        elsif address['country'] == 'USA' && address['internationalPostalCode'].present?
+        end
+        if address['state'].blank?
+          collect_error_messages(
+            source: '/changeOfAddress/',
+            detail: 'The state is required if the country is USA.'
+          )
+        end
+        if address['internationalPostalCode'].present?
           collect_error_messages(
             source: '/changeOfAddress/internationalPostalCode',
             detail: 'The internationalPostalCode should not be provided if the country is USA.'

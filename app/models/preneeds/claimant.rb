@@ -22,7 +22,7 @@ module Preneeds
   # @!attribute address
   #   @return [Preneeds::Address] claimant's address
   #
-  class Claimant < Preneeds::Base
+  class Claimant < Preneeds::VirtusBase
     attribute :date_of_birth, String
     attribute :desired_cemetery, String
     attribute :email, String

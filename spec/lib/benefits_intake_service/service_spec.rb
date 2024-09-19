@@ -32,4 +32,35 @@ RSpec.describe BenefitsIntakeService::Service do
       expect(job.generate_metadata(metadata)).to eq(expected_response)
     end
   end
+
+  describe 'valid_document?' do
+    let(:validator) { double('validator') }
+    let(:validator_response) { double('validator_response') }
+    let(:response) { double('response') }
+    let(:document) { 'random/path/to/pdf' }
+
+    before do
+      allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(validator)
+      allow(validator).to receive(:validate).and_return(validator_response)
+      allow(job).to receive(:validate_document).and_return(response)
+    end
+
+    it 'returns a pdf path' do
+      allow(validator_response).to receive(:valid_pdf?).and_return(true)
+      allow(response).to receive(:success?).and_return(true)
+      expect(job.valid_document?(document:)).to eq(document)
+    end
+
+    it 'raises an error for invalid pdf validation' do
+      allow(validator_response).to receive_messages(valid_pdf?: false,
+                                                    errors: 'Maximum page size exceeded. Limit is 78 in x 101 in.')
+      expect { job.valid_document?(document:) }.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
+    end
+
+    it 'raises an error for invalid Lighthouse validation' do
+      allow(validator_response).to receive_messages(valid_pdf?: true)
+      allow(response).to receive(:success?).and_return(false)
+      expect { job.valid_document?(document:) }.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
+    end
+  end
 end
