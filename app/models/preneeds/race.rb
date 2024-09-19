@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Preneeds
-  class Race < Preneeds::Base
+  class Race < Preneeds::VirtusBase
     ATTRIBUTE_MAPPING = {
       'I' => :is_american_indian_or_alaskan_native,
       'A' => :is_asian,
