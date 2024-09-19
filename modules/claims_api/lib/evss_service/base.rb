@@ -21,6 +21,7 @@ module ClaimsApi
 
       def submit(claim, data, async = true) # rubocop:disable Style/OptionalBooleanParameter
         @auth_headers = claim.auth_headers
+        
         begin
           resp = client.post('submit', data)&.body&.deep_symbolize_keys
           log_outcome_for_claims_api('submit', 'success', resp, claim) # return is for v1 Sidekiq worker
