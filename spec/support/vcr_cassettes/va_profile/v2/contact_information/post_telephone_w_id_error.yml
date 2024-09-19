@@ -2,13 +2,15 @@
 http_interactions:
 - request:
     method: post
-    uri:  <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA/telephones
+    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA/telephones
     body:
       encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2024-08-27T18:51:06.012Z","sourceSystemUser":"1234","telephoneId":42,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true,"effectiveStartDate":null,"effectiveEndDate":null}}'
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2024-08-27T18:51:06.012Z","sourceSystemUser":"1234","telephoneId":42,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"vet360Id":"1781151","voiceMailAcceptableInd":true,"effectiveStartDate":null,"effectiveEndDate":null}}'
     headers:
       User-Agent:
       - Vets.gov Agent
+      Accept:
+      - application/json
       Content-Type:
       - application/json
       Cufsystemname:
@@ -26,10 +28,10 @@ http_interactions:
       - 'true'
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-1797406745", dtSInfo;desc="0"
-      - dtRpid;desc="2010060216", dtSInfo;desc="0"
+      - dtRpid;desc="-1564143816", dtSInfo;desc="0"
+      - dtRpid;desc="-55644277", dtSInfo;desc="0"
       Vaprofiletxauditid:
-      - b917b68b-1478-4d33-8134-2a085097bd99
+      - b6978199-1cee-4e6c-8aab-0208af799265
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
@@ -46,7 +48,7 @@ http_interactions:
       - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
         about: blob: ws: wss:'
       Date:
-      - Tue, 27 Aug 2024 19:14:16 GMT
+      - Thu, 12 Sep 2024 23:43:52 GMT
       Referrer-Policy:
       - no-referrer
       Content-Type:
@@ -58,6 +60,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"messages":[{"code":"PHON124","key":"telephoneId.Null","text":"must
-        be null","severity":"ERROR"}],"txAuditId":"e7cd03a0-0ebe-459f-9518-e2dba9d32dff","status":"REJECTED"}'
-  recorded_at: Tue, 27 Aug 2024 19:14:17 GMT
+        be null","severity":"ERROR"}],"txAuditId":"773085ef-a137-400f-acf2-636f97326eb6","status":"REJECTED"}'
+  recorded_at: Thu, 12 Sep 2024 23:43:52 GMT
 recorded_with: VCR 6.3.1
