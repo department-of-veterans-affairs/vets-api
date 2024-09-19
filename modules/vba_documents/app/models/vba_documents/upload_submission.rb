@@ -10,12 +10,17 @@ module VBADocuments
     include SetGuid
     include SentryLogging
     include Webhooks
+
+    attribute :s3_deleted, default: false
+
     send(:validates_uniqueness_of, :guid)
     before_save :record_status_change, if: :status_changed?
     before_save :clear_resolved_error
     after_save :report_errors
     after_find :set_initial_status
     attr_reader :current_status
+
+
 
     COMPLETED_UPLOAD_SUCCEEDED = 'UploadSucceeded'
     COMPLETED_DOWNLOAD_CONFIRMED = 'DownloadConfirmed'

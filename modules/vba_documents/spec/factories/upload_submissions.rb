@@ -24,7 +24,6 @@ FactoryBot.define do
     status { 'pending' }
     consumer_id { 'f7027a14-6abd-4087-b397-3d84d445f4c3' }
     consumer_name { 'adhoc' }
-    s3_deleted { false }
 
     trait :status_received do
       status { 'received' }
@@ -77,6 +76,5 @@ FactoryBot.define do
     status { 'received' }
     consumer_id { 'f7027a14-6abd-4087-b397-3d84d445f4c2' }
     consumer_name { 'adhoc' }
-    s3_deleted { false }
   end
 end

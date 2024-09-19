@@ -23,8 +23,7 @@ module AppealsApi::V2
                                                                              'SupplementalClaim').call
 
           if status == :ok
-            upload = VBADocuments::UploadSubmission.create!(consumer_name: 'appeals_api_sc_evidence_submission',
-                                                            s3_deleted: false)
+            upload = VBADocuments::UploadSubmission.create!(consumer_name: 'appeals_api_sc_evidence_submission')
             submission = AppealsApi::EvidenceSubmission.create! submission_attributes.merge(upload_submission: upload)
 
             render status: :accepted,

@@ -22,8 +22,7 @@ module VBADocuments
         VBADocuments::UploadSubmission.transaction do
           submission = VBADocuments::UploadSubmission.create(
             consumer_name: request.headers['X-Consumer-Username'],
-            consumer_id: request.headers['X-Consumer-ID'],
-            s3_deleted: false
+            consumer_id: request.headers['X-Consumer-ID']
           )
           observers = params[:observers]
           if observers.respond_to? :read

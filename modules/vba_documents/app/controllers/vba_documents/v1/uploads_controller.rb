@@ -14,8 +14,7 @@ module VBADocuments
       def create
         submission = VBADocuments::UploadSubmission.create(
           consumer_name: request.headers['X-Consumer-Username'],
-          consumer_id: request.headers['X-Consumer-ID'],
-          s3_deleted: false
+          consumer_id: request.headers['X-Consumer-ID']
         )
         submission.metadata['version'] = 1
         submission.save!

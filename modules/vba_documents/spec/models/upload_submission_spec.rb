@@ -172,9 +172,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload = FactoryBot.create(:upload_submission,
                                  status: 'error',
                                  code: 'MAV505',
-                                 detail: 'Mav Error',
-                                 s3_deleted: false)
-      upload.s3_deleted = true
+                                 detail: 'Mav Error')
       upload.save!
       expect(upload.detail).to eq('Mav Error')
       expect(upload.code).to eq('MAV505')
@@ -418,7 +416,11 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(saved).to eq(false)
     end
 
-    it 'defaults s3_deleted to false when creating new records'
+    it 'defaults s3_deleted to false when creating new records' do
+      upload1 = VBADocuments::UploadSubmission.new
+      upload1.save
+      expect(upload1.s3_deleted).to eq(false)
+    end
   end
 
   context 'aged_processing' do
