@@ -7,12 +7,12 @@ http_interactions:
       encoding: UTF-8
       string: '{"bio":{"sourceDate":"2024-09-16T16:09:37Z"}}'
     headers:
+      User-Agent:
+      - Vets.gov Agent
       Accept:
       - application/json
       Content-Type:
       - application/json
-      User-Agent:
-      - Vets.gov Agent
       Cufsystemname:
       - VETSGOV
       Accept-Encoding:

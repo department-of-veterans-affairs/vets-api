@@ -16,7 +16,7 @@ module Preneeds
   # @!attribute date_range
   #   @return [Preneeds::DateRange] service date range
   #
-  class ServiceRecord < Preneeds::Base
+  class ServiceRecord < Preneeds::VirtusBase
     attribute :service_branch, String
     attribute :discharge_type, String
     attribute :highest_rank, String
