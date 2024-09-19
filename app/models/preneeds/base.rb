@@ -14,19 +14,18 @@ module Preneeds
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
 
-    @attributes = Concurrent::Map.new
+    @attributes = {}.freeze
 
     class << self
-
       # class variable attributes won't work so this is
       # the only way for it to work. Thread safety shouldn't
-      # matter because @attributes are the same across all thread
-      # they are set by the class
+      # matter because @attributes is the same across all thread
+      # they are set by the class.
       # rubocop:disable ThreadSafety/InstanceVariableInClassMethod
       def attributes
         @attributes ||= {}
       end
-      # rubocop:enabled ThreadSafety/InstanceVariableInClassMethod
+      # rubocop:enable ThreadSafety/InstanceVariableInClassMethod
 
       # Class method to define a setter & getter for attribute
       # this will also coerce a hash to the require class
