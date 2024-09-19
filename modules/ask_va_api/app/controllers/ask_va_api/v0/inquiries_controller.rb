@@ -9,17 +9,7 @@ module AskVAApi
 
       def index
         inquiries = retriever.call
-
-        paginated_collection = WillPaginate::Collection.create(
-          pagination_params[:page],
-          pagination_params[:per_page],
-          inquiries.length
-        ) do |pager|
-          pager.replace inquiries[pager.offset, pager.per_page]
-        end
-
-        options = meta_pagination(paginated_collection, pagination_params)
-        render json: Inquiries::Serializer.new(paginated_collection, meta: options).serializable_hash, status: :ok
+        render json: Inquiries::Serializer.new(inquiries).serializable_hash, status: :ok
       end
 
       def show

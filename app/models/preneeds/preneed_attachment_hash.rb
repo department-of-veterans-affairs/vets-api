@@ -11,7 +11,7 @@ module Preneeds
   # @!attribute name
   #   @return [String] attachment file name
   #
-  class PreneedAttachmentHash < Preneeds::Base
+  class PreneedAttachmentHash < Preneeds::VirtusBase
     attribute :confirmation_code, String
     attribute :attachment_id, String
     attribute :name, String

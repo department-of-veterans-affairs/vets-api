@@ -199,6 +199,12 @@ development: &defaults
   brd_response_store:
     namespace: brd_response_store
     each_ttl: 82800
+  bgs_find_poas_response:
+    namespace: bgs_find_poas_response
+    each_ttl: 86400
+  travel_pay_store:
+    namespace: travel-pay-store
+    each_ttl: 3300 # 55 minutes
 test:
   <<: *defaults
   redis:

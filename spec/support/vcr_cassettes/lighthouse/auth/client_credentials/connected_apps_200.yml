@@ -15,6 +15,10 @@ http_interactions:
       - application/json
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      accesskey:
+      - TESTKEY
   response:
     status:
       code: 200
@@ -25,5 +29,5 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: '{"apps":[{"clientId":"0oa2ey2m6kEL2897N2p7","label":"someLabel1","href":"logoName","status":"ACTIVE","grants":[{"connectionDate":"2024-01-11T18:58:61.000Z","scopeTitle":"Read Claim Information"},{"connectionDate":"2024-01-15T18:52:61.000Z","scopeTitle":"Submit Claims"}]},{"clientId":"0oa2ey2m6kEL2897N2p7","label":"someLabel2","href":"logoName","status":"ACTIVE","grants":[{"connectionDate":"2024-01-11T03:05:61.000Z","scopeTitle":"Disability rating"},{"connectionDate":"2024-01-15T17:61:49.000Z","scopeTitle":"Patient ID"},{"connectionDate":"2024-01-15T19:61:49.000Z","scopeTitle":"Demographic information"}]}]}'
-    http_version: 
+    http_version:
   recorded_at: Wed, 07 Nov 2018 14:57:37 GMT

@@ -83,7 +83,6 @@ unless ENV['NOCOVERAGE']
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
-    add_group 'Pensions', 'modules/pensions/'
     # End Modules
 
     if ENV['CI']

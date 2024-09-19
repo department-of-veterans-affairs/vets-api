@@ -1,4 +1,4 @@
-<table>
+<table class="counts">
   <thead>
     <tr>
         <th>consumer</th>
@@ -12,7 +12,7 @@
   <tbody>
     <% claims_consumers.each do |consumer| %>
       <tr>
-        <td class="left-align"><%= consumer.keys[0] %></td>
+        <td class="left-align"><%= consumer.keys.first %></td>
         <% ClaimsApi::AutoEstablishedClaim::ALL_STATUSES.map(&:to_sym).each do |status| %>
         <td class="right-align"><%= consumer.values.first[status] || 0 %></td>
         <% end %>

@@ -6,18 +6,38 @@ module SimpleFormsApi
   class VBA4010007
     include Virtus.model(nullify_blank: true)
     STATS_KEY = 'api.simple_forms_api.40_10007'
-
     attribute :data
 
     def initialize(data)
       @data = data
     end
 
+    def not_veteran?(form_data)
+      relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
+      relationship != '1' && relationship != 'veteran'
+    end
+
+    def dig_data(form_data, field_veteran, field_claimant)
+      not_veteran?(form_data) ? form_data.dig(*field_veteran) : form_data.dig(*field_claimant)
+    end
+
+    def veteran_or_claimant_first_name(form_data)
+      dig_data(form_data, %w[application veteran current_name first], %w[application claimant name first])
+    end
+
+    def veteran_or_claimant_last_name(form_data)
+      dig_data(form_data, %w[application veteran current_name last], %w[application claimant name last])
+    end
+
+    def veteran_or_claimant_file_number(form_data)
+      dig_data(form_data, %w[application veteran ssn], %w[application claimant ssn]) || ''
+    end
+
     def metadata
       {
-        'veteranFirstName' => @data.dig('application', 'claimant', 'name', 'first'),
-        'veteranLastName' => @data.dig('application', 'claimant', 'name', 'last'),
-        'fileNumber' => @data.dig('application', 'claimant', 'ssn')&.gsub('-', ''),
+        'veteranFirstName' => veteran_or_claimant_first_name(@data),
+        'veteranLastName' => veteran_or_claimant_last_name(@data),
+        'fileNumber' => veteran_or_claimant_file_number(@data)&.gsub('-', ''),
         'zipCode' => @data.dig('application', 'claimant', 'address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
@@ -61,7 +81,7 @@ module SimpleFormsApi
     end
 
     def words_to_remove
-      race_and_privacy + veteran_ssn_and_file_number + veteran_dates_of_birth_and_death + postal_code +
+      veteran_ssn_and_file_number + veteran_dates_of_birth_and_death + postal_code +
         phone_number + email
     end
 
@@ -315,19 +335,23 @@ module SimpleFormsApi
       end
     end
 
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     def handle_attachments(file_path)
       attachments = get_attachments
-      combined_pdf = CombinePDF.new
-      combined_pdf << CombinePDF.load(file_path)
 
+      merged_pdf = HexaPDF::Document.open(file_path)
       attachment_page_path = 'attachment_page.pdf'
       create_attachment_page(attachment_page_path)
-      combined_pdf << CombinePDF.load(attachment_page_path)
+      attachment_pdf = HexaPDF::Document.open(attachment_page_path)
+      attachment_pdf.pages.each do |page|
+        merged_pdf.pages << merged_pdf.import(page)
+      end
 
       if attachments.count.positive?
         attachments.each do |attachment|
-          combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
+          attachment_pdf = HexaPDF::Document.open(attachment)
+          attachment_pdf.pages.each do |page|
+            merged_pdf.pages << merged_pdf.import(page)
+          end
         rescue => e
           Rails.logger.error(
             'Simple forms api - failed to load attachment for 40-10007',
@@ -336,10 +360,11 @@ module SimpleFormsApi
           raise
         end
       end
-      combined_pdf.save file_path
 
+      merged_pdf.write(file_path, optimize: true)
       FileUtils.rm_f(attachment_page_path)
     end
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def track_user_identity(confirmation_number)
       identity = get_relationship_to_vet(@data.dig('application', 'claimant', 'relationship_to_vet'))
@@ -356,19 +381,6 @@ module SimpleFormsApi
     end
 
     private
-
-    def race_and_privacy
-      [
-        @data.dig('application', 'veteran', 'race', 'is_american_indian_or_alaskan_native'),
-        @data.dig('application', 'veteran', 'race', 'is_asian'),
-        @data.dig('application', 'veteran', 'race', 'is_black_or_african_american'),
-        @data.dig('application', 'veteran', 'race', 'is_spanish_hispanic_latino'),
-        @data.dig('application', 'veteran', 'race', 'not_spanish_hispanic_latino'),
-        @data.dig('application', 'veteran', 'race', 'is_native_hawaiian_or_other_pacific_islander'),
-        @data.dig('application', 'veteran', 'race', 'is_white'),
-        @data.dig('application', 'privacy_agreement_accepted')
-      ]
-    end
 
     def veteran_ssn_and_file_number
       [

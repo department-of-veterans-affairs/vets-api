@@ -14,7 +14,8 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
                                        track_create_error: nil, track_create_success: nil)
   end
 
-  it_behaves_like 'a controller that deletes an InProgressForm', 'pension_claim', 'pension_claim', '21P-527EZ'
+  it_behaves_like 'a controller that deletes an InProgressForm', 'pension_claim', 'pensions_module_pension_claim',
+                  '21P-527EZ'
 
   describe '#create' do
     let(:claim) { build(:pensions_module_pension_claim) }
