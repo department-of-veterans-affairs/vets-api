@@ -62,7 +62,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
 
     describe 'single relevant in_progress_form' do
       it 'delegates to VANotify::UserAccountJob' do
-        user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name')
+        user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name', uuid: 'uuid')
         allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
 
         allow(VANotify::UserAccountJob).to receive(:perform_async)
@@ -72,7 +72,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
           described_class.new.perform(in_progress_form.id)
         end
 
-        expect(VANotify::UserAccountJob).to have_received(:perform_async).with('icn', 'fake_template_id',
+        expect(VANotify::UserAccountJob).to have_received(:perform_async).with('uuid', 'fake_template_id',
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
                                                                          'date' => expiration_date,
@@ -113,7 +113,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
       end
 
        it 'delegates to VANotify::UserAccountJob if its the oldest in_progress_form' do
-        user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name')
+        user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name', uuid: 'uuid')
         allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
 
         allow(VANotify::UserAccountJob).to receive(:perform_async)
@@ -139,7 +139,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
         end
 
         # rubocop:disable Layout/LineLength
-        expect(VANotify::UserAccountJob).to have_received(:perform_async).with('icn', 'fake_template_id',
+        expect(VANotify::UserAccountJob).to have_received(:perform_async).with('uuid', 'fake_template_id',
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
 

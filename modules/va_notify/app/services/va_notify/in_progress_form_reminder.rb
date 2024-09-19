@@ -20,10 +20,10 @@ module VANotify
 
       if only_one_supported_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch(in_progress_form.form_id)
-        UserAccountJob.perform_async(veteran.icn, template_id, personalisation_details_single)
+        send_via_custom_job(template_id:)
       elsif oldest_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch('generic')
-        UserAccountJob.perform_async(veteran.icn, template_id, personalisation_details_multiple)
+        send_via_custom_job(template_id:, multiple_forms: true)
       end
     rescue VANotify::Veteran::MPINameError, VANotify::Veteran::MPIError
       nil
@@ -84,6 +84,14 @@ module VANotify
       end.join("\n^---\n")
       personalisation['first_name'] = veteran.first_name.upcase
       personalisation
+    end
+
+    def send_via_custom_job(template_id:, multiple_forms: false)
+      if Flipper.enabled?(:va_notify_user_account_job)
+        UserAccountJob.perform_async(veteran.uuid, template_id, multiple_forms ? personalisation_details_multiple : personalisation_details_single)
+      else
+        IcnJob.perform_async(veteran.icn, template_id, personalisation_details_single)
+      end
     end
   end
 end
