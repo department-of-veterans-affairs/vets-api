@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# Remediation guidelines:
+# https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md#manual-remediation-process-for-silently-failed-benefits-forms-older-than-2-weeks
 require 'faraday/multipart'
 
 module SimpleFormsApi
@@ -29,7 +31,9 @@ module SimpleFormsApi
         File.delete(payload_path) if payload_path
       end
 
-      # TODO: update this once OFO/VBA gives guidance
+      # Create a folder, and name it with the date you uploaded
+      # the failed forms and the form number of the type of form
+      # included. Example folder name 9.10.24-Form4142
       def build_payload_name; end
 
       # TODO: update this once OFO/VBA gives guidance
