@@ -4,7 +4,7 @@ module Preneeds
   # Parent class for other Preneeds Burial form related models
   # Should not be initialized directly
   #
-  class Base
+  class VirtusBase
     extend ActiveModel::Naming
     include Virtus.model(nullify_blank: true)
 
