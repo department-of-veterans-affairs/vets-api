@@ -34,7 +34,6 @@ module VAProfileRedis
       contact_info      = new
       contact_info.user = user
       contact_info.populate_from_redis
-
       contact_info
     end
 

@@ -8,7 +8,10 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
   let!(:user) { sis_user }
 
   describe 'update endpoints' do
+<<<<<<< HEAD
     Flipper.disable(:mobile_v2_contact_info)
+=======
+>>>>>>> f732efe0794a03a0204e71b6e867f5a2e0734c7d
     Flipper.disable(:va_v3_contact_information_service)
     let(:address) do
       address = build(:va_profile_address, vet360_id: user.vet360_id)
