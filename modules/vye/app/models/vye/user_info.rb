@@ -31,8 +31,10 @@ module Vye
     )
 
     def td_number
-      # some sort of code kto rotate ssn
-      # call out to ssn
+      return nil unless ssn
+
+      ssn_str = ssn.rjust(9, '0') # Just to be safe convert to string
+      (ssn_str[-2..] + ssn_str[0...-2])
     end
 
     def backend_address = address_changes.backend.first
