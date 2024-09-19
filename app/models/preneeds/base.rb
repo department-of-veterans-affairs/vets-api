@@ -11,7 +11,7 @@ class FalseClass; include Boolean; end
 module Preneeds
   class Base
     extend ActiveModel::Naming
-    include ActiveModel::Model
+    # include ActiveModel::Model
     include ActiveModel::Serializers::JSON
 
     # This class variable is an acceptable use case, because
@@ -71,6 +71,10 @@ module Preneeds
             unless value.all? { |item| item.is_a?(klass) }
               raise TypeError, "All elements of #{name} must be of type #{klass}"
             end
+          end
+
+          if klass == Boolean
+            value = ActiveModel::Type::Boolean.new.cast(value)
           end
 
           value = klass.new(value) if value.is_a?(Hash)
