@@ -21,10 +21,12 @@ module SimpleFormsApi
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
-    def initialize(form_data:, form_number:, confirmation_number:, notification_type: :confirmation, user: nil)
-      @form_data = form_data
-      @form_number = form_number
-      @confirmation_number = confirmation_number
+    def initialize(config, notification_type: :confirmation, user: nil)
+      check_missing_keys(config)
+
+      @form_data = config[:form_data]
+      @form_number = config[:form_number]
+      @confirmation_number = config[:confirmation_number]
       @notification_type = notification_type
       @user = user
     end
@@ -46,6 +48,11 @@ module SimpleFormsApi
     end
 
     private
+
+    def check_missing_keys(config)
+      missing_keys = %i[form_data form_number confirmation_number].select { |key| config[key].nil? }
+      raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
+    end
 
     # rubocop:disable Metrics/MethodLength
     # email and personalization hash

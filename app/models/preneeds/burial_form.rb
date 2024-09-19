@@ -33,7 +33,7 @@ module Preneeds
   # @!attribute veteran
   #   @return [Preneeds::Veteran] Veteran object.  Veteran is the person who is the owner of the benefit.
   #
-  class BurialForm < Preneeds::Base
+  class BurialForm < Preneeds::VirtusBase
     # Preneeds Burial Form official form id
     #
     FORM = '40-10007'

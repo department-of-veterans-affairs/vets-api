@@ -5,12 +5,24 @@ module Pensions
   # Pension 21P-527EZ Active::Record
   # @see app/model/saved_claim
   #
+  # todo: migrate encryption to Pensions::SavedClaim, remove inheritance and encrytion shim
+  #
   class SavedClaim < ::SavedClaim
     # We want to use the `Type` behavior but we want to override it with our custom type default scope behaviors.
     self.inheritance_column = :_type_disabled
 
     # We want to override the `Type` behaviors for backwards compatability
     default_scope -> { where(type: 'SavedClaim::Pension') }, all_queries: true
+
+    ##
+    # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
+    #
+    def kms_encryption_context
+      {
+        model_name: 'SavedClaim::Pension',
+        model_id: id
+      }
+    end
 
     # form_id, form_type
     FORM = '21P-527EZ'
@@ -89,16 +101,6 @@ module Pensions
       files.find_each { |f| f.update(saved_claim_id: id) }
 
       Pensions::PensionBenefitIntakeJob.perform_async(id, current_user&.user_account_uuid)
-    end
-
-    ##
-    # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
-    #
-    def kms_encryption_context
-      {
-        model_name: 'SavedClaim::Pension',
-        model_id: id
-      }
     end
   end
 end

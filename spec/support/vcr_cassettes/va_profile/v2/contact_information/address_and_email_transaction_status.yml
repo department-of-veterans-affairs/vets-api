@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/1/addresses/status/0faf342f-5966-4d3f-8b10-5e9f911d07d2
+    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/addresses/status/0faf342f-5966-4d3f-8b10-5e9f911d07d2
     body:
       encoding: US-ASCII
       string: ''
