@@ -259,6 +259,7 @@ bip:
 vet360:
   url: "https://int.vet360.va.gov"
   contact_information:
+    url: "https://qa.vaprofile.va.gov"
     cache_enabled: false
     enabled: true
     timeout: 30
@@ -281,8 +282,6 @@ vet360:
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
-  health_benefit:
-    mock: true
   profile_information:
     enabled: true
     timeout: 30
@@ -1310,6 +1309,8 @@ vanotify:
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
+        form21_10210_error_email: form21_10210_error_email_template_id
+        form21_10210_received_email: form21_10210_received_email_template_id
         form20_10206_confirmation_email: form20_10206_confirmation_email_template_id
         form20_10207_confirmation_email: form20_10207_confirmation_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id

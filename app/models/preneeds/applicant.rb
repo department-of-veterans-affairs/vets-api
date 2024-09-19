@@ -18,7 +18,7 @@ module Preneeds
   # @!attribute name
   #   @return [Preneeds::FullName] applicant's name
   #
-  class Applicant < Preneeds::Base
+  class Applicant < Preneeds::VirtusBase
     attribute :applicant_email, String
     attribute :applicant_phone_number, String
     attribute :applicant_relationship_to_claimant, String

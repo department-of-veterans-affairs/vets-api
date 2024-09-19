@@ -23,7 +23,7 @@ module ClaimsApi
       StandardDataWebServiceBean/StandardDataWebService
       TrackedItemService/TrackedItemService
       VDC/VeteranRepresentativeService
-      VdcBean/ManageRepresentativeService
+      VDC/ManageRepresentativeService
       VnpAtchmsWebServiceBean/VnpAtchmsService
       VnpPersonWebServiceBean/VnpPersonService
       VnpProcFormWebServiceBean/VnpProcFormService
