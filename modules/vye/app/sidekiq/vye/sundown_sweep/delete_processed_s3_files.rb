@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Vye
   class SundownSweep
     class DeleteProcessedS3Files
