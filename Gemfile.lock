@@ -512,13 +512,13 @@ GEM
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
+    google-protobuf (4.28.0)
+      bigdecimal
+      rake (>= 13)
     google-protobuf (4.28.0-java)
       bigdecimal
       ffi (~> 1)
       ffi-compiler (~> 1)
-      rake (>= 13)
-    google-protobuf (4.28.1)
-      bigdecimal
       rake (>= 13)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
@@ -778,7 +778,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (3.1.7)
+    rack (3.0.0)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -1231,7 +1231,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack
+  rack (= 3.0.0)
   rack-attack
   rack-cors
   rack-test (= 2.1.0)
