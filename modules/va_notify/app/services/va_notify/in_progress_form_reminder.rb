@@ -88,7 +88,9 @@ module VANotify
 
     def send_via_custom_job(template_id:, multiple_forms: false)
       if Flipper.enabled?(:va_notify_user_account_job)
-        UserAccountJob.perform_async(veteran.uuid, template_id, multiple_forms ? personalisation_details_multiple : personalisation_details_single)
+        UserAccountJob.perform_async(veteran.uuid,
+                                     template_id,
+                                     multiple_forms ? personalisation_details_multiple : personalisation_details_single)
       else
         IcnJob.perform_async(veteran.icn, template_id, personalisation_details_single)
       end
