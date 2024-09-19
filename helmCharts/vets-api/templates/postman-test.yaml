@@ -11,6 +11,6 @@ spec:
       imagePullPolicy: {{ .Values.image.pullPolicy }}
       env:
         - name: "API_URL"
-          value: "https://api.va.gov"
+          value: "http://vets-api-service"
   restartPolicy: Never
   
