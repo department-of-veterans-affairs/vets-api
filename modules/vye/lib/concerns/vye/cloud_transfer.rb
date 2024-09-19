@@ -86,7 +86,7 @@ module Vye
       when external_bucket
         raise ArgumentError, 'invalid external path' unless %w[inbound outbound].include?(path)
       when self.bucket
-        raise ArgumentError, 'invalid internal path' unless %w[scanned processed].include?(path)
+        raise ArgumentError, 'invalid internal path' unless %w[chunks scanned processed].include?(path)
       else
         raise ArgumentError, 'bucket must be either the internal one or the external one'
       end
@@ -107,14 +107,14 @@ module Vye
     # We need to clear out two buckets, scanned and chunked.
     # in scanned, we are only concerned with removing 2 files,
     # but in chunked, we want to remove everything.
-    def self.remove_aws_files_from_s3_buckets
+    def remove_aws_files_from_s3_buckets
       # remove from the scanned bucket
       [Vye::BatchTransfer::TimsChunk::FEED_FILENAME, Vye::BatchTransfer::BdnChunk::FEED_FILENAME].each do |filename|
         delete_file_from_bucket(:internal, "scanned/#{filename}")
       end
 
       # remove everything from the chunked bucket
-      clear_from(bucket_sym: :internal, path: 'chunked')
+      clear_from(path: 'chunks')
     end
   end
 end
