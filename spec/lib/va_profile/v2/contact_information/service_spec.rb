@@ -79,7 +79,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
             { va_profile: :person_not_found },
             :warning
           )
-
           response = subject.get_person
           expect(response).not_to be_ok
           expect(response.person).to be_nil

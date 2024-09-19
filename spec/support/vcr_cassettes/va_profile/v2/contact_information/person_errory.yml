@@ -2,21 +2,17 @@
 http_interactions:
 - request:
     method: get
-    uri:  <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/6767671%5EPI%5E200VETS%5EUSDVA
+    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/6767671%5EPI%5E200VETS%5EUSDVA
     body:
       encoding: US-ASCII
       string: ''
     headers:
       User-Agent:
-      - Vets.gov Agent
-      Content-Type:
-      - application/json
-      Cufsystemname:
-      - VETSGOV
-      Accept:
-      - application/json
+      - Faraday v2.8.1
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
   response:
     status:
       code: 404
@@ -26,10 +22,10 @@ http_interactions:
       - 'true'
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-1644700415", dtSInfo;desc="0"
-      - dtRpid;desc="52564847", dtSInfo;desc="0"
+      - dtRpid;desc="-794869179", dtSInfo;desc="0"
+      - dtRpid;desc="232376489", dtSInfo;desc="0"
       Vaprofiletxauditid:
-      - 0cc53fef-c27a-4d0c-a297-0ecd5f061511
+      - 9640ee00-9bb9-4fe5-a3d9-5e738b815208
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
@@ -46,7 +42,7 @@ http_interactions:
       - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
         about: blob: ws: wss:'
       Date:
-      - Thu, 29 Aug 2024 18:47:05 GMT
+      - Thu, 19 Sep 2024 21:49:39 GMT
       Referrer-Policy:
       - no-referrer
       Content-Type:
@@ -59,6 +55,6 @@ http_interactions:
       encoding: UTF-8
       string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","text":"The PersonBio
         for id/criteria 6767671^PI^200VETS^USDVA could not be found. Please correct
-        your request and try again!","severity":"ERROR"}],"txAuditId":"0cc53fef-c27a-4d0c-a297-0ecd5f061511","status":"COMPLETED_FAILURE"}'
-  recorded_at: Thu, 29 Aug 2024 18:47:05 GMT
+        your request and try again!","severity":"ERROR"}],"txAuditId":"9640ee00-9bb9-4fe5-a3d9-5e738b815208","status":"COMPLETED_FAILURE"}'
+  recorded_at: Thu, 19 Sep 2024 21:49:39 GMT
 recorded_with: VCR 6.3.1

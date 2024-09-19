@@ -39,7 +39,7 @@ module VAProfile
             PersonResponse.from(raw_response)
           end
         rescue Common::Client::Errors::ClientError => e
-          if e.status == 400
+          if e.status == 404
             log_exception_to_sentry(
               e,
               { vet360_id: },
