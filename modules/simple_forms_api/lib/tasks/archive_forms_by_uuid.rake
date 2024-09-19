@@ -8,7 +8,7 @@
 # Pass in new directory to override default:
 #    rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456,custom-directory]
 namespace :simple_forms_api do
-  desc 'Kick off the SubmissionArchiveHandlerJob to archive submissions to S3 and print presigned URLs'
+  desc 'Kick off the SubmissionArchiveHandler to archive submissions to S3 and print presigned URLs'
   task :archive_forms_by_uuid, %i[benefits_intake_uuids parent_dir] => :environment do |_, args|
     benefits_intake_uuids = args[:benefits_intake_uuids]&.split || []
     parent_dir = args[:parent_dir] || 'vff-simple-forms'
@@ -16,7 +16,7 @@ namespace :simple_forms_api do
     begin
       validate_input!(benefits_intake_uuids)
 
-      Rails.logger.info("Starting SubmissionArchiveHandlerJob for UUIDs: #{benefits_intake_uuids.join(', ')}")
+      Rails.logger.info("Starting SubmissionArchiveHandler for UUIDs: #{benefits_intake_uuids.join(', ')}")
 
       # Call the service object synchronously and get the presigned URLs
       handler = SimpleFormsApi::S3::SubmissionArchiveHandler.new(benefits_intake_uuids:, parent_dir:)
@@ -26,7 +26,7 @@ namespace :simple_forms_api do
       # the urls must be printed to console.
       handle_presigned_urls(presigned_urls)
 
-      Rails.logger.info('SubmissionArchiveHandlerJob completed successfully.')
+      Rails.logger.info('SubmissionArchiveHandler completed successfully.')
     rescue => e
       Rails.logger.error("Error occurred while archiving submissions: #{e.message}")
       puts 'An error occurred. Check logs for more details.'
