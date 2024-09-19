@@ -33,7 +33,7 @@ module Vye
     def td_number
       return nil unless ssn
 
-      ssn_str = ssn.rjust(9, '0') # Just to be safe convert to string
+      ssn_str = ssn.rjust(9, '0')
       (ssn_str[-2..] + ssn_str[0...-2])
     end
 
