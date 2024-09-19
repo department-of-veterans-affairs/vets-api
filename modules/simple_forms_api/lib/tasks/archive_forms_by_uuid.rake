@@ -18,9 +18,9 @@ namespace :simple_forms_api do
 
       Rails.logger.info("Starting SubmissionArchiveHandlerJob for UUIDs: #{benefits_intake_uuids.join(', ')}")
 
-      # Run the job synchronously and get the presigned URLs
-      job_instance = SimpleFormsApi::S3::Jobs::SubmissionArchiveHandlerJob.new
-      presigned_urls = job_instance.perform(benefits_intake_uuids:, parent_dir:)
+      # Call the service object synchronously and get the presigned URLs
+      handler = SimpleFormsApi::S3::SubmissionArchiveHandler.new(benefits_intake_uuids:, parent_dir:)
+      presigned_urls = handler.upload
 
       # ArgoCD makes it impossible to download any files so
       # the urls must be printed to console.
