@@ -28,7 +28,7 @@ describe VANotify::OneTimeInProgressReminder, type: :worker do
         end
 
         # this would fail if VANotify::UserAccountJob received multiple invocations
-        expect(VANotify::UserAccountJob).to have_received(:perform_async).with('icn_here', 'some_template_id', personalisation)
+        expect(VANotify::UserAccountJob).to have_received(:perform_async).with(user_account.id, 'some_template_id', personalisation)
       end
     end
 
