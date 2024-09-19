@@ -78,25 +78,25 @@ describe TravelPay::ClaimsService do
       it 'returns a single claim when passed a valid id' do
         claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
         expected_claim = claims_data['data'].find { |c| c['id'] == claim_id }
-        service = TravelPay::Service.new
-        actual_claim = service.get_claim_by_id(user, claim_id)
+        service = TravelPay::ClaimsService.new
+        actual_claim = service.get_claim_by_id(*tokens, claim_id)
 
         expect(actual_claim).to eq(expected_claim)
       end
 
       it 'returns nil if a claim with the given id was not found' do
         claim_id = SecureRandom.uuid
-        service = TravelPay::Service.new
-        actual_claim = service.get_claim_by_id(user, claim_id)
+        service = TravelPay::ClaimsService.new
+        actual_claim = service.get_claim_by_id(*tokens, claim_id)
 
         expect(actual_claim).to eq(nil)
       end
 
       it 'throws an ArgumentException if claim_id is invalid format' do
         claim_id = 'this-is-definitely-a-uuid-right'
-        service = TravelPay::Service.new
+        service = TravelPay::ClaimsService.new
 
-        expect { service.get_claim_by_id(user, claim_id) }
+        expect { service.get_claim_by_id(*tokens, claim_id) }
           .to raise_error(ArgumentError, /valid v4 UUID/i)
       end
     end

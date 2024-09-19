@@ -16,7 +16,8 @@ module TravelPay
 
       def show
         begin
-          claim = service.get_claim_by_id(@current_user, params[:id])
+          token_service.get_tokens(@current_user) => { veis_token:, btsss_token: }
+          claim = claims_service.get_claim_by_id(veis_token, btsss_token, params[:id])
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
         end
