@@ -11,15 +11,23 @@ class FalseClass; include Boolean; end
 module Preneeds
   class Base
     extend ActiveModel::Naming
-    # include ActiveModel::Model
+    include ActiveModel::Model
     include ActiveModel::Serializers::JSON
 
-    # This class variable is an acceptable use case, because
-    # the values are only set via implicit receiver and the
-    # subclasses should have shared attributes
-    @@attributes = {} # rubocop:disable Style/ClassVars
+    @attributes = Concurrent::Map.new
 
     class << self
+
+      # class variable attributes won't work so this is
+      # the only way for it to work. Thread safety shouldn't
+      # matter because @attributes are the same across all thread
+      # they are set by the class
+      # rubocop:disable ThreadSafety/InstanceVariableInClassMethod
+      def attributes
+        @attributes ||= {}
+      end
+      # rubocop:enabled ThreadSafety/InstanceVariableInClassMethod
+
       # Class method to define a setter & getter for attribute
       # this will also coerce a hash to the require class
       # doesn't currently coerce scalar classes such as string to int
@@ -33,14 +41,14 @@ module Preneeds
         default = options[:default]
         array = options[:array] || false
 
-        @@attributes[name] = { type: klass, default:, array: }
+        attributes[name] = { type: klass, default:, array: }
 
         define_getter(name, default)
         define_setter(name, klass, array)
       end
 
       def attribute_set
-        @@attributes.keys
+        attributes.keys
       end
 
       private
@@ -73,9 +81,7 @@ module Preneeds
             end
           end
 
-          if klass == Boolean
-            value = ActiveModel::Type::Boolean.new.cast(value)
-          end
+          value = ActiveModel::Type::Boolean.new.cast(value) if klass == Boolean
 
           value = klass.new(value) if value.is_a?(Hash)
 
@@ -85,6 +91,14 @@ module Preneeds
             raise TypeError, "#{name} must be a #{klass}"
           end
         end
+      end
+    end
+
+    def initialize(params = {})
+      super
+      # Ensure all attributes have a defined value (default to nil)
+      self.class.attribute_set.each do |attr_name|
+        instance_variable_set("@#{attr_name}", nil) unless instance_variable_defined?("@#{attr_name}")
       end
     end
 
