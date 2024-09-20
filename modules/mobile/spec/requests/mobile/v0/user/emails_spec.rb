@@ -6,6 +6,7 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user }
+
   Flipper.disable(:mobile_v2_contact_info)
 
   describe 'POST /mobile/v0/user/emails' do
