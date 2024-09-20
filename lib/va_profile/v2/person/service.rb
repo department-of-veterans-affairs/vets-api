@@ -27,7 +27,7 @@ module VAProfile
         #
         def init_vet360_id
           with_monitoring do
-            raw_response = perform(:post, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}",
+            raw_response = perform(:post, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(uuid_with_aaid)}",
                                    empty_body)
             VAProfile::V2::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
           end
@@ -39,7 +39,7 @@ module VAProfile
 
         # @see https://ruby-doc.org/stdlib-2.3.0/libdoc/erb/rdoc/ERB/Util.html
         #
-        def icn_with_aaid
+        def uuid_with_aaid
           return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
           return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
           return "#{@user.vet360_id}^PI^200VETS^USDVA" if @user.idme_uuid.blank? && @user.logingov_uuid.blank?

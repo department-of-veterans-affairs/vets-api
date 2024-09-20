@@ -35,7 +35,7 @@ module VAProfile
         def get_person
           with_monitoring do
             vet360_id_present!
-            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}")
+            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(uuid_with_aaid)}")
             PersonResponse.from(raw_response)
           end
         rescue Common::Client::Errors::ClientError => e
@@ -213,7 +213,7 @@ module VAProfile
 
         private
 
-        def icn_with_aaid
+        def uuid_with_aaid
           return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
           return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
           return "#{vet360_id}^PI^200VETS^USDVA" if @user.idme_uuid.blank? && @user.logingov_uuid.blank?
@@ -290,7 +290,7 @@ module VAProfile
         def post_or_put_data(method, model, path, response_class)
           with_monitoring do
             vet360_id_present!
-            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
+            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(uuid_with_aaid)}" + "/#{path}"
             raw_response = perform(method, request_path, model.in_json)
             response_class.from(raw_response)
           end

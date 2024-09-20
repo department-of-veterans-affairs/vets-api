@@ -164,7 +164,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
       }.to_json
     end
 
-    context 'with a user that has an icn_with_aaid' do
+    context 'with a user that has an uuid_with_aaid' do
       it 'matches the transaction response schema', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           post('/v0/profile/initialize_vet360_id', params: empty_body, headers:)
