@@ -9,8 +9,6 @@ module V0
     skip_before_action :authenticate
     before_action :validate_service, only: [:show]
 
-    # NOTE: this endpoint is somewhat misleading.  Index gets data from PagerDuty and
-    # show only looks at GI bill scheduled downtime (and gets no data from PagerDuty)
     def index
       options = { params: { maintenance_windows: } }
       render json: BackendStatusesSerializer.new(backend_statuses, options)
@@ -23,6 +21,7 @@ module V0
 
     private
 
+    # NOTE: Data is from PagerDuty
     def backend_statuses
       @backend_statuses ||= ExternalServicesRedis::Status.new.fetch_or_cache
     end
@@ -31,6 +30,7 @@ module V0
       @maintenance_windows ||= MaintenanceWindow.end_after(Time.zone.now)
     end
 
+    # NOTE: Data is GI bill scheduled downtime
     def backend_status
       @backend_status ||= BackendStatus.new(name: backend_service)
     end
