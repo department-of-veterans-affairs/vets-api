@@ -41,6 +41,17 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
       '{:source=>"Common::Client::Errors::ClientError raised in DecisionReviewV1::Service", :code=>"DR_422"}'
   end
 
+  let(:response_error_body) do
+    {
+      'errors' => [{ 'title' => 'Missing required fields',
+                     'detail' => 'One or more expected fields were not found',
+                     'code' => '145',
+                     'source' => { 'pointer' => '/data/attributes' },
+                     'status' => '422',
+                     'meta' => { 'missing_fields' => ['form5103Acknowledged'] } }]
+    }
+  end
+
   before { sign_in_as(user) }
 
   describe '#create' do
@@ -94,6 +105,9 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
           backtrace: anything
         )
         expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:info).with({ message: nil, error_class: anything, error: anything,
+                                                      error_body: response_error_body })
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.failure')
 

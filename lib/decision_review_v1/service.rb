@@ -416,6 +416,7 @@ module DecisionReviewV1
         error_class: error.class,
         error:
       }
+      info[:error_body] = error.body if error.instance_of?(Common::Client::Errors::ClientError) && error.status == 422
       ::Rails.logger.info(info)
     end
 
