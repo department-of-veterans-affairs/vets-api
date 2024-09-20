@@ -20,7 +20,7 @@ module V0
 
     # TO-DO: After transition of Post-911 GI Bill to 24/7 availability, confirm show action
     # can be completely removed
-    # 
+    #
     # GET /v0/backend_statuses/:service
     def show
       @backend_service = params[:service]
@@ -34,7 +34,7 @@ module V0
         be_status.is_available = BenefitsEducation::Service.within_scheduled_uptime?
         be_status.uptime_remaining = BenefitsEducation::Service.seconds_until_downtime
       end
-   
+
       render json: BackendStatusSerializer.new(be_status)
     end
 
