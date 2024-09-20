@@ -121,7 +121,7 @@ module SimpleFormsApi
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
-        status, confirmation_number = upload_pdf(file_path, metadata, form)
+        status, confirmation_number, submission = upload_pdf(file_path, metadata, form)
 
         form.track_user_identity(confirmation_number)
 
@@ -129,12 +129,14 @@ module SimpleFormsApi
           'Simple forms api - sent to benefits intake',
           { form_number: params[:form_number], status:, uuid: confirmation_number }
         )
+        presigned_s3_url = send_pdf_to_s3(confirmation_number, file_path, metadata, submission)
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           send_confirmation_email(parsed_form_data, form_id, confirmation_number)
         end
 
-        { json: get_json(confirmation_number || nil, form_id), status: }
+        json = get_json(confirmation_number || nil, form_id, presigned_s3_url)
+        { json:, status: }
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
@@ -160,11 +162,11 @@ module SimpleFormsApi
       end
 
       def upload_pdf(file_path, metadata, form)
-        location, uuid = prepare_for_upload(form, file_path)
+        location, uuid, submission = prepare_for_upload(form, file_path)
         log_upload_details(location, uuid)
         response = perform_pdf_upload(location, file_path, metadata, form)
 
-        [response.status, uuid]
+        [response.status, uuid, submission]
       end
 
       def prepare_for_upload(form, file_path)
@@ -172,9 +174,9 @@ module SimpleFormsApi
                           form_id: get_form_id)
         location, uuid = lighthouse_service.request_upload
         stamp_pdf_with_uuid(form, uuid, file_path)
-        create_form_submission_attempt(uuid)
+        attempt = create_form_submission_attempt(uuid)
 
-        [location, uuid]
+        [location, uuid, attempt.form_submission]
       end
 
       def stamp_pdf_with_uuid(form, uuid, stamped_template_path)
@@ -211,6 +213,17 @@ module SimpleFormsApi
         }.compact
 
         lighthouse_service.perform_upload(**upload_params)
+      end
+
+      def send_pdf_to_s3(benefits_intake_uuid, file_path, metadata, submission)
+        submission_archiver = SimpleFormsApi::S3Service::SubmissionArchiver.new(
+          attachments: get_form_id == 'vba_20_10207' ? form.get_attachments : [],
+          benefits_intake_uuid:,
+          file_path:,
+          metadata:,
+          submission:
+        )
+        submission_archiver.run
       end
 
       def form_is264555_and_should_use_lgy_api
