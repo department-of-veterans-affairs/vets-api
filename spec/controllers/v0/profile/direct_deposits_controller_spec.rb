@@ -10,7 +10,6 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
     token = 'abcdefghijklmnop'
     allow_any_instance_of(DirectDeposit::Configuration).to receive(:access_token).and_return(token)
     allow(Rails.logger).to receive(:info)
-    Flipper.disable(:profile_show_direct_deposit_single_form)
   end
 
   describe '#show' do
