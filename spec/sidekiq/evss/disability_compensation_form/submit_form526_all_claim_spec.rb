@@ -459,6 +459,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                  submit_endpoint: 'claims_api')
         end
 
+        let(:headers) { { 'content-type' => 'application/json' } }
+
         before do
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
         end
@@ -474,7 +476,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         it 'retries UpstreamUnprocessableEntity errors' do
           body = { 'errors' => [{ 'status' => '422', 'title' => 'Backend Service Exception',
                                   'detail' => 'The claim failed to establish' }] }
-          headers = { 'content-type' => 'application/json' }
+
           allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
             .and_raise(Faraday::UnprocessableEntityError.new(
                          body:,
@@ -488,7 +490,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           body = { 'errors' => [{ 'status' => '422', 'title' => 'Backend Service Exception',
                                   'detail' => 'The claim failed to establish',
                                   'source' => { 'pointer' => 'data/attributes/' } }] }
-          headers = { 'content-type' => 'application/json' }
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
+            .and_raise(Faraday::UnprocessableEntityError.new(
+                         body:, status: 422, headers:
+                       ))
+          expect_non_retryable_error
+        end
+
+        it 'does not retry UnprocessableEntity errors with "retries will fail" in detail message' do
+          body = { 'errors' => [{ 'status' => '422', 'title' => 'Backend Service Exception',
+                                  'detail' => 'The claim failed to establish. rEtries WilL fAiL.',
+                                  'source' => { 'pointer' => 'data/attributes/' } }] }
           allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
             .and_raise(Faraday::UnprocessableEntityError.new(
                          body:, status: 422, headers:

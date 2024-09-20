@@ -205,7 +205,8 @@ module EVSS
         if error.instance_of?(Common::Exceptions::UnprocessableEntity)
           error_clone = error.deep_dup
           upstream_error = error_clone.errors.first.stringify_keys
-          unless upstream_error['source'].present? && upstream_error['source']['pointer'].present?
+          unless (upstream_error['source'].present? && upstream_error['source']['pointer'].present?) ||
+                 upstream_error['detail'].downcase.include?('retries will fail')
             error = Common::Exceptions::UpstreamUnprocessableEntity.new(errors: error.errors)
           end
         end
