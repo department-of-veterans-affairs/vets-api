@@ -5,11 +5,11 @@ require 'mhv/account_creation/service'
 module MHV
   module UserAccount
     class Creator
-      attr_reader :user_verification, :cached
+      attr_reader :user_verification, :break_cache
 
-      def initialize(user_verification:, cached: true)
+      def initialize(user_verification:, break_cache: false)
         @user_verification = user_verification
-        @cached = cached
+        @break_cache = break_cache
       end
 
       def perform
@@ -33,8 +33,9 @@ module MHV
       end
 
       def mhv_account_creation_response
-        MHV::AccountCreation::Service.new
-                                     .create_account(icn:, email:, tou_occurred_at: current_tou_agreement.created_at)
+        tou_occurred_at = current_tou_agreement.created_at
+
+        mhv_client.create_account(icn:, email:, tou_occurred_at:, break_cache:)
       end
 
       def icn
@@ -51,6 +52,10 @@ module MHV
 
       def user_account
         @user_account ||= user_verification.user_account
+      end
+
+      def mhv_client
+        MHV::AccountCreation::Service.new
       end
 
       def validate!
