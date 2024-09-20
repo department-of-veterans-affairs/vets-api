@@ -105,7 +105,7 @@ module ClaimsApi
       payload = {}
       auth_headers = claim.auth_headers
       veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'], auth_headers['va_eauth_lastName'])
-      birls_file_num = determine_birls_file_number(doc_type, auth_headers) if %w[L075 L190].include?(doc_type)
+      birls_file_num = determine_birls_file_number(doc_type, auth_headers)
       claim_id = get_claim_id(doc_type, claim)
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, action:)
       participant_id = pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)
@@ -122,9 +122,9 @@ module ClaimsApi
     end
 
     def determine_birls_file_number(doc_type, auth_headers)
-      if %w[L122 L705].include?(doc_type)
+      if %w[L122].include?(doc_type)
         birls_file_num = auth_headers['va_eauth_birlsfilenumber']
-      elsif %w[L075 L190].include?(doc_type)
+      elsif %w[L075 L190 L705].include?(doc_type)
         birls_file_num = nil
       end
       birls_file_num
