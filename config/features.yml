@@ -992,18 +992,6 @@ features:
   profile_show_credential_retirement_messaging:
     actor_type: user
     description: Show/hide MHV and DS Logon credential retirement messaging in profile
-  profile_show_direct_deposit_single_form:
-    actor_type: user
-    description: Show/hide the single direct deposit form in profile for all users
-  profile_show_direct_deposit_single_form_uat:
-    actor_type: user
-    description: Show/hide the single direct deposit form just for users during UAT only
-  profile_show_direct_deposit_single_form_alert:
-    actor_type: user
-    description: Show/hide an alert with information around migrating to a single direct deposit form in profile
-  profile_show_direct_deposit_single_form_edu_downtime:
-    actor_type: user
-    description: Show/hide the edu direct deposit form and instead display a downtime message in its place
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
