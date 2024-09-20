@@ -32,7 +32,7 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
       is_success: false,
       http: {
         status_code: 422,
-        body: anything
+        body: response_error_body
       }
     }
   end
@@ -105,9 +105,6 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
           backtrace: anything
         )
         expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
-        allow(Rails.logger).to receive(:info)
-        expect(Rails.logger).to receive(:info).with({ message: nil, error_class: anything, error: anything,
-                                                      error_body: response_error_body })
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.failure')
 
