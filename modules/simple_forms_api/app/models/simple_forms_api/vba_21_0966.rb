@@ -47,8 +47,8 @@ module SimpleFormsApi
     end
 
     def zip_code_is_us_based
-      @data.dig('veteran_mailing_address',
-                'country') == 'USA' || @data.dig('surviving_dependent_mailing_address', 'country') == 'USA'
+      @data.dig('veteran_mailing_address', 'country') == 'USA' ||
+        @data.dig('surviving_dependent_mailing_address', 'country') == 'USA'
     end
 
     def relationship_to_veteran_radio

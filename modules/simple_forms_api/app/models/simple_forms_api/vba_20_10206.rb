@@ -1,43 +1,26 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA2010206
-    include Virtus.model(nullify_blank: true)
+  class VBA2010206 < VBA::Base
     STATS_KEY = 'api.simple_forms_api.20_10206'
 
-    attribute :data
-
     def initialize(data)
-      @data = data
+      super(data)
+
+      @identity = data['preparer_type']
+      @country = data.dig('address', 'country')
     end
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('full_name', 'first'),
-        'veteranLastName' => @data.dig('full_name', 'last'),
-        'fileNumber' => @data.dig(
-          'citizen_id',
-          'ssn'
-        ) || @data.dig(
-          'citizen_id',
-          'va_file_number'
-        ) || @data.dig(
-          'non_citizen_id',
-          'arn'
-        ),
-        'zipCode' => @data.dig('address', 'postal_code'),
+        'veteranFirstName' => data.dig('full_name', 'first'),
+        'veteranLastName' => data.dig('full_name', 'last'),
+        'fileNumber' => fetch_nested_value(%w[citizen_id ssn], %w[citizen_id va_file_number], %w[non_citizen_id arn]),
+        'zipCode' => data.dig('address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
-        'docType' => @data['form_number'],
+        'docType' => data['form_number'],
         'businessLine' => 'CMP'
       }
-    end
-
-    def zip_code_is_us_based
-      @data.dig('address', 'country') == 'USA'
-    end
-
-    def desired_stamps
-      []
     end
 
     def submission_date_stamps(timestamp = Time.current)
@@ -55,12 +38,6 @@ module SimpleFormsApi
           font_size: 12
         }
       ]
-    end
-
-    def track_user_identity(confirmation_number)
-      identity = data['preparer_type']
-      StatsD.increment("#{STATS_KEY}.#{identity}")
-      Rails.logger.info('Simple forms api - 20-10206 submission user identity', identity:, confirmation_number:)
     end
   end
 end
