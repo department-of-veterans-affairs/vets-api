@@ -17,9 +17,9 @@ RSpec.configure do |config|
   # describe '...', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json'
 
   config.openapi_specs = [
+    RepresentationManagement,
     ClaimsApi,
-    AppealsApi,
-    RepresentationManagement
+    AppealsApi
   ].inject({}) do |acc, module_name|
     require_relative "#{module_name::Engine.root.join('spec', 'support')}/rswag_config"
     acc.merge(module_name::RswagConfig.new.config)
