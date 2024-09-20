@@ -91,8 +91,23 @@ class SavedClaim < ApplicationRecord
   def form_matches_schema
     return unless form_is_string
 
-    JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM], parsed_form).each do |v|
-      errors.add(:form, v.to_s)
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
+
+    schema_errors = JSON::Validator.fully_validate_schema(schema, { errors_as_objects: true })
+    unless schema_errors.empty?
+      Rails.logger.error('SavedClaim schema failed validation!', { errors: schema_errors })
+
+      raise 'SavedClaim schema failed validation!'
+    end
+
+    validation_errors = JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true })
+    
+    validation_errors.each do |e|
+      errors.add(e[:fragment], e[:message])
+    end
+
+    unless validation_errors.empty?
+      Rails.logger.warn('SavedClaim form did not pass validation', { guid: guid, errors: validation_errors})
     end
   end
 
