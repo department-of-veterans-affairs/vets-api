@@ -54,10 +54,12 @@ describe TravelPay::ClaimsService do
       )
     end
 
+    let(:tokens) { %w[veis_token btsss_token] }
+
     before do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims)
-        .with('veis_token', 'btsss_token')
+        .with(*tokens)
         .and_return(claims_response)
     end
 
@@ -65,10 +67,44 @@ describe TravelPay::ClaimsService do
       expected_statuses = ['In Progress', 'In Progress', 'Incomplete', 'Claim Submitted']
 
       service = TravelPay::ClaimsService.new
-      claims = service.get_claims('veis_token', 'btsss_token')
-      actual_statuses = claims[:data].pluck(:claimStatus)
+      claims = service.get_claims(*tokens)
+      actual_statuses = claims[:data].pluck('claimStatus')
 
       expect(actual_statuses).to match_array(expected_statuses)
+    end
+
+    context 'filter by appt date' do
+      it 'returns claims that match appt date if specified' do
+        service = TravelPay::ClaimsService.new
+        claims = service.get_claims(*tokens, { 'appt_datetime' => '2024-01-01' })
+
+        expect(claims.count).to equal(1)
+      end
+
+      it 'returns 0 claims if appt date does not match' do
+        service = TravelPay::ClaimsService.new
+        claims = service.get_claims(*tokens, { 'appt_datetime' => '1700-01-01' })
+
+        expect(claims[:data].count).to equal(0)
+      end
+
+      it 'returns all claims if appt date is invalid' do
+        service = TravelPay::ClaimsService.new
+        claims = service.get_claims(*tokens, { 'appt_datetime' => 'banana' })
+
+        expect(claims[:data].count).to equal(claims_data['data'].count)
+      end
+
+      it 'returns all claims if appt date is not specified' do
+        service = TravelPay::ClaimsService.new
+        claims_empty_date = service.get_claims(*tokens, { 'appt_datetime' => '' })
+        claims_nil_date = service.get_claims(*tokens, { 'appt_datetime' => 'banana' })
+        claims_no_param = service.get_claims(*tokens)
+
+        expect(claims_empty_date[:data].count).to equal(claims_data['data'].count)
+        expect(claims_nil_date[:data].count).to equal(claims_data['data'].count)
+        expect(claims_no_param[:data].count).to equal(claims_data['data'].count)
+      end
     end
   end
 end

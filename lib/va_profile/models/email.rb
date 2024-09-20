@@ -22,6 +22,7 @@ module VAProfile
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
+      attribute :vaprofile_id, String
 
       validates(
         :email_address,

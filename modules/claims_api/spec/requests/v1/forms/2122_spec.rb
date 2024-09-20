@@ -600,14 +600,16 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
 
         context 'and the request includes a dependent claimant' do
-          it 'calls validate_dependent_by_participant_id!' do
+          it 'calls validate_poa_code_exists! and validate_dependent_by_participant_id!' do
             mock_acg(scopes) do |auth_header|
               allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                 .to receive(:check_request_ssn_matches_mpi).and_return(nil)
               allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                 .to receive(:validate_json_schema).and_return(nil)
 
-              expect_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                .to receive(:validate_poa_code_exists!)
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
                 .to receive(:validate_dependent_by_participant_id!)
 
               post "#{path}/validate", params: data_with_claimant, headers: headers.merge(auth_header)
@@ -616,12 +618,14 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
 
         context 'and the request does not include a dependent claimant' do
-          it 'does not call validate_dependent_by_participant_id!' do
+          it 'calls neither validate_poa_code_exists! nor validate_dependent_by_participant_id!' do
             mock_acg(scopes) do |auth_header|
               allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                 .to receive(:check_request_ssn_matches_mpi).and_return(nil)
 
-              expect_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                .not_to receive(:validate_poa_code_exists!)
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
                 .not_to receive(:validate_dependent_by_participant_id!)
 
               post "#{path}/validate", params: data, headers: headers.merge(auth_header)
@@ -635,14 +639,16 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
           Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
         end
 
-        it 'does not call validate_dependent_by_participant_id!' do
+        it 'calls neither validate_poa_code_exists! nor validate_dependent_by_participant_id!' do
           mock_acg(scopes) do |auth_header|
             allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
               .to receive(:check_request_ssn_matches_mpi).and_return(nil)
             allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
               .to receive(:validate_json_schema).and_return(nil)
 
-            expect_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+            expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+              .not_to receive(:validate_poa_code_exists!)
+            expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
               .not_to receive(:validate_dependent_by_participant_id!)
 
             post "#{path}/validate", params: data_with_claimant, headers: headers.merge(auth_header)

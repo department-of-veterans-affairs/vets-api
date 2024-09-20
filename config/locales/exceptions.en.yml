@@ -485,6 +485,11 @@ en:
         <<: *validation_errors
         code: 'SM152'
         detail: 'Email address is invalid'
+      SM172:
+        <<: *external_defaults
+        code: 'SM172'
+        detail: 'Attachment scan failed'
+        status: 400
       SM900: # 'Mailbox Service Error'
         <<: *external_defaults
         code: 'SM900'
