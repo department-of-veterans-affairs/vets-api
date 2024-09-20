@@ -4,13 +4,13 @@ require 'rails_helper'
 
 describe Mobile::V0::Profile::SyncUpdateService do
   let(:user) { create(:user, :api_auth) }
+  let(:service) { Mobile::V0::Profile::SyncUpdateService.new(user) }
+
   Flipper.disable(:mobile_v2_contact_info)
   Flipper.disable(:va_v3_contact_information_service)
-  let(:service) { Mobile::V0::Profile::SyncUpdateService.new(user) }
 
   # DO THIS
   describe '#save_and_await_response' do
-
     let(:params) { build(:va_profile_address, vet360_id: user.vet360_id, validation_key: nil) }
 
     context 'when it succeeds after one incomplete status check' do
