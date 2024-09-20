@@ -76,7 +76,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
                                                                          'date' => expiration_date,
-                                                                         'form_age' => ''
+                                                                          'form_age' => ''
                                                                        })
       end
     end
@@ -112,7 +112,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
         expect(VANotify::UserAccountJob).not_to have_received(:perform_async)
       end
 
-       it 'delegates to VANotify::UserAccountJob if its the oldest in_progress_form' do
+      it 'delegates to VANotify::UserAccountJob if its the oldest in_progress_form' do
         user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name', uuid: 'uuid')
         allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
 
@@ -142,7 +142,6 @@ describe VANotify::InProgressFormReminder, type: :worker do
         expect(VANotify::UserAccountJob).to have_received(:perform_async).with('uuid', 'fake_template_id',
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
-
                                                                          'formatted_form_data' => "\n^ FORM 686C-674\n^\n^__686c something__\n^\n^_Application expires on:_ #{form_1_date}\n\n\n^---\n\n^ FORM form_3_example_id\n^\n^__form_3 something__\n^\n^_Application expires on:_ #{form_3_date}\n\n\n^---\n\n^ FORM form_2_example_id\n^\n^__form_2 something__\n^\n^_Application expires on:_ #{form_2_date}\n\n"
                                                                        })
         # rubocop:enable Layout/LineLength
