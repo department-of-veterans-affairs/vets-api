@@ -127,7 +127,7 @@ Rails.application.routes.draw do
         post(:download_pdf)
       end
     end
-    
+
     namespace :form1010cg do
       resources :attachments, only: :create
     end

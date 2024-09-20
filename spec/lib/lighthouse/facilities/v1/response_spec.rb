@@ -1,9 +1,13 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'lighthouse/facilities/v1/response'
 
 RSpec.describe Lighthouse::Facilities::V1::Response, type: :model do
+  subject { described_class.new(response_body, response_status) }
+
   let(:data) do
-  [
+    [
       { 'id' => 'nca_042', 'attributes' => { 'name' => 'Facility One', 'facilityType' => 'va_health_facility' } },
       { 'id' => 'nca_043', 'attributes' => { 'name' => 'Facility Two', 'facilityType' => 'va_health_facility' } }
     ]
@@ -32,8 +36,6 @@ RSpec.describe Lighthouse::Facilities::V1::Response, type: :model do
 
   let(:response_status) { 200 }
   let(:response) { described_class.new(response_body, response_status) }
-
-  subject { described_class.new(response_body, response_status) }
 
   describe '#initialize' do
     it 'parses the response body and sets attributes' do

@@ -247,6 +247,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
   end
 
   describe '#facilities' do
+    subject { get(:facilities, params:) }
+
     let(:mock_facility_response) do
       {
         'fake_response' => [
@@ -255,14 +257,6 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         ]
       }
     end
-    
-    let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
-  
-    before do
-      allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
-      allow(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
-    end
-
     let(:params) do
       {
         zip: '90210',
@@ -277,16 +271,22 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         per_page: '10',
         services: ['1'],
         bbox: ['2'],
-        facilityIds: ['vha_123', 'vha_456']
+        facilityIds: %w[vha_123 vha_456]
       }
     end
 
-    subject { get(:facilities, params:) }
+    let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
+
+    before do
+      allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
+      allow(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
+    end
 
     it 'calls the Lighthouse facilities service with the permitted params' do
       subject
 
-      expect(lighthouse_service).to have_received(:get_paginated_facilities).with(ActionController::Parameters.new(params).permit!)
+      expect(lighthouse_service).to have_received(:get_paginated_facilities)
+        .with(ActionController::Parameters.new(params).permit!)
     end
 
     it 'returns the response as JSON' do

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'lighthouse/facilities/v1/client'
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
@@ -11,7 +12,7 @@ module V0
     before_action :load_user, only: :create
 
     before_action :record_submission_attempt, only: :create
-    before_action :initialize_claim, only: [:create, :download_pdf]
+    before_action :initialize_claim, only: %i[create download_pdf]
 
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
