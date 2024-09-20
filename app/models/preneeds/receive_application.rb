@@ -15,12 +15,19 @@ module Preneeds
   #   @return [String] submission's result - from EOAS
   # @!attribute submitted_at
   #   @return [Time] current time
-  class ReceiveApplication < Common::Base
-    attribute :tracking_number, String
-    attribute :return_code, Integer
-    attribute :application_uuid, String
-    attribute :return_description, String
-    attribute :submitted_at, Time, default: :current_time
+  class ReceiveApplication < Preneeds::Base
+
+    attr_accessor :tracking_number,
+                  :return_code,
+                  :application_uuid,
+                  :return_description,
+                  :submitted_at
+
+    def initialize(attributes = {})
+      super
+      @return_code = attributes[:return_code].to_i
+      @submitted_at ||= current_time
+    end
 
     # Alias for #tracking_number
     #

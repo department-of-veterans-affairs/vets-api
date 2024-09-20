@@ -16,13 +16,14 @@ module Preneeds
   # @!attribute postal_code
   #   @return [String] address postal code
   #
-  class Address < Preneeds::VirtusBase
-    attribute :street, String
-    attribute :street2, String
-    attribute :city, String
-    attribute :country, String
-    attribute :state, String
-    attribute :postal_code, String
+  class Address < Preneeds::Base
+
+    attr_accessor :street,
+                  :street2,
+                  :city,
+                  :country,
+                  :state,
+                  :postal_code
 
     # (see Preneeds::BurialForm#as_eoas)
     #
@@ -39,7 +40,7 @@ module Preneeds
     # (see Preneeds::Applicant.permitted_params)
     #
     def self.permitted_params
-      attribute_set.map { |a| a.name.to_sym }
+      %i[street street2 city country state postal_code]
     end
   end
 end

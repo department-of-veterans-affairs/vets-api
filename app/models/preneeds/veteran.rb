@@ -34,23 +34,32 @@ module Preneeds
   # @!attribute service_records
   #   @return [Array<Preneeds::ServiceRecord>] veteran's service records
   #
-  class Veteran < Preneeds::VirtusBase
-    attribute :date_of_birth, String
-    attribute :date_of_death, String
-    attribute :gender, String
-    attribute :is_deceased, String
-    attribute :marital_status, String
-    attribute :military_service_number, String
-    attribute :place_of_birth, String
-    attribute :ssn, String
-    attribute :va_claim_number, String
-    attribute :military_status, String
+  class Veteran < Preneeds::Base
+    attr_accessor :date_of_birth,
+                  :date_of_death,
+                  :gender,
+                  :is_deceased,
+                  :marital_status,
+                  :military_service_number,
+                  :place_of_birth,
+                  :ssn,
+                  :va_claim_number,
+                  :military_status,
+                  :race,
+                  :address,
+                  :current_name,
+                  :service_name,
+                  :service_records
 
-    attribute :race, Preneeds::Race
-    attribute :address, Preneeds::Address
-    attribute :current_name, Preneeds::FullName
-    attribute :service_name, Preneeds::FullName
-    attribute :service_records, Array[Preneeds::ServiceRecord]
+    def initialize(attributes = {})
+      super
+      @race = Preneeds::Race.new(attributes[:race]) if attributes[:race]
+      @address = Preneeds::Address.new(attributes[:address]) if attributes[:address]
+      @current_name = Preneeds::FullName.new(attributes[:current_name]) if attributes[:current_name]
+      @service_name = Preneeds::FullName.new(attributes[:service_name]) if attributes[:service_name]
+      @service_records = build_service_records(attributes[:service_records])
+    end
+
 
     # (see Preneeds::BurialForm#as_eoas)
     #
@@ -85,6 +94,12 @@ module Preneeds
           service_name: Preneeds::FullName.permitted_params,
           service_records: [Preneeds::ServiceRecord.permitted_params] }
       ]
+    end
+
+    private
+
+    def build_service_records(records)
+      records.map { |r| Preneeds::ServiceRecord.new(r) } if records
     end
   end
 end

@@ -10,9 +10,13 @@ module Preneeds
   # @!attribute name
   #   @return [Preneeds::FullName] currently buried person's full name
   #
-  class CurrentlyBuriedPerson < Preneeds::VirtusBase
-    attribute :cemetery_number, String
-    attribute :name, Preneeds::FullName
+  class CurrentlyBuriedPerson < Preneeds::Base
+    attr_accessor :cemetery_number, :name
+
+    def initialize(attributes = {})
+      super
+      @name = Preneeds::FullName.new(attributes[:name]) if attributes[:name]
+    end
 
     # (see Preneeds::BurialForm#as_eoas)
     #

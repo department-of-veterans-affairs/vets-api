@@ -16,12 +16,9 @@ module Preneeds
   # @!attribute suffix
   #   @return [String] name suffix
   #
-  class FullName < Preneeds::VirtusBase
-    attribute :first, String
-    attribute :last, String
-    attribute :maiden, String
-    attribute :middle, String
-    attribute :suffix, String
+  class FullName < Preneeds::Base
+
+    attr_accessor :first, :last, :maiden, :middle, :suffix
 
     # (see Preneeds::BurialForm#as_eoas)
     #

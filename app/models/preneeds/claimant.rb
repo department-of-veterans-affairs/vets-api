@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-
 module Preneeds
   # Models an Claimant from a {Preneeds::BurialForm} form
   #
@@ -22,16 +20,23 @@ module Preneeds
   # @!attribute address
   #   @return [Preneeds::Address] claimant's address
   #
-  class Claimant < Preneeds::VirtusBase
-    attribute :date_of_birth, String
-    attribute :desired_cemetery, String
-    attribute :email, String
-    attribute :phone_number, String
-    attribute :relationship_to_vet, String
-    attribute :ssn, String
+  class Claimant < Preneeds::Base
 
-    attribute :name, Preneeds::FullName
-    attribute :address, Preneeds::Address
+    attr_accessor :date_of_birth,
+                  :desired_cemetery,
+                  :email,
+                  :phone_number,
+                  :relationship_to_vet,
+                  :ssn,
+                  :name,
+                  :address
+
+    def initialize(attributes = {})
+      super
+      @address = Preneeds::Address.new(attributes[:address]) if attributes[:address]
+      @name = Preneeds::FullName.new(attributes[:name]) if attributes[:name]
+    end
+
 
     # (see Preneeds::BurialForm#as_eoas)
     #

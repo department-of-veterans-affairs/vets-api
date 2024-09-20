@@ -33,22 +33,37 @@ module Preneeds
   # @!attribute veteran
   #   @return [Preneeds::Veteran] Veteran object.  Veteran is the person who is the owner of the benefit.
   #
-  class BurialForm < Preneeds::VirtusBase
+  class BurialForm < Preneeds::Base
     # Preneeds Burial Form official form id
     #
     FORM = '40-10007'
+    VETS_GOV = 'vets.gov'
 
-    attribute :application_status, String, default: ''
-    attribute :preneed_attachments, Array[PreneedAttachmentHash]
-    attribute :has_currently_buried, String
-    attribute :sending_application, String, default: 'vets.gov'
-    attribute :sending_code, String, default: ''
-    attribute :sent_time, Common::UTCTime, default: :current_time
-    attribute :tracking_number, String, default: :generate_tracking_number
-    attribute :applicant, Preneeds::Applicant
-    attribute :claimant, Preneeds::Claimant
-    attribute :currently_buried_persons, Array[Preneeds::CurrentlyBuriedPerson]
-    attribute :veteran, Preneeds::Veteran
+    attr_accessor :application_status,
+                  :preneed_attachments,
+                  :has_currently_buried,
+                  :sending_application,
+                  :sending_code,
+                  :sent_time,
+                  :tracking_number,
+                  :applicant,
+                  :claimant,
+                  :currently_buried_persons,
+                  :veteran
+
+    def initialize(attributes = {})
+      super
+      @application_status ||= ''
+      @preneed_attachments = build_preneed_attachments(attributes[:preneed_attachments])
+      @sending_application ||= VETS_GOV
+      @sending_code ||= ''
+      @sent_time = attributes[:sent_time] ? Common::UTCTime.new(attributes[:sent_time]) : current_time
+      @tracking_number ||= generate_tracking_number
+      @applicant = Preneeds::Applicant.new(attributes[:applicant]) if attributes[:applicant]
+      @claimant = Preneeds::Claimant.new(attributes[:claimant]) if attributes[:claimant]
+      @currently_buried_persons = build_currently_buried_persons(attributes[:currently_buried_persons])
+      @veteran = Preneeds::Veteran.new(attributes[:veteran]) if attributes[:veteran]
+    end
 
     # keeping this name because it matches the previous attribute
     # @return [Boolean]
@@ -103,6 +118,16 @@ module Preneeds
     #
     def self.validate(schema, form, root = 'application')
       JSON::Validator.fully_validate(schema, { root => form&.as_json }, validate_schema: true)
+    end
+
+    private
+
+    def build_preneed_attachments(attachments)
+      attachments.map { |a| Preneeds::PreneedAttachmentHash.new(a) } if attachments
+    end
+
+    def build_currently_buried_persons(persons)
+      persons.map { |p| Preneeds::CurrentlyBuriedPerson.new(p) } if persons
     end
   end
 end

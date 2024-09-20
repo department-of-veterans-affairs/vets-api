@@ -18,14 +18,19 @@ module Preneeds
   # @!attribute name
   #   @return [Preneeds::FullName] applicant's name
   #
-  class Applicant < Preneeds::VirtusBase
-    attribute :applicant_email, String
-    attribute :applicant_phone_number, String
-    attribute :applicant_relationship_to_claimant, String
-    attribute :completing_reason, String, default: 'vets.gov application'
+  class Applicant < Preneeds::Base
+    attr_accessor :applicant_email,
+                  :applicant_phone_number,
+                  :applicant_relationship_to_claimant,
+                  :completing_reason,
+                  :mailing_address,
+                  :name
 
-    attribute :mailing_address, Preneeds::Address
-    attribute :name, Preneeds::FullName
+    def initialize(attributes = {})
+      super
+      @mailing_address = Preneeds::Address.new(attributes[:mailing_address]) if attributes[:mailing_address]
+      @name = Preneeds::FullName.new(attributes[:name]) if attributes[:name]
+    end
 
     # (see Preneeds::BurialForm#as_eoas)
     #

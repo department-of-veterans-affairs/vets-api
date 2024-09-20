@@ -8,9 +8,8 @@ module Preneeds
   # @!attribute to
   #   @return [String] 'to' date
   #
-  class DateRange < Preneeds::VirtusBase
-    attribute :from, String
-    attribute :to, String
+  class DateRange < Preneeds::Base
+    attr_accessor :from, :to
 
     # (see Preneeds::Applicant.permitted_params)
     #

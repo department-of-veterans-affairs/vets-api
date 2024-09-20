@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module Preneeds
-  class Race < Preneeds::VirtusBase
+  class Race < Preneeds::Base
+
     ATTRIBUTE_MAPPING = {
       'I' => :is_american_indian_or_alaskan_native,
       'A' => :is_asian,
@@ -12,9 +13,13 @@ module Preneeds
       'W' => :is_white
     }.freeze
 
-    ATTRIBUTE_MAPPING.each_value do |attr|
-      attribute(attr, Boolean)
-    end
+    attr_accessor :is_american_indian_or_alaskan_native,
+                  :is_asian,
+                  :is_black_or_african_american,
+                  :is_spanish_hispanic_latino,
+                  :not_spanish_hispanic_latino,
+                  :is_native_hawaiian_or_other_pacific_islander,
+                  :is_white
 
     def as_eoas
       return_val = []
@@ -31,7 +36,15 @@ module Preneeds
     end
 
     def self.permitted_params
-      ATTRIBUTE_MAPPING.values
+      [
+        :is_american_indian_or_alaskan_native,
+        :is_asian,
+        :is_black_or_african_american,
+        :is_spanish_hispanic_latino,
+        :not_spanish_hispanic_latino,
+        :is_native_hawaiian_or_other_pacific_islander,
+        :is_white
+      ]
     end
   end
 end

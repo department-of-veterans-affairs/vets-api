@@ -16,13 +16,17 @@ module Preneeds
   # @!attribute date_range
   #   @return [Preneeds::DateRange] service date range
   #
-  class ServiceRecord < Preneeds::VirtusBase
-    attribute :service_branch, String
-    attribute :discharge_type, String
-    attribute :highest_rank, String
-    attribute :national_guard_state, String
+  class ServiceRecord < Preneeds::Base
+    attr_accessor :service_branch,
+                  :discharge_type,
+                  :highest_rank,
+                  :national_guard_state,
+                  :date_range
 
-    attribute :date_range, Preneeds::DateRange
+    def initialize(attributes = {})
+      super
+      @date_range = Preneeds::DateRange.new(attributes[:date_range])
+    end
 
     # (see Preneeds::BurialForm#as_eoas)
     #

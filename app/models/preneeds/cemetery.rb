@@ -13,10 +13,9 @@ module Preneeds
   # @!attribute num
   #   @return [String] cemetery number
   #
-  class Cemetery < Common::Base
-    attribute :cemetery_type, String
-    attribute :name, String
-    attribute :num, String
+  class Cemetery < Preneeds::Base
+
+    attr_accessor :cemetery_type, :name, :num
 
     # Alias of #num
     # @return [String] cemetery number

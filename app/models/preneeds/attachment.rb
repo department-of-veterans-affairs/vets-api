@@ -14,26 +14,22 @@ module Preneeds
   # @!attribute data_handler
   #   @return [String] auto-generated attachment id
   #
-  class Attachment
-    include Virtus.model
-
+  class Attachment < Preneeds::Base
     # string to populate #sending_source
     #
     VETS_GOV = 'vets.gov'
 
-    attribute :attachment_type, Preneeds::AttachmentType
-    attribute :sending_source, String, default: VETS_GOV
-    attribute :file, (Rails.env.production? ? CarrierWave::Storage::AWSFile : CarrierWave::SanitizedFile)
-    attribute :name, String
-
+    attr_accessor :attachment_type, :sending_source, :file, :name
     attr_reader :data_handler
 
     # Creates a new instance of {Preneeds::Attachment}
     #
     # @param args [Hash] hash with keys that correspond to attributes
     #
-    def initialize(*args)
+    def initialize(attributes = {})
       super
+      @sending_source ||= VETS_GOV
+      @file = file_class.new(attributes[:file]) if attributes[:file]
       @data_handler = SecureRandom.hex
     end
 
@@ -57,6 +53,12 @@ module Preneeds
         sendingName: VETS_GOV,
         sendingSource: sending_source
       }
+    end
+
+    private
+
+    def file_class
+      Rails.env.production? ? CarrierWave::Storage::AWSFile : CarrierWave::SanitizedFile
     end
   end
 end

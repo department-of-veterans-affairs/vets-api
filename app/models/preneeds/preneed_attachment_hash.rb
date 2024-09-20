@@ -11,10 +11,8 @@ module Preneeds
   # @!attribute name
   #   @return [String] attachment file name
   #
-  class PreneedAttachmentHash < Preneeds::VirtusBase
-    attribute :confirmation_code, String
-    attribute :attachment_id, String
-    attribute :name, String
+  class PreneedAttachmentHash < Preneeds::Base
+    attr_accessor :confirmation_code, :attachment_id, :name
 
     # (see Preneeds::Applicant.permitted_params)
     #

@@ -11,9 +11,14 @@ module Preneeds
   # @!attribute description
   #   @return [String] attachment type description
   #
-  class AttachmentType < Common::Base
-    attribute :attachment_type_id, Integer
-    attribute :description, String
+  class AttachmentType < Preneeds::Base
+
+    attr_accessor :attachment_type_id, :description
+
+    def initialize(attributes = {})
+      super
+      @attachment_type_id = attributes[:attachment_type_id].to_i
+    end
 
     # Alias for :attachment_type_id attribute
     #
