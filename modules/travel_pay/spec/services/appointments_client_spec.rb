@@ -5,6 +5,8 @@ require 'rails_helper'
 describe TravelPay::AppointmentsClient do
   let(:user) { build(:user) }
 
+  let(:tokens) { %w[veis_token btsss_token] }
+
   before do
     @stubs = Faraday::Adapter::Test::Stubs.new
 
@@ -39,7 +41,7 @@ describe TravelPay::AppointmentsClient do
     before do
       allow_any_instance_of(TravelPay::TokenService)
         .to receive(:get_tokens)
-        .and_return('veis_token', 'btsss_token')
+        .and_return(*tokens)
     end
 
     it 'returns a response only with appointments with no claims' do
@@ -102,7 +104,7 @@ describe TravelPay::AppointmentsClient do
       expected_ids = %w[uuid1 uuid2 uuid3]
 
       client = TravelPay::AppointmentsClient.new
-      appts_response = client.get_all_appointments('veis_token', 'btsss_token', { 'excludeWithClaims' => true })
+      appts_response = client.get_all_appointments(*tokens, { 'excludeWithClaims' => true })
       actual_appt_ids = appts_response.body['data'].pluck('id')
 
       expect(actual_appt_ids).to eq(expected_ids)
@@ -168,7 +170,7 @@ describe TravelPay::AppointmentsClient do
       expected_ids = %w[uuid1 uuid2 uuid4]
 
       client = TravelPay::AppointmentsClient.new
-      appts_response = client.get_all_appointments('veis_token', 'btsss_token')
+      appts_response = client.get_all_appointments(*tokens)
       actual_appt_ids = appts_response.body['data'].pluck('id')
 
       expect(actual_appt_ids).to eq(expected_ids)

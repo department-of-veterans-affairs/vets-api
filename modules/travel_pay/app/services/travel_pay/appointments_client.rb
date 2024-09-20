@@ -6,7 +6,7 @@ require_relative './base_client'
 module TravelPay
   class AppointmentsClient < TravelPay::BaseClient
     ##
-    # HTTP GET call to the BTSSS 'appointmtnes' endpoint
+    # HTTP GET call to the BTSSS 'appointments' endpoint
     # API responds with BTSSS appointments
     #
     # Available @params: (for Travel Pay API)
