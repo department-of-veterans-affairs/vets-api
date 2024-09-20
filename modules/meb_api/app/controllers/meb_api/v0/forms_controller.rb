@@ -30,11 +30,11 @@ module MebApi
       def claim_status
         claimant_response = claimant_service.get_claimant_info('toe')
 
-        return render_claimant_error(claimant_response) unless valid_claimant_response?(claimant_response)
+        unless valid_claimant_response?(claimant_response) || claimant_response.status == 404
+          return render_claimant_error(claimant_response)
+        end
 
-        claimant_id = claimant_response['claimant']&.dig('claimant_id')
-
-        return render_claimant_id_error if claimant_id.blank?
+        claimant_id = claimant_response['claimant']&.dig('claimant_id') || nil
 
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, 'toe')
         response, serializer = determine_response_and_serializer(claim_status_response, claimant_response)
