@@ -128,7 +128,7 @@ gem 'prawn-markup'
 gem 'prawn-table'
 gem 'puma'
 gem 'pundit'
-gem 'rack'
+gem 'rack', '=3.0.11'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rack-timeout', require: 'rack/timeout/base'
@@ -157,7 +157,6 @@ gem 'swagger-blocks'
 # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
 # POSIX systems should have this already, so we're not going to bring it in on other platforms
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
-gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'warden-github'

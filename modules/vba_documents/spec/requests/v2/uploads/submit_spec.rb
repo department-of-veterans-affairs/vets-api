@@ -10,9 +10,6 @@ RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
 
   load('./modules/vba_documents/config/routes.rb')
 
-  # need a larger limit for sending raw data (base_64 for example)
-  Rack::Utils.key_space_limit = 65_536 * 5
-
   let(:submit_endpoint) { '/services/vba_documents/v2/uploads/submit' }
 
   def build_fixture(fixture, is_metadata = false, is_erb = false)
