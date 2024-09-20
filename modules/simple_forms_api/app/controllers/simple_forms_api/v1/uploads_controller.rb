@@ -267,7 +267,8 @@ module SimpleFormsApi
         config = {
           form_data: parsed_form_data,
           form_number: form_id,
-          confirmation_number:
+          confirmation_number:,
+          date_submitted: Time.zone.today.strftime('%B %d, %Y')
         }
         SimpleFormsApi::NotificationEmail.new(
           config,
