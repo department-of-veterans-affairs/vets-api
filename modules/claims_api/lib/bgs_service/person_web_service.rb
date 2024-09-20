@@ -7,9 +7,11 @@ module ClaimsApi
     end
 
     def find_dependents_by_ptcpnt_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId>#{id}</ptcpntId>
-      EOXML
+      builder = Nokogiri::XML::Builder.new do
+        ptcpntId id
+      end
+
+      body = builder_to_xml(builder)
 
       make_request(endpoint: bean_name, action: 'findDependentsByPtcpntId', body:, key: 'DependentDTO')
     end
@@ -17,19 +19,19 @@ module ClaimsApi
     # ptcpntIdA is the veteranʼs or dependentʼs participant id
     # ptcpntIdB is the poaʼs participant id
     def manage_ptcpnt_rlnshp_poa(options = {})
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <PtcpntRlnshpDTO>
-          #{if options[:authzn_change_clmant_addrs_ind].present?
-              '<authznChangeClmantAddrsInd>Y</authznChangeClmantAddrsInd>'
-            end}
-          #{'<authznPoaAccessInd>Y</authznPoaAccessInd>' if options[:authzn_poa_access_ind].present?}
-          <compId>
-            <ptcpntIdA>#{options[:ptcpnt_id_a]}</ptcpntIdA>
-            <ptcpntIdB>#{options[:ptcpnt_id_b]}</ptcpntIdB>
-          </compId>
-          <statusTypeCd>#{options[:status_type_cd] || 'CURR'}</statusTypeCd>
-        </PtcpntRlnshpDTO>
-      EOXML
+      builder = Nokogiri::XML::Builder.new do
+        PtcpntRlnshpDTO do
+          authznChangeClmantAddrsInd 'Y' if options[:authzn_change_clmant_addrs_ind].present?
+          authznPoaAccessInd 'Y' if options[:authzn_poa_access_ind].present?
+          compId do
+            ptcpntIdA options[:ptcpnt_id_a]
+            ptcpntIdB options[:ptcpnt_id_b]
+          end
+          statusTypeCd options[:status_type_cd] || 'CURR'
+        end
+      end
+
+      body = builder_to_xml(builder)
 
       make_request(endpoint: bean_name, action: 'managePtcpntRlnshpPoa', body:, key: 'DependentDTO')
     end
