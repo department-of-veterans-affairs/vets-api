@@ -23,7 +23,16 @@ module Search
     end
 
     def base_path
-      "#{Settings.search.url}/search/i14y"
+      flipper_enabled? ? Settings.search.gsa_url : Settings.search.url
+    end
+
+    # Breakers initialization requires this configuration which means the #base_path
+    # is required when building the DBs in CI that flipper uses for checking toggles.
+    # The NoDatabaseError rescue handles times we're building new DBs.
+    def flipper_enabled?
+      Flipper.enabled?(:search_use_v2_gsa)
+    rescue ActiveRecord::NoDatabaseError
+      false
     end
 
     def service_name
