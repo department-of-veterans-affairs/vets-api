@@ -932,16 +932,16 @@ features:
     actor_type: user
     enable_in_development: true
   pension_income_and_assets_clarification:
-   actor_type: user
-   description: >
-     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
+    actor_type: user
+    description: >
+      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
   pension_medical_evidence_clarification:
-   actor_type: user
-   description: >
-     [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
+    actor_type: user
+    description: >
+      [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pension_military_prefill:
     actor_type: user
-    description: 'When enabled, 21P-527EZ will prefill military information.'
+    description: "When enabled, 21P-527EZ will prefill military information."
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1595,11 +1595,11 @@ features:
     actor_type: user
     description: Show updated introduction page
   pension_supporting_documents_update:
-   actor_type: user
-   description: Show updated supporting documents page
+    actor_type: user
+    description: Show updated supporting documents page
   pension_document_upload_update:
-   actor_type: user
-   description: Show updated document upload page
+    actor_type: user
+    description: Show updated document upload page
   pension_confirmation_update:
     actor_type: user
     description: Show updated confirmation page
@@ -1676,3 +1676,6 @@ features:
   mgib_verifications_maintenance:
     actor_type: user
     description: Used to show  maintenance alert for MGIB Verifications
+  show_yellow_ribbon_table:
+    actor_type: user
+    description: Used to show yellow ribbon table in Comparison Tool
