@@ -82,7 +82,7 @@ describe TravelPay::AppointmentsService do
     before do
       allow_any_instance_of(TravelPay::AppointmentsClient)
         .to receive(:get_all_appointments)
-        .with(*tokens, { exclude_with_claims: true })
+        .with(*tokens, { 'excludeWithClaims' => true })
         .and_return(appointments_response)
     end
 
