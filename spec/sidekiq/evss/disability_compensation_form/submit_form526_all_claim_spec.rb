@@ -499,8 +499,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
         it 'does not retry UnprocessableEntity errors with "retries will fail" in detail message' do
           body = { 'errors' => [{ 'status' => '422', 'title' => 'Backend Service Exception',
-                                  'detail' => 'The claim failed to establish. rEtries WilL fAiL.',
-                                  'source' => { 'pointer' => 'data/attributes/' } }] }
+                                  'detail' => 'The claim failed to establish. rEtries WilL fAiL.' }] }
           allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
             .and_raise(Faraday::UnprocessableEntityError.new(
                          body:, status: 422, headers:
