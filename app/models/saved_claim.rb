@@ -101,13 +101,13 @@ class SavedClaim < ApplicationRecord
     end
 
     validation_errors = JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true })
-    
+
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])
     end
 
     unless validation_errors.empty?
-      Rails.logger.warn('SavedClaim form did not pass validation', { guid: guid, errors: validation_errors})
+      Rails.logger.warn('SavedClaim form did not pass validation', { guid:, errors: validation_errors })
     end
   end
 
