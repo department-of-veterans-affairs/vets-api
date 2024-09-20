@@ -19,17 +19,17 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
+      code: 404
       message: ''
     headers:
       X-Oneagent-Js-Injection:
       - 'true'
       - 'true'
       Server-Timing:
-      - dtRpid;desc="1092698028", dtSInfo;desc="0"
-      - dtRpid;desc="215985848", dtSInfo;desc="0"
+      - dtRpid;desc="-1083514039", dtSInfo;desc="0"
+      - dtRpid;desc="-811723101", dtSInfo;desc="0"
       Vaprofiletxauditid:
-      - aedc4ba2-85ca-4fb1-a47c-8c5e7f1abe7d
+      - 2e1ca726-a7cc-44a1-89ea-04822dd6acd5
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
@@ -46,7 +46,7 @@ http_interactions:
       - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
         about: blob: ws: wss:'
       Date:
-      - Wed, 18 Sep 2024 21:21:39 GMT
+      - Fri, 20 Sep 2024 18:37:00 GMT
       Referrer-Policy:
       - no-referrer
       Content-Type:
@@ -59,6 +59,6 @@ http_interactions:
       encoding: UTF-8
       string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","text":"The PersonBio
         for id/criteria 6767671^PI^200VETS^USDVA could not be found. Please correct
-        your request and try again!","severity":"ERROR"}],"txAuditId":"aedc4ba2-85ca-4fb1-a47c-8c5e7f1abe7d","status":"COMPLETED_FAILURE"}'
-  recorded_at: Wed, 18 Sep 2024 21:21:40 GMT
+        your request and try again!","severity":"ERROR"}],"txAuditId":"2e1ca726-a7cc-44a1-89ea-04822dd6acd5","status":"COMPLETED_FAILURE"}'
+  recorded_at: Fri, 20 Sep 2024 18:37:01 GMT
 recorded_with: VCR 6.3.1
