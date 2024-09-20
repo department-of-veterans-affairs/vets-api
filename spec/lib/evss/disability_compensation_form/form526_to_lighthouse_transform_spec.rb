@@ -236,8 +236,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       toxic_exposure_conditions = submission.form['form526']['form526']['toxicExposure']['conditions']
       results = transformer.send(:transform_disabilities, data, toxic_exposure_conditions)
       expect(results.first.is_related_to_toxic_exposure).to eq(true)
-      exposure_text = 'My condition was caused by an injury or event that happened when I was receiving VA care; toxic exposure.'
-      expect(results.first.exposure_or_event_or_injury).to eq(exposure_text)
+      text = 'My condition was caused by an injury or event that happened when I was receiving VA care; toxic exposure.'
+      expect(results.first.exposure_or_event_or_injury).to eq(text)
       expect(results.last.is_related_to_toxic_exposure).to eq(false)
     end
 
