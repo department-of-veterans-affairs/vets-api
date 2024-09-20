@@ -582,8 +582,8 @@ module EVSS
       end
 
       def format_exposure_text(cause, related_to_toxic_exposure)
-        text = TOXIC_EXPOSURE_CAUSE_MAP[cause.upcase.to_sym]
-        text.sub(/[.]?$/, '; toxic exposure.') if related_to_toxic_exposure
+        cause_text = TOXIC_EXPOSURE_CAUSE_MAP[cause.upcase.to_sym].dup
+        related_to_toxic_exposure ? cause_text.sub!(/[.]?$/, '; toxic exposure.') : cause_text
       end
 
       # rubocop:disable Naming/PredicateName

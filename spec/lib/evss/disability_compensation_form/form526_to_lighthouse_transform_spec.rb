@@ -248,7 +248,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(results.first.exposure_or_event_or_injury).to eq(cause_map[:VA].sub(/[.]?$/, '; toxic exposure.'))
       expect(results[1].exposure_or_event_or_injury).to eq(cause_map[:NEW].sub(/[.]?$/, '; toxic exposure.'))
       expect(results[2].exposure_or_event_or_injury).to eq(cause_map[:WORSENED].sub(/[.]?$/, '; toxic exposure.'))
-      expect(results.last.exposure_or_event_or_injury).to eq(cause_map[:SECONDARY].sub(/[.]?$/, '; toxic exposure.'))
+      # last condition is not a toxic exposure condition
+      expect(results.last.exposure_or_event_or_injury).to eq(cause_map[:SECONDARY])
     end
   end
 
