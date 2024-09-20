@@ -117,7 +117,7 @@ module SimpleFormsApi
       end
 
       def hydrate_submission_data(benefits_intake_uuid)
-        built_submission = SubmissionBuilder.new(benefits_intake_uuid:)
+        built_submission = SimpleFormsApi::SubmissionBuilder.new(benefits_intake_uuid:)
         @file_path = built_submission.file_path
         @submission = built_submission.submission
         @benefits_intake_uuid = @submission&.benefits_intake_uuid
