@@ -18,7 +18,8 @@ RSpec.configure do |config|
 
   config.openapi_specs = [
     ClaimsApi,
-    AppealsApi
+    AppealsApi,
+    RepresentationManagement
   ].inject({}) do |acc, module_name|
     require_relative "#{module_name::Engine.root.join('spec', 'support')}/rswag_config"
     acc.merge(module_name::RswagConfig.new.config)
