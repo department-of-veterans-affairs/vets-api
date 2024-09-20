@@ -33,7 +33,7 @@ module ClaimsApi
 
       body = builder_to_xml(builder)
 
-      make_request(endpoint: bean_name, action: 'managePtcpntRlnshpPoa', body:, key: 'DependentDTO')
+      make_request(endpoint: bean_name, action: 'managePtcpntRlnshpPoa', body:, key: 'PtcpntRlnshpDTO')
     end
   end
 end

@@ -32,7 +32,7 @@ describe ClaimsApi::PersonWebService do
       end
     end
 
-    context 'with no dependents response' do
+    context 'with a participant that has no dependents' do
       it 'responds as expected' do
         VCR.use_cassette('claims_api/bgs/person_web_service/find_dependents_by_ptcpnt_id_no_dependents') do
           result = subject.find_dependents_by_ptcpnt_id(123)
@@ -44,6 +44,27 @@ describe ClaimsApi::PersonWebService do
   end
 
   describe '#manage_ptcpnt_rlnshp_poa' do
+    context 'when participant A (the veteran or dependent) has no open claims' do
+      let(:ptcpnt_id_a) { '601163580' }
+      let(:ptcpnt_id_b) { '46004' }
+
+      it 'assigns the POA to the participant' do
+        VCR.use_cassette('claims_api/bgs/person_web_service/manage_ptcpnt_rlnshp_poa_no_open_claims') do
+          options = {
+            ptcpnt_id_a:,
+            ptcpnt_id_b:
+          }
+          result = subject.manage_ptcpnt_rlnshp_poa(options)
+
+          expect(result).to be_a Hash
+          expect(result[:authzn_poa_access_ind]).to eq 'Y'
+          expect(result[:comp_id][:ptcpnt_id_a]).to eq ptcpnt_id_a
+          expect(result[:comp_id][:ptcpnt_id_b]).to eq ptcpnt_id_b
+          expect(result[:comp_id][:ptcpnt_rlnshp_type_nm]).to eq 'Power of Attorney For'
+        end
+      end
+    end
+
     context 'when participant A (the veteran or dependent) has open claims' do
       it 'returns an error' do
         VCR.use_cassette('claims_api/bgs/person_web_service/manage_ptcpnt_rlnshp_poa_with_open_claims') do
@@ -51,6 +72,7 @@ describe ClaimsApi::PersonWebService do
             ptcpnt_id_a: '600052700',
             ptcpnt_id_b: '46004'
           }
+
           expect do
             subject.manage_ptcpnt_rlnshp_poa(options)
           end.to raise_error(Common::Exceptions::ServiceError) { |error|
