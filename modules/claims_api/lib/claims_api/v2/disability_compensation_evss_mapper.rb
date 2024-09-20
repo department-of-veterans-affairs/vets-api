@@ -105,7 +105,8 @@ module ClaimsApi
 
       def check_for_pact_special_issue(disability)
         related_to_toxic_exposure = disability[:isRelatedToToxicExposure]
-        if related_to_toxic_exposure
+        action_not_increase = disability[:disabilityActionType] != 'INCREASE'
+        if related_to_toxic_exposure && action_not_increase
           disability[:specialIssues] ||= []
           disability[:specialIssues] << 'PACT'
         end
