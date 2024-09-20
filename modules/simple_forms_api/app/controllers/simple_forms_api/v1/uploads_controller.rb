@@ -270,11 +270,12 @@ module SimpleFormsApi
           confirmation_number:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y')
         }
-        SimpleFormsApi::NotificationEmail.new(
+        notification_email = SimpleFormsApi::NotificationEmail.new(
           config,
           notification_type: :confirmation,
           user: @current_user
-        ).send
+        )
+        notification_email.send
       end
     end
   end
