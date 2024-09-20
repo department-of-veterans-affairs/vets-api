@@ -13,6 +13,7 @@ module VAProfile
     module ContactInformation
       class Service < VAProfile::Service
         CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
+        VA_PROFILE_ID_POSTFIX = '^PI^200VETS^USDVA'
         EMAIL_PERSONALISATIONS = {
           address: 'Address',
           residence_address: 'Home address',
@@ -34,12 +35,11 @@ module VAProfile
         def get_person
           with_monitoring do
             vet360_id_present!
-            raw_response = perform(:get, vet360_id)
-
+            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}")
             PersonResponse.from(raw_response)
           end
         rescue Common::Client::Errors::ClientError => e
-          if e.status == 404
+          if e.status == 400
             log_exception_to_sentry(
               e,
               { vet360_id: },
@@ -64,7 +64,7 @@ module VAProfile
 
         def update_address(address)
           address_type =
-            if address.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
+            if address.address_pou == VAProfile::Models::V2::BaseAddress::RESIDENCE
               'residential'
             else
               'mailing'
@@ -75,10 +75,6 @@ module VAProfile
 
         def update_email(email)
           update_model(email, 'email', 'email')
-        end
-
-        def update_permission(permission)
-          update_model(permission, 'text_permission', 'permission')
         end
 
         def update_telephone(telephone)
@@ -120,7 +116,7 @@ module VAProfile
         # @param transaction_id [int] the transaction_id to check
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
         def get_address_transaction_status(transaction_id)
-          route = "#{vet360_id}/addresses/status/#{transaction_id}"
+          route = "addresses/status/#{transaction_id}"
           transaction_status = get_transaction_status(route, AddressTransactionResponse)
 
           changes = transaction_status.changed_field
@@ -162,7 +158,7 @@ module VAProfile
         # @param transaction_id [int] the transaction_id to check
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
         def get_email_transaction_status(transaction_id)
-          route = "#{vet360_id}/emails/status/#{transaction_id}"
+          route = "emails/status/#{transaction_id}"
           transaction_status = get_transaction_status(route, EmailTransactionResponse)
 
           send_email_change_notification(transaction_status)
@@ -189,36 +185,13 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::TelephoneTransactionResponse] wrapper around
         #   a transaction object
         def get_telephone_transaction_status(transaction_id)
-          route = "#{vet360_id}/telephones/status/#{transaction_id}"
+          route = "telephones/status/#{transaction_id}"
           transaction_status = get_transaction_status(route, TelephoneTransactionResponse)
 
           changes = transaction_status.changed_field
           send_contact_change_notification(transaction_status, changes)
 
           transaction_status
-        end
-
-        # POSTs a new permission to the VAProfile API
-        # @param permission [VAProfile::Models::Permission] the permission to create
-        # @return [VAProfile::V2::ContactInformation::PermissionUpdateResponse] wrapper around a transaction object
-        def post_permission(permission)
-          post_or_put_data(:post, permission, 'permissions', PermissionTransactionResponse)
-        end
-
-        # PUTs an updated permission to the VAProfile API
-        # @param permission [VAProfile::Models::Permission] the permission to update
-        # @return [VAProfile::V2::ContactInformation::PermissionUpdateResponse] wrapper around a transaction object
-        def put_permission(permission)
-          post_or_put_data(:put, permission, 'permissions', PermissionTransactionResponse)
-        end
-
-        # GET's the status of a permission transaction from the VAProfile api
-        # @param transaction_id [int] the transaction_id to check
-        # @return [VAProfile::V2::ContactInformation::PermissionTransactionResponse] wrapper around
-        #   a transaction object
-        def get_permission_transaction_status(transaction_id)
-          route = "#{vet360_id}/permissions/status/#{transaction_id}"
-          get_transaction_status(route, PermissionTransactionResponse)
         end
 
         # GET's the status of a person transaction from the VAProfile api. Does not validate the presence of
@@ -239,6 +212,13 @@ module VAProfile
         end
 
         private
+
+        def icn_with_aaid
+          return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
+          return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
+
+          nil
+        end
 
         def vet360_id
           @user.vet360_id
@@ -309,8 +289,8 @@ module VAProfile
         def post_or_put_data(method, model, path, response_class)
           with_monitoring do
             vet360_id_present!
-            raw_response = perform(method, path, model.in_json)
-
+            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
+            raw_response = perform(method, request_path, model.in_json)
             response_class.from(raw_response)
           end
         rescue => e
@@ -319,7 +299,6 @@ module VAProfile
 
         def get_transaction_status(path, response_class)
           with_monitoring do
-            vet360_id_present!
             raw_response = perform(:get, path)
             VAProfile::Stats.increment_transaction_results(raw_response)
 

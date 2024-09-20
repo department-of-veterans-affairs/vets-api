@@ -4,7 +4,6 @@ module ClaimsApi
   class UnsuccessfulReportMailer < ApplicationMailer
     RECIPIENTS = %w[
       alex.wilson@oddball.io
-      austin.covrig@oddball.io
       david.mazik@va.gov
       emily.goodrich@oddball.io
       janet.coutinho@va.gov

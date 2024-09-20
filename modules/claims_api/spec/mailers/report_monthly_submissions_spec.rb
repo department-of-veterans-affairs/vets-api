@@ -29,7 +29,6 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
       expect(subject.to).to eq(
         %w[
           alex.wilson@oddball.io
-          austin.covrig@oddball.io
           emily.goodrich@oddball.io
           jennica.stiehl@oddball.io
           kayla.watanabe@adhocteam.us
