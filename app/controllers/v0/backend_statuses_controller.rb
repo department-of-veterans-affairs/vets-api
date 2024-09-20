@@ -18,23 +18,23 @@ module V0
       render json: BackendStatusesSerializer.new(statuses, options)
     end
 
+    # TO-DO: After transition of Post-911 GI Bill to 24/7 availability, confirm show action
+    # can be completely removed
+    # 
     # GET /v0/backend_statuses/:service
     def show
       @backend_service = params[:service]
       raise Common::Exceptions::RecordNotFound, @backend_service unless recognized_service?
 
-      # get status
-      be_status = BackendStatus.new(name: @backend_service)
-      case @backend_service
-      when BackendServices::GI_BILL_STATUS
+      # default service is up
+      be_status = BackendStatus.new(name: @backend_service, is_available: true, uptime_remaining: 0)
+
+      # case where 24/7 access is disabled for post-911 GI bill
+      if (@backend_service == BackendServices::GI_BILL_STATUS) && !Flipper.enabled?(:sob_updated_design)
         be_status.is_available = BenefitsEducation::Service.within_scheduled_uptime?
         be_status.uptime_remaining = BenefitsEducation::Service.seconds_until_downtime
-      else
-        # default service is up!
-        be_status.is_available = true
-        be_status.uptime_remaining = 0
       end
-
+   
       render json: BackendStatusSerializer.new(be_status)
     end
 
