@@ -566,29 +566,24 @@ module EVSS
             dis.is_related_to_toxic_exposure = is_related_to_toxic_exposure(dis.name, toxic_exposure_conditions)
           end
           dis.classification_code = disability_source['classificationCode'] if disability_source['classificationCode']
-          dis.service_relevance = set_service_relevance(dis.is_related_to_toxic_exposure,
-                                                        disability_source['serviceRelevance'])
+          dis.service_relevance = disability_source['serviceRelevance'] || ''
           dis.rated_disability_id = disability_source['ratedDisabilityId'] if disability_source['ratedDisabilityId']
           dis.diagnostic_code = disability_source['diagnosticCode'] if disability_source['diagnosticCode']
           if disability_source['secondaryDisabilities']
             dis.secondary_disabilities = transform_secondary_disabilities(disability_source)
           end
           if disability_source['cause'].present?
-            dis.exposure_or_event_or_injury = TOXIC_EXPOSURE_CAUSE_MAP[disability_source['cause'].upcase.to_sym]
+            dis.exposure_or_event_or_injury = format_exposure_text(disability_source['cause'],
+                                                                   dis.is_related_to_toxic_exposure)
           end
 
           dis
         end
       end
 
-      def set_service_relevance(related_to_toxic_exposure, service_relevance)
-        if related_to_toxic_exposure && service_relevance.present?
-          "#{service_relevance}; toxic exposure".to_s
-        elsif service_relevance.present?
-          service_relevance
-        else
-          ''
-        end
+      def format_exposure_text(cause, related_to_toxic_exposure)
+        text = TOXIC_EXPOSURE_CAUSE_MAP[cause.upcase.to_sym]
+        text.sub(/[.]?$/, '; toxic exposure.') if related_to_toxic_exposure
       end
 
       # rubocop:disable Naming/PredicateName
