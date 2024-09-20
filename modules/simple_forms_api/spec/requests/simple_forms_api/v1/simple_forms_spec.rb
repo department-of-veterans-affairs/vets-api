@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
+require 'lighthouse/benefits_intake/service'
 
 RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   forms = [
@@ -190,31 +191,76 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       context 'request with attached documents' do
-        it 'appends the attachments to the 40-0247 PDF' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'vba_40_0247_with_supporting_document.json')
-          pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
-          data = JSON.parse(fixture_path.read)
-          attachment = double
+        let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
+        let(:attachment) { double }
+        let(:lighthouse_service) { double }
+        let(:confirmation_number) { 'some_confirmation_number' }
+
+        before do
+          sign_in
           allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-
-          expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
-
-          post '/simple_forms_api/v1/simple_forms', params: data
-
-          expect(response).to have_http_status(:ok)
+          allow(PersistentAttachment).to(
+            receive(:where).with(guid: [a_string_matching(/a-random-uuid/)]).and_return([attachment])
+          )
         end
 
-        it 'appends the attachments to the 40-10007 PDF' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'vba_40_10007_with_supporting_document.json')
-          pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
-          data = JSON.parse(fixture_path.read)
-          attachment = double
-          allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-          expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
-          post '/simple_forms_api/v1/simple_forms', params: data
-          expect(response).to have_http_status(:ok)
+        shared_examples 'submits successfully' do |form_doc|
+          let(:data) do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form_doc)
+            JSON.parse(fixture_path.read)
+          end
+
+          it 'returns a 200 OK response' do
+            post '/simple_forms_api/v1/simple_forms', params: data
+            expect(response).to have_http_status(:ok)
+          end
+        end
+
+        shared_examples 'handles multiple attachments' do |form_doc|
+          before do
+            allow(BenefitsIntake::Service).to receive(:new).and_return(lighthouse_service)
+            allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to(
+              receive(:prepare_for_upload).and_return(%w[location uuid])
+            )
+            allow_any_instance_of(SimpleFormsApi::V1::UploadsController).to(
+              receive(:log_upload_details).and_return(true)
+            )
+            allow(lighthouse_service).to(
+              receive(:perform_upload).and_return(OpenStruct.new(status: 200, confirmation_number:))
+            )
+          end
+
+          let(:data) do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form_doc)
+            JSON.parse(fixture_path.read)
+          end
+
+          it_behaves_like 'submits successfully', form_doc
+
+          it 'calls the lighthouse service with attachments' do
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(lighthouse_service).to have_received(:perform_upload).with(hash_including(:attachments))
+          end
+        end
+
+        context 'Flipper for simple_forms_lighthouse_benefits_intake_service' do
+          after { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
+
+          context 'when flipped on' do
+            before { Flipper.enable(:simple_forms_lighthouse_benefits_intake_service) }
+
+            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
+            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
+            it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_documents.json'
+          end
+
+          context 'when flipped off' do
+            before { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
+
+            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
+            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
+          end
         end
       end
 
@@ -614,7 +660,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'VETERAN',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -655,7 +702,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'JACK',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -702,7 +750,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'ARTHUR',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -744,7 +793,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'PREPARE',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -800,6 +850,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'first_name' => 'ABRAHAM',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
+                'lighthouse_updated_at' => nil,
                 'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
                                              ' (VA Form 21P-534 or VA Form 21P-534EZ)'
               }
@@ -823,6 +874,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'first_name' => 'ABRAHAM',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
+                'lighthouse_updated_at' => nil,
                 'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
                                              ' (VA Form 21P-534 or VA Form 21P-534EZ)'
               }

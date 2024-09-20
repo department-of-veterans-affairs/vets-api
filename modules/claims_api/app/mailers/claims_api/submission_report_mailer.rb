@@ -4,7 +4,6 @@ module ClaimsApi
   class SubmissionReportMailer < ApplicationMailer
     RECIPIENTS = %w[
       alex.wilson@oddball.io
-      austin.covrig@oddball.io
       emily.goodrich@oddball.io
       jennica.stiehl@oddball.io
       kayla.watanabe@adhocteam.us

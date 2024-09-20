@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <VETS360_URL>/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/1
+    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA
     body:
       encoding: US-ASCII
       string: ''
@@ -22,83 +22,44 @@ http_interactions:
       code: 200
       message: ''
     headers:
-      X-Application-Context:
-      - edge-gateway:ENV-INT-DEV:8766
-      Date:
-      - Fri, 13 Apr 2018 21:07:24 GMT
-      Expires:
-      - '0'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1090288400", dtSInfo;desc="0"
+      - dtRpid;desc="-1504289209", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - fc634b3c-084a-485f-a28f-fc9f140e3229
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
-      - 1; mode=block
-      X-Frame-Options:
-      - DENY
+      - '0'
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
       Pragma:
       - no-cache
-      Strict-Transport-Security:
-      - max-age=31536000 ; includeSubDomains
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 12 Sep 2024 17:06:35 GMT
+      Referrer-Policy:
+      - no-referrer
       Content-Type:
-      - application/json;charset=UTF-8
+      - application/json
       Transfer-Encoding:
       - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{
-        "txAuditId": "ade92888-ad24-4df4-86bd-1863a136e839",
-        "status": "COMPLETED_SUCCESS",
-        "bio": {
-          "vet360Id": 1,
-          "addresses": [
-            {
-              "vet360Id": 1,
-              "addressId": 1,
-              "addressType": "Domestic",
-              "addressPOU": "CORRESPONDENCE",
-              "badAddressIndicator": "N",
-              "addressLine1": "123 Wasted Lane",
-              "cityName": "Washington",
-              "stateCode": "DC",
-              "zipCode5": "20420",
-              "zipCode4": "0001",
-              "confidenceScore": "100",
-              "latitude": "38.901",
-              "longitude": "-77.0347",
-              "geocodePrecision": "0",
-              "geocodeDate": "2018-04-13T17:01:18Z",
-              "createDate": "2018-04-09T23:33:18Z",
-              "updateDate": "2018-04-13T17:01:20Z",
-              "txAuditId": "af528bdf-09d1-4de4-8238-800949684d42",
-              "sourceSystem": "VBACORP",
-              "sourceDate": "2018-04-13T09:24:56Z",
-              "originatingSourceSystem": "VET360Test",
-              "sourceSystemUser": "VAEBENEFITS",
-              "effectiveStartDate": "2018-04-13T09:24:56Z"
-            }
-          ],
-          "createDate": "2018-04-09T23:33:18Z",
-          "emails" : [
-            {
-              "sourceSystem" : "VETSGOV",
-              "emailAddressText" : "email@example.com",
-              "createDate" : "2018-04-16T16:23:52Z",
-              "sourceDate" : "2018-04-16T16:18:08Z",
-              "vet360Id" : 1,
-              "updateDate" : "2018-04-16T17:07:29Z",
-              "emailId" : 21,
-              "txAuditId" : "119e9eec-fc95-41b7-9f42-5710588bb855"
-              }
-          ],
-          "updateDate": "2018-04-09T23:33:18Z",
-          "txAuditId": "316955d7-3db4-40f8-87ec-6c02199afcb9",
-          "sourceSystem": "VBACORP",
-          "sourceDate": "2018-04-09T18:32:46Z"
-        }
-      }'
-    http_version:
-  recorded_at: Fri, 13 Apr 2018 21:07:24 GMT
-recorded_with: VCR 3.0.3
+      string: '{"txAuditId":"fc634b3c-084a-485f-a28f-fc9f140e3229","status":"COMPLETED_SUCCESS","bio":{"createDate":"2024-08-27T17:56:23Z","updateDate":"2024-08-27T17:56:23Z","txAuditId":"74aa8ff5-8faf-454c-98b0-ebd5406174c0","sourceSystem":"VETSGOV","sourceDate":"2024-08-27T17:56:23Z","vaProfileId":1781151,"addresses":[{"createDate":"2024-08-29T21:08:17Z","updateDate":"2024-09-12T15:56:15Z","txAuditId":"46fc79c6-1325-41e8-a9a6-436299b6c7fc","sourceSystem":"VETSGOV","sourceDate":"2024-08-27T18:51:06Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2024-08-28T18:51:06Z","vaProfileId":1781151,"addressId":577127,"addressType":"Domestic","addressPOU":"RESIDENCE","addressLine1":"1494
+        Martin Luther King Rd","cityName":"Fulton","state":{"stateName":"Mississippi","stateCode":"MS"},"zipCode5":"38843","county":{"countyName":"Itawamba
+        County","countyCode":"28057"},"country":{"countryName":"United States","countryCodeFIPS":"US","countryCodeISO2":"US","countryCodeISO3":"USA"},"latitude":"34.1987","longitude":"-88.5259","geocodePrecision":"31","geocodeDate":"2024-09-12T15:56:15Z"}],"telephones":[{"createDate":"2024-08-27T19:13:04Z","updateDate":"2024-08-27T19:13:04Z","txAuditId":"c6ee12e2-d219-4d12-81e0-3eecdd5eb871","sourceSystem":"VETSGOV","sourceDate":"2024-08-27T18:51:06Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2024-08-27T18:51:06Z","vaProfileId":1781151,"telephoneId":458781,"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551234","voiceMailAcceptableInd":true,"carrier":"Multiple
+        OCN Listing","classification":{"classificationCode":4,"classificationName":"OTHER"}}],"emails":[{"createDate":"2024-08-27T17:56:23Z","updateDate":"2024-08-27T17:56:23Z","txAuditId":"74aa8ff5-8faf-454c-98b0-ebd5406174c0","sourceSystem":"VETSGOV","sourceDate":"2018-04-09T17:52:03Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2018-04-09T17:52:03Z","vaProfileId":1781151,"emailId":318927,"emailAddressText":"person42@example.com"}]}}'
+  recorded_at: Thu, 12 Sep 2024 17:06:35 GMT
+recorded_with: VCR 6.3.1

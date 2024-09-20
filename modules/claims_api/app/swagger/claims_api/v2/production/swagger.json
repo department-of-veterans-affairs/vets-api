@@ -793,7 +793,7 @@
                               }
                             },
                             "changeOfAddress": {
-                              "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+                              "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
                               "type": "object",
                               "nullable": true,
                               "additionalProperties": false,
@@ -879,6 +879,7 @@
                                       "description": "Begin date for the Veteran's new address.",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "type": "string",
+                                      "nullable": true,
                                       "example": "2018-06-04"
                                     },
                                     "endDate": {
@@ -2175,7 +2176,7 @@
                             }
                           },
                           "changeOfAddress": {
-                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
                             "type": "object",
                             "nullable": true,
                             "additionalProperties": false,
@@ -2261,6 +2262,7 @@
                                     "description": "Begin date for the Veteran's new address.",
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
+                                    "nullable": true,
                                     "example": "2018-06-04"
                                   },
                                   "endDate": {
@@ -3686,7 +3688,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "baf3193f-c8cc-4378-8c74-901327ed6839",
+                        "id": "b636aeb7-88c0-4451-bd9b-73fd63697834",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3871,7 +3873,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-09-12"
+                              "anticipatedSeparationDate": "2024-09-18"
                             },
                             "confinements": [
                               {
@@ -3917,7 +3919,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "825c2d1b-93c8-41df-8d74-084b9b44ba71",
+                        "id": "bf5dc2c7-c4f6-497c-b263-c9cf2ef097d0",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4332,7 +4334,7 @@
                               }
                             },
                             "changeOfAddress": {
-                              "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+                              "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
                               "type": "object",
                               "nullable": true,
                               "additionalProperties": false,
@@ -4418,6 +4420,7 @@
                                       "description": "Begin date for the Veteran's new address.",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "type": "string",
+                                      "nullable": true,
                                       "example": "2018-06-04"
                                     },
                                     "endDate": {
@@ -5714,7 +5717,7 @@
                             }
                           },
                           "changeOfAddress": {
-                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
                             "type": "object",
                             "nullable": true,
                             "additionalProperties": false,
@@ -5800,6 +5803,7 @@
                                     "description": "Begin date for the Veteran's new address.",
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
+                                    "nullable": true,
                                     "example": "2018-06-04"
                                   },
                                   "endDate": {
@@ -7873,7 +7877,7 @@
                             }
                           },
                           "changeOfAddress": {
-                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+                            "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
                             "type": "object",
                             "nullable": true,
                             "additionalProperties": false,
@@ -7959,6 +7963,7 @@
                                     "description": "Begin date for the Veteran's new address.",
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
+                                    "nullable": true,
                                     "example": "2018-06-04"
                                   },
                                   "endDate": {
@@ -9129,7 +9134,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c0d7ceba-1d9d-4002-b9db-41d74540faba",
+                    "id": "cc98ad06-eee9-4a56-b089-f891410097a5",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12789,8 +12794,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-09-10",
-                      "expirationDate": "2025-09-10",
+                      "creationDate": "2024-09-16",
+                      "expirationDate": "2025-09-16",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13686,7 +13691,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5ae3d533-d50f-4120-a519-578fef5551ec",
+                    "id": "46dd81ce-150a-46af-ab26-fd631d7a8c30",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14379,7 +14384,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9ef1c9e6-e62e-42d0-b82b-d43cdbd04049",
+                    "id": "25afc8c7-aeba-47c9-aaec-31654a9c954e",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16330,10 +16335,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "076540be-2b53-4fd3-86aa-d5e097b92b0a",
+                    "id": "0d361496-a409-41d3-9946-5c796ba0febe",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-09-10",
+                      "dateRequestAccepted": "2024-09-16",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
