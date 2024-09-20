@@ -75,7 +75,7 @@ module V1
     end
 
     def service
-      BenefitsEducation::Service.new('1012667122V019349')
+      BenefitsEducation::Service.new(@current_user&.icn)
     end
   end
 end
