@@ -33,7 +33,6 @@ require 'va_profile/contact_information/configuration'
 require 'va_profile/v2/contact_information/configuration'
 require 'va_profile/communication/configuration'
 require 'va_profile/demographics/configuration'
-require 'va_profile/health_benefit/configuration'
 require 'va_profile/military_personnel/configuration'
 require 'va_profile/veteran_status/configuration'
 require 'iam_ssoe_oauth/configuration'
@@ -71,7 +70,6 @@ Rails.application.reloader.to_prepare do
     VAProfile::V2::ContactInformation::Configuration.instance.breakers_service,
     VAProfile::Communication::Configuration.instance.breakers_service,
     VAProfile::Demographics::Configuration.instance.breakers_service,
-    VAProfile::HealthBenefit::Configuration.instance.breakers_service,
     VAProfile::MilitaryPersonnel::Configuration.instance.breakers_service,
     VAProfile::VeteranStatus::Configuration.instance.breakers_service,
     Search::Configuration.instance.breakers_service,
