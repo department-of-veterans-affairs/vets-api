@@ -662,6 +662,10 @@ features:
     actor_type: user
     description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
+  simple_forms_email_notifications:
+    actor_type: user
+    description: Enables form email notifications upon certain state changes (error and received)
+    enable_in_development: true
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
@@ -826,6 +830,9 @@ features:
   mhv_secure_messaging_edit_contact_list:
     actor_type: user
     description: Disables/Enables Secure Messaging edit contact list page
+  mhv_secure_messaging_triage_group_plain_language:
+    actor_type: user
+    description: Disables/Enables Secure Messaging recipients group plain language design
     enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
@@ -985,18 +992,6 @@ features:
   profile_show_credential_retirement_messaging:
     actor_type: user
     description: Show/hide MHV and DS Logon credential retirement messaging in profile
-  profile_show_direct_deposit_single_form:
-    actor_type: user
-    description: Show/hide the single direct deposit form in profile for all users
-  profile_show_direct_deposit_single_form_uat:
-    actor_type: user
-    description: Show/hide the single direct deposit form just for users during UAT only
-  profile_show_direct_deposit_single_form_alert:
-    actor_type: user
-    description: Show/hide an alert with information around migrating to a single direct deposit form in profile
-  profile_show_direct_deposit_single_form_edu_downtime:
-    actor_type: user
-    description: Show/hide the edu direct deposit form and instead display a downtime message in its place
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
@@ -1483,6 +1478,9 @@ features:
   mobile_appeal_model:
     actor_type: user
     description: For mobile app, enables use of strict models for parsing appeals
+  mobile_v2_contact_info:
+    actor_type: user
+    description: For mobile app, enables ContactInformationV2 Service.
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
