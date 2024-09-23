@@ -6,17 +6,17 @@ module Mobile
   module V0
     class Debt < Common::Resource
       attribute :id, Types::String
-      attribute :file_number, Types::String.optional.default(nil)
-      attribute :payee_number, Types::String.optional.default(nil)
-      attribute :person_entitled, Types::String.optional.default(nil)
-      attribute :deduction_code, Types::String.optional.default(nil)
-      attribute :benefit_type, Types::String.optional.default(nil)
-      attribute :diary_code, Types::String.optional.default(nil)
-      attribute :diary_code_description, Types::String.optional.default(nil)
-      attribute :amount_overpaid, Types::Float.optional.default(nil)
-      attribute :amount_withheld, Types::Float.optional.default(nil)
-      attribute :original_ar, Types::Float.optional.default(nil)
-      attribute :current_ar, Types::Float.optional.default(nil)
+      attribute :file_number, Types::String
+      attribute :payee_number, Types::String
+      attribute :person_entitled, Types::String
+      attribute :deduction_code, Types::String
+      attribute :benefit_type, Types::String
+      attribute :diary_code, Types::String
+      attribute :diary_code_description, Types::String
+      attribute :amount_overpaid, Types::Float
+      attribute :amount_withheld, Types::Float
+      attribute :original_ar, Types::Float
+      attribute :current_ar, Types::Float
       attribute :debt_history, Types::Array do
         attribute :date, Types::Date
         attribute :letter_code, Types::String
