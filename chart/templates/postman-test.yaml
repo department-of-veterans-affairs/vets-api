@@ -1,0 +1,16 @@
+{{- $root := . -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "vets-api-postman-test"
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+spec:
+  containers:
+    - name: postman
+      image: "{{ $root.Values.image.value }}:{{ $root.Values.image.tag }}"
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      env:
+        - name: "API_URL"
+          value: "https://{{ $root.Values.domain }}"
+  restartPolicy: Never
