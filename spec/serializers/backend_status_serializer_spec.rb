@@ -22,7 +22,7 @@ describe BackendStatusSerializer do
   end
 
   it 'includes :is_available' do
-    expect(attributes['is_available']).to eq backend_status.is_available
+    expect(attributes['is_available']).to eq backend_status.available?
   end
 
   it 'includes :uptime_remaining' do
