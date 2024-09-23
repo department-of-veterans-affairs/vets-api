@@ -282,8 +282,6 @@ vet360:
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
-  health_benefit:
-    mock: true
   profile_information:
     enabled: true
     timeout: 30
@@ -902,7 +900,8 @@ search:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
   mock_search: false
-  url: https://search.usa.gov/api/v2
+  gsa_url: https://api.gsa.gov/technology/searchgov/v2/results/i14y
+  url: https://search.usa.gov/api/v2/search/i14y
 
 # Settings for search-typeahead
 search_typeahead:
@@ -910,7 +909,7 @@ search_typeahead:
   name: va
   url: https://api.gsa.gov/technology/searchgov/v1
 
-  # Settings for search-click-tracking
+# Settings for search-click-tracking
 search_click_tracking:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va

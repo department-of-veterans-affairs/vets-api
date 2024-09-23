@@ -1560,6 +1560,7 @@
                                   }
                                 },
                                 "federalActivation": {
+                                  "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
                                   "type": "object",
                                   "nullable": true,
                                   "additionalProperties": false,
@@ -2943,6 +2944,7 @@
                                 }
                               },
                               "federalActivation": {
+                                "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
                                 "type": "object",
                                 "nullable": true,
                                 "additionalProperties": false,
@@ -3688,7 +3690,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "b636aeb7-88c0-4451-bd9b-73fd63697834",
+                        "id": "c57050e5-558e-4f9f-9a6b-68ea79752541",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3873,7 +3875,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-09-18"
+                              "anticipatedSeparationDate": "2024-09-21"
                             },
                             "confinements": [
                               {
@@ -3919,7 +3921,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "bf5dc2c7-c4f6-497c-b263-c9cf2ef097d0",
+                        "id": "e981c089-c851-4c90-8a76-87a956381c2e",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5101,6 +5103,7 @@
                                   }
                                 },
                                 "federalActivation": {
+                                  "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
                                   "type": "object",
                                   "nullable": true,
                                   "additionalProperties": false,
@@ -6484,6 +6487,7 @@
                                 }
                               },
                               "federalActivation": {
+                                "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
                                 "type": "object",
                                 "nullable": true,
                                 "additionalProperties": false,
@@ -8644,6 +8648,7 @@
                                 }
                               },
                               "federalActivation": {
+                                "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
                                 "type": "object",
                                 "nullable": true,
                                 "additionalProperties": false,
@@ -9134,7 +9139,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cc98ad06-eee9-4a56-b089-f891410097a5",
+                    "id": "18853a53-9cc4-479a-8443-0f3c9bdea0af",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12794,8 +12799,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-09-16",
-                      "expirationDate": "2025-09-16",
+                      "creationDate": "2024-09-19",
+                      "expirationDate": "2025-09-19",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13691,7 +13696,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "46dd81ce-150a-46af-ab26-fd631d7a8c30",
+                    "id": "b06d7ca0-bb23-4481-b9e1-6a15351e0d63",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14384,7 +14389,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "25afc8c7-aeba-47c9-aaec-31654a9c954e",
+                    "id": "4d21ac8b-52eb-48ea-930e-6277a1a272be",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16335,10 +16340,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0d361496-a409-41d3-9946-5c796ba0febe",
+                    "id": "42002b9e-354f-40b4-a7c2-5b816a934c6b",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-09-16",
+                      "dateRequestAccepted": "2024-09-19",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
