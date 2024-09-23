@@ -61,7 +61,7 @@ paths:
   /v0/appeal/{id}:
     get:
       description: Returns info on all user's claims and appeals for mobile overview
-        page
+        page. Should be identical to the following docs https://developer.va.gov/explore/api/appeals-status/docs?version=current
       parameters:
         - description: Appeal Id
           in: path

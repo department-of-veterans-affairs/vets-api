@@ -5,6 +5,9 @@ require 'common/models/resource'
 module Mobile
   module V0
     module Appeals
+      # This model is derived from the following docs: https://developer.va.gov/explore/api/appeals-status/docs?version=current
+      # We do not use the endpoint that these docs are for but instead share the same upstream service.
+      # The endpoint does not change the data in anyway so the docs should still be accurate.
       class Appeal < Common::Resource
         AOJ_TYPES = Types::String.enum(
           'vba',
