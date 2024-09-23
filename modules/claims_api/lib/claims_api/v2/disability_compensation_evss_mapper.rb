@@ -36,12 +36,46 @@ module ClaimsApi
 
       def service_information
         info = @data[:serviceInformation]
+
+        map_service_periods(info)
+        map_federal_activation_to_reserves(info) if info&.dig(:federalActivation).present?
+        map_reserves_title_ten(info) if info&.dig(:reservesNationalGuardService, :title10Activation).present?
+        map_confinements(info) if info&.dig(:confinements).present?
+      end
+
+      def map_service_periods(info)
         service_periods = format_service_periods(info&.dig(:servicePeriods))
-        confinements = format_confinements(info&.dig(:confinements)) if info&.dig(:confinements).present?
 
         @evss_claim[:serviceInformation] = {
           servicePeriods: service_periods
         }
+      end
+
+      def map_federal_activation_to_reserves(info)
+        activation_date = info&.dig(:federalActivation, :activationDate)
+        separation_date = info&.dig(:federalActivation, :anticipatedSeparationDate)
+        terms_of_service = info&.dig(:reservesNationalGuardService, :obligationTermsOfService)
+        unit_name = info&.dig(:reservesNationalGuardService, :unitName)
+
+        return if activation_date.blank? && separation_date.blank?
+
+        title_ten = {}
+        title_ten[:title10ActivationDate] = activation_date if activation_date.present?
+        title_ten[:anticipatedSeparationDate] = separation_date if separation_date.present?
+
+        begin_date = terms_of_service&.dig(:beginDate)
+        end_date = terms_of_service&.dig(:endDate)
+
+        @evss_claim[:serviceInformation][:reservesNationalGuardService] = {
+          unitName: unit_name,
+          obligationTermOfServiceFromDate: begin_date,
+          obligationTermOfServiceToDate: end_date,
+          title10Activation: title_ten
+        }
+      end
+
+      def map_confinements(info)
+        confinements = format_confinements(info&.dig(:confinements))
 
         if confinements.present?
           @evss_claim[:serviceInformation].merge!(
@@ -134,16 +168,16 @@ module ClaimsApi
       end
 
       # Convert 12-05-1984 to 1984-12-05 for Docker container
-      def format_service_periods(service_period_dates)
-        service_period_dates.each do |sp_date|
-          next if sp_date[:activeDutyBeginDate].nil?
+      def format_service_periods(service_periods)
+        service_periods.each do |sp|
+          next if sp[:activeDutyBeginDate].nil?
 
-          begin_year = Date.strptime(sp_date[:activeDutyBeginDate], '%Y-%m-%d')
-          sp_date[:activeDutyBeginDate] = begin_year.strftime('%Y-%m-%d')
-          next if sp_date[:activeDutyEndDate].nil?
+          begin_year = Date.strptime(sp[:activeDutyBeginDate], '%Y-%m-%d')
+          sp[:activeDutyBeginDate] = begin_year.strftime('%Y-%m-%d')
+          next if sp[:activeDutyEndDate].nil?
 
-          end_year = Date.strptime(sp_date[:activeDutyEndDate], '%Y-%m-%d')
-          sp_date[:activeDutyEndDate] = end_year.strftime('%Y-%m-%d')
+          end_year = Date.strptime(sp[:activeDutyEndDate], '%Y-%m-%d')
+          sp[:activeDutyEndDate] = end_year.strftime('%Y-%m-%d')
         end
       end
 
