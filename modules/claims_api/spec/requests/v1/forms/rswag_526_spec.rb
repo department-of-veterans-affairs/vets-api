@@ -80,7 +80,7 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
       let(:'X-VA-Last-Name') { 'FORD' }
 
       parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
-      let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
+      let(:'X-VA-Birth-Date') { '1965-05-06T00:00:00+00:00' }
       let(:Authorization) { 'Bearer token' }
 
       parameter SwaggerSharedComponents::V1.body_examples[:disability_compensation]
@@ -272,7 +272,7 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
       let(:'X-VA-Last-Name') { 'FORD' }
 
       parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
-      let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
+      let(:'X-VA-Birth-Date') { '1965-05-06T00:00:00+00:00' }
       let(:Authorization) { 'Bearer token' }
 
       attachment_description = <<~VERBIAGE
@@ -495,7 +495,7 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
       let(:'X-VA-Last-Name') { 'FORD' }
 
       parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
-      let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
+      let(:'X-VA-Birth-Date') { '1965-05-06T00:00:00+00:00' }
       let(:Authorization) { 'Bearer token' }
 
       parameter SwaggerSharedComponents::V1.body_examples[:disability_compensation]
@@ -658,7 +658,7 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
       let(:'X-VA-Last-Name') { 'FORD' }
 
       parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
-      let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
+      let(:'X-VA-Birth-Date') { '1965-05-06T00:00:00+00:00' }
       let(:Authorization) { 'Bearer token' }
 
       attachment_description = <<~VERBIAGE
