@@ -3308,7 +3308,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           :get,
           '/travel_pay/v0/claims/{id}',
           401,
-          {}.merge('id' => '24e227ea-917f-414f-b60d-48b7743ee95d'))
+          {}.merge('id' => '24e227ea-917f-414f-b60d-48b7743ee95d')
+        )
       end
 
       it 'returns 404 for missing claim' do
@@ -3318,7 +3319,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             :get,
             '/travel_pay/v0/claims/{id}',
             404,
-            headers.merge('id' => '8656ad4e-5cdf-41e2-bbd5-af843d2fa8fe'))
+            headers.merge('id' => '8656ad4e-5cdf-41e2-bbd5-af843d2fa8fe')
+          )
         end
       end
 
@@ -3329,7 +3331,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             :get,
             '/travel_pay/v0/claims/{id}',
             400,
-            headers.merge('id' => '8656'))
+            headers.merge('id' => '8656')
+          )
         end
       end
 
@@ -3341,7 +3344,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             :get,
             '/travel_pay/v0/claims/{id}',
             200,
-            headers.merge('id' => claim_id))
+            headers.merge('id' => claim_id)
+          )
         end
       end
     end
