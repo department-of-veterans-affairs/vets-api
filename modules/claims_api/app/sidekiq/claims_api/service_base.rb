@@ -34,6 +34,10 @@ module ClaimsApi
       end
     end
 
+    def retry_limits_for_notification
+      [11]
+    end
+
     protected
 
     def preserve_original_form_data(form_data)
