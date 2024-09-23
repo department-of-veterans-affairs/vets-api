@@ -52,5 +52,15 @@ RSpec.describe Vye::Verification, type: :model do
 
       expect(stub_nm_list.all? { |x| x.start_with?(/\S/) }).to be(true)
     end
+
+    it 'writes out the ssn with the last 2 digits in front of the first 7' do
+      io = StringIO.new
+
+      described_class.write_report(io)
+
+      stub_td_list = io.string.split(/[\n]/).map { |x| x.slice(7, 9) }.flatten
+
+      expect(stub_td_list.all? { |x| x.eql?('891234567') }).to be(true)
+    end
   end
 end

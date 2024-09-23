@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'mhv/account_creation/service'
 
 RSpec.describe MHV::UserAccount::Creator do
-  subject { described_class.new(user_verification:, cached:) }
+  subject { described_class.new(user_verification:, break_cache:) }
 
   let(:user_account) { create(:user_account, icn:) }
   let(:user_verification) { create(:user_verification, user_account:, user_credential_email:) }
@@ -12,8 +12,8 @@ RSpec.describe MHV::UserAccount::Creator do
   let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
   let(:icn) { '10101V964144' }
   let(:email) { 'some-email@email.com' }
-  let(:tou_occurred_at) { terms_of_use_agreement.created_at }
-  let(:cached) { true }
+  let(:tou_occurred_at) { terms_of_use_agreement&.created_at }
+  let(:break_cache) { false }
   let(:mhv_client) { instance_double(MHV::AccountCreation::Service) }
   let(:mhv_response_body) do
     {
@@ -26,9 +26,12 @@ RSpec.describe MHV::UserAccount::Creator do
   end
 
   before do
-    allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
-    allow(mhv_client).to receive(:create_account).and_return(mhv_response_body)
     allow(Rails.logger).to receive(:error)
+
+    allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
+    allow(mhv_client).to receive(:create_account)
+      .with(icn:, email:, tou_occurred_at:, break_cache:)
+      .and_return(mhv_response_body)
   end
 
   describe '#perform' do
@@ -73,10 +76,21 @@ RSpec.describe MHV::UserAccount::Creator do
       it_behaves_like 'an invalid creator'
     end
 
-    context 'when icn, email, and tou_occurred_at are present' do
-      it 'calls MHV::AccountCreation::Service#create_account with the expected params' do
-        subject.perform
-        expect(mhv_client).to have_received(:create_account).with(icn:, email:, tou_occurred_at:)
+    context 'when icn, email, tou_occurred_at, tou accepted are valid' do
+      context 'when break_cache is false' do
+        it 'calls MHV::AccountCreation::Service#create_account with break_cache: false' do
+          subject.perform
+          expect(mhv_client).to have_received(:create_account).with(icn:, email:, tou_occurred_at:, break_cache: false)
+        end
+      end
+
+      context 'when break_cache is true' do
+        let(:break_cache) { true }
+
+        it 'calls MHV::AccountCreation::Service#create_account with break_cache: true' do
+          subject.perform
+          expect(mhv_client).to have_received(:create_account).with(icn:, email:, tou_occurred_at:, break_cache: true)
+        end
       end
     end
   end

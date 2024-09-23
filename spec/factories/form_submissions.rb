@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :form_submission do
     form_type { '21-4142' }
-    form_data { '' }
+    form_data { '{}' }
     benefits_intake_uuid { SecureRandom.uuid }
 
     trait :pending do
