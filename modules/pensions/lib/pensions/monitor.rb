@@ -196,6 +196,7 @@ module Pensions
     # @param e [Error]
     #
     def track_file_cleanup_error(claim, lighthouse_service, user_uuid, e)
+      StatsD.increment("#{SUBMISSION_STATS_KEY}.cleanup_failed")
       Rails.logger.error('Lighthouse::PensionBenefitIntakeJob cleanup failed',
                          {
                            claim_id: claim&.id,
