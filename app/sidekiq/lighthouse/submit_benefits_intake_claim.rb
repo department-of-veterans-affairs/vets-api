@@ -29,7 +29,7 @@ module Lighthouse
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
 
-    def perform(saved_claim_id)
+    def perform(saved_claim_id) # rubocop:disable Metrics/MethodLength
       init(saved_claim_id)
 
       @pdf_path = if @claim.form_id == '21P-530V2'
