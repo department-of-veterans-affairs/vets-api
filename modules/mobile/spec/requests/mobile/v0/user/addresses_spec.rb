@@ -6,17 +6,17 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user }
-  let(:address) do
-    address = build(:va_profile_address, vet360_id: user.vet360_id)
-    # Some domestic addresses are coming in with province of string 'null'.
-    # The controller now manually forces all domestic provinces be nil
-    address.province = 'null'
-    address
-  end
-
-  Flipper.disable(:va_v3_contact_information_service)
 
   describe 'update endpoints' do
+    Flipper.disable(:va_v3_contact_information_service)
+    let(:address) do
+      address = build(:va_profile_address, vet360_id: user.vet360_id)
+      # Some domestic addresses are coming in with province of string 'null'.
+      # The controller now manually forces all domestic provinces be nil
+      address.province = 'null'
+      address
+    end
+
     describe 'POST /mobile/v0/user/addresses' do
       context 'with a valid address that takes two tries to complete' do
         before do
@@ -256,6 +256,15 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
   end
 
   describe 'POST /mobile/v0/user/addresses/validate' do
+    Flipper.disable(:va_v3_contact_information_service)
+    let(:address) do
+      address = build(:va_profile_address, vet360_id: user.vet360_id)
+      # Some domestic addresses are coming in with province of string 'null'.
+      # The controller now manually forces all domestic provinces be nil
+      address.province = 'null'
+      address
+    end
+
     context 'with an invalid address' do
       let(:invalid_address) { build(:va_profile_validation_address) }
 

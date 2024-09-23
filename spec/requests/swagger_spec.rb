@@ -33,6 +33,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
 
+  Flipper.disable(:va_v3_contact_information_service)
   let(:cassette_path) do
     if Flipper.enabled?(:va_v3_contact_information_service)
       'va_profile/v2/contact_information'
@@ -2248,7 +2249,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports updating a va profile email' do
         expect(subject).to validate(:post, '/v0/profile/email_addresses/create_or_update', 401)
 
-        VCR.use_cassette("#{cassette_path}/put_email_success") do
+        VCR.use_cassette('va_profile/contact_information/put_email_success') do
           email_address = build(:email)
 
           expect(subject).to validate(
@@ -2263,7 +2264,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports posting va_profile email address data' do
         expect(subject).to validate(:post, '/v0/profile/email_addresses', 401)
 
-        VCR.use_cassette("#{cassette_path}/post_email_success") do
+        VCR.use_cassette('va_profile/contact_information/post_email_success') do
           email_address = build(:email)
 
           expect(subject).to validate(
@@ -2278,7 +2279,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports putting va_profile email address data' do
         expect(subject).to validate(:put, '/v0/profile/email_addresses', 401)
 
-        VCR.use_cassette("#{cassette_path}/put_email_success") do
+        VCR.use_cassette('va_profile/contact_information/put_email_success') do
           email_address = build(:email, id: 42)
 
           expect(subject).to validate(
@@ -2293,7 +2294,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports deleting va_profile email address data' do
         expect(subject).to validate(:delete, '/v0/profile/email_addresses', 401)
 
-        VCR.use_cassette("#{cassette_path}/delete_email_success") do
+        VCR.use_cassette('va_profile/contact_information/delete_email_success') do
           email_address = build(:email, id: 42)
 
           expect(subject).to validate(
@@ -2308,7 +2309,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports updating va_profile telephone data' do
         expect(subject).to validate(:post, '/v0/profile/telephones/create_or_update', 401)
 
-        VCR.use_cassette("#{cassette_path}/put_telephone_success") do
+        VCR.use_cassette('va_profile/contact_information/put_telephone_success') do
           telephone = build(:telephone)
 
           expect(subject).to validate(
@@ -2323,7 +2324,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports posting va_profile telephone data' do
         expect(subject).to validate(:post, '/v0/profile/telephones', 401)
 
-        VCR.use_cassette("#{cassette_path}/post_telephone_success") do
+        VCR.use_cassette('va_profile/contact_information/post_telephone_success') do
           telephone = build(:telephone)
 
           expect(subject).to validate(
@@ -2338,7 +2339,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports putting va_profile telephone data' do
         expect(subject).to validate(:put, '/v0/profile/telephones', 401)
 
-        VCR.use_cassette("#{cassette_path}/put_telephone_success") do
+        VCR.use_cassette('va_profile/contact_information/put_telephone_success') do
           telephone = build(:telephone, id: 42)
 
           expect(subject).to validate(
@@ -2353,7 +2354,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports deleting va_profile telephone data' do
         expect(subject).to validate(:delete, '/v0/profile/telephones', 401)
 
-        VCR.use_cassette("#{cassette_path}/delete_telephone_success") do
+        VCR.use_cassette('va_profile/contact_information/delete_telephone_success') do
           telephone = build(:telephone, id: 42)
 
           expect(subject).to validate(
@@ -2493,7 +2494,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports va_profile create or update address api' do
         expect(subject).to validate(:post, '/v0/profile/addresses/create_or_update', 401)
 
-        VCR.use_cassette("#{cassette_path}/put_address_success") do
+        VCR.use_cassette('va_profile/contact_information/put_address_success') do
           address = build(:va_profile_address)
 
           expect(subject).to validate(
@@ -2508,7 +2509,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports posting va_profile address data' do
         expect(subject).to validate(:post, '/v0/profile/addresses', 401)
 
-        VCR.use_cassette("#{cassette_path}/post_address_success") do
+        VCR.use_cassette('va_profile/contact_information/post_address_success') do
           address = build(:va_profile_address)
 
           expect(subject).to validate(
@@ -2523,7 +2524,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports putting va_profile address data' do
         expect(subject).to validate(:put, '/v0/profile/addresses', 401)
 
-        VCR.use_cassette("#{cassette_path}/put_address_success") do
+        VCR.use_cassette('va_profile/contact_information/put_address_success') do
           address = build(:va_profile_address, id: 42)
 
           expect(subject).to validate(
@@ -2538,7 +2539,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports deleting va_profile address data' do
         expect(subject).to validate(:delete, '/v0/profile/addresses', 401)
 
-        VCR.use_cassette("#{cassette_path}/delete_address_success") do
+        VCR.use_cassette('va_profile/contact_information/delete_address_success') do
           address = build(:va_profile_address, id: 42)
 
           expect(subject).to validate(
@@ -2553,7 +2554,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports updating va_profile permission data' do
         expect(subject).to validate(:post, '/v0/profile/permissions/create_or_update', 401)
 
-        VCR.use_cassette("#{cassette_path}/put_permission_success") do
+        VCR.use_cassette('va_profile/contact_information/put_permission_success') do
           permission = build(:permission)
 
           expect(subject).to validate(
@@ -2568,7 +2569,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports posting va_profile permission data' do
         expect(subject).to validate(:post, '/v0/profile/permissions', 401)
 
-        VCR.use_cassette("#{cassette_path}/post_permission_success") do
+        VCR.use_cassette('va_profile/contact_information/post_permission_success') do
           permission = build(:permission)
 
           expect(subject).to validate(
@@ -2583,7 +2584,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports putting va_profile permission data' do
         expect(subject).to validate(:put, '/v0/profile/permissions', 401)
 
-        VCR.use_cassette("#{cassette_path}/put_permission_success") do
+        VCR.use_cassette('va_profile/contact_information/put_permission_success') do
           permission = build(:permission, id: 401)
 
           expect(subject).to validate(
@@ -2598,7 +2599,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports deleting va_profile permission data' do
         expect(subject).to validate(:delete, '/v0/profile/permissions', 401)
 
-        VCR.use_cassette("#{cassette_path}/delete_permission_success") do
+        VCR.use_cassette('va_profile/contact_information/delete_permission_success') do
           permission = build(:permission, id: 361) # TODO: ID
 
           expect(subject).to validate(
@@ -2647,7 +2648,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           'transaction_id' => transaction.transaction_id
         )
 
-        VCR.use_cassette("#{cassette_path}/address_transaction_status") do
+        VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
           expect(subject).to validate(
             :get,
             '/v0/profile/status/{transaction_id}',
@@ -2664,7 +2665,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           401
         )
 
-        VCR.use_cassette("#{cassette_path}/address_transaction_status") do
+        VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
           expect(subject).to validate(
             :get,
             '/v0/profile/status/',
@@ -2699,7 +2700,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           'transaction_id' => transaction.transaction_id
         )
 
-        VCR.use_cassette("#{cassette_path}/person_transaction_status") do
+        VCR.use_cassette('va_profile/contact_information/person_transaction_status') do
           expect(subject).to validate(
             :get,
             '/v0/profile/person/status/{transaction_id}',
@@ -3214,17 +3215,35 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       describe '/v0/coe/document_upload' do
-        it 'validates the route' do
-          VCR.use_cassette 'lgy/document_upload' do
-            params = {
-              'files' => [{
-                'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
-                'document_type' => 'VA home loan documents',
-                'file_type' => 'pdf',
-                'file_name' => 'lgy_file.pdf'
-              }]
-            }
-            expect(subject).to validate(:post, '/v0/coe/document_upload', 200, headers.merge({ '_data' => params }))
+        context 'successful upload' do
+          it 'validates the route' do
+            VCR.use_cassette 'lgy/document_upload' do
+              params = {
+                'files' => [{
+                  'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+                  'document_type' => 'VA home loan documents',
+                  'file_type' => 'pdf',
+                  'file_name' => 'lgy_file.pdf'
+                }]
+              }
+              expect(subject).to validate(:post, '/v0/coe/document_upload', 200, headers.merge({ '_data' => params }))
+            end
+          end
+        end
+
+        context 'failed upload' do
+          it 'validates the route' do
+            VCR.use_cassette 'lgy/document_upload_504' do
+              params = {
+                'files' => [{
+                  'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+                  'document_type' => 'VA home loan documents',
+                  'file_type' => 'pdf',
+                  'file_name' => 'lgy_file.pdf'
+                }]
+              }
+              expect(subject).to validate(:post, '/v0/coe/document_upload', 500, headers.merge({ '_data' => params }))
+            end
           end
         end
       end
@@ -3277,6 +3296,32 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[host path method]) do
           expect(subject).to validate(:get, '/travel_pay/claims', 200, headers)
+        end
+      end
+    end
+  end
+
+  describe 'submission statuses' do
+    context 'loa3 user' do
+      let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
+      let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+
+      before do
+        Flipper.enable(:my_va_form_submission_statuses)
+        create(:form_submission, :with_form214142, user_account_id: user.user_account_uuid)
+        create(:form_submission, :with_form210966, user_account_id: user.user_account_uuid)
+        create(:form_submission, :with_form_blocked, user_account_id: user.user_account_uuid)
+      end
+
+      it 'submission statuses 200' do
+        VCR.use_cassette('forms/submission_statuses/200_valid') do
+          expect(subject).to validate(:get, '/v0/my_va/submission_statuses', 200, headers)
+        end
+      end
+
+      it 'submission statuses 296' do
+        VCR.use_cassette('forms/submission_statuses/413_invalid') do
+          expect(subject).to validate(:get, '/v0/my_va/submission_statuses', 296, headers)
         end
       end
     end

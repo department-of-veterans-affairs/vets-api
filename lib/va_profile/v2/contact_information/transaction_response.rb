@@ -56,9 +56,9 @@ module VAProfile
           address_pou = response_body['tx_output'][0]['address_pou']
 
           case address_pou
-          when VAProfile::Models::BaseAddress::RESIDENCE
+          when VAProfile::Models::V2::BaseAddress::RESIDENCE
             :residence_address
-          when VAProfile::Models::BaseAddress::CORRESPONDENCE
+          when VAProfile::Models::V2::BaseAddress::CORRESPONDENCE
             :correspondence_address
           else
             :address

@@ -28,6 +28,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
   describe '#2122' do
     let(:data) { Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json').read }
+    let(:data_with_claimant) do
+      parsed_data = JSON.parse(data)
+      parsed_data['data']['attributes']['claimant'] = { firstName: 'Jane', lastName: 'Doe' }
+      parsed_data.to_json
+    end
     let(:path) { '/services/claims/v1/forms/2122' }
     let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '2122.json').read }
 
@@ -586,6 +591,68 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         mock_acg(scopes) do |auth_header|
           post "#{path}/validate", params: 'hello', headers: headers.merge(auth_header)
           expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
+        before do
+          Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+        end
+
+        context 'and the request includes a dependent claimant' do
+          it 'calls validate_poa_code_exists! and validate_dependent_by_participant_id!' do
+            mock_acg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:validate_json_schema).and_return(nil)
+
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                .to receive(:validate_poa_code_exists!)
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                .to receive(:validate_dependent_by_participant_id!)
+
+              post "#{path}/validate", params: data_with_claimant, headers: headers.merge(auth_header)
+            end
+          end
+        end
+
+        context 'and the request does not include a dependent claimant' do
+          it 'calls neither validate_poa_code_exists! nor validate_dependent_by_participant_id!' do
+            mock_acg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                .not_to receive(:validate_poa_code_exists!)
+              expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                .not_to receive(:validate_dependent_by_participant_id!)
+
+              post "#{path}/validate", params: data, headers: headers.merge(auth_header)
+            end
+          end
+        end
+      end
+
+      context 'when the lighthouse_claims_api_poa_dependent_claimants feature is disabled' do
+        before do
+          Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+        end
+
+        it 'calls neither validate_poa_code_exists! nor validate_dependent_by_participant_id!' do
+          mock_acg(scopes) do |auth_header|
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:validate_json_schema).and_return(nil)
+
+            expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+              .not_to receive(:validate_poa_code_exists!)
+            expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+              .not_to receive(:validate_dependent_by_participant_id!)
+
+            post "#{path}/validate", params: data_with_claimant, headers: headers.merge(auth_header)
+          end
         end
       end
     end

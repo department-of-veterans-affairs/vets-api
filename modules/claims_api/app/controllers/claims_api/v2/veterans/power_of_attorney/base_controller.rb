@@ -42,25 +42,27 @@ module ClaimsApi
         private
 
         def shared_form_validation(form_number)
-          target_veteran
+          base = form_number == '2122' ? 'serviceOrganization' : 'representative'
+          poa_code = form_attributes.dig(base, 'poaCode')
+
           # Custom validations for POA submission, we must check this first
-          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile)
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(
+            target_veteran.participant_id, user_profile, poa_code
+          )
           # JSON validations for POA submission, will combine with previously captured errors and raise
           validate_json_schema(form_number.upcase)
-          @rep_id = validate_registration_number!(form_number)
+          @rep_id = validate_registration_number!(base, poa_code)
 
           add_claimant_data_to_form if user_profile
           # if we get here there were only validations file errors
           if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
         end
 
-        def validate_registration_number!(form_number)
-          base = form_number == '2122' ? 'serviceOrganization' : 'representative'
+        def validate_registration_number!(base, poa_code)
           rn = form_attributes.dig(base, 'registrationNumber')
-          poa_code = form_attributes.dig(base, 'poaCode')
           rep = ::Veteran::Service::Representative.where('? = ANY(poa_codes) AND representative_id = ?',
                                                          poa_code,
                                                          rn).order(created_at: :desc).first
