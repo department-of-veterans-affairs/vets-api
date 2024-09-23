@@ -55,7 +55,7 @@ class EVSSClaimDocument < Common::Base
   'L702' => 'Disability Benefits Questionnaire (DBQ)',
   'L703' => 'Goldmann Perimetry Chart/Field Of Vision Chart',
   'L827' => 'VA Form 21-4142a - General Release for Medical Provider Information'
-  'L1489' => 'Automated Review Summary Document',
+  'L1489' => 'Automated Review Summary Document'
   }.freeze
   # rubocop:enable Layout/LineLength
 
