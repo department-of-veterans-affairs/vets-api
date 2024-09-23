@@ -207,7 +207,18 @@ paths:
         '401':
           $ref: '#/components/responses/401'
         '403':
-          $ref: '#/components/responses/403'
+          content:
+            application/json:
+              examples:
+                Missing Facilities:
+                  value:
+                    $ref: ./examples/appointments/forbidden_facilities_error.yml
+                No VAOS Access:
+                  value:
+                    $ref: ./examples/appointments/forbidden_no_vaos_access_error.yml
+                No ICN:
+                  value:
+                    $ref: ./examples/appointments/forbidden_no_icn_error.yml
         '404':
           $ref: '#/components/responses/404'
         '408':
