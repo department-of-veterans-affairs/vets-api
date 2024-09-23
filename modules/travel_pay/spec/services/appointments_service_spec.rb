@@ -41,7 +41,7 @@ describe TravelPay::AppointmentsService do
           {
             'id' => 'uuid3',
             'appointmentSource' => 'API',
-            'appointmentDateTime' => '2024-02-01T16:45:34.465Z',
+            'appointmentDateTime' => '2024-01-01T12:45:34.465Z',
             'appointmentName' => 'string',
             'appointmentType' => 'EnvironmentalHealth',
             'facilityName' => 'Cheyenne VA Medical Center',
@@ -89,14 +89,14 @@ describe TravelPay::AppointmentsService do
     context 'filter by appt date' do
       it 'returns appointments that match appt date if specified' do
         service = TravelPay::AppointmentsService.new
-        appts = service.get_appointments_by_date(*tokens, { 'appt_datetime' => '2024-01-01' })
+        appts = service.get_appointments_by_date(*tokens, { 'appt_datetime' => '2024-01-01T12:45:34.465Z' })
 
         expect(appts.count).to equal(1)
       end
 
       it 'returns 0 appointments if appt date does not match' do
         service = TravelPay::AppointmentsService.new
-        appts = service.get_appointments_by_date(*tokens, { 'appt_datetime' => '1700-01-01' })
+        appts = service.get_appointments_by_date(*tokens, { 'appt_datetime' => '1700-01-01T12:45:34.465Z' })
 
         expect(appts[:data].count).to equal(0)
       end

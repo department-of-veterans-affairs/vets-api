@@ -17,11 +17,10 @@ module TravelPay
 
     def filter_by_date(date_string, appointments)
       if date_string.present?
-        parsed_appt_date = Date.parse(date_string)
 
         appointments.filter do |appointment|
           appointment['appointmentDateTime'].nil? &&
-            parsed_appt_date == Date.parse(appointment['appointmentDateTime'])
+            date_string == appointment['appointmentDateTime']
         end
       end
     rescue Date::Error => e
