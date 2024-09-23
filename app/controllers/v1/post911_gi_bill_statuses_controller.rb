@@ -70,6 +70,7 @@ module V1
       }.to_json
     end
 
+    # TO-DO: Remove this method after transition of LTS to 24/7 availability
     def skip_sentry_exception_types
       super + [BenefitsEducation::OutsideWorkingHours]
     end

@@ -63,9 +63,13 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
     end
   end
 
+  # TO-DO: Remove this suite of tests after transition of LTS to 24/7 availability
   context 'outside working hours' do
     # midnight
-    before { Timecop.freeze(tz.parse('2nd Feb 1993 00:00:00')) }
+    before do
+      Flipper.disable(:sob_updated_design)
+      Timecop.freeze(tz.parse('2nd Feb 1993 00:00:00'))
+    end
     after { Timecop.return }
 
     it 'returns 503' do
