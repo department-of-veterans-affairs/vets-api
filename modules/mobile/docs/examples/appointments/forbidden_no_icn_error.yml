@@ -1,0 +1,5 @@
+errors:
+  - title: 'Forbidden'
+    detail: 'No patient ICN found'
+    code: '403'
+    status: '403'
