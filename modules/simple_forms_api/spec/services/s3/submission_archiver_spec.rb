@@ -32,7 +32,9 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiver, skip: 'These are flaky, n
     allow_any_instance_of(described_class).to receive(:upload_temp_folder_to_s3).and_return('/things/stuff/')
     allow_any_instance_of(described_class).to receive(:cleanup).and_return(true)
     allow_any_instance_of(described_class).to receive(:generate_presigned_url).and_return('/s3_url/stuff.pdf')
-    allow_any_instance_of(SimpleFormsApi::S3::SubmissionArchiveBuilder).to receive(:run).and_return(file_path)
+    allow_any_instance_of(SimpleFormsApi::S3::SubmissionArchiveBuilder).to(
+      receive(:run).and_return([file_path, submission])
+    )
   end
 
   describe '#initialize' do
