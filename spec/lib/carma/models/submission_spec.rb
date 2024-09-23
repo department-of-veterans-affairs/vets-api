@@ -164,23 +164,46 @@ RSpec.describe CARMA::Models::Submission, type: :model do
   end
 
   describe '::from_claim' do
-    it 'transforms a CaregiversAssistanceClaim to a new CARMA::Model::Submission' do
-      claim = build(:caregivers_assistance_claim)
+    context 'with the caregiver_carma_submitted_at flag enabled' do
+      it 'transforms a CaregiversAssistanceClaim to a new CARMA::Model::Submission' do
+        expect(Flipper).to receive(:enabled?).with(:caregiver_carma_submitted_at).and_return(true)
 
-      submission = described_class.from_claim(claim)
+        claim = build(:caregivers_assistance_claim, created_at: DateTime.now)
 
-      expect(submission).to be_instance_of(described_class)
-      expect(submission.data).to eq(claim.parsed_form)
-      expect(submission.carma_case_id).to eq(nil)
-      expect(submission.submitted_at).to eq(nil)
+        submission = described_class.from_claim(claim)
 
-      expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
-      expect(submission.metadata.claim_id).to eq(claim.id)
-      expect(submission.metadata.claim_guid).to eq(claim.guid)
+        expect(submission).to be_instance_of(described_class)
+        expect(submission.data).to eq(claim.parsed_form)
+        expect(submission.carma_case_id).to eq(nil)
+
+        expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
+        expect(submission.metadata.claim_id).to eq(claim.id)
+        expect(submission.metadata.claim_guid).to eq(claim.guid)
+        expect(submission.metadata.submitted_at).to eq(claim.created_at.iso8601)
+      end
+    end
+
+    context 'with the caregiver_carma_submitted_at flag disabled' do
+      it 'transforms a CaregiversAssistanceClaim to a new CARMA::Model::Submission' do
+        expect(Flipper).to receive(:enabled?).with(:caregiver_carma_submitted_at).and_return(false)
+
+        claim = build(:caregivers_assistance_claim, created_at: DateTime.now)
+
+        submission = described_class.from_claim(claim)
+
+        expect(submission).to be_instance_of(described_class)
+        expect(submission.data).to eq(claim.parsed_form)
+        expect(submission.carma_case_id).to eq(nil)
+
+        expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
+        expect(submission.metadata.claim_id).to eq(claim.id)
+        expect(submission.metadata.claim_guid).to eq(claim.guid)
+        expect(submission.metadata.submitted_at).to eq(nil)
+      end
     end
 
     it 'overrides :claim_id when passed in metadata and use claim.id instead' do
-      claim = build(:caregivers_assistance_claim)
+      claim = build(:caregivers_assistance_claim, created_at: DateTime.now)
 
       submission = described_class.from_claim(claim, claim_id: 99)
 
@@ -191,10 +214,11 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
       expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(submission.metadata.claim_id).to eq(claim.id)
+      expect(submission.metadata.submitted_at).to eq(claim.created_at.iso8601)
     end
 
     it 'overrides :claim_guid when passed in metadata and use claim.guid instead' do
-      claim = build(:caregivers_assistance_claim)
+      claim = build(:caregivers_assistance_claim, created_at: DateTime.now)
 
       submission = described_class.from_claim(claim, claim_guid: 'not-this-claims-guid')
 
@@ -206,6 +230,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(submission.metadata.claim_guid).not_to eq('not-this-claims-guid')
       expect(submission.metadata.claim_guid).to eq(claim.guid)
+      expect(submission.metadata.submitted_at).to eq(claim.created_at.iso8601)
     end
   end
 
@@ -252,6 +277,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
           'metadata' => {
             'claimId' => 123,
             'claimGuid' => 'my-uuid',
+            'submittedAt' => nil,
             'veteran' => {
               'icn' => 'VET1234',
               'isVeteran' => true
