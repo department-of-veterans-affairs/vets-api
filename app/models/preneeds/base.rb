@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Parent class for other Preneeds Burial form related models
 # Should not be initialized directly
 module Preneeds
