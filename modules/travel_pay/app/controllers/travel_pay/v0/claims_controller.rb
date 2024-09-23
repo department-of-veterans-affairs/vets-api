@@ -20,6 +20,8 @@ module TravelPay
           claim = claims_service.get_claim_by_id(veis_token, btsss_token, params[:id])
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
+        rescue ArgumentError => e
+          raise Common::Exceptions::BadRequest, message: e.message
         end
 
         if claim.nil?

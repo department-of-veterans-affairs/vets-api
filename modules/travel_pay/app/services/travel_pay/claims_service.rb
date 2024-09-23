@@ -28,7 +28,12 @@ module TravelPay
 
       claims = claims_response.body['data']
 
-      claims.find { |c| c['id'] == claim_id }
+      claim = claims.find { |c| c['id'] == claim_id }
+
+      if claim
+        claim['claimStatus'] = claim['claimStatus'].underscore.titleize
+        claim
+      end
     end
 
     private

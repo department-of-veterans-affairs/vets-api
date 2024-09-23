@@ -5,7 +5,7 @@ module Swagger
     class TravelPay
       include Swagger::Blocks
 
-      swagger_path '/travel_pay/claims' do
+      swagger_path '/travel_pay/v0/claims' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::BadRequestError
@@ -23,14 +23,6 @@ module Swagger
             key :type, :string
           end
 
-          parameter do
-            key :in, :path
-            key :name, :id
-            key :pattern, ''
-            key :description, 'The non-PII/PHI id of a claim'
-            key :required, false
-          end
-
           response 200 do
             key :description, 'Successfully retrieved claims for a user'
             schema do
@@ -40,10 +32,11 @@ module Swagger
         end
       end
 
-      swagger_path '/travel_pay/claims/{id}' do
+      swagger_path '/travel_pay/v0/claims/{id}' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::BadRequestError
+          extend Swagger::Responses::RecordNotFoundError
 
           key :description, 'Get a single travel reimbursment claim summary'
           key :operationId, 'getTravelPayClaimById'
@@ -52,11 +45,11 @@ module Swagger
           parameter :authorization
 
           parameter do
+            key :name, 'id'
             key :in, :path
-            key :name, :id
-            key :pattern, '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[4][0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$'
-            key :description, 'The non-PII/PHI id of a claim'
-            key :required, false
+            key :description, 'The non-PII/PHI id of a claim (UUIDv4)'
+            key :required, true
+            key :type, :string
           end
 
           response 200 do
