@@ -32,4 +32,36 @@ http_interactions:
       encoding: ASCII-8BIT
       string: ''
   recorded_at: Wed, 31 Jan 2024 18:49:39 GMT
+- request:
+    method: get
+    uri: https://api.gsa.gov/technology/searchgov/v2/results/i14y?access_key=TESTKEY&affiliate=va&limit=10&offset=0&query=benefits
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 504
+      message: Gateway Timeout
+    headers:
+      Content-Length:
+      - 0
+      Connection:
+      - keep-alive
+      Date:
+      - Wed, 31 Jan 2024 18:49:39 GMT
+      Keep-Alive:
+      - timeout=5
+    body:
+      encoding: ASCII-8BIT
+      string: ''
+  recorded_at: Tue, 17 Sep 2024 22:49:39 GMT
 recorded_with: VCR 6.2.0
