@@ -16,7 +16,7 @@ module Vye
 
         validate_award_ids!
 
-        transact_date = Time.zone.today
+        transact_date = cert_through_date
         pending_verifications.each do |verification|
           verification.update!(transact_date:, source_ind:)
         end
@@ -25,6 +25,16 @@ module Vye
       end
 
       private
+
+      def cert_through_date
+        found = nil
+        pending_verifications.each do |pv|
+          found = 
+            #find the most farest into the future of this one pv.act_end
+        end
+
+        found
+      end
 
       def award_ids
         params.fetch(:award_ids, []).map(&:to_i)
