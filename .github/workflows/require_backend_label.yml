@@ -55,13 +55,13 @@ jobs:
               pull_number: context.payload.pull_request.number
             }).then(response => response.data.teams.map(team => team.slug));
 
-            if (!requestedTeams.includes(mobileTeam)) {
+            if (requestedTeams.includes(mobileTeam)) {
                echo "omit_backend=true" >> $GITHUB_OUTPUT
             }
-            if (!requestedTeams.includes(lighthouseTeam)) {
+            if (requestedTeams.includes(lighthouseTeam)) {
                echo "omit_backend=true" >> $GITHUB_OUTPUT
             }
-            if (!requestedTeams.includes(identityTeam)) {
+            if (requestedTeams.includes(identityTeam)) {
                echo "omit_backend=true" >> $GITHUB_OUTPUT
             }
       - run: echo "${{ steps.requested_reviewers.outputs }}"
