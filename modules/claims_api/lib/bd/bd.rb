@@ -122,9 +122,9 @@ module ClaimsApi
     end
 
     def determine_birls_file_number(doc_type, auth_headers)
-      if %w[L122 L705].include?(doc_type)
+      if %w[L122].include?(doc_type)
         birls_file_num = auth_headers['va_eauth_birlsfilenumber']
-      elsif %w[L075 L190].include?(doc_type)
+      elsif %w[L075 L190 L705].include?(doc_type)
         birls_file_num = nil
       end
       birls_file_num

@@ -9,14 +9,15 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-Consumer-Username': 'TestConsumer',
-      'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
+      'X-VA-Birth-Date': '1956-05-06T00:00:00+00:00',
       'X-VA-Gender': 'M' }
   end
   let(:scopes) { %w[claim.write] }
   let(:multi_profile) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
+      profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321],
+                                              birth_date: '19560506')
     )
   end
 
@@ -538,6 +539,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     VCR.use_cassette('claims_api/brd/countries') do
                       par = json_data
                       par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
+                      par['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                        '2007-08-01'
 
                       post path, params: par.to_json, headers: headers.merge(auth_header)
                       expect(response).to have_http_status(:bad_request)
@@ -599,6 +602,24 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               title10ActivationDate: title10_activation_date
             }
           }
+        end
+
+        context "When an activeDutyBeginDate is before a Veteran's 13th birthday" do
+          it 'raise an error' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  headers['X-VA-Birth-Date'] = '1986-05-06T00:00:00+00:00'
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                    '2007-08-01'
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
         end
 
         context "'title10ActivationDate' validations" do
@@ -1069,7 +1090,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           icn: '1012832025V743496',
           first_name: 'Wesley',
           last_name: 'Ford',
-          birth_date: '19630211',
+          birth_date: '19590211',
           loa: { current: 3, highest: 3 },
           edipi: nil,
           ssn: '796043735',
@@ -1123,10 +1144,10 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         let(:profile_with_edipi) do
           MPI::Responses::FindProfileResponse.new(
             status: 'OK',
-            profile: FactoryBot.build(:mpi_profile, edipi: '2536798')
+            profile: FactoryBot.build(:mpi_profile, edipi: '2536798', birth_date: '19560506')
           )
         end
-        let(:profile) { build(:mpi_profile) }
+        let(:profile) { build(:mpi_profile, birth_date: '19560506') }
         let(:mpi_profile_response) { build(:find_profile_response, profile:) }
 
         it 'returns a 422 without an edipi' do
@@ -1173,7 +1194,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
 
       context 'when consumer is Veteran, but is missing a participant id' do
-        let(:profile) { build(:mpi_profile) }
+        let(:profile) { build(:mpi_profile, birth_date: '19560506') }
         let(:mpi_profile_response) { build(:find_profile_response, profile:) }
 
         it 'raises a 422, with message' do
@@ -1205,7 +1226,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     context 'when Veteran has participant_id' do
       context 'when Veteran is missing a birls_id' do
         before do
-          stub_mpi(build(:mpi_profile, birls_id: nil))
+          stub_mpi(build(:mpi_profile, birls_id: nil, birth_date: '19560506'))
         end
 
         it 'returns an unprocessible entity status' do
@@ -1221,7 +1242,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
     context 'when Veteran has multiple participant_ids' do
       before do
-        stub_mpi(build(:mpi_profile, birls_id: nil))
+        stub_mpi(build(:mpi_profile, birls_id: nil, birth_date: '19560506'))
       end
 
       it 'returns an unprocessible entity status' do
