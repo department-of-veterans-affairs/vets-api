@@ -2,6 +2,7 @@
 
 class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
   include SetAWSConfig
+  include UploaderVirusScan
 
   def size_range
     (1.byte)...(100_000_000.bytes)

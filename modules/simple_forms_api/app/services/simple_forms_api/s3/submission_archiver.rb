@@ -133,7 +133,7 @@ module SimpleFormsApi
       end
 
       def s3_uploader
-        @s3_uploader ||= VeteranFacingFormsRemediationUploader.new(benefits_intake_uuid, s3_directory_path)
+        @s3_uploader ||= VeteranFacingFormsRemediationUploader.new(benefits_intake_uuid, s3_submission_file_path)
       end
 
       def local_submission_file_path
