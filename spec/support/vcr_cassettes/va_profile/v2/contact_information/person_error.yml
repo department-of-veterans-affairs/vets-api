@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri:  <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/6767671%5EPI%5E200VETS%5EUSDVA
+    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/6767671%5EPN%5E200VIDM%5EUSDVA
     body:
       encoding: US-ASCII
       string: ''
@@ -19,17 +19,17 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 404
+      code: 400
       message: ''
     headers:
       X-Oneagent-Js-Injection:
       - 'true'
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-1644700415", dtSInfo;desc="0"
-      - dtRpid;desc="52564847", dtSInfo;desc="0"
+      - dtRpid;desc="-1453683967", dtSInfo;desc="0"
+      - dtRpid;desc="1964190738", dtSInfo;desc="0"
       Vaprofiletxauditid:
-      - 0cc53fef-c27a-4d0c-a297-0ecd5f061511
+      - 88a67419-97d0-4056-9105-d99a93151c9f
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
@@ -46,7 +46,7 @@ http_interactions:
       - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
         about: blob: ws: wss:'
       Date:
-      - Thu, 29 Aug 2024 18:47:05 GMT
+      - Thu, 12 Sep 2024 22:05:20 GMT
       Referrer-Policy:
       - no-referrer
       Content-Type:
@@ -57,8 +57,7 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","text":"The PersonBio
-        for id/criteria 6767671^PI^200VETS^USDVA could not be found. Please correct
-        your request and try again!","severity":"ERROR"}],"txAuditId":"0cc53fef-c27a-4d0c-a297-0ecd5f061511","status":"COMPLETED_FAILURE"}'
-  recorded_at: Thu, 29 Aug 2024 18:47:05 GMT
+      string: '{"messages":[{"code":"MVI201","key":"MviNotFound","text":"The person
+        with the identifier requested was not found in MVI.","severity":"ERROR","potentiallySelfCorrectingOnRetry":false}],"txAuditId":"88a67419-97d0-4056-9105-d99a93151c9f","status":"COMPLETED_FAILURE"}'
+  recorded_at: Thu, 12 Sep 2024 22:05:21 GMT
 recorded_with: VCR 6.3.1

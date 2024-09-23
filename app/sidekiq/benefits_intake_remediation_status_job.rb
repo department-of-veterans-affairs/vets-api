@@ -24,11 +24,14 @@ class BenefitsIntakeRemediationStatusJob
   # search all submissions for outstanding failures
   # poll LH endpoint to see if status has changed (case if endpoint had an error initially)
   # report stats on submissions, grouped by form-type
-  def perform
+  def perform(form_id = nil)
     Rails.logger.info('BenefitsIntakeRemediationStatusJob started')
 
     form_submissions = FormSubmission.includes(:form_submission_attempts)
     failures = outstanding_failures(form_submissions.all)
+
+    @form_id = form_id
+    failures.select! { |f| f.form_type == form_id } if form_id
 
     batch_process(failures) unless failures.empty?
 
@@ -39,7 +42,7 @@ class BenefitsIntakeRemediationStatusJob
 
   private
 
-  attr_reader :batch_size, :total_handled
+  attr_reader :batch_size, :total_handled, :form_id
 
   # determine if a claim has an outstanding failure
   # each claim can have multiple FormSubmission, which can have multiple FormSubmissionAttempt
@@ -118,10 +121,12 @@ class BenefitsIntakeRemediationStatusJob
     form_submissions = FormSubmission.includes(:form_submission_attempts)
     form_submission_groups = form_submissions.all.group_by(&:form_type)
 
-    form_submission_groups.each do |form_id, submissions|
+    form_submission_groups.each do |form_type, submissions|
+      next if form_id && form_id != form_type
+
       fs_saved_claim_ids = submissions.map(&:saved_claim_id).uniq
 
-      claims = SavedClaim.where(form_id:).where('id >= ?', fs_saved_claim_ids.min)
+      claims = SavedClaim.where(form_id: form_type).where('id >= ?', fs_saved_claim_ids.min)
       claim_ids = claims.map(&:id).uniq
 
       unsubmitted = claim_ids - fs_saved_claim_ids
@@ -133,9 +138,9 @@ class BenefitsIntakeRemediationStatusJob
         { claim_id: fs.saved_claim_id, uuid: fs.benefits_intake_uuid, error_message: last_attempt.error_message }
       end
 
-      StatsD.set("#{STATS_KEY}.#{form_id}.unsubmitted_claims", unsubmitted.length)
-      StatsD.set("#{STATS_KEY}.#{form_id}.orphaned_submissions", orphaned.length)
-      StatsD.set("#{STATS_KEY}.#{form_id}.outstanding_failures", failures.length)
+      StatsD.gauge("#{STATS_KEY}.unsubmitted_claims", unsubmitted.length, tags: ["form_id:#{form_type}"])
+      StatsD.gauge("#{STATS_KEY}.orphaned_submissions", orphaned.length, tags: ["form_id:#{form_type}"])
+      StatsD.gauge("#{STATS_KEY}.outstanding_failures", failures.length, tags: ["form_id:#{form_type}"])
       Rails.logger.info("BenefitsIntakeRemediationStatusJob submission audit #{form_id}", form_id:, unsubmitted:,
                                                                                           orphaned:, failures:)
     end
