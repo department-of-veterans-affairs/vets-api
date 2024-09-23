@@ -72,7 +72,8 @@ directory:
 search:
   access_key: TESTKEY
   affiliate: va
-  url: https://search.usa.gov/api/v2
+  gsa_url: https://api.gsa.gov/technology/searchgov/v2/results/i14y
+  url: https://search.usa.gov/api/v2/search/i14y
 
 search_typeahead:
   api_key: TEST_KEY

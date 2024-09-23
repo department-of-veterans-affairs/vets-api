@@ -74,7 +74,7 @@ class FormSubmissionAttempt < ApplicationRecord
 
   def enqueue_result_email(notification_type)
     config = {
-      form_data: form_submission.form_data,
+      form_data: JSON.parse(form_submission.form_data),
       form_number: form_submission.form_type,
       confirmation_number: form_submission.benefits_intake_uuid,
       date_submitted: created_at.strftime('%B %d, %Y'),
