@@ -218,7 +218,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           }
         end
 
-        it 'maps the special issues attributes correctly and does NOT appends PACT' do
+        it 'maps the special issues attributes correctly and does NOT append PACT' do
           form_data['data']['attributes']['disabilities'][0] = disability
           auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
           evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]

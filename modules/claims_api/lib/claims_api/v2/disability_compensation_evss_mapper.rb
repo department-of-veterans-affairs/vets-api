@@ -98,15 +98,14 @@ module ClaimsApi
             secondary.except(:exposureOrEventOrInjury, :approximateDate)
           end
         end
-        check_for_pact_special_issue(disability)
+        check_for_pact_special_issue(disability) if disability[:disabilityActionType] != 'INCREASE'
 
         disability.except(:approximateDate, :isRelatedToToxicExposure)
       end
 
       def check_for_pact_special_issue(disability)
         related_to_toxic_exposure = disability[:isRelatedToToxicExposure]
-        action_not_increase = disability[:disabilityActionType] != 'INCREASE'
-        if related_to_toxic_exposure && action_not_increase
+        if related_to_toxic_exposure
           disability[:specialIssues] ||= []
           disability[:specialIssues] << 'PACT'
         end
