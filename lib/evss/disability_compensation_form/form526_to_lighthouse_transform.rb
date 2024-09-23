@@ -291,6 +291,17 @@ module EVSS
                                                        MULTIPLE_EXPOSURES_TYPE[:hazard])
         end
 
+        # multiple exposures could have repeated values that LH will not accept in the primary path.
+        # remove them!
+        multiple_exposures.uniq! do |exposure|
+          [
+            exposure.exposure_dates.begin_date,
+            exposure.exposure_dates.end_date,
+            exposure.exposure_location,
+            exposure.hazard_exposed_to
+          ]
+        end
+
         toxic_exposure_target.multiple_exposures = multiple_exposures
 
         toxic_exposure_target

@@ -141,10 +141,13 @@ module ClaimsApi
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
           if Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
-            service = ClaimsApi::DependentClaimantVerificationService.new(target_veteran.participant_id,
-                                                                          form_attributes.dig('claimant', 'firstName'),
-                                                                          form_attributes.dig('claimant', 'lastName'),
-                                                                          poa_code)
+            veteran_participant_id = target_veteran.participant_id
+            claimant_first_name = form_attributes.dig('claimant', 'firstName')
+            claimant_last_name = form_attributes.dig('claimant', 'lastName')
+            service = ClaimsApi::DependentClaimantVerificationService.new(veteran_participant_id:,
+                                                                          claimant_first_name:,
+                                                                          claimant_last_name:,
+                                                                          poa_code:)
             service.validate_poa_code_exists!
             service.validate_dependent_by_participant_id!
           end
