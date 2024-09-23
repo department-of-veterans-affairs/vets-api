@@ -469,4 +469,104 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
   end
+
+  describe 'validation for BDD_PROGRAM claim' do
+    let(:valid_service_info_for_bdd) do
+      {
+        'servicePeriods' => [
+          {
+            'serviceBranch' => 'Air Force Reserves',
+            'serviceComponent' => 'Reserves',
+            'activeDutyBeginDate' => '2015-11-14',
+            'activeDutyEndDate' => '2024-12-20'
+          }
+        ],
+        'reservesNationalGuardService' => {
+          'component' => 'National Guard',
+          'obligationTermsOfService' => {
+            'beginDate' => '1990-11-24',
+            'endDate' => '1995-11-17'
+          },
+          'unitName' => 'National Guard Unit Name',
+          'unitAddress' => '1243 Main Street',
+          'unitPhone' => {
+            'areaCode' => '555',
+            'phoneNumber' => '5555555'
+          },
+          'receivingInactiveDutyTrainingPay' => 'YES'
+        },
+        'federalActivation' => {
+          'activationDate' => '2023-10-01',
+          'anticipatedSeparationDate' => '2024-12-20'
+        }
+      }
+    end
+
+    def validate_field(field_path, expected_detail, expected_source)
+      keys = field_path.split('.')
+      current_hash = valid_service_info_for_bdd
+
+      keys[0..-2].each do |key|
+        current_hash = current_hash[key]
+      end
+
+      current_hash[keys.last] = '' # set the specified field to empty string to omit
+
+      invalid_service_info_for_bdd = valid_service_info_for_bdd
+      subject.form_attributes['serviceInformation'] = invalid_service_info_for_bdd
+      test_526_validation_instance.send(:validate_federal_activation_values, invalid_service_info_for_bdd)
+
+      expect(current_error_array[0][:detail]).to eq(expected_detail)
+      expect(current_error_array[0][:source]).to eq(expected_source)
+    end
+
+    context 'when federalActivation is present' do
+      it 'and all the required attributes are present' do
+        test_526_validation_instance.send(:validate_federal_activation_values, valid_service_info_for_bdd)
+        expect(current_error_array).to eq(nil)
+      end
+
+      # rubocop:disable RSpec/NoExpectationExample
+      it 'requires federalActivation.activationDate' do
+        validate_field(
+          'federalActivation.activationDate',
+          'activationDate is missing or blank',
+          'serviceInformation/federalActivation/'
+        )
+      end
+
+      it 'requires federalActivation.anticipatedSeparationDate' do
+        validate_field(
+          'federalActivation.anticipatedSeparationDate',
+          'anticipatedSeparationDate is missing or blank',
+          'serviceInformation/federalActivation/'
+        )
+      end
+
+      it 'requires reservesNationalGuardService.obligationTermsOfService.beginDate' do
+        validate_field(
+          'reservesNationalGuardService.obligationTermsOfService.beginDate',
+          'beginDate is missing or blank',
+          'serviceInformation/reservesNationalGuardServce/obligationTermsOfService/'
+        )
+      end
+
+      it 'requires reservesNationalGuardService.obligationTermsOfService.endDate' do
+        validate_field(
+          'reservesNationalGuardService.obligationTermsOfService.endDate',
+          'endDate is missing or blank',
+          'serviceInformation/reservesNationalGuardServce/obligationTermsOfService/'
+        )
+      end
+
+      it 'requires reservesNationalGuardService.unitName' do
+        validate_field(
+          'reservesNationalGuardService.unitName',
+          'unitName is missing or blank',
+          'serviceInformation/reservesNationalGuardServce/'
+        )
+      end
+      # rubocop:enable RSpec/NoExpectationExample
+    end
+  end
 end

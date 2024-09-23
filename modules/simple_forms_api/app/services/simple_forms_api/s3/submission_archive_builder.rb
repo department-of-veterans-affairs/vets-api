@@ -20,24 +20,21 @@ module SimpleFormsApi
       def run
         FileUtils.mkdir_p(temp_directory_path)
         process_submission_files
-        temp_directory_path
+        [temp_directory_path, submission]
       rescue => e
         handle_error("Failed building submission: #{benefits_intake_uuid}", e)
       end
 
       private
 
-      attr_reader :attachments, :benefits_intake_uuid, :file_path, :include_json_archive, :include_manifest,
-                  :include_text_archive, :metadata, :submission
+      attr_reader :attachments, :benefits_intake_uuid, :file_path, :include_manifest, :metadata, :submission
 
       def default_options
         {
           attachments: nil,           # The confirmation codes of any attachments which were originally submitted
           benefits_intake_uuid: nil,  # The UUID returned from the Benefits Intake API upon original submission
           file_path: nil,             # The local path where the submission PDF is stored
-          include_json_archive: true, # Include the form data as a JSON object
           include_manifest: true,     # Include a CSV file containing manifest data
-          include_text_archive: true, # Include the form data as a text file
           metadata: nil,              # Data appended to the original submission headers
           submission: nil             # The FormSubmission object representing the original data payload submitted
         }
@@ -49,9 +46,7 @@ module SimpleFormsApi
 
       def process_submission_files
         write_pdf
-        write_as_json_archive if include_json_archive
-        write_as_text_archive if include_text_archive
-        write_attachments unless attachments && attachments.empty?
+        write_attachments if attachments&.any?
         write_manifest if include_manifest
         write_metadata
       rescue => e
@@ -60,14 +55,6 @@ module SimpleFormsApi
 
       def write_pdf
         write_tempfile(submission_pdf_filename, File.read(file_path))
-      end
-
-      def write_as_json_archive
-        write_tempfile('form_json_archive.json', JSON.pretty_generate(form_data_hash))
-      end
-
-      def write_as_text_archive
-        write_tempfile('form_text_archive.txt', form_data_hash.to_s)
       end
 
       def write_metadata
@@ -83,10 +70,10 @@ module SimpleFormsApi
 
       def process_attachment(attachment_number, guid)
         log_info("Processing attachment ##{attachment_number}: #{guid}")
-        attachment = PersistentAttachment.find_by(guid:).to_pdf
+        attachment = PersistentAttachment.find_by(guid:)
         raise "Attachment not found: #{guid}" unless attachment
 
-        write_tempfile("attachment_#{attachment_number}.pdf", attachment)
+        write_tempfile("attachment_#{attachment_number}.pdf", attachment.to_pdf)
       rescue => e
         handle_error("Failed processing attachment #{attachment_number} (#{guid})", e)
       end
@@ -129,8 +116,12 @@ module SimpleFormsApi
         @form_data_hash ||= JSON.parse(submission.form_data)
       end
 
+      # Name the form PDFs and/or individual submission folders
+      # uniquely, using a field that also appears in the manifest.
+      # The recommended format is Form-number-vagov-submission ID
       def submission_pdf_filename
-        @submission_pdf_filename ||= "form_#{form_data_hash['form_number']}.pdf"
+        form_number = form_data_hash['form_number']
+        @submission_pdf_filename ||= "form_#{form_number}_vagov_#{benefits_intake_uuid}.pdf"
       end
     end
   end
