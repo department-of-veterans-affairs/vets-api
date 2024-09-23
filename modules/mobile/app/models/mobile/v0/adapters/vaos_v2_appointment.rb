@@ -4,15 +4,6 @@ module Mobile
   module V0
     module Adapters
       class VAOSV2Appointment
-        APPOINTMENT_TYPES = {
-          va: 'VA',
-          cc: 'COMMUNITY_CARE',
-          va_video_connect_home: 'VA_VIDEO_CONNECT_HOME',
-          va_video_connect_gfe: 'VA_VIDEO_CONNECT_GFE',
-          va_video_connect_atlas: 'VA_VIDEO_CONNECT_ATLAS',
-          va_video_connect_onsite: 'VA_VIDEO_CONNECT_ONSITE'
-        }.freeze
-
         STATUSES = {
           booked: 'BOOKED',
           fulfilled: 'BOOKED',

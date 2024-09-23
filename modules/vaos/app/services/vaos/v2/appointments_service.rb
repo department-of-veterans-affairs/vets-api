@@ -19,6 +19,18 @@ module VAOS
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
       APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
+      APPOINTMENT_TYPES = {
+        va: 'VA',
+        cc_appointment: 'COMMUNITY_CARE_APPOINTMENT',
+        cc_request: 'COMMUNITY_CARE_REQUEST',
+        request: 'REQUEST',
+        va_video_connect_home: 'VA_VIDEO_CONNECT_HOME',
+        va_video_connect_gfe: 'VA_VIDEO_CONNECT_GFE',
+        va_video_connect_atlas: 'VA_VIDEO_CONNECT_ATLAS',
+        va_video_connect_onsite: 'VA_VIDEO_CONNECT_ONSITE',
+        claim_exam: 'CLAIM_EXAM',
+        phone_appointment: 'PHONE_APPOINTMENT',
+      }.freeze
 
       # Output format for preferred dates
       # Example: "Thu, July 18, 2024 in the ..."
@@ -93,14 +105,14 @@ module VAOS
         params.compact_blank!
         with_monitoring do
           response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
+            Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
                        perform(:post, appointments_base_path_vpg, params, headers)
                      else
                        perform(:post, appointments_base_path_vaos, params, headers)
                      end
 
           if request_object_body[:kind] == 'clinic' &&
-             booked?(request_object_body) # a direct scheduled appointment
+            booked?(request_object_body) # a direct scheduled appointment
             modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
           end
 
@@ -121,7 +133,7 @@ module VAOS
       def update_appointment(appt_id, status)
         with_monitoring do
           if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
-             Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+            Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
@@ -309,6 +321,8 @@ module VAOS
         merge_clinic(appointment) if include[:clinics]
 
         merge_facility(appointment) if include[:facilities]
+
+        set_type(appointment)
       end
 
       def find_and_merge_provider_name(appointment)
@@ -661,6 +675,40 @@ module VAOS
       def log_direct_schedule_submission_errors(e)
         error_entry = { DIRECT_SCHEDULE_ERROR_KEY => ds_error_details(e) }
         Rails.logger.warn('Direct schedule submission error', error_entry.to_json)
+      end
+
+      def set_type(appointment)
+        # Mobile merges phone and clinic under va, web specifically calls it phone
+        # Web has a claim example
+        type = APPOINTMENT_TYPES[:request] if appointment[:kind] != 'cc' && appointment[:request_periods].present?
+
+        type ||= case appointment[:kind]
+                 when 'phone', 'clinic'
+                   APPOINTMENT_TYPES[:va]
+                 when 'cc'
+                   if appointment[:start]
+                     APPOINTMENT_TYPES[:cc_appointment]
+                   else
+                     APPOINTMENT_TYPES[:cc_request]
+                   end
+                 when 'telehealth'
+                   return APPOINTMENT_TYPES[:va_video_connect_atlas] if appointment.dig(:telehealth, :atlas)
+
+                   vvs_kind = appointment.dig(:telehealth, :vvs_kind)
+                   if VIDEO_CODE.include?(vvs_kind)
+                     if appointment.dig(:extension, :patient_has_mobile_gfe)
+                       APPOINTMENT_TYPES[:va_video_connect_gfe]
+                     else
+                       APPOINTMENT_TYPES[:va_video_connect_home]
+                     end
+                   elsif VIDEO_CONNECT_AT_VA.include?(vvs_kind)
+                     APPOINTMENT_TYPES[:va_video_connect_onsite]
+                   else
+                     APPOINTMENT_TYPES[:va]
+                   end
+                 end
+
+        appointment[:type] = type
       end
 
       # Modifies the appointment, setting the cancellable flag to false
