@@ -25,7 +25,9 @@ module SimpleFormsApi
       def initialize(parent_dir: 'vff-simple-forms', **options) # rubocop:disable Lint/MissingSuper
         @parent_dir = parent_dir
         defaults = default_options.merge(options)
-        @temp_directory_path = build_submission_archive(**defaults)
+        @temp_directory_path, @submission = build_submission_archive(**defaults)
+        raise 'Failed to build SubmissionArchive.' unless temp_directory_path && submission
+
         assign_instance_variables(defaults)
       rescue => e
         handle_error('SubmissionArchiver initialization failed', e)
@@ -54,7 +56,7 @@ module SimpleFormsApi
 
       private
 
-      attr_reader :benefits_intake_uuid, :parent_dir, :submission
+      attr_reader :benefits_intake_uuid, :parent_dir, :submission, :temp_directory_path
 
       def default_options
         {
@@ -116,13 +118,17 @@ module SimpleFormsApi
         "#{s3_directory_path}/#{submission_pdf_filename}"
       end
 
+      def unique_file_name
+        form_number = JSON.parse(submission.form_data)['form_number']
+        @unique_file_name ||= "form_#{form_number}_vagov_#{benefits_intake_uuid}"
+      end
+
       def submission_pdf_filename
-        submission_form_number = JSON.parse(submission.form_data)['form_number']
-        @submission_pdf_filename ||= "form_#{submission_form_number}.pdf"
+        @submission_pdf_filename ||= "#{unique_file_name}.pdf"
       end
 
       def s3_directory_path
-        @s3_directory_path ||= "#{parent_dir}/#{benefits_intake_uuid}"
+        @s3_directory_path ||= "#{parent_dir}/#{unique_file_name}"
       end
 
       def local_submission_file_path
