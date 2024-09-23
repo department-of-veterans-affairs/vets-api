@@ -16,8 +16,7 @@ module VANotify
 
       @veteran = VANotify::Veteran.new(in_progress_form)
       return if veteran.first_name.blank?
-
-      raise MissingICN, "ICN not found for InProgressForm: #{in_progress_form.id}" if veteran.icn.blank?
+      return if veteran.icn.blank?
 
       if only_one_supported_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch(in_progress_form.form_id)
@@ -26,6 +25,8 @@ module VANotify
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch('generic')
         IcnJob.perform_async(veteran.icn, template_id, personalisation_details_multiple)
       end
+    rescue VANotify::Veteran::MPINameError, VANotify::Veteran::MPIError
+      nil
     end
 
     private

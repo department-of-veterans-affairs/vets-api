@@ -180,5 +180,33 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
         end
       end
     end
+
+    context 'when an error occurs in the transaction' do
+      shared_examples 'rolledback transaction' do |model|
+        before do
+          allow_any_instance_of(model).to receive(:save!).and_raise(ActiveModel::Error) # stub a model error
+        end
+
+        it 'rollsback transaction' do
+          VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-UPLOADS-200_V1') do
+            expect(subject).to eq 500
+
+            # check that transaction rolled back / records were not persisted / evidence upload job was not queued up
+            expect(AppealSubmission.count).to eq 0
+            expect(AppealSubmissionUpload.count).to eq 0
+            expect(DecisionReview::SubmitUpload).not_to have_enqueued_sidekiq_job(anything)
+            expect(SavedClaim.count).to eq 0
+          end
+        end
+      end
+
+      context 'for AppealSubmission' do
+        it_behaves_like 'rolledback transaction', AppealSubmission
+      end
+
+      context 'for SavedClaim' do
+        it_behaves_like 'rolledback transaction', SavedClaim
+      end
+    end
   end
 end

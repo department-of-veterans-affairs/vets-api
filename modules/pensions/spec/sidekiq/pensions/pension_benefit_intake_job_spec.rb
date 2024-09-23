@@ -116,12 +116,9 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       allow(monitor).to receive(:track_file_cleanup_error)
     end
 
-    it 'returns expected hash' do
+    it 'errors and logs but does not reraise' do
       expect(monitor).to receive(:track_file_cleanup_error)
-      expect { job.send(:cleanup_file_paths) }.to raise_error(
-        Pensions::PensionBenefitIntakeJob::PensionBenefitIntakeError,
-        anything
-      )
+      job.send(:cleanup_file_paths)
     end
   end
 

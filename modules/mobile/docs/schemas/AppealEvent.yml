@@ -1,6 +1,6 @@
 type: object
 properties:
-  data:
+  date:
     type: string
   type:
     type: string

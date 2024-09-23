@@ -79,6 +79,33 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         expect(evss_data[:veteran][:currentlyVAEmployee]).to eq(false)
         expect(evss_data[:veteran][:emailAddress]).to eq('valid@somedomain.com')
       end
+
+      context 'when address is MILITARY' do
+        let(:veteran_identification) do
+          {
+            currentVaEmployee: false,
+            mailingAddress: {
+              addressLine1: 'CMR 468 Box 1181',
+              city: 'APO',
+              country: 'USA',
+              zipFirstFive: '09277',
+              state: 'AE'
+            }
+          }
+        end
+
+        it 'maps the addresses correctly' do
+          form_data['data']['attributes']['veteranIdentification'] = veteran_identification
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
+          addr = evss_data[:veteran][:currentMailingAddress]
+          expect(addr[:addressLine1]).to eq('CMR 468 Box 1181')
+          expect(addr[:militaryPostOfficeTypeCode]).to eq('APO')
+          expect(addr[:country]).to eq('USA')
+          expect(addr[:zipFirstFive]).to eq('09277')
+          expect(addr[:militaryStateCode]).to eq('AE')
+        end
+      end
     end
 
     context '526 section 2, change of address' do
@@ -234,6 +261,16 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         expect(service_periods[:activeDutyEndDate]).to eq('2023-10-30')
         expect(service_periods[:serviceComponent]).to eq('Active')
         expect(service_periods[:separationLocationCode]).to eq('98282')
+      end
+
+      it 'maps the federalActivation to reserves attributes correctly' do
+        reserves_addition = evss_data[:serviceInformation][:reservesNationalGuardService]
+
+        expect(reserves_addition[:title10Activation][:title10ActivationDate]).to eq('2023-10-01')
+        expect(reserves_addition[:title10Activation][:anticipatedSeparationDate]).to eq('2024-10-31')
+        expect(reserves_addition[:obligationTermOfServiceFromDate]).to eq('2019-06-04')
+        expect(reserves_addition[:obligationTermOfServiceToDate]).to eq('2020-06-04')
+        expect(reserves_addition[:unitName]).to eq('National Guard Unit Name')
       end
 
       it 'maps the confinements attribute correctly' do

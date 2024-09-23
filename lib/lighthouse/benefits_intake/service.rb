@@ -15,6 +15,13 @@ module BenefitsIntake
   # https://developer.va.gov/explore/api/benefits-intake/docs
   #
   class Service < Common::Client::Base
+    ################################################################
+    # It is the responsibility of any team sending submissions to  #
+    # Lighthouse to monitor those submissions. See here for more   #
+    # details:                                                     #
+    #                                                              #
+    # https://depo-platform-documentation.scrollhelp.site/developer-docs/endpoint-monitoring
+    ################################################################
     configuration BenefitsIntake::Configuration
 
     # TODO: process document error similar to service exception
