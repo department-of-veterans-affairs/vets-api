@@ -37,7 +37,6 @@ class LighthouseDocument < Common::Base
     'L033' => 'Death Certificate',
     'L702' => 'Disability Benefits Questionnaire (DBQ)',
     'L037' => 'Divorce Decree',
-    '' => 'Financial Information',
     'L703' => 'Goldmann Perimetry Chart/Field Of Vision Chart',
     '1489' => 'Hypertension Rapid Ready For Decision Summary PDF',
     'L051' => 'Marriage Certificate',
