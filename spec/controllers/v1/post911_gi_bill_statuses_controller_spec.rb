@@ -14,6 +14,8 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
 
   context 'inside working hours' do
     before do
+      # TO-DO: Remove this flipper toggle after transition of LTS to 24/7 availability
+      Flipper.enable(:sob_updated_design)
       allow(BenefitsEducation::Service).to receive(:within_scheduled_uptime?).and_return(true)
     end
 
@@ -70,6 +72,7 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       Flipper.disable(:sob_updated_design)
       Timecop.freeze(tz.parse('2nd Feb 1993 00:00:00'))
     end
+
     after { Timecop.return }
 
     it 'returns 503' do

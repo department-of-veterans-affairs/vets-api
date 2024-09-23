@@ -10,7 +10,6 @@ module V1
     include SentryLogging
     service_tag 'gibill-statement'
 
-
     # TO-DO: Remove this action after transition of LTS to 24/7 availability
     before_action :service_available?, only: :show
 
