@@ -2,29 +2,49 @@
 
 module TravelPay
   class AppointmentsService
-    def get_appointments_by_date(veis_token, btsss_token, params = {})
+    ##
+    # gets all appointments and finds the singular BTSSS appointment that matches the provided datetime
+    # @params: datetime string ('2024-01-01T12:45:34.465Z')
+    #
+    # @return {
+    # 'id' => 'string',
+    # 'appointmentSource' => 'string',
+    # 'appointmentDateTime' => 'string',
+    # 'appointmentName' => 'string',
+    # 'appointmentType' => 'string',
+    # 'facilityName' => 'string',
+    # 'serviceConnectedDisability' => int,
+    # 'currentStatus' => 'string',
+    # 'appointmentStatus' => 'string',
+    # 'externalAppointmentId' => 'string',
+    # 'associatedClaimId' => string,
+    # 'associatedClaimNumber' => string,
+    # 'isCompleted' => boolean,
+    # }
+    #
+    #
+    def get_appointment_by_date_time(veis_token, btsss_token, params = {})
       faraday_response = client.get_all_appointments(veis_token, btsss_token, { 'excludeWithClaims' => true })
       raw_appointments = faraday_response.body['data'].deep_dup
 
-      appointments = filter_by_date(params['appt_datetime'], raw_appointments)
+      appointment = find_by_date_time(params['appt_datetime'], raw_appointments)
 
       {
-        data: appointments || []
+        data: appointment
       }
     end
 
     private
 
-    def filter_by_date(date_string, appointments)
+    def find_by_date_time(date_string, appointments)
       if date_string.present?
 
-        appointments.filter do |appointment|
-          appointment['appointmentDateTime'].nil? &&
-            date_string == appointment['appointmentDateTime']
+        appointments.find do |appt|
+          date_string == appt['appointmentDateTime']
         end
       end
     rescue Date::Error => e
-      Rails.logger.debug(message: "#{e}. Unable to find appointments with date (given: #{date_string}).")
+      Rails.logger.debug(message: "#{e}. Unable to find appointment with provided date-time (given: #{date_string}).")
     end
 
     def client

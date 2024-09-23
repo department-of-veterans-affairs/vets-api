@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe TravelPay::AppointmentsService do
-  context 'get_appointments_by_date' do
+  context 'get_appointment_by_date_time' do
     let(:user) { build(:user) }
     let(:appointments_data) do
       {
@@ -56,7 +56,7 @@ describe TravelPay::AppointmentsService do
           {
             'id' => 'uuid4',
             'appointmentSource' => 'API',
-            'appointmentDateTime' => '2024-02-11T16:45:34.465Z',
+            'appointmentDateTime' => nil,
             'appointmentName' => 'string',
             'appointmentType' => 'EnvironmentalHealth',
             'facilityName' => 'Cheyenne VA Medical Center',
@@ -86,28 +86,29 @@ describe TravelPay::AppointmentsService do
         .and_return(appointments_response)
     end
 
-    context 'filter by appt date' do
-      it 'returns appointments that match appt date if specified' do
+    context 'find by appt date-time' do
+      it 'returns the BTSSS appointment that matches appt date' do
+        date_string = '2024-01-01T12:45:34.465Z'
         service = TravelPay::AppointmentsService.new
-        appts = service.get_appointments_by_date(*tokens, { 'appt_datetime' => '2024-01-01T12:45:34.465Z' })
+        appt = service.get_appointment_by_date_time(*tokens, { 'appt_datetime' => date_string })
 
-        expect(appts.count).to equal(1)
+        expect(appt[:data]['appointmentDateTime']).to eq(date_string)
       end
 
-      it 'returns 0 appointments if appt date does not match' do
+      it 'returns nil if appt date does not match' do
         service = TravelPay::AppointmentsService.new
-        appts = service.get_appointments_by_date(*tokens, { 'appt_datetime' => '1700-01-01T12:45:34.465Z' })
+        appt = service.get_appointment_by_date_time(*tokens, { 'appt_datetime' => '1700-01-01T12:45:34.465Z' })
 
-        expect(appts[:data].count).to equal(0)
+        expect(appt[:data]).to equal(nil)
       end
 
-      it 'returns 0 appointments if appt date is invalid' do
+      it 'returns nil if appt date is invalid' do
         service = TravelPay::AppointmentsService.new
-        appts = service.get_appointments_by_date(*tokens, { 'appt_datetime' => 'banana' })
-        appts_empty_date = service.get_appointments_by_date(*tokens, { 'appt_datetime' => '' })
+        appt = service.get_appointment_by_date_time(*tokens, { 'appt_datetime' => 'banana' })
+        appt_empty_date = service.get_appointment_by_date_time(*tokens, { 'appt_datetime' => '' })
 
-        expect(appts[:data].count).to equal(0)
-        expect(appts_empty_date[:data].count).to equal(0)
+        expect(appt[:data]).to equal(nil)
+        expect(appt_empty_date[:data]).to equal(nil)
       end
     end
   end
