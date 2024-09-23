@@ -7,11 +7,10 @@ require 'search/response'
 require 'search/configuration'
 
 module Search
-  # This class builds a wrapper around Search.gov or api.gsa.gov web results API. Creating a new instance of class
+  # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
   # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
   #
   # @see https://search.usa.gov/sites/7378/api_instructions
-  # @see https://open.gsa.gov/api/searchgov-results/
   #
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
@@ -49,7 +48,6 @@ module Search
     # Optional params [enable_highlighting, limit, offset, sort_by]
     #
     # @see https://search.usa.gov/sites/7378/api_instructions
-    # @see https://open.gsa.gov/api/searchgov-results/
     #
     def query_params
       {
@@ -94,7 +92,7 @@ module Search
         message = parse_messages(error).first
         save_error_details(message)
         handle_429!(error)
-        raise_backend_exception(error_code_name(400), self.class, error) if error.status >= 400
+        raise_backend_exception('SEARCH_400', self.class, error) if error.status >= 400
       else
         raise error
       end
@@ -116,22 +114,20 @@ module Search
       return unless error.status == 429
 
       StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", tags: ['exception:429'])
-      raise_backend_exception(error_code_name(error.status), self.class, error)
+      raise_backend_exception('SEARCH_429', self.class, error)
     end
 
     def handle_server_error!(error)
       return unless [503, 504].include?(error.status)
 
+      exceptions = {
+        503 => 'SEARCH_503',
+        504 => 'SEARCH_504'
+      }
       # Catch when the error's structure doesn't match what's usually expected.
-      message = error.body.is_a?(Hash) ? parse_messages(error).first : 'Search API is down'
+      message = error.body.is_a?(Hash) ? parse_messages(error).first : 'Search.gov is down'
       save_error_details(message)
-      raise_backend_exception(error_code_name(error.status), self.class, error)
-    end
-
-    def error_code_name(error_status)
-      error_code_prefix = self.class.configuration.flipper_enabled? ? 'SEARCH_GSA' : 'SEARCH'
-
-      "#{error_code_prefix}_#{error_status}"
+      raise_backend_exception(exceptions[error.status], self.class, error)
     end
   end
 end
