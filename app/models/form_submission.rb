@@ -15,8 +15,8 @@ class FormSubmission < ApplicationRecord
     def with_latest_intake(user_account)
       # This query retrieves distinct form submissions for a given user account,
       # along with the latest benefits intake UUID for each form. If a form has any
-      # submission attempts, it uses the latest attempt's UUID; otherwise, it falls
-      # back to the form submission's original UUID.
+      # submission attempts with a benefits_intake_uuid, it uses the latest attempt's UUID;
+      # otherwise, it falls back to the form submission's original UUID.
       FormSubmission
         .select(
           'DISTINCT form_submissions.id,
@@ -32,6 +32,7 @@ class FormSubmission < ApplicationRecord
             INNER JOIN (
               SELECT form_submission_id, MAX(created_at) AS latest_attempt
               FROM form_submission_attempts
+              WHERE form_submission_attempts.benefits_intake_uuid IS NOT NULL
               GROUP BY form_submission_id
             ) latest_fsa ON fsa.form_submission_id = latest_fsa.form_submission_id
                           AND fsa.created_at = latest_fsa.latest_attempt
