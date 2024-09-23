@@ -7,6 +7,6 @@ class BackendStatusSerializer
 
   attribute :name
   attribute :service_id
-  attribute :is_available
+  attribute :is_available, &:available?
   attribute :uptime_remaining
 end
