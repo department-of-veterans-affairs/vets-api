@@ -151,6 +151,24 @@ FactoryBot.define do
       person_types { ['DEP'] }
     end
 
+    trait :error do
+      authn_context { LOA::IDME_LOA3_VETS }
+
+      sign_in do
+        {
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: SAML::URLService::BROKER_CODE,
+          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
+        }
+      end
+
+      loa do
+        { current: LOA::THREE, highest: LOA::THREE }
+      end
+
+      idme_uuid { '6767671' }
+    end
+
     trait :accountable do
       authn_context { LOA::IDME_LOA3_VETS }
       uuid { '9d018700-b72c-444a-95b4-43e14a4509ea' }
@@ -345,6 +363,24 @@ FactoryBot.define do
 
       after(:build) do
         allow(BGS.configuration).to receive_messages(env: 'prepbepbenefits', client_ip: '10.247.35.119')
+      end
+    end
+
+    trait :api_auth_v2 do
+      vet360_id { '1781151' }
+      authn_context { LOA::IDME_LOA3_VETS }
+      sign_in do
+        {
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: 'sis',
+          client_id: SAML::URLService::MOBILE_CLIENT_ID
+        }
+      end
+      loa do
+        {
+          current: LOA::THREE,
+          highest: LOA::THREE
+        }
       end
     end
 

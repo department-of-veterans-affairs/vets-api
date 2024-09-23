@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Form526StateLoggingJob, type: :worker do
+RSpec.describe Form526SubmissionProcessingReportJob, type: :worker do
   before do
     Sidekiq::Job.clear_all
   end
@@ -242,32 +242,10 @@ RSpec.describe Form526StateLoggingJob, type: :worker do
           new_backup_pending.id,
           new_remediated_and_de_remediated.id,
           new_no_job_de_remediated.id
-        ].sort,
-        total_awaiting_backup_status: [
-          new_backup_pending.id
-        ].sort,
-        total_incomplete_type: [
-          still_running_with_retryable_errors.id,
-          new_unprocessed.id,
-          new_backup_pending.id,
-          new_no_job_de_remediated.id,
-          new_remediated_and_de_remediated.id
-        ].sort,
-        total_failure_type: [
-          old_unprocessed.id,
-          old_backup_pending.id,
-          new_backup_rejected.id,
-          old_backup_rejected.id,
-          old_double_job_failure.id,
-          old_double_job_failure_de_remediated.id,
-          old_no_job_de_remediated.id,
-          old_remediated_and_de_remediated.id,
-          new_double_job_failure.id,
-          new_double_job_failure_de_remediated.id
         ].sort
       }
 
-      expect(described_class.new.base_state).to eq(expected_log)
+      expect(described_class.new.timeboxed_state).to eq(expected_log)
     end
 
     it 'converts the logs to counts where prefered' do
@@ -277,22 +255,7 @@ RSpec.describe Form526StateLoggingJob, type: :worker do
           timeboxed_primary_successes_count: 4,
           timeboxed_exhausted_primary_job_count: 8,
           timeboxed_exhausted_backup_job_count: 3,
-          timeboxed_incomplete_type_count: 5,
-          total_awaiting_backup_status_count: 1,
-          total_incomplete_type_count: 5,
-          total_failure_type_count: 10,
-          total_failure_type_ids: [
-            old_unprocessed.id,
-            old_backup_pending.id,
-            new_backup_rejected.id,
-            old_backup_rejected.id,
-            old_double_job_failure.id,
-            old_double_job_failure_de_remediated.id,
-            old_no_job_de_remediated.id,
-            old_remediated_and_de_remediated.id,
-            new_double_job_failure.id,
-            new_double_job_failure_de_remediated.id
-          ].sort
+          timeboxed_incomplete_type_count: 5
         },
         start_date:,
         end_date:
@@ -302,21 +265,6 @@ RSpec.describe Form526StateLoggingJob, type: :worker do
         expect(label).to eq('Form 526 State Data')
         expect(log).to eq(expected_log)
       end
-      described_class.new.perform
-    end
-
-    it 'writes counts as Stats D gauges' do
-      prefix = described_class::STATSD_PREFIX
-
-      expect(StatsD).to receive(:gauge).with("#{prefix}.timeboxed_count", 17)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.timeboxed_primary_successes_count", 4)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.timeboxed_exhausted_primary_job_count", 8)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.timeboxed_exhausted_backup_job_count", 3)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.timeboxed_incomplete_type_count", 5)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.total_awaiting_backup_status_count", 1)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.total_incomplete_type_count", 5)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.total_failure_type_count", 10)
-
       described_class.new.perform
     end
   end

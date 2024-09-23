@@ -66,8 +66,11 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Checks all 'success' type submissions in LH to ensure they haven't changed
   mgr.register('0 2 * * 0', 'Form526ParanoidSuccessPollingJob')
 
-  # Log the state of Form 526 submissions to hydrate Datadog monitor
-  mgr.register('0 3 * * *', 'Form526StateLoggingJob')
+  # Log a report of 526 submission processing for a given timebox
+  mgr.register('5 4 * * 7', 'Form526SubmissionProcessingReportJob')
+
+  # Log a snapshot of everything in a full failure type state
+  mgr.register('5 * * * *', 'Form526FailureStateSnapshotJob')
 
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
