@@ -19,6 +19,17 @@ module CARMA
       # @return [CARMA::Models::Submission] A CARMA Submission model object
       #
       def self.from_claim(claim, metadata = {})
+        if Flipper.enabled?(:caregiver_carma_submitted_at)
+          return new(
+            data: claim.parsed_form,
+            metadata: metadata.merge(
+              claim_id: claim.id,
+              claim_guid: claim.guid,
+              submitted_at: claim.created_at&.iso8601
+            )
+          )
+        end
+
         new(
           data: claim.parsed_form,
           metadata: metadata.merge(claim_id: claim.id, claim_guid: claim.guid)
