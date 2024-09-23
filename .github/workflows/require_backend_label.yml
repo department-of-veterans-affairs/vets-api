@@ -75,7 +75,7 @@ jobs:
             omit-backend-approval
 
       - name: Add require-backend-approval label
-        if: github.event.pull_request.draft == false && steps.requested_reviewers.outputs.omit_backend != "true"
+        if: github.event.pull_request.draft == false && steps.requested_reviewers.outputs == ''
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
