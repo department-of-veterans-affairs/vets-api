@@ -7,13 +7,13 @@ module MHV
     class Service < Common::Client::Base
       configuration Configuration
 
-      def create_account(icn:, email:, tou_occurred_at:)
+      def create_account(icn:, email:, tou_occurred_at:, break_cache: false)
         params = build_create_account_params(icn:, email:, tou_occurred_at:)
 
-        response = perform(:post, config.account_creation_path, params, authenticated_header(icn:))
-        Rails.logger.info("#{config.logging_prefix} create_account success", icn:)
-
-        normalize_response_body(response.body)
+        create_account_with_cache(icn:, force: break_cache, expires_in: 1.day) do
+          response = perform(:post, config.account_creation_path, params, authenticated_header(icn:))
+          normalize_response_body(response.body)
+        end
       rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError => e
         Rails.logger.error("#{config.logging_prefix} create_account #{e.class.name.demodulize.underscore}",
                            { error_message: e.message, body: e.body, icn: })
@@ -21,6 +21,17 @@ module MHV
       end
 
       private
+
+      def create_account_with_cache(icn:, force:, expires_in:, &request)
+        cache_hit = true
+        account = Rails.cache.fetch("#{config.service_name}_#{icn}", force:, expires_in:) do
+          cache_hit = false
+          request.call
+        end
+        Rails.logger.info("#{config.logging_prefix} create_account success", { icn:, account:, from_cache: cache_hit })
+
+        account
+      end
 
       def build_create_account_params(icn:, email:, tou_occurred_at:)
         {
