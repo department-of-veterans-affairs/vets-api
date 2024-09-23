@@ -34,6 +34,8 @@ module V0
         raw_claim_list = lighthouse_service.get_claims['data']
         cxdw_reporting_service = V0::VirtualAgent::ReportToCxdw.new
         conversation_id = params[:conversation_id]
+        raise ActionController::ParameterMissing, 'conversation_id' if conversation_id.blank?
+
         begin
           claims = order_claims_lighthouse(raw_claim_list)
           report_or_error(cxdw_reporting_service, conversation_id)
