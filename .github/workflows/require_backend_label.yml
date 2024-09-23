@@ -77,11 +77,6 @@ jobs:
       - name: Add require-backend-approval label
         if: github.event.pull_request.draft == false && steps.requested_reviewers.outputs.omit_backend != "true"
         uses: actions-ecosystem/action-add-labels@v1
-        if: |
-            github.event.pull_request.draft == false &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
