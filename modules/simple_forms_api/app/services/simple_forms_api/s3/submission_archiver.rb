@@ -36,7 +36,7 @@ module SimpleFormsApi
       def upload
         log_info("Uploading archive: #{benefits_intake_uuid} to S3 bucket")
 
-        upload_temp_folder_to_s3
+        upload_directory_to_s3(temp_directory_path)
         cleanup
         generate_presigned_url
       rescue => e
@@ -72,11 +72,16 @@ module SimpleFormsApi
         SubmissionArchiveBuilder.new(**).run
       end
 
-      def upload_temp_folder_to_s3
-        Dir.glob("#{temp_directory_path}/**/*").each do |path|
+      def upload_directory_to_s3(directory_path)
+        raise "Directory #{directory_path} does not exist" unless Dir.exist?(directory_path)
+
+        Dir.glob(File.join(directory_path, '**', '*')).each do |path|
           next if File.directory?(path)
 
-          File.open(path, 'rb') { |file| save_file_to_s3(file.read) }
+          File.open(path) do |file_obj|
+            sanitized_file = CarrierWave::SanitizedFile.new(file_obj)
+            s3_uploader.store!(sanitized_file)
+          end
         end
       end
 
@@ -102,10 +107,6 @@ module SimpleFormsApi
         submission_object.presigned_url(:get, expires_in: 30.minutes.to_i)
       end
 
-      def save_file_to_s3(content)
-        submission_object.tap { |obj| obj.put(body: content) }
-      end
-
       def submission_object
         s3_resource.bucket(target_bucket).object(s3_submission_file_path)
       end
@@ -129,6 +130,10 @@ module SimpleFormsApi
 
       def s3_directory_path
         @s3_directory_path ||= "#{parent_dir}/#{unique_file_name}"
+      end
+
+      def s3_uploader
+        @s3_uploader ||= VeteranFacingFormsRemediationUploader.new(benefits_intake_uuid, s3_directory_path)
       end
 
       def local_submission_file_path
