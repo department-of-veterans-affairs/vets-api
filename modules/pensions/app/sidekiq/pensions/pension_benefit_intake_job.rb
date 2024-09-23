@@ -59,13 +59,9 @@ module Pensions
 
       upload_document
 
-      begin
-        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
-      rescue e
-        @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
-      end
-
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
+
+      send_confirmation_email
 
       @intake_service.uuid
     rescue => e
@@ -186,6 +182,15 @@ module Pensions
       @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission)
 
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
+    end
+
+    ##
+    # Being VANotify job to send email to veteran
+    #
+    def send_confirmation_email
+      @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
+    rescue => e
+      @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
     end
 
     ##

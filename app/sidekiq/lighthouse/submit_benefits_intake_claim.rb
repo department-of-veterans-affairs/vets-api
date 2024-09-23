@@ -45,12 +45,11 @@ module Lighthouse
       raise BenefitsIntakeClaimError, response.body unless response.success?
 
       Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_log_details)
-<<<<<<< HEAD
-      send_confirmation_email
-=======
       StatsD.increment("#{STATSD_KEY_PREFIX}.success")
-      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
->>>>>>> master
+
+      send_confirmation_email
+
+      @lighthouse_service.uuid
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', generate_log_details(e))
       StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
@@ -172,7 +171,7 @@ module Lighthouse
 
     def send_confirmation_email
       @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
-    rescue e
+    rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
                         generate_log_details(e))
       StatsD.increment("#{STATSD_KEY_PREFIX}.send_confirmation_email.failure")
