@@ -22,6 +22,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                                                first_name: 'George', last_name: 'Washington')
       Veteran::Service::Organization.create!(poa: organization_poa_code,
                                              name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
+
+      Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
     end
 
     describe 'submit2122' do
@@ -267,7 +269,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                                 'power_of_attorney', '2122', 'valid.json').read
               end
 
-              it 'returns a success response' do
+              it 'returns an error response' do
                 mock_ccg(scopes) do |auth_header|
                   allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
@@ -322,6 +324,95 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                     expect(response).to have_http_status(:ok)
                     expect(response_body['type']).to eq('form/21-22/validation')
                     expect(response_body['attributes']['status']).to eq('valid')
+                  end
+                end
+              end
+
+              context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
+                let(:request_body) do
+                  Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                  'power_of_attorney', '2122', 'valid.json').read
+                end
+                let(:user_profile) do
+                  MPI::Responses::FindProfileResponse.new(
+                    status: :ok,
+                    profile: MPI::Models::MviProfile.new(
+                      given_names: %w[Not Under],
+                      family_name: 'Test',
+                      participant_id: '123'
+                    )
+                  )
+                end
+
+                before do
+                  Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+
+                  allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
+                    .to receive(:user_profile).and_return(user_profile)
+                end
+
+                context 'and the request includes a claimant' do
+                  it 'calls validate_poa_code_exists! and validate_dependent_by_participant_id!' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['claimant'] = { claimantId: '123' }
+                        request_body = json.to_json
+
+                        expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                          .to receive(:validate_poa_code_exists!)
+                        expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                          .to receive(:validate_dependent_by_participant_id!)
+
+                        post validate2122_path, params: request_body, headers: auth_header
+                      end
+                    end
+                  end
+                end
+
+                context 'and the request does not include a claimant' do
+                  it 'does not call validate_poa_code_exists! and validate_dependent_by_participant_id!' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        request_body = json.to_json
+
+                        expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                          .not_to receive(:validate_poa_code_exists!)
+                        expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                          .not_to receive(:validate_dependent_by_participant_id!)
+
+                        post validate2122_path, params: request_body, headers: auth_header
+                      end
+                    end
+                  end
+                end
+              end
+
+              context 'when the lighthouse_claims_api_poa_dependent_claimants feature is disabled' do
+                let(:request_body) do
+                  Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                  'power_of_attorney', '2122', 'valid.json').read
+                end
+
+                before do
+                  Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+                end
+
+                it 'does not call validate_poa_code_exists! and validate_dependent_by_participant_id!' do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                      json = JSON.parse(request_body)
+                      json['data']['attributes']['claimant'] = { claimantId: '123' }
+                      request_body = json.to_json
+
+                      expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                        .not_to receive(:validate_poa_code_exists!)
+                      expect_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
+                        .not_to receive(:validate_dependent_by_participant_id!)
+
+                      post validate2122_path, params: request_body, headers: auth_header
+                    end
                   end
                 end
               end
