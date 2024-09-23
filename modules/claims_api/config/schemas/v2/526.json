@@ -872,6 +872,7 @@
           }
         },
         "federalActivation": {
+          "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
           "type": ["object", "null"],
           "nullable": true,
           "additionalProperties": false,
