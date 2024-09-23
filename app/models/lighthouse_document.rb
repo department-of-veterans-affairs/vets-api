@@ -33,7 +33,7 @@ class LighthouseDocument < Common::Base
     'L015' => 'Buddy/Lay Statement',
     'L018' => 'Civilian Police Reports',
     'L029' => 'Copy of a DD214',
-    'L418' => 'Court papers / documents'
+    'L418' => 'Court papers / documents',
     'L033' => 'Death Certificate',
     'L702' => 'Disability Benefits Questionnaire (DBQ)',
     'L037' => 'Divorce Decree',
