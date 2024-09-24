@@ -757,6 +757,10 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
+  va_notify_user_account_job:
+    actor_type: user
+    description: Enable/disable UserAccountJob in VANotify (replacement for IcnJob)
+    enable_in_development: true
   letters_check_discrepancies:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
@@ -1701,3 +1705,6 @@ features:
     actor_type: cookie_id
     description: Swaps the Search Service's configuration url with an updated api.gsa.gov address
     enabled_in_development: true
+  remove_pciu:
+    actor_type: user
+    description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
