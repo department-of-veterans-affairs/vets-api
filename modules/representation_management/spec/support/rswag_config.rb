@@ -22,6 +22,21 @@ class RepresentationManagement::RswagConfig
           }
         ],
         components: {
+          schemas: {
+            Errors: {
+              type: :object,
+              required: [:errors],
+              properties: {
+                errors: {
+                  type: :array,
+                  items: { '$ref' => '#/components/schemas/Error' }
+                }
+              }
+            },
+            Error: {
+              type: :string
+            }
+          }
           # Put PowerOfAttorneyResponse here
           # Probably define veteran and claimant params here as well.
         },
