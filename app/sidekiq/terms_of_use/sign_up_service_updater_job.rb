@@ -71,7 +71,7 @@ module TermsOfUse
 
       if unchanged == true
         Rails.logger.info("#{LOG_TITLE} Agreement not changed",
-                        { icn: user_account.icn })
+                          { icn: user_account.icn })
       end
       unchanged
     end
