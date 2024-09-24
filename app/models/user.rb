@@ -146,6 +146,18 @@ class User < Common::RedisStore
     identity.mhv_correlation_id || mpi_mhv_correlation_id
   end
 
+  def mhv_user_account
+    @mhv_user_account ||= if va_patient?
+                            MHV::UserAccount::Creator.new(user_verification:).perform
+                          else
+                            log_mhv_user_account_error('User has no va_treatment_facility_ids')
+                            nil
+                          end
+  rescue MHV::UserAccount::Errors::UserAccountError => e
+    log_mhv_user_account_error(e.message)
+    nil
+  end
+
   def middle_name
     identity.middle_name.presence || middle_name_mpi
   end
@@ -315,7 +327,7 @@ class User < Common::RedisStore
 
   # True if the user has 1 or more treatment facilities, false otherwise
   def va_patient?
-    va_treatment_facility_ids.length.positive?
+    va_treatment_facility_ids.any?
   end
 
   # User's profile contains a list of VHA facility-specific identifiers.
@@ -480,5 +492,9 @@ class User < Common::RedisStore
 
   def pciu
     @pciu ||= EVSS::PCIU::Service.new self if loa3? && edipi.present?
+  end
+
+  def log_mhv_user_account_error(error_message)
+    Rails.logger.info('[User] mhv_user_account error', error_message:, icn:)
   end
 end

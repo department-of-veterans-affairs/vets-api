@@ -282,8 +282,6 @@ vet360:
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
-  health_benefit:
-    mock: true
   profile_information:
     enabled: true
     timeout: 30
@@ -902,7 +900,8 @@ search:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
   mock_search: false
-  url: https://search.usa.gov/api/v2
+  gsa_url: https://api.gsa.gov/technology/searchgov/v2/results/i14y
+  url: https://search.usa.gov/api/v2/search/i14y
 
 # Settings for search-typeahead
 search_typeahead:
@@ -910,7 +909,7 @@ search_typeahead:
   name: va
   url: https://api.gsa.gov/technology/searchgov/v1
 
-  # Settings for search-click-tracking
+# Settings for search-click-tracking
 search_click_tracking:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
@@ -1309,15 +1308,27 @@ vanotify:
         form1995_confirmation_email: form1995_confirmation_email_template_id
         form21_0966_confirmation_email: form21_0966_confirmation_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
+        form21_0972_error_email: form21_0972_error_email_template_id
+        form21_0972_received_email: form21_0972_received_email_template_id
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
         form21_10210_error_email: form21_10210_error_email_template_id
         form21_10210_received_email: form21_10210_received_email_template_id
         form20_10206_confirmation_email: form20_10206_confirmation_email_template_id
+        form20_10206_error_email: form20_10206_error_email_template_id
+        form20_10206_received_email: form20_10206_received_email_template_id
         form20_10207_confirmation_email: form20_10207_confirmation_email_template_id
+        form20_10207_error_email: form20_10207_error_email_template_id
+        form20_10207_received_email: form20_10207_received_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
+        form21_0845_error_email: form21_0845_error_email_template_id
+        form21_0845_received_email: form21_0845_received_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
+        form21p_0847_error_email: form21p_0847_error_email_template_id
+        form21p_0847_received_email: form21p_0847_received_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
+        form21_4142_error_email: form21_4142_error_email_template_id
+        form21_4142_received_email: form21_4142_received_email_template_id
         form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
