@@ -3,14 +3,14 @@
 require 'rails_helper'
 
 RSpec.describe Form1010EzrAttachments::FileTypeValidator do
-  let (:attachment) do
+  let(:attachment) do
     Rack::Test::UploadedFile.new(
       Rails.root.join('spec', 'fixtures', 'files', 'empty_file.txt'),
       'empty_file.txt'
     )
   end
 
-  describe '#validate_file_type' do
+  describe '#validate' do
     context 'when an exception occurs' do
       before do
         allow(Rails.logger).to receive(:error)
@@ -22,7 +22,7 @@ RSpec.describe Form1010EzrAttachments::FileTypeValidator do
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('api.1010ezr.attachments.failed')
 
-        expect { described_class.new('test').validate_file_type }.to raise_error do |e|
+        expect { described_class.new('test').validate }.to raise_error do |e|
           expect(e).to be_a(NoMethodError)
           expect(e.message).to eq(error_message)
         end
@@ -39,7 +39,7 @@ RSpec.describe Form1010EzrAttachments::FileTypeValidator do
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('api.1010ezr.attachments.invalid_file_type')
 
-        expect { described_class.new(attachment).validate_file_type }.to raise_error do |e|
+        expect { described_class.new(attachment).validate }.to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::UnprocessableEntity)
           expect(e.errors.first.status).to eq('422')
           expect(e.errors.first.detail).to eq(

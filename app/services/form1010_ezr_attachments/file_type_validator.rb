@@ -12,7 +12,7 @@ module Form1010EzrAttachments
     # file's extension via its name in order to circumvent frontend validation. '.xlsx' files, in particular, were
     # the cause of several form submission failures. With that said, we need to check the actual file type
     # and ensure the Enrollment System accepts it.
-    def validate_file_type
+    def validate
       file_path = @file.tempfile.path
       # Using 'MIME::Types' doesn't work here because it will
       # return, for example, 'application/zip' for .docx files

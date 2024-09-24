@@ -15,7 +15,7 @@ module V0
 
       Form1010EzrAttachments::FileTypeValidator.new(
         filtered_params['file_data']
-      ).validate_file_type
+      ).validate
 
       save_attachment_to_cloud!
       save_attachment_to_db!
