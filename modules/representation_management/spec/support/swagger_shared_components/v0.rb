@@ -3,236 +3,43 @@
 module SwaggerSharedComponents
   class V0
     def self.body_examples # rubocop:disable Metrics/MethodLength
-      # veteran_identifier_json_schema = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       'request_bodies',
-      #       'veteran_identifier',
-      #       'request.json'
-      #     )
-      #   )
-      # )
+      name_parameters = {
+        type: :object,
+        properties: {
+          first: { type: :string, example: 'John' },
+          middle: { type: :string, example: 'A' },
+          last: { type: :string, example: 'Doe' }
+        }
+      }
 
-      # veteran_identifier_json_body_example = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       'request_bodies',
-      #       'veteran_identifier',
-      #       'example.json'
-      #     )
-      #   )
-      # )
+      name = {
+        first: 'John',
+        middle: 'A',
+        last: 'Doe'
+      }
 
-      # intent_to_file_json_schema = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       'request_bodies',
-      #       'intent_to_file',
-      #       'request.json'
-      #     )
-      #   )
-      # )
+      address_parameters = {
+        type: :object,
+        properties: {
+          address_line1: { type: :string, example: '123 Main St' },
+          address_line2: { type: :string, example: 'Apt 1' },
+          city: { type: :string, example: 'Springfield' },
+          state_code: { type: :string, example: 'IL' },
+          country: { type: :string, example: 'US' },
+          zip_code: { type: :string, example: '62704' },
+          zip_code_suffix: { type: :string, example: '1234' }
+        }
+      }
 
-      # intent_to_file_request_body_example = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       'request_bodies',
-      #       'intent_to_file',
-      #       'example.json'
-      #     )
-      #   )
-      # )
-
-      # disability_compensation_json_schema = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       '526.json'
-      #     )
-      #   )
-      # )
-
-      # disability_compensation_request_body_example = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       'request_bodies',
-      #       'disability_compensation',
-      #       'example.json'
-      #     )
-      #   )
-      # )
-
-      # disability_compensation_generate_pdf_json_schema = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       'generate_pdf_526.json'
-      #     )
-      #   )
-      # )
-
-      # disability_compensation_generate_pdf_request_body_example = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       'request_bodies',
-      #       'disability_compensation',
-      #       'generate_pdf_example.json'
-      #     )
-      #   )
-      # )
-
-      # power_of_attorney_2122a_json_schema = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       '2122a.json'
-      #     )
-      #   )
-      # )
-
-      # power_of_attorney_2122a_body_example = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'spec',
-      #       'fixtures',
-      #       'v2',
-      #       'veterans',
-      #       'power_of_attorney',
-      #       '2122a',
-      #       'valid.json'
-      #     )
-      #   )
-      # )
-
-      # power_of_attorney_2122_json_schema = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       '2122.json'
-      #     )
-      #   )
-      # )
-
-      # power_of_attorney_2122_body_example = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'spec',
-      #       'fixtures',
-      #       'v2',
-      #       'veterans',
-      #       'power_of_attorney',
-      #       '2122',
-      #       'valid.json'
-      #     )
-      #   )
-      # )
-
-      # power_of_attorney_request_json_schema = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       'poa_request.json'
-      #     )
-      #   )
-      # )
-
-      # power_of_attorney_request_body_example = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'spec',
-      #       'fixtures',
-      #       'v2',
-      #       'veterans',
-      #       'power_of_attorney',
-      #       'request_representative',
-      #       'valid_no_claimant.json'
-      #     )
-      #   )
-      # )
-
-      # evidence_waiver_submission_request_json_schema = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'config',
-      #       'schemas',
-      #       'v2',
-      #       '5103.json'
-      #     )
-      #   )
-      # )
-
-      # evidence_waiver_submission_request_body_example = JSON.parse(
-      #   File.read(
-      #     Rails.root.join(
-      #       'modules',
-      #       'claims_api',
-      #       'spec',
-      #       'fixtures',
-      #       'v2',
-      #       'veterans',
-      #       '5103',
-      #       'form_5103_api.json'
-      #     )
-      #   )
-      # )
+      address = {
+        address_line1: '123 Main St',
+        address_line2: 'Apt 1',
+        city: 'Springfield',
+        state_code: 'IL',
+        country: 'US',
+        zip_code: '62704',
+        zip_code_suffix: '1234'
+      }
 
       {
         pdf_generator2122: {
@@ -245,20 +52,8 @@ module SwaggerSharedComponents
             relationship: 'Spouse',
             phone: '5555555555',
             email: 'claimant@example.com',
-            name: {
-              first: 'First',
-              middle: 'M',
-              last: 'Last'
-            },
-            address: {
-              address_line1: '123 Claimant St',
-              address_line2: '',
-              city: 'ClaimantCity',
-              state_code: 'CC',
-              country: 'US',
-              zip_code: '12345',
-              zip_code_suffix: '6789'
-            }
+            name:,
+            address:
           },
           veteran: {
             ssn: '123456789',
@@ -269,22 +64,65 @@ module SwaggerSharedComponents
             phone: '5555555555',
             email: 'veteran@example.com',
             insurance_numbers: [],
-            name: {
-              first: 'First',
-              middle: 'M',
-              last: 'Last'
-            },
-            address: {
-              address_line1: '456 Veteran Rd',
-              address_line2: '',
-              city: 'VeteranCity',
-              state_code: 'VC',
-              country: 'US',
-              zip_code: '98765',
-              zip_code_suffix: '4321'
+            name:,
+            address:
+          }
+        },
+        pdf_generator2122_parameter:
+          {
+            name: :pdf_generator2122,
+            in: :body,
+            schema: {
+              type: :object,
+              properties: {
+                organization_name: { type: :string, example: 'Veterans Organization' },
+                record_consent: { type: :boolean, example: true },
+                consent_address_change: { type: :boolean, example: false },
+                consent_limits: {
+                  type: :array,
+                  items: { type: :string },
+                  example: %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL]
+                },
+                conditions_of_appointment: {
+                  type: :array,
+                  items: { type: :string },
+                  example: %w[a123 b456 c789]
+                },
+                claimant: {
+                  type: :object,
+                  properties: {
+                    name: name_parameters,
+                    address: address_parameters,
+                    date_of_birth: { type: :string, format: :date, example: '12/31/2000' },
+                    relationship: { type: :string, example: 'Spouse' },
+                    phone: { type: :string, example: '1234567890' },
+                    email: { type: :string, example: 'veteran@example.com' }
+                  }
+                },
+                veteran: {
+                  type: :object,
+                  properties: {
+                    insurance_numbers: {
+                      type: :array,
+                      items: { type: :string },
+                      example: %w[123456789 987654321]
+                    },
+                    name: name_parameters,
+                    address: address_parameters,
+                    ssn: { type: :string, example: '123456789' },
+                    va_file_number: { type: :string, example: '123456789' },
+                    date_of_birth: { type: :string, format: :date, example: '12/31/2000' },
+                    service_number: { type: :string, example: '123456789' },
+                    service_branch: { type: :string, example: 'Army' },
+                    service_branch_other: { type: :string, example: 'Other Branch' },
+                    phone: { type: :string, example: '1234567890' },
+                    email: { type: :string, example: 'veteran@example.com' }
+                  }
+                }
+              },
+              required: %w[organization_name record_consent veteran]
             }
           }
-        }
       }
     end
 

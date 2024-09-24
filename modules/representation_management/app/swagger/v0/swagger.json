@@ -1,0 +1,43 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "va.gov Representation Management API",
+    "version": "1.0.0",
+    "termsOfService": "https://developer.va.gov/terms-of-service",
+    "description": "The API for managing representation for VA Forms 21-22 and 21-22a"
+  },
+  "tags": [
+    {
+      "name": "PDF Generation",
+      "description": "Generate a PDF form from user input"
+    },
+    {
+      "name": "Power of Attorney",
+      "description": "Retrieves the Power of Attorney for a veteran, if any."
+    }
+  ],
+  "components": {
+  },
+  "paths": {
+  },
+  "servers": [
+    {
+      "url": "https://sandbox-api.va.gov",
+      "description": "VA.gov API sandbox environment",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov",
+      "description": "VA.gov API production environment",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    }
+  ]
+}
