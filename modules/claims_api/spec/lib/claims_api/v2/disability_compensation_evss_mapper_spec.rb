@@ -40,6 +40,21 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
     let(:evss_data) do
       ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
     end
+    let(:disability) do
+      {
+        disabilityActionType: 'INCREASE',
+        name: 'hypertension',
+        approximateDate: nil,
+        classificationCode: '',
+        serviceRelevance: '',
+        isRelatedToToxicExposure: true,
+        exposureOrEventOrInjury: '',
+        ratedDisabilityId: '',
+        diagnosticCode: 0,
+        secondaryDisabilities: nil,
+        specialIssues: %w[POW EMP]
+      }
+    end
 
     RSpec.shared_examples 'does not map any values' do |section|
       it "does not map any of the #{section} values" do
@@ -144,24 +159,8 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       end
 
       context 'When there are special issues' do
-        let(:disability) do
-          {
-            disabilityActionType: 'NEW',
-            name: 'hypertension',
-            approximateDate: nil,
-            classificationCode: '',
-            serviceRelevance: '',
-            isRelatedToToxicExposure: false,
-            exposureOrEventOrInjury: '',
-            ratedDisabilityId: '',
-            diagnosticCode: 0,
-            secondaryDisabilities: nil,
-            specialIssues: %w[POW EMP]
-          }
-        end
-
         it 'maps the special issues attributes correctly' do
-          form_data['data']['attributes']['disabilities'][0] = disability
+          form_data['data']['attributes']['disabilities'][0][:specialIssues] = %w[POW EMP]
           auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
           evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
           special_issue_first = evss_data[:disabilities][0][:specialIssues][0]
@@ -172,24 +171,9 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       end
 
       context 'When there are special issues and a PACT disability' do
-        let(:disability) do
-          {
-            disabilityActionType: 'NEW',
-            name: 'hypertension',
-            approximateDate: nil,
-            classificationCode: '',
-            serviceRelevance: '',
-            isRelatedToToxicExposure: true,
-            exposureOrEventOrInjury: '',
-            ratedDisabilityId: '',
-            diagnosticCode: 0,
-            secondaryDisabilities: nil,
-            specialIssues: %w[POW EMP]
-          }
-        end
-
         it 'maps the special issues attributes correctly and appends PACT' do
-          form_data['data']['attributes']['disabilities'][0] = disability
+          form_data['data']['attributes']['disabilities'][0][:disabilityActionType] = 'INCREASE'
+          form_data['data']['attributes']['disabilities'][0][:specialIssues] = %w[POW EMP]
           auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
           evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
           includes_pow = evss_data[:disabilities][0][:specialIssues].include? 'POW'
@@ -202,23 +186,9 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       end
 
       context 'When serviceRelevance is blank' do
-        let(:disability) do
-          {
-            disabilityActionType: 'INCREASE',
-            name: 'hypertension',
-            approximateDate: nil,
-            classificationCode: '',
-            serviceRelevance: '',
-            isRelatedToToxicExposure: false,
-            exposureOrEventOrInjury: '',
-            ratedDisabilityId: '',
-            diagnosticCode: 0,
-            secondaryDisabilities: nil
-          }
-        end
-
         it 'mapping logic correctly removes attribute' do
           form_data['data']['attributes']['disabilities'][1] = disability
+          form_data['data']['attributes']['disabilities'][1]['serviceRelevance'] = nil
           auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
           evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
           disability = evss_data[:disabilities][1]
@@ -227,23 +197,9 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       end
 
       context 'When classificationcode is null' do
-        let(:disability) do
-          {
-            disabilityActionType: 'INCREASE',
-            name: 'hypertension',
-            approximateDate: nil,
-            classificationCode: nil,
-            serviceRelevance: '',
-            isRelatedToToxicExposure: false,
-            exposureOrEventOrInjury: '',
-            ratedDisabilityId: '',
-            diagnosticCode: 0,
-            secondaryDisabilities: nil
-          }
-        end
-
         it 'mapping logic correctly removes attribute' do
           form_data['data']['attributes']['disabilities'][1] = disability
+          form_data['data']['attributes']['disabilities'][1]['classificationCode'] = nil
           auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
           evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
           disability = evss_data[:disabilities][1]
