@@ -47,7 +47,7 @@ RSpec.describe LighthouseRatedDisabilitiesProvider do
     end.to raise_error(Common::Exceptions::ServiceError)
   end
 
-  Lighthouse::ServiceException::ERROR_MAP.except(422).each do |status, error_class|
+  Lighthouse::ServiceException::ERROR_MAP.except(422, 499, 501).each do |status, error_class|
     it "throws a #{status} error if Lighthouse sends it back" do
       expect do
         test_error(

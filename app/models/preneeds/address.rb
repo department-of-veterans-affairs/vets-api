@@ -16,7 +16,7 @@ module Preneeds
   # @!attribute postal_code
   #   @return [String] address postal code
   #
-  class Address < Preneeds::Base
+  class Address < Preneeds::VirtusBase
     attribute :street, String
     attribute :street2, String
     attribute :city, String

@@ -53,6 +53,33 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.toxic_exposure.multiple_exposures.class).to eq(Array)
       expect(result.claim_notes).to eq('some overflow text')
     end
+
+    it 'sends uniq values in multiple exposures array' do
+      expect(transformer).to receive(:evss_claims_process_type)
+        .with(data['form526'])
+        .and_return('STANDARD_CLAIM_PROCESS')
+      # "airspace" is the repeated multiple exposure
+      data['form526']['toxicExposure'].merge!({
+                                                'gulfWar2001Details' =>
+                                                  { 'airspace' => { 'startDate' => '2014-01-26',
+                                                                    'endDate' => '2014-02-28' },
+                                                    'yemen' => { 'startDate' => '2014-01-26',
+                                                                 'endDate' => '2014-02-28' },
+                                                    'djibouti' => { 'startDate' => '2014-01-26',
+                                                                    'endDate' => '2014-02-28' } },
+                                                'gulfWar2001' => { 'djibouti' => true, 'yemen' => true,
+                                                                   'airspace' => true },
+                                                'gulfWar1990Details' =>
+                     { 'airspace' => { 'startDate' => '2014-01-26', 'endDate' => '2014-02-28' },
+                       'somalia' => { 'startDate' => '2014-01-26', 'endDate' => '2014-02-28' },
+                       'kuwait' => { 'startDate' => '2014-01-26', 'endDate' => '2014-02-28' } },
+                                                'gulfWar1990' => { 'kuwait' => true, 'somalia' => true,
+                                                                   'airspace' => true }
+                                              })
+      result = transformer.transform(data)
+      # since this is now a uniq list, it is now 12 items instead of 13
+      expect(result.toxic_exposure.multiple_exposures.count).to eq(12)
+    end
   end
 
   describe 'optional request objects are correctly rendered' do
@@ -417,6 +444,28 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                        })
       result = transformer.send(:transform_multiple_exposures, no_location_details['gulfWar1990Details'])
       expect(result.length).to eq(0)
+    end
+
+    it 'convert_date_no_day converts various dates to YYYY-MM or YYYY' do
+      date = '2024-03-22'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024-03')
+
+      date = '2024-03-XX'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024-03')
+
+      date = '2024-XX-XX'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024')
+
+      date = '2024-03'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024-03')
+
+      date = '2024'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024')
     end
 
     it 'set served_in_herbicide_hazard_locations correctly' do

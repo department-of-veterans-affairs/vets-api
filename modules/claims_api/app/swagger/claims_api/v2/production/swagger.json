@@ -879,6 +879,7 @@
                                       "description": "Begin date for the Veteran's new address.",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "type": "string",
+                                      "nullable": true,
                                       "example": "2018-06-04"
                                     },
                                     "endDate": {
@@ -1559,6 +1560,7 @@
                                   }
                                 },
                                 "federalActivation": {
+                                  "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
                                   "type": "object",
                                   "nullable": true,
                                   "additionalProperties": false,
@@ -2261,6 +2263,7 @@
                                     "description": "Begin date for the Veteran's new address.",
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
+                                    "nullable": true,
                                     "example": "2018-06-04"
                                   },
                                   "endDate": {
@@ -2941,6 +2944,7 @@
                                 }
                               },
                               "federalActivation": {
+                                "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
                                 "type": "object",
                                 "nullable": true,
                                 "additionalProperties": false,
@@ -3686,7 +3690,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "4c15d1d5-8c78-46c3-b4da-c73baa771a7b",
+                        "id": "c57050e5-558e-4f9f-9a6b-68ea79752541",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3871,7 +3875,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-09-12"
+                              "anticipatedSeparationDate": "2024-09-21"
                             },
                             "confinements": [
                               {
@@ -3917,7 +3921,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "5fe86683-a608-4a7e-90a4-f901ab67abcc",
+                        "id": "e981c089-c851-4c90-8a76-87a956381c2e",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4418,6 +4422,7 @@
                                       "description": "Begin date for the Veteran's new address.",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "type": "string",
+                                      "nullable": true,
                                       "example": "2018-06-04"
                                     },
                                     "endDate": {
@@ -5098,6 +5103,7 @@
                                   }
                                 },
                                 "federalActivation": {
+                                  "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
                                   "type": "object",
                                   "nullable": true,
                                   "additionalProperties": false,
@@ -5800,6 +5806,7 @@
                                     "description": "Begin date for the Veteran's new address.",
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
+                                    "nullable": true,
                                     "example": "2018-06-04"
                                   },
                                   "endDate": {
@@ -6480,6 +6487,7 @@
                                 }
                               },
                               "federalActivation": {
+                                "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
                                 "type": "object",
                                 "nullable": true,
                                 "additionalProperties": false,
@@ -7959,6 +7967,7 @@
                                     "description": "Begin date for the Veteran's new address.",
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
+                                    "nullable": true,
                                     "example": "2018-06-04"
                                   },
                                   "endDate": {
@@ -8639,6 +8648,7 @@
                                 }
                               },
                               "federalActivation": {
+                                "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
                                 "type": "object",
                                 "nullable": true,
                                 "additionalProperties": false,
@@ -9129,7 +9139,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2ae77e9b-75c8-4c18-8e1c-0b3f2c5f5301",
+                    "id": "18853a53-9cc4-479a-8443-0f3c9bdea0af",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12789,8 +12799,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-09-10",
-                      "expirationDate": "2025-09-10",
+                      "creationDate": "2024-09-19",
+                      "expirationDate": "2025-09-19",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13686,7 +13696,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "98a32e44-5988-42c3-acc1-65a2991af58a",
+                    "id": "b06d7ca0-bb23-4481-b9e1-6a15351e0d63",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14379,7 +14389,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ee98c34c-1121-4289-9f75-7e95df42bba5",
+                    "id": "4d21ac8b-52eb-48ea-930e-6277a1a272be",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16330,10 +16340,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "525c416e-4c87-43ec-82e8-f609b8560689",
+                    "id": "42002b9e-354f-40b4-a7c2-5b816a934c6b",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-09-10",
+                      "dateRequestAccepted": "2024-09-19",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

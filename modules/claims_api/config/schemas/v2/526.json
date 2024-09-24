@@ -235,7 +235,8 @@
             "beginDate": {
               "description": "Begin date for the Veteran's new address.",
               "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
-              "type": "string",
+              "type": ["string", "null"],
+              "nullable": true,
               "example": "2018-06-04"
             },
             "endDate": {
@@ -871,6 +872,7 @@
           }
         },
         "federalActivation": {
+          "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
           "type": ["object", "null"],
           "nullable": true,
           "additionalProperties": false,

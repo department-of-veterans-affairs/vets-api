@@ -37,7 +37,7 @@ module ClaimsApi
     # Upload document of mapped claim
     #
     # @return success or failure
-    def upload(claim:, pdf_path:, doc_type: 'L122', action: 'post', file_number: nil, original_filename: nil, # rubocop:disable Metrics/ParameterLists
+    def upload(claim:, pdf_path:, doc_type: 'L122', action: 'post', original_filename: nil, # rubocop:disable Metrics/ParameterLists
                pctpnt_vet_id: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist,
@@ -46,7 +46,7 @@ module ClaimsApi
       end
 
       @multipart = true
-      body = generate_upload_body(claim:, doc_type:, pdf_path:, action:, file_number:, original_filename:,
+      body = generate_upload_body(claim:, doc_type:, pdf_path:, action:, original_filename:,
                                   pctpnt_vet_id:)
       res = client.post('documents', body)&.body
 
@@ -100,12 +100,12 @@ module ClaimsApi
     #
     # @return {parameters, file}
     # rubocop:disable Metrics/ParameterLists
-    def generate_upload_body(claim:, doc_type:, pdf_path:, action:, file_number: nil, original_filename: nil,
+    def generate_upload_body(claim:, doc_type:, pdf_path:, action:, original_filename: nil,
                              pctpnt_vet_id: nil)
       payload = {}
       auth_headers = claim.auth_headers
       veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'], auth_headers['va_eauth_lastName'])
-      birls_file_num = auth_headers['va_eauth_birlsfilenumber'] || file_number if doc_type != 'L705'
+      birls_file_num = determine_birls_file_number(doc_type, auth_headers)
       claim_id = get_claim_id(doc_type, claim)
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, action:)
       participant_id = pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)
@@ -119,6 +119,15 @@ module ClaimsApi
       payload[:parameters] = Faraday::UploadIO.new(fn, 'application/json')
       payload[:file] = Faraday::UploadIO.new(pdf_path.to_s, 'application/pdf')
       payload
+    end
+
+    def determine_birls_file_number(doc_type, auth_headers)
+      if %w[L122].include?(doc_type)
+        birls_file_num = auth_headers['va_eauth_birlsfilenumber']
+      elsif %w[L075 L190 L705].include?(doc_type)
+        birls_file_num = nil
+      end
+      birls_file_num
     end
     # rubocop:enable Metrics/ParameterLists
 

@@ -10,7 +10,7 @@ module Preneeds
   # @!attribute name
   #   @return [Preneeds::FullName] currently buried person's full name
   #
-  class CurrentlyBuriedPerson < Preneeds::Base
+  class CurrentlyBuriedPerson < Preneeds::VirtusBase
     attribute :cemetery_number, String
     attribute :name, Preneeds::FullName
 

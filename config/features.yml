@@ -66,6 +66,9 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
+  caregiver_carma_submitted_at:
+    actor_type: user
+    description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -157,10 +160,6 @@ features:
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
-    enable_in_development: true
-  check_in_experience_travel_api_v2_cutover:
-    actor_type: user
-    description: Cuts over to new EIS endpoint path, client_id, and keys for BTSSS
     enable_in_development: true
   check_in_experience_cerner_travel_claims_enabled:
     actor_type: user
@@ -666,6 +665,10 @@ features:
     actor_type: user
     description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
+  simple_forms_email_notifications:
+    actor_type: user
+    description: Enables form email notifications upon certain state changes (error and received)
+    enable_in_development: true
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
@@ -754,6 +757,10 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
+  va_notify_user_account_job:
+    actor_type: user
+    description: Enable/disable UserAccountJob in VANotify (replacement for IcnJob)
+    enable_in_development: true
   letters_check_discrepancies:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
@@ -811,6 +818,10 @@ features:
     actor_type: user
     description: Enables MHV integration to point the Medical Records application on VA.gov
     enable_in_development: true
+  mhv_interstitial_enabled:
+    actor_type: user
+    descriptiom: Enables interstitial for upcoming mhv deprecation
+    enable_in_development: false
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
@@ -826,6 +837,9 @@ features:
   mhv_secure_messaging_edit_contact_list:
     actor_type: user
     description: Disables/Enables Secure Messaging edit contact list page
+  mhv_secure_messaging_triage_group_plain_language:
+    actor_type: user
+    description: Disables/Enables Secure Messaging recipients group plain language design
     enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
@@ -911,6 +925,9 @@ features:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
     enable_in_development: false
+  mobile_allergy_intolerance_model:
+    actor_type: user
+    description: For mobile app, enalbes use of strict models for parsing allergy intolerance
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
@@ -982,18 +999,6 @@ features:
   profile_show_credential_retirement_messaging:
     actor_type: user
     description: Show/hide MHV and DS Logon credential retirement messaging in profile
-  profile_show_direct_deposit_single_form:
-    actor_type: user
-    description: Show/hide the single direct deposit form in profile for all users
-  profile_show_direct_deposit_single_form_uat:
-    actor_type: user
-    description: Show/hide the single direct deposit form just for users during UAT only
-  profile_show_direct_deposit_single_form_alert:
-    actor_type: user
-    description: Show/hide an alert with information around migrating to a single direct deposit form in profile
-  profile_show_direct_deposit_single_form_edu_downtime:
-    actor_type: user
-    description: Show/hide the edu direct deposit form and instead display a downtime message in its place
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
@@ -1343,10 +1348,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
-  va_online_scheduling_med_review_instructions:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to update the Medication Review instructions on the Appointment Details page.
   va_online_scheduling_OH_direct_schedule:
     actor_type: user
     enable_in_development: true
@@ -1484,6 +1485,9 @@ features:
   mobile_appeal_model:
     actor_type: user
     description: For mobile app, enables use of strict models for parsing appeals
+  mobile_v2_contact_info:
+    actor_type: user
+    description: For mobile app, enables ContactInformationV2 Service.
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
@@ -1697,3 +1701,10 @@ features:
   mgib_verifications_maintenance:
     actor_type: user
     description: Used to show  maintenance alert for MGIB Verifications
+  search_use_v2_gsa:
+    actor_type: cookie_id
+    description: Swaps the Search Service's configuration url with an updated api.gsa.gov address
+    enabled_in_development: true
+  remove_pciu:
+    actor_type: user
+    description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)

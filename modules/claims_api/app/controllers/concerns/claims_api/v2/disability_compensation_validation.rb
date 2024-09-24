@@ -72,10 +72,6 @@ module ClaimsApi
         validate_form_526_coa_address_line_one_presence(change_of_address, form_object_desc)
         validate_form_526_coa_country_presence(change_of_address, form_object_desc)
         validate_form_526_coa_city_presence(change_of_address, form_object_desc)
-
-        coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
-
-        collect_error_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
       end
 
       def validate_form_526_coa_type_of_address_change_presence(change_of_address, form_object_desc)
@@ -101,6 +97,7 @@ module ClaimsApi
       def validate_form_526_change_of_address_beginning_date
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'beginDate')
+        return if date.nil? # nullable on schema
 
         # If the date parse fails, then fall back to the InvalidFieldValue
         begin
@@ -121,17 +118,18 @@ module ClaimsApi
             source: '/changeOfAddress/dates/endDate'
           )
         end
-        return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
+
         return if change_of_address['dates']['beginDate'].blank? # nothing to check against
 
-        form_object_desc = 'a TEMPORARY change of address'
+        # cannot compare invalid dates so need to return here if date is invalid
+        return unless date_is_valid?(date, 'changeOfAddress/dates/endDate')
 
-        collect_error_if_value_not_present('end date', form_object_desc) if date.blank?
-
-        return if Date.strptime(date,
-                                '%Y-%m-%d') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
-
-        collect_error_messages(source: '/changeOfAddress/dates/endDate', detail: 'endDate is not a valid date.')
+        if Date.strptime(date, '%Y-%m-%d') < Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
+          collect_error_messages(
+            source: '/changeOfAddress/dates/endDate',
+            detail: 'endDate needs to be after beginDate.'
+          )
+        end
       end
 
       def validate_form_526_change_of_address_country
@@ -156,12 +154,23 @@ module ClaimsApi
 
       def validate_form_526_change_of_address_zip
         address = form_attributes['changeOfAddress'] || {}
-        if address['country'] == 'USA' && address['zipFirstFive'].blank?
+        validate_form_526_usa_coa_conditions(address) if address['country'] == 'USA'
+      end
+
+      def validate_form_526_usa_coa_conditions(address)
+        if address['zipFirstFive'].blank?
           collect_error_messages(
-            source: '/changeOfAddress/zipFirstFive',
+            source: '/changeOfAddress/',
             detail: 'The zipFirstFive is required if the country is USA.'
           )
-        elsif address['country'] == 'USA' && address['internationalPostalCode'].present?
+        end
+        if address['state'].blank?
+          collect_error_messages(
+            source: '/changeOfAddress/',
+            detail: 'The state is required if the country is USA.'
+          )
+        end
+        if address['internationalPostalCode'].present?
           collect_error_messages(
             source: '/changeOfAddress/internationalPostalCode',
             detail: 'The internationalPostalCode should not be provided if the country is USA.'
@@ -973,13 +982,25 @@ module ClaimsApi
 
         form_obj_desc = '/serviceInformation/federalActivation'
 
+        # For a valid BDD EP code to be assigned we need these values
+        validate_required_values_for_federal_activation(federal_activation_date, anticipated_separation_date)
+
+        validate_federal_activation_date(federal_activation_date, form_obj_desc)
+
+        validate_federal_activation_date_order(federal_activation_date) if federal_activation_date.present?
+        if anticipated_separation_date.present?
+          validate_anticipated_separation_date_in_past(anticipated_separation_date)
+        end
+      end
+
+      def validate_federal_activation_date(federal_activation_date, form_obj_desc)
         if federal_activation_date.blank?
           collect_error_if_value_not_present('federal activation date',
                                              form_obj_desc)
         end
+      end
 
-        return if anticipated_separation_date.blank?
-
+      def validate_federal_activation_date_order(federal_activation_date)
         # we know the dates are present
         if activation_date_not_after_duty_begin_date?(federal_activation_date)
           collect_error_messages(
@@ -987,9 +1008,41 @@ module ClaimsApi
             detail: 'The federalActivation date must be after the earliest service period active duty begin date.'
           )
         end
-
-        validate_anticipated_separation_date_in_past(anticipated_separation_date)
       end
+
+      # rubocop:disable Metrics/MethodLength
+      def validate_required_values_for_federal_activation(activation_date, separation_date)
+        activation_form_obj_desc = 'serviceInformation/federalActivation/'
+        reserves_dates_form_obj_desc = 'serviceInformation/reservesNationalGuardServce/obligationTermsOfService/'
+        reserves_unit_form_obj_desc = 'serviceInformation/reservesNationalGuardServce/'
+
+        reserves = form_attributes.dig('serviceInformation', 'reservesNationalGuardService')
+        tos_start_date = reserves&.dig('obligationTermsOfService', 'beginDate')
+        tos_end_date = reserves&.dig('obligationTermsOfService', 'endDate')
+        unit_name = reserves&.dig('unitName')
+
+        if activation_date.blank?
+          collect_error_messages(detail: 'activationDate is missing or blank',
+                                 source: activation_form_obj_desc)
+        end
+        if separation_date.blank?
+          collect_error_messages(detail: 'anticipatedSeparationDate is missing or blank',
+                                 source: activation_form_obj_desc)
+        end
+        if tos_start_date.blank?
+          collect_error_messages(detail: 'beginDate is missing or blank',
+                                 source: reserves_dates_form_obj_desc)
+        end
+        if tos_end_date.blank?
+          collect_error_messages(detail: 'endDate is missing or blank',
+                                 source: reserves_dates_form_obj_desc)
+        end
+        if unit_name.blank?
+          collect_error_messages(detail: 'unitName is missing or blank',
+                                 source: reserves_unit_form_obj_desc)
+        end
+      end
+      # rubocop:enable Metrics/MethodLength
 
       def activation_date_not_after_duty_begin_date?(activation_date)
         service_information = form_attributes['serviceInformation']
