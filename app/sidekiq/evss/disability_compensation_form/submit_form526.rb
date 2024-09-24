@@ -140,10 +140,11 @@ module EVSS
       def send_submission_data_to_lighthouse(submission, icn)
         # 1. transform submission data to LH format
         transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+        transaction_id = submission.auth_headers['va_eauth_service_transaction_id']
         body = transform_service.transform(submission.form['form526'])
         # 2. send transformed submission data to LH endpoint
         benefits_claims_service = BenefitsClaims::Service.new(icn)
-        raw_response = benefits_claims_service.submit526(body)
+        raw_response = benefits_claims_service.submit526(body, nil, nil { transaction_id: })
         raw_response_body = if raw_response.body.is_a? String
                               JSON.parse(raw_response.body)
                             else

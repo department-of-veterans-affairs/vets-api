@@ -3,13 +3,15 @@
 require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
 
 class LighthouseGeneratePdfProvider
+  include GeneratePdfProvider
+
   def initialize(icn)
     @icn = icn
   end
 
-  def generate_526_pdf(form_content)
+  def generate_526_pdf(form_content, transaction_id)
     body = transform_service.transform(JSON.parse(form_content))
-    service.submit526(body, nil, nil, { generate_pdf: true })
+    service.submit526(body, nil, nil, { generate_pdf: true, transaction_id: })
   end
 
   def transform_service
