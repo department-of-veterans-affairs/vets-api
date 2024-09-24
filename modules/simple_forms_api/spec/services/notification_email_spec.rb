@@ -220,72 +220,93 @@ describe SimpleFormsApi::NotificationEmail do
         end
       end
     end
-  end
 
-  describe '40_0247' do
-    let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
-    let(:config) do
-      { form_data: data, form_number: 'vba_40_0247',
-        confirmation_number: 'confirmation_number', date_submitted: }
-    end
-
-    context 'when email is entered' do
-      let(:data) do
-        fixture_path = Rails.root.join(
-          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247.json'
-        )
-        JSON.parse(fixture_path.read)
+    describe '40_0247' do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
+      let(:config) do
+        { form_data: data, form_number: 'vba_40_0247',
+          confirmation_number: 'confirmation_number', date_submitted: }
       end
 
-      it 'sends the confirmation email' do
-        allow(VANotify::EmailJob).to receive(:perform_async)
+      context 'template_id is provided', if: notification_type == :confirmation do
+        context 'when email is entered' do
+          let(:data) do
+            fixture_path = Rails.root.join(
+              'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247.json'
+            )
+            JSON.parse(fixture_path.read)
+          end
 
-        subject = described_class.new(config)
+          it 'sends the confirmation email' do
+            allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject.send
+            subject = described_class.new(config)
 
-        expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'a@b.com',
-          'form40_0247_confirmation_email_template_id',
-          {
-            'first_name' => 'JOE',
-            'date_submitted' => date_submitted,
-            'confirmation_number' => 'confirmation_number',
-            'lighthouse_updated_at' => nil
-          }
-        )
-      end
-    end
+            subject.send
 
-    context 'when email is omitted' do
-      let(:data) do
-        fixture_path = Rails.root.join(
-          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247-min.json'
-        )
-        JSON.parse(fixture_path.read)
-      end
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(
+              'a@b.com',
+              'form40_0247_confirmation_email_template_id',
+              {
+                'first_name' => 'JOE',
+                'date_submitted' => date_submitted,
+                'confirmation_number' => 'confirmation_number',
+                'lighthouse_updated_at' => nil
+              }
+            )
+          end
+        end
 
-      context 'when user is signed in' do
-        let(:user) { create(:user, :loa3) }
+        context 'when email is omitted' do
+          let(:data) do
+            fixture_path = Rails.root.join(
+              'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247-min.json'
+            )
+            JSON.parse(fixture_path.read)
+          end
 
-        it 'does not send the confirmation email' do
-          allow(VANotify::EmailJob).to receive(:perform_async)
-          expect(data['applicant_email']).to be_nil
+          context 'when user is signed in' do
+            let(:user) { create(:user, :loa3) }
 
-          subject = described_class.new(config)
+            it 'does not send the confirmation email' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+              expect(data['applicant_email']).to be_nil
 
-          subject.send
+              subject = described_class.new(config)
 
-          expect(VANotify::EmailJob).not_to have_received(:perform_async)
+              subject.send
+
+              expect(VANotify::EmailJob).not_to have_received(:perform_async)
+            end
+          end
+
+          context 'when user is not signed in' do
+            it 'does not send the confirmation email' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+              expect(data['applicant_email']).to be_nil
+
+              subject = described_class.new(config)
+
+              subject.send
+
+              expect(VANotify::EmailJob).not_to have_received(:perform_async)
+            end
+          end
         end
       end
 
-      context 'when user is not signed in' do
-        it 'does not send the confirmation email' do
-          allow(VANotify::EmailJob).to receive(:perform_async)
-          expect(data['applicant_email']).to be_nil
+      context 'template_id is missing', if: notification_type != :confirmation do
+        let(:data) do
+          fixture_path = Rails.root.join(
+            'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247.json'
+          )
+          JSON.parse(fixture_path.read)
+        end
+        let(:user) { create(:user, :loa3) }
 
-          subject = described_class.new(config)
+        it 'sends nothing' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+          subject = described_class.new(config, notification_type:, user:)
 
           subject.send
 

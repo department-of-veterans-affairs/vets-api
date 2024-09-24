@@ -74,10 +74,10 @@ module SimpleFormsApi
       return unless SUPPORTED_FORMS.include?(form_number)
 
       data = form_specific_data || empty_form_specific_data
-
       return if data[:email].blank? || data[:personalization]['first_name'].blank?
 
       template_id = TEMPLATE_IDS[form_number][notification_type]
+      return unless template_id
 
       if at
         VANotify::EmailJob.perform_at(
