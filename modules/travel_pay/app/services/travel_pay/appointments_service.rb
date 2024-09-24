@@ -37,7 +37,7 @@ module TravelPay
 
     def find_by_date_time(date_string, appointments)
       if date_string.nil?
-        Rails.logger.debug(message: 'Invalid appointment time provided (appointment time cannot be nil).')
+        Rails.logger.error(message: 'Invalid appointment time provided (appointment time cannot be nil).')
         raise ArgumentError, message: 'Invalid appointment time provided (appointment time cannot be nil).'
       elsif date_string.present?
         parsed_date_time = DateTime.parse(date_string)
@@ -48,7 +48,7 @@ module TravelPay
         end
       end
     rescue DateTime::Error => e
-      Rails.logger.debug(message: "#{e} Invalid appointment time provided (given: #{date_string}).")
+      Rails.logger.error(message: "#{e} Invalid appointment time provided (given: #{date_string}).")
       raise ArgumentError, message: "#{e} Invalid appointment time provided (given: #{date_string})."
     end
 
