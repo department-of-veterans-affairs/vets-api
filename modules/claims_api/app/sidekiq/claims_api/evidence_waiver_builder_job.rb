@@ -22,7 +22,7 @@ module ClaimsApi
                               doc_type: 'L705', pctpnt_vet_id: auth_headers['target_veteran_folder_id'])
 
       # with a successful upload we can set this back to pending if it errored previously
-      update_status_for_submssion(lighthouse_claim)
+      update_status_for_submission(lighthouse_claim)
 
       ClaimsApi::EwsUpdater.perform_async(evidence_waiver_id)
       ::Common::FileHelpers.delete_file_if_exists(output_path)
