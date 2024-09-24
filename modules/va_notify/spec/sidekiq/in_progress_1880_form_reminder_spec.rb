@@ -33,7 +33,7 @@ describe VANotify::InProgress1880FormReminder, type: :worker do
       expect(VANotify::OneTimeInProgressReminder).not_to have_received(:perform_async)
     end
 
-    it 'delegates to VANotify::IcnJob' do
+    it 'delegates to VANotify::UserAccountJob' do
       user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name')
       allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
 
