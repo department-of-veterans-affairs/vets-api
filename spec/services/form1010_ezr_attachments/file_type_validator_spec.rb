@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Form1010EzrAttachments::FileTypeValidator do
-  let (:ezr_attachment) do
+  let (:attachment) do
     Rack::Test::UploadedFile.new(
       Rails.root.join('spec', 'fixtures', 'files', 'empty_file.txt'),
       'empty_file.txt'
@@ -36,13 +36,10 @@ RSpec.describe Form1010EzrAttachments::FileTypeValidator do
 
     context 'when no exception occurs' do
       it 'increments StatsD and raises an error' do
-        error_msg = 'File type not supported. Follow the instructions on your device ' \
-                    'on how to convert the file type and try again to continue.'
-
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('api.1010ezr.attachments.invalid_file_type')
 
-        expect { described_class.new(ezr_attachment).validate_file_type }.to raise_error do |e|
+        expect { described_class.new(attachment).validate_file_type }.to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::UnprocessableEntity)
           expect(e.errors.first.status).to eq('422')
           expect(e.errors.first.detail).to eq(
