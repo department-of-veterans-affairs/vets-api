@@ -34,7 +34,10 @@ RSpec.describe 'V1::Post911GIBillStatus', type: :request do
 
   # TO-DO: Remove context after transition of LTS to 24/7 availability
   context 'outside working hours' do
-    before { Timecop.freeze(midnight) }
+    before do
+      Flipper.disable(:sob_updated_design)
+      Timecop.freeze(midnight)
+    end
 
     after { Timecop.return }
 
