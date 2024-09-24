@@ -102,13 +102,13 @@ describe TravelPay::AppointmentsService do
         expect(appt[:data]).to equal(nil)
       end
 
-      it 'returns nil if appt date is invalid' do
+      it 'throws an Argument Error if appt date is invalid' do
         service = TravelPay::AppointmentsService.new
-        appt = service.get_appointment_by_date_time(*tokens, { 'appt_datetime' => 'banana' })
-        appt_empty_date = service.get_appointment_by_date_time(*tokens, { 'appt_datetime' => '' })
+        expect { service.get_appointment_by_date_time(*tokens, { 'appt_datetime' => 'banana' }) }
+          .to raise_error(ArgumentError, /Invalid appointment time/i)
 
-        expect(appt[:data]).to equal(nil)
-        expect(appt_empty_date[:data]).to equal(nil)
+        expect { service.get_appointment_by_date_time(*tokens, { 'appt_datetime' => nil }) }
+          .to raise_error(ArgumentError, /Invalid appointment time/i)
       end
     end
   end

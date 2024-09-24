@@ -26,7 +26,6 @@ module TravelPay
     def get_appointment_by_date_time(veis_token, btsss_token, params = {})
       faraday_response = client.get_all_appointments(veis_token, btsss_token, { 'excludeWithClaims' => true })
       raw_appointments = faraday_response.body['data'].deep_dup
-
       appointment = find_by_date_time(params['appt_datetime'], raw_appointments)
 
       {
@@ -37,14 +36,20 @@ module TravelPay
     private
 
     def find_by_date_time(date_string, appointments)
-      if date_string.present?
+      if date_string.nil?
+        Rails.logger.debug(message: 'Invalid appointment time provided (appointment time cannot be nil).')
+        raise ArgumentError, message: 'Invalid appointment time provided (appointment time cannot be nil).'
+      elsif date_string.present?
+        parsed_date_time = DateTime.parse(date_string)
 
         appointments.find do |appt|
-          date_string == appt['appointmentDateTime']
+          !appt['appointmentDateTime'].nil? &&
+            parsed_date_time == DateTime.parse(appt['appointmentDateTime'])
         end
       end
-    rescue Date::Error => e
-      Rails.logger.debug(message: "#{e}. Unable to find appointment with provided date-time (given: #{date_string}).")
+    rescue DateTime::Error => e
+      Rails.logger.debug(message: "#{e} Invalid appointment time provided (given: #{date_string}).")
+      raise ArgumentError, message: "#{e} Invalid appointment time provided (given: #{date_string})."
     end
 
     def client
