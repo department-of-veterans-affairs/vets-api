@@ -9,30 +9,10 @@
 require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
 require 'claims_api/evss_bgs_mapper'
-
 require 'bgs_service/local_bgs_refactored'
 
 module ClaimsApi
   class LocalBGS
-    CACHED_SERVICES = %w[
-      ClaimantServiceBean/ClaimantWebService
-      EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
-      IntentToFileWebServiceBean/IntentToFileWebService
-      OrgWebServiceBean/OrgWebService
-      PersonWebServiceBean/PersonWebService
-      StandardDataWebServiceBean/StandardDataWebService
-      TrackedItemService/TrackedItemService
-      VDC/VeteranRepresentativeService
-      VDC/ManageRepresentativeService
-      VnpAtchmsWebServiceBean/VnpAtchmsService
-      VnpPersonWebServiceBean/VnpPersonService
-      VnpProcFormWebServiceBean/VnpProcFormService
-      VnpProcWebServiceBeanV2/VnpProcServiceV2
-      VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
-      VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
-      VnpPtcpntWebServiceBean/VnpPtcpntService
-    ].freeze
-
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
       @client_ip =
@@ -334,22 +314,16 @@ module ClaimsApi
     end
 
     def namespace(connection, endpoint)
-      if CACHED_SERVICES.include?(endpoint) && Flipper.enabled?(:lighthouse_claims_api_hardcode_wsdl)
-        begin
-          ClaimsApi::LocalBGSRefactored::FindDefinition
-            .for_service(endpoint)
-            .bean.namespaces.target
-        rescue => e
-          unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
-            ClaimsApi::Logger.log('local_bgs', level: :error,
-                                               detail: "local BGS FindDefinition Error: #{e.message}")
-          end
-
-          fetch_namespace(connection, endpoint)
-        end
-      else
-        fetch_namespace(connection, endpoint)
+      ClaimsApi::LocalBGSRefactored::FindDefinition
+        .for_service(endpoint)
+        .bean.namespaces.target
+    rescue => e
+      unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+        ClaimsApi::Logger.log('local_bgs', level: :error,
+                                           detail: "local BGS FindDefinition Error: #{e.message}")
       end
+
+      fetch_namespace(connection, endpoint)
     end
 
     def fetch_namespace(connection, endpoint)
