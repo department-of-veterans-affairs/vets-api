@@ -13,7 +13,11 @@ describe Common::CacheAside do
   end
 
   before do
-    allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
+    if Flipper.enabled?(:va_v3_contact_information_service)
+      allow(VAProfile::Models::V2::Person).to receive(:build_from).and_return(person)
+    else
+      allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
+    end
   end
 
   describe '#do_cached_with' do
