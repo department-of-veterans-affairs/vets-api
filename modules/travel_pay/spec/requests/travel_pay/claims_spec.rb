@@ -63,6 +63,10 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
   end
 
   describe '#show' do
+    before do
+      Flipper.enable(:travel_pay_view_claim_details)
+    end
+
     it 'returns a single claim on success' do
       VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[method path]) do
         # This claim ID matches a claim ID in the cassette.
@@ -86,6 +90,14 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
         expect(response).to have_http_status(:not_found)
       end
+    end
+
+    it 'returns a ServiceUnavailable response if feature flag turned off' do
+      Flipper.disable(:travel_pay_view_claim_details)
+
+      get '/travel_pay/v0/claims/123', headers: { 'Authorization' => 'Bearer vagov_token' }
+
+      expect(response).to have_http_status(:service_unavailable)
     end
   end
 end

@@ -15,6 +15,11 @@ module TravelPay
       end
 
       def show
+        unless Flipper.enabled?(:travel_pay_view_claim_details, @current_user)
+          message = 'Travel Pay Claim Details unavailable per feature toggle'
+          raise Common::Exceptions::ServiceUnavailable, message:
+        end
+
         begin
           token_service.get_tokens(@current_user) => { veis_token:, btsss_token: }
           claim = claims_service.get_claim_by_id(veis_token, btsss_token, params[:id])
