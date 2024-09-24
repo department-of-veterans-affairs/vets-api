@@ -240,7 +240,7 @@ describe SimpleFormsApi::NotificationEmail do
           it 'sends the confirmation email' do
             allow(VANotify::EmailJob).to receive(:perform_async)
 
-            subject = described_class.new(config)
+            subject = described_class.new(config, notification_type:)
 
             subject.send
 
@@ -272,7 +272,7 @@ describe SimpleFormsApi::NotificationEmail do
               allow(VANotify::EmailJob).to receive(:perform_async)
               expect(data['applicant_email']).to be_nil
 
-              subject = described_class.new(config)
+              subject = described_class.new(config, notification_type:)
 
               subject.send
 
