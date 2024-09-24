@@ -1004,6 +1004,7 @@ lib/user_profile_attribute_service.rb @department-of-veterans-affairs/vfs-authen
 lib/va_profile @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/vbs @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/vetext @department-of-veterans-affairs/mobile-api-team
+lib/vets @department-of-veterans-affairs/backend-review-group
 lib/vic @department-of-veterans-affairs/octo-identity
 lib/virtual_regional_office @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/vre @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
