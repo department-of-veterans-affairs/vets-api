@@ -3282,20 +3282,70 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:mhv_user) { build(:user, :loa3) }
 
       it 'returns unauthorized for unauthed user' do
-        expect(subject).to validate(:get, '/travel_pay/claims', 401)
+        expect(subject).to validate(:get, '/travel_pay/v0/claims', 401)
       end
 
       it 'returns 400 for invalid request' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         VCR.use_cassette('travel_pay/404_claims', match_requests_on: %i[host path method]) do
-          expect(subject).to validate(:get, '/travel_pay/claims', 400, headers)
+          expect(subject).to validate(:get, '/travel_pay/v0/claims', 400, headers)
         end
       end
 
       it 'returns 200 for successful response' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[host path method]) do
-          expect(subject).to validate(:get, '/travel_pay/claims', 200, headers)
+          expect(subject).to validate(:get, '/travel_pay/v0/claims', 200, headers)
+        end
+      end
+    end
+
+    context 'show' do
+      let(:mhv_user) { build(:user, :loa3) }
+
+      it 'returns unauthorized for unauthed user' do
+        expect(subject).to validate(
+          :get,
+          '/travel_pay/v0/claims/{id}',
+          401,
+          {}.merge('id' => '24e227ea-917f-414f-b60d-48b7743ee95d')
+        )
+      end
+
+      it 'returns 404 for missing claim' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+          expect(subject).to validate(
+            :get,
+            '/travel_pay/v0/claims/{id}',
+            404,
+            headers.merge('id' => '8656ad4e-5cdf-41e2-bbd5-af843d2fa8fe')
+          )
+        end
+      end
+
+      it 'returns 400 for invalid request' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+          expect(subject).to validate(
+            :get,
+            '/travel_pay/v0/claims/{id}',
+            400,
+            headers.merge('id' => '8656')
+          )
+        end
+      end
+
+      it 'returns 200 for successful response' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        claim_id = '33016896-ed7f-4d4f-a81b-cc4f2ca0832c'
+        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+          expect(subject).to validate(
+            :get,
+            '/travel_pay/v0/claims/{id}',
+            200,
+            headers.merge('id' => claim_id)
+          )
         end
       end
     end
