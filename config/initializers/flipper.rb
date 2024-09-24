@@ -42,10 +42,12 @@ Rails.application.reloader.to_prepare do
 
   Flipper::UI.configuration.feature_creation_enabled = false
   # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
+  added_flippers = []
   begin
     FLIPPER_FEATURE_CONFIG['features'].each do |feature, feature_config|
       unless Flipper.exist?(feature)
         Flipper.add(feature)
+        added_flippers.push(feature)
 
         # Default features to enabled for test and those explicitly set for development
         if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
@@ -57,9 +59,13 @@ Rails.application.reloader.to_prepare do
       Flipper.enable(feature) if Settings.vsp_environment == 'development' && feature_config['enable_in_development']
     end
 
+    Rails.logger.info "The following feature flippers were added: #{added_flippers}" unless added_flippers.empty?
     removed_features = Flipper.features.collect(&:name) - FLIPPER_FEATURE_CONFIG['features'].keys
-    Rails.logger.warn "Consider removing features no longer in config/features.yml: #{removed_features.join(', ')}"
-  rescue
+    unless removed_features.empty?
+      Rails.logger.warn "Consider removing features no longer in config/features.yml: #{removed_features.join(', ')}"
+    end
+  rescue => e
+    Rails.logger.error "Error processing Flipper features: #{e.message}"
     # make sure we can still run rake tasks before table has been created
     nil
   end

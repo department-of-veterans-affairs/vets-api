@@ -72,7 +72,7 @@ RSpec.describe VANotify::UserAccountJob, type: :worker do
               }
             },
             {
-              error: :va_notify_icn_job
+              error: :va_notify_user_account_job
             }
           )
 
