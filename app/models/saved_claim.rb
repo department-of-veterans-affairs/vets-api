@@ -104,6 +104,7 @@ class SavedClaim < ApplicationRecord
 
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])
+      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
     end
 
     unless validation_errors.empty?
