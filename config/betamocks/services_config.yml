@@ -819,10 +819,11 @@
         :uid_location: 'query'
         :uid_locator: 'edipi'
 
-# Lighthouse Benefits Claims API
-- :name: "Lighthouse Benefits Claims"
+# Lighthouse
+- :name: "Lighthouse"
   :base_uri: <%= "#{URI(Settings.lighthouse.benefits_claims.host).host}:#{URI(Settings.lighthouse.benefits_claims.host).port}" %>
   :endpoints:
+    # Benefits Claims API
     - :method: :get
       :path: "/services/claims/v2/veterans/*/claims"
       :file_path: "/lighthouse/benefits_claims/index"
