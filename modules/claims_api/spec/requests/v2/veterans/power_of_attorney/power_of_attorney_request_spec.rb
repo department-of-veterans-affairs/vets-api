@@ -17,6 +17,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                                              first_name: 'Abraham', last_name: 'Lincoln',
                                              user_types: ['veteran_service_officer'])
     Veteran::Service::Organization.create!(poa: '067', name: 'DISABLED AMERICAN VETERANS')
+
+    Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
   end
 
   context 'CCG (Client Credentials Grant) flow' do

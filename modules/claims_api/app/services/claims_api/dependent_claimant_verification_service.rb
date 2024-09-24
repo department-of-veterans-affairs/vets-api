@@ -5,25 +5,28 @@ require 'bgs_service/redis/find_poas_service'
 
 module ClaimsApi
   class DependentClaimantVerificationService
-    def initialize(participant_id, dependent_first_name, dependent_last_name, poa_code)
-      @participant_id = participant_id
-      @dependent_first_name = dependent_first_name
-      @dependent_last_name = dependent_last_name
-      @poa_code = poa_code
+    CLAIMANT_NOT_A_DEPENDENT_ERROR_MESSAGE = 'The claimant is not listed as a dependent for the specified Veteran. ' \
+                                             'Please submit VA Form 21-686c to add this dependent.'
+    POA_CODE_NOT_FOUND_ERROR_MESSAGE = 'The requested POA code could not be found.'
+
+    def initialize(options = {})
+      @veteran_participant_id = options[:veteran_participant_id]
+      @claimant_first_name = options[:claimant_first_name]
+      @claimant_last_name = options[:claimant_last_name]
+      @claimant_participant_id = options[:claimant_participant_id]
+      @poa_code = options[:poa_code]
     end
 
     def validate_dependent_by_participant_id!
       return if valid_participant_dependent_combo?
 
-      detail = 'The claimant is not listed as a dependent for the specified Veteran. Please submit VA Form 21-686c ' \
-               'to add this dependent.'
-      raise ::Common::Exceptions::UnprocessableEntity.new(detail:)
+      raise ::Common::Exceptions::UnprocessableEntity.new(detail: CLAIMANT_NOT_A_DEPENDENT_ERROR_MESSAGE)
     end
 
     def validate_poa_code_exists!
       return if poa_code_exists?
 
-      raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'The requested POA code could not be found.')
+      raise ::Common::Exceptions::UnprocessableEntity.new(detail: POA_CODE_NOT_FOUND_ERROR_MESSAGE)
     end
 
     private
@@ -33,27 +36,33 @@ module ClaimsApi
     end
 
     def valid_participant_dependent_combo?
-      return false if @participant_id.blank?
+      return false if @veteran_participant_id.blank?
 
       person_web_service = PersonWebService.new(external_uid: 'dependent_claimant_verification_uid',
                                                 external_key: 'dependent_claimant_verification_key')
-      response = person_web_service.find_dependents_by_ptcpnt_id(@participant_id)
+      response = person_web_service.find_dependents_by_ptcpnt_id(@veteran_participant_id)
 
       return false if response.nil? || response.fetch(:number_of_records, 0).to_i.zero?
 
       dependents = response[:dependent]
 
       Array.wrap(dependents).any? do |dependent|
-        normalized_first_name_to_verify = normalize(@dependent_first_name)
-        normalized_last_name_to_verify = normalize(@dependent_last_name)
-        normalized_first_name_service = normalize(dependent[:first_nm])
-        normalized_last_name_service = normalize(dependent[:last_nm])
+        # If the claimant_participant_id is present (most v2), use it to verify the dependent
+        if @claimant_participant_id.present?
+          return normalize(@claimant_participant_id) == normalize(dependent[:ptcpnt_id])
+        end
 
-        return false if [normalized_first_name_to_verify, normalized_last_name_to_verify, normalized_first_name_service,
-                         normalized_last_name_service].any?(&:blank?)
+        # Otherwise, we need to verify the dependent by first and last name (all v1 and some v2 without participant_ids)
+        normalized_claimant_first_name = normalize(@claimant_first_name)
+        normalized_claimant_last_name = normalize(@claimant_last_name)
+        normalized_dependent_first_name = normalize(dependent[:first_nm])
+        normalized_dependent_last_name = normalize(dependent[:last_nm])
 
-        normalized_first_name_to_verify == normalized_first_name_service &&
-          normalized_last_name_to_verify == normalized_last_name_service
+        return false if [normalized_claimant_first_name, normalized_claimant_last_name,
+                         normalized_dependent_first_name, normalized_dependent_last_name].any?(&:blank?)
+
+        normalized_claimant_first_name == normalized_dependent_first_name &&
+          normalized_claimant_last_name == normalized_dependent_last_name
       end
     end
 

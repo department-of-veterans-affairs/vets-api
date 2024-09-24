@@ -9,6 +9,7 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
   let(:cancel_id) { '70060' }
 
   before do
+    allow_any_instance_of(User).to receive(:va_patient?).and_return(true)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
