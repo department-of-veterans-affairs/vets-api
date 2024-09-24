@@ -184,6 +184,16 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       end
     end
 
+    context 'when there is no terms of use agreement' do
+      before do 
+        allow(job).to receive(:terms_of_use_agreement).and_return(nil)
+      end
+
+      it 'agreement_unchanged? returns false' do
+        expect(job.send(:agreement_unchanged?)).to be_falsey
+      end
+    end
+
     context 'when sec_id is not present' do
       let(:sec_id) { nil }
       let(:expected_log) do

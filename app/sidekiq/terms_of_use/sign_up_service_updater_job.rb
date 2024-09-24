@@ -64,23 +64,15 @@ module TermsOfUse
       status[:agreement_signed] == true
     end
 
-    def agreement_changed?
-      return true unless terms_of_use_agreement
-
-      changed = (terms_of_use_agreement.declined && !declined?) || (terms_of_use_agreement.accepted && !accepted?)
-
-      unless changed Rails.logger.info("#{LOG_TITLE} Agreement not changed",
-                        { icn: user_account.icn })
-      changed
-    end
-
     def agreement_unchanged?
       return false unless terms_of_use_agreement
 
-      unchanged = (terms_of_use_agreement.declined && declined?) && (terms_of_use_agreement.accepted && accepted?)
+      unchanged = (terms_of_use_agreement.declined? && declined?) && (terms_of_use_agreement.accepted? && accepted?)
 
-      if unchanged Rails.logger.info("#{LOG_TITLE} Agreement not changed",
+      if unchanged == true
+        Rails.logger.info("#{LOG_TITLE} Agreement not changed",
                         { icn: user_account.icn })
+      end
       unchanged
     end
 
