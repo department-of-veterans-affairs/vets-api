@@ -14,6 +14,8 @@ module DecisionReview
 
     SUCCESSFUL_STATUS = %w[complete].freeze
 
+    ERROR_STATUS = 'error'
+
     STATSD_KEY_PREFIX = 'worker.decision_review.saved_claim_hlr_status_updater'
 
     def perform
@@ -33,7 +35,7 @@ module DecisionReview
           StatsD.increment("#{STATSD_KEY_PREFIX}.delete_date_update")
           Rails.logger.info("#{self.class.name} updated delete_date", guid:)
         else
-          StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])
+          handle_form_status_metrics_and_logging(hlr, status)
         end
 
         hlr.update(params)
@@ -57,10 +59,21 @@ module DecisionReview
 
     def get_status_and_attributes(guid)
       response = decision_review_service.get_higher_level_review(guid).body
-      status = response.dig('data', 'attributes', 'status')
       attributes = response.dig('data', 'attributes')
+      status = attributes['status']
 
       [status, attributes]
+    end
+
+    def handle_form_status_metrics_and_logging(hlr, status)
+      if status == ERROR_STATUS
+        # ignore logging and metrics for stale errors
+        return if JSON.parse(hlr.metadata || '{}')['status'] == ERROR_STATUS
+
+        Rails.logger.info('DecisionReview::SavedClaimHlrStatusUpdaterJob form status error', guid: hlr.guid)
+      end
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])
     end
 
     def enabled?

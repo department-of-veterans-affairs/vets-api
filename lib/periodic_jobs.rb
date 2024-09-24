@@ -51,6 +51,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Update static data cache
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
 
+  # Update Optionset data cache
+  mgr.register('0 0 * * *', 'Crm::OptionsetDataJob')
+
   # Update FormSubmissionAttempt status from Lighthouse Benefits Intake API
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
 

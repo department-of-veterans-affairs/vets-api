@@ -159,12 +159,30 @@ en:
         detail: The request was well-formed but was unable to be followed due to semantic or validation errors
         code: 422
         status: 422
+      upstream_unprocessable_entity:
+          <<: *defaults
+          title: Unprocessable Entity
+          detail: The request was well-formed but was unable to be followed due to semantic or validation errors
+          code: 422
+          status: 422
       too_many_requests:
         <<: *defaults
         title: Too Many Requests
         detail: The user has sent too many requests in a given amount of time
         code: 429
         status: 429
+      client_disconnected:
+        <<: *defaults
+        title: Client Closed Request
+        detail: The client disconnected before the server finished processing the request
+        code: 499
+        status: 499
+      not_implemented:
+        <<: *defaults
+        title: Not Implemented
+        detail: The client disconnected before the server finished processing the request
+        code: 501
+        status: 501
       internal_server_error:
         <<: *defaults
         title: Internal server error
@@ -174,6 +192,11 @@ en:
         <<: *defaults
         title: Internal server error
         detail: The external service sent back an internal server error
+        code: 500
+        status: 500
+      timeout:
+        <<: *defaults
+        title: Net::ReadTimeout
         code: 500
         status: 500
       bad_gateway:
