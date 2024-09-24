@@ -187,6 +187,25 @@ module Pensions
     end
 
     ##
+    # Tracks the failure to send a confirmation email for a claim.
+    # @see PensionBenefitIntakeJob
+    #
+    # @param claim [Pension::SavedClaim]
+    # @param lighthouse_service [LighthouseService]
+    # @param user_uuid [String]
+    # @param e [Exception]
+    #
+    def track_send_confirmation_email_failure(claim, lighthouse_service, user_uuid, e)
+      Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob send_confirmation_email failed', {
+                          claim_id: claim&.id,
+                          benefits_intake_uuid: lighthouse_service&.uuid,
+                          confirmation_number: claim&.confirmation_number,
+                          user_uuid:,
+                          message: e&.message
+                        })
+    end
+
+    ##
     # log Sidkiq job cleanup error occurred, this can occur post success or failure
     # @see PensionBenefitIntakeJob
     #
@@ -196,6 +215,7 @@ module Pensions
     # @param e [Error]
     #
     def track_file_cleanup_error(claim, lighthouse_service, user_uuid, e)
+      StatsD.increment("#{SUBMISSION_STATS_KEY}.cleanup_failed")
       Rails.logger.error('Lighthouse::PensionBenefitIntakeJob cleanup failed',
                          {
                            claim_id: claim&.id,

@@ -203,6 +203,14 @@ describe ClaimsApi::BD do
         expect(js['data']['systemName']).to eq 'VA.gov'
         expect(js['data']['trackedItemIds']).to eq [234, 235]
       end
+
+      it 'sends only a participant id and not a file number for 5103' do
+        result = subject.send(:generate_upload_body, claim: ews, doc_type: 'L705', original_filename: '5103.pdf',
+                                                     pdf_path:, action: 'post', pctpnt_vet_id: '123456789')
+        js = JSON.parse(result[:parameters].read)
+        expect(js['data']['fileNumber']).not_to be_truthy
+        expect(js['data']['fileNumber']).to eq(nil)
+      end
     end
 
     describe '#build_body' do

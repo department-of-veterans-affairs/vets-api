@@ -59,8 +59,9 @@ module Pensions
 
       upload_document
 
-      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
+
+      send_confirmation_email
 
       @intake_service.uuid
     rescue => e
@@ -184,16 +185,23 @@ module Pensions
     end
 
     ##
-    # Delete temporary stamped PDF files for this job instance.
+    # Being VANotify job to send email to veteran
     #
-    # @raise [PensionBenefitIntakeError] if unable to delete file
+    def send_confirmation_email
+      @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
+    rescue => e
+      @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
+    end
+
+    ##
+    # Delete temporary stamped PDF files for this job instance
+    # catches any error, logs but does NOT re-raise - prevent job retry
     #
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
       @pension_monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
-      raise PensionBenefitIntakeError, e.message
     end
   end
 end
