@@ -15,6 +15,7 @@ class EvssGeneratePdfProvider
                  EVSS::DisabilityCompensationForm::NonBreakeredService.new(auth_headers)
                end
   end
+
   def generate_526_pdf(form_content, _transaction_id = nil)
     @service.get_form526(form_content)
   end
