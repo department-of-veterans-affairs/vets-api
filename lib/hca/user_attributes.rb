@@ -21,15 +21,9 @@ module HCA
     # They can be nil as they're not part of the HCA form
     attr_reader :mhv_icn, :edipi, :authn_context, :idme_uuid, :logingov_uuid
 
-    def initialize(first_name:, middle_name:, last_name:, birth_date:, ssn:, gender:)
+    def initialize(attributes = {})
       super
-      @ssn = ssn&.gsub(/\D/, '')
-
-      @mhv_icn = nil
-      @edipi = nil
-      @authn_context = nil
-      @idme_uuid = nil
-      @logingov_uuid =nil
+      @ssn = attributes[:ssn]&.gsub(/\D/, '')
     end
 
     def to_h
