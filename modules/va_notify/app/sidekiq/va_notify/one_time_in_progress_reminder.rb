@@ -17,7 +17,11 @@ module VANotify
       user_account = UserAccount.find(user_account_id)
 
       InProgressRemindersSent.create!(user_account_id:, form_id: form_name)
-      VANotify::IcnJob.perform_async(user_account.icn, template_id, personalisation)
+      if Flipper.enabled?(:va_notify_user_account_job)
+        VANotify::UserAccountJob.perform_async(user_account.id, template_id, personalisation)
+      else
+        VANotify::IcnJob.perform_async(user_account.icn, template_id, personalisation)
+      end
     end
 
     private
