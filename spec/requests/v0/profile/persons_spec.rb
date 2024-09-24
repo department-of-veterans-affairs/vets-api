@@ -203,10 +203,11 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     end
 
     context 'with an error response' do
-      let(:user) { build(:user, :error) }
+      let(:user) { build(:user, :loa3) }
 
       before do
         allow_any_instance_of(User).to receive(:vet360_id).and_return('6767671')
+        allow_any_instance_of(User).to receive(:idme_uuid).and_return(nil)
       end
 
       it 'matches the errors response schema', :aggregate_failures do

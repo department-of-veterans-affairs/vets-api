@@ -131,9 +131,9 @@ describe VAProfileRedis::ContactInformation do
 
       describe '#mailing_address' do
         it 'returns the users mailing address object', :aggregate_failures do
-          residence = address_for VAProfile::Models::V2::Address::CORRESPONDENCE
+          correspondence = address_for VAProfile::Models::V2::Address::CORRESPONDENCE
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
-            expect(contact_info.mailing_address).to eq residence
+            expect(contact_info.mailing_address).to eq correspondence
             expect(contact_info.mailing_address.class).to eq VAProfile::Models::V2::Address
           end
         end
@@ -181,9 +181,9 @@ describe VAProfileRedis::ContactInformation do
 
       describe '#fax_number' do
         it 'returns the users FAX object', :aggregate_failures do
-          phone = phone_for VAProfile::Models::Telephone::FAX
+          fax = phone_for VAProfile::Models::Telephone::FAX
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
-            expect(contact_info.fax_number).to eq phone
+            expect(contact_info.fax_number).to eq fax
             expect(contact_info.fax_number.class).to eq VAProfile::Models::Telephone
           end
         end

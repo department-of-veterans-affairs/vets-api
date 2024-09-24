@@ -151,24 +151,6 @@ FactoryBot.define do
       person_types { ['DEP'] }
     end
 
-    trait :error do
-      authn_context { LOA::IDME_LOA3_VETS }
-
-      sign_in do
-        {
-          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
-          auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
-        }
-      end
-
-      loa do
-        { current: LOA::THREE, highest: LOA::THREE }
-      end
-      vet360_id { '6767671' }
-      idme_uuid { nil }
-    end
-
     trait :accountable do
       authn_context { LOA::IDME_LOA3_VETS }
       uuid { '9d018700-b72c-444a-95b4-43e14a4509ea' }

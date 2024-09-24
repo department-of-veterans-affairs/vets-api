@@ -38,7 +38,13 @@ describe VAProfile::V2::Person::Service, :skip_vet360 do
     end
 
     context 'with a 400 response' do
-      let(:user) { build(:user, :error) }
+      let(:user) { build(:user, :loa3) }
+
+      before do
+        Flipper.enable(:va_v3_contact_information_service)
+        allow_any_instance_of(User).to receive(:vet360_id).and_return('6767671')
+        allow_any_instance_of(User).to receive(:idme_uuid).and_return(nil)
+      end
 
       it 'raises an exception', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do

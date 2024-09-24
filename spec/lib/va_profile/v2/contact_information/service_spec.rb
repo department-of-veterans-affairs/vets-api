@@ -57,8 +57,13 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   end
 
   describe '#get_person error' do
-    let(:user) { build(:user, :error) }
-    let(:vet360_id) { '6767671' }
+    let(:user) { build(:user, :loa3) }
+
+    before do
+      Flipper.enable(:va_v3_contact_information_service)
+      allow_any_instance_of(User).to receive(:vet360_id).and_return('6767671')
+      allow_any_instance_of(User).to receive(:idme_uuid).and_return(nil)
+    end
 
     context 'when not successful' do
       context 'with a 400 error' do
