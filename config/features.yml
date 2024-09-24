@@ -1701,3 +1701,6 @@ features:
     actor_type: cookie_id
     description: Swaps the Search Service's configuration url with an updated api.gsa.gov address
     enabled_in_development: true
+  remove_pciu:
+    actor_type: user
+    description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
