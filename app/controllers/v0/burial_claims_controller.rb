@@ -31,7 +31,12 @@ module V0
       claim = create_claim
       monitor.track_create_attempt(claim, current_user)
 
-      track_claim_save_failure(claim) unless claim.save
+      unless claim.save
+        Sentry.set_tags(team: 'benefits-memorial-1') # tag sentry logs with team name
+        monitor.track_create_validation_error(in_progress_form, claim, current_user)
+        log_validation_error_to_metadata(in_progress_form, claim)
+        raise Common::Exceptions::ValidationErrors, claim.errors
+      end
 
       # this method also calls claim.process_attachments!
       claim.submit_to_structured_data_services!
@@ -74,16 +79,6 @@ module V0
 
     def in_progress_form
       current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
-    end
-
-    def track_claim_save_failure(claim)
-      StatsD.increment("#{stats_key}.failure")
-      Sentry.set_tags(team: 'benefits-memorial-1') # tag sentry logs with team name
-      Rails.logger.error('Burial claim was not saved', {  error_messages: claim.errors,
-                                                          user_uuid: current_user&.uuid,
-                                                          in_progress_form_id: in_progress_form&.id })
-      log_validation_error_to_metadata(in_progress_form, claim)
-      raise Common::Exceptions::ValidationErrors, claim
     end
 
     ##

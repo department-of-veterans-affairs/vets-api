@@ -29,7 +29,7 @@ class SavedClaim < ApplicationRecord
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :form_submissions, dependent: :nullify
 
-  after_create ->(claim) { StatsD.increment('saved_claim.create', tags: ["form_id:#{claim.form_id}"]) }
+  after_create :after_create_metrics
   after_destroy ->(claim) { StatsD.increment('saved_claim.destroy', tags: ["form_id:#{claim.form_id}"]) }
 
   # create a uuid for this second (used in the confirmation number) and store
@@ -114,5 +114,14 @@ class SavedClaim < ApplicationRecord
 
   def attachment_keys
     []
+  end
+
+  def after_create_metrics
+    tags = ["form_id:#{self.form_id}"]
+    StatsD.increment('saved_claim.create', tags:)
+    if self.form_start_date
+      claim_duration = self.created_at - self.form_start_date
+      StatsD.measure('saved_claim.time-to-file', claim_duration, tags:)
+    end
   end
 end
