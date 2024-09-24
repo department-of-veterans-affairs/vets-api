@@ -21,7 +21,7 @@ module Vye
         pending_verifications.each do |verification|
           verification.update!(transact_date:, source_ind:)
         end
-byebug
+
         head :no_content
       end
 

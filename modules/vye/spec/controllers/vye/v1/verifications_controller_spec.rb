@@ -14,6 +14,8 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
   end
 
   describe '#create' do
+    subject { described_class.new }
+
     let(:cur_award_ind) { Vye::Award.cur_award_inds[:future] }
     let(:now) { Time.parse('2024-03-31T12:00:00-00:00') }
     let(:date_last_certified) { Date.new(2024, 2, 15) }
@@ -26,18 +28,27 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
     let!(:award2) { FactoryBot.create(:vye_award, user_info:, cur_award_ind:) }
     let(:award_ids) { user_info.awards.pluck(:id) }
-    let!(:subject) { described_class.new }
     let!(:params) { { award_ids: } }
 
+    # rubocop:disable Rspec/SubjectStub
     before do
-      allow(subject).to receive(:params).and_return(params)
-      allow(subject).to receive(:current_user).and_return(current_user)
+      allow(subject).to receive_messages(
+        params:,
+        current_user:,
+        head: :no_content # We're testing the funtionality of the action, not the controller
+      )
+
+      subject.send(:load_user_info) # private method override
     end
+    # rubocop:enable Rspec/SubjectStub
 
-    it 'sets the transact date to the award end date furthest in the future for all verifications' do
+    it 'sets the transact date to the highest act_end of verifications' do
       subject.create
+      highest_act_end = Vye::Verification.maximum(:act_end)
 
-      expect(response).to have_http_status(:accepted)
+      Vye::Verification.all.find_each do |verification|
+        expect(verification.transact_date).to eq(highest_act_end)
+      end
     end
   end
 end
