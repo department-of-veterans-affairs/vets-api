@@ -43,7 +43,7 @@ Please note the spelling of the `personalisation` param.
 
 ### Using the wrapper sidekiq class (async sending)
 
-Example usage to send an email using the `VANotify::EmailJob` (there is also a `VANotify::IcnJob` for sending via an ICN).
+Example usage to send an email using the `VANotify::EmailJob` (there is also a `VANotify::UserAccountJob` for sending via an ICN, [without persisting or logging the ICN](#misc)).
 This class defaults to using the va.gov service's api key but you can provide your own service's api key as show below.
 
 ```ruby
