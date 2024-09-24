@@ -5,6 +5,9 @@ require 'common/models/resource'
 module Mobile
   module V0
     module Appeals
+      # This model is derived from the following docs: https://developer.va.gov/explore/api/appeals-status/docs?version=current
+      # We do not use the endpoint that these docs are for but instead share the same upstream service.
+      # The endpoint does not change the data in anyway so the docs should still be accurate.
       class Appeal < Common::Resource
         AOJ_TYPES = Types::String.enum(
           'vba',
@@ -28,6 +31,7 @@ module Mobile
           'medical',
           'burial',
           'bva',
+          'fiduciary',
           'other',
           'multiple'
         )
@@ -43,7 +47,9 @@ module Mobile
           'decision_soon',
           'blocked_by_vso',
           'scheduled_dro_hearing',
-          'dro_hearing_no_show'
+          'dro_hearing_no_show',
+          'evidentiary_period',
+          'ama_post_decision'
         )
 
         EVENT_TYPES = Types::String.enum(
@@ -70,9 +76,19 @@ module Mobile
           'ramp_notice',
           'transcript',
           'remand_return',
-          'dro_hearing_held',
-          'dro_hearing_cancelled',
-          'dro_hearing_no_show'
+          'ama_nod',
+          'docket_change',
+          'distributed_to_vlj',
+          'bva_decision_effectuation',
+          'dta_decision',
+          'sc_request',
+          'sc_decision',
+          'sc_other_close',
+          'hlr_request',
+          'hlr_decision',
+          'hlr_dta_error',
+          'hlr_other_close',
+          'statutory_opt_in'
         )
 
         LAST_ACTION_TYPES = Types::String.enum(
@@ -106,26 +122,53 @@ module Mobile
           'other_close',
           'remand_ssoc',
           'remand',
-          'merged'
+          'merged',
+          'evidentiary_period',
+          'ama_remand',
+          'post_bva_dta_decision',
+          'bva_decision_effectuation',
+          'sc_received',
+          'sc_decision',
+          'sc_closed',
+          'hlr_received',
+          'hlr_dta_error',
+          'hlr_decision',
+          'hlr_closed',
+          'statutory_opt_in'
+        )
+
+        APPEAL_TYPES = Types::String.enum(
+          'legacyAppeal',
+          'appeal',
+          'supplementalClaim',
+          'higherLevelReview'
         )
 
         attribute :id, Types::String
         attribute :appealIds, Types::Array.of(Types::String)
+        attribute :updated, Types::DateTime
         attribute :active, Types::Bool
-        attribute :alerts, Types::Array do
-          attribute :type, ALERT_TYPES
-          attribute :details, Types::Hash
-        end
-        attribute :aod, Types::Bool.optional
-        attribute :aoj, AOJ_TYPES
-        attribute :description, Types::String
-        attribute :docket, Docket.optional
-        attribute :events, Types::Array do
-          attribute :type, EVENT_TYPES
-          attribute :date, Types::Date
-        end
-        attribute :evidence, Types::Array.of(Evidence).optional
         attribute :incompleteHistory, Types::Bool
+        attribute :aoj, AOJ_TYPES
+        attribute :programArea, PROGRAM_AREA_TYPES
+        attribute :description, Types::String
+        attribute :type, APPEAL_TYPES
+        attribute :aod, Types::Bool.optional
+        attribute :location, LOCATION_TYPES
+        attribute :status do
+          attribute :type, STATUS_TYPES
+          attribute :details do
+            attribute? :lastSocDate, Types::Date
+            attribute? :certificationTimeliness, Types::Array.of(Integer)
+            attribute? :ssocTimeliness, Types::Array.of(Integer)
+            attribute? :decisionTimeliness, Types::Array.of(Integer)
+            attribute? :remandTimeliness, Types::Array.of(Integer)
+            attribute? :socTimeliness, Types::Array.of(Integer)
+            attribute? :remandSsocTimeliness, Types::Array.of(Integer)
+            attribute? :returnTimeliness, Types::Array.of(Integer)
+          end
+        end
+        attribute :docket, Docket.optional
         attribute :issues, Types::Array do
           attribute :active, Types::Bool
           attribute :lastAction, LAST_ACTION_TYPES.optional
@@ -133,14 +176,15 @@ module Mobile
           attribute :diagnosticCode, Types::String.optional
           attribute :date, Types::Date
         end
-        attribute :location, LOCATION_TYPES
-        attribute :programArea, PROGRAM_AREA_TYPES
-        attribute :status do
-          attribute :type, STATUS_TYPES
+        attribute :alerts, Types::Array do
+          attribute :type, ALERT_TYPES
           attribute :details, Types::Hash
         end
-        attribute :type, Types::String
-        attribute :updated, Types::DateTime
+        attribute :events, Types::Array do
+          attribute :type, EVENT_TYPES
+          attribute :date, Types::Date
+        end
+        attribute :evidence, Types::Array.of(Evidence).optional
       end
     end
   end
