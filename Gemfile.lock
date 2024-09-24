@@ -515,6 +515,11 @@ GEM
     google-protobuf (4.28.1)
       bigdecimal
       rake (>= 13)
+    google-protobuf (4.28.1-java)
+      bigdecimal
+      ffi (~> 1)
+      ffi-compiler (~> 1)
+      rake (>= 13)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
@@ -1069,7 +1074,7 @@ GEM
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webrick (1.8.1)
+    webrick (1.8.2)
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
     websocket-driver (0.7.6-java)
