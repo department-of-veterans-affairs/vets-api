@@ -2,22 +2,54 @@
 
 module SimpleFormsApi
   class NotificationEmail
-    attr_reader :form_number, :confirmation_number, :notification_type, :user
+    attr_reader :form_number, :confirmation_number, :date_submitted, :lighthouse_updated_at, :notification_type, :user
 
     TEMPLATE_IDS = {
-      'vba_21_0845' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email },
-      'vba_21p_0847' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21p_0847_confirmation_email },
-      'vba_21_0966' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0966_confirmation_email },
-      'vba_21_0972' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email },
-      'vba_21_4142' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email },
+      'vba_21_0845' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form21_0845_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form21_0845_received_email
+      },
+      'vba_21p_0847' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form21p_0847_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form21p_0847_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form21p_0847_received_email
+      },
+      'vba_21_0966' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form21_0966_confirmation_email,
+        error: nil,
+        received: nil
+      },
+      'vba_21_0972' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form21_0972_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form21_0972_received_email
+      },
+      'vba_21_4142' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form21_4142_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form21_4142_received_email
+      },
       'vba_21_10210' => {
         confirmation: Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email,
         error: Settings.vanotify.services.va_gov.template_id.form21_10210_error_email,
         received: Settings.vanotify.services.va_gov.template_id.form21_10210_received_email
       },
-      'vba_20_10206' => { confirmation: Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email },
-      'vba_20_10207' => { confirmation: Settings.vanotify.services.va_gov.template_id.form20_10207_confirmation_email },
-      'vba_40_0247' => { confirmation: Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email }
+      'vba_20_10206' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form20_10206_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form20_10206_received_email
+      },
+      'vba_20_10207' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form20_10207_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form20_10207_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form20_10207_received_email
+      },
+      'vba_40_0247' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email,
+        error: nil,
+        received: nil
+      }
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
@@ -25,13 +57,20 @@ module SimpleFormsApi
       check_missing_keys(config)
 
       @form_data = config[:form_data]
-      @form_number = config[:form_number]
+      incoming_form_number = config[:form_number]
+      @form_number = if TEMPLATE_IDS.keys.include?(incoming_form_number)
+                       incoming_form_number
+                     else
+                       SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[incoming_form_number]
+                     end
       @confirmation_number = config[:confirmation_number]
+      @date_submitted = config[:date_submitted]
+      @lighthouse_updated_at = config[:lighthouse_updated_at]
       @notification_type = notification_type
       @user = user
     end
 
-    def send
+    def send(at: nil)
       return unless SUPPORTED_FORMS.include?(form_number)
 
       data = form_specific_data || empty_form_specific_data
@@ -40,17 +79,26 @@ module SimpleFormsApi
 
       template_id = TEMPLATE_IDS[form_number][notification_type]
 
-      VANotify::EmailJob.perform_async(
-        data[:email],
-        template_id,
-        data[:personalization]
-      )
+      if at
+        VANotify::EmailJob.perform_at(
+          at,
+          data[:email],
+          template_id,
+          data[:personalization]
+        )
+      else
+        VANotify::EmailJob.perform_async(
+          data[:email],
+          template_id,
+          data[:personalization]
+        )
+      end
     end
 
     private
 
     def check_missing_keys(config)
-      missing_keys = %i[form_data form_number confirmation_number].select { |key| config[key].nil? }
+      missing_keys = %i[form_data form_number confirmation_number date_submitted].select { |key| config[key].nil? }
       raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
     end
 
@@ -130,8 +178,9 @@ module SimpleFormsApi
     def default_personalization(first_name)
       {
         'first_name' => first_name&.upcase,
-        'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-        'confirmation_number' => confirmation_number
+        'date_submitted' => date_submitted,
+        'confirmation_number' => confirmation_number,
+        'lighthouse_updated_at' => lighthouse_updated_at
       }
     end
 

@@ -201,6 +201,36 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         end
       end
 
+      context 'When there are special issues, a PACT disability and INCREASE action type' do
+        let(:disability) do
+          {
+            disabilityActionType: 'INCREASE',
+            name: 'hypertension',
+            approximateDate: nil,
+            classificationCode: '',
+            serviceRelevance: '',
+            isRelatedToToxicExposure: true,
+            exposureOrEventOrInjury: '',
+            ratedDisabilityId: '',
+            diagnosticCode: 0,
+            secondaryDisabilities: nil,
+            specialIssues: %w[POW EMP]
+          }
+        end
+
+        it 'maps the special issues attributes correctly and does NOT append PACT' do
+          form_data['data']['attributes']['disabilities'][0] = disability
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
+          includes_pow = evss_data[:disabilities][0][:specialIssues].include? 'POW'
+          includes_emp = evss_data[:disabilities][0][:specialIssues].include? 'EMP'
+          includes_pact = evss_data[:disabilities][0][:specialIssues].include? 'PACT'
+          expect(includes_pow).to eq(true)
+          expect(includes_emp).to eq(true)
+          expect(includes_pact).to eq(false)
+        end
+      end
+
       context 'When serviceRelevance is blank' do
         let(:disability) do
           {
@@ -261,6 +291,16 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         expect(service_periods[:activeDutyEndDate]).to eq('2023-10-30')
         expect(service_periods[:serviceComponent]).to eq('Active')
         expect(service_periods[:separationLocationCode]).to eq('98282')
+      end
+
+      it 'maps the federalActivation to reserves attributes correctly' do
+        reserves_addition = evss_data[:serviceInformation][:reservesNationalGuardService]
+
+        expect(reserves_addition[:title10Activation][:title10ActivationDate]).to eq('2023-10-01')
+        expect(reserves_addition[:title10Activation][:anticipatedSeparationDate]).to eq('2024-10-31')
+        expect(reserves_addition[:obligationTermOfServiceFromDate]).to eq('2019-06-04')
+        expect(reserves_addition[:obligationTermOfServiceToDate]).to eq('2020-06-04')
+        expect(reserves_addition[:unitName]).to eq('National Guard Unit Name')
       end
 
       it 'maps the confinements attribute correctly' do

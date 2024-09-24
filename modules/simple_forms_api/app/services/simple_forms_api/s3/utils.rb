@@ -29,7 +29,7 @@ module SimpleFormsApi
       end
 
       def temp_directory_path
-        @temp_directory_path ||= Rails.root.join("tmp/#{benefits_intake_uuid}-#{SecureRandom.hex}/").to_s
+        @temp_directory_path ||= Rails.root.join("tmp/#{benefits_intake_uuid}-#{SecureRandom.hex}-archive/").to_s
       end
 
       def s3_resource
