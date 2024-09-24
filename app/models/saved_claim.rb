@@ -107,7 +107,7 @@ class SavedClaim < ApplicationRecord
     end
 
     unless validation_errors.empty?
-      Rails.logger.warn('SavedClaim form did not pass validation', { guid:, errors: validation_errors })
+      Rails.logger.error('SavedClaim form did not pass validation', { guid:, errors: validation_errors })
     end
   end
 
