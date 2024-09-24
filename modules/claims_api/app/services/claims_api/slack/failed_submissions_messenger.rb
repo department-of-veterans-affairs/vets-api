@@ -6,8 +6,9 @@ module ClaimsApi
   module Slack
     class FailedSubmissionsMessenger
       # rubocop:disable Metrics/ParameterLists
-      def initialize(claims, poa, itf, ews, from, to, env)
+      def initialize(claims, va_claims, poa, itf, ews, from, to, env)
         @errored_claims = claims
+        @va_gov_errored_claims = va_claims
         @errored_poa = poa
         @errored_itf = itf
         @errored_ews = ews
@@ -33,6 +34,7 @@ module ClaimsApi
         message = ''.dup
         message << message_heading
         message << build_submission_information(@errored_claims, 'Disability Compensation')
+        message << build_submission_information(@va_gov_errored_claims, 'Va Gov Disability Compensation')
         message << build_submission_information(@errored_poa, 'Power of Attorney')
         message << build_submission_information(@errored_itf, 'Intent to File')
         message << build_submission_information(@errored_ews, 'Evidence Waiver')
