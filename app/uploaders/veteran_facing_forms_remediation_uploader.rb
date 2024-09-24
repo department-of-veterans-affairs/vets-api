@@ -15,7 +15,7 @@ class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
   end
 
   def initialize(benefits_intake_uuid, directory)
-    raise 'The benefits_intake_uuid is missing.' if @benefits_intake_uuid.blank?
+    raise 'The benefits_intake_uuid is missing.' if benefits_intake_uuid.blank?
 
     super
     @benefits_intake_uuid = benefits_intake_uuid
