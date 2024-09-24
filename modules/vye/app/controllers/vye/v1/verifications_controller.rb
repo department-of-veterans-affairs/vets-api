@@ -9,6 +9,7 @@ module Vye
       rescue_from EmptyAwards, with: -> { head :unprocessable_entity }
       rescue_from AwardsMismatch, with: -> { head :unprocessable_entity }
 
+      # this is in the models concern NeedsEnrollmentVerification and is aliased to enrollments
       delegate :pending_verifications, to: :user_info
 
       def create
@@ -20,18 +21,19 @@ module Vye
         pending_verifications.each do |verification|
           verification.update!(transact_date:, source_ind:)
         end
-
+byebug
         head :no_content
       end
 
       private
 
       def cert_through_date
-        found = nil
-        pending_verifications.each do |pv|
-          found = 
-            #find the most farest into the future of this one pv.act_end
-        end
+        # act_end is defined as timestamp without time zone
+        found = Time.new(1970, 1, 1, 0, 0, 0, 0) # '1970-01-01 00:00:00'
+
+        pending_verifications.each { |pv| found = pv.act_end if pv.act_end > found }
+
+        return nil if found.eql?(Time.new(1970, 1, 1, 0, 0, 0, 0))
 
         found
       end

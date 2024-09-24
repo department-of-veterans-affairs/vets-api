@@ -1,0 +1,43 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+require 'support/controller_spec_helper'
+
+RSpec.describe Vye::V1::VerificationsController, type: :controller do
+  let!(:current_user) { create(:user, :accountable) }
+
+  before do
+    sign_in_as(current_user)
+    allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
+    allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(current_user)
+    allow_any_instance_of(Vye::V1::VerificationsController).to receive(:authorize).and_return(true)
+  end
+
+  describe '#create' do
+    let(:cur_award_ind) { Vye::Award.cur_award_inds[:future] }
+    let(:now) { Time.parse('2024-03-31T12:00:00-00:00') }
+    let(:date_last_certified) { Date.new(2024, 2, 15) }
+    let(:last_day_of_previous_month) { Date.new(2024, 2, 29) } # This is not used only for documentation
+    let(:award_begin_date) { Date.new(2024, 3, 30) }
+    let(:today) { Date.new(2024, 3, 31) } # This is not used only for documentation
+    let(:award_end_date) { Date.new(2024, 4, 1) }
+    let!(:user_profile) { FactoryBot.create(:vye_user_profile, icn: current_user.icn) }
+    let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:, date_last_certified:) }
+    let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
+    let!(:award2) { FactoryBot.create(:vye_award, user_info:, cur_award_ind:) }
+    let(:award_ids) { user_info.awards.pluck(:id) }
+    let!(:subject) { described_class.new }
+    let!(:params) { { award_ids: } }
+
+    before do
+      allow(subject).to receive(:params).and_return(params)
+      allow(subject).to receive(:current_user).and_return(current_user)
+    end
+
+    it 'sets the transact date to the award end date furthest in the future for all verifications' do
+      subject.create
+
+      expect(response).to have_http_status(:accepted)
+    end
+  end
+end
