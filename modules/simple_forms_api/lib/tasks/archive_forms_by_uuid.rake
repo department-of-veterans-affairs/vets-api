@@ -22,11 +22,13 @@ namespace :simple_forms_api do
       handler = SimpleFormsApi::S3::SubmissionArchiveHandler.new(benefits_intake_uuids:, parent_dir:)
       presigned_urls = handler.upload
 
+      Rails.logger.info('SubmissionArchiveHandler completed successfully.')
+
       # ArgoCD makes it impossible to download any files so
       # the urls must be printed to console.
       handle_presigned_urls(presigned_urls)
 
-      Rails.logger.info('SubmissionArchiveHandler completed successfully.')
+      Rails.logger.info('Task successfully completed.')
     rescue => e
       Rails.logger.error("Error occurred while archiving submissions: #{e.message}")
       puts 'An error occurred. Check logs for more details.'
@@ -49,6 +51,7 @@ namespace :simple_forms_api do
     else
       Rails.logger.warn('No URLs were generated.')
       puts 'No URLs were generated.'
+      raise 'Presigned URLs were not generated' unless presigned_urls
     end
   end
 end

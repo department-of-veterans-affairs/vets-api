@@ -11,17 +11,16 @@ module SimpleFormsApi
         @benefits_intake_uuids = benefits_intake_uuids
         @parent_dir = parent_dir
         @presigned_urls = []
-        progress = load_progress
-        cleanup
-        progress
+        load_progress
       rescue => e
         handle_error('SubmissionArchiveHandler initialization failed', e)
       end
 
       def upload
         archive_individual_submissions
-        write_progress
-        read_urls_from_file
+        presigned_urls = read_urls_from_file
+        cleanup
+        presigned_urls
       rescue => e
         handle_error('Archiving submission collection failed.', e)
       end

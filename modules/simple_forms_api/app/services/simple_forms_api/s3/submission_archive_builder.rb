@@ -20,7 +20,7 @@ module SimpleFormsApi
       def run
         FileUtils.mkdir_p(temp_directory_path)
         process_submission_files
-        [temp_directory_path, submission]
+        [temp_directory_path, submission, submission_pdf_filename]
       rescue => e
         handle_error("Failed building submission: #{benefits_intake_uuid}", e)
       end
@@ -54,11 +54,11 @@ module SimpleFormsApi
       end
 
       def write_pdf
-        write_tempfile(submission_pdf_filename, File.read(file_path))
+        write_tempfile("#{submission_pdf_filename}.pdf", File.read(file_path))
       end
 
       def write_metadata
-        write_tempfile('metadata.json', metadata.to_json)
+        write_tempfile("#{submission_pdf_filename}_metadata.json", metadata.to_json)
       end
 
       def write_attachments
@@ -79,7 +79,7 @@ module SimpleFormsApi
       end
 
       def write_manifest
-        file_name = "submission_#{benefits_intake_uuid}_#{submission.created_at}_manifest.csv"
+        file_name = "#{submission_pdf_filename}_manifest.csv"
         manifest_path = File.join(temp_directory_path, file_name)
 
         CSV.open(manifest_path, 'wb') do |csv|
@@ -121,7 +121,7 @@ module SimpleFormsApi
       # The recommended format is Form-number-vagov-submission ID
       def submission_pdf_filename
         form_number = form_data_hash['form_number']
-        @submission_pdf_filename ||= "form_#{form_number}_vagov_#{benefits_intake_uuid}.pdf"
+        @submission_pdf_filename ||= "form_#{form_number}_vagov_#{benefits_intake_uuid}"
       end
     end
   end

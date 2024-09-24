@@ -25,7 +25,7 @@ module SimpleFormsApi
       def initialize(parent_dir: 'vff-simple-forms', **options) # rubocop:disable Lint/MissingSuper
         @parent_dir = parent_dir
         defaults = default_options.merge(options)
-        @temp_directory_path, @submission = build_submission_archive(**defaults)
+        @temp_directory_path, @submission, @unique_filename = build_submission_archive(**defaults)
         raise 'Failed to build SubmissionArchive.' unless temp_directory_path && submission
 
         assign_instance_variables(defaults)
@@ -36,7 +36,7 @@ module SimpleFormsApi
       def upload
         log_info("Uploading archive: #{benefits_intake_uuid} to S3 bucket")
 
-        upload_directory_to_s3(temp_directory_path)
+        upload_directory_to_s3
         cleanup
         generate_presigned_url
       rescue => e
@@ -56,7 +56,7 @@ module SimpleFormsApi
 
       private
 
-      attr_reader :benefits_intake_uuid, :parent_dir, :submission, :temp_directory_path
+      attr_reader :benefits_intake_uuid, :parent_dir, :submission, :temp_directory_path, :unique_filename
 
       def default_options
         {
@@ -72,10 +72,10 @@ module SimpleFormsApi
         SubmissionArchiveBuilder.new(**).run
       end
 
-      def upload_directory_to_s3(directory_path)
-        raise "Directory #{directory_path} does not exist" unless Dir.exist?(directory_path)
+      def upload_directory_to_s3
+        raise "Directory #{temp_directory_path} does not exist" unless Dir.exist?(temp_directory_path)
 
-        Dir.glob(File.join(directory_path, '**', '*')).each do |path|
+        Dir.glob(File.join(temp_directory_path, '**', '*')).each do |path|
           next if File.directory?(path)
 
           File.open(path) do |file_obj|
@@ -93,7 +93,8 @@ module SimpleFormsApi
       end
 
       def download_submission_from_s3
-        submission_object.get(response_target: local_submission_file_path)
+        obj = s3_resource.bucket(target_bucket).object(s3_submission_file_path)
+        obj.get(response_target: local_submission_file_path)
         local_submission_file_path
       end
 
@@ -104,11 +105,7 @@ module SimpleFormsApi
       end
 
       def generate_presigned_url
-        submission_object.presigned_url(:get, expires_in: 30.minutes.to_i)
-      end
-
-      def submission_object
-        s3_resource.bucket(target_bucket).object(s3_submission_file_path)
+        VeteranFacingFormsRemediationUploader.get_s3_link(s3_submission_file_path)
       end
 
       def archive_object_collection
@@ -116,24 +113,15 @@ module SimpleFormsApi
       end
 
       def s3_submission_file_path
-        "#{s3_directory_path}/#{submission_pdf_filename}"
-      end
-
-      def unique_file_name
-        form_number = JSON.parse(submission.form_data)['form_number']
-        @unique_file_name ||= "form_#{form_number}_vagov_#{benefits_intake_uuid}"
-      end
-
-      def submission_pdf_filename
-        @submission_pdf_filename ||= "#{unique_file_name}.pdf"
+        "#{s3_directory_path}/#{unique_filename}.pdf"
       end
 
       def s3_directory_path
-        @s3_directory_path ||= "#{parent_dir}/#{unique_file_name}"
+        @s3_directory_path ||= "#{parent_dir}/#{unique_filename}"
       end
 
       def s3_uploader
-        @s3_uploader ||= VeteranFacingFormsRemediationUploader.new(benefits_intake_uuid, s3_submission_file_path)
+        @s3_uploader ||= VeteranFacingFormsRemediationUploader.new(benefits_intake_uuid, s3_directory_path)
       end
 
       def local_submission_file_path
