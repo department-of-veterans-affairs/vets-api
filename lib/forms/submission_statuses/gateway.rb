@@ -24,7 +24,7 @@ module Forms
       end
 
       def submissions
-        query = FormSubmission.with_latest_intake(@user_account)
+        query = FormSubmission.with_latest_benefits_intake_uuid(@user_account)
                               .with_form_types(@allowed_forms)
                               .order(:created_at)
         query.to_a

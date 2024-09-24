@@ -12,7 +12,7 @@ class FormSubmission < ApplicationRecord
 
   class << self
     # rubocop:disable Metrics/MethodLength
-    def with_latest_intake(user_account)
+    def with_latest_benefits_intake_uuid(user_account)
       # This query retrieves distinct form submissions for a given user account,
       # along with the latest benefits intake UUID for each form. If a form has any
       # submission attempts with a benefits_intake_uuid, it uses the latest attempt's UUID;
