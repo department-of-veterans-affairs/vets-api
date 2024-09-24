@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'swagger_helper'
+require_relative '../../../support/swagger_shared_components/v0'
 
 RSpec.describe 'PDF Generator 21-22', type: :request do
   path '/representation_management/v0/pdf_generator2122' do
@@ -99,63 +100,14 @@ RSpec.describe 'PDF Generator 21-22', type: :request do
       }
 
       response '200', 'PDF generated successfully' do
-        # binding.pry
-        let(:pdf_generator2122) do
-          {
-            organization_name: 'My Organization',
-            record_consent: '',
-            consent_address_change: '',
-            consent_limits: [],
-            claimant: {
-              date_of_birth: '1980-01-01',
-              relationship: 'Spouse',
-              phone: '5555555555',
-              email: 'claimant@example.com',
-              name: {
-                first: 'First',
-                middle: 'M',
-                last: 'Last'
-              },
-              address: {
-                address_line1: '123 Claimant St',
-                address_line2: '',
-                city: 'ClaimantCity',
-                state_code: 'CC',
-                country: 'US',
-                zip_code: '12345',
-                zip_code_suffix: '6789'
-              }
-            },
-            veteran: {
-              ssn: '123456789',
-              va_file_number: '987654321',
-              date_of_birth: '1970-01-01',
-              service_number: '123123456',
-              service_branch: 'ARMY',
-              phone: '5555555555',
-              email: 'veteran@example.com',
-              insurance_numbers: [],
-              name: {
-                first: 'First',
-                middle: 'M',
-                last: 'Last'
-              },
-              address: {
-                address_line1: '456 Veteran Rd',
-                address_line2: '',
-                city: 'VeteranCity',
-                state_code: 'VC',
-                country: 'US',
-                zip_code: '98765',
-                zip_code_suffix: '4321'
-              }
-            }
-          }
-        end
+        let(:pdf_generator2122) { SwaggerSharedComponents::V0.body_examples[:pdf_generator2122] }
         run_test!
       end
 
       # response '422', 'unprocessable entity response' do
+      #   let(:pdf_generator2122) do
+      #     SwaggerSharedComponents::V0.body_examples[:pdf_generator2122].delete(:organization_name)
+      #   end
       #   schema '$ref' => '#/components/schemas/Errors'
       #   run_test!
       # end
