@@ -16,6 +16,7 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
   let!(:user) { sis_user(icn: '1012846043V576341') }
 
   before do
+    allow_any_instance_of(User).to receive(:va_patient?).and_return(true)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     allow_any_instance_of(VAOS::V2::MobileFacilityService).to \
       receive(:get_clinic).and_return(mock_clinic)
@@ -196,7 +197,6 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
           VCR.use_cassette('mobile/appointments/post_appointments_va_proposed_clinic_200',
                            match_requests_on: %i[method uri]) do
             post '/mobile/v0/appointment', params: {}, headers: sis_headers
-
             expect(response).to have_http_status(:created)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
           end

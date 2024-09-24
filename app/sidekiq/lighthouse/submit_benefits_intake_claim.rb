@@ -29,7 +29,7 @@ module Lighthouse
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
 
-    def perform(saved_claim_id)
+    def perform(saved_claim_id) # rubocop:disable Metrics/MethodLength
       init(saved_claim_id)
 
       @pdf_path = if @claim.form_id == '21P-530V2'
@@ -46,7 +46,10 @@ module Lighthouse
 
       Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_log_details)
       StatsD.increment("#{STATSD_KEY_PREFIX}.success")
-      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
+
+      send_confirmation_email
+
+      @lighthouse_service.uuid
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', generate_log_details(e))
       StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
@@ -164,6 +167,14 @@ module Lighthouse
 
     def check_zipcode(address)
       address['country'].upcase.in?(%w[USA US])
+    end
+
+    def send_confirmation_email
+      @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
+    rescue => e
+      Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
+                        generate_log_details(e))
+      StatsD.increment("#{STATSD_KEY_PREFIX}.send_confirmation_email.failure")
     end
   end
 end

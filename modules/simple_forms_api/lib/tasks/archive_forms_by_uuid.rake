@@ -2,11 +2,11 @@
 
 # Invoke this as follows:
 #  Set the parameters as variables ahead of time:
-#    rails simple_forms_api:archive_forms_by_uuid[benefits_intake_uuids, parent_dir]
+#    bundle exec rails simple_forms_api:archive_forms_by_uuid[benefits_intake_uuids, parent_dir]
 #  Pass in UUIDs only if default parent_dir is appropriate:
-#    rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456]
-# Pass in new directory to override default:
-#    rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456,custom-directory]
+#    bundle exec rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456]
+#  Pass in new directory to override default:
+#    bundle exec rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456,custom-directory]
 namespace :simple_forms_api do
   desc 'Kick off the SubmissionArchiveHandler to archive submissions to S3 and print presigned URLs'
   task :archive_forms_by_uuid, %i[benefits_intake_uuids parent_dir] => :environment do |_, args|
