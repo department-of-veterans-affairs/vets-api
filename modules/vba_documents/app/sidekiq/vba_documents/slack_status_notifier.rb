@@ -19,7 +19,7 @@ module VBADocuments
     EXPIRED_LOOKBACK_HOURS = 1
 
     # Expired threshold in percent to trigger notification
-    EXPIRED_THRESHOLD = 3.0
+    EXPIRED_THRESHOLD = 20.0
 
     # Upload submisions in uploaded status for more than 100 minutes are considered stuck
     # Between UploadScanner and RunUnsuccessfulSubmissions, 100 should give us ~3 submission attempts
