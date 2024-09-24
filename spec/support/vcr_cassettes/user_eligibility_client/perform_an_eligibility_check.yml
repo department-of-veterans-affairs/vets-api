@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_MR_HOST>/mhvapi/v1/usermgmt/usereligibility/isValidSMUser/10000000/1013124304V115761"
+    uri: "<MHV_MR_HOST>/mhvapi/v1/usermgmt/usereligibility/isValidSMUser/10000000/1000000000V000000"
     body:
       encoding: US-ASCII
       string: ''
@@ -14,9 +14,9 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       X-Api-Key:
-      - apb3jDb0gc8uyb5YPc93a8cscK0kYKFg7RtwBa4a
+      - <MHV_MR_X_API_KEY>
       Apptoken:
-      - dmYm3L8m?NW8NFuox!Q
+      - <APP_TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
