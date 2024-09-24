@@ -122,6 +122,23 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
   end
 
+  describe '#send_confirmation_email' do
+    let(:monitor_error) { create(:monitor_error) }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+      allow(claim).to receive(:send_confirmation_email).and_raise(monitor_error)
+
+      job.instance_variable_set(:@pension_monitor, monitor)
+      allow(monitor).to receive(:track_send_confirmation_email_failure)
+    end
+
+    it 'errors and logs but does not reraise' do
+      expect(monitor).to receive(:track_send_confirmation_email_failure)
+      job.send(:send_confirmation_email)
+    end
+  end
+
   describe 'sidekiq_retries_exhausted block' do
     context 'when retries are exhausted' do
       it 'logs a distinct error when no claim_id provided' do
