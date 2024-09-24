@@ -343,7 +343,9 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
         let!(:user) { sis_user(email: 'vets.gov.user+141@gmail.com', vha_facility_ids: [402, 555]) }
 
         it 'raises 418 custom error' do
-          get '/mobile/v0/appointments', headers: sis_headers
+          with_settings(Settings, vsp_environment: 'staging') do
+            get '/mobile/v0/appointments', headers: sis_headers
+          end
           expect(response).to have_http_status(418)
           expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Custom error title',
                                                               'body' => 'Custom error body. \\n This explains to ' \
