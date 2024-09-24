@@ -8,8 +8,8 @@ RSpec.describe Lighthouse::Facilities::V1::Response, type: :model do
 
   let(:data) do
     [
-      { 'id' => 'nca_042', 'attributes' => { 'name' => 'Facility One', 'facilityType' => 'va_health_facility' } },
-      { 'id' => 'nca_043', 'attributes' => { 'name' => 'Facility Two', 'facilityType' => 'va_health_facility' } }
+      { 'id' => 'vha_042', 'attributes' => { 'name' => 'Facility One', 'facilityType' => 'va_health_facility' } },
+      { 'id' => 'vha_043', 'attributes' => { 'name' => 'Facility Two', 'facilityType' => 'va_health_facility' } }
     ]
   end
 
