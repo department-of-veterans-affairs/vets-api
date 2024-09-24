@@ -185,7 +185,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     end
 
     context 'when there is no terms of use agreement' do
-      before do 
+      before do
         allow(job).to receive(:terms_of_use_agreement).and_return(nil)
       end
 
