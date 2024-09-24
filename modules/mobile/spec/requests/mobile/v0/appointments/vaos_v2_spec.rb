@@ -343,7 +343,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
         let!(:user) { sis_user(email: 'vets.gov.user+141@gmail.com', vha_facility_ids: [402, 555]) }
 
         it 'raises 418 custom error' do
-          with_settings(Settings, vsp_environment: 'staging') do
+          with_settings(Settings, vsp_environment: 'test') do
             get '/mobile/v0/appointments', headers: sis_headers
           end
           expect(response).to have_http_status(418)
