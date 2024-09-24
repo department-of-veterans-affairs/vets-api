@@ -75,9 +75,9 @@ module V0
         :mobile,
         :page,
         :per_page,
+        :facilityIds,
         services: [],
-        bbox: [],
-        facilityIds: []
+        bbox: []
       )
     end
 
