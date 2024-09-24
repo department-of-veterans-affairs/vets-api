@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 module Vets
   module Attributes
     class Value
-
       def self.cast(name, klass, value, array: false)
         new(name, klass, array:).setter_value(value)
       end
@@ -43,9 +44,8 @@ module Vets
       end
 
       def validate_type(value)
-        if (@array && value.is_a?(Array)) || value.is_a?(@klass) || value.nil?
-          return
-        end
+        return if (@array && value.is_a?(Array)) || value.is_a?(@klass) || value.nil?
+
         raise TypeError, "#{@name} must be a #{@klass}"
       end
     end
