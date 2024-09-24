@@ -339,21 +339,21 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
         end
       end
 
-      # context 'when custom error response is injected' do
-      #   let!(:user) { sis_user(email: 'vets.gov.user+141@gmail.com', vha_facility_ids: [402, 555]) }
+      context 'when custom error response is injected' do
+        let!(:user) { sis_user(email: 'vets.gov.user+141@gmail.com', vha_facility_ids: [402, 555]) }
 
-      #   it 'raises 418 custom error' do
-      #     get '/mobile/v0/appointments', headers: sis_headers
-      #     expect(response).to have_http_status(418)
-      #     expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Custom error title',
-      #                                                         'body' => 'Custom error body. \\n This explains to ' \
-      #                                                                   'the user the details of the ongoing issue.',
-      #                                                         'status' => 418,
-      #                                                         'source' => 'VAOS',
-      #                                                         'telephone' => '999-999-9999',
-      #                                                         'refreshable' => true }] })
-      #   end
-      # end
+        it 'raises 418 custom error', skip: 'flakey test' do
+          get '/mobile/v0/appointments', headers: sis_headers
+          expect(response).to have_http_status(418)
+          expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Custom error title',
+                                                              'body' => 'Custom error body. \\n This explains to ' \
+                                                                        'the user the details of the ongoing issue.',
+                                                              'status' => 418,
+                                                              'source' => 'VAOS',
+                                                              'telephone' => '999-999-9999',
+                                                              'refreshable' => true }] })
+        end
+      end
     end
   end
 
