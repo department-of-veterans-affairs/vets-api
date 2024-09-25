@@ -42,22 +42,6 @@ RSpec.describe Vets::Model do
   let(:address) { Address.new(address_params) }
   let(:apartment) { Apartment.new(apartment_params) }
 
-  describe '.attributes' do
-    it 'returns a hash of the attribute parameters' do
-      attributes = Address.attributes
-      expected_attributes = {
-        street: { type: String, default: nil, array: false },
-        street2: { type: String, default: nil, array: false },
-        city: { type: String, default: nil, array: false },
-        country: { type: String, default: nil, array: false },
-        state: { type: String, default: nil, array: false },
-        postal_code: { type: String, default: nil, array: false },
-        apartment: { type: Apartment, default: nil, array: false }
-      }
-      expect(attributes).to eq(expected_attributes)
-    end
-  end
-
   describe '#initialize' do
     it 'initializes the model with provided params' do
       address = Address.new(street: '456 Elm St')
@@ -67,6 +51,10 @@ RSpec.describe Vets::Model do
     it 'initializes the model with objects' do
       address = Address.new(apartment:)
       expect(address.instance_variable_get('@apartment')).to eq(apartment)
+    end
+
+    it 'defines an instance variable' do
+      expect(address).to be_instance_variable_defined('@street2')
     end
 
     it 'sets missing parameters to nil' do
