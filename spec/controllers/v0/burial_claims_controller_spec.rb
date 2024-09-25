@@ -2,10 +2,16 @@
 
 require 'rails_helper'
 require 'support/controller_spec_helper'
+require_relative '../../../lib/burials/monitor'
 
 RSpec.describe V0::BurialClaimsController, type: :controller do
+  let(:monitor) { double('Burials::Monitor') }
+
   before do
     Flipper.enable(:va_burial_v2)
+    allow(Burials::Monitor).to receive(:new).and_return(monitor)
+    allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
+                                       track_create_error: nil, track_create_success: nil)
   end
 
   describe 'with a user' do
@@ -26,9 +32,26 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
         VCR::MATCH_EVERYTHING
       ) do
         create(:in_progress_form, user_uuid: user.uuid, form_id:)
+        expect(monitor).to receive(:track_create_attempt).once
+        expect(monitor).to receive(:track_create_success).once
         expect(controller).to receive(:clear_saved_form).with(form_id).and_call_original
         sign_in_as(user)
         expect { send_create }.to change(InProgressForm, :count).by(-1)
+      end
+    end
+
+    it 'logs validation errors' do
+      allow(SavedClaim::Burial).to receive(:new).and_return(form)
+      allow(form).to receive(:save).and_raise(StandardError, 'mock error')
+
+      VCR.use_cassette(
+        'mvi/find_candidate/find_profile_with_attributes',
+        VCR::MATCH_EVERYTHING
+      ) do
+        expect(monitor).to receive(:track_create_attempt).once
+        expect(monitor).to receive(:track_create_error).once
+        response = send_create
+        expect(response.status).to eq(500)
       end
     end
   end
@@ -51,8 +74,20 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
     end
 
     it 'returns an error if the claim is not found' do
+      expect(monitor).to receive(:track_show404).once
+
       get(:show, params: { id: '12345' })
+
       expect(response).to have_http_status(:not_found)
+    end
+
+    it 'logs validation errors' do
+      allow(SavedClaim::Burial).to receive(:find_by).and_raise(StandardError, 'mock error')
+      expect(monitor).to receive(:track_show_error).once
+
+      get(:show, params: { id: '12345' })
+
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 end
