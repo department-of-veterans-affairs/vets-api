@@ -24,9 +24,11 @@ describe Vye::SundownSweep, type: :worker do
   # if one of them is broken rather than trying to figure out which one in the loop is broken.
   describe 'exception handling' do
     let(:s3_client) { Aws::S3::Client.new(stub_responses: true) }
+    let(:logger) { Rails.logger }
 
     before do
       allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
+      allow(logger).to receive(:error)
     end
 
     it 'throws an exception when the bucket cannot be found on AWS' do
@@ -35,6 +37,7 @@ describe Vye::SundownSweep, type: :worker do
       allow(s3_client).to receive(:delete_object)
         .and_raise(Aws::S3::Errors::NoSuchBucket.new(nil, 'NoSuchBucket'))
 
+      expect(logger).to receive(:error).with(/NoSuchBucket/)
       expect do
         Vye::SundownSweep::DeleteProcessedS3Files.new.perform
       end.to raise_error(Aws::S3::Errors::NoSuchBucket)
@@ -43,6 +46,7 @@ describe Vye::SundownSweep, type: :worker do
     it 'throws an exception when the key cannot be found on AWS' do
       s3_client.stub_responses(:delete_object, 'NoSuchKey')
 
+      expect(logger).to receive(:error).with(/NoSuchKey/)
       allow(s3_client).to receive(:delete_object)
         .and_raise(Aws::S3::Errors::NoSuchKey.new(nil, 'NoSuchKey'))
 
@@ -54,6 +58,7 @@ describe Vye::SundownSweep, type: :worker do
     it 'throws an exception when access is denied' do
       s3_client.stub_responses(:delete_object, 'AccessDenied')
 
+      expect(logger).to receive(:error).with(/AccessDenied/)
       allow(s3_client).to receive(:delete_object)
         .and_raise(Aws::S3::Errors::AccessDenied.new(nil, 'AccessDenied'))
 
@@ -65,6 +70,7 @@ describe Vye::SundownSweep, type: :worker do
     it 'throws an exception there is an error with the service' do
       s3_client.stub_responses(:delete_object, 'ServiceError')
 
+      expect(logger).to receive(:error).with(/ServiceError/)
       allow(s3_client).to receive(:delete_object)
         .and_raise(Aws::S3::Errors::ServiceError.new(nil, 'ServiceError'))
 
