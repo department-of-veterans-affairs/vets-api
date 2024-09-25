@@ -9,7 +9,7 @@ RSpec.describe VeteranFacingFormsRemediationUploader do
   let(:directory) { '/some/path' }
 
   it 'allows image, pdf, json, csv, and text files' do
-    expect(subject.extension_allowlist).to match_array %w[bmp csv gif jpeg jpg json pdf png tif tiff txt]
+    expect(subject.extension_allowlist).to match_array %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
   end
 
   it 'returns a store directory containing benefits_intake_uuid' do
@@ -21,7 +21,8 @@ RSpec.describe VeteranFacingFormsRemediationUploader do
   end
 
   it 'throws an error if no directory is given' do
-    malformed_uploader = described_class.new(benefits_intake_uuid, nil)
-    expect { malformed_uploader.store_dir }.to raise_error(RuntimeError, 'The s3 directory is missing.')
+    expect { described_class.new(benefits_intake_uuid, nil) }.to(
+      raise_error(RuntimeError, 'The s3 directory is missing.')
+    )
   end
 end
