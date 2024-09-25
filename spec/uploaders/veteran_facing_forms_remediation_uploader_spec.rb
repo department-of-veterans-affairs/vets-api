@@ -9,7 +9,7 @@ RSpec.describe VeteranFacingFormsRemediationUploader do
   let(:directory) { '/some/path' }
 
   it 'allows image, pdf, json, csv, and text files' do
-    expect(subject.extension_allowlist).to match_array %w[bmp csv gif jpeg jpg json pdf png tif tiff txt]
+    expect(subject.extension_allowlist).to match_array %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
   end
 
   it 'returns a store directory containing benefits_intake_uuid' do
