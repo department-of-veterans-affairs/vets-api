@@ -109,9 +109,6 @@ RSpec.describe Pensions::Monitor do
         }
         claim.form_start_date = Time.zone.now
 
-        tags = ["form_id:#{claim.form_id}"]
-        ttf = claim.created_at - claim.form_start_date
-
         expect(StatsD).to receive(:increment).with("#{claim_stats_key}.success")
         expect(Rails.logger).to receive(:info).with(log, payload)
 

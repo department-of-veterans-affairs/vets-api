@@ -11,7 +11,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
     Flipper.enable(:va_burial_v2)
     allow(Burials::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
-                                       track_create_error: nil, track_create_success: nil)
+                                       track_create_error: nil, track_create_success: nil, track_create_validation_error: nil)
   end
 
   describe 'with a user' do
@@ -42,17 +42,15 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
 
     it 'logs validation errors' do
       allow(SavedClaim::Burial).to receive(:new).and_return(form)
-      allow(form).to receive(:save).and_raise(StandardError, 'mock error')
+      allow(form).to receive_messages(save: false, errors: 'mock error')
 
-      VCR.use_cassette(
-        'mvi/find_candidate/find_profile_with_attributes',
-        VCR::MATCH_EVERYTHING
-      ) do
-        expect(monitor).to receive(:track_create_attempt).once
-        expect(monitor).to receive(:track_create_error).once
-        response = send_create
-        expect(response.status).to eq(500)
-      end
+      expect(monitor).to receive(:track_create_attempt).once
+      #expect(monitor).to receive(:track_create_validation_error).once
+      expect(monitor).to receive(:track_create_error).once
+      expect(form).not_to receive(:submit_to_structured_data_services!)
+
+      response = send_create
+      expect(response.status).to eq(500)
     end
   end
 
@@ -81,7 +79,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       expect(response).to have_http_status(:not_found)
     end
 
-    it 'logs validation errors' do
+    it 'logs show errors' do
       allow(SavedClaim::Burial).to receive(:find_by).and_raise(StandardError, 'mock error')
       expect(monitor).to receive(:track_show_error).once
 

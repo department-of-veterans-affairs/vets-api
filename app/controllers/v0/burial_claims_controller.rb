@@ -77,10 +77,6 @@ module V0
       CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
     end
 
-    def in_progress_form
-      current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
-    end
-
     ##
     # include validation error on in_progress_form metadata.
     # `noop` if in_progress_form is `blank?`
