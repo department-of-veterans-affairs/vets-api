@@ -430,6 +430,9 @@ ask_va:
 nod_vanotify_status_callback:
   bearer_token: bearer_token_secret
 
+simple_forms_vanotify_status_callback:
+  bearer_token: bearer_token_secret
+
 travel_pay:
   veis:
     client_id: 'client_id'
