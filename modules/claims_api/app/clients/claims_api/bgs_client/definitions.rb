@@ -201,6 +201,15 @@ module ClaimsApi
             path: 'PersonWebService'
           )
 
+        module FindDependentsByPtcpntId
+          DEFINITION =
+            Action.new(
+              service: PersonWebService::DEFINITION,
+              name: 'findDependentsByPtcpntId',
+              key: 'DependentDTO'
+            )
+        end
+
         module FindPersonBySSN
           DEFINITION =
             Action.new(
@@ -275,9 +284,9 @@ module ClaimsApi
       end
 
       ##
-      # VdcBean
+      # Vdc
       #
-      module VdcBean
+      module Vdc
         DEFINITION =
           Bean.new(
             path: 'VDC',
@@ -291,7 +300,7 @@ module ClaimsApi
       module ManageRepresentativeService
         DEFINITION =
           Service.new(
-            bean: VdcBean::DEFINITION,
+            bean: Vdc::DEFINITION,
             path: 'ManageRepresentativeService'
           )
 
@@ -335,7 +344,7 @@ module ClaimsApi
       module VeteranRepresentativeService
         DEFINITION =
           Service.new(
-            bean: VdcBean::DEFINITION,
+            bean: Vdc::DEFINITION,
             path: 'VeteranRepresentativeService'
           )
 

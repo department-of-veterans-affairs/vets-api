@@ -33,10 +33,15 @@ module Vet360
     private
 
     def build_record(type, params)
-      "VAProfile::Models::#{type.capitalize}"
-        .constantize
-        .new(params)
-        .set_defaults(@current_user)
+      # This needs to be refactored after V2 upgrade is complete
+      model = if type == 'address' && Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+                'VAProfile::Models::V2::Address'
+              else
+                "VAProfile::Models::#{type.capitalize}"
+              end
+      model.constantize
+           .new(params)
+           .set_defaults(@current_user)
     end
 
     def validate!(record)
@@ -58,6 +63,8 @@ module Vet360
     end
 
     def write_valid_record!(http_verb, type, record)
+      # This will be removed after the upgrade. Permission was removed in the upgraded service.
+      # Permissions are not used in ContactInformationV1 either.
       service.send("#{http_verb}_#{type.downcase}", record)
     end
 

@@ -50,12 +50,12 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
              { 'inquiry_number' => 'A-4',
                'attachments' => [{ 'Id' => '4', 'Name' => 'testfile.txt' }],
                'category_name' => 'Benefits issues outside the U.S.',
-               'created_on' => '8/5/202 4:51:52 PM',
+               'created_on' => '8/5/2024 4:51:52 PM',
                'correspondences' => nil,
                'has_been_split' => true,
                'inquiry_topic' => 'All other Questions',
                'level_of_authentication' => 'Personal',
-               'last_update' => '3/20/23',
+               'last_update' => '8/5/2024 4:51:52 PM',
                'queue_id' => '987654',
                'queue_name' => 'Compensation',
                'status' => 'In Progress',
@@ -68,17 +68,6 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
 
         it { expect(response).to have_http_status(:ok) }
         it { expect(JSON.parse(response.body)['data']).to include(json_response) }
-
-        context 'pagination' do
-          it 'returns result that is paginated' do
-            expect(JSON.parse(response.body)['data'].size).to eq(10)
-            expect(JSON.parse(response.body)['meta']['meta']['pagination']).to eq({ 'current_page' => 1,
-                                                                                    'prev_page' => nil,
-                                                                                    'next_page' => 2,
-                                                                                    'total_pages' => 2,
-                                                                                    'total_entries' => 15 })
-          end
-        end
       end
 
       context 'when an error occurs' do
@@ -131,7 +120,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           { 'inquiry_number' => 'A-1',
             'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
             'category_name' => 'Veteran Affairs  - Debt',
-            'created_on' => '8/5/202 4:51:52 PM',
+            'created_on' => '8/5/2024 4:51:52 PM',
             'correspondences' =>
             { 'data' =>
               [{ 'id' => '1',
@@ -147,7 +136,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             'has_been_split' => true,
             'inquiry_topic' => 'Status of a pending claim',
             'level_of_authentication' => 'Personal',
-            'last_update' => '12/20/23',
+            'last_update' => '8/5/2024 4:51:52 PM',
             'queue_id' => '987654',
             'queue_name' => 'Debt Management Center',
             'status' => 'Replied',

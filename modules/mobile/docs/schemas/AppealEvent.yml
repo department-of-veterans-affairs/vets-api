@@ -1,6 +1,6 @@
 type: object
 properties:
-  data:
+  date:
     type: string
   type:
     type: string
@@ -28,6 +28,16 @@ properties:
       - ramp_notice
       - transcript
       - remand_return
-      - dro_hearing_held
-      - dro_hearing_cancelled
-      - dro_hearing_no_show
+      - ama_nod
+      - docket_change
+      - distributed_to_vlj
+      - bva_decision_effectuation
+      - dta_decision
+      - sc_request
+      - sc_decision
+      - sc_other_close
+      - hlr_request
+      - hlr_decision
+      - hlr_dta_error
+      - hlr_other_close
+      - statutory_opt_in

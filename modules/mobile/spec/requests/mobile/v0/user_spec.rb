@@ -7,11 +7,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
   let(:contact_information_service) do
-    if Flipper.enabled?(:va_v3_contact_information_service)
-      VAProfile::V2::ContactInformation::Service
-    else
-      VAProfile::ContactInformation::Service
-    end
+    VAProfile::ContactInformation::Service
   end
 
   describe 'GET /mobile/v0/user' do
@@ -29,11 +25,11 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     end
 
     before(:all) do
+      Flipper.disable(:va_v3_contact_information_service)
       Flipper.disable(:mobile_lighthouse_letters)
     end
 
     before do
-      Flipper.enable_actor(:mobile_v1_lighthouse_facilities, user)
       Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
       VCR.insert_cassette('sm_client/session')
     end
@@ -41,7 +37,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     after do
       Timecop.return
       VCR.eject_cassette
-      Flipper.disable(:mobile_v1_lighthouse_facilities)
     end
 
     context 'with no upstream errors' do

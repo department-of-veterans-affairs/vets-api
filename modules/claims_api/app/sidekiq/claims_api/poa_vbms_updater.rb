@@ -23,7 +23,7 @@ module ClaimsApi
         participant_id: poa_form.auth_headers['va_eauth_pid'],
         poa_code:,
         allow_poa_access: 'y',
-        allow_poa_c_add: allow_address_change?(poa_form, power_of_attorney_id) ? 'Y' : 'N'
+        allow_poa_c_add: allow_address_change?(poa_form) ? 'Y' : 'N'
       )
 
       if response[:return_code] == 'GUIE50000'
@@ -48,9 +48,7 @@ module ClaimsApi
       ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BGS Error', error: e)
     end
 
-    def allow_address_change?(poa_form, power_of_attorney_id)
-      ClaimsApi::Logger.log('poa_vbms_updater', poa_id: power_of_attorney_id,
-                                                detail: 'consent to change address has changed')
+    def allow_address_change?(poa_form)
       poa_form.form_data['consentAddressChange']
     end
   end

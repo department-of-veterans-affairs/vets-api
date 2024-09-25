@@ -274,7 +274,7 @@ RSpec.describe 'AskVAApi StaticData', type: :request do
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'ErrorHandler::ServiceError: StandardError: {"Data":null,"Message":' \
+                      'Crm::CacheDataError: Crm::ApiServiceError: Invalid response format: {"Data":null,"Message":' \
                       '"Data Validation: Invalid OptionSet Name iris_branchofservic, ' \
                       'valid values are iris_inquiryabout, iris_inquirysource, iris_inquirytype,' \
                       ' iris_levelofauthentication, iris_suffix, iris_veteranrelationship,' \

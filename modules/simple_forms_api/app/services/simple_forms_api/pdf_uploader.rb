@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api_submission/service'
+# require 'simple_forms_api_submission/service'
 
 module SimpleFormsApi
   class PdfUploader
@@ -44,7 +44,7 @@ module SimpleFormsApi
 
       # Stamp uuid on 40-10007
       uuid = upload_location.dig('data', 'id')
-      SimpleFormsApi::PdfStamper.new(stamped_template_path: 'tmp/vba_40_10007-tmp.pdf', form:).stamp_uuid(uuid)
+      SimpleFormsApi::PdfStamper.new(stamped_template_path: file_path, form:).stamp_uuid(uuid)
 
       { uuid:, location: upload_location.dig('data', 'attributes', 'location') }
     end

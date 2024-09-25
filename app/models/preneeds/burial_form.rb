@@ -39,7 +39,7 @@ module Preneeds
     FORM = '40-10007'
 
     attribute :application_status, String, default: ''
-    attribute :preneed_attachments, Array[PreneedAttachmentHash]
+    attribute :preneed_attachments, PreneedAttachmentHash, array: true
     attribute :has_currently_buried, String
     attribute :sending_application, String, default: 'vets.gov'
     attribute :sending_code, String, default: ''
@@ -47,7 +47,7 @@ module Preneeds
     attribute :tracking_number, String, default: :generate_tracking_number
     attribute :applicant, Preneeds::Applicant
     attribute :claimant, Preneeds::Claimant
-    attribute :currently_buried_persons, Array[Preneeds::CurrentlyBuriedPerson]
+    attribute :currently_buried_persons, Preneeds::CurrentlyBuriedPerson, array: true
     attribute :veteran, Preneeds::Veteran
 
     # keeping this name because it matches the previous attribute

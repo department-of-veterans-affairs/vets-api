@@ -31,8 +31,8 @@ module SimpleFormsApi
     private
 
     def prepare_to_generate_pdf
-      generated_form_path = Rails.root.join("tmp/#{name}-tmp.pdf").to_s
-      stamped_template_path = Rails.root.join("tmp/#{name}-stamped.pdf").to_s
+      generated_form_path = Rails.root.join("tmp/#{name}-#{SecureRandom.hex}-tmp.pdf").to_s
+      stamped_template_path = Rails.root.join("tmp/#{name}-#{SecureRandom.hex}-stamped.pdf").to_s
 
       copy_from_tempfile(stamped_template_path)
 
