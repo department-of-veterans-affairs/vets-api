@@ -40,6 +40,7 @@ module Vets
       end
 
       def coerce_to_class(value)
+        return value if value.is_a?(@klass)
         value.is_a?(Hash) ? @klass.new(value) : value
       end
 

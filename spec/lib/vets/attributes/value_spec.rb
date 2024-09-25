@@ -1,103 +1,132 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/value'
+require 'vets/attributes/value'
 require 'vets/attributes'
 require 'vets/model' # temporarily needed for Boolean
 
-RSpec.describe Vets::Attributes::Value do
-  describe '.cast' do
-    context 'when casting a single value' do
-      it 'returns the coerced value for a valid class' do
-        result = described_class.cast(:test_name, String, 'test_value')
-        expect(result).to eq('test_value')
-      end
-
-      it 'raises a TypeError for invalid types' do
-        expect do
-          described_class.cast(:test_name, Integer, 'not_an_integer')
-        end.to raise_error(TypeError, 'test_name must be a Integer')
-      end
-    end
-
-    context 'when handling Boolean values' do
-      it 'casts values to Boolean' do
-        result = described_class.cast(:boolean_name, Boolean, 'true')
-        expect(result).to be true
-      end
-
-      it 'raises a TypeError for non-boolean values' do
-        expect do
-          described_class.cast(:boolean_name, Boolean, 'not_a_boolean')
-        end.to raise_error(TypeError, 'boolean_name must be a Boolean')
-      end
-    end
-
-    context 'when casting array values' do
-      let(:array_class) { DoubleClass } # Assume DoubleClass is defined elsewhere
-
-      it 'raises TypeError if value is not an Array' do
-        expect do
-          described_class.cast(:test_array, array_class, 'not_an_array', array: true)
-        end.to raise_error(TypeError, 'test_array must be an Array')
-      end
-
-      it 'raises TypeError if elements are of incorrect type' do
-        expect do
-          described_class.cast(:test_array, array_class, %w[correct_type wrong_type], array: true)
-        end.to raise_error(TypeError, "All elements of test_array must be of type #{array_class}")
-      end
-
-      it 'returns an array of coerced values for valid inputs' do
-        result = described_class.cast(:test_array, array_class, [{ attr: 'value' }, { attr: 'value2' }], array: true)
-        expect(result).to all(be_an(array_class))
-      end
-    end
-  end
-
-  describe '#setter_value' do
-    let(:value_instance) { described_class.new(:test_name, String) }
-
-    it 'validates and sets the value correctly' do
-      result = value_instance.setter_value('valid_value')
-      expect(result).to eq('valid_value')
-    end
-
-    it 'raises an error for an invalid value type' do
-      expect do
-        value_instance.setter_value(123)
-      end.to raise_error(TypeError, 'test_name must be a String')
-    end
-  end
-
-  describe '#validate_array' do
-    let(:value_instance) { described_class.new(:test_array, String, array: true) }
-
-    it 'raises an error if value is not an array' do
-      expect do
-        value_instance.send(:validate_array, 'not_an_array')
-      end.to raise_error(TypeError, 'test_array must be an Array')
-    end
-
-    it 'raises an error if elements are of incorrect type' do
-      expect do
-        value_instance.send(:validate_array, ['valid_string', 123])
-      end.to raise_error(TypeError, 'All elements of test_array must be of type String')
-    end
-
-    it 'successfully validates an array of valid items' do
-      expect do
-        value_instance.send(:validate_array, %w[valid_string another_valid_string])
-      end.not_to raise_error
-    end
-  end
-end
-
-# Example DoubleClass for array testing
 class DoubleClass
   attr_reader :attr
 
   def initialize(attrs)
     @attr = attrs[:attr]
+  end
+end
+
+RSpec.describe Vets::Attributes::Value do
+  describe '.cast' do
+    it 'returns a value for a valid type' do
+      result = described_class.cast(:test_name, String, 'test_value')
+      expect(result).to eq('test_value')
+    end
+
+    it 'raises a TypeError for an invalid type' do
+      expect do
+        described_class.cast(:test_name, Integer, 'not_an_integer')
+      end.to raise_error(TypeError, 'test_name must be a Integer')
+    end
+  end
+
+  describe '#setter_value' do
+    context 'when value is a scalar type (e.g., Integer or String)' do
+      it 'returns a value for a valid type' do
+        attribute_value = described_class.new(:test_name, Boolean)
+        setter_value = attribute_value.setter_value('test_value')
+        expect(setter_value).to be_truthy
+      end
+    end
+
+    context 'when value is a Boolean' do
+      it 'coerces a non-falsey, non-empty String to a true Boolean' do
+        attribute_value = described_class.new(:test_name, Boolean)
+        setter_value = attribute_value.setter_value('test')
+        expect(setter_value).to be_truthy
+      end
+
+      it 'casts 0 (Integer) to a false Boolean' do
+        attribute_value = described_class.new(:test_name, Boolean)
+        setter_value = attribute_value.setter_value(0)
+        expect(setter_value).to be_falsey
+      end
+
+      it 'casts "falsey" string to a false Boolean' do
+        attribute_value = described_class.new(:test_name, Boolean)
+        setter_value = attribute_value.setter_value('f')
+        expect(setter_value).to be_falsey
+      end
+
+      it 'coerces a empty String to nil' do
+        attribute_value = described_class.new(:test_name, Boolean)
+        setter_value = attribute_value.setter_value('')
+        expect(setter_value).to be_nil
+      end
+    end
+
+    context 'when value is a complex Object' do
+      it 'returns the same complex Object when' do
+        attribute_value = described_class.new(:test_name, DoubleClass)
+        double_class = DoubleClass.new(attr: 'Steven')
+        setter_value = attribute_value.setter_value(double_class)
+        expect(setter_value).to eq(double_class)
+      end
+    end
+
+    context 'when value is a Hash' do
+      context 'when klass is a Hash' do
+        it 'returns a complex Object with given attributes' do
+          attribute_value = described_class.new(:test_name, DoubleClass)
+          hash_params = { attr: 'Steven' }
+          setter_value = attribute_value.setter_value(hash_params)
+          expect(setter_value.class).to eq(DoubleClass)
+          expect(setter_value.attr).to eq(hash_params[:attr])
+        end
+      end
+
+      context 'when klass is not a Hash' do
+        it 'returns a complex Object with given attributes' do
+          attribute_value = described_class.new(:test_name, Hash)
+          hash_params = { attr: 'Steven' }
+          setter_value = attribute_value.setter_value(hash_params)
+          expect(setter_value.class).to eq(Hash)
+          expect(setter_value[:attr]).to eq(hash_params[:attr])
+        end
+      end
+    end
+
+    context 'when value is an Array' do
+      context 'when elements of value are hashes' do
+        it 'coerces elements to klass' do
+          attribute_value = described_class.new(:test_array, DoubleClass, array: true)
+          setter_value = attribute_value.setter_value([{ attr: 'value' }, { attr: 'value2' }])
+          expect(setter_value).to all(be_an(DoubleClass))
+          expect(setter_value.first.attr).to eq('value')
+        end
+      end
+
+      context 'when elements of value are complex Object' do
+        it 'returns the same array' do
+          attribute_value = described_class.new(:test_array, DoubleClass, array: true)
+          double1 = DoubleClass.new(attr: 'value')
+          double2 = DoubleClass.new(attr: 'value1')
+          setter_value = attribute_value.setter_value([double1, double2])
+          expect(setter_value).to all(be_an(DoubleClass))
+          expect(setter_value.first.attr).to eq('value')
+        end
+      end
+
+      it 'raises TypeError if value is not an Array' do
+        expect do
+          attribute_value = described_class.new(:test_array, DoubleClass, array: true)
+          attribute_value.setter_value('not_an_array')
+        end.to raise_error(TypeError, 'test_array must be an Array')
+      end
+
+      it 'raises TypeError if elements are of incorrect type' do
+        expect do
+          attribute_value = described_class.new(:test_array, DoubleClass, array: true)
+          attribute_value.setter_value(%w[wrong_type also_wrong_type])
+        end.to raise_error(TypeError, "All elements of test_array must be of type #{DoubleClass}")
+      end
+    end
   end
 end

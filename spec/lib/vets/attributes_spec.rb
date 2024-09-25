@@ -4,27 +4,27 @@ require 'rails_helper'
 require 'vets/attributes'
 require 'vets/model' # temporarily needed for Boolean
 
+class Category
+  include Vets::Attributes
+
+  attribute :name, String, default: 'test'
+end
+
+class TestModel
+  include Vets::Attributes
+
+  attribute :name, String, default: 'Unknown'
+  attribute :age, Integer, array: false
+  attribute :tags, String, array: true
+  attribute :categories, Category, array: true
+  attribute :created_at, DateTime, default: :current_time
+
+  def current_time
+    DateTime.new(2024, 9, 25, 10, 30, 0)
+  end
+end
+
 RSpec.describe Vets::Attributes do
-  class Category
-    include Vets::Attributes
-
-    attribute :name, String, default: 'test'
-  end
-
-  class TestModel
-    include Vets::Attributes
-
-    attribute :name, String, default: 'Unknown'
-    attribute :age, Integer, array: false
-    attribute :tags, String, array: true
-    attribute :categories, Category, array: true
-    attribute :created_at, DateTime, default: :current_time
-
-    def current_time
-      DateTime.new(2024, 9, 25, 10, 30, 0)
-    end
-  end
-
   let(:model) { TestModel.new }
 
   describe '.attribute' do

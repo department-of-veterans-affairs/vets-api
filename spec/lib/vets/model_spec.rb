@@ -3,22 +3,22 @@
 require 'rails_helper'
 require 'vets/model'
 
+class Apartment < Vets::Model
+  attribute :unit_number, Integer
+  attribute :building_number, Integer
+end
+
+class Address < Vets::Model
+  attribute :street, String
+  attribute :street2, String
+  attribute :city, String
+  attribute :country, String
+  attribute :state, String
+  attribute :postal_code, String
+  attribute :apartment, Apartment
+end
+
 RSpec.describe Vets::Model do
-  class Apartment < Vets::Model
-    attribute :unit_number, Integer
-    attribute :building_number, Integer
-  end
-
-  class Address < Vets::Model
-    attribute :street, String
-    attribute :street2, String
-    attribute :city, String
-    attribute :country, String
-    attribute :state, String
-    attribute :postal_code, String
-    attribute :apartment, Apartment
-  end
-
   let(:apartment_params) do
     {
       unit_number: 1,
