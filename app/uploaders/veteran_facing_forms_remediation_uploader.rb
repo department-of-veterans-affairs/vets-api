@@ -32,7 +32,7 @@ class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
 
   # Allowed file types, including those specific to benefits intake
   def extension_allowlist
-    %w[bmp csv gif jpeg jpg json pdf png tif tiff txt]
+    %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
   end
 
   def initialize(benefits_intake_uuid, directory)
