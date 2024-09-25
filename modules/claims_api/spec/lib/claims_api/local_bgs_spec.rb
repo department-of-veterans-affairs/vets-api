@@ -74,7 +74,6 @@ describe ClaimsApi::LocalBGS do
         result = subject.find_poa_by_participant_id('does-not-matter')
         expect(result).to be_a Hash
         expect(result[:begin_date]).to eq '09/03/2024'
-
       end
     end
 
