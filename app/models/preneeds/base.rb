@@ -125,7 +125,7 @@ module Preneeds
     # @return [Hash] nested attributes
     def nested_attributes(values)
       values.transform_values do |value|
-        if value.respond_to?(:instance_values)
+        if value.respond_to?(:attributes)
           nested_attributes(value.instance_values)
         else
           value
