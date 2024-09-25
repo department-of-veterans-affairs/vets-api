@@ -283,11 +283,13 @@ class FormProfile
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
-    Rails.logger.info("User Vet360 Contact Info, Address? #{opt[:address].present?}
-      Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
 
-    opt[:address] ||= user_address_hash
+    Rails.logger.info("User Vet360 Contact Info, Vet360_ID? #{user.vet360_id.present?}, Address? #{opt[:address].present?}
+    Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
+
     opt[:email] ||= extract_pciu_data(:pciu_email)
+    opt[:address] ||= user_address_hash
+
     if opt[:home_phone].nil?
       opt[:home_phone] = pciu_primary_phone
       opt[:us_phone] = pciu_us_phone
@@ -303,11 +305,11 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
-      @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
-    else
-      Rails.logger.info('Vet360 Contact Info Null')
-    end
+    contact_info = VAProfileRedis::ContactInformation.for_user(user)
+    @vet360_contact_info = contact_info if
+      ( VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present? )||
+      ( Flipper.enabled?(:remove_pciu, user) &&  Flipper.enabled?(:va_v3_contact_information_service, user) )
+
     @vet360_contact_info
   end
 
