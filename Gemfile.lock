@@ -1274,6 +1274,8 @@ DEPENDENCIES
   staccato
   statsd-instrument
   strong_migrations
+  sidekiq-ent!
+  sidekiq-pro!
   super_diff
   swagger-blocks
   test_user_dashboard!
