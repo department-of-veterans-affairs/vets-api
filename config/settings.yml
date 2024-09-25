@@ -1386,6 +1386,7 @@ vanotify:
       api_key: fake_secret
       template_id:
         form1010_ez_failure_email: fake_template_id
+        form1010_ezr_failure_email: fake_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
