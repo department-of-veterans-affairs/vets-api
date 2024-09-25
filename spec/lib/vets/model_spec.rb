@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'vets/model'
 
 RSpec.describe Vets::Model do
-
   class Apartment < Vets::Model
     attribute :unit_number, Integer
     attribute :building_number, Integer
@@ -47,13 +46,13 @@ RSpec.describe Vets::Model do
     it 'returns a hash of the attribute parameters' do
       attributes = Address.attributes
       expected_attributes = {
-        street:      { type: String, default: nil, array: false },
-        street2:     { type: String, default: nil, array: false },
-        city:        { type: String, default: nil, array: false },
-        country:     { type: String, default: nil, array: false },
-        state:       { type: String, default: nil, array: false },
+        street: { type: String, default: nil, array: false },
+        street2: { type: String, default: nil, array: false },
+        city: { type: String, default: nil, array: false },
+        country: { type: String, default: nil, array: false },
+        state: { type: String, default: nil, array: false },
         postal_code: { type: String, default: nil, array: false },
-        apartment:   { type: Apartment, default: nil, array: false }
+        apartment: { type: Apartment, default: nil, array: false }
       }
       expect(attributes).to eq(expected_attributes)
     end
@@ -66,7 +65,7 @@ RSpec.describe Vets::Model do
     end
 
     it 'initializes the model with objects' do
-      address = Address.new(apartment: apartment)
+      address = Address.new(apartment:)
       expect(address.instance_variable_get('@apartment')).to eq(apartment)
     end
 
@@ -77,12 +76,13 @@ RSpec.describe Vets::Model do
 
   describe '#attributes' do
     it 'returns a hash of attributes' do
-      binding.pry
-      expect(address.attributes).to eq(address_params)
+      expected_attributes = address_params.merge({ street2: nil }).deep_stringify_keys
+      expect(address.attributes).to eq(expected_attributes)
     end
 
     it 'includes nested attributes if present' do
-      expect(address.attributes[:apartment]).to eq(apartment_params)
+      expected_attributes = apartment_params.deep_stringify_keys
+      expect(address.attributes['apartment']).to eq(expected_attributes)
     end
   end
 end
