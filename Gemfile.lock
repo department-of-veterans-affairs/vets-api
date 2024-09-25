@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 0d4ff2f050331676c30e51f28690cf27488f2829
+  revision: deface2de95675b0cf5bcd27f0c91714327dbd86
   branch: master
   specs:
-    vets_json_schema (24.2.7)
+    vets_json_schema (24.2.8)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -144,6 +144,18 @@ PATH
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
     vye (0.1.0)
+
+GEM
+  remote: https://enterprise.contribsys.com/
+  specs:
+    sidekiq-ent (7.2.4)
+      einhorn (~> 1.0)
+      gserver
+      sidekiq (>= 7.2.0, < 8)
+      sidekiq-pro (>= 7.2.0, < 8)
+    sidekiq-pro (7.2.1)
+      base64
+      sidekiq (>= 7.2.0, < 8)
 
 GEM
   remote: https://rubygems.org/
@@ -243,13 +255,13 @@ GEM
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
     aws-partitions (1.977.0)
-    aws-sdk-core (3.206.0)
+    aws-sdk-core (3.208.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
       aws-sigv4 (~> 1.9)
       jmespath (~> 1, >= 1.6.1)
-    aws-sdk-kms (1.91.0)
-      aws-sdk-core (~> 3, >= 3.205.0)
+    aws-sdk-kms (1.93.0)
+      aws-sdk-core (~> 3, >= 3.207.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-s3 (1.162.0)
       aws-sdk-core (~> 3, >= 3.205.0)
@@ -404,6 +416,7 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
+    einhorn (1.0.0)
     erubi (1.13.0)
     et-orbi (1.2.11)
       tzinfo
@@ -525,6 +538,7 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
+    gserver (0.0.1)
     guard (2.18.1)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -906,6 +920,11 @@ GEM
     rspec-support (3.13.1)
     rspec_junit_formatter (0.6.0)
       rspec-core (>= 2, < 4, != 2.12.0)
+    rswag-specs (2.14.0)
+      activesupport (>= 5.2, < 8.0)
+      json-schema (>= 2.2, < 5.0)
+      railties (>= 5.2, < 8.0)
+      rspec-core (>= 2.14)
     rswag-ui (2.14.0)
       actionpack (>= 5.2, < 8.0)
       railties (>= 5.2, < 8.0)
@@ -1085,7 +1104,7 @@ GEM
       xmlmapper (>= 0.7.3)
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
-    yard (0.9.36)
+    yard (0.9.37)
     zeitwerk (2.6.18)
 
 PLATFORMS
@@ -1266,6 +1285,8 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq (~> 7.2.0)
+  sidekiq-ent!
+  sidekiq-pro!
   sign_in_service
   simple_forms_api!
   simplecov
@@ -1274,8 +1295,6 @@ DEPENDENCIES
   staccato
   statsd-instrument
   strong_migrations
-  sidekiq-ent!
-  sidekiq-pro!
   super_diff
   swagger-blocks
   test_user_dashboard!
