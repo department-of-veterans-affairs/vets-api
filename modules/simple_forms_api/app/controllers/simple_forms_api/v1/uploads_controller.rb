@@ -264,13 +264,18 @@ module SimpleFormsApi
       end
 
       def send_confirmation_email(parsed_form_data, form_id, confirmation_number)
-        SimpleFormsApi::NotificationEmail.new(
+        config = {
           form_data: parsed_form_data,
           form_number: form_id,
           confirmation_number:,
+          date_submitted: Time.zone.today.strftime('%B %d, %Y')
+        }
+        notification_email = SimpleFormsApi::NotificationEmail.new(
+          config,
           notification_type: :confirmation,
           user: @current_user
-        ).send
+        )
+        notification_email.send
       end
     end
   end

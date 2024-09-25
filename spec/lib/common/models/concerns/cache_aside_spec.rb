@@ -5,10 +5,19 @@ require 'common/models/concerns/cache_aside'
 
 describe Common::CacheAside do
   let(:user) { build :user, :loa3 }
-  let(:person) { build :person }
+
+  if Flipper.enabled?(:va_v3_contact_information_service)
+    let(:person) { build :person_v2 }
+  else
+    let(:person) { build :person }
+  end
 
   before do
-    allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
+    if Flipper.enabled?(:va_v3_contact_information_service)
+      allow(VAProfile::Models::V2::Person).to receive(:build_from).and_return(person)
+    else
+      allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
+    end
   end
 
   describe '#do_cached_with' do

@@ -33,7 +33,7 @@ module AskVAApi
           end
         end
 
-        context 'when an error occur' do
+        context 'when an API error occur' do
           let(:retriever) { described_class.new(name: 'branchofservic', user_mock_data: false, entity_class:) }
           let(:body) do
             '{"Data":null,"Message":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \

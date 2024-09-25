@@ -79,6 +79,7 @@ RSpec.describe BenefitsClaims::Service do
 
       describe 'when posting a form526' do
         it 'has formatted request body data correctly' do
+          transaction_id = 'vagov'
           body = @service.send(:prepare_submission_body,
                                {
                                  'serviceInformation' => {
@@ -93,7 +94,7 @@ RSpec.describe BenefitsClaims::Service do
                                      }
                                    }
                                  }
-                               })
+                               }, transaction_id)
 
           expect(body).to eq({
                                'data' => {
@@ -109,6 +110,9 @@ RSpec.describe BenefitsClaims::Service do
                                      }
                                    }
                                  }
+                               },
+                               'meta' => {
+                                 'transactionId' => 'vagov'
                                }
                              })
         end

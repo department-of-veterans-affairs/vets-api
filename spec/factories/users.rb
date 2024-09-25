@@ -348,6 +348,24 @@ FactoryBot.define do
       end
     end
 
+    trait :api_auth_v2 do
+      vet360_id { '1781151' }
+      authn_context { LOA::IDME_LOA3_VETS }
+      sign_in do
+        {
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: 'sis',
+          client_id: SAML::URLService::MOBILE_CLIENT_ID
+        }
+      end
+      loa do
+        {
+          current: LOA::THREE,
+          highest: LOA::THREE
+        }
+      end
+    end
+
     trait :api_auth do
       authn_context { LOA::IDME_LOA3_VETS }
       sign_in do

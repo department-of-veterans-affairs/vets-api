@@ -244,24 +244,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           end
         end
 
-        context 'Flipper for simple_forms_lighthouse_benefits_intake_service' do
-          after { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
-
-          context 'when flipped on' do
-            before { Flipper.enable(:simple_forms_lighthouse_benefits_intake_service) }
-
-            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
-            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
-            it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_documents.json'
-          end
-
-          context 'when flipped off' do
-            before { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
-
-            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
-            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
-          end
-        end
+        it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
+        it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
+        it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_documents.json'
       end
 
       context 'LOA3 authenticated' do
@@ -660,7 +645,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'VETERAN',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -701,7 +687,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'JACK',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -748,7 +735,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'ARTHUR',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -790,7 +778,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'PREPARE',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
+            'confirmation_number' => confirmation_number,
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -846,6 +835,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'first_name' => 'ABRAHAM',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
+                'lighthouse_updated_at' => nil,
                 'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
                                              ' (VA Form 21P-534 or VA Form 21P-534EZ)'
               }
@@ -869,6 +859,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'first_name' => 'ABRAHAM',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
+                'lighthouse_updated_at' => nil,
                 'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
                                              ' (VA Form 21P-534 or VA Form 21P-534EZ)'
               }

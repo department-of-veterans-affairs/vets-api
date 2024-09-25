@@ -5,12 +5,72 @@ require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe SimpleFormsApi::NotificationEmail do
   %i[confirmation error received].each do |notification_type|
+    describe '#initialize' do
+      context 'when all required arguments are passed in' do
+        let(:config) do
+          { form_data: {}, form_number: 'vba_21_10210', confirmation_number: 'confirmation_number',
+            date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        end
+
+        it 'succeeds' do
+          expect { described_class.new(config, notification_type:) }.not_to raise_error(ArgumentError)
+        end
+      end
+
+      context 'missing form_data' do
+        let(:config) do
+          { form_number: 'vba_21_10210', confirmation_number: 'confirmation_number',
+            date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        end
+
+        it 'fails' do
+          expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+        end
+      end
+
+      context 'missing form_number' do
+        let(:config) do
+          { form_data: {}, confirmation_number: 'confirmation_number',
+            date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        end
+
+        it 'fails' do
+          expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+        end
+      end
+
+      context 'missing confirmation_number' do
+        let(:config) do
+          { form_data: {}, form_number: 'vba_21_10210', date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        end
+
+        it 'fails' do
+          expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+        end
+      end
+
+      context 'missing date_submitted' do
+        let(:config) do
+          { form_data: {}, form_number: 'vba_21_10210', confirmation_number: 'confirmation_number' }
+        end
+
+        it 'fails' do
+          expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+        end
+      end
+    end
+
     describe '#send' do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
       let(:data) do
         fixture_path = Rails.root.join(
           'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_10210.json'
         )
         JSON.parse(fixture_path.read)
+      end
+      let(:config) do
+        { form_data: data, form_number: 'vba_21_10210',
+          confirmation_number: 'confirmation_number', date_submitted: }
       end
 
       context 'flipper is on' do
@@ -23,8 +83,7 @@ describe SimpleFormsApi::NotificationEmail do
           data['claim_ownership'] = 'self'
           data['claimant_type'] = 'veteran'
 
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(config, notification_type:)
 
           subject.send
 
@@ -39,22 +98,38 @@ describe SimpleFormsApi::NotificationEmail do
 
         it 'does not send the email' do
           allow(VANotify::EmailJob).to receive(:perform_async)
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(config, notification_type:)
 
           subject.send
 
           expect(VANotify::EmailJob).not_to have_received(:perform_async)
         end
       end
+
+      context 'send at time is specified' do
+        it 'sends the email at the specified time' do
+          time = double
+          allow(VANotify::EmailJob).to receive(:perform_at)
+          subject = described_class.new(config, notification_type:)
+
+          subject.send(at: time)
+
+          expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything)
+        end
+      end
     end
 
     describe '21_10210' do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
       let(:data) do
         fixture_path = Rails.root.join(
           'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_10210.json'
         )
         JSON.parse(fixture_path.read)
+      end
+      let(:config) do
+        { form_data: data, form_number: 'vba_21_10210',
+          confirmation_number: 'confirmation_number', date_submitted: }
       end
 
       describe 'users own claim' do
@@ -63,8 +138,7 @@ describe SimpleFormsApi::NotificationEmail do
           data['claim_ownership'] = 'self'
           data['claimant_type'] = 'veteran'
 
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(config, notification_type:)
 
           subject.send
 
@@ -73,8 +147,9 @@ describe SimpleFormsApi::NotificationEmail do
             "form21_10210_#{notification_type}_email_template_id",
             {
               'first_name' => 'JOHN',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'date_submitted' => date_submitted,
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
             }
           )
         end
@@ -84,8 +159,7 @@ describe SimpleFormsApi::NotificationEmail do
           data['claim_ownership'] = 'self'
           data['claimant_type'] = 'non-veteran'
 
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(config, notification_type:)
 
           subject.send
 
@@ -95,7 +169,8 @@ describe SimpleFormsApi::NotificationEmail do
             {
               'first_name' => 'JOE',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
             }
           )
         end
@@ -107,8 +182,7 @@ describe SimpleFormsApi::NotificationEmail do
           data['claim_ownership'] = 'third-party'
           data['claimant_type'] = 'veteran'
 
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(config, notification_type:)
 
           subject.send
 
@@ -118,7 +192,8 @@ describe SimpleFormsApi::NotificationEmail do
             {
               'first_name' => 'JACK',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
             }
           )
         end
@@ -128,8 +203,7 @@ describe SimpleFormsApi::NotificationEmail do
           data['claim_ownership'] = 'third-party'
           data['claimant_type'] = 'non-veteran'
 
-          subject = described_class.new(form_data: data, form_number: 'vba_21_10210',
-                                        confirmation_number: 'confirmation_number', notification_type:)
+          subject = described_class.new(config, notification_type:)
 
           subject.send
 
@@ -139,85 +213,100 @@ describe SimpleFormsApi::NotificationEmail do
             {
               'first_name' => 'JACK',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
             }
           )
         end
       end
     end
-  end
 
-  describe '40_0247' do
-    context 'when email is entered' do
-      let(:data) do
-        fixture_path = Rails.root.join(
-          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247.json'
-        )
-        JSON.parse(fixture_path.read)
+    describe '40_0247' do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
+      let(:config) do
+        { form_data: data, form_number: 'vba_40_0247',
+          confirmation_number: 'confirmation_number', date_submitted: }
       end
 
-      it 'sends the confirmation email' do
-        allow(VANotify::EmailJob).to receive(:perform_async)
+      context 'template_id is provided', if: notification_type == :confirmation do
+        context 'when email is entered' do
+          let(:data) do
+            fixture_path = Rails.root.join(
+              'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247.json'
+            )
+            JSON.parse(fixture_path.read)
+          end
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_40_0247',
-          confirmation_number: 'confirmation_number'
-        )
+          it 'sends the confirmation email' do
+            allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject.send
+            subject = described_class.new(config, notification_type:)
 
-        expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'a@b.com',
-          'form40_0247_confirmation_email_template_id',
-          {
-            'first_name' => 'JOE',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
-          }
-        )
+            subject.send
+
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(
+              'a@b.com',
+              'form40_0247_confirmation_email_template_id',
+              {
+                'first_name' => 'JOE',
+                'date_submitted' => date_submitted,
+                'confirmation_number' => 'confirmation_number',
+                'lighthouse_updated_at' => nil
+              }
+            )
+          end
+        end
+
+        context 'when email is omitted' do
+          let(:data) do
+            fixture_path = Rails.root.join(
+              'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247-min.json'
+            )
+            JSON.parse(fixture_path.read)
+          end
+
+          context 'when user is signed in' do
+            let(:user) { create(:user, :loa3) }
+
+            it 'does not send the confirmation email' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+              expect(data['applicant_email']).to be_nil
+
+              subject = described_class.new(config, notification_type:)
+
+              subject.send
+
+              expect(VANotify::EmailJob).not_to have_received(:perform_async)
+            end
+          end
+
+          context 'when user is not signed in' do
+            it 'does not send the confirmation email' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+              expect(data['applicant_email']).to be_nil
+
+              subject = described_class.new(config)
+
+              subject.send
+
+              expect(VANotify::EmailJob).not_to have_received(:perform_async)
+            end
+          end
+        end
       end
-    end
 
-    context 'when email is omitted' do
-      let(:data) do
-        fixture_path = Rails.root.join(
-          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247-min.json'
-        )
-        JSON.parse(fixture_path.read)
-      end
-
-      context 'when user is signed in' do
+      context 'template_id is missing', if: notification_type != :confirmation do
+        let(:data) do
+          fixture_path = Rails.root.join(
+            'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247.json'
+          )
+          JSON.parse(fixture_path.read)
+        end
         let(:user) { create(:user, :loa3) }
 
-        it 'does not send the confirmation email' do
+        it 'sends nothing' do
           allow(VANotify::EmailJob).to receive(:perform_async)
-          expect(data['applicant_email']).to be_nil
-
-          subject = described_class.new(
-            form_data: data,
-            form_number: 'vba_40_0247',
-            confirmation_number: 'confirmation_number',
-            user:
-          )
-
-          subject.send
-
-          expect(VANotify::EmailJob).not_to have_received(:perform_async)
-        end
-      end
-
-      context 'when user is not signed in' do
-        it 'does not send the confirmation email' do
-          allow(VANotify::EmailJob).to receive(:perform_async)
-          expect(data['applicant_email']).to be_nil
-
-          subject = described_class.new(
-            form_data: data,
-            form_number: 'vba_40_0247',
-            confirmation_number: 'confirmation_number',
-            user: nil
-          )
+          subject = described_class.new(config, notification_type:, user:)
 
           subject.send
 
@@ -225,162 +314,173 @@ describe SimpleFormsApi::NotificationEmail do
         end
       end
     end
-  end
 
-  describe '21_0845' do
-    let(:data) do
-      fixture_path = Rails.root.join(
-        'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0845.json'
-      )
-      JSON.parse(fixture_path.read)
-    end
-
-    describe 'signed in user' do
-      it 'non-veteran authorizer' do
-        allow(VANotify::EmailJob).to receive(:perform_async)
-        data['authorizer_email'] = 'authorizer_email@example.com'
-
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_21_0845',
-          confirmation_number: 'confirmation_number',
-          user: create(:user)
+    describe '21_0845' do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
+      let(:data) do
+        fixture_path = Rails.root.join(
+          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0845.json'
         )
-
-        subject.send
-
-        expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'authorizer_email@example.com',
-          'form21_0845_confirmation_email_template_id',
-          {
-            'first_name' => 'JACK',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
-          }
-        )
+        JSON.parse(fixture_path.read)
+      end
+      let(:config) do
+        { form_data: data, form_number: 'vba_21_0845', confirmation_number: 'confirmation_number', date_submitted: }
       end
 
-      it 'veteran authorizer' do
-        allow(VANotify::EmailJob).to receive(:perform_async)
-        data['authorizer_type'] = 'veteran'
+      describe 'signed in user' do
+        it 'non-veteran authorizer' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+          data['authorizer_email'] = 'authorizer_email@example.com'
 
-        subject = described_class.new(
-          user: create(:user),
-          form_data: data,
-          form_number: 'vba_21_0845',
-          confirmation_number: 'confirmation_number'
-        )
+          subject = described_class.new(config, user: create(:user))
 
-        allow(subject.user).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
+          subject.send
 
-        subject.send
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            'authorizer_email@example.com',
+            'form21_0845_confirmation_email_template_id',
+            {
+              'first_name' => 'JACK',
+              'date_submitted' => date_submitted,
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
+            }
+          )
+        end
 
-        expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'abraham.lincoln@vets.gov',
-          'form21_0845_confirmation_email_template_id',
-          {
-            'first_name' => 'JOHN',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
-          }
-        )
+        it 'veteran authorizer' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+          data['authorizer_type'] = 'veteran'
+
+          subject = described_class.new(config, user: create(:user))
+
+          allow(subject.user).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
+
+          subject.send
+
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            'abraham.lincoln@vets.gov',
+            'form21_0845_confirmation_email_template_id',
+            {
+              'first_name' => 'JOHN',
+              'date_submitted' => date_submitted,
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
+            }
+          )
+        end
+      end
+
+      describe 'not signed in user' do
+        it 'non-veteran authorizer' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+          # form requires email
+          data['authorizer_email'] = 'authorizer_email@example.com'
+
+          subject = described_class.new(config)
+
+          subject.send
+
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            'authorizer_email@example.com',
+            'form21_0845_confirmation_email_template_id',
+            {
+              'first_name' => 'JACK',
+              'date_submitted' => date_submitted,
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
+            }
+          )
+        end
+
+        it 'veteran authorizer' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+          # form does not require email
+          data['authorizer_type'] = 'veteran'
+
+          subject = described_class.new(config)
+
+          subject.send
+
+          expect(VANotify::EmailJob).not_to have_received(:perform_async)
+        end
       end
     end
 
-    describe 'not signed in user' do
-      it 'non-veteran authorizer' do
-        allow(VANotify::EmailJob).to receive(:perform_async)
-        # form requires email
-        data['authorizer_email'] = 'authorizer_email@example.com'
-
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_21_0845',
-          confirmation_number: 'confirmation_number'
+    describe '21_0966' do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
+      let(:data) do
+        fixture_path = Rails.root.join(
+          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0966.json'
         )
+        JSON.parse(fixture_path.read)
+      end
+      let(:config) do
+        { form_data: data, form_number: 'vba_21_0966',
+          confirmation_number: 'confirmation_number', date_submitted: }
+      end
+      let(:user) { create(:user, :loa3) }
 
-        subject.send
+      context 'template_id is provided', if: notification_type == :confirmation do
+        it 'sends the confirmation email' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
 
-        expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'authorizer_email@example.com',
-          'form21_0845_confirmation_email_template_id',
-          {
-            'first_name' => 'JACK',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
-          }
-        )
+          subject = described_class.new(config, user:)
+
+          subject.send
+
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            user.va_profile_email,
+            'form21_0966_confirmation_email_template_id',
+            {
+              'first_name' => user.first_name.upcase,
+              'date_submitted' => date_submitted,
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil,
+              'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
+                                           ' (VA Form 21P-534 or VA Form 21P-534EZ)'
+            }
+          )
+        end
       end
 
-      it 'veteran authorizer' do
-        allow(VANotify::EmailJob).to receive(:perform_async)
-        # form does not require email
-        data['authorizer_type'] = 'veteran'
+      context 'template_id is missing', if: notification_type != :confirmation do
+        let(:data) do
+          fixture_path = Rails.root.join(
+            'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0966.json'
+          )
+          JSON.parse(fixture_path.read)
+        end
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_21_0845',
-          confirmation_number: 'confirmation_number'
-        )
+        it 'sends nothing' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+          subject = described_class.new(config, notification_type:, user:)
 
-        subject.send
+          subject.send
 
-        expect(VANotify::EmailJob).not_to have_received(:perform_async)
+          expect(VANotify::EmailJob).not_to have_received(:perform_async)
+        end
       end
-    end
-  end
-
-  describe '21_0966' do
-    let(:data) do
-      fixture_path = Rails.root.join(
-        'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0966.json'
-      )
-      JSON.parse(fixture_path.read)
-    end
-    let(:user) { create(:user, :loa3) }
-
-    it 'sends the confirmation email' do
-      allow(VANotify::EmailJob).to receive(:perform_async)
-
-      subject = described_class.new(
-        form_data: data,
-        form_number: 'vba_21_0966',
-        confirmation_number: 'confirmation_number',
-        user:
-      )
-
-      subject.send
-
-      expect(VANotify::EmailJob).to have_received(:perform_async).with(
-        user.va_profile_email,
-        'form21_0966_confirmation_email_template_id',
-        {
-          'first_name' => user.first_name.upcase,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => 'confirmation_number',
-          'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                       ' (VA Form 21P-534 or VA Form 21P-534EZ)'
-        }
-      )
     end
   end
 
   describe '20_10206' do
+    let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
     let(:data) do
       fixture_path = Rails.root.join(
         'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_20_10206.json'
       )
       JSON.parse(fixture_path.read)
     end
+    let(:config) do
+      { form_data: data, form_number: 'vba_20_10206',
+        confirmation_number: 'confirmation_number', date_submitted: }
+    end
 
     it 'sends the confirmation email' do
       allow(VANotify::EmailJob).to receive(:perform_async)
 
-      subject = described_class.new(
-        form_data: data,
-        form_number: 'vba_20_10206',
-        confirmation_number: 'confirmation_number'
-      )
+      subject = described_class.new(config)
 
       subject.send
 
@@ -389,14 +489,21 @@ describe SimpleFormsApi::NotificationEmail do
         'form20_10206_confirmation_email_template_id',
         {
           'first_name' => 'JOHN',
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => 'confirmation_number'
+          'date_submitted' => date_submitted,
+          'confirmation_number' => 'confirmation_number',
+          'lighthouse_updated_at' => nil
         }
       )
     end
   end
 
   describe '20_10207' do
+    let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
+    let(:config) do
+      { form_data: data, form_number: 'vba_20_10207',
+        confirmation_number: 'confirmation_number', date_submitted: }
+    end
+
     context 'veteran' do
       let(:data) do
         fixture_path = Rails.root.join(
@@ -409,12 +516,7 @@ describe SimpleFormsApi::NotificationEmail do
       it 'sends the confirmation email' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_20_10207',
-          confirmation_number: 'confirmation_number',
-          user:
-        )
+        subject = described_class.new(config, user:)
 
         subject.send
 
@@ -423,8 +525,9 @@ describe SimpleFormsApi::NotificationEmail do
           'form20_10207_confirmation_email_template_id',
           {
             'first_name' => 'JOHN',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'date_submitted' => date_submitted,
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -442,12 +545,7 @@ describe SimpleFormsApi::NotificationEmail do
       it 'sends the confirmation email' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_20_10207',
-          confirmation_number: 'confirmation_number',
-          user:
-        )
+        subject = described_class.new(config, user:)
 
         subject.send
 
@@ -456,8 +554,9 @@ describe SimpleFormsApi::NotificationEmail do
           'form20_10207_confirmation_email_template_id',
           {
             'first_name' => 'JOE',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'date_submitted' => date_submitted,
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -475,12 +574,7 @@ describe SimpleFormsApi::NotificationEmail do
       it 'sends the confirmation email' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_20_10207',
-          confirmation_number: 'confirmation_number',
-          user:
-        )
+        subject = described_class.new(config, user:)
 
         subject.send
 
@@ -489,8 +583,9 @@ describe SimpleFormsApi::NotificationEmail do
           'form20_10207_confirmation_email_template_id',
           {
             'first_name' => 'JOHN',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'date_submitted' => date_submitted,
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end
@@ -508,12 +603,7 @@ describe SimpleFormsApi::NotificationEmail do
       it 'sends the confirmation email' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_20_10207',
-          confirmation_number: 'confirmation_number',
-          user:
-        )
+        subject = described_class.new(config, user:)
 
         subject.send
 
@@ -522,8 +612,9 @@ describe SimpleFormsApi::NotificationEmail do
           'form20_10207_confirmation_email_template_id',
           {
             'first_name' => 'JOE',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
+            'date_submitted' => date_submitted,
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil
           }
         )
       end
