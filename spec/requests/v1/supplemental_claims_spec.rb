@@ -32,13 +32,24 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
       is_success: false,
       http: {
         status_code: 422,
-        body: anything
+        body: response_error_body
       }
     }
   end
   let(:extra_error_log_message) do
     'BackendServiceException: ' \
       '{:source=>"Common::Client::Errors::ClientError raised in DecisionReviewV1::Service", :code=>"DR_422"}'
+  end
+
+  let(:response_error_body) do
+    {
+      'errors' => [{ 'title' => 'Missing required fields',
+                     'detail' => 'One or more expected fields were not found',
+                     'code' => '145',
+                     'source' => { 'pointer' => '/data/attributes' },
+                     'status' => '422',
+                     'meta' => { 'missing_fields' => ['form5103Acknowledged'] } }]
+    }
   end
 
   before { sign_in_as(user) }

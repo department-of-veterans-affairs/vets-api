@@ -50,7 +50,7 @@ describe VAProfileRedis::Cache, :skip_vet360 do
     describe '.invalidate v2' do
       context 'when user.vet360_contact_info is present' do
         it 'invalidates the va-profile-contact-info-response cache' do
-          VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             VAProfileRedis::ContactInformation.for_user(user)
           end
           expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(true)

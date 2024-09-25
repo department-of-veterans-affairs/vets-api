@@ -137,6 +137,7 @@ module Mobile
       def authorize
         raise_access_denied unless current_user.authorize(:vaos, :access?)
         raise_access_denied_no_icn if current_user.icn.blank?
+        raise_access_denied_no_facilities unless current_user.authorize(:vaos, :facilities_access?)
       end
 
       def raise_access_denied
@@ -145,6 +146,10 @@ module Mobile
 
       def raise_access_denied_no_icn
         raise Common::Exceptions::Forbidden, detail: 'No patient ICN found'
+      end
+
+      def raise_access_denied_no_facilities
+        raise Common::Exceptions::Forbidden, detail: 'No facility associated with user'
       end
 
       def staging_custom_error

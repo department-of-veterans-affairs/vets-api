@@ -22,6 +22,12 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
     instance_double(Faraday::Response, body: VetsJsonSchema::EXAMPLES.fetch('HLR-SHOW-RESPONSE-200_V2'))
   end
 
+  let(:response_error) do
+    response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-SHOW-RESPONSE-200_V2').to_json) # deep copy
+    response['data']['attributes']['status'] = 'error'
+    instance_double(Faraday::Response, body: response)
+  end
+
   before do
     allow(DecisionReviewV1::Service).to receive(:new).and_return(service)
   end
@@ -82,6 +88,39 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
 
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.saved_claim_hlr_status_updater.error').exactly(2).times
+        end
+      end
+
+      context 'SavedClaim record with previous metadata' do
+        before do
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'does not log or increment metrics for stale form error status' do
+          SavedClaim::HigherLevelReview.create(guid: guid1, form: '{}', metadata: '{"status":"error"}')
+          SavedClaim::HigherLevelReview.create(guid: guid2, form: '{}', metadata: '{"status":"submitted"}')
+
+          expect(service).to receive(:get_higher_level_review).with(guid1).and_return(response_error)
+          expect(service).to receive(:get_higher_level_review).with(guid2).and_return(response_error)
+
+          subject.new.perform
+
+          claim1 = SavedClaim::HigherLevelReview.find_by(guid: guid1)
+          expect(claim1.delete_date).to be_nil
+          expect(claim1.metadata).to include 'error'
+
+          claim2 = SavedClaim::HigherLevelReview.find_by(guid: guid2)
+          expect(claim2.delete_date).to be_nil
+          expect(claim2.metadata).to include 'error'
+
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_hlr_status_updater.status', tags: ['status:error'])
+            .exactly(1).time
+
+          expect(Rails.logger).not_to have_received(:info)
+            .with('DecisionReview::SavedClaimHlrStatusUpdaterJob form status error', guid: guid1)
+          expect(Rails.logger).to have_received(:info)
+            .with('DecisionReview::SavedClaimHlrStatusUpdaterJob form status error', guid: guid2)
         end
       end
     end
