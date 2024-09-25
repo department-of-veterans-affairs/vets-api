@@ -78,6 +78,10 @@ module Veteran
         where(query, params)
       end
 
+      def organizations
+        Veteran::Service::Organization.where(poa: poa_codes)
+      end
+
       def self.max_per_page
         Constants::MAX_PER_PAGE
       end
