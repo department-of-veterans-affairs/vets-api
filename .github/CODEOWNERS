@@ -746,6 +746,7 @@ config/initializers/clamav.rb @department-of-veterans-affairs/va-api-engineers @
 config/initializers/combine_pdf_log_patch.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/config.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/cookie_rotation.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+config/initializers/core_extensions.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/covid_vaccine_facilities.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/long-covid
 config/initializers/datadog.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/date_formats.rb @department-of-veterans-affairs/octo-identity
@@ -866,6 +867,7 @@ lib/common/pdf_helpers.rb @department-of-veterans-affairs/benefits-decision-revi
 lib/common/models @department-of-veterans-affairs/backend-review-group
 lib/common/virus_scan.rb @department-of-veterans-affairs/backend-review-group
 lib/common @department-of-veterans-affairs/backend-review-group
+lib/core_extensions @department-of-veterans-affairs/backend-review-group
 lib/debt_management_center @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 lib/decision_review @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/decision_review_v1 @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
