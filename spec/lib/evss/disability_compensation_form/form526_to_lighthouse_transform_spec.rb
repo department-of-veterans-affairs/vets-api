@@ -263,6 +263,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       toxic_exposure_conditions = submission.form['form526']['form526']['toxicExposure']['conditions']
       results = transformer.send(:transform_disabilities, data, toxic_exposure_conditions)
       expect(results.first.is_related_to_toxic_exposure).to eq(true)
+      text = 'My condition was caused by an injury or event that happened when I was receiving VA care; toxic exposure.'
+      expect(results.first.exposure_or_event_or_injury).to eq(text)
       expect(results.last.is_related_to_toxic_exposure).to eq(false)
     end
 
@@ -270,9 +272,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       toxic_exposure_conditions = submission.form['form526']['form526']['toxicExposure']['conditions']
       results = transformer.send(:transform_disabilities, data, toxic_exposure_conditions)
       cause_map = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform::TOXIC_EXPOSURE_CAUSE_MAP
-      expect(results.first.exposure_or_event_or_injury).to eq(cause_map[:VA])
-      expect(results[1].exposure_or_event_or_injury).to eq(cause_map[:NEW])
-      expect(results[2].exposure_or_event_or_injury).to eq(cause_map[:WORSENED])
+      expect(results.first.exposure_or_event_or_injury).to eq(cause_map[:VA].sub(/[.]?$/, '; toxic exposure.'))
+      expect(results[1].exposure_or_event_or_injury).to eq(cause_map[:NEW].sub(/[.]?$/, '; toxic exposure.'))
+      expect(results[2].exposure_or_event_or_injury).to eq(cause_map[:WORSENED].sub(/[.]?$/, '; toxic exposure.'))
+      # last condition is not a toxic exposure condition
       expect(results.last.exposure_or_event_or_injury).to eq(cause_map[:SECONDARY])
     end
   end
