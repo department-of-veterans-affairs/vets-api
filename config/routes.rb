@@ -121,8 +121,12 @@ Rails.application.routes.draw do
     resource :hca_attachments, only: :create
     resource :form1010_ezr_attachments, only: :create
 
-    resources :caregivers_assistance_claims, only: :create
-    post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
+    resources :caregivers_assistance_claims, only: :create do
+      collection do
+        get(:facilities)
+        post(:download_pdf)
+      end
+    end
 
     namespace :form1010cg do
       resources :attachments, only: :create

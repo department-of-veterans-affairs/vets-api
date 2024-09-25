@@ -50,7 +50,11 @@ module CopayNotifications
     private
 
     def person_response(vet360_id)
-      VAProfile::ContactInformation::Service.get_person(vet360_id)
+      if Flipper.enabled?(:va_v3_contact_information_service)
+        VAProfile::V2::ContactInformation::Service.get_person(vet360_id)
+      else
+        VAProfile::ContactInformation::Service.get_person(vet360_id)
+      end
     end
   end
 end
