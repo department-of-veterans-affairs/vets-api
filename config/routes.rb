@@ -121,8 +121,12 @@ Rails.application.routes.draw do
     resource :hca_attachments, only: :create
     resource :form1010_ezr_attachments, only: :create
 
-    resources :caregivers_assistance_claims, only: :create
-    post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
+    resources :caregivers_assistance_claims, only: :create do
+      collection do
+        get(:facilities)
+        post(:download_pdf)
+      end
+    end
 
     namespace :form1010cg do
       resources :attachments, only: :create
@@ -168,8 +172,6 @@ Rails.application.routes.draw do
     resource :rated_disabilities_discrepancies, only: %i[show]
 
     namespace :virtual_agent do
-      get 'claim', to: 'virtual_agent_claim#index'
-      get 'claim/:id', to: 'virtual_agent_claim#show'
       get 'claims', to: 'virtual_agent_claim_status#index'
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
