@@ -31,6 +31,9 @@ module V0
       claim = create_claim
       monitor.track_create_attempt(claim, current_user)
 
+      in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
+      claim.form_start_date = in_progress_form.created_at if in_progress_form
+
       unless claim.save
         Sentry.set_tags(team: 'benefits-memorial-1') # tag sentry logs with team name
         monitor.track_create_validation_error(in_progress_form, claim, current_user)
@@ -41,10 +44,6 @@ module V0
       # this method also calls claim.process_attachments!
       claim.submit_to_structured_data_services!
 
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.form_id}"
-
-      in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
-      claim.form_start_date = in_progress_form.created_at if in_progress_form
       monitor.track_create_success(in_progress_form, claim, current_user)
 
       clear_saved_form(claim.form_id)

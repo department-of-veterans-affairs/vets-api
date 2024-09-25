@@ -45,7 +45,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       allow(form).to receive_messages(save: false, errors: 'mock error')
 
       expect(monitor).to receive(:track_create_attempt).once
-      #expect(monitor).to receive(:track_create_validation_error).once
+      expect(monitor).to receive(:track_create_validation_error).once
       expect(monitor).to receive(:track_create_error).once
       expect(form).not_to receive(:submit_to_structured_data_services!)
 
@@ -86,6 +86,25 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       get(:show, params: { id: '12345' })
 
       expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
+  describe '#log_validation_error_to_metadata' do
+    let(:claim) { build(:burial_claim_v2) }
+    let(:in_progress_form) { build(:in_progress_form) }
+
+    it 'returns if a `blank` in_progress_form' do
+      ['', [], {}, nil].each do |blank|
+        expect(in_progress_form).not_to receive(:update)
+        result = subject.send(:log_validation_error_to_metadata, blank, claim)
+        expect(result).to eq(nil)
+      end
+    end
+
+    it 'updates the in_progress_form' do
+      expect(in_progress_form).to receive(:metadata).and_return(in_progress_form.metadata)
+      expect(in_progress_form).to receive(:update)
+      subject.send(:log_validation_error_to_metadata, in_progress_form, claim)
     end
   end
 end
