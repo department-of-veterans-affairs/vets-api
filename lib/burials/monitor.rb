@@ -37,7 +37,7 @@ module Burials
     # log POST processing started
     # @see BurialClaimsController
     #
-    # @param claim [Pension::SavedClaim]
+    # @param claim [SavedClaim::Burial]
     # @param current_user [User]
     #
     def track_create_attempt(claim, current_user)
@@ -49,10 +49,10 @@ module Burials
 
     ##
     # log POST claim save validation error
-    # @see PensionClaimsController
+    # @see BurialClaimsController
     #
     # @param in_progress_form [InProgressForm]
-    # @param claim [Pension::SavedClaim]
+    # @param claim [SavedClaim::Burial]
     # @param current_user [User]
     # @param e [Error]
     #
