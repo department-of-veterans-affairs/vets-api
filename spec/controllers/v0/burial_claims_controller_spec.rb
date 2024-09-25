@@ -11,7 +11,8 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
     Flipper.enable(:va_burial_v2)
     allow(Burials::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
-                                       track_create_error: nil, track_create_success: nil, track_create_validation_error: nil)
+                                       track_create_error: nil, track_create_success: nil,
+                                       track_create_validation_error: nil)
   end
 
   describe 'with a user' do

@@ -117,15 +117,15 @@ class SavedClaim < ApplicationRecord
   end
 
   def after_create_metrics
-    tags = ["form_id:#{self.form_id}"]
+    tags = ["form_id:#{form_id}"]
     StatsD.increment('saved_claim.create', tags:)
-    if self.form_start_date
-      claim_duration = self.created_at - self.form_start_date
+    if form_start_date
+      claim_duration = created_at - form_start_date
       StatsD.measure('saved_claim.time-to-file', claim_duration, tags:)
     end
   end
 
   def after_destroy_metrics
-    StatsD.increment('saved_claim.destroy', tags: ["form_id:#{self.form_id}"])
+    StatsD.increment('saved_claim.destroy', tags: ["form_id:#{form_id}"])
   end
 end

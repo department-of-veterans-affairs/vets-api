@@ -43,7 +43,8 @@ module Burials
     def track_create_attempt(claim, current_user)
       StatsD.increment("#{CLAIM_STATS_KEY}.attempt")
       Rails.logger.info('21P-530EZ submission to Sidekiq begun',
-                        { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid, statsd: "#{CLAIM_STATS_KEY}.attempt" })
+                        { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid,
+                          statsd: "#{CLAIM_STATS_KEY}.attempt" })
     end
 
     ##
