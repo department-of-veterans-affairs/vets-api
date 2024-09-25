@@ -19,4 +19,58 @@ describe Vye::SundownSweep, type: :worker do
     expect(Vye::SundownSweep::DeleteProcessedS3Files).to have_enqueued_sidekiq_job
     expect(Vye::SundownSweep::PurgesStaleVerifications).to have_enqueued_sidekiq_job
   end
+
+  # Exceptions are tested one by one rather than all at once because it's easier to debug
+  # if one of them is broken rather than trying to figure out which one in the loop is broken.
+  describe 'exception handling' do
+    let(:s3_client) { Aws::S3::Client.new(stub_responses: true) }
+
+    before do
+      allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
+    end
+
+    it 'throws an exception when the bucket cannot be found on AWS' do
+      s3_client.stub_responses(:delete_object, 'NoSuchBucket')
+
+      allow(s3_client).to receive(:delete_object)
+        .and_raise(Aws::S3::Errors::NoSuchBucket.new(nil, 'NoSuchBucket'))
+
+      expect do
+        Vye::SundownSweep::DeleteProcessedS3Files.new.perform
+      end.to raise_error(Aws::S3::Errors::NoSuchBucket)
+    end
+
+    it 'throws an exception when the key cannot be found on AWS' do
+      s3_client.stub_responses(:delete_object, 'NoSuchKey')
+
+      allow(s3_client).to receive(:delete_object)
+        .and_raise(Aws::S3::Errors::NoSuchKey.new(nil, 'NoSuchKey'))
+
+      expect do
+        Vye::SundownSweep::DeleteProcessedS3Files.new.perform
+      end.to raise_error(Aws::S3::Errors::NoSuchKey)
+    end
+
+    it 'throws an exception when access is denied' do
+      s3_client.stub_responses(:delete_object, 'AccessDenied')
+
+      allow(s3_client).to receive(:delete_object)
+        .and_raise(Aws::S3::Errors::AccessDenied.new(nil, 'AccessDenied'))
+
+      expect do
+        Vye::SundownSweep::DeleteProcessedS3Files.new.perform
+      end.to raise_error(Aws::S3::Errors::AccessDenied)
+    end
+
+    it 'throws an exception there is an error with the service' do
+      s3_client.stub_responses(:delete_object, 'ServiceError')
+
+      allow(s3_client).to receive(:delete_object)
+        .and_raise(Aws::S3::Errors::ServiceError.new(nil, 'ServiceError'))
+
+      expect do
+        Vye::SundownSweep::DeleteProcessedS3Files.new.perform
+      end.to raise_error(Aws::S3::Errors::ServiceError)
+    end
+  end
 end
