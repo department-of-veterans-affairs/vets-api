@@ -187,24 +187,10 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       end
 
       context 'When there are special issues, a PACT disability and INCREASE action type' do
-        let(:disability) do
-          {
-            disabilityActionType: 'INCREASE',
-            name: 'hypertension',
-            approximateDate: nil,
-            classificationCode: '',
-            serviceRelevance: '',
-            isRelatedToToxicExposure: true,
-            exposureOrEventOrInjury: '',
-            ratedDisabilityId: '',
-            diagnosticCode: 0,
-            secondaryDisabilities: nil,
-            specialIssues: %w[POW EMP]
-          }
-        end
-
         it 'maps the special issues attributes correctly and does NOT append PACT' do
-          form_data['data']['attributes']['disabilities'][0] = disability
+          form_data['data']['attributes']['disabilities'][0][:disabilityActionType] = 'INCREASE'
+          form_data['data']['attributes']['disabilities'][0][:specialIssues] = %w[POW EMP]
+          form_data['data']['attributes']['disabilities'][0][:isRelatedToToxicExposure] = true
           auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
           evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
           includes_pow = evss_data[:disabilities][0][:specialIssues].include? 'POW'

@@ -34,7 +34,6 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::PersonResponse] wrapper around an person object
         def get_person
           with_monitoring do
-            vet360_id_present!
             raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(uuid_with_aaid)}")
             PersonResponse.from(raw_response)
           end
@@ -138,7 +137,7 @@ module VAProfile
         def put_email(email)
           old_email =
             begin
-              @user.va_profile_email
+              @user.va_profile_v2_email
             rescue
               nil
             end
@@ -216,9 +215,8 @@ module VAProfile
         def uuid_with_aaid
           return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
           return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
-          return "#{vet360_id}^PI^200VETS^USDVA" if @user.idme_uuid.blank? && @user.logingov_uuid.blank?
 
-          nil
+          "#{vet360_id}^PI^200VETS^USDVA"
         end
 
         def vet360_id
@@ -226,7 +224,7 @@ module VAProfile
         end
 
         def update_model(model, attr, method_name)
-          contact_info = VAProfileRedis::ContactInformation.for_user(@user)
+          contact_info = VAProfileRedis::V2::ContactInformation.for_user(@user)
           model.id = contact_info.public_send(attr)&.id
           verb = model.id.present? ? 'put' : 'post'
 
@@ -246,7 +244,7 @@ module VAProfile
             transaction_id = transaction.id
             return if TransactionNotification.find(transaction_id).present?
 
-            email = @user.va_profile_email
+            email = @user.va_profile_v2_email
             return if email.blank?
 
             VANotifyEmailJob.perform_async(
@@ -283,13 +281,8 @@ module VAProfile
           end
         end
 
-        def vet360_id_present!
-          raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
-        end
-
         def post_or_put_data(method, model, path, response_class)
           with_monitoring do
-            vet360_id_present!
             request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(uuid_with_aaid)}" + "/#{path}"
             raw_response = perform(method, request_path, model.in_json)
             response_class.from(raw_response)

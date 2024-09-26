@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'lighthouse/facilities/v1/client'
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
@@ -11,7 +12,7 @@ module V0
     before_action :load_user, only: :create
 
     before_action :record_submission_attempt, only: :create
-    before_action :initialize_claim
+    before_action :initialize_claim, only: %i[create download_pdf]
 
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
@@ -51,7 +52,34 @@ module V0
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
     end
 
+    def facilities
+      lighthouse_facilities = lighthouse_facilities_service.get_paginated_facilities(lighthouse_facilities_params)
+      render(json: lighthouse_facilities)
+    end
+
     private
+
+    def lighthouse_facilities_service
+      @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
+    end
+
+    def lighthouse_facilities_params
+      params.permit(
+        :zip,
+        :state,
+        :lat,
+        :long,
+        :radius,
+        :visn,
+        :type,
+        :mobile,
+        :page,
+        :per_page,
+        :facilityIds,
+        services: [],
+        bbox: []
+      )
+    end
 
     def record_submission_attempt
       auditor.record(:submission_attempt)
