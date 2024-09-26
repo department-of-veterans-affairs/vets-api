@@ -11,7 +11,7 @@ RSpec.describe 'Translations Validation' do # rubocop:disable RSpec/DescribeClas
       last_line_index = file.readlines.count - 1
       second_to_last_line_index = last_line_index - 1
 
-      File.readlines(file).each_with_index do |line, i|
+      file.each_line.with_index do |line, i|
         case i
         when 0
           expect(line).to eq("{\n")
@@ -27,14 +27,14 @@ RSpec.describe 'Translations Validation' do # rubocop:disable RSpec/DescribeClas
     end
 
     it 'closes all interpolation braces' do
-      File.readlines(file)[1..-2] do |line|
+      file.readlines[1..-2].each do |line|
         unclosed_double_braces_pattern = /\{\{(?![^{}]*\}\})/
         expect(line).not_to match(unclosed_double_braces_pattern)
       end
     end
 
     it 'is alphabetized' do
-      keys = File.readlines(file)[1..-2].map { |line| line.strip.split(/": "/).first.downcase }
+      keys = file.readlines[1..-2].map { |line| line.strip.split(/": "/).first.downcase }
       expect(keys).to eq(keys.sort)
     end
   end
