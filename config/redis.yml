@@ -208,6 +208,9 @@ development: &defaults
   travel_pay_store:
     namespace: travel-pay-store
     each_ttl: 3300 # 55 minutes
+  form_1010_cg_submission_job_claim:
+    namespace: Form1010cg::SubmissionJob
+    each_ttl: 1000000 # persisted for at least 22 sidekiq retries
 test:
   <<: *defaults
   redis:
