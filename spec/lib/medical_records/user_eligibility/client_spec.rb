@@ -6,6 +6,10 @@ require 'medical_records/user_eligibility/client'
 describe UserEligibility::Client do
   describe 'User eligibility operations', :vcr do
     context 'when user ID and ICN are valid' do
+      before do
+        Flipper.enable(:mhv_medical_records_new_eligibility_check)
+      end
+
       let(:icn) { '1000000000V000000' }
       let(:user_id) { '10000000' }
       let(:client) { UserEligibility::Client.new(user_id, icn) }
@@ -30,6 +34,10 @@ describe UserEligibility::Client do
     end
 
     context 'when ICN is nil' do
+      before do
+        Flipper.enable(:mhv_medical_records_new_eligibility_check)
+      end
+
       let(:user_id) { '10000000' }
       let(:icn) { nil }
       let(:client) { UserEligibility::Client.new(user_id, icn) }
@@ -40,6 +48,10 @@ describe UserEligibility::Client do
     end
 
     context 'when ICN is not properly formatted' do
+      before do
+        Flipper.enable(:mhv_medical_records_new_eligibility_check)
+      end
+
       let(:user_id) { '10000000' }
       let(:icn) { '12345' }
       let(:client) { UserEligibility::Client.new(user_id, icn) }
@@ -54,6 +66,10 @@ describe UserEligibility::Client do
     end
 
     context 'when patient is not premium' do
+      before do
+        Flipper.enable(:mhv_medical_records_new_eligibility_check)
+      end
+
       let(:user_id) { '10000000' }
       let(:icn) { '1000000000V000000' }
       let(:client) { UserEligibility::Client.new(user_id, icn) }
@@ -65,6 +81,21 @@ describe UserEligibility::Client do
             client.get_is_valid_sm_user
           end.to raise_error(Common::Exceptions::BackendServiceException)
         end
+      end
+    end
+
+    context 'when new eligibility check feature flag is disabled' do
+      before do
+        Flipper.disable(:mhv_medical_records_new_eligibility_check)
+      end
+
+      let(:icn) { '1000000000V000000' }
+      let(:user_id) { '10000000' }
+      let(:client) { UserEligibility::Client.new(user_id, icn) }
+      let(:expected_response_message) { 'MHV Premium SM account with Logins in past 26 months' }
+
+      it 'performs an eligibility check on the user', :vcr do
+        expect(a_request(:get, %r{mhvapi/v1/usermgmt/usereligibility/isValidSMUser})).not_to have_been_made
       end
     end
   end
