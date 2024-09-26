@@ -23,8 +23,8 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
           'originalAr' => 1177.0,
           'currentAr' => 123.34,
           'debtHistory' =>
-            [{ 'date' => '09/12/1998', 'letterCode' => '123', 'description' => 'Third Demand Letter -
-Potential Treasury Referral' },
+            [{ 'date' => '09/12/1998', 'letterCode' => '123', 'description' =>
+              'Third Demand Letter - Potential Treasury Referral' },
              { 'date' => '09/13/1997', 'letterCode' => '123',
                'description' => 'Third Demand Letter - Potential Treasury Referral' },
              { 'date' => '04/01/1997', 'letterCode' => '122',
@@ -34,8 +34,8 @@ Potential Treasury Referral' },
              { 'date' => '09/16/1995', 'letterCode' => '123',
                'description' => 'Third Demand Letter - Potential Treasury Referral' },
              { 'date' => '04/04/1995', 'letterCode' => '145',
-               'description' => 'Referall To Credit Alert Interactive Verification Reporting System (CAIVRS)
-In 30 Days' },
+               'description' =>
+                 'Referall To Credit Alert Interactive Verification Reporting System (CAIVRS) In 30 Days' },
              { 'date' => '02/14/1995', 'letterCode' => '117',
                'description' => 'Second Demand Letter - Potential Negative Referral' },
              { 'date' => '11/15/1994', 'letterCode' => '603', 'description' => 'Late Or Missed Payment Notification' },
