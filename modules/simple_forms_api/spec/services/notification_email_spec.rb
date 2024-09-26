@@ -132,91 +132,127 @@ describe SimpleFormsApi::NotificationEmail do
           confirmation_number: 'confirmation_number', date_submitted: }
       end
 
-      describe 'users own claim' do
-        it 'is a veteran' do
-          allow(VANotify::EmailJob).to receive(:perform_async)
-          data['claim_ownership'] = 'self'
-          data['claimant_type'] = 'veteran'
+      context 'users own claim' do
+        context 'is a veteran' do
+          context 'user is passed in' do
+            let(:email) { 'email@fromrecord.com' }
+            let(:user) { build(:user, { email: }) }
 
-          subject = described_class.new(config, notification_type:)
+            it 'calls VANotify::EmailJob with user record email' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+              data['claim_ownership'] = 'self'
+              data['claimant_type'] = 'veteran'
 
-          subject.send
+              subject = described_class.new(config, notification_type:, user:)
 
-          expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            'veteran.longemail@email.com',
-            "form21_10210_#{notification_type}_email_template_id",
-            {
-              'first_name' => 'JOHN',
-              'date_submitted' => date_submitted,
-              'confirmation_number' => 'confirmation_number',
-              'lighthouse_updated_at' => nil
-            }
-          )
-        end
+              subject.send
 
-        it 'is not a veteran' do
-          allow(VANotify::EmailJob).to receive(:perform_async)
-          data['claim_ownership'] = 'self'
-          data['claimant_type'] = 'non-veteran'
+              expect(VANotify::EmailJob).to have_received(:perform_async).with(
+                email,
+                "form21_10210_#{notification_type}_email_template_id",
+                {
+                  'first_name' => 'JOHN',
+                  'date_submitted' => date_submitted,
+                  'confirmation_number' => 'confirmation_number',
+                  'lighthouse_updated_at' => nil
+                }
+              )
+            end
+          end
 
-          subject = described_class.new(config, notification_type:)
+          context 'user is not passed in' do
+            it 'calls VANotify::EmailJob with user record email' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+              data['claim_ownership'] = 'self'
+              data['claimant_type'] = 'veteran'
 
-          subject.send
+              subject = described_class.new(config, notification_type:)
 
-          expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            'claimant.long@address.com',
-            "form21_10210_#{notification_type}_email_template_id",
-            {
-              'first_name' => 'JOE',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number',
-              'lighthouse_updated_at' => nil
-            }
-          )
+              subject.send
+
+              expect(VANotify::EmailJob).to have_received(:perform_async).with(
+                'veteran.longemail@email.com',
+                "form21_10210_#{notification_type}_email_template_id",
+                {
+                  'first_name' => 'JOHN',
+                  'date_submitted' => date_submitted,
+                  'confirmation_number' => 'confirmation_number',
+                  'lighthouse_updated_at' => nil
+                }
+              )
+            end
+          end
+
+          context 'is not a veteran' do
+            it 'calls VANotify::EmailJob' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+              data['claim_ownership'] = 'self'
+              data['claimant_type'] = 'non-veteran'
+
+              subject = described_class.new(config, notification_type:)
+
+              subject.send
+
+              expect(VANotify::EmailJob).to have_received(:perform_async).with(
+                'claimant.long@address.com',
+                "form21_10210_#{notification_type}_email_template_id",
+                {
+                  'first_name' => 'JOE',
+                  'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                  'confirmation_number' => 'confirmation_number',
+                  'lighthouse_updated_at' => nil
+                }
+              )
+            end
+          end
         end
       end
 
-      describe 'someone elses claim' do
-        it 'claimant is a veteran' do
-          allow(VANotify::EmailJob).to receive(:perform_async)
-          data['claim_ownership'] = 'third-party'
-          data['claimant_type'] = 'veteran'
+      context 'someone elses claim' do
+        context 'claimant is a veteran' do
+          it 'calls VANotify::EmailJob' do
+            allow(VANotify::EmailJob).to receive(:perform_async)
+            data['claim_ownership'] = 'third-party'
+            data['claimant_type'] = 'veteran'
 
-          subject = described_class.new(config, notification_type:)
+            subject = described_class.new(config, notification_type:)
 
-          subject.send
+            subject.send
 
-          expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            'my.long.email.address@email.com',
-            "form21_10210_#{notification_type}_email_template_id",
-            {
-              'first_name' => 'JACK',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number',
-              'lighthouse_updated_at' => nil
-            }
-          )
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(
+              'my.long.email.address@email.com',
+              "form21_10210_#{notification_type}_email_template_id",
+              {
+                'first_name' => 'JACK',
+                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                'confirmation_number' => 'confirmation_number',
+                'lighthouse_updated_at' => nil
+              }
+            )
+          end
         end
 
-        it 'claimant is not a veteran' do
-          allow(VANotify::EmailJob).to receive(:perform_async)
-          data['claim_ownership'] = 'third-party'
-          data['claimant_type'] = 'non-veteran'
+        context 'claimant is not a veteran' do
+          it 'calls VANotify::EmailJob' do
+            allow(VANotify::EmailJob).to receive(:perform_async)
+            data['claim_ownership'] = 'third-party'
+            data['claimant_type'] = 'non-veteran'
 
-          subject = described_class.new(config, notification_type:)
+            subject = described_class.new(config, notification_type:)
 
-          subject.send
+            subject.send
 
-          expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            'my.long.email.address@email.com',
-            "form21_10210_#{notification_type}_email_template_id",
-            {
-              'first_name' => 'JACK',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number',
-              'lighthouse_updated_at' => nil
-            }
-          )
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(
+              'my.long.email.address@email.com',
+              "form21_10210_#{notification_type}_email_template_id",
+              {
+                'first_name' => 'JACK',
+                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                'confirmation_number' => 'confirmation_number',
+                'lighthouse_updated_at' => nil
+              }
+            )
+          end
         end
       end
     end
