@@ -83,6 +83,7 @@ describe ClaimsApi::BD do
 
     describe 'power of attorney submissions (doc_type: L075, L190)' do
       let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
+      let(:v2_power_of_attorney) { create(:power_of_attorney, :with_full_headers_tamara) }
 
       context 'when the doctype is L190' do
         let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
@@ -108,6 +109,24 @@ describe ClaimsApi::BD do
 
         it 'the claimId is not present' do
           expect(json_body['data']).not_to have_key('claimId')
+        end
+
+        it 'gets the participant vet id from the headers va_eauth_pid when it is not supplied for L190' do
+          v2_power_of_attorney.auth_headers['va_eauth_pid']
+          expect_any_instance_of(described_class).to receive(:build_body).with(
+            {
+              doc_type: 'L190',
+              file_name: 'Tamara_Ellis_21-22.pdf',
+              participant_id: '600043201',
+              claim_id: nil,
+              file_number: nil,
+              system_name: 'Lighthouse',
+              tracked_item_ids: nil
+            }
+          )
+
+          subject.send(:generate_upload_body, claim: v2_power_of_attorney, pdf_path:, action: 'post',
+                                              doc_type: 'L190')
         end
       end
 
