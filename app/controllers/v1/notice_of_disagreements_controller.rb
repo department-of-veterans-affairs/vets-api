@@ -18,7 +18,6 @@ module V1
         current_user: @current_user,
         request_body_hash:,
         decision_review_service:,
-        version_number:
       )
 
       render json: nod_response_body
@@ -34,10 +33,6 @@ module V1
 
     def error_class(method:, exception_class:)
       "#{self.class.name}##{method} exception #{exception_class} (NOD_V1)"
-    end
-
-    def version_number
-      'v2'
     end
 
     def handle_personal_info_error(e)
