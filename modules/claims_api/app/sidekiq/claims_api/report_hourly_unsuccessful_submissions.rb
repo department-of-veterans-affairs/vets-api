@@ -8,17 +8,15 @@ module ClaimsApi
     def perform
       return unless allow_processing?
 
-      @search_to = 30.minutes.ago
-      @search_from = @search_to - 1.hour
+      @search_to = 1.minute.ago
+      @search_from = @search_to - 60.minutes
       @reporting_to = @search_to.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
       @reporting_from = @search_from.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
-      @errored_claims = ClaimsApi::AutoEstablishedClaim
-                        .where("cid <> '0oagdm49ygCSJTp8X297' AND status = 'errored'")
-                        .select(created: @search_from..@search_to).pluck(:id).uniq
-      @va_gov_errored_claims = ClaimsApi::AutoEstablishedClaim.where(created_at: @search_from..@search_to,
-                                                                     status: 'errored',
-                                                                     cid: '0oagdm49ygCSJTp8X297')
-                                                              .pluck(:transaction_id).uniq
+      @errored_claims = ClaimsApi::AutoEstablishedClaim.where(
+        'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
+        'errored', @search_from, @search_to, '0oagdm49ygCSJTp8X297'
+      ).pluck(:id).uniq
+      @va_gov_errored_claims = va_gov_errored_claims.map { |grp| grp[1][0] }.pluck(:id)
       @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @search_from..@search_to,
                                                       status: 'errored').pluck(:id).uniq
       @errored_itf = ClaimsApi::IntentToFile.where(created_at: @search_from..@search_to,
@@ -67,6 +65,16 @@ module ClaimsApi
 
     def allow_processing?
       Flipper.enabled? :claims_hourly_slack_error_report_enabled
+    end
+
+    def va_gov_errored_claims
+      va_gov = ClaimsApi::AutoEstablishedClaim.select(:id, :transaction_id)
+                                              .where(created_at: @search_from..@search_to,
+                                                     status: 'errored', cid: '0oagdm49ygCSJTp8X297')
+                                              .group(
+                                                :id, :transaction_id
+                                              )
+      va_gov.group_by(&:transaction_id)
     end
   end
 end

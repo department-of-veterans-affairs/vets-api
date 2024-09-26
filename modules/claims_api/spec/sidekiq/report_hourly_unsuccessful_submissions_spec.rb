@@ -41,7 +41,7 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         # rubocop:disable RSpec/SubjectStub
         expect(subject).to receive(:notify).with(
           ['claim1'],
-          ['claim1'],
+          [],
           ['poa1'],
           ['itf1'],
           ['ews1'],

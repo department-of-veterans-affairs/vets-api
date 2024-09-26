@@ -24,7 +24,6 @@ module ClaimsApi
                                                username: 'Failed Submissions Messenger')
 
         notification_message = build_notification_message
-
         slack_client.notify(notification_message)
       end
 
@@ -62,7 +61,7 @@ module ClaimsApi
         if submission_type == 'Intent to File'
           errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n\n"
         else
-          errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n```"
+          errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n\n```"
           errored_submissions.each do |submission_id|
             errored_submission_message << "#{submission_id} \n"
           end
