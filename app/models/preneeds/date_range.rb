@@ -8,7 +8,7 @@ module Preneeds
   # @!attribute to
   #   @return [String] 'to' date
   #
-  class DateRange < Preneeds::VirtusBase
+  class DateRange < Preneeds::Base
     attribute :from, String
     attribute :to, String
 
