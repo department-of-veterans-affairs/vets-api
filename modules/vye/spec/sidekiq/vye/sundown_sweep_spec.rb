@@ -32,8 +32,6 @@ describe Vye::SundownSweep, type: :worker do
     end
 
     it 'throws an exception when the bucket cannot be found on AWS' do
-      s3_client.stub_responses(:delete_object, 'NoSuchBucket')
-
       allow(s3_client).to receive(:delete_object)
         .and_raise(Aws::S3::Errors::NoSuchBucket.new(nil, 'NoSuchBucket'))
 
@@ -44,36 +42,30 @@ describe Vye::SundownSweep, type: :worker do
     end
 
     it 'throws an exception when the key cannot be found on AWS' do
-      s3_client.stub_responses(:delete_object, 'NoSuchKey')
-
-      expect(logger).to receive(:error).with(/NoSuchKey/)
       allow(s3_client).to receive(:delete_object)
         .and_raise(Aws::S3::Errors::NoSuchKey.new(nil, 'NoSuchKey'))
 
+      expect(logger).to receive(:error).with(/NoSuchKey/)
       expect do
         Vye::SundownSweep::DeleteProcessedS3Files.new.perform
       end.to raise_error(Aws::S3::Errors::NoSuchKey)
     end
 
     it 'throws an exception when access is denied' do
-      s3_client.stub_responses(:delete_object, 'AccessDenied')
-
-      expect(logger).to receive(:error).with(/AccessDenied/)
       allow(s3_client).to receive(:delete_object)
         .and_raise(Aws::S3::Errors::AccessDenied.new(nil, 'AccessDenied'))
 
+      expect(logger).to receive(:error).with(/AccessDenied/)
       expect do
         Vye::SundownSweep::DeleteProcessedS3Files.new.perform
       end.to raise_error(Aws::S3::Errors::AccessDenied)
     end
 
     it 'throws an exception there is an error with the service' do
-      s3_client.stub_responses(:delete_object, 'ServiceError')
-
-      expect(logger).to receive(:error).with(/ServiceError/)
       allow(s3_client).to receive(:delete_object)
         .and_raise(Aws::S3::Errors::ServiceError.new(nil, 'ServiceError'))
 
+      expect(logger).to receive(:error).with(/ServiceError/)
       expect do
         Vye::SundownSweep::DeleteProcessedS3Files.new.perform
       end.to raise_error(Aws::S3::Errors::ServiceError)
