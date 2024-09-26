@@ -5,6 +5,10 @@ require 'rails_helper'
 RSpec.describe VeteranFacingFormsRemediationUploader do
   subject { described_class.new(benefits_intake_uuid, directory) }
 
+  before do
+    allow(Settings.vff_simple_forms).to receive(:aws).and_return(OpenStruct.new(region: 'region', bucket: 'bucket'))
+  end
+
   let(:benefits_intake_uuid) { SecureRandom.uuid }
   let(:directory) { '/some/path' }
 
