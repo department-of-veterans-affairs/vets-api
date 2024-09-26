@@ -3,9 +3,14 @@
 require 'medical_records/user_eligibility/client'
 
 MHVMedicalRecordsPolicy = Struct.new(:user, :mhv_medical_records) do
+  MR_ACCOUNT_TYPES = %w[Premium].freeze
+
   def access?
     client = UserEligibility::Client.new(session: { user_id: user.mhv_correlation_id, icn: user.icn })
     response = client.get_is_valid_sm_user
+  rescue
+    MR_ACCOUNT_TYPES.include?(user.mhv_account_type) && user.va_patient?
+  else
     validate_client(response) && user.va_patient
   end
 

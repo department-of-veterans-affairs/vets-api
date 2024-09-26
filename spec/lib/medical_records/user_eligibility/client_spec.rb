@@ -53,18 +53,19 @@ describe UserEligibility::Client do
       end
     end
 
-    # context 'when patient is not eligible' do
-    #   let(:user_id) { '10000000' }
-    #   let(:icn) { '1000000000V000000' }
-    #   let(:client) { UserEligibility::Client.new(user_id, icn) }
-    #   let(:expected_response_message) { 'MHV Premium SM account with Logins in past 26 months' }
+    context 'when patient is not premium' do
+      let(:user_id) { '10000000' }
+      let(:icn) { '1000000000V000000' }
+      let(:client) { UserEligibility::Client.new(user_id, icn) }
+      let(:expected_response_message) { 'Not MHV Premium account' }
 
-    #   it 'performs an eligibility check on the user', :vcr do
-    #     VCR.use_cassette 'user_eligibility_client/perform_an_eligibility_check_on_a_patient_who_is_not_eligible' do
-    #       response = client.get_is_valid_sm_user
-    #       expect(response['accountStatus']).to include(expected_response_message)
-    #     end
-    #   end
-    # end
+      it 'performs an eligibility check on the user', :vcr do
+        VCR.use_cassette 'user_eligibility_client/perform_an_eligibility_check_on_a_patient_who_is_not_premium' do
+          expect do
+            client.get_is_valid_sm_user
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+      end
+    end
   end
 end
