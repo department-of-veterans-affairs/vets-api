@@ -1265,7 +1265,7 @@ DEPENDENCIES
   rspec-retry
   rspec-sidekiq
   rspec_junit_formatter
-  rswag-specs!
+  rswag-specs
   rswag-ui
   rtesseract
   rubocop
