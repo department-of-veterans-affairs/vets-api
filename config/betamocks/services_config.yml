@@ -121,6 +121,14 @@
       :uid_location: header
       :uid_locator: 'vaapikey'
 
+- :name: 'MHV UserAccount Creation'
+  :base_uri: <%= "#{URI(Settings.mhv.account_creation.host)}" %>
+  :endpoints:
+  # MHV account create
+  - :method: :post
+    :path: 'v1/usermgmt/account-service/account'
+    :file_path: 'mhv/account_creation'
+
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
