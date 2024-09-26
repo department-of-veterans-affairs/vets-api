@@ -18,7 +18,7 @@ class Address < Vets::Model
   attribute :apartment, Apartment
 end
 
-RSpec.describe Vets::Model do
+RSpec.describe Vets::Model, type: :model do
   let(:apartment_params) do
     {
       unit_number: 1,

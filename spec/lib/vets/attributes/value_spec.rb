@@ -13,7 +13,7 @@ class DoubleClass
   end
 end
 
-RSpec.describe Vets::Attributes::Value do
+RSpec.describe Vets::Attributes::Value, type: :model do
   describe '.cast' do
     it 'returns a value for a valid type' do
       result = described_class.cast(:test_name, String, 'test_value')

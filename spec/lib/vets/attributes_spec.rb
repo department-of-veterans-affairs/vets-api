@@ -24,7 +24,7 @@ class TestModel
   end
 end
 
-RSpec.describe Vets::Attributes do
+RSpec.describe Vets::Attributes, type: :model do
   let(:model) { TestModel.new }
 
   describe '.attribute' do
