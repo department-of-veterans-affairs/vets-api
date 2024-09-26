@@ -2,9 +2,10 @@
 
 require 'rails_helper'
 
-# validations to ensure that translations file is not broken
+# the translations file we serve to the mobile front end is kept locally under git control and is edited in github.
+# this acts as a CI step to ensure that no mistakes were made when editing the file.
 RSpec.describe 'Translations Validation' do # rubocop:disable RSpec/DescribeClass
-  describe 'translations/en/common.json file' do
+  describe 'translations/en/common.json' do
     let(:file) { Rails.root.join('modules', 'mobile', 'app', 'assets', 'translations', 'en', 'common.json') }
     let(:translations) { file.readlines[1..-2] } # excludes braces
 
