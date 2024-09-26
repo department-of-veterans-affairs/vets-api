@@ -17,7 +17,7 @@ RSpec.describe 'SimpleFormsApi::VBA4010007' do
             'preneed_attachments' => [
               {
                 'name' => '123.jpeg',
-                'size' => 80364,
+                'size' => 8,
                 'confirmation_code' => 'a-random-uuid'
               }
             ],
@@ -116,7 +116,7 @@ RSpec.describe 'SimpleFormsApi::VBA4010007' do
                 'suffix' => 'III'
               },
               'marital_status' => 'Divorced',
-              'place_of_birth' => 'Adipisci et numquam anim sit odio dolore velit molestiae soluta sit voluptatem doloremque'
+              'place_of_birth' => 'Adipi'
             }
           },
           'privacy_agreement_accepted' => true,
