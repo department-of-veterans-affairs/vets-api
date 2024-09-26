@@ -286,6 +286,44 @@ Rspec.describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/s
           end
         end
       end
+
+      describe 'Getting a 422 response' do
+        response '422', 'Unprocessable Entity' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default.json').read)
+
+          let(:scopes) { %w[claim.read] }
+          let(:claim) do
+            create(:auto_established_claim_with_supporting_documents, :status_errored)
+          end
+          let(:id) { claim.id }
+
+          before do |example|
+            stub_poa_verification
+
+            claim.evss_response = [] # induce a 422 response
+            allow(ClaimsApi::AutoEstablishedClaim).to receive(:find_by).and_return(claim)
+
+            mock_acg(scopes) do
+              VCR.use_cassette('claims_api/bgs/claims/claim') do
+                submit_request(example.metadata)
+              end
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 422 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
     end
   end
 end

@@ -26,7 +26,7 @@ module AskVAApi
       end
 
       def upload_attachment
-        attachment_translation_map = fetch_parameters('attachment')
+        attachment_translation_map = fetch_parameters('attachments')
         result = Attachments::Uploader.new(
           convert_keys_to_camel_case(attachment_params, attachment_translation_map)
         ).call
@@ -75,7 +75,7 @@ module AskVAApi
       def convert_keys_to_camel_case(params, translation_map)
         params.each_with_object({}) do |(key, value), result_hash|
           if key == 'school_obj'
-            school_translation_map = fetch_parameters('school')
+            school_translation_map = fetch_parameters('school_obj')
             value = convert_keys_to_camel_case(value, school_translation_map)
           end
           camel_case_key = translation_map[key.to_sym]
@@ -88,13 +88,13 @@ module AskVAApi
       end
 
       def attachment_params
-        params.permit(fetch_parameters('attachment').keys).to_h
+        params.permit(fetch_parameters('attachments').keys).to_h
       end
 
       def inquiry_params
         params.permit(
           *fetch_parameters('inquiry').keys,
-          school_obj: fetch_parameters('school').keys
+          school_obj: fetch_parameters('school_obj').keys
         ).to_h
       end
 

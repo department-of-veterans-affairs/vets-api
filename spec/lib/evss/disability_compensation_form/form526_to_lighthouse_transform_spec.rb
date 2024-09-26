@@ -53,6 +53,33 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.toxic_exposure.multiple_exposures.class).to eq(Array)
       expect(result.claim_notes).to eq('some overflow text')
     end
+
+    it 'sends uniq values in multiple exposures array' do
+      expect(transformer).to receive(:evss_claims_process_type)
+        .with(data['form526'])
+        .and_return('STANDARD_CLAIM_PROCESS')
+      # "airspace" is the repeated multiple exposure
+      data['form526']['toxicExposure'].merge!({
+                                                'gulfWar2001Details' =>
+                                                  { 'airspace' => { 'startDate' => '2014-01-26',
+                                                                    'endDate' => '2014-02-28' },
+                                                    'yemen' => { 'startDate' => '2014-01-26',
+                                                                 'endDate' => '2014-02-28' },
+                                                    'djibouti' => { 'startDate' => '2014-01-26',
+                                                                    'endDate' => '2014-02-28' } },
+                                                'gulfWar2001' => { 'djibouti' => true, 'yemen' => true,
+                                                                   'airspace' => true },
+                                                'gulfWar1990Details' =>
+                     { 'airspace' => { 'startDate' => '2014-01-26', 'endDate' => '2014-02-28' },
+                       'somalia' => { 'startDate' => '2014-01-26', 'endDate' => '2014-02-28' },
+                       'kuwait' => { 'startDate' => '2014-01-26', 'endDate' => '2014-02-28' } },
+                                                'gulfWar1990' => { 'kuwait' => true, 'somalia' => true,
+                                                                   'airspace' => true }
+                                              })
+      result = transformer.transform(data)
+      # since this is now a uniq list, it is now 12 items instead of 13
+      expect(result.toxic_exposure.multiple_exposures.count).to eq(12)
+    end
   end
 
   describe 'optional request objects are correctly rendered' do
@@ -236,6 +263,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       toxic_exposure_conditions = submission.form['form526']['form526']['toxicExposure']['conditions']
       results = transformer.send(:transform_disabilities, data, toxic_exposure_conditions)
       expect(results.first.is_related_to_toxic_exposure).to eq(true)
+      text = 'My condition was caused by an injury or event that happened when I was receiving VA care; toxic exposure.'
+      expect(results.first.exposure_or_event_or_injury).to eq(text)
       expect(results.last.is_related_to_toxic_exposure).to eq(false)
     end
 
@@ -243,9 +272,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       toxic_exposure_conditions = submission.form['form526']['form526']['toxicExposure']['conditions']
       results = transformer.send(:transform_disabilities, data, toxic_exposure_conditions)
       cause_map = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform::TOXIC_EXPOSURE_CAUSE_MAP
-      expect(results.first.exposure_or_event_or_injury).to eq(cause_map[:VA])
-      expect(results[1].exposure_or_event_or_injury).to eq(cause_map[:NEW])
-      expect(results[2].exposure_or_event_or_injury).to eq(cause_map[:WORSENED])
+      expect(results.first.exposure_or_event_or_injury).to eq(cause_map[:VA].sub(/[.]?$/, '; toxic exposure.'))
+      expect(results[1].exposure_or_event_or_injury).to eq(cause_map[:NEW].sub(/[.]?$/, '; toxic exposure.'))
+      expect(results[2].exposure_or_event_or_injury).to eq(cause_map[:WORSENED].sub(/[.]?$/, '; toxic exposure.'))
+      # last condition is not a toxic exposure condition
       expect(results.last.exposure_or_event_or_injury).to eq(cause_map[:SECONDARY])
     end
   end

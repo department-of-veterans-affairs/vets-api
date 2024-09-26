@@ -112,7 +112,7 @@ module Scopes
 
       scope :failure_type, lambda {
         # filtering in stages avoids timeouts. see doc for more info
-        allids = all.pluck(:id)
+        allids = where(submitted_claim_id: nil).pluck(:id)
         filter1 = where(id: allids - accepted_to_primary_path.pluck(:id)).pluck(:id)
         filter2 = where(id: filter1 - accepted_to_backup_path.pluck(:id)).pluck(:id)
         filter3 = where(id: filter2 - remediated.pluck(:id)).pluck(:id)
