@@ -62,9 +62,16 @@ describe Mobile::V0::Adapters::Appeal, :aggregate_failures do
        'type' => 'legacyAppeal' }]
   end
 
-  def appeal_by_id(id, overrides: {})
+  def appeal_by_id(id, overrides: {}, without: [])
     appeal = appeals.find { |a| a['id'] == id }
     appeal['attributes'].merge!(overrides.stringify_keys) if overrides.any?
+    without.each do |property|
+      if property.is_a?(Hash)
+        appeal[property[:at]].delete(property[:key])
+      else
+        appeal.delete(property)
+      end
+    end
     serializable_resource = OpenStruct.new(appeal['attributes'])
     serializable_resource[:id] = appeal['id']
     serializable_resource[:type] = appeal['type']
@@ -81,12 +88,38 @@ describe Mobile::V0::Adapters::Appeal, :aggregate_failures do
   end
 
   context 'when docket is an empty hash' do
-    it 'allows for empty docket' do
+    it 'allows for empty hash docket value' do
       appeal = appeal_by_id('3294289', overrides: {
                               docket: {}
                             })
 
       expect(appeal.docket.to_json).to eq('{}')
+    end
+  end
+
+  context 'when docket does not exist' do
+    it 'creates empty hash value for docket' do
+      appeal = appeal_by_id('3294289', without: [key: 'docket', at: 'attributes'])
+
+      expect(appeal.docket.to_json).to eq('{}')
+    end
+  end
+
+  context 'when alerts is an empty array' do
+    it 'allows for empty array alerts value' do
+      appeal = appeal_by_id('3294289', overrides: {
+                              alerts: []
+                            })
+
+      expect(appeal.alerts).to eq([])
+    end
+  end
+
+  context 'when alerts does not exist' do
+    it 'sets alert to an empty array' do
+      appeal = appeal_by_id('3294289', without: [key: 'alerts', at: 'attributes'])
+
+      expect(appeal.alerts).to eq([])
     end
   end
 end

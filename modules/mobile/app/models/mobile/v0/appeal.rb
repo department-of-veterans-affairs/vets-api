@@ -181,8 +181,8 @@ module Mobile
         attribute :date, Types::Date
       end
       attribute :alerts, Types::Array do
-        attribute :type, ALERT_TYPES
-        attribute :details, Types::Hash
+        attribute? :type, ALERT_TYPES
+        attribute? :details, Types::Hash
       end
       attribute :events, Types::Array do
         attribute :type, EVENT_TYPES
