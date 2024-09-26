@@ -184,13 +184,61 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       end
     end
 
-    context 'when there is no terms of use agreement' do
+    context 'when agreement is changed by ToU acceptance' do
+      let(:response) { 'accepted' }
+      let(:status) { { opt_out: true, agreement_signed: false } }
+
       before do
-        allow(job).to receive(:terms_of_use_agreement).and_return(nil)
+        allow(service_instance).to receive(:agreements_accept)
+        allow(service_instance).to receive(:status).and_return(status)
       end
 
-      it 'agreement_unchanged? returns false' do
+      it 'agreement_unchanged returns false' do
+        job.perform(user_account_uuid, version)
+
         expect(job.send(:agreement_unchanged?)).to be_falsey
+      end
+    end
+
+    context 'when agreement is changed by ToU being declined' do
+      let(:response) { 'declined' }
+      let(:status) { { opt_out: false, agreement_signed: true } }
+
+      before do
+        allow(service_instance).to receive(:agreements_decline)
+        allow(service_instance).to receive(:status).and_return(status)
+      end
+
+      it 'agreement_unchanged returns false' do
+        job.perform(user_account_uuid, version)
+
+        expect(job.send(:agreement_unchanged?)).to be_falsey
+      end
+    end
+
+    context 'when agreement is unchanged' do
+      let(:expected_log) do
+        '[TermsOfUse][SignUpServiceUpdaterJob] Agreement not changed'
+      end
+      let(:status) { { opt_out: false, agreement_signed: true } }
+
+      before do
+        allow(service_instance).to receive(:agreements_accept)
+        allow(terms_of_use_agreement).to receive(:accepted?).and_return(true)
+        allow(service_instance).to receive(:status).and_return(status)
+      end
+
+      it 'returns true when the agreement is unchanged' do
+        job.perform(user_account_uuid, version)
+
+        expect(job.send(:agreement_unchanged?)).to be_truthy
+      end
+
+      it 'logs that the agreement is not changed' do
+        job.perform(user_account_uuid, version)
+
+        expect(Rails.logger).to receive(:info).with(expected_log, { icn: user_account.icn })
+        expect(job.send(:agreement_unchanged?)).to be_truthy
       end
     end
 

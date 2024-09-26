@@ -67,7 +67,7 @@ module TermsOfUse
     def agreement_unchanged?
       return false unless terms_of_use_agreement
 
-      unchanged = (terms_of_use_agreement.declined? && declined?) && (terms_of_use_agreement.accepted? && accepted?)
+      unchanged = (terms_of_use_agreement.declined? == declined?) && (terms_of_use_agreement.accepted? == accepted?)
 
       if unchanged == true
         Rails.logger.info("#{LOG_TITLE} Agreement not changed",
