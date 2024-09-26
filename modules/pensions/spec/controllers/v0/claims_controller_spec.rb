@@ -11,7 +11,8 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   before do
     allow(Pensions::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
-                                       track_create_error: nil, track_create_success: nil)
+                                       track_create_error: nil, track_create_success: nil,
+                                       track_create_validation_error: nil)
   end
 
   it_behaves_like 'a controller that deletes an InProgressForm', 'pension_claim', 'pensions_module_pension_claim',
@@ -28,6 +29,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       allow(claim).to receive_messages(save: false, errors: 'mock error')
 
       expect(monitor).to receive(:track_create_attempt).once
+      expect(monitor).to receive(:track_create_validation_error).once
       expect(monitor).to receive(:track_create_error).once
       expect(claim).not_to receive(:upload_to_lighthouse)
 
