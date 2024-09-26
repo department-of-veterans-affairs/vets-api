@@ -335,8 +335,6 @@ app/models/user_relationship.rb @department-of-veterans-affairs/octo-identity
 app/models/user_session_form.rb @department-of-veterans-affairs/octo-identity
 app/models/user_verification.rb @department-of-veterans-affairs/octo-identity
 app/models/va_profile_redis @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
-app/models/va_profile_redis/cache.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/models/va_profile_redis/contact_information.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/models/webhooks @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/notification_attempt_assoc.rb @department-of-veterans-affairs/backend-review-group
 app/models/webhooks/notification_attempt.rb @department-of-veterans-affairs/backend-review-group

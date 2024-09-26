@@ -161,7 +161,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     end
   end
 
-  describe '.refresh_transaction_status() v2' do
+  describe '.refresh_transaction_status() v2', :initiate_vaprofile, :skip_vet360 do
     Flipper.enable(:va_v3_contact_information_service)
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
