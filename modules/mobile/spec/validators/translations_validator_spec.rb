@@ -6,6 +6,7 @@ require 'rails_helper'
 RSpec.describe 'Translations Validation' do # rubocop:disable RSpec/DescribeClass
   describe 'translations/en/common.json file' do
     let(:file) { Rails.root.join('modules', 'mobile', 'app', 'assets', 'translations', 'en', 'common.json') }
+    let(:translations) { file.readlines[1..-2] } # excludes braces
 
     it 'is formatted as expected' do
       last_line_index = file.readlines.count - 1
@@ -26,15 +27,15 @@ RSpec.describe 'Translations Validation' do # rubocop:disable RSpec/DescribeClas
       end
     end
 
-    it 'closes all interpolation braces' do
-      file.readlines[1..-2].each do |line|
+    it 'does not contain unclosed interpolation braces' do
+      translations.each do |line|
         unclosed_double_braces_pattern = /\{\{(?![^{}]*\}\})/
         expect(line).not_to match(unclosed_double_braces_pattern)
       end
     end
 
     it 'is alphabetized' do
-      keys = file.readlines[1..-2].map { |line| line.strip.split(/": "/).first.downcase }
+      keys = translations.map { |line| line.strip.split(/": "/).first.downcase }
       expect(keys).to eq(keys.sort)
     end
   end
