@@ -8,19 +8,12 @@ RSpec.describe 'transactions' do
   let(:vet360_id) { '1' }
   let(:user) { build(:user, :loa3, vet360_id:) }
 
-  Flipper.disable(:va_v3_contact_information_service)
-
-  before do
-    allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-    user.vet360_contact_info
-    sign_in_as(user)
-  end
-
   describe 'GET /v0/profile/status/:transaction_id' do
     let(:vet360_id) { '1' }
     let(:user) { build(:user, :loa3, vet360_id:) }
 
     before do
+      Flipper.disable(:va_v3_contact_information_service)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
       sign_in_as(user)
@@ -101,8 +94,8 @@ RSpec.describe 'transactions' do
     let(:vet360_id) { '1' }
     let(:user) { build(:user, :loa3, vet360_id:) }
 
-    Flipper.disable(:va_v3_contact_information_service)
     before do
+      Flipper.disable(:va_v3_contact_information_service)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
       sign_in_as(user)
@@ -185,14 +178,20 @@ RSpec.describe 'transactions' do
     end
   end
 
-  describe 'GET /v0/profile/status/:transaction_id v2' do
+  describe 'GET /v0/profile/status/:transaction_id v2', :initiate_vaprofile, :skip_vet360 do
     let(:vet360_id) { '1781151' }
     let(:user) { build(:user, :loa3, vet360_id:) }
 
     before do
       Flipper.enable(:va_v3_contact_information_service)
+      Timecop.freeze('2024-08-28T18:51:06Z')
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+      user.vaprofile_contact_info
       sign_in_as(user)
+    end
+
+    after do
+      Timecop.return
     end
 
     context 'when the requested transaction exists' do
@@ -205,12 +204,10 @@ RSpec.describe 'transactions' do
           )
 
           VCR.use_cassette('va_profile/v2/contact_information/address_transaction_status') do
-            VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
-              get("/v0/profile/status/#{transaction.transaction_id}")
-              expect(response).to have_http_status(:ok)
-              response_body = JSON.parse(response.body)
-              expect(response_body['data']['type']).to eq('async_transaction_va_profile_address_transactions')
-            end
+            get("/v0/profile/status/#{transaction.transaction_id}")
+            expect(response).to have_http_status(:ok)
+            response_body = JSON.parse(response.body)
+            expect(response_body['data']['type']).to eq('async_transaction_va_profile_address_transactions')
           end
         end
       end
@@ -224,13 +221,11 @@ RSpec.describe 'transactions' do
           )
 
           VCR.use_cassette('va_profile/v2/contact_information/address_transaction_status') do
-            VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
-              get("/v0/profile/status/#{transaction.transaction_id}")
-              expect(response).to have_http_status(:ok)
-              response_body = JSON.parse(response.body)
-              expect(response_body['data']['type']).to eq('async_transaction_vet360_address_transactions')
-              # @TODO The ...data.attributes.type has the original, non-snake-cased version of the class
-            end
+            get("/v0/profile/status/#{transaction.transaction_id}")
+            expect(response).to have_http_status(:ok)
+            response_body = JSON.parse(response.body)
+            expect(response_body['data']['type']).to eq('async_transaction_vet360_address_transactions')
+            # @TODO The ...data.attributes.type has the original, non-snake-cased version of the class
           end
         end
       end
@@ -245,42 +240,38 @@ RSpec.describe 'transactions' do
         )
 
         VCR.use_cassette('va_profile/v2/contact_information/email_transaction_status') do
-          VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
-            get("/v0/profile/status/#{transaction.transaction_id}")
-            expect(response).to have_http_status(:ok)
-            response_body = JSON.parse(response.body)
-            expect(response_body['data']['attributes']['metadata']).to be_a(Array)
-          end
+          get("/v0/profile/status/#{transaction.transaction_id}")
+          expect(response).to have_http_status(:ok)
+          response_body = JSON.parse(response.body)
+          expect(response_body['data']['attributes']['metadata']).to be_a(Array)
         end
       end
     end
 
     context 'cache invalidation' do
-      it 'invalidates the cache for the va-profile-contact-info-response Redis key' do
+      it 'invalidates the cache for the va-profile-2-contact-info-response Redis key' do
         VCR.use_cassette('va_profile/v2/contact_information/address_transaction_status') do
-          VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
-            transaction = create(
-              :address_transaction,
-              user_uuid: user.uuid,
-              transaction_id: '0ea91332-4713-4008-bd57-40541ee8d4d4'
-            )
+          transaction = create(
+            :address_transaction,
+            user_uuid: user.uuid,
+            transaction_id: '0ea91332-4713-4008-bd57-40541ee8d4d4'
+          )
 
-            expect_any_instance_of(Common::RedisStore).to receive(:destroy)
+          expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-            get("/v0/profile/status/#{transaction.transaction_id}")
-          end
+          get("/v0/profile/status/#{transaction.transaction_id}")
         end
       end
     end
   end
 
-  describe 'GET /v0/profile/status/ v2' do
-    let(:vet360_id) { '1781151' }
-    let(:user) { build(:user, :loa3, vet360_id:) }
+  describe 'GET /v0/profile/status/ v2', :initiate_vaprofile, :skip_vet360 do
+    let(:user) { build(:user, :loa3, vet360_id: '1781151') }
 
     before do
       Flipper.enable(:va_v3_contact_information_service)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+      user.vaprofile_contact_info
       sign_in_as(user)
     end
 
@@ -302,16 +293,14 @@ RSpec.describe 'transactions' do
             transaction_id: '5b4550b3-2bcb-4fef-8906-35d0b4b310a8'
           )
           VCR.use_cassette('va_profile/v2/contact_information/address_and_email_transaction_status') do
-            VCR.use_cassette('va_profile/v2/contact_information/person_full') do
-              get('/v0/profile/status/')
-              expect(response).to have_http_status(:ok)
-              response_body = JSON.parse(response.body)
-              expect(response_body['data'].is_a?(Array)).to eq(true)
-              expect(response_body['data'][0]['attributes']['type'])
-                .to eq('AsyncTransaction::VAProfile::AddressTransaction')
-              expect(response_body['data'][1]['attributes']['type'])
-                .to eq('AsyncTransaction::VAProfile::EmailTransaction')
-            end
+            get('/v0/profile/status/')
+            expect(response).to have_http_status(:ok)
+            response_body = JSON.parse(response.body)
+            expect(response_body['data'].is_a?(Array)).to eq(true)
+            expect(response_body['data'][0]['attributes']['type'])
+              .to eq('AsyncTransaction::VAProfile::AddressTransaction')
+            expect(response_body['data'][1]['attributes']['type'])
+              .to eq('AsyncTransaction::VAProfile::EmailTransaction')
           end
         end
       end
