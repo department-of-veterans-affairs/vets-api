@@ -34,7 +34,7 @@ RSpec.describe 'Translations Validation' do # rubocop:disable RSpec/DescribeClas
     end
 
     it 'is alphabetized' do
-      keys = File.readlines(file)[1..-2].map { |line| line.strip.split(/": "/).first }
+      keys = File.readlines(file)[1..-2].map { |line| line.strip.split(/": "/).first.downcase }
       expect(keys).to eq(keys.sort)
     end
   end
