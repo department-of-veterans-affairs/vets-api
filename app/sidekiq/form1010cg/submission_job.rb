@@ -47,12 +47,11 @@ module Form1010cg
     private
 
     def increment_applications_retried(claim_id)
-      redis_key = "Form1010cg::SubmissionJob:#{claim_id}"
-      return if $redis.get(redis_key).present?
+      return if Form1010cg::SubmissionJobClaim.exists?(claim_id)
 
       StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried")
 
-      $redis.set(redis_key, 't')
+      Form1010cg::SubmissionJobClaim.set_claim_key(claim_id)
     end
   end
 end
