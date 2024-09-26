@@ -29,8 +29,8 @@ class SavedClaim < ApplicationRecord
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :form_submissions, dependent: :nullify
 
-  after_create ->(claim) { StatsD.increment('saved_claim.create', tags: ["form_id:#{claim.form_id}"]) }
-  after_destroy ->(claim) { StatsD.increment('saved_claim.destroy', tags: ["form_id:#{claim.form_id}"]) }
+  after_create :after_create_metrics
+  after_destroy :after_destroy_metrics
 
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
@@ -114,5 +114,18 @@ class SavedClaim < ApplicationRecord
 
   def attachment_keys
     []
+  end
+
+  def after_create_metrics
+    tags = ["form_id:#{form_id}"]
+    StatsD.increment('saved_claim.create', tags:)
+    if form_start_date
+      claim_duration = created_at - form_start_date
+      StatsD.measure('saved_claim.time-to-file', claim_duration, tags:)
+    end
+  end
+
+  def after_destroy_metrics
+    StatsD.increment('saved_claim.destroy', tags: ["form_id:#{form_id}"])
   end
 end
