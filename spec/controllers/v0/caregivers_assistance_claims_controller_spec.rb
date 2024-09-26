@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'saved_claim/caregivers_assistance_claim'
+require 'lighthouse/facilities/v1/client'
 
 RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
   describe '::auditor' do
