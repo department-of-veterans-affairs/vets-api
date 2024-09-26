@@ -323,7 +323,6 @@ RSpec.describe AskVAApi::Translator do
         }[option]
       end
     end
-    let(:result) { subject.call }
 
     before do
       allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
@@ -358,7 +357,6 @@ RSpec.describe AskVAApi::Translator do
   end
 
   context 'when an error occurs' do
-    let(:result) { subject.call }
     let(:body) do
       '{"Data":null,"Message":"Data Validation: Invalid OptionSet Name iris_inquiryabou, valid' \
         ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
