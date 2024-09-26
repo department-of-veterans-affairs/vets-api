@@ -76,7 +76,7 @@ module VBADocuments
 
     def perfect_metadata(model, parts, timestamp)
       metadata = JSON.parse(parts['metadata'])
-      metadata['fileNumber'] = metadata['fileNumber'].strip if metadata.key?('fileNumber')
+      metadata['fileNumber'] = metadata['fileNumber'].strip
       metadata['source'] = "#{model.consumer_name} via VA API"
       metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = model.guid
