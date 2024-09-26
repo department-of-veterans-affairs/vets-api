@@ -11,7 +11,7 @@ module Form1010cg
     attribute :claim_id
     validates :claim_id, presence: true
 
-    def self.set_claim_key(claim_id)
+    def self.set_key(claim_id)
       redis_namespace.set(claim_id, 't') unless redis_namespace.exists?(claim_id)
     end
   end

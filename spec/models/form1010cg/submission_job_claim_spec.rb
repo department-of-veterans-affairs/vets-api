@@ -7,9 +7,9 @@ RSpec.describe Form1010cg::SubmissionJobClaim, type: :model do
   let(:claim_id) { SecureRandom.uuid }
   let(:full_key) { "#{namespace}:#{claim_id}" }
 
-  describe '.set_claim_key' do
+  describe '.set_key' do
     subject do
-      described_class.set_claim_key(claim_id)
+      described_class.set_key(claim_id)
     end
 
     context 'when the key does not exist' do

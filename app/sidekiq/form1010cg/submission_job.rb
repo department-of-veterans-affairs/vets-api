@@ -51,7 +51,7 @@ module Form1010cg
 
       StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried")
 
-      Form1010cg::SubmissionJobClaim.set_claim_key(claim_id)
+      Form1010cg::SubmissionJobClaim.set_key(claim_id)
     end
   end
 end
