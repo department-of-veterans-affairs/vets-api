@@ -66,6 +66,12 @@ module EVSS
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
+        #AJ TODO - add logging if Flipper.enabled?(:disability_compensation_use_api_provider_for_0781)
+
+        if Flipper.enabled?(:form526_send_0781_failure_notification)
+          EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail.perform_async(form526_submission_id)
+        end
+
         ::Rails.logger.warn(
           'Submit Form 0781 Retries exhausted',
           { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
@@ -115,6 +121,25 @@ module EVSS
 
       def parsed_forms
         @parsed_forms ||= JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
+      end
+
+      # # Returns the correct SupplementalDocumentUploadProvider based on the state of the
+      # # ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781 feature flag for the current user
+      # #
+      # @return [EVSSSupplementalDocumentUploadProvider or LighthouseSupplementalDocumentUploadProvider]
+      def self.api_upload_provider(submission)
+        user = User.find(submission.user_uuid)
+
+        ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
+          options: {
+            form526_submission: submission,
+            uploading_class: self,
+            statsd_metric_prefix: STATSD_KEY_PREFIX
+          },
+          current_user: user,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781
+        )
       end
 
       # Performs an asynchronous job for generating and submitting 0781 + 0781A PDF documents to VBMS
@@ -193,7 +218,6 @@ module EVSS
         document_data = create_document_data(evss_claim_id, upload_data)
 
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
-
         # thin wrapper to isolate upload for logging
         file_body = File.open(pdf_path).read
         perform_client_upload(file_body, document_data)
@@ -203,16 +227,26 @@ module EVSS
       end
 
       def perform_client_upload(file_body, document_data)
-        client.upload(file_body, document_data)
+        if Flipper.enabled?(:disability_compensation_use_api_provider_for_0781)
+          upload_via_api_provider(file_body, document_data)
+        else
+          EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
+        end
       end
 
-      def client
-        @client ||= if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-                      # TODO: create client from lighthouse document service
-                    else
-                      EVSS::DocumentsService.new(submission.auth_headers)
-                    end
+      def upload_via_api_provider(file_body, document_data)
+        document = upload_provider.generate_upload_document(
+          document_data.file_name,
+          document_data.document_type
+        )
+
+        upload_provider.submit_upload_document(document, file_body)
       end
+
+      def upload_provider
+        @upload_provider ||= EVSS::DisabilityCompensationForm::SubmitForm0781.api_upload_provider(submission)
+      end
+
     end
   end
 end

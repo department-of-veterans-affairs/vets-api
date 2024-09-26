@@ -7,7 +7,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:disability_compensation_lighthouse_document_service_provider)
+    Flipper.disable(:disability_compensation_use_api_provider_for_0781)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -77,6 +77,107 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       it 'raises a standard error' do
         subject.perform_async(submission.id)
         expect { described_class.drain }.to raise_error(StandardError)
+      end
+    end
+
+    context 'when the disability_compensation_use_api_provider_for_0781 flipper is enabled' do
+      before do
+        Flipper.enable(:disability_compensation_use_api_provider_for_0781)
+      end
+
+      context 'when the ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781 feature flag is enabled' do
+        let(:faraday_response) { instance_double(Faraday::Response) }
+        let(:lighthouse_request_id) { Faker::Number.number(digits: 8) }
+        let(:generated_pdf_file_name) {/.+\.pdf\z/}
+
+        before do
+          Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781)
+
+          allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:submit_upload_document)
+            .and_return(faraday_response)
+
+          allow(faraday_response).to receive(:body).and_return(
+            {
+              'data' => {
+                'success' => true,
+                'requestId' => lighthouse_request_id
+              }
+            }
+          )
+        end
+
+        it 'uploads the document via the LighthouseSupplementalDocumentUploadProvider' do
+          lighthouse_document_0781 = instance_double(LighthouseDocument, document_type: 'L228')
+
+          lighthouse_document_0781a = instance_double(LighthouseDocument, document_type: 'L229')
+
+          # The test submission includes 0781(doc_type L228) and 0781A(doc_type L229), which calls generate_upload_document once for each doc_type
+          expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:generate_upload_document)
+            .with(
+              generated_pdf_file_name,
+              'L228')
+            .and_return(lighthouse_document_0781)
+          
+            expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:generate_upload_document)
+            .with(
+              generated_pdf_file_name,
+              'L229')
+            .and_return(lighthouse_document_0781a)
+
+          expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:submit_upload_document)
+          .with(
+            lighthouse_document_0781,
+            anything #arg for generated pdf file_body
+          )
+
+          expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:submit_upload_document)
+          .with(
+            lighthouse_document_0781a,
+            anything #arg for generated pdf file_body
+          )
+
+          subject.perform_async(submission.id)
+          described_class.drain
+        end
+      end
+
+      context 'when the ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781 feature flag is disabled' do
+        before do 
+          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781)
+        end
+
+        it 'uploads the document via the EVSSSupplementalDocumentUploadProvider' do
+          evss_document_0781 = instance_double(EVSSClaimDocument, document_type: 'L228')
+
+          evss_document_0781a = instance_double(EVSSClaimDocument, document_type: 'L229')
+
+          expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document)
+          .with(
+            anything, #arg from generated_stamp_pdf
+            'L228')
+          .and_return(evss_document_0781)
+
+          expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document)
+          .with(
+            anything, #arg from generated_stamp_pdf
+            'L229')
+          .and_return(evss_document_0781a)
+
+          expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:submit_upload_document)
+          .with(
+            evss_document_0781,
+            anything #arg for generated file_body
+          )
+
+          expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:submit_upload_document)
+          .with(
+            evss_document_0781a,
+            anything #arg for generated file_body
+          )
+          
+          subject.perform_async(submission.id)
+          described_class.drain
+        end
       end
     end
   end
