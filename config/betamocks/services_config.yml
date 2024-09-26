@@ -126,7 +126,7 @@
   :endpoints:
   - :method: :post
     :path: '/v1/usermgmt/account-service/account'
-    :file_path: 'mhv/account_creation'
+    :file_path: 'mhv/account_creation/create_account'
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'icn":"(\w+)"'
