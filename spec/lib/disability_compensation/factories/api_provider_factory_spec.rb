@@ -247,13 +247,17 @@ RSpec.describe ApiProviderFactory do
 
   context 'upload supplemental document' do
     let(:submission) { create(:form526_submission) }
+    # BDD Document Type
+    let(:va_document_type) { 'L023' }
 
     def provider(api_provider = nil)
       ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
         provider: api_provider,
         options: {
-          form526_submission: submission
+          form526_submission: submission,
+          document_type: va_document_type,
+          statsd_metric_prefix: 'my_stats_metric_prefix'
         },
         current_user:,
         feature_toggle: nil
@@ -273,7 +277,9 @@ RSpec.describe ApiProviderFactory do
         ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
           options: {
-            form526_submission: submission
+            form526_submission: submission,
+            document_type: va_document_type,
+            statsd_metric_prefix: 'my_stats_metric_prefix'
           },
           current_user:,
           feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS
