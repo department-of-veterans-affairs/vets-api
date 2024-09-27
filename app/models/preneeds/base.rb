@@ -7,7 +7,6 @@ require 'vets/model'
 #
 module Preneeds
   class Base < Vets::Model
-
     # Override `as_json`
     #
     # @param options [Hash]
