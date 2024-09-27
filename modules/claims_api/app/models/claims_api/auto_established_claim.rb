@@ -209,8 +209,8 @@ module ClaimsApi
 
       if mapper.code_from_name(name) == 'OTHER' &&
          form_data['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'].blank?
-        # Transform to meet EVSS requirements of minLength 1
-        form_data['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'] = ' '
+        # Remove to avoid EVSS requirements of minLength 1 when present
+        form_data['veteran']['homelessness']['homelessnessRisk'].delete('otherLivingSituation')
       end
     end
 

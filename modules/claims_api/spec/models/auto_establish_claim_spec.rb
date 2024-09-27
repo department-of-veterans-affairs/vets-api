@@ -143,7 +143,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     end
 
     context 'when homelessness risk situation type is "other" and "otherLivingSituation" is not provided' do
-      it 'tranforms "otherLivingSituation" to a string with a single whitespace to pass EVSS validations' do
+      it 'does not add "otherLivingSituation" to pass EVSS validation' do
         temp_form_data = pending_record.form_data
         temp_form_data['veteran']['homelessness'].delete('currentlyHomeless')
         temp_form_data['veteran']['homelessness']['homelessnessRisk'] = {
@@ -153,12 +153,12 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         payload = JSON.parse(pending_record.to_internal)
         homelessness_risk = payload['form526']['veteran']['homelessness']['homelessnessRisk']
         expect(homelessness_risk['homelessnessRiskSituationType']).to eq('OTHER')
-        expect(homelessness_risk['otherLivingSituation']).to eq(' ')
+        expect(homelessness_risk).not_to have_key('otherLivingSituation')
       end
     end
 
     context 'when homelessness risk situation type is "other" and "otherLivingSituation" is an empty string' do
-      it 'tranforms "otherLivingSituation" to a string with a single whitespace to pass EVSS validations' do
+      it 'removes "otherLivingSituation" to pass EVSS validations' do
         temp_form_data = pending_record.form_data
         temp_form_data['veteran']['homelessness'].delete('currentlyHomeless')
         temp_form_data['veteran']['homelessness']['homelessnessRisk'] = {
@@ -169,7 +169,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         payload = JSON.parse(pending_record.to_internal)
         homelessness_risk = payload['form526']['veteran']['homelessness']['homelessnessRisk']
         expect(homelessness_risk['homelessnessRiskSituationType']).to eq('OTHER')
-        expect(homelessness_risk['otherLivingSituation']).to eq(' ')
+        expect(homelessness_risk).not_to have_key('otherLivingSituation')
       end
     end
 
