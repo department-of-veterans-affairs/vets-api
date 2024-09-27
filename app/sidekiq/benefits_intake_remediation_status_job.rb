@@ -30,6 +30,7 @@ class BenefitsIntakeRemediationStatusJob
     form_submissions = FormSubmission.includes(:form_submission_attempts)
     failures = outstanding_failures(form_submissions.all)
 
+    # filter running this job to a specific form_id/form_type
     @form_id = form_id
     failures.select! { |f| f.form_type == form_id } if form_id
 
@@ -138,11 +139,11 @@ class BenefitsIntakeRemediationStatusJob
         { claim_id: fs.saved_claim_id, uuid: fs.benefits_intake_uuid, error_message: last_attempt.error_message }
       end
 
+      audit_log = "BenefitsIntakeRemediationStatusJob submission audit #{form_type}"
       StatsD.gauge("#{STATS_KEY}.unsubmitted_claims", unsubmitted.length, tags: ["form_id:#{form_type}"])
       StatsD.gauge("#{STATS_KEY}.orphaned_submissions", orphaned.length, tags: ["form_id:#{form_type}"])
       StatsD.gauge("#{STATS_KEY}.outstanding_failures", failures.length, tags: ["form_id:#{form_type}"])
-      Rails.logger.info("BenefitsIntakeRemediationStatusJob submission audit #{form_id}", form_id:, unsubmitted:,
-                                                                                          orphaned:, failures:)
+      Rails.logger.info(audit_log, form_id: form_type, unsubmitted:, orphaned:, failures:)
     end
   end
 end

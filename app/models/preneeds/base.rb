@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 # This will be moved after virtus is removed
-module Boolean; end
-class TrueClass; include Boolean; end
-class FalseClass; include Boolean; end
+module Bool; end
+class TrueClass; include Bool; end
+class FalseClass; include Bool; end
 
 # Parent class for other Preneeds Burial form related models
 # Should not be initialized directly
@@ -80,7 +80,7 @@ module Preneeds
             end
           end
 
-          value = ActiveModel::Type::Boolean.new.cast(value) if klass == Boolean
+          value = ActiveModel::Type::Boolean.new.cast(value) if klass == Bool
 
           value = klass.new(value) if value.is_a?(Hash)
 
