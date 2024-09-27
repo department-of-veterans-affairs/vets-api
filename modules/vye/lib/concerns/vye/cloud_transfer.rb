@@ -76,7 +76,7 @@ module Vye
            Aws::S3::Errors::NoSuchKey,
            Aws::S3::Errors::AccessDenied,
            Aws::S3::Errors::ServiceError => e
-      log_exception_to_sentry(e)
+      Rails.logger.error "SundownSweep: could not delete #{key} from #{bucket}: #{e.message}"
 
       raise
     end
