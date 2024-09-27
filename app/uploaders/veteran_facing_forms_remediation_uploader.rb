@@ -5,10 +5,8 @@ class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
   include UploaderVirusScan
 
   class << self
-    # TODO: update this to vff specific S3 bucket once it has been created
-    # e.g. Settings.vff_simple_forms.s3
     def s3_settings
-      Settings.reports.aws
+      Settings.vff_simple_forms.aws
     end
 
     def new_s3_resource
