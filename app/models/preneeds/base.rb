@@ -80,7 +80,7 @@ module Preneeds
             end
           end
 
-          value = ActiveModel::Type::Boolean.new.cast(value) if klass == Boolean
+          value = ActiveModel::Type::Boolean.new.cast(value) if klass == Bool
 
           value = klass.new(value) if value.is_a?(Hash)
 
