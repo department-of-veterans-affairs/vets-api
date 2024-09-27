@@ -1052,6 +1052,7 @@ rakelib/breakers_outage.rake @department-of-veterans-affairs/backend-review-grou
 rakelib/connectivity.rake @department-of-veterans-affairs/octo-identity
 rakelib/covid_vaccine.rake @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 rakelib/decision_review_repl.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+rakelib/dr_saved_claims_clear_delete_date.rake @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
 rakelib/education_benefits_submission.rake @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/form526.rake @department-of-veterans-affairs/disability-experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/github_stats.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
