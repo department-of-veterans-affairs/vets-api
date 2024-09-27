@@ -52,9 +52,11 @@ RSpec.describe Pension21p527ez::PensionMilitaryInformation do
       military_personnel_stub = instance_double(VAProfile::MilitaryPersonnel::Service)
 
       allow(VAProfile::MilitaryPersonnel::Service).to receive(:new) { military_personnel_stub }
-      allow(military_personnel_stub).to receive(:get_service_history).and_return(VAProfile::MilitaryPersonnel::ServiceHistoryResponse.new(
-                                                                                   200, episodes: [army_episode]
-                                                                                 ))
+      allow(military_personnel_stub).to receive(:get_service_history).and_return(
+        VAProfile::MilitaryPersonnel::ServiceHistoryResponse.new(
+          200, episodes: [army_episode]
+        )
+      )
       expect(described_class.new(user).service_branches_for_pensions).to eq({
                                                                               'army' => true
                                                                             })
@@ -64,9 +66,11 @@ RSpec.describe Pension21p527ez::PensionMilitaryInformation do
       military_personnel_stub = instance_double(VAProfile::MilitaryPersonnel::Service)
 
       allow(VAProfile::MilitaryPersonnel::Service).to receive(:new) { military_personnel_stub }
-      allow(military_personnel_stub).to receive(:get_service_history).and_return(VAProfile::MilitaryPersonnel::ServiceHistoryResponse.new(
-                                                                                   200, episodes: [unknown_episode]
-                                                                                 ))
+      allow(military_personnel_stub).to receive(:get_service_history).and_return(
+        VAProfile::MilitaryPersonnel::ServiceHistoryResponse.new(
+          200, episodes: [unknown_episode]
+        )
+      )
       expect(described_class.new(user).service_branches_for_pensions).to eq({})
     end
   end
