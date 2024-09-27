@@ -22,7 +22,7 @@ namespace :simple_forms_api do
       Rails.logger.info("Using type: #{type} and parent_dir: #{parent_dir}")
 
       # Call the service object synchronously and get the presigned URLs
-      handler = SimpleFormsApi::S3::SubmissionArchiveHandler.new(benefits_intake_uuids:, parent_dir:)
+      handler = SimpleFormsApi::S3::SubmissionArchiveHandler.new(ids: benefits_intake_uuids, parent_dir:)
       presigned_urls = handler.upload(type: type.to_sym)
 
       Rails.logger.info('SubmissionArchiveHandler completed successfully.')
