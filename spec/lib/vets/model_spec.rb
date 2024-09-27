@@ -3,12 +3,12 @@
 require 'rails_helper'
 require 'vets/model'
 
-class Apartment < Vets::Model
+class FakeApartment < Vets::Model
   attribute :unit_number, Integer
   attribute :building_number, Integer
 end
 
-class Address < Vets::Model
+class FakeAddress < Vets::Model
   attribute :street, String
   attribute :street2, String
   attribute :city, String
@@ -39,8 +39,8 @@ RSpec.describe Vets::Model do
       }
     }
   end
-  let(:address) { Address.new(address_params) }
-  let(:apartment) { Apartment.new(apartment_params) }
+  let(:address) { FakeAddress.new(address_params) }
+  let(:apartment) { FakeApartment.new(apartment_params) }
 
   describe '#initialize' do
     it 'initializes the model with provided params' do

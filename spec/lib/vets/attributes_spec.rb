@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 require 'vets/attributes'
-require 'vets/model' # temporarily needed for Boolean
+require 'vets/model' # temporarily needed for Bool
 
-class Category
+class FakeCategory
   include Vets::Attributes
 
   attribute :name, String, default: 'test'
@@ -16,7 +16,7 @@ class TestModel
   attribute :name, String, default: 'Unknown'
   attribute :age, Integer, array: false
   attribute :tags, String, array: true
-  attribute :categories, Category, array: true
+  attribute :categories, FakeCategory, array: true
   attribute :created_at, DateTime, default: :current_time
 
   def current_time
@@ -55,7 +55,7 @@ RSpec.describe Vets::Attributes do
         name: { type: String, default: 'Unknown', array: false },
         age: { type: Integer, default: nil, array: false },
         tags: { type: String, default: nil, array: true },
-        categories: { type: Category, default: nil, array: true },
+        categories: { type: FakeCategory, default: nil, array: true },
         created_at: { type: DateTime, default: :current_time, array: false }
       }
       expect(TestModel.attributes).to eq(expected_attributes)
