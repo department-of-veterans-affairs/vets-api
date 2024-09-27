@@ -15,7 +15,7 @@ module Vets
 
       def setter_value(value)
         validate_array(value) if @array
-        value = cast_boolean(value) if @klass == Boolean
+        value = cast_boolean(value) if @klass == Bool
         value = coerce_to_class(value)
         validate_type(value)
         value
@@ -40,7 +40,7 @@ module Vets
       end
 
       def coerce_to_class(value)
-        return value if value.is_a?(@klass)
+        return value if value.is_a?(@klass) || value.nil?
 
         value.is_a?(Hash) ? @klass.new(value) : value
       end
