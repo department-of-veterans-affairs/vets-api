@@ -17,7 +17,7 @@ module V1
       nod_response_body = AppealSubmission.submit_nod(
         current_user: @current_user,
         request_body_hash:,
-        decision_review_service:,
+        decision_review_service:
       )
 
       render json: nod_response_body
