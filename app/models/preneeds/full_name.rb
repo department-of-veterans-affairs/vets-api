@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-
 module Preneeds
   # Models a full name for persons included in a {Preneeds::BurialForm} form
   #

@@ -33,11 +33,11 @@ module SimpleFormsApi
       end
 
       def s3_resource
-        @s3_resource ||= Reports::Uploader.new_s3_resource
+        @s3_resource ||= VeteranFacingFormsRemediationUploader.new_s3_resource
       end
 
       def target_bucket
-        @target_bucket ||= Reports::Uploader.s3_bucket
+        @target_bucket ||= VeteranFacingFormsRemediationUploader.s3_bucket
       end
     end
   end

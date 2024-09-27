@@ -78,7 +78,8 @@ module EVSS
       }.freeze
 
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
-      # evss_data will look like JSON.parse(form526_submission.form_data)
+      # @param evss_data will look like JSON.parse(form526_submission.form_data)
+      # @return Requests::Form526
       def transform(evss_data)
         form526 = evss_data['form526']
         lh_request_body = Requests::Form526.new
@@ -584,11 +585,17 @@ module EVSS
             dis.secondary_disabilities = transform_secondary_disabilities(disability_source)
           end
           if disability_source['cause'].present?
-            dis.exposure_or_event_or_injury = TOXIC_EXPOSURE_CAUSE_MAP[disability_source['cause'].upcase.to_sym]
+            dis.exposure_or_event_or_injury = format_exposure_text(disability_source['cause'],
+                                                                   dis.is_related_to_toxic_exposure)
           end
 
           dis
         end
+      end
+
+      def format_exposure_text(cause, related_to_toxic_exposure)
+        cause_text = TOXIC_EXPOSURE_CAUSE_MAP[cause.upcase.to_sym].dup
+        related_to_toxic_exposure ? cause_text.sub!(/[.]?$/, '; toxic exposure.') : cause_text
       end
 
       # rubocop:disable Naming/PredicateName

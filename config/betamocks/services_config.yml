@@ -121,6 +121,13 @@
       :uid_location: header
       :uid_locator: 'vaapikey'
 
+- :name: 'MHV UserAccount Creation'
+  :base_uri: <%= "#{URI(Settings.mhv.account_creation.host).host}:#{URI(Settings.mhv.account_creation.host).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: '/v1/usermgmt/account-service/account'
+    :file_path: 'mhv/account_creation/create_account'
+
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
@@ -819,21 +826,11 @@
         :uid_location: 'query'
         :uid_locator: 'edipi'
 
-# Lighthouse Benefits Education API (GI Bill Statement of Benefits - GIBS)
-- :name: "Lighthouse Benefits Education"
-  :base_uri: <%= "#{URI(Settings.lighthouse.benefits_education.host).host}:#{URI(Settings.lighthouse.benefits_education.host).port}" %>
-  :endpoints:
-  - :method: :get
-    :path: '/services/benefits-education/v1/education/chapter33'
-    :file_path: "/lighthouse/benefits_education"
-    :cache_multiple_responses:
-      :uid_location: "query"
-      :uid_locator: "icn"
-
-# Lighthouse Benefits Claims API
-- :name: "Lighthouse Benefits Claims"
+# Lighthouse
+- :name: "Lighthouse"
   :base_uri: <%= "#{URI(Settings.lighthouse.benefits_claims.host).host}:#{URI(Settings.lighthouse.benefits_claims.host).port}" %>
   :endpoints:
+    # Benefits Claims API
     - :method: :get
       :path: "/services/claims/v2/veterans/*/claims"
       :file_path: "/lighthouse/benefits_claims/index"
@@ -866,6 +863,13 @@
       :cache_multiple_responses:
         :uid_location: "url"
         :uid_locator: "\/services/veteran_verification/v2/disability_rating\/(.+)"
+    # Benefits Education
+    - :method: :get
+      :path: '/services/benefits-education/v1/education/chapter33'
+      :file_path: "/lighthouse/benefits_education"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "icn"
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
