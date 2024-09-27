@@ -9,10 +9,6 @@ module EVSS
 
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_bdd_instructions'
 
-      # 'Other Correspondence' document type in the VA
-      BDD_INSTRUCTIONS_DOCUMENT_TYPE = 'L023'
-      BDD_INSTRUCTIONS_FILE_NAME = 'BDD_Instructions.pdf'
-
       # retry for one day
       sidekiq_options retry: 14
 
@@ -40,12 +36,6 @@ module EVSS
         )
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
-
-        if Flipper.enabled?(:disability_compensation_use_api_provider_for_bdd_instructions)
-          submission = Form526Submission.find(form526_submission_id)
-          # api_upload_provider(submission).log_upload_failure(STATSD_KEY_PREFIX, error_class, error_message)
-          api_upload_provider(submission).log_upload_failure(error_class, error_message)
-        end
 
         ::Rails.logger.warn(
           'Submit Form 526 Upload BDD Instructions Retries exhausted',
@@ -77,25 +67,6 @@ module EVSS
         }
       )
 
-      # # Returns the correct SupplementalDocumentUploadProvider based on the state of the
-      # # ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS feature flag for the current user
-      # #
-      # @return [EVSSSupplementalDocumentUploadProvider or LighthouseSupplementalDocumentUploadProvider]
-      def self.api_upload_provider(submission)
-        user = User.find(submission.user_uuid)
-
-        ApiProviderFactory.call(
-          type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
-          options: {
-            form526_submission: submission,
-            va_document_type: BDD_INSTRUCTIONS_DOCUMENT_TYPE,
-            statsd_metric_prefix: STATSD_KEY_PREFIX
-          },
-          current_user: user,
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS
-        )
-      end
-
       # Submits a BDD instruction PDF in to EVSS
       #
       # @param submission_id [Integer] The {Form526Submission} id
@@ -117,34 +88,20 @@ module EVSS
 
       private
 
+      def upload_bdd_instructions
+        client.upload(file_body, document_data)
+      end
+
       def file_body
         @file_body ||= File.read('lib/evss/disability_compensation_form/bdd_instructions.pdf')
       end
 
-      def upload_bdd_instructions
-        # NOTE: the ApiProviderFactory implements its own Flipper,
-        # ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS, which will be used to iteratively
-        # start sending more BDD Instructions to Lighthouse instead of EVSS
-        # However, since using this factory is new behavior, it is hidden behind this additional Flipper, which will act
-        # as a "kill switch" in the event there are problems with the ApiProviderFactory implementation, so we can
-        # revert back to using the EVSS::DocumentsService directly here
-        if Flipper.enabled?(:disability_compensation_use_api_provider_for_bdd_instructions)
-          upload_via_api_provider
-        else
-          EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
-        end
-      end
-
-      def upload_via_api_provider
-        document = upload_provider.generate_upload_document(
-          BDD_INSTRUCTIONS_FILE_NAME,
-          BDD_INSTRUCTIONS_DOCUMENT_TYPE
-        )
-        upload_provider.submit_upload_document(document, file_body)
-      end
-
-      def upload_provider
-        @upload_provider ||= EVSS::DisabilityCompensationForm::UploadBddInstructions.api_upload_provider(submission)
+      def client
+        @client ||= if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+                      # TODO: create client from lighthouse document service
+                    else
+                      EVSS::DocumentsService.new(submission.auth_headers)
+                    end
       end
 
       def retryable_error_handler(error)
@@ -155,10 +112,10 @@ module EVSS
       def document_data
         @document_data ||= EVSSClaimDocument.new(
           evss_claim_id: submission.submitted_claim_id,
-          file_name: BDD_INSTRUCTIONS_FILE_NAME,
+          file_name: 'BDD_Instructions.pdf',
           tracked_item_id: nil,
-          document_type: BDD_INSTRUCTIONS_DOCUMENT_TYPE
-        )
+          document_type: 'L023'
+        ) # 'Other Correspondence'
       end
     end
   end
