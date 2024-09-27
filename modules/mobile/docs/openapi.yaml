@@ -81,7 +81,7 @@ paths:
                 Docket 2:
                   value:
                     $ref: ./examples/appeals/appeal_docket_2.yml
-                Null Docket:
+                Empty Docket:
                   value:
                     $ref: ./examples/appeals/appeal_docket_null.yml
               schema:
