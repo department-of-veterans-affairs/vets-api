@@ -401,12 +401,10 @@ class User < Common::RedisStore
     vet360_contact_info&.email&.email_address
   end
 
-  # Created for spec testing V2
   def vaprofile_contact_info
     @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
-  # Created for spec testing V2
   def va_profile_v2_email
     vaprofile_contact_info&.email&.email_address
   end
