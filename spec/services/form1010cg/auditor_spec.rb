@@ -286,4 +286,25 @@ RSpec.describe Form1010cg::Auditor do
       end
     end
   end
+
+  describe '#filtering keys' do
+    let(:message) { 'my message' }
+    let(:context) do
+      {
+        veteran_name: 'My name'
+      }
+    end
+
+    let(:expected_context) do
+      {
+        veteran_name: ActiveSupport::ParameterFilter::FILTERED
+      }
+    end
+
+    it 'calls :record_attachments_delivered' do
+      expect(Rails.logger).to receive(:info).with("[#{described_class::LOGGER_PREFIX}] #{message}", **expected_context)
+
+      described_class.new.send(:log, message, context)
+    end
+  end
 end
