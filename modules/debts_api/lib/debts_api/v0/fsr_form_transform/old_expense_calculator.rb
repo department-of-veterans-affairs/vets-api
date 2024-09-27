@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'debts_api/v0/fsr_form_transform/expense_calculator'
+require 'debts_api/v0/fsr_form_transform/utils'
 
 module DebtsApi
   module V0

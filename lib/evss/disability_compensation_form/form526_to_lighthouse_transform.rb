@@ -78,7 +78,8 @@ module EVSS
       }.freeze
 
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
-      # evss_data will look like JSON.parse(form526_submission.form_data)
+      # @param evss_data will look like JSON.parse(form526_submission.form_data)
+      # @return Requests::Form526
       def transform(evss_data)
         form526 = evss_data['form526']
         lh_request_body = Requests::Form526.new

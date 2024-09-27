@@ -10,6 +10,7 @@ module Swagger
           extend Swagger::Responses::BadRequestError
           extend Swagger::Responses::UnprocessableEntityError
           extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::InternalServerError
 
           key :description, 'Submit a 10-10EZR form attachment'
           key :operationId, 'postForm1010EzrAttachment'

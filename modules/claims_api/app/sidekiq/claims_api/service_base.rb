@@ -40,6 +40,11 @@ module ClaimsApi
 
     protected
 
+    def set_state_for_submission(submission, state)
+      submission.status = state
+      submission.save!
+    end
+
     def preserve_original_form_data(form_data)
       form_data.deep_dup.freeze
     end
