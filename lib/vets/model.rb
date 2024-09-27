@@ -3,9 +3,9 @@
 require 'vets/attributes'
 
 # This will be moved after virtus is removed
-module Boolean; end
-class TrueClass; include Boolean; end
-class FalseClass; include Boolean; end
+module Bool; end
+class TrueClass; include Bool; end
+class FalseClass; include Bool; end
 
 module Vets
   class Model
