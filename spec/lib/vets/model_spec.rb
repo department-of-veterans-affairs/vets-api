@@ -15,7 +15,7 @@ class FakeAddress < Vets::Model
   attribute :country, String
   attribute :state, String
   attribute :postal_code, String
-  attribute :apartment, Apartment
+  attribute :apartment, FakeApartment
 end
 
 RSpec.describe Vets::Model do
@@ -44,12 +44,12 @@ RSpec.describe Vets::Model do
 
   describe '#initialize' do
     it 'initializes the model with provided params' do
-      address = Address.new(street: '456 Elm St')
+      address = FakeAddress.new(street: '456 Elm St')
       expect(address.instance_variable_get('@street')).to eq('456 Elm St')
     end
 
     it 'initializes the model with objects' do
-      address = Address.new(apartment:)
+      address = FakeAddress.new(apartment:)
       expect(address.instance_variable_get('@apartment')).to eq(apartment)
     end
 
