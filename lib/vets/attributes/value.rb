@@ -15,7 +15,7 @@ module Vets
 
       def setter_value(value)
         validate_array(value) if @array
-        value = cast_boolean(value) if @klass == Boolean
+        value = cast_boolean(value) if @klass == Bool
         value = coerce_to_class(value)
         validate_type(value)
         value
