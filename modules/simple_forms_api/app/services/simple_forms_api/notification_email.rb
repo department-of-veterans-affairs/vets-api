@@ -240,12 +240,14 @@ module SimpleFormsApi
       # user's own claim
       # user is a veteran
       if @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'veteran'
-        [@form_data['veteran_email'], @form_data.dig('veteran_full_name', 'first')]
+        email = user&.email || @form_data['veteran_email']
+        [email, @form_data.dig('veteran_full_name', 'first')]
 
       # user's own claim
       # user is not a veteran
       elsif @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'non-veteran'
-        [@form_data['claimant_email'], @form_data.dig('claimant_full_name', 'first')]
+        email = user&.email || @form_data['claimant_email']
+        [email, @form_data.dig('claimant_full_name', 'first')]
 
       # someone else's claim
       # claimant (aka someone else) is a veteran
