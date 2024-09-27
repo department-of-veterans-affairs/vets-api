@@ -27,7 +27,11 @@ module Vet360
     end
 
     def invalidate_cache
-      VAProfileRedis::Cache.invalidate(@current_user)
+      if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+        VAProfileRedis::V2::Cache.invalidate(@current_user)
+      else
+        VAProfileRedis::Cache.invalidate(@current_user)
+      end
     end
 
     private

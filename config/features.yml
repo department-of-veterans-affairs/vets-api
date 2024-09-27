@@ -185,6 +185,10 @@ features:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
     enable_in_development: true
+  claims_api_bd_refactor:
+    actor_type: user
+    description: Diverts codepath to use refactored BD methods
+    enable_in_development: true
   confirmation_page_new:
     actor_type: user
     description: Enables the 2024 version of the confirmation page view in simple forms
@@ -756,6 +760,10 @@ features:
   in_progress_form_reminder_526ez:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
+    enable_in_development: true
+  va_notify_user_account_job:
+    actor_type: user
+    description: Enable/disable UserAccountJob in VANotify (replacement for IcnJob)
     enable_in_development: true
   letters_check_discrepancies:
     actor_type: user
@@ -1701,3 +1709,6 @@ features:
     actor_type: cookie_id
     description: Swaps the Search Service's configuration url with an updated api.gsa.gov address
     enabled_in_development: true
+  remove_pciu:
+    actor_type: user
+    description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)

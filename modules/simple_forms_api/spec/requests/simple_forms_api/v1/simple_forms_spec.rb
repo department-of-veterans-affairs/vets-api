@@ -244,24 +244,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           end
         end
 
-        context 'Flipper for simple_forms_lighthouse_benefits_intake_service' do
-          after { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
-
-          context 'when flipped on' do
-            before { Flipper.enable(:simple_forms_lighthouse_benefits_intake_service) }
-
-            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
-            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
-            it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_documents.json'
-          end
-
-          context 'when flipped off' do
-            before { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
-
-            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
-            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
-          end
-        end
+        it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
+        it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
+        it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_documents.json'
       end
 
       context 'LOA3 authenticated' do
