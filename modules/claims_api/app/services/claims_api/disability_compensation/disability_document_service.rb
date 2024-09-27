@@ -12,9 +12,8 @@ module ClaimsApi
           raise Errno::ENOENT, pdf_path
         end
 
-        request_body = generate_upload_body(claim:, doc_type:, pdf_path:, action:, original_filename:,
+        request_body = generate_upload_body(claim:, doc_type:, file_path:, action:, original_filename:,
                                             pctpnt_vet_id:)
-
         ClaimsApi::BD.new.upload_document(file_path:, request_body:)
       end
 

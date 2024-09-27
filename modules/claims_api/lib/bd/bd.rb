@@ -67,7 +67,7 @@ module ClaimsApi
       raise e
     end
 
-    def upload_document(file_path:, request_body:)
+    def upload_document(doc_type_name:, request_body:)
       # unless File.exist? pdf_path
       #   ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist,
       #                                               #{doc_type_to_plain_language(doc_type)}_id: #{claim.id}")
@@ -77,21 +77,21 @@ module ClaimsApi
       @multipart = true
       # body = generate_upload_body(claim:, doc_type:, pdf_path:, action:, original_filename:,
       #                             pctpnt_vet_id:)
-      res = client.post('documents', body)&.body
+      res = client.post('documents', request_body)&.request_body
 
       raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
 
       res = res.deep_symbolize_keys
       request_id = res.dig(:data, :requestId)
       ClaimsApi::Logger.log('benefits_documents',
-                            detail: "Successfully uploaded #{doc_type_to_plain_language(doc_type)} doc to BD,
-                                                    #{doc_type_to_plain_language(doc_type)}_id: #{claim.id}",
+                            detail: "Successfully uploaded #{doc_type_name} doc to BD,
+                                                    #{doc_type_name}_id: #{claim.id}",
                             request_id:)
       res
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/upload failure for
-                                                    #{doc_type_to_plain_language(doc_type)}_id: #{claim.id},
+                                                    #{doc_type_name}_id: #{claim.id},
                                                     #{e.message}")
       raise e
     end

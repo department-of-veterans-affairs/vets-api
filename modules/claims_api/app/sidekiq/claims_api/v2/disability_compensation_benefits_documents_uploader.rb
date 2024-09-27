@@ -63,7 +63,7 @@ module ClaimsApi
 
       def claim_bd_upload_document(claim, pdf_path)
         if Flipper.enabled? :claims_api_bd_refactor
-          ClaimsApi::BD.new.upload_document(claim:, pdf_path:)
+          DisabilityCompensation::DisabilityDocumentService.new.create_upload(claim:, pdf_path:)
         else
           ClaimsApi::BD.new.upload(claim:, pdf_path:)
         end
