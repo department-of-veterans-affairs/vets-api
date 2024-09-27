@@ -30,11 +30,11 @@ module MebApi
 
       def claim_status
         claimant_response = claimant_service.get_claimant_info
-        claimant_id = claimant_response['claimant_id']
+        claimant_id = claimant_response.body['claimant_id']
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id)
 
-        response = claimant_response.status == 201 ? claim_status_response : claimant_response
-        serializer = claimant_response.status == 201 ? ClaimStatusSerializer : ClaimantSerializer
+        response = claimant_response.status_code == 201 ? claim_status_response : claimant_response
+        serializer = claimant_response.status_code == 201 ? ClaimStatusSerializer : ClaimantSerializer
 
         render json: serializer.new(response)
       end

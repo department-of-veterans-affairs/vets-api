@@ -79,6 +79,7 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
       it 'returns a 200 status when given claimant id as parameter and claimant is returned' do
         VCR.use_cassette('dgi/get_claim_status') do
           get '/meb_api/v0/claim_status'
+          # binding.pry
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('dgi/claim_status_response', { strict: false })
         end

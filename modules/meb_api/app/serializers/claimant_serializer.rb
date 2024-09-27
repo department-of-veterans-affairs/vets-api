@@ -5,5 +5,7 @@ class ClaimantSerializer
 
   set_id { '' }
 
-  attribute :claimant_id
+  attribute :claimant_id do |object|
+    object.body[:claimant_id]
+  end
 end
