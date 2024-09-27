@@ -18,13 +18,13 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
     it 'builds the notification message correctly' do
       message = subject.send(:build_notification_message)
 
-      expected_message = "*ERRORED SUBMISSIONS* \n\n2022-01-01 - 2022-01-31 " \
+      expected_message = "*ERRORED SUBMISSIONS* \n\n2022-01-31 - 2022-01-01 " \
                          "\nThe following submissions have encountered errors in *#{environment}*. \n\n*Disability " \
-                         "Compensation Errors* \nTotal: 2 \n```123456 \n789101112 \n```  \n\n*Va Gov Disability " \
-                         "Compensation Errors* \nTotal: 2 \n```64738 \n378249 \n```  \n\n*Power of " \
-                         "Attorney Errors* \nTotal: 2 \n```1314151617 \n181920212223 \n```  \n\n*Intent to " \
+                         "Compensation Errors* \nTotal: 2 \n\n```123456 \n789101112 \n```  \n\n*Va Gov Disability " \
+                         "Compensation Errors* \nTotal: 2 \n\n```64738 \n378249 \n```  \n\n*Power of " \
+                         "Attorney Errors* \nTotal: 2 \n\n```1314151617 \n181920212223 \n```  \n\n*Intent to " \
                          "File Errors* \nTotal: 1 \n\n*Evidence Waiver Errors* \nTotal: 2 " \
-                         "\n```32333435 \n36373839 \n```  \n\n"
+                         "\n\n```32333435 \n36373839 \n```  \n\n"
 
       expect(message).to include("#{claims.count} \n")
       expect(message).to include("123456 \n789101112 \n")
