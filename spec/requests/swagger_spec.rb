@@ -920,6 +920,27 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
               headers
             )
           end
+
+          context 'when a server error occurs' do
+            before do
+              allow(IO).to receive(:popen).and_return(nil)
+            end
+
+            it 'returns a 500' do
+              expect(subject).to validate(
+                :post,
+                '/v0/form1010_ezr_attachments',
+                500,
+                headers.merge(
+                  '_data' => {
+                    'form1010_ezr_attachment' => {
+                      file_data: fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+                    }
+                  }
+                )
+              )
+            end
+          end
         end
       end
 
@@ -2711,7 +2732,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profiles v2' do
+    describe 'profiles v2', :skip_vet360, :initiate_vaprofile do
       let(:vet360_id) { '1781151' }
       let(:mhv_user) { build(:user, :loa3, vet360_id:) }
 
@@ -2749,16 +2770,14 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports updating a va profile email' do
         expect(subject).to validate(:post, '/v0/profile/email_addresses/create_or_update', 401)
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
-          VCR.use_cassette('va_profile/v2/contact_information/person') do
-            email_address = build(:email, :contact_info_v2)
+          email_address = build(:email, :contact_info_v2)
 
-            expect(subject).to validate(
-              :post,
-              '/v0/profile/email_addresses/create_or_update',
-              200,
-              headers.merge('_data' => email_address.as_json)
-            )
-          end
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/email_addresses/create_or_update',
+            200,
+            headers.merge('_data' => email_address.as_json)
+          )
         end
       end
 
@@ -2811,16 +2830,14 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         expect(subject).to validate(:post, '/v0/profile/telephones/create_or_update', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/put_telephone_success') do
-          VCR.use_cassette('va_profile/v2/contact_information/person') do
-            telephone = build(:telephone, :contact_info_v2)
+          telephone = build(:telephone, :contact_info_v2)
 
-            expect(subject).to validate(
-              :post,
-              '/v0/profile/telephones/create_or_update',
-              200,
-              headers.merge('_data' => telephone.as_json)
-            )
-          end
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/telephones/create_or_update',
+            200,
+            headers.merge('_data' => telephone.as_json)
+          )
         end
       end
 
@@ -2921,17 +2938,15 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
       it 'supports va_profile create or update address api' do
         expect(subject).to validate(:post, '/v0/profile/addresses/create_or_update', 401)
-        VCR.use_cassette('va_profile/v2/contact_information/person') do
-          VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
-            address = build(:va_profile_address_v2, id: 15_035)
+        VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
+          address = build(:va_profile_address_v2, id: 15_035)
 
-            expect(subject).to validate(
-              :post,
-              '/v0/profile/addresses/create_or_update',
-              200,
-              headers.merge('_data' => address.as_json)
-            )
-          end
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/addresses/create_or_update',
+            200,
+            headers.merge('_data' => address.as_json)
+          )
         end
       end
 
@@ -2993,7 +3008,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profile/status v2' do
+    describe 'profile/status v2', :skip_vet360, :initiate_vaprofile do
       let(:vet360_id) { '1781151' }
       let(:user) { build(:user, :loa3, vet360_id:) }
 
@@ -3017,14 +3032,12 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         )
 
         VCR.use_cassette('va_profile/v2/contact_information/address_transaction_status') do
-          VCR.use_cassette('va_profile/v2/contact_information/person') do
-            expect(subject).to validate(
-              :get,
-              '/v0/profile/status/{transaction_id}',
-              200,
-              headers.merge('transaction_id' => transaction.transaction_id)
-            )
-          end
+          expect(subject).to validate(
+            :get,
+            '/v0/profile/status/{transaction_id}',
+            200,
+            headers.merge('transaction_id' => transaction.transaction_id)
+          )
         end
       end
 

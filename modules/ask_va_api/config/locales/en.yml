@@ -52,12 +52,8 @@ en:
       - code: 'CG ACAD'
         description: 'Coast Guard Academy'
     parameters:
-      attachment:
-        file_name: fileName
-        file_content: fileContent
-        inquiry_id: inquiryId
-        correspondence_id: correspondenceId
       inquiry:
+        attachments: ListOfAttachments
         are_you_the_dependent: AreYouTheDependent
         attachment_present: AttachmentPresent
         branch_of_service: BranchOfService
@@ -100,6 +96,8 @@ en:
         middle_name: MiddleName
         preferred_name: PreferredName
         pronouns: Pronouns
+        profile: Profile
+        response_type: ResponseType
         school_obj: SchoolObj
         street_address2: StreetAddress2
         submitter: Submitter
@@ -150,10 +148,41 @@ en:
         who_was_their_counselor: WhoWasTheirCounselor
         your_last_name: YourLastName
         zip_code: ZipCode
-      school:
+      profile: 
+        first_name: firstName
+        middle_name: middleName
+        last_name: lastName
+        preferred_name: preferredName
+        suffix: suffix
+        gender: gender
+        pronouns: pronouns
+        country: country
+        street: street
+        city: city
+        state: state
+        zip_code: zipCode
+        province: province
+        business_phone: businessPhone
+        personal_phone: personalPhone
+        personal_email: personalEmail
+        business_email: businessEmail
+        school_state: schoolState
+        school_facility_code: schoolFacilityCode
+        service_number: serviceNumber
+        claim_number: claimNumber
+        veteran_service_state_date: veteranServiceStateDate
+        veteran_service_end_date: veteranServiceEndDate
+        date_of_birth: dateOfBirth
+        edipi: edipi
+      school_obj:
         city: City
         institution_name: InstitutionName
         regional_office: RegionalOffice
         school_facility_code: SchoolFacilityCode
         state_abbreviation: StateAbbreviation
+      attachments:
+        file_name: fileName
+        file_content: fileContent
+        inquiry_id: inquiryId
+        correspondence_id: correspondenceId
 

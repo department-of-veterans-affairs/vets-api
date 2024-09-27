@@ -1290,8 +1290,8 @@ RSpec.describe User, type: :model do
           let(:expected_log_message) { '[User] mhv_user_account error' }
           let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
 
-          it 'logs an error and returns nil' do
-            expect(user.mhv_user_account).to be_nil
+          it 'logs and re-raises the error' do
+            expect { user.mhv_user_account }.to raise_error(MHV::UserAccount::Errors::UserAccountError)
             expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
           end
         end
