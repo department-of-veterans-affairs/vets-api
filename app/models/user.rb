@@ -151,11 +151,12 @@ class User < Common::RedisStore
                             MHV::UserAccount::Creator.new(user_verification:).perform
                           else
                             log_mhv_user_account_error('User has no va_treatment_facility_ids')
+
                             nil
                           end
   rescue MHV::UserAccount::Errors::UserAccountError => e
     log_mhv_user_account_error(e.message)
-    nil
+    raise
   end
 
   def middle_name

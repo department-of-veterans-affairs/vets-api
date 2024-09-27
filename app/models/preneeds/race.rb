@@ -13,7 +13,7 @@ module Preneeds
     }.freeze
 
     ATTRIBUTE_MAPPING.each_value do |attr|
-      attribute(attr, Boolean, default: false)
+      attribute(attr, Bool, default: false)
     end
 
     def as_eoas
