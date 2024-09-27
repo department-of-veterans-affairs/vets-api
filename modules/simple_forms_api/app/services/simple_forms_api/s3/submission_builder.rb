@@ -2,13 +2,17 @@
 
 module SimpleFormsApi
   module S3
-    class SubmissionBuilder < Utils
+    class SubmissionBuilder
+      include Utils
+
       attr_reader :file_path, :submission, :attachments, :metadata
 
-      def initialize(benefits_intake_uuid:) # rubocop:disable Lint/MissingSuper
-        validate_input(benefits_intake_uuid)
+      def initialize(id:, config: nil)
+        @config = config || FormSubmissionRemediation::Configuration::Base.new
 
-        @submission = FormSubmission.find_by(benefits_intake_uuid:)
+        validate_input(id)
+
+        @submission = FormSubmission.find_by(benefits_intake_uuid: id)
         validate_submission
 
         @attachments = []
@@ -16,17 +20,19 @@ module SimpleFormsApi
 
         hydrate_submission
       rescue => e
-        handle_error('SubmissionBuilder initialization failed', e)
+        config.handle_error('SubmissionBuilder initialization failed', e)
       end
 
       private
+
+      attr_reader :config
 
       def validate_input(benefits_intake_uuid)
         raise ArgumentError, 'No benefits_intake_uuid was provided' unless benefits_intake_uuid
       end
 
       def validate_submission
-        raise 'Submission was not found or invalid' unless @submission&.benefits_intake_uuid
+        raise 'Submission was not found or invalid' unless submission&.benefits_intake_uuid
         raise 'Submission cannot be built: Only VFF forms are supported' unless vff_form?
       end
 
@@ -37,7 +43,7 @@ module SimpleFormsApi
         filler = PdfFiller.new(form_number:, form:)
         handle_submission_data(filler, form, form_number)
       rescue => e
-        handle_error('Error rebuilding submission', e)
+        config.handle_error('Error rebuilding submission', e)
       end
 
       def fetch_submission_form_number
@@ -48,7 +54,7 @@ module SimpleFormsApi
         form_class = "SimpleFormsApi::#{form_number.titleize.delete(' ')}".constantize
         form_class.new(form_data_hash)
       rescue NameError => e
-        handle_error("Form class not found for #{form_number}", e)
+        config.handle_error("Form class not found for #{form_number}", e)
       end
 
       def handle_submission_data(filler, form, form_number)
@@ -56,7 +62,7 @@ module SimpleFormsApi
         validate_metadata(form)
         process_attachments(form, form_number)
       rescue => e
-        handle_error('Error handling submission data', e)
+        config.handle_error('Error handling submission data', e)
       end
 
       def generate_file(filler)
@@ -69,7 +75,7 @@ module SimpleFormsApi
           zip_code_is_us_based: form.zip_code_is_us_based
         )
       rescue => e
-        handle_error('Metadata validation failed', e)
+        config.handle_error('Metadata validation failed', e)
       end
 
       def process_attachments(form, form_number)
@@ -80,13 +86,13 @@ module SimpleFormsApi
           @attachments = form.get_attachments
         end
       rescue => e
-        handle_error("Attachment handling failed for #{form_number}", e)
+        config.handle_error("Attachment handling failed for #{form_number}", e)
       end
 
       def form_data_hash
         @form_data_hash ||= JSON.parse(submission.form_data)
       rescue JSON::ParserError => e
-        handle_error('Error parsing form data', e)
+        config.handle_error('Error parsing form data', e)
       end
 
       def vff_forms_map
@@ -95,15 +101,6 @@ module SimpleFormsApi
 
       def vff_form?
         vff_forms_map.key?(submission.form_type)
-      end
-
-      def log_error(message, error, **details)
-        Rails.logger.error(message, details.merge(error: error.message, backtrace: error.backtrace.first(5)))
-      end
-
-      def handle_error(message, error, context = {})
-        log_error(message, error, **context)
-        raise error
       end
     end
   end

@@ -13,7 +13,7 @@ module SimpleFormsApi
         assign_defaults(options)
         hydrate_submission_data unless submission_already_hydrated?
       rescue => e
-        handle_error('SubmissionArchiveBuilder initialization failed', e)
+        config.handle_error('SubmissionArchiveBuilder initialization failed', e)
       end
 
       def run
@@ -21,7 +21,7 @@ module SimpleFormsApi
         process_submission_files
         [temp_directory_path, submission, submission_file_path]
       rescue => e
-        handle_error("Failed building submission: #{benefits_intake_uuid}", e)
+        config.handle_error("Failed building submission: #{id}", e)
       end
 
       private
@@ -86,7 +86,7 @@ module SimpleFormsApi
         log_info("Processing #{attachments.count} attachments")
         attachments.each_with_index { |file_path, i| process_attachment(i + 1, file_path) }
       rescue => e
-        handle_error('Error during attachments processing', e)
+        config.handle_error('Error during attachments processing', e)
       end
 
       def process_attachment(attachment_number, file_path)
@@ -105,20 +105,20 @@ module SimpleFormsApi
           csv << [
             submission.created_at,
             form_data_hash['form_number'],
-            benefits_intake_uuid,
+            id,
             metadata['fileNumber'],
             metadata['veteranFirstName'],
             metadata['veteranLastName']
           ]
         end
       rescue => e
-        handle_error("Failed writing manifest for submission: #{benefits_intake_uuid}", e)
+        config.handle_error("Failed writing manifest for submission: #{id}", e)
       end
 
       def write_tempfile(file_name, payload)
         File.write("#{temp_directory_path}#{file_name}", payload)
       rescue => e
-        handle_error("Failed writing file #{file_name} for submission: #{benefits_intake_uuid}", e)
+        config.handle_error("Failed writing file #{file_name} for submission: #{id}", e)
       end
 
       def form_data_hash
@@ -130,7 +130,7 @@ module SimpleFormsApi
       def submission_file_path
         form_number = form_data_hash['form_number']
         @submission_file_path ||= [
-          Time.zone.today.strftime('%-m.%d.%y'), 'form', form_number, 'vagov', benefits_intake_uuid
+          Time.zone.today.strftime('%-m.%d.%y'), 'form', form_number, 'vagov', id
         ].join('_')
       end
     end

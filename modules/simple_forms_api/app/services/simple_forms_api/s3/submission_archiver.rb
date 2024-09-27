@@ -7,26 +7,30 @@ require 'fileutils'
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
 module SimpleFormsApi
   module S3
-    class SubmissionArchiver < Utils
+    class SubmissionArchiver
+      include Utils
       class << self
-        def fetch_presigned_url(benefits_intake_uuid, type: :submission)
-          new(benefits_intake_uuid:).generate_presigned_url(s3_upload_file_path, type:)
+        def fetch_presigned_url(id, type: :submission)
+          new(id:).generate_presigned_url(s3_upload_file_path, type:)
         end
       end
 
-      def initialize(parent_dir: 'vff-simple-forms', **options) # rubocop:disable Lint/MissingSuper
+      def initialize(parent_dir: 'vff-simple-forms', config: nil, **options)
+        @config = config || FormSubmissionRemediation::Configuration::Base.new
         @parent_dir = parent_dir
+
         defaults = default_options.merge(options)
+
         @temp_directory_path, @submission, @unique_filename = build_submission_archive(**defaults)
         raise 'Failed to build SubmissionArchive.' unless temp_directory_path && submission
 
         assign_instance_variables(defaults)
       rescue => e
-        handle_error('SubmissionArchiver initialization failed', e)
+        config.handle_error('SubmissionArchiver initialization failed', e)
       end
 
       def upload(type: :remediation)
-        log_info("Uploading #{type}: #{benefits_intake_uuid} to S3 bucket")
+        config.log_info("Uploading #{type}: #{id} to S3 bucket")
 
         @upload_type = type
 
@@ -36,7 +40,7 @@ module SimpleFormsApi
         cleanup
         generate_presigned_url(build_path(s3_directory_path, local_upload_file_path.split('/').last))
       rescue => e
-        handle_error("Failed #{type} upload: #{benefits_intake_uuid}", e)
+        config.handle_error("Failed #{type} upload: #{id}", e)
       end
 
       def cleanup
@@ -45,28 +49,28 @@ module SimpleFormsApi
 
       private
 
-      attr_reader :benefits_intake_uuid, :parent_dir, :submission, :temp_directory_path, :unique_filename, :upload_type
+      attr_reader :config, :id, :parent_dir, :submission, :temp_directory_path, :unique_filename, :upload_type
 
       def default_options
         {
-          attachments: nil,           # The confirmation codes of any attachments which were originally submitted
-          benefits_intake_uuid: nil,  # The UUID returned from the Benefits Intake API upon original submission
-          file_path: nil,             # The local path where the submission PDF is stored
-          metadata: nil,              # Data appended to the original submission headers
-          submission: nil             # The FormSubmission object representing the original data payload submitted
+          attachments: nil, # The confirmation codes of any attachments which were originally submitted
+          file_path: nil,   # The local path where the submission PDF is stored
+          id: nil,          # The UUID returned from the Benefits Intake API upon original submission
+          metadata: nil,    # Data appended to the original submission headers
+          submission: nil   # The FormSubmission object representing the original data payload submitted
         }
       end
 
       def s3_uploader
-        @s3_uploader ||= VeteranFacingFormsRemediationUploader.new(benefits_intake_uuid, s3_directory_path)
+        @s3_uploader ||= config.uploader.new(id, s3_directory_path)
       end
 
       def build_submission_archive(**)
-        SubmissionArchiveBuilder.new(**).run
+        config.submission_builder.new(**).run
       end
 
       def generate_presigned_url(*, **)
-        VeteranFacingFormsRemediationUploader.get_s3_link(build_path(*, **))
+        config.uploader.get_s3_link(build_path(*, **))
       end
 
       def zip_directory!(dir_path = temp_directory_path)
@@ -84,7 +88,9 @@ module SimpleFormsApi
 
         local_upload_file_path
       rescue => e
-        handle_error("Failed to zip temp directory: #{temp_directory_path} to location: #{local_upload_file_path}", e)
+        config.handle_error(
+          "Failed to zip temp directory: #{temp_directory_path} to location: #{local_upload_file_path}", e
+        )
       end
 
       def upload_file_to_s3

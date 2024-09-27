@@ -2,18 +2,21 @@
 
 module SimpleFormsApi
   module S3
-    class SubmissionArchiveHandler < Utils
+    class SubmissionArchiveHandler
+      include Utils
+
       PROGRESS_FILE_PATH = '/tmp/submission_archive_progress.json'
 
-      def initialize(benefits_intake_uuids: [], parent_dir: 'vff-simple-forms') # rubocop:disable Lint/MissingSuper
-        raise Common::Exceptions::ParameterMissing, 'benefits_intake_uuids' unless benefits_intake_uuids&.any?
+      def initialize(ids: [], config: nil)
+        raise Common::Exceptions::ParameterMissing, 'ids' unless ids&.any?
 
-        @benefits_intake_uuids = benefits_intake_uuids
-        @parent_dir = parent_dir
+        @ids = ids
+        @config = config || FormSubmissionRemediation::Configuration::Base.new
+        @parent_dir = config.parent_dir
         @presigned_urls = []
         load_progress
       rescue => e
-        handle_error('SubmissionArchiveHandler initialization failed', e)
+        config.handle_error('SubmissionArchiveHandler initialization failed', e)
       end
 
       def upload(type: :remediation)
@@ -24,12 +27,12 @@ module SimpleFormsApi
         cleanup
         presigned_urls
       rescue => e
-        handle_error('Archiving submission collection failed.', e)
+        config.handle_error('Archiving submission collection failed.', e)
       end
 
       private
 
-      attr_reader :benefits_intake_uuids, :parent_dir, :presigned_urls, :type
+      attr_reader :config, :ids, :parent_dir, :presigned_urls, :type
 
       def cleanup
         FileUtils.rm_rf(PROGRESS_FILE_PATH)
@@ -59,10 +62,10 @@ module SimpleFormsApi
       end
 
       def archive_individual_submissions
-        benefits_intake_uuids.each_with_index do |uuid, i|
+        ids.each_with_index do |uuid, i|
           next if @processed_uuids.include? uuid
 
-          log_info("Archiving submission: #{uuid} ##{i + 1} of #{benefits_intake_uuids.count} total submissions")
+          log_info("Archiving submission: #{uuid} ##{i + 1} of #{ids.count} total submissions")
           presigned_url = archive_submission(uuid)
           @presigned_urls << presigned_url
           @processed_uuids << uuid
@@ -70,8 +73,8 @@ module SimpleFormsApi
         end
       end
 
-      def archive_submission(benefits_intake_uuid)
-        SubmissionArchiver.new(benefits_intake_uuid:, parent_dir:).upload(type:)
+      def archive_submission(id)
+        config.archiver.new(id:, parent_dir:).upload(type:)
       end
     end
   end
