@@ -288,20 +288,11 @@ RSpec.describe Form1010cg::Auditor do
   end
 
   describe '#filtering keys' do
-    let(:message) { 'my message' }
-    let(:context) do
-      {
-        veteran_name: 'My name'
-      }
-    end
+    it 'calls log with filtered key in context' do
+      message = 'my message'
+      context = { veteran_name: 'My name' }
+      expected_context = { veteran_name: ActiveSupport::ParameterFilter::FILTERED }
 
-    let(:expected_context) do
-      {
-        veteran_name: ActiveSupport::ParameterFilter::FILTERED
-      }
-    end
-
-    it 'calls :record_attachments_delivered' do
       expect(Rails.logger).to receive(:info).with("[#{described_class::LOGGER_PREFIX}] #{message}", **expected_context)
 
       described_class.new.send(:log, message, context)
