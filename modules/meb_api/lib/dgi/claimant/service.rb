@@ -5,7 +5,6 @@ require 'dgi/claimant/configuration'
 require 'dgi/service'
 require 'dgi/claimant/claimant_response'
 require 'authentication_token_service'
-require 'vets/response'
 
 module MebApi
   module DGI
@@ -20,8 +19,7 @@ module MebApi
             options = { timeout: 60 }
             raw_response = perform(:post, end_point(type), { ssn: @user.ssn.to_s }.to_json, headers, options)
 
-            Vets::Response.build_from_response(raw_response)
-            # MebApi::DGI::Claimant::ClaimantResponse.new(raw_response.status, raw_response)
+            MebApi::DGI::Claimant::ClaimantResponse.new(raw_response.status, raw_response)
           end
         end
 

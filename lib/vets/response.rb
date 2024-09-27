@@ -12,7 +12,6 @@ module Vets
 
     attribute :status_code, Integer
     attribute :body, Hash
-    attribute :schema_name, String
 
     def self.build_from_response(response, schema_name: nil)
       status_code = response.try(:status) || response[:status]
@@ -20,6 +19,15 @@ module Vets
       Vets::Response.new(status_code:, body:, schema_name:)
     end
 
+    #
+    # @!attribute body
+    #   @return [Hash] Validated response body.
+    # @!attribute status
+    #   @return [Integer] The HTTP status code.
+    # @!attribute schema_name
+    #   @return [String] File name without extention
+    #   @see validate_body_schema
+    #
     def initialize(status_code:, body:, schema_name: nil)
       super(status_code: status_code.to_i, body: parse_json(body))
 
@@ -50,7 +58,7 @@ module Vets
     end
 
     def parse_json(body)
-      return body if body.is_a?(Hash)
+      return body if body.is_a?(Hash) || body.nil?
 
       JSON.parse(body)
     end
