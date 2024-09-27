@@ -183,7 +183,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       payload = JSON.parse(pending_record.to_internal)
       homelessness_risk = payload['form526']['veteran']['homelessness']['homelessnessRisk']
       expect(homelessness_risk['homelessnessRiskSituationType']).to eq('OTHER')
-      expect(homelessness_risk['otherLivingSituation']).to eq(' ')
+      expect(homelessness_risk).not_to have_key('otherLivingSituation')
     end
 
     it 'is case insensitive when the homelessSituationType is "OTHER"' do
