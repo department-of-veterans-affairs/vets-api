@@ -56,7 +56,7 @@ properties:
           description:
             type: string
           docket:
-            type: object, null
+            type: object
           events:
             type: array
             items:
@@ -88,6 +88,7 @@ properties:
               - medical
               - burial
               - bva
+              - fiduciary
               - other
               - multiple
           status:
@@ -95,6 +96,30 @@ properties:
             properties:
               details:
                 type: object
+                properties:
+                  lastSocDate:
+                    type: string
+                  certificationTimeliness:
+                    items:
+                      type: Integer
+                  ssocTimeliness:
+                    items:
+                      type: Integer
+                  decisionTimeliness:
+                    items:
+                      type: Integer
+                  remandTimeliness:
+                    items:
+                      type: Integer
+                  socTimeliness:
+                    items:
+                      type: Integer
+                  remandSsocTimeliness:
+                    items:
+                      type: Integer
+                  returnTimeliness:
+                    items:
+                      type: Integer
               type:
                 type: string
                 enum:
@@ -120,7 +145,24 @@ properties:
                   - remand_ssoc
                   - remand
                   - merged
+                  - evidentiary_period
+                  - ama_remand
+                  - post_bva_dta_decision
+                  - bva_decision_effectuation
+                  - sc_received
+                  - sc_decision
+                  - sc_closed
+                  - hlr_received
+                  - hlr_dta_error
+                  - hlr_decision
+                  - hlr_closed
+                  - statutory_opt_in
           type:
             type: string
+            enum:
+              - legacyAppeal
+              - appeal
+              - supplementalClaim
+              - higherLevelReview
           updated:
             type: string

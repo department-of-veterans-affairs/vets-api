@@ -23,7 +23,7 @@ module ClaimsApi
       StandardDataWebServiceBean/StandardDataWebService
       TrackedItemService/TrackedItemService
       VDC/VeteranRepresentativeService
-      VdcBean/ManageRepresentativeService
+      VDC/ManageRepresentativeService
       VnpAtchmsWebServiceBean/VnpAtchmsService
       VnpPersonWebServiceBean/VnpPersonService
       VnpProcFormWebServiceBean/VnpProcFormService
@@ -436,6 +436,10 @@ module ClaimsApi
     end
 
     private
+
+    def builder_to_xml(builder)
+      builder.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
+    end
 
     def transform_keys(hash_or_array)
       transformer = lambda do |object|

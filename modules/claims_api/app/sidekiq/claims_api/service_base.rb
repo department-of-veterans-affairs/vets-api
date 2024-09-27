@@ -34,7 +34,16 @@ module ClaimsApi
       end
     end
 
+    def retry_limits_for_notification
+      [11]
+    end
+
     protected
+
+    def set_state_for_submission(submission, state)
+      submission.status = state
+      submission.save!
+    end
 
     def preserve_original_form_data(form_data)
       form_data.deep_dup.freeze
@@ -190,6 +199,13 @@ module ClaimsApi
 
     def evss_service
       ClaimsApi::EVSSService::Base.new
+    end
+
+    def rescue_generic_errors(power_of_attorney, e)
+      power_of_attorney.status = ClaimsApi::PowerOfAttorney::ERRORED
+      power_of_attorney.vbms_error_message = e&.message || e&.original_body
+      power_of_attorney.save
+      ClaimsApi::Logger.log('ServiceBase', message: "In generic rescue, the error is: #{e}")
     end
   end
 end

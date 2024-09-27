@@ -121,6 +121,13 @@
       :uid_location: header
       :uid_locator: 'vaapikey'
 
+- :name: 'MHV UserAccount Creation'
+  :base_uri: <%= "#{URI(Settings.mhv.account_creation.host).host}:#{URI(Settings.mhv.account_creation.host).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: '/v1/usermgmt/account-service/account'
+    :file_path: 'mhv/account_creation/create_account'
+
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
@@ -135,6 +142,13 @@
     - :method: :get
       :path: "/mhv-api/patient/v1/prescription/getactiverx"
       :file_path: "mhv/prescription/getactiverx"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'Token'
+    # MHV rx medications
+    - :method: :get
+      :path: "/mhv-api/patient/v1/prescription/medications"
+      :file_path: "mhv/prescription/medications"
       :cache_multiple_responses:
         :uid_location: header
         :uid_locator: 'Token'
@@ -588,6 +602,15 @@
     :path: "/api/v2/search/i14y"
     :file_path: "search/default"
 
+# Search GSA
+- :name: 'Search GSA'
+  :base_uri: <%= "#{URI(Settings.search.gsa_url).host}:#{URI(Settings.search.gsa_url).port}" %>
+  :endpoints:
+  # Search results
+  - :method: :get
+    :path: "/technology/searchgov/v2/results/i14y"
+    :file_path: "search/default"
+
 #GIS
 - :name: 'GIS'
   :base_uri: <%= "#{URI(Settings.locators.gis_base_path).host}:#{URI(Settings.locators.gis_base_path).port}" %>
@@ -683,23 +706,23 @@
 
 #Travel Claim VEIS Auth (BTSSS)
 - :name: "Travel Claim VEIS Auth Service"
-  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.auth_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.auth_url).port}" %>
+  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api_v2.auth_url).host}:#{URI(Settings.check_in.travel_reimbursement_api_v2.auth_url).port}" %>
   :endpoints:
     - :method: :post
-      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.tenant_id}/oauth2/v2.0/token" %>
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.tenant_id}/oauth2/v2.0/token" %>
       :file_path: "/travel_claim/token/default"
       :response_delay: 0.3
 
 #Travel Claim Ingest Service (BTSSS)
 - :name: "Travel Claim Ingest Service"
-  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.claims_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.claims_url).port}" %>
+  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api_v2.claims_url).host}:#{URI(Settings.check_in.travel_reimbursement_api_v2.claims_url).port}" %>
   :endpoints:
     - :method: :post
-      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.claims_base_path}/api/ClaimIngest/submitclaim" %>
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path}/api/ClaimIngest/submitclaim" %>
       :file_path: "/travel_claim/submitclaim/default"
       :response_delay: 15
     - :method: :post
-      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.claims_base_path}/api/ClaimIngest/V1/GetClaimsStatus" %>
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path}/api/ClaimIngest/V1/GetClaimsStatus" %>
       :file_path: "/travel_claim/claimstatus/default"
       :response_delay: 1
 
@@ -803,21 +826,11 @@
         :uid_location: 'query'
         :uid_locator: 'edipi'
 
-# Lighthouse Benefits Education API (GI Bill Statement of Benefits - GIBS)
-- :name: "Lighthouse Benefits Education"
-  :base_uri: <%= "#{URI(Settings.lighthouse.benefits_education.host).host}:#{URI(Settings.lighthouse.benefits_education.host).port}" %>
-  :endpoints:
-  - :method: :get
-    :path: '/services/benefits-education/v1/education/chapter33'
-    :file_path: "/lighthouse/benefits_education"
-    :cache_multiple_responses:
-      :uid_location: "query"
-      :uid_locator: "icn"
-
-# Lighthouse Benefits Claims API
-- :name: "Lighthouse Benefits Claims"
+# Lighthouse
+- :name: "Lighthouse"
   :base_uri: <%= "#{URI(Settings.lighthouse.benefits_claims.host).host}:#{URI(Settings.lighthouse.benefits_claims.host).port}" %>
   :endpoints:
+    # Benefits Claims API
     - :method: :get
       :path: "/services/claims/v2/veterans/*/claims"
       :file_path: "/lighthouse/benefits_claims/index"
@@ -850,6 +863,13 @@
       :cache_multiple_responses:
         :uid_location: "url"
         :uid_locator: "\/services/veteran_verification/v2/disability_rating\/(.+)"
+    # Benefits Education
+    - :method: :get
+      :path: '/services/benefits-education/v1/education/chapter33'
+      :file_path: "/lighthouse/benefits_education"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "icn"
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"

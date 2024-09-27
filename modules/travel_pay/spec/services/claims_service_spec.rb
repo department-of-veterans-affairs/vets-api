@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'securerandom'
 
 describe TravelPay::ClaimsService do
   context 'get_claims' do
@@ -36,8 +37,8 @@ describe TravelPay::ClaimsService do
             'modifiedOn' => '2024-02-01T00:00:00.0Z'
           },
           {
-            'id' => 'uuid4',
-            'claimNumber' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+            'claimNumber' => 'TC0004',
             'claimName' => '9d81c1a1-cd05-47c6-be97-d14dec579893',
             'claimStatus' => 'Claim Submitted',
             'appointmentDateTime' => nil,
@@ -54,10 +55,12 @@ describe TravelPay::ClaimsService do
       )
     end
 
+    let(:tokens) { %w[veis_token btsss_token] }
+
     before do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims)
-        .with(user)
+        .with(*tokens)
         .and_return(claims_response)
     end
 
@@ -65,10 +68,71 @@ describe TravelPay::ClaimsService do
       expected_statuses = ['In Progress', 'In Progress', 'Incomplete', 'Claim Submitted']
 
       service = TravelPay::ClaimsService.new
-      claims = service.get_claims(user)
-      actual_statuses = claims[:data].pluck(:claimStatus)
+      claims = service.get_claims(*tokens)
+      actual_statuses = claims[:data].pluck('claimStatus')
 
       expect(actual_statuses).to match_array(expected_statuses)
+    end
+
+    context 'get claim by id' do
+      it 'returns a single claim when passed a valid id' do
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        expected_claim = claims_data['data'].find { |c| c['id'] == claim_id }
+        service = TravelPay::ClaimsService.new
+        actual_claim = service.get_claim_by_id(*tokens, claim_id)
+
+        expect(actual_claim).to eq(expected_claim)
+      end
+
+      it 'returns nil if a claim with the given id was not found' do
+        claim_id = SecureRandom.uuid
+        service = TravelPay::ClaimsService.new
+        actual_claim = service.get_claim_by_id(*tokens, claim_id)
+
+        expect(actual_claim).to eq(nil)
+      end
+
+      it 'throws an ArgumentException if claim_id is invalid format' do
+        claim_id = 'this-is-definitely-a-uuid-right'
+        service = TravelPay::ClaimsService.new
+
+        expect { service.get_claim_by_id(*tokens, claim_id) }
+          .to raise_error(ArgumentError, /valid v4 UUID/i)
+      end
+    end
+
+    context 'filter by appt date' do
+      it 'returns claims that match appt date if specified' do
+        service = TravelPay::ClaimsService.new
+        claims = service.get_claims(*tokens, { 'appt_datetime' => '2024-01-01' })
+
+        expect(claims.count).to equal(1)
+      end
+
+      it 'returns 0 claims if appt date does not match' do
+        service = TravelPay::ClaimsService.new
+        claims = service.get_claims(*tokens, { 'appt_datetime' => '1700-01-01' })
+
+        expect(claims[:data].count).to equal(0)
+      end
+
+      it 'returns all claims if appt date is invalid' do
+        service = TravelPay::ClaimsService.new
+        claims = service.get_claims(*tokens, { 'appt_datetime' => 'banana' })
+
+        expect(claims[:data].count).to equal(claims_data['data'].count)
+      end
+
+      it 'returns all claims if appt date is not specified' do
+        service = TravelPay::ClaimsService.new
+        claims_empty_date = service.get_claims(*tokens, { 'appt_datetime' => '' })
+        claims_nil_date = service.get_claims(*tokens, { 'appt_datetime' => 'banana' })
+        claims_no_param = service.get_claims(*tokens)
+
+        expect(claims_empty_date[:data].count).to equal(claims_data['data'].count)
+        expect(claims_nil_date[:data].count).to equal(claims_data['data'].count)
+        expect(claims_no_param[:data].count).to equal(claims_data['data'].count)
+      end
     end
   end
 end

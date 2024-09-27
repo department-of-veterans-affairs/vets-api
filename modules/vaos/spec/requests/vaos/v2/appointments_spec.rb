@@ -773,24 +773,25 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'updates the service name, physical location, friendly name, and location' do
-          appointment = { clinic: 'Test Clinic', location_id: 1 }
-
+          stub_facilities
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
             .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
-          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return('Location')
-          allow_any_instance_of(described_class).to receive(:appointment).and_return(appointment)
-          allow(Rails.logger).to receive(:info).at_least(:once)
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
 
-          get '/vaos/v2/appointments/70060', headers: inflection_header
+            get '/vaos/v2/appointments/70060', headers: inflection_header
 
-          data = json_body_for(response)
-          expect(data['serviceName']).to eq('Service Name')
-          expect(data['physicalLocation']).to eq('Physical Location')
-          expect(data['friendlyName']).to eq('Service Name')
-          expect(data['location']).to eq('Location')
-          expect(Rails.logger).to have_received(:info).with(
-            'VAOS::V2::AppointmentsController appointment creation time: unknown'
-          )
+            data = json_body_for(response)['attributes']
+            expect(data['serviceName']).to eq('Service Name')
+            expect(data['physicalLocation']).to eq('Physical Location')
+            expect(data['friendlyName']).to eq('Service Name')
+            expect(data['location']).to eq(expected_facility)
+            expect(Rails.logger).to have_received(:info).with(
+              'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
+              { created: '2021-12-13T14:03:02Z' }.to_json
+            )
+          end
         end
       end
 
@@ -821,6 +822,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
         it 'returns a status code of 200 and the cancelled appointment with the updated status' do
           stub_facilities
+          stub_clinics
           VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200', match_requests_on: %i[method path query]) do
             put '/vaos/v2/appointments/70060', params: { status: 'cancelled' }, headers: inflection_header
             expect(response).to have_http_status(:success)
@@ -835,22 +837,20 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         context 'when clinic and location_id are present' do
-          let(:updated_appointment) { { clinic: 'Test Clinic', location_id: 1 } }
-
           it 'updates the service name, physical location, friendly name, and location' do
             allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
               .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
-            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility)
-              .and_return('Location')
-            allow_any_instance_of(described_class).to receive(:updated_appointment).and_return(updated_appointment)
+            stub_facilities
+            VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200',
+                             match_requests_on: %i[method path query]) do
+              put '/vaos/v2/appointments/70060', params: { status: 'cancelled' }, headers: inflection_header
 
-            put '/vaos/v2/appointments/70060', params: { status: 'cancelled' }, headers: inflection_header
-
-            data = json_body_for(response)
-            expect(data['serviceName']).to eq('Service Name')
-            expect(data['physicalLocation']).to eq('Physical Location')
-            expect(data['friendlyName']).to eq('Service Name')
-            expect(data['location']).to eq('Location')
+              data = json_body_for(response)['attributes']
+              expect(data['serviceName']).to eq('Service Name')
+              expect(data['physicalLocation']).to eq('Physical Location')
+              expect(data['friendlyName']).to eq('Service Name')
+              expect(data['location']).to eq(expected_facility)
+            end
           end
         end
 

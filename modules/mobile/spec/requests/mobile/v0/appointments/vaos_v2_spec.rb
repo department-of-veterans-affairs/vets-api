@@ -5,7 +5,7 @@ require_relative '../../../../support/helpers/rails_helper'
 RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user(icn: '1012846043V576341') }
+  let!(:user) { sis_user(icn: '1012846043V576341', vha_facility_ids: [402, 555]) }
 
   before do
     Flipper.enable_actor(:appointments_consolidation, user)
@@ -340,10 +340,12 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       end
 
       context 'when custom error response is injected' do
-        let!(:user) { sis_user(email: 'vets.gov.user+141@gmail.com') }
+        let!(:user) { sis_user(email: 'vets.gov.user+141@gmail.com', vha_facility_ids: [402, 555]) }
 
         it 'raises 418 custom error' do
-          get '/mobile/v0/appointments', headers: sis_headers
+          with_settings(Settings, vsp_environment: 'test') do
+            get '/mobile/v0/appointments', headers: sis_headers
+          end
           expect(response).to have_http_status(418)
           expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Custom error title',
                                                               'body' => 'Custom error body. \\n This explains to ' \
@@ -682,6 +684,37 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           expect(expected_upcoming_pending_count).to eq(1)
           expect(response.parsed_body['meta']['upcomingAppointmentsCount']).to eq(expected_upcoming_pending_count)
           expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
+        end
+      end
+
+      describe 'appointment call returns 500 error' do
+        # This is a requirement due to FE having a bug where a source field in the error
+        # with a hash in it was causing long delays.
+        it 'returns 502 error with no source hash' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_500', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/appointments', headers: sis_headers
+          end
+          expect(response.parsed_body.dig('errors', 0)).to eq({ 'title' => 'Bad Gateway',
+                                                                'detail' => 'The resource could not be found',
+                                                                'code' => '502',
+                                                                'status' => '502' })
+        end
+      end
+
+      context 'appointment authorization' do
+        context 'when user has no facilities' do
+          let!(:user) { sis_user(icn: '1012846043V576341', vha_facility_ids: []) }
+
+          it 'returns forbidden error' do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: sis_headers
+            end
+
+            expect(response.parsed_body.dig('errors', 0)).to eq({ 'title' => 'Forbidden',
+                                                                  'detail' => 'No facility associated with user',
+                                                                  'code' => '403',
+                                                                  'status' => '403' })
+          end
         end
       end
     end
