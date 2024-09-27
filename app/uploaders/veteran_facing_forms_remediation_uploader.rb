@@ -5,18 +5,13 @@ class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
   include UploaderVirusScan
 
   class << self
-    # TODO: update this to vff specific S3 bucket once it has been created
-    # e.g. Settings.vff_simple_forms.s3
     def s3_settings
-      Settings.reports.aws
+      Settings.vff_simple_forms.aws
     end
 
     def new_s3_resource
-      Aws::S3::Resource.new(
-        region: s3_settings.region,
-        access_key_id: s3_settings.aws_access_key_id,
-        secret_access_key: s3_settings.aws_secret_access_key
-      )
+      client = Aws::S3::Client.new(region: s3_settings.region)
+      Aws::S3::Resource.new(client:)
     end
 
     def get_s3_link(file_path)
@@ -54,13 +49,11 @@ class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
 
   def set_storage_options!
     settings = self.class.s3_settings
-    if settings.aws_access_key_id.present?
-      set_aws_config(
-        settings.aws_access_key_id,
-        settings.aws_secret_access_key,
-        settings.region,
-        settings.bucket
-      )
-    end
+
+    self.aws_credentials = { region: settings.region }
+    self.aws_acl = 'private'
+    self.aws_bucket = settings.bucket
+    self.aws_attributes = { server_side_encryption: 'AES256' }
+    self.class.storage = :aws
   end
 end
