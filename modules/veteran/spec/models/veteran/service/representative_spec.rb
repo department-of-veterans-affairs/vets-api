@@ -113,6 +113,25 @@ describe Veteran::Service::Representative, type: :model do
     end
   end
 
+  describe '#organizations' do
+    let(:representative) { create(:representative, poa_codes: %w[ABC 123]) }
+
+    context 'when there are no organizations with the representative poa_codes' do
+      it 'returns an empty array' do
+        expect(representative.organizations).to eq([])
+      end
+    end
+
+    context 'when there are organizations with the representative poa_codes' do
+      it 'a list of those organizations' do
+        organization1 = create(:organization, poa: 'ABC')
+        organization2 = create(:organization, poa: '123')
+
+        expect(representative.organizations).to contain_exactly(organization1, organization2)
+      end
+    end
+  end
+
   describe 'callbacks' do
     describe '#set_full_name' do
       context 'creating a new representative' do
