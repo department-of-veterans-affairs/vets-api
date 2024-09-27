@@ -45,7 +45,7 @@ module DecisionReviewV1
           response, bm = run_and_benchmark_if_enabled do
             perform :post, 'supplemental_claims', request_body, headers
           rescue => e
-            log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+            log_formatted(**common_log_params.merge(error_log_params(e)))
             raise e
           end
           log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
@@ -101,7 +101,7 @@ module DecisionReviewV1
           rescue => e
             # We can freely log Lighthouse's error responses because they do not include PII or PHI.
             # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v1.
-            log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+            log_formatted(**common_log_params.merge(error_log_params(e)))
             raise e
           end
           raise_schema_error_unless_200_status response.status
@@ -141,7 +141,7 @@ module DecisionReviewV1
         rescue => e
           # We can freely log Lighthouse's error responses because they do not include PII or PHI.
           # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v2
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
       end
@@ -189,7 +189,7 @@ module DecisionReviewV1
         rescue => e
           # We can freely log Lighthouse's error responses because they do not include PII or PHI.
           # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v2
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
       ensure
