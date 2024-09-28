@@ -38,8 +38,8 @@ module ClaimsApi
     def valid_participant_dependent_combo?
       return false if @veteran_participant_id.blank?
 
-      person_web_service = PersonWebService.new(external_uid: 'dependent_claimant_verification_uid',
-                                                external_key: 'dependent_claimant_verification_key')
+      person_web_service = PersonWebService.new(external_uid: @veteran_participant_id,
+                                                external_key: @veteran_participant_id)
       response = person_web_service.find_dependents_by_ptcpnt_id(@veteran_participant_id)
 
       return false if response.nil? || response.fetch(:number_of_records, 0).to_i.zero?
