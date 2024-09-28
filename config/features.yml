@@ -466,6 +466,10 @@ features:
     actor_type: user
     description: enable to test the backup submission path. DO NOT TOGGLE THIS FLAG UNLESS YOU ARE A MEMBER OF DISABILITY BENEFITS EXPERIENCE TEAM.
     enable_in_development: true
+  disability_compensation_sync_modern_0781_flow:
+    actor_type: user
+    description: enables a new form flow to for 0781 and 0781a in the 526 submission workflow
+    enable_in_development: false
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
