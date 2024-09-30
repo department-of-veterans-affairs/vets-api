@@ -60,6 +60,7 @@ module ClaimsApi
                             request_id:)
       res
     rescue => e
+      byebug
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/upload failure for
                                                     #{doc_type_to_plain_language(doc_type)}_id: #{claim.id},
@@ -108,7 +109,7 @@ module ClaimsApi
       birls_file_num = determine_birls_file_number(doc_type, auth_headers)
       claim_id = get_claim_id(doc_type, claim)
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, action:)
-      participant_id = pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)
+      participant_id = '600043202' # pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)
       system_name = 'Lighthouse' if %w[L075 L190].include?(doc_type)
       tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
       data = build_body(doc_type:, file_name:, participant_id:, claim_id:,

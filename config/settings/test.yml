@@ -410,7 +410,14 @@ claims_api:
         client_id: fakekeyvaluehere
         secret_key: path/to/fake/key.pem
         aud_claim_url: https://fakeurlhere/fake/path/here
-
+  vanotify:
+    client_url: 'https://staging-api.va.gov/vanotify'
+    representative_template_id: '57b3c78a-96e2-49f0-b43a-7b02d7e2b6a8'
+    service_organization_template_id: '3126e0c6-8016-48a6-a6be-9206d4c624f9'
+    services:
+      lighthouse:
+        api_key: 'lighthouse-d0df2826-7c2f-4d06-856b-a0be27de7a5e-7f8f19f1-e47b-40fb-850b-4efcf0afcf56'
+        
 ask_va:
   crm_api:
     auth_url: https://login.microsoftonline.us
