@@ -26,8 +26,7 @@ RSpec.describe 'V1::NoticeOfDisagreements', type: :request do
       http: {
         status_code: 422,
         body: response_error_body
-      },
-      version_number: 'v2'
+      }
     }
   end
 
@@ -80,12 +79,10 @@ RSpec.describe 'V1::NoticeOfDisagreements', type: :request do
                                                       http: {
                                                         status_code: 200,
                                                         body: '[Redacted]'
-                                                      },
-                                                      version_number: 'v2'
+                                                      }
                                                     })
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.success')
-        expect(StatsD).to receive(:increment).with('nod_evidence_upload.v2.queued')
         previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
         # Create an InProgressForm
         in_progress_form = create(:in_progress_form, user_uuid: user.uuid, form_id: '10182')
