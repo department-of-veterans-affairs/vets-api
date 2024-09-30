@@ -216,14 +216,14 @@ module SimpleFormsApi
       end
 
       def send_pdf_to_s3(benefits_intake_uuid, file_path, metadata, submission)
-        submission_archiver = SimpleFormsApi::S3Service::SubmissionArchiver.new(
+        submission_archiver = SimpleFormsApi::S3::SubmissionArchiver.new(
           attachments: get_form_id == 'vba_20_10207' ? form.get_attachments : [],
           benefits_intake_uuid:,
           file_path:,
           metadata:,
           submission:
         )
-        submission_archiver.run
+        submission_archiver.upload(type: :submission)
       end
 
       def form_is264555_and_should_use_lgy_api

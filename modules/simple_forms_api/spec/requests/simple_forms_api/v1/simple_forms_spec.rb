@@ -33,6 +33,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
       let(:random_string) { 'some-unique-simple-forms-file-seed' }
+      let(:presigned_s3_url) { 'https://s3.com/presigned-goodness' }
+      let(:mock_archiver) { instance_double(SimpleFormsApi::S3::SubmissionArchiver, upload: presigned_s3_url) }
 
       before do
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
@@ -41,6 +43,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
           original_method.call(args[0], random_string)
         end
+        allow(SimpleFormsApi::S3::SubmissionArchiver).to receive(:new).with(anything).and_return(mock_archiver)
         Flipper.disable(:simple_forms_email_confirmations)
       end
 
@@ -110,6 +113,19 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             expect do
               post '/simple_forms_api/v1/simple_forms', params: data
             end.to change(InProgressForm, :count).by(-1)
+          end
+
+          it 'sends the PDF to the SubmissionArchiver' do
+            location_url = 'https://sandbox-api.va.gov/services_user_content/vba_documents/id-path-doesnt-matter'
+            benefits_intake_uuid = SecureRandom.uuid
+            allow_any_instance_of(BenefitsIntake::Service).to(
+              receive(:request_upload).and_return([location_url, benefits_intake_uuid])
+            )
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(mock_archiver).to have_received(:upload)
+            expect(JSON.parse(response.body)['pdf_url']).to eq(presigned_s3_url)
           end
         end
       end
