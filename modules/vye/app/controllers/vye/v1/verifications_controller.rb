@@ -44,7 +44,7 @@ module Vye
 
       def matching_awards?
         given = award_ids.sort
-        actual = pending_verifications.pluck(:award_id).sort
+        actual = pending_verifications.pluck(:award_id).uniq.sort
         given == actual
       end
 
