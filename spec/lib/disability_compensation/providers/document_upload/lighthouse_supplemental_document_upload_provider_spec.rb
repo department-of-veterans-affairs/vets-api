@@ -31,6 +31,25 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     )
   end
 
+  let(:faraday_response) { instance_double(Faraday::Response) }
+  let(:lighthouse_request_id) { Faker::Number.number(digits: 8) }
+
+  # Mock Lighthouse API response
+  before do
+    allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+      .with(file_body, lighthouse_document)
+      .and_return(faraday_response)
+
+    allow(faraday_response).to receive(:body).and_return(
+      {
+        'data' => {
+          'success' => true,
+          'requestId' => lighthouse_request_id
+        }
+      }
+    )
+  end
+
   it_behaves_like 'supplemental document upload provider'
 
   describe 'generate_upload_document' do
@@ -68,35 +87,9 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   end
 
   describe 'submit_upload_document' do
-    let(:faraday_response) { instance_double(Faraday::Response) }
-    let(:lighthouse_request_id) { Faker::Number.number(digits: 8) }
-
-    before do
-      allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-        .with(file_body, lighthouse_document)
-        .and_return(faraday_response)
-
-      allow(faraday_response).to receive(:body).and_return(
-        {
-          'data' => {
-            'success' => true,
-            'requestId' => lighthouse_request_id
-          }
-        }
-      )
-    end
-
     it 'uploads the document via the UploadSupplementalDocumentService' do
       expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
         .with(file_body, lighthouse_document)
-
-      provider.submit_upload_document(lighthouse_document, file_body)
-    end
-
-    it 'increments a StatsD success metric' do
-      expect(StatsD).to receive(:increment).with(
-        'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.success'
-      )
 
       provider.submit_upload_document(lighthouse_document, file_body)
     end
@@ -116,42 +109,149 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     end
   end
 
-  describe 'logging methods' do
-    # We don't want to generate an actual submission for these tests,
-    # since submissions have callbacks that log to StatsD and we need to test
-    # only the metrics in this class
-    let(:submission) { instance_double(Form526Submission) }
+  describe 'events logging' do
+    context 'when attempting to upload a document' do
+      before do
+        allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+        allow(provider).to receive(:handle_lighthouse_response)
+      end
 
-    let(:provider) do
-      LighthouseSupplementalDocumentUploadProvider.new(
-        submission,
-        'MyUploadingClass',
-        'my_stats_metric_prefix'
-      )
+      it 'logs to the Rails logger' do
+        expect(Rails.logger).to receive(:info).with(
+          'LighthouseSupplementalDocumentUploadProvider upload attempted',
+          {
+            class: 'LighthouseSupplementalDocumentUploadProvider',
+            submission_id: submission.submitted_claim_id,
+            user_uuid: submission.user_uuid,
+            va_document_type_code: va_document_type,
+            primary_form: 'Form526'
+          }
+        )
+
+        provider.submit_upload_document(lighthouse_document, file_body)
+      end
+
+      it 'increments a StatsD attempt metric' do
+        expect(StatsD).to receive(:increment).with(
+          'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.upload_attempt'
+        )
+
+        provider.submit_upload_document(lighthouse_document, file_body)
+      end
     end
 
-    describe 'log_upload_failure' do
-      let(:error_class) { 'StandardError' }
-      let(:error_message) { 'Something broke' }
+    context 'when an upload is successfull' do
+      before do
+        # Skip upload attempt logging
+        allow(provider).to receive(:log_upload_attempt)
+      end
 
-      it 'increments a StatsD failure metric' do
-        expect(StatsD).to receive(:increment).with(
-          'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.failed'
+      it 'logs to the Rails logger' do
+        expect(Rails.logger).to receive(:info).with(
+          'LighthouseSupplementalDocumentUploadProvider upload successful',
+          {
+            class: 'LighthouseSupplementalDocumentUploadProvider',
+            submission_id: submission.submitted_claim_id,
+            user_uuid: submission.user_uuid,
+            va_document_type_code: va_document_type,
+            primary_form: 'Form526',
+            lighthouse_request_id:
+          }
         )
-        provider.log_upload_failure(error_class, error_message)
+
+        provider.submit_upload_document(lighthouse_document, file_body)
+      end
+
+      it 'increments a StatsD success metric' do
+        expect(StatsD).to receive(:increment).with(
+          'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.upload_success'
+        )
+
+        provider.submit_upload_document(lighthouse_document, file_body)
+      end
+    end
+
+    context 'when we get a non-200 response from Lighthouse' do
+      let(:error_response_body) do
+        # Based on error response Lighthouse returned saved in VCR cassette:
+        # spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
+        {
+          'errors' => [
+            {
+              'detail' => 'Something broke',
+              'status' => 400,
+              'title' => 'Bad Request',
+              'instance' => Faker::Internet.uuid
+            }
+          ]
+        }
+      end
+
+      before do
+        # Skip upload attempt logging
+        allow(provider).to receive(:log_upload_attempt)
+
+        allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+          .with(file_body, lighthouse_document)
+          .and_return(faraday_response)
+
+        allow(faraday_response).to receive(:body).and_return(error_response_body)
       end
 
       it 'logs to the Rails logger' do
         expect(Rails.logger).to receive(:error).with(
-          'LighthouseSupplementalDocumentUploadProvider upload failure',
+          'LighthouseSupplementalDocumentUploadProvider upload failed',
           {
             class: 'LighthouseSupplementalDocumentUploadProvider',
+            submission_id: submission.submitted_claim_id,
+            user_uuid: submission.user_uuid,
+            va_document_type_code: va_document_type,
+            primary_form: 'Form526',
+            lighthouse_error_response: error_response_body
+          }
+        )
+
+        provider.submit_upload_document(lighthouse_document, file_body)
+      end
+
+      it 'increments a StatsD metric' do
+        expect(StatsD).to receive(:increment).with(
+          'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.upload_failure'
+        )
+
+        provider.submit_upload_document(lighthouse_document, file_body)
+      end
+    end
+
+    # Will be called in the sidekiq_retries_exhausted block of the including job
+    context 'uploading job failure' do
+      let(:uploading_job_class) { 'MyUploadJob' }
+      let(:error_class) { 'StandardError' }
+      let(:error_message) { 'Something broke' }
+
+      it 'logs to the Rails logger' do
+        expect(Rails.logger).to receive(:error).with(
+          "#{uploading_job_class} LighthouseSupplementalDocumentUploadProvider Failure",
+          {
+            class: 'LighthouseSupplementalDocumentUploadProvider',
+            submission_id: submission.submitted_claim_id,
+            user_uuid: submission.user_uuid,
+            va_document_type_code: va_document_type,
+            primary_form: 'Form526',
+            uploading_job_class:,
             error_class:,
             error_message:
           }
         )
 
-        provider.log_upload_failure(error_class, error_message)
+        provider.log_uploading_job_failure(uploading_job_class, error_class, error_message)
+      end
+
+      it 'increments a StatsD failure metric' do
+        expect(StatsD).to receive(:increment).with(
+          'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.upload_job_failed'
+        )
+        provider.log_uploading_job_failure(uploading_job_class, error_class, error_message)
       end
     end
   end
