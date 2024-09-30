@@ -24,7 +24,12 @@ module Vets
 
     # Acts as ActiveRecord::Base#attributes which is needed for serialization
     def attributes
-      nested_attributes(instance_values)
+      nested_attributes(attribute_values)
+    end
+
+    # Acts as Object#instance_values
+    def attribute_values
+      self.class.attribute_set.map { |attr| [attr, send(attr)] }.to_h
     end
 
     private
@@ -36,8 +41,8 @@ module Vets
     # @return [Hash] nested attributes
     def nested_attributes(values)
       values.transform_values do |value|
-        if value.respond_to?(:attributes)
-          nested_attributes(value.instance_values)
+        if value.respond_to?(:attribute_values)
+          nested_attributes(value.attribute_values)
         else
           value
         end
