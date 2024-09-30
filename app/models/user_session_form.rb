@@ -29,7 +29,6 @@ class UserSessionForm
     @user = User.new(uuid:)
     @user.session_handle = @session.token
     @user.instance_variable_set(:@identity, @user_identity)
-    @user.invalidate_mpi_cache
 
     if saml_user.changing_multifactor?
       last_signed_in = existing_user&.last_signed_in || Time.current.utc
@@ -100,6 +99,7 @@ class UserSessionForm
 
   def persist
     if save
+      user.invalidate_mpi_cache
       [user, session]
     else
       [nil, nil]
