@@ -37,7 +37,6 @@ module TravelPay
     end
 
     def create_new_claim(veis_token, btsss_token, params = {})
-      # btsss_appt_id = params['btsss_appt_id']
       # ensure appt ID is the right format, allowing any version
       uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
 

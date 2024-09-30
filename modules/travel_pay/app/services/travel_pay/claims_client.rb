@@ -28,6 +28,12 @@ module TravelPay
     # HTTP POST call to the BTSSS 'claims' endpoint
     # API responds with a new travel pay claim ID
     #
+    # @params {
+    #  "appointmentId": "string", (BTSSS internal appointment ID - uuid)
+    #  "claimName": "string", (internal to BTSSS)
+    #  "claimantType": "Veteran" (currently, "Veteran" is the only claimant type supported)
+    # }
+    #
     # @return claimID => string
     #
     def create_claim(veis_token, btsss_token, params = {})
