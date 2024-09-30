@@ -7,7 +7,7 @@ MHVMedicalRecordsPolicy = Struct.new(:user, :mhv_medical_records) do
 
   def access?
     if Flipper.enabled?(:mhv_medical_records_new_eligibility_check)
-      client = UserEligibility::Client.new(user.mhv_correlation_id, icn: user.icn)
+      client = UserEligibility::Client.new(user.mhv_correlation_id, user.icn)
 
       begin
         response = client.get_is_valid_sm_user
