@@ -36,6 +36,26 @@ module TravelPay
       end
     end
 
+    def create_new_claim(veis_token, btsss_token, params = {})
+      # btsss_appt_id = params['btsss_appt_id']
+      # ensure appt ID is the right format, allowing any version
+      uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
+
+      unless params['btsss_appt_id']
+        raise ArgumentError,
+              message: 'You must provide a BTSSS appointment ID to create a claim.'
+      end
+
+      unless uuid_all_version_format.match?(params['btsss_appt_id'])
+        raise ArgumentError,
+              message: "Expected BTSSS appointment id to be a valid UUID, got #{params['btsss_appt_id']}."
+      end
+
+      new_claim_response = client.create_claim(veis_token, btsss_token, params)
+
+      new_claim_response.body
+    end
+
     private
 
     def filter_by_date(date_string, claims)

@@ -135,4 +135,47 @@ describe TravelPay::ClaimsService do
       end
     end
   end
+
+  context 'create_new_claim' do
+    let(:user) { build(:user) }
+    let(:new_claim_data) do
+      {
+        'data' =>
+          {
+            'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          }
+      }
+    end
+    let(:new_claim_response) do
+      Faraday::Response.new(
+        body: new_claim_data
+      )
+    end
+
+    let(:tokens) { %w[veis_token btsss_token] }
+
+    it 'returns a claim ID when passed a valid btsss appt id' do
+      btsss_appt_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:create_claim)
+        .with(*tokens, { 'btsss_appt_id' => btsss_appt_id })
+        .and_return(new_claim_response)
+
+      service = TravelPay::ClaimsService.new
+      actual_claim_response = service.create_new_claim(*tokens, { 'btsss_appt_id' => btsss_appt_id })
+
+      expect(actual_claim_response['data']).to equal(new_claim_data['data'])
+    end
+
+    it 'throws an ArgumentException if btsss_appt_id is invalid format' do
+      btsss_appt_id = 'this-is-definitely-a-uuid-right'
+      service = TravelPay::ClaimsService.new
+
+      expect { service.create_new_claim(*tokens, { 'btsss_appt_id' => btsss_appt_id }) }
+        .to raise_error(ArgumentError, /valid UUID/i)
+
+      expect { service.create_new_claim(*tokens, { 'btsss_appt_id' => nil }) }
+        .to raise_error(ArgumentError, /must provide/i)
+    end
+  end
 end
