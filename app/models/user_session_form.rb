@@ -99,7 +99,6 @@ class UserSessionForm
 
   def persist
     if save
-      user.invalidate_mpi_cache
       [user, session]
     else
       [nil, nil]
