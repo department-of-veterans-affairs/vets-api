@@ -60,7 +60,6 @@ module Avs
 
     def sanitize_html(html)
       if html
-        config = []
         Sanitize.fragment(html, Sanitize::Config.merge(Sanitize::Config::BASIC,
                                                        elements: [],
                                                        whitespace_elements: {
@@ -73,15 +72,9 @@ module Avs
       transformed_data = {}
       data.each_key do |key|
         transformed_key = key.to_s.snakecase.to_sym
-        if self.class.attribute_set.include?(transformed_key)
-          transformed_data[transformed_key] = data[key]
-        end
+        transformed_data[transformed_key] = data[key] if self.class.attribute_set.include?(transformed_key)
       end
       transformed_data
-    end
-
-    def set_attributes(data)
-      self.class.attribute_set
     end
 
     def as_json(options = {})

@@ -49,15 +49,12 @@ module Avs
       end
 
       def avs_sid_response
-        @avs_appointment_response ||= begin
-          avs_service.get_avs(avs_params[:sid])
-        end
+        @avs_appointment_response ||= avs_service.get_avs(avs_params[:sid])
       end
 
       def avs_appointment_response
-        @avs_appointment_response ||= begin
-          avs_service.get_avs_by_appointment(avs_params[:stationNo], avs_params[:appointmentIen])
-        end
+        @avs_appointment_response ||= avs_service.get_avs_by_appointment(avs_params[:stationNo],
+                                                                         avs_params[:appointmentIen])
       end
 
       def validate_search_params
