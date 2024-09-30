@@ -196,7 +196,10 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       it 'agreement_unchanged returns false' do
         job.perform(user_account_uuid, version)
 
-        expect(job.send(:agreement_unchanged?)).to be_falsey
+        expect(MAP::SignUp::Service).to have_received(:new)
+        expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
+                                                                           signature_name: common_name,
+                                                                           version:)
       end
     end
 
@@ -212,7 +215,10 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       it 'agreement_unchanged returns false' do
         job.perform(user_account_uuid, version)
 
-        expect(job.send(:agreement_unchanged?)).to be_falsey
+        expect(MAP::SignUp::Service).to have_received(:new)
+        expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
+                                                                           signature_name: common_name,
+                                                                           version:)
       end
     end
 
@@ -223,22 +229,15 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       let(:status) { { opt_out: false, agreement_signed: true } }
 
       before do
-        allow(service_instance).to receive(:agreements_accept)
-        allow(terms_of_use_agreement).to receive(:accepted?).and_return(true)
+        allow(Rails.logger).to receive(:info)
         allow(service_instance).to receive(:status).and_return(status)
-      end
-
-      it 'returns true when the agreement is unchanged' do
-        job.perform(user_account_uuid, version)
-
-        expect(job.send(:agreement_unchanged?)).to be_truthy
       end
 
       it 'logs that the agreement is not changed' do
         job.perform(user_account_uuid, version)
 
-        expect(Rails.logger).to receive(:info).with(expected_log, { icn: user_account.icn })
-        expect(job.send(:agreement_unchanged?)).to be_truthy
+        expect(MAP::SignUp::Service).to have_received(:new)
+        expect(Rails.logger).to have_received(:info).with(expected_log, icn:)
       end
     end
 
