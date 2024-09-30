@@ -29,9 +29,9 @@ module ClaimsApi
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
-          check_file_number_exists!
-          validate_dependent_claimant!(poa_code:)
-          assign_poa_to_dependent_claimant!(poa_code:)
+          file_number = check_file_number_exists!
+          dependent_participant_id, claimant_ssn = validate_dependent_claimant!(poa_code:)
+          assign_poa_to_dependent_claimant!(poa_code:, file_number:, dependent_participant_id:, claimant_ssn:)
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
                                                                                           source_name:)
@@ -166,16 +166,21 @@ module ClaimsApi
                                                                         poa_code:)
 
           service.validate_poa_code_exists!
+
           service.validate_dependent_by_participant_id!
         end
 
-        def assign_poa_to_dependent_claimant!(poa_code:)
+        def assign_poa_to_dependent_claimant!(poa_code:, file_number:, dependent_participant_id:, claimant_ssn:)
           return nil unless feature_enabled_and_claimant_present?
 
-          # TODO: set veteran_file_number and dependent_participant_id
-          veteran_participant_id = target_veteran.participant_id
-          service = ClaimsApi::DependentClaimantPoaAssignmentService.new(poa_code:,
-                                                                         veteran_participant_id:)
+          service = ClaimsApi::DependentClaimantPoaAssignmentService.new(
+            poa_code:,
+            veteran_participant_id: target_veteran.participant_id,
+            dependent_participant_id:,
+            veteran_file_number: file_number,
+            claimant_ssn:
+          )
+
           service.assign_poa_to_dependent!
         end
 
@@ -274,7 +279,7 @@ module ClaimsApi
         end
 
         def check_file_number_exists!
-          ssn = target_veteran&.ssn
+          ssn = target_veteran.ssn
 
           begin
             response = find_by_ssn(ssn)
@@ -284,6 +289,8 @@ module ClaimsApi
                               'or call 1-800-MyVA411 (800-698-2411) for assistance.'
               raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)
             end
+
+            response[:file_nbr]
           rescue BGS::ShareError
             error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
             claims_v1_logging('poa_find_by_ssn', message: error_message)
