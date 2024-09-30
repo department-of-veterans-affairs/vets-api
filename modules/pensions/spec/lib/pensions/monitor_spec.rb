@@ -50,13 +50,32 @@ RSpec.describe Pensions::Monitor do
         log = '21P-527EZ submission to Sidekiq begun'
         payload = {
           confirmation_number: claim.confirmation_number,
-          user_uuid: current_user.uuid
+          user_uuid: current_user.uuid,
+          statsd: "#{claim_stats_key}.attempt"
         }
 
         expect(StatsD).to receive(:increment).with("#{claim_stats_key}.attempt")
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_create_attempt(claim, current_user)
+      end
+    end
+
+    describe '#track_create_validation_error' do
+      it 'logs create failed' do
+        log = '21P-527EZ submission validation error'
+        payload = {
+          confirmation_number: claim.confirmation_number,
+          user_uuid: current_user.uuid,
+          in_progress_form_id: ipf.id,
+          errors: [], # mock claim does not have `errors`
+          statsd: "#{claim_stats_key}.validation_error"
+        }
+
+        expect(StatsD).to receive(:increment).with("#{claim_stats_key}.validation_error")
+        expect(Rails.logger).to receive(:error).with(log, payload)
+
+        monitor.track_create_validation_error(ipf, claim, current_user)
       end
     end
 
@@ -68,7 +87,8 @@ RSpec.describe Pensions::Monitor do
           user_uuid: current_user.uuid,
           in_progress_form_id: ipf.id,
           errors: [], # mock claim does not have `errors`
-          message: monitor_error.message
+          message: monitor_error.message,
+          statsd: "#{claim_stats_key}.failure"
         }
 
         expect(StatsD).to receive(:increment).with("#{claim_stats_key}.failure")
@@ -84,13 +104,12 @@ RSpec.describe Pensions::Monitor do
         payload = {
           confirmation_number: claim.confirmation_number,
           user_uuid: current_user.uuid,
-          in_progress_form_id: ipf.id
+          in_progress_form_id: ipf.id,
+          statsd: "#{claim_stats_key}.success"
         }
         claim.form_start_date = Time.zone.now
 
         expect(StatsD).to receive(:increment).with("#{claim_stats_key}.success")
-        expect(StatsD).to receive(:measure).with('saved_claim.time-to-file', claim.created_at - claim.form_start_date,
-                                                 tags: ["form_id:#{claim.form_id}"])
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_create_success(ipf, claim, current_user)

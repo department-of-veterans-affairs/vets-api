@@ -30,7 +30,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     let(:award_ids) { user_info.awards.pluck(:id) }
     let!(:params) { { award_ids: } }
 
-    # rubocop:disable Rspec/SubjectStub
+    # rubocop:disable RSpec/SubjectStub
     before do
       allow(subject).to receive_messages(
         params:,
@@ -40,7 +40,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
 
       subject.send(:load_user_info) # private method override
     end
-    # rubocop:enable Rspec/SubjectStub
+    # rubocop:enable RSpec/SubjectStub
 
     it 'sets the transact date to the highest act_end of verifications' do
       subject.create
