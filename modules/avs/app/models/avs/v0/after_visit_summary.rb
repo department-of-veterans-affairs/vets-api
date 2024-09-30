@@ -4,7 +4,6 @@ require 'vets/model'
 
 module Avs
   class V0::AfterVisitSummary < Vets::Model
-    include ActiveModel::Serializers::JSON
 
     attribute :id, String
     attribute :icn, String
