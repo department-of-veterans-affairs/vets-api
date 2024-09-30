@@ -5,6 +5,10 @@ require_relative './base_client'
 
 module TravelPay
   class TokenClient < TravelPay::BaseClient
+    def initialize(client_number)
+      @client_number = client_number
+    end
+
     # HTTP POST call to the VEIS Auth endpoint to get the access token
     #
     # @return [Faraday::Response]

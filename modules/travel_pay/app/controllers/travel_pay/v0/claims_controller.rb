@@ -5,7 +5,7 @@ module TravelPay
     class ClaimsController < ApplicationController
       def index
         begin
-          token_service.get_tokens(@current_user) => { veis_token:, btsss_token: }
+          token_service.get_tokens => { veis_token:, btsss_token: }
           claims = claims_service.get_claims(veis_token, btsss_token, params)
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
@@ -21,7 +21,7 @@ module TravelPay
         end
 
         begin
-          token_service.get_tokens(@current_user) => { veis_token:, btsss_token: }
+          token_service.get_tokens => { veis_token:, btsss_token: }
           claim = claims_service.get_claim_by_id(veis_token, btsss_token, params[:id])
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
@@ -43,7 +43,8 @@ module TravelPay
       end
 
       def token_service
-        @token_service ||= TravelPay::TokenService.new
+        client = TravelPay::TokenClient.new(Settings.travel_pay.client_number)
+        @token_service ||= TravelPay::TokenService.new(client, @current_user)
       end
     end
   end

@@ -26,16 +26,18 @@ describe TravelPay::TokenService do
 
     context 'get_tokens' do
       it 'returns a hash with a veis_token and a btsss_token and stores it in the cache' do
-        allow_any_instance_of(TravelPay::TokenClient)
+        client = double(TravelPay::TokenClient)
+
+        allow(client)
           .to receive(:request_veis_token)
           .and_return(tokens[:veis_token])
-        allow_any_instance_of(TravelPay::TokenClient)
+        allow(client)
           .to receive(:request_btsss_token)
           .with(tokens[:veis_token], user)
           .and_return(tokens[:btsss_token])
 
-        service = TravelPay::TokenService.new
-        response = service.get_tokens(user)
+        service = TravelPay::TokenService.new(client, user)
+        response = service.get_tokens
         expect(response).to eq(tokens)
         # Verify that the tokens were stored
         expect($redis.ttl("travel-pay-store:#{user.account_uuid}")).to eq(3300)
@@ -53,8 +55,9 @@ describe TravelPay::TokenService do
       end
 
       it 'returns a cached veis_token and btsss_token' do
-        service = TravelPay::TokenService.new
-        response = service.get_tokens(user)
+        client = double(TravelPay::TokenClient)
+        service = TravelPay::TokenService.new(client, user)
+        response = service.get_tokens
         cached_tokens => { veis_token:, btsss_token: }
         destructured_cached_tokens = { veis_token:, btsss_token: }
         expect(response).to eq(destructured_cached_tokens)
