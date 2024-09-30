@@ -34,7 +34,12 @@ Rails.application.reloader.to_prepare do
   Flipper::UI::Configuration.prepend(FlipperExtensions::ConfigurationPatch)
 
   Flipper::UI.configure do |config|
-    config.custom_views_path = Rails.root.join('lib', 'flipper', 'views')
+    # config.custom_views_path = Rails.root.join('lib', 'flipper', 'views')
+
+    config.show_feature_description_in_list = true
+    config.descriptions_source = lambda do |_keys|
+      FLIPPER_FEATURE_CONFIG['features'].transform_values { |value| value['description'] }
+    end
   end
 
   FLIPPER_ACTOR_USER = 'user'
@@ -72,5 +77,5 @@ Rails.application.reloader.to_prepare do
 
   # Modify Flipper::UI::Action to use custom views if they exist
   # and to add descriptions and types for features.
-  Flipper::UI::Action.prepend(FlipperExtensions::ActionPatch)
+  # Flipper::UI::Action.prepend(FlipperExtensions::ActionPatch)
 end
