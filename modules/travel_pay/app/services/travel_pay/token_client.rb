@@ -46,8 +46,6 @@ module TravelPay
     end
 
     def request_sts_token(user)
-      return nil if mock_enabled?
-
       host_baseurl = build_host_baseurl({ ip_form: false })
       private_key_file = Settings.sign_in.sts_client.key_path
       private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
