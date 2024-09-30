@@ -5,8 +5,9 @@ require './lib/webhooks/utilities'
 require 'vba_documents/payload_manager'
 require_relative '../../support/vba_document_fixtures'
 require 'vba_documents/object_store'
+require 'vba_documents/multipart_parser'
 
-RSpec.describe 'VBADocument::V2::Uploads', retry: 3, type: :request do
+RSpec.describe 'VBADocument::V2::Uploads', type: :request do
   include VBADocuments::Fixtures
 
   load('./modules/vba_documents/config/routes.rb')

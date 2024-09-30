@@ -4,19 +4,19 @@ require 'rails_helper'
 require 'vets/attributes'
 require 'vets/model' # temporarily needed for Boolean
 
-class Category
+class FakeCategory
   include Vets::Attributes
 
   attribute :name, String, default: 'test'
 end
 
-class TestModel
+class DummyModel
   include Vets::Attributes
 
   attribute :name, String, default: 'Unknown'
   attribute :age, Integer, array: false
   attribute :tags, String, array: true
-  attribute :categories, Category, array: true
+  attribute :categories, FakeCategory, array: true
   attribute :created_at, DateTime, default: :current_time
 
   def current_time
@@ -25,7 +25,7 @@ class TestModel
 end
 
 RSpec.describe Vets::Attributes do
-  let(:model) { TestModel.new }
+  let(:model) { DummyModel.new }
 
   describe '.attribute' do
     it 'defines the setters and getters' do
@@ -38,7 +38,7 @@ RSpec.describe Vets::Attributes do
     end
 
     it 'defines the defaults' do
-      no_name = TestModel.new
+      no_name = DummyModel.new
       expect(no_name.name).to eq('Unknown')
       expect(model.categories).to be_nil
     end
@@ -55,17 +55,17 @@ RSpec.describe Vets::Attributes do
         name: { type: String, default: 'Unknown', array: false },
         age: { type: Integer, default: nil, array: false },
         tags: { type: String, default: nil, array: true },
-        categories: { type: Category, default: nil, array: true },
+        categories: { type: FakeCategory, default: nil, array: true },
         created_at: { type: DateTime, default: :current_time, array: false }
       }
-      expect(TestModel.attributes).to eq(expected_attributes)
+      expect(DummyModel.attributes).to eq(expected_attributes)
     end
   end
 
   describe '.attribute_set' do
     it 'returns an array of the attribute names' do
       expected_attribute_set = %i[name age tags categories created_at]
-      expect(TestModel.attribute_set).to eq(expected_attribute_set)
+      expect(DummyModel.attribute_set).to eq(expected_attribute_set)
     end
   end
 end
