@@ -2,14 +2,14 @@
 
 require 'rails_helper'
 
-describe VAProfileRedis::ContactInformation do
+describe VAProfileRedis::V2::ContactInformation do
   let(:user) { build(:user, :loa3) }
   let(:person_response) do
     raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
 
     VAProfile::V2::ContactInformation::PersonResponse.from(raw_response)
   end
-  let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
+  let(:contact_info) { VAProfileRedis::V2::ContactInformation.for_user(user) }
   let(:person) { build(:person_v2, telephones:) }
   let(:telephones) do
     [
@@ -56,9 +56,9 @@ describe VAProfileRedis::ContactInformation do
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             expect(contact_info.email).to eq(nil)
           end
-          VAProfileRedis::Cache.invalidate(user)
+          VAProfileRedis::V2::Cache.invalidate(user)
 
-          expect(VAProfileRedis::ContactInformation.for_user(user).email).to eq(nil)
+          expect(VAProfileRedis::V2::ContactInformation.for_user(user).email).to eq(nil)
         end
       end
     end

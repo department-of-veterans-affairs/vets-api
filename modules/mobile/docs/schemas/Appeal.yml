@@ -56,7 +56,7 @@ properties:
           description:
             type: string
           docket:
-            type: object, null
+            type: object
           events:
             type: array
             items:
