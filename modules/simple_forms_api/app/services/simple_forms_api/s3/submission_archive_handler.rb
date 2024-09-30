@@ -11,24 +11,25 @@ module SimpleFormsApi
         @benefits_intake_uuids = benefits_intake_uuids
         @parent_dir = parent_dir
         @presigned_urls = []
-        progress = load_progress
-        cleanup
-        progress
+        load_progress
       rescue => e
         handle_error('SubmissionArchiveHandler initialization failed', e)
       end
 
-      def upload
+      def upload(type: :remediation)
+        @type = type
+
         archive_individual_submissions
-        write_progress
-        read_urls_from_file
+        presigned_urls = read_urls_from_file
+        cleanup
+        presigned_urls
       rescue => e
         handle_error('Archiving submission collection failed.', e)
       end
 
       private
 
-      attr_reader :benefits_intake_uuids, :parent_dir, :presigned_urls
+      attr_reader :benefits_intake_uuids, :parent_dir, :presigned_urls, :type
 
       def cleanup
         FileUtils.rm_rf(PROGRESS_FILE_PATH)
@@ -70,7 +71,7 @@ module SimpleFormsApi
       end
 
       def archive_submission(benefits_intake_uuid)
-        SubmissionArchiver.new(benefits_intake_uuid:, parent_dir:).upload
+        SubmissionArchiver.new(benefits_intake_uuid:, parent_dir:).upload(type:)
       end
     end
   end

@@ -108,6 +108,9 @@ development: &defaults
   va_profile_contact_info_response:
     namespace: va-profile-contact-info-response
     each_ttl: 3600 # 1 hour
+  va_profile_v2_contact_info_response:
+    namespace: va-profile-v2-contact-info-response
+    each_ttl: 3600 # 1 hour
   intent_to_file_response:
     namespace: intent-to-file-response
     each_ttl: 86400

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-
 module Preneeds
   # Models an Claimant from a {Preneeds::BurialForm} form
   #
@@ -22,7 +20,7 @@ module Preneeds
   # @!attribute address
   #   @return [Preneeds::Address] claimant's address
   #
-  class Claimant < Preneeds::VirtusBase
+  class Claimant < Preneeds::Base
     attribute :date_of_birth, String
     attribute :desired_cemetery, String
     attribute :email, String

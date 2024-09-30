@@ -9,78 +9,164 @@ RSpec.describe CopayNotifications::McpNotificationEmailJob, :skip_vet360, type: 
   let(:backup_email) { 'meepmorp@example.com' }
   let(:vet_id) { '1' }
 
-  Flipper.disable(:va_v3_contact_information_service)
+  describe 'contact information v1' do
+    Flipper.disable(:va_v3_contact_information_service)
 
-  before do
-    allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return('http://fakeapi.com')
+    before do
+      allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return('http://fakeapi.com')
 
-    allow(Settings.vanotify.services.dmc).to receive(:api_key).and_return(
-      'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
-    )
-  end
-
-  describe '#perform' do
-    it 'sends an email using the template id' do
-      VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
-        client = double
-        expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.dmc.api_key).and_return(client)
-
-        expect(client).to receive(:send_email).with(
-          email_address: email,
-          template_id:
-        )
-
-        CopayNotifications::McpNotificationEmailJob.new.perform(vet_id, template_id)
-      end
+      allow(Settings.vanotify.services.dmc).to receive(:api_key).and_return(
+        'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+      )
     end
 
-    context 'when no email address resovles' do
-      let(:vet_id) { '6767671' }
-
-      it 'uses backup email' do
-        VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
-          job = described_class.new
+    describe '#perform' do
+      it 'sends an email using the template id' do
+        VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
           client = double
           expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.dmc.api_key).and_return(client)
 
           expect(client).to receive(:send_email).with(
-            email_address: backup_email,
+            email_address: email,
             template_id:
           )
-          job.perform(vet_id, template_id, backup_email)
+
+          CopayNotifications::McpNotificationEmailJob.new.perform(vet_id, template_id)
         end
       end
 
-      it 'logs an error' do
-        VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
-          job = described_class.new
-          expect(job).to receive(:log_exception_to_sentry).with(
-            instance_of(CopayNotifications::ProfileMissingEmail), {}, { error: :mcp_notification_email_job }, 'info'
-          )
-          job.perform(vet_id, template_id)
+      context 'when no email address resovles' do
+        let(:vet_id) { '6767671' }
+
+        it 'uses backup email' do
+          VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+            job = described_class.new
+            client = double
+            expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.dmc.api_key).and_return(client)
+
+            expect(client).to receive(:send_email).with(
+              email_address: backup_email,
+              template_id:
+            )
+            job.perform(vet_id, template_id, backup_email)
+          end
+        end
+
+        it 'logs an error' do
+          VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+            job = described_class.new
+            expect(job).to receive(:log_exception_to_sentry).with(
+              instance_of(CopayNotifications::ProfileMissingEmail), {}, { error: :mcp_notification_email_job }, 'info'
+            )
+            job.perform(vet_id, template_id)
+          end
+        end
+      end
+
+      context 'when vanotify returns a 400 error' do
+        it 'rescues and logs the error' do
+          VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('va_notify/bad_request') do
+              job = described_class.new
+              expect(job).to receive(:log_exception_to_sentry).with(
+                instance_of(Common::Exceptions::BackendServiceException),
+                {
+                  args: {
+                    template_id:,
+                    personalisation: nil
+                  }
+                },
+                {
+                  error: :va_notify_email_job
+                }
+              )
+
+              job.perform(vet_id, template_id)
+            end
+          end
         end
       end
     end
+  end
 
-    context 'when vanotify returns a 400 error' do
-      it 'rescues and logs the error' do
-        VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('va_notify/bad_request') do
+  describe 'contact information v2' do
+    let(:vet_id) { '1781151' }
+
+    before do
+      Flipper.enable(:va_v3_contact_information_service)
+      allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return('http://fakeapi.com')
+
+      allow(Settings.vanotify.services.dmc).to receive(:api_key).and_return(
+        'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+      )
+
+      allow_any_instance_of(User).to receive(:vet360_id).and_return('1781151')
+      allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+    end
+
+    describe '#perform' do
+      it 'sends an email using the template id' do
+        VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+          client = double
+          expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.dmc.api_key).and_return(client)
+
+          expect(client).to receive(:send_email).with(
+            email_address: email,
+            template_id:
+          )
+
+          CopayNotifications::McpNotificationEmailJob.new.perform(vet_id, template_id)
+        end
+      end
+
+      context 'when no email address resovles' do
+        let(:vet_id) { '6767671' }
+
+        it 'uses backup email' do
+          VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+            job = described_class.new
+            client = double
+            expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.dmc.api_key).and_return(client)
+
+            expect(client).to receive(:send_email).with(
+              email_address: backup_email,
+              template_id:
+            )
+            job.perform(vet_id, template_id, backup_email)
+          end
+        end
+
+        it 'logs an error' do
+          VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
             job = described_class.new
             expect(job).to receive(:log_exception_to_sentry).with(
-              instance_of(Common::Exceptions::BackendServiceException),
-              {
-                args: {
-                  template_id:,
-                  personalisation: nil
-                }
-              },
-              {
-                error: :va_notify_email_job
-              }
+              instance_of(CopayNotifications::ProfileMissingEmail), {}, { error: :mcp_notification_email_job }, 'info'
             )
-
             job.perform(vet_id, template_id)
+          end
+        end
+      end
+
+      context 'when vanotify returns a 400 error' do
+        it 'rescues and logs the error' do
+          VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('va_notify/bad_request') do
+              job = described_class.new
+              expect(job).to receive(:log_exception_to_sentry).with(
+                instance_of(Common::Exceptions::BackendServiceException),
+                {
+                  args: {
+                    template_id:,
+                    personalisation: nil
+                  }
+                },
+                {
+                  error: :va_notify_email_job
+                }
+              )
+
+              job.perform(vet_id, template_id)
+            end
           end
         end
       end
