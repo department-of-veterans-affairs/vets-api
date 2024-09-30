@@ -29,7 +29,7 @@ module Vets
 
     # Acts as Object#instance_values
     def attribute_values
-      self.class.attribute_set.index_with { |attr| send(attr) }
+      self.class.attribute_set.to_h { |attr| [attr.to_s, send(attr)] }
     end
 
     private
