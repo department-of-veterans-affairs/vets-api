@@ -31,7 +31,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_validation_error).once
       expect(monitor).to receive(:track_create_error).once
-      expect(controller).not_to receive(:process_and_upload_to_lighthouse)
+      expect(Pensions::PensionBenefitIntakeJob).not_to receive(:perform_async)
 
       response = post(:create, params: { param_name => { form: claim.form } })
 

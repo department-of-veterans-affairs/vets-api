@@ -106,7 +106,7 @@ module Pensions
     end
 
     ##
-    # log POST claim save validation error
+    # log process_attachments! error
     # @see PensionClaimsController
     #
     # @param claim [Pension::SavedClaim]
