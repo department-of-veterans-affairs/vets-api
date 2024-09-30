@@ -56,7 +56,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
     end
 
     context 'when user is authenticated with a sign in service cookie' do
-      let(:access_token_object) { create(:access_token, user_uuid: user.uuid) }
+      let(:access_token_object) { create(:access_token, user_uuid: user.uuid, session_handle: user.session_handle) }
       let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
 
       before do

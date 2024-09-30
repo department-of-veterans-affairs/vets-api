@@ -34,6 +34,7 @@ class User < Common::RedisStore
   attribute :fingerprint, String
   attribute :needs_accepted_terms_of_use, Boolean
   attribute :credential_lock, Boolean
+  attribute :session_handle, String
 
   def account
     @account ||= Identity::AccountCreator.new(self).call

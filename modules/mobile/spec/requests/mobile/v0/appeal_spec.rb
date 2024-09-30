@@ -20,7 +20,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
                   'aod' => false,
                   'aoj' => 'vba',
                   'description' => '',
-                  'docket' => nil,
+                  'docket' => {},
                   'events' =>
                     [{ 'date' => '2008-04-24', 'type' => 'claim_decision' },
                      { 'date' => '2008-06-11', 'type' => 'nod' },
@@ -95,6 +95,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
           VCR.use_cassette('caseflow/appeals') do
             get '/mobile/v0/appeal/3294289', headers: sis_headers
             expect(response).to have_http_status(:ok)
+            appeal_response['data']['attributes']['docket'] = nil
             expect(response.parsed_body).to eq(appeal_response)
           end
         end
