@@ -62,36 +62,103 @@ class LighthouseSupplementalDocumentUploadProvider
   # @param lighthouse_document [LighthouseDocument]
   # @param file_body [String]
   def submit_upload_document(lighthouse_document, file_body)
+    log_upload_attempt
     api_response = BenefitsDocuments::Form526::UploadSupplementalDocumentService.call(file_body, lighthouse_document)
     handle_lighthouse_response(api_response)
   end
 
-  def log_upload_failure(error_class, error_message)
-    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
-
+  # To call in the sidekiq_retries_exhausted block of the including job
+  # This is meant to log an upload attempt that was retried and eventually given up on,
+  # so we can investigate the failure in Datadog
+  #
+  # @param uploading_job_class [String] the job where we are uploading the Lighthouse Document
+  # (e.g. UploadBDDInstructions)
+  # @param error_class [String] the Error class of the exception that exhausted the upload job
+  # @param error_message [String] the message in the exception that exhausted the upload job
+  def log_uploading_job_failure(uploading_job_class, error_class, error_message)
     Rails.logger.error(
-      'LighthouseSupplementalDocumentUploadProvider upload failure',
+      "#{uploading_job_class} LighthouseSupplementalDocumentUploadProvider Failure",
       {
-        class: 'LighthouseSupplementalDocumentUploadProvider',
+        **base_logging_info,
+        uploading_job_class:,
         error_class:,
         error_message:
       }
     )
+
+    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STASTD_UPLOAD_JOB_FAILED_METRIC}")
   end
 
   private
+
+  def base_logging_info
+    {
+      class: 'LighthouseSupplementalDocumentUploadProvider',
+      submission_id: @form526_submission.submitted_claim_id,
+      user_uuid: @form526_submission.user_uuid,
+      va_document_type_code: @va_document_type,
+      primary_form: 'Form526'
+    }
+  end
+
+  def log_upload_attempt
+    Rails.logger.info('LighthouseSupplementalDocumentUploadProvider upload attempted', base_logging_info)
+    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_ATTEMPT_METRIC}")
+  end
+
+  def log_upload_success(lighthouse_request_id)
+    Rails.logger.info(
+      'LighthouseSupplementalDocumentUploadProvider upload successful',
+      {
+        **base_logging_info,
+        lighthouse_request_id:
+      }
+    )
+
+    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_SUCCESS_METRIC}")
+  end
+
+  # For logging an error response from the Lighthouse Benefits Document API
+  #
+  # @param lighthouse_error_response [Hash] parsed JSON response from the Lighthouse API
+  # this will be an array of errors
+  def log_upload_failure(lighthouse_error_response)
+    Rails.logger.error(
+      'LighthouseSupplementalDocumentUploadProvider upload failed',
+      {
+        **base_logging_info,
+        lighthouse_error_response:
+      }
+    )
+
+    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
+  end
 
   # Processes the response from Lighthouse and logs accordingly. If the upload is successful, creates
   # a polling record so we can check on the status of the document after Lighthouse has receieved it
   #
   # @param api_response [Faraday::Response] Lighthouse API response returned from the UploadSupplementalDocumentService
   def handle_lighthouse_response(api_response)
-    response_body = api_response.body['data']
+    response_body = api_response.body
 
-    if response_body['success'] == true && response_body['requestId']
-      create_lighthouse_polling_record(response_body['requestId'])
-      StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_SUCCESS_METRIC}")
+    if lighthouse_success_response?(response_body)
+      lighthouse_request_id = response_body.dig('data', 'requestId')
+      create_lighthouse_polling_record(lighthouse_request_id)
+      log_upload_success(lighthouse_request_id)
+    else
+      log_upload_failure(response_body)
     end
+  end
+
+  # Parses a response from the Lighthouse Benefits Document API
+  # If there is a problem with the upload, Lighthouse provides an array of error hashes
+  # (See spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
+  # for an example).
+  #
+  # If the upload succeeds, we get success metadata nested under a 'data' key, a success flag and a requestId
+  # we can use to poll Lighthouse for the document's status later
+  def lighthouse_success_response?(response_body)
+    !response_body['errors'] && response_body.dig('data', 'success') && response_body.dig('data', 'requestId')
   end
 
   # Creates a Lighthouse526DocumentUpload polling record
