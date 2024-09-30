@@ -27,7 +27,7 @@ describe ClaimsApi::LocalBGSProxy do
         expect(ClaimsApi::Logger).to receive(:log).exactly(4).times
         result = subject.find_poa_by_participant_id('does-not-matter')
         expect(result).to be_a Hash
-        expect(result[:end_date]).to eq '08/26/2020'
+        expect(result[:begin_date]).to eq '09/03/2024'
       end
     end
 
