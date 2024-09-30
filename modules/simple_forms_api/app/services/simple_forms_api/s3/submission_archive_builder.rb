@@ -31,7 +31,7 @@ module SimpleFormsApi
 
       def default_options
         {
-          attachments: nil,           # The confirmation codes of any attachments which were originally submitted
+          attachments: nil,           # The file paths of hydrated attachments which were originally submitted
           benefits_intake_uuid: nil,  # The UUID returned from the Benefits Intake API upon original submission
           file_path: nil,             # The local path where the submission PDF is stored
           include_manifest: true,     # Include a CSV file containing manifest data
@@ -63,19 +63,16 @@ module SimpleFormsApi
 
       def write_attachments
         log_info("Processing #{attachments.count} attachments")
-        attachments.each_with_index { |guid, i| process_attachment(i + 1, guid) }
+        attachments.each_with_index { |file_path, i| process_attachment(i + 1, file_path) }
       rescue => e
         handle_error('Error during attachments processing', e)
       end
 
-      def process_attachment(attachment_number, guid)
-        log_info("Processing attachment ##{attachment_number}: #{guid}")
-        attachment = PersistentAttachment.find_by(guid:)
-        raise "Attachment not found: #{guid}" unless attachment
-
-        write_tempfile("attachment_#{attachment_number}.pdf", attachment.to_pdf)
+      def process_attachment(attachment_number, file_path)
+        log_info("Processing attachment ##{attachment_number}: #{file_path}")
+        write_tempfile("attachment_#{attachment_number}.pdf", File.read(file_path))
       rescue => e
-        handle_error("Failed processing attachment #{attachment_number} (#{guid})", e)
+        handle_error("Failed processing attachment #{attachment_number} (#{file_path})", e)
       end
 
       def write_manifest
