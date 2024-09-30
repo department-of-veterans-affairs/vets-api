@@ -16,7 +16,7 @@ module ClaimsApi
       # it queues a job to update the POA code in BGS, as well.
       #
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-      def perform(power_of_attorney_id, form_number, rep_id, icn_for_vanotify)
+      def perform(power_of_attorney_id, form_number, rep_id, icn_for_vanotify = nil)
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
         rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
 
@@ -29,7 +29,7 @@ module ClaimsApi
           upload_to_vbms(power_of_attorney, output_path)
         end
 
-        ClaimsApi::PoaUpdater.new.perform(power_of_attorney.id, icn_for_vanotify, rep)
+        ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, icn_for_vanotify, rep)
       rescue VBMS::Unknown
         rescue_vbms_error(power_of_attorney)
       rescue Errno::ENOENT

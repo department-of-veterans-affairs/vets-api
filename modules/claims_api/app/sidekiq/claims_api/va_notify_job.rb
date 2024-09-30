@@ -11,12 +11,12 @@ module ClaimsApi
 
       if organization_filing?(form_data)
         org = find_org(poa, '2122')
-byebug
-        #send_organization_notification(poa, org)
+
+        send_organization_notification(poa, org)
       else
-        poa_code = poa_code_from_form('2122a', poa)
-byebug
-        # send_representative_notification(poa, rep)
+        poa_code_from_form('2122a', poa)
+
+        send_representative_notification(poa, rep)
       end
     rescue => e
       ClaimsApi::Logger.log(
@@ -39,17 +39,17 @@ byebug
     end
 
     protected
+
     # email_address: 'rockwell.rice@oddball.io',recipient_identifier: @icn_for_vanotify
     def individual_accepted_email_contents(poa, rep)
       {
-        email_address: 'rockwell.rice@oddball.io',
+        recipient_identifier: @icn_for_vanotify,
         personalisation: {
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           rep_first_name: value_or_default_for_field(rep.first_name),
           rep_last_name: value_or_default_for_field(rep.last_name),
           representative_type: value_or_default_for_field(poa_form_data(poa)&.dig('representative', 'type')),
           address1: value_or_default_for_field(poa_form_data(poa)&.dig('representative', 'address', 'addressLine1')),
-          address2: value_or_default_for_field(poa_form_data(poa)&.dig('representative', 'address', 'addressLine2')),
           city: value_or_default_for_field(poa_form_data(poa)&.dig('representative', 'address', 'city')),
           state: value_or_default_for_field(poa_form_data(poa)&.dig('representative', 'address', 'stateCode')),
           zip: value_or_default_for_field(rep_zip(poa)),
@@ -95,7 +95,7 @@ byebug
       # This should the the reps specific phone number
       if rep.phone_number.present?
         rep.phone_number
-      # This might be the phone number for the organization 
+      # This might be the phone number for the organization
       # the rep works for
       elsif rep.phone.present?
         rep.phone
@@ -105,8 +105,8 @@ byebug
     end
 
     def rep_zip(poa)
-      first_five = poa.form_data.dig('representative', 'address', 'zipFirstFive')
-      last_four = poa.form_data.dig('representative', 'address', 'zipLastFour')
+      first_five = poa.form_data.dig('representative', 'address', 'zipCode')
+      last_four = poa.form_data.dig('representative', 'address', 'zipCodeSuffix')
       format_zip_values(first_five, last_four)
     end
 
@@ -128,7 +128,7 @@ byebug
     end
 
     def value_or_default_for_field(field)
-      field ? field : ''
+      field || ''
     end
 
     def poa_form_data(poa)
@@ -140,7 +140,7 @@ byebug
     end
 
     def organization_filing?(form_data)
-      form_data.dig('serviceOrganization')
+      form_data['serviceOrganization']
     end
 
     def poa_code_from_form(form_number, poa)
