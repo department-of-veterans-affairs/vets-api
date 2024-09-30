@@ -1,40 +1,50 @@
 # frozen_string_literal: true
 
-require 'ihub/configuration'
-
 module SimpleFormsApi
   module FormSubmissionRemediation
     class Configuration
       class Base
-        attr_reader :id_type, :include_manifest, :include_metadata, :parent_dir, :required_submission_data
+        attr_reader :id_type, :include_manifest, :include_metadata, :parent_dir
 
         def initialize
-          @id_type = 'benefits_intake_uuid'
-          @include_manifest = true  # Include a CSV file containing manifest data
-          @include_metadata = false # Include a JSON file containing metadata
-          @parent_dir = '/'         # The base directory in the S3 bucket where the archive will be stored
-          @required_submission_data = %i[submission file_path attachments metadata]
+          @id_type = 'benefits_intake_uuid' # The field to query the FormSubmission by
+          @include_manifest = true          # Include a CSV file containing manifest data
+          @include_metadata = false         # Include a JSON file containing form submission metadata
+          @parent_dir = '/'                 # The base directory in the S3 bucket where the archive will be stored
         end
 
+        # Override to inject your team's own archive builder
         def archive_builder
           SimpleFormsApi::S3::SubmissionArchiveBuilder
         end
 
+        # Override to inject your team's own archiver
         def archiver
           SimpleFormsApi::S3::SubmissionArchiver
         end
 
+        # Override to inject your team's own submission builder
         def submission_builder
           SimpleFormsApi::S3::SubmissionBuilder
         end
 
-        # If overriding this, s3_setting method doesn't have to be set
+        # Override to inject your team's own file uploader
+        # If overriding this, s3_settings method doesn't have to be set
         def uploader
           VeteranFacingFormsRemediationUploader
         end
 
+        # The attachment model to query for form submission attachments
         def attachment_type
           PersistentAttachment
+        end
+
+        # When archiving directly after a submission, if all of the
+        # following data points are available, they can be passed in
+        # and the archive can be created without having to re-hydrate
+        # the form submission
+        def required_submission_data
+          %i[submission file_path attachments metadata]
         end
 
         # The temporary directory where form submissions will be
@@ -44,27 +54,32 @@ module SimpleFormsApi
           @temp_directory_path ||= Rails.root.join("tmp/#{SecureRandom.hex}-archive/").to_s
         end
 
-        # Used in the VeteranFacingFormsRemediationUploader
+        # Used in the VeteranFacingFormsRemediationUploader S3 uploader
         def s3_settings
           vff_simple_forms.aws
         end
 
+        # The base S3 resource used for all S3 manipulations
         def s3_resource
           @s3_resource ||= uploader.new_s3_resource
         end
 
+        # The bucket where payloads will be uploaded on S3
         def target_bucket
           @target_bucket ||= uploader.s3_bucket
         end
 
+        # Utility method, override to add your own team's preferred logging approach
         def log_info(message, **details)
           Rails.logger.info(message, details)
         end
 
+        # Utility method, override to add your own team's preferred logging approach
         def log_error(message, error, **details)
           Rails.logger.error(message, details.merge(error: error.message, backtrace: error.backtrace.first(5)))
         end
 
+        # Utility method, override to add your own team's preferred logging approach
         def handle_error(message, error, **details)
           log_error(message, error, **details)
           raise error
