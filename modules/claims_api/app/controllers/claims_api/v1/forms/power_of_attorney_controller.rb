@@ -155,7 +155,7 @@ module ClaimsApi
         end
 
         def validate_dependent_claimant!(poa_code:)
-          return unless feature_enabled_and_claimant_present?
+          return nil unless feature_enabled_and_claimant_present?
 
           veteran_participant_id = target_veteran.participant_id
           claimant_first_name = form_attributes.dig('claimant', 'firstName')
