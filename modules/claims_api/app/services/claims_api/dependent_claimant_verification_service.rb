@@ -27,7 +27,7 @@ module ClaimsApi
     end
 
     def validate_poa_code_exists!
-      return if poa_code_exists?
+      return nil if poa_code_exists?
 
       raise ::Common::Exceptions::UnprocessableEntity.new(detail: POA_CODE_NOT_FOUND_ERROR_MESSAGE)
     end
