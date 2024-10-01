@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe AskVAApi::Categories::Entity do
-  subject(:creator) { described_class }
+RSpec.describe AskVAApi::Contents::Entity do
+  subject(:content) { described_class }
 
   let(:info) do
     { Name: 'Report Broken Links (provide link inform)',
@@ -18,7 +18,7 @@ RSpec.describe AskVAApi::Categories::Entity do
       ContactPreferences: [] }
   end
 
-  let(:category) { creator.new(info) }
+  let(:category) { content.new(info) }
 
   it 'creates an category' do
     expect(category).to have_attributes({

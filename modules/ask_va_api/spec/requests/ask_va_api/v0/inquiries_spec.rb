@@ -116,7 +116,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           'attributes' =>
           { 'inquiry_number' => 'A-1',
             'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
-            'category_name' => 'Veteran Affairs  - Debt',
+            'category_name' => 'Debt for benefit overpayments and health care copay bills',
             'created_on' => '8/5/2024 4:51:52 PM',
             'correspondences' =>
             { 'data' =>
@@ -191,7 +191,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
               'attributes' =>
               { 'inquiry_number' => 'A-123456',
                 'attachments' => [{ 'Id' => '012345', 'Name' => 'File A.pdf' }],
-                'category_name' => 'Veteran Affairs  - Debt',
+                'category_name' => 'Debt for benefit overpayments and health care copay bills',
                 'created_on' => '8/5/2024 4:51:52 PM',
                 'correspondences' =>
                 { 'data' =>
