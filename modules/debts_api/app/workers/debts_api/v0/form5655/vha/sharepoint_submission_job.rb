@@ -14,12 +14,6 @@ module DebtsApi
       StatsD.increment("#{STATS_KEY}.failure") # Deprecate this in favor of exhausted naming convention below
       StatsD.increment("#{STATS_KEY}.retries_exhausted") # Update the monitor to use the same naming convention as the other exhaustion blocks
       submission_id = job['args'][0]
-      Rails.logger.error <<~LOG
-        V0::Form5655::VHA::SharepointSubmissionJob retries exhausted:
-        Exception: #{ex.class} - #{ex.message}
-        Backtrace: #{ex.backtrace.join("\n")}
-        submission_id: #{submission_id}
-      LOG
       submission = DebtsApi::V0::Form5655Submission.find(submission_id)
       submission.register_failure("SharePoint Submission Failed: #{job['error_message']}.")
     end
