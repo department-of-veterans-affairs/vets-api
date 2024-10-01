@@ -80,12 +80,13 @@ RSpec.describe Vets::Attributes::Value do
           expect(setter_value).to eq(DateTime.parse(value).to_s)
         end
       end
+
       context 'when value is a non-parseable string' do
         it 'raises an TypeError' do
           expect do
             attribute_value = described_class.new(:test_name, DateTime)
-            setter_value = attribute_value.setter_value('bad-time')
-          end.to raise_error(TypeError, "test_name could not be parsed into a DateTime")
+            attribute_value.setter_value('bad-time')
+          end.to raise_error(TypeError, 'test_name could not be parsed into a DateTime')
         end
       end
     end
