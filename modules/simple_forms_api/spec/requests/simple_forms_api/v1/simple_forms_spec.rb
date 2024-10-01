@@ -643,7 +643,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           'veteran.surname@address.com',
           'form21_4142_confirmation_email_template_id',
           {
-            'first_name' => 'VETERAN',
+            'first_name' => 'Veteran',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number,
             'lighthouse_updated_at' => nil
@@ -685,7 +685,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           'my.long.email.address@email.com',
           'form21_10210_confirmation_email_template_id',
           {
-            'first_name' => 'JACK',
+            'first_name' => 'Jack',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number,
             'lighthouse_updated_at' => nil
@@ -733,7 +733,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           'preparer_address@email.com',
           'form21p_0847_confirmation_email_template_id',
           {
-            'first_name' => 'ARTHUR',
+            'first_name' => 'Arthur',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number,
             'lighthouse_updated_at' => nil
@@ -776,7 +776,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           'preparer@email.com',
           'form21_0972_confirmation_email_template_id',
           {
-            'first_name' => 'PREPARE',
+            'first_name' => 'Prepare',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number,
             'lighthouse_updated_at' => nil
@@ -832,7 +832,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               'abraham.lincoln@vets.gov',
               'form21_0966_confirmation_email_template_id',
               {
-                'first_name' => 'ABRAHAM',
+                'first_name' => 'Abraham',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
                 'lighthouse_updated_at' => nil,
@@ -856,7 +856,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               'abraham.lincoln@vets.gov',
               'form21_0966_confirmation_email_template_id',
               {
-                'first_name' => 'ABRAHAM',
+                'first_name' => 'Abraham',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
                 'lighthouse_updated_at' => nil,
