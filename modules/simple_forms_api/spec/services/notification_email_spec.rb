@@ -497,7 +497,7 @@ describe SimpleFormsApi::NotificationEmail do
             user.va_profile_email,
             'form21_0966_confirmation_email_template_id',
             {
-              'first_name' => user.first_name,
+              'first_name' => user.first_name.capitalize,
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil,
