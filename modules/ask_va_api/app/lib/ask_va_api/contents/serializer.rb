@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module AskVAApi
-  module Categories
+  module Contents
     class Serializer
       include JSONAPI::Serializer
-      set_type :categories
+      set_type :contents
 
       attributes :name,
                  :allow_attachments,
