@@ -5,7 +5,7 @@ require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
   let(:form_type) { '20-10207' }
-  let(:fixtures_path) { %w[modules simple_forms_api spec fixtures] }
+  let(:fixtures_path) { 'modules/simple_forms_api/spec/fixtures' }
   let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_20_10207_with_supporting_documents.json').read }
   let(:file_path) { Rails.root.join(fixtures_path, 'pdfs', 'vba_20_10207-completed.pdf') }
   let(:attachments) { Array.new(5) { fixture_file_upload('doctors-note.pdf', 'application/pdf').path } }
