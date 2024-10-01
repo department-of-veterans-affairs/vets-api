@@ -14,7 +14,7 @@ module DebtsApi
 
     sidekiq_retries_exhausted do |job, _ex|
       StatsD.increment("#{STATS_KEY}.failure") # Deprecate this in favor of exhausted naming convention below
-      StatsD.increment("#{STATS_KEY}.retries_exhausted") # update monitors and dashbaords to use this naming convention to bring it inline with the other exhaustion blocks
+      StatsD.increment("#{STATS_KEY}.retries_exhausted")
       submission_id = job['args'][0]
       user_uuid = job['args'][1]
       UserProfileAttributes.find(user_uuid)&.destroy # TODO: figure out why are we destroying here.
