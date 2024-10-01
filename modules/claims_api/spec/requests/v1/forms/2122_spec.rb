@@ -378,6 +378,69 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
           end
         end
       end
+
+      context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
+        before do
+          Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController).to receive(:validate_json_schema)
+            .and_return(nil)
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController).to receive(:validate_poa_code!)
+            .with('074').and_return(nil)
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+            .to receive(:validate_poa_code_for_current_user!).with('074').and_return(nil)
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController).to receive(:check_file_number_exists!)
+            .and_return('12345')
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+            .to receive(:validate_dependent_claimant!).with(poa_code: '074').and_return('1234', '123456789')
+        end
+
+        context 'and the request includes a dependent claimant' do
+          it 'calls assign_poa_to_dependent!' do
+            mock_acg(scopes) do |auth_header|
+              expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
+                .to receive(:assign_poa_to_dependent!)
+
+              post path, params: data_with_claimant, headers: headers.merge(auth_header)
+            end
+          end
+        end
+
+        context 'and the request does not include a dependent claimant' do
+          it 'does not call assign_poa_to_dependent!' do
+            mock_acg(scopes) do |auth_header|
+              expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
+                .not_to receive(:assign_poa_to_dependent!)
+
+              post path, params: data, headers: headers.merge(auth_header)
+            end
+          end
+        end
+      end
+
+      context 'when the lighthouse_claims_api_poa_dependent_claimants feature is disabled' do
+        before do
+          Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController).to receive(:validate_json_schema)
+            .and_return(nil)
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController).to receive(:validate_poa_code!)
+            .with('074').and_return(nil)
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+            .to receive(:validate_poa_code_for_current_user!).with('074').and_return(nil)
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController).to receive(:check_file_number_exists!)
+            .and_return('12345')
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+            .to receive(:validate_dependent_claimant!).with(poa_code: '074').and_return('1234', '123456789')
+        end
+
+        it 'does not call assign_poa_to_dependent!' do
+          mock_acg(scopes) do |auth_header|
+            expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
+              .not_to receive(:assign_poa_to_dependent!)
+
+            post path, params: data_with_claimant, headers: headers.merge(auth_header)
+          end
+        end
+      end
     end
 
     describe '#status' do
