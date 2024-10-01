@@ -3,8 +3,8 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'common/client/errors'
-require 'search/response'
-require 'search/configuration'
+require 'search_gsa/response'
+require 'search_gsa/configuration'
 
 module SearchGsa
   # This class builds a wrapper around Search.gov or api.gsa.gov web results API. Creating a new instance of class
