@@ -137,7 +137,7 @@ RSpec.describe 'AppsApi::V0::Directory', type: :request do
         expect(response).to have_http_status(:success)
         expect(body).not_to be_empty
 
-        display_names = body['data'].map { |scope| scope['displayName'] }
+        display_names = body['data'].pluck('displayName')
         expect(display_names).to eq(display_names.uniq)
         expect(display_names).to include('Patient ID')
       end
