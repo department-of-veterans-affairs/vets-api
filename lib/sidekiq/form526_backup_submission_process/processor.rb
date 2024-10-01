@@ -347,8 +347,8 @@ module Sidekiq
       def get_form_from_external_api(headers, provider, form_json)
         # get the "breakered" version
         service = choose_provider(headers, provider, breakered: true)
-
-        service.generate_526_pdf(form_json)
+        transaction_id = headers['va_eauth_service_transaction_id']
+        service.generate_526_pdf(form_json, transaction_id)
       end
 
       def get_uploads

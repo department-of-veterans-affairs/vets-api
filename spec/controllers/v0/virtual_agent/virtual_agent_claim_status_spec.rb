@@ -25,7 +25,7 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
       describe 'multiple claims from lighthouse' do
         it 'returns ordered list of all veteran claims from lighthouse' do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_multiple_claims') do
-            get '/v0/virtual_agent/claims'
+            get('/v0/virtual_agent/claims', params: { conversation_id: 123 })
           end
 
           expect(response).to have_http_status(:ok)
@@ -97,7 +97,7 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
       describe 'single claim' do
         it 'returns single open compensation claim' do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_single_claim') do
-            get '/v0/virtual_agent/claims'
+            get('/v0/virtual_agent/claims', params: { conversation_id: 123 })
           end
 
           expect(response).to have_http_status(:ok)
@@ -130,13 +130,23 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
       describe 'no claims' do
         it 'returns empty array when no open claims are found' do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_zero_claims') do
-            get '/v0/virtual_agent/claims'
+            get('/v0/virtual_agent/claims', params: { conversation_id: 123 })
           end
 
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
           expect(JSON.parse(response.body)['data']).to be_a(Array)
           expect(JSON.parse(response.body)['data'].size).to eq(0)
+        end
+      end
+
+      describe 'no conversation id' do
+        it 'raises exception when no conversation id is found' do
+          VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_zero_claims') do
+            get '/v0/virtual_agent/claims'
+          end
+
+          expect(response).to have_http_status(:bad_request)
         end
       end
     end
