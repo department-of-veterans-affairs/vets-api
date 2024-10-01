@@ -79,14 +79,6 @@ module ClaimsApi
       ::Veteran::Service::Organization.find_by(poa: poa_code)
     end
 
-    def veteran_icn_identfier(poa)
-      poa.source_data&.dig('source_data', 'icn')
-    end
-
-    def rep_registration_number(poa)
-      poa.form_data.dig('representative', 'registrationNumber')
-    end
-
     def rep_phone(rep)
       # This field was added to adjust the values for phone numbers
       # This should be the the reps specific phone number
