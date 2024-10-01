@@ -4,32 +4,32 @@ require 'rails_helper'
 require 'sidekiq/job_metadata_middleware'
 require 'sidekiq/job_metadata'
 
-class TestWorker
-  include Sidekiq::Worker
+class TestJob
+  include Sidekiq::Job
 end
 
-class TestWorkerWithJobMetadata < TestWorker
+class TestJobWithJobMetadata < TestJob
   include Sidekiq::JobMetadata
 end
 
 RSpec.describe Sidekiq::JobMetadataMiddleware do
   let(:middleware) { described_class.new }
-  let(:job) { { 'jid' => '12345', 'class' => 'MyWorker' } }
+  let(:job_payload) { { 'jid' => '12345', 'class' => 'MyJob' } }
   let(:queue) { 'default' }
 
-  it 'sets the @job_metadata instance variable for workers with job metadata' do
-    worker = TestWorkerWithJobMetadata.new
+  it 'sets the @job_metadata instance variable for jobs with job metadata' do
+    job_instance = TestJobWithJobMetadata.new
 
-    middleware.call(worker, job, queue) do
-      expect(worker.instance_variable_get(:@job_metadata)).to eq(job)
+    middleware.call(job_instance, job_payload, queue) do
+      expect(job_instance.instance_variable_get(:@job_metadata)).to eq(job_payload)
     end
   end
 
-  it 'does not set @sidekiq_job for workers without metadata' do
-    worker = TestWorker.new
+  it 'does not set @sidekiq_job for jobs without metadata' do
+    job_instance = TestJob.new
 
-    middleware.call(worker, job, queue) do
-      expect(worker.instance_variable_get(:@job_metadata)).to be_nil
+    middleware.call(job_instance, job_payload, queue) do
+      expect(job_instance.instance_variable_get(:@job_metadata)).to be_nil
     end
   end
 end
