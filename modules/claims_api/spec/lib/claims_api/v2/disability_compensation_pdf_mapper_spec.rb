@@ -151,10 +151,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         state = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:state]
         expect(number_and_street).to eq('1234 Couch Street Unit 4 Room 1')
         expect(apartment_or_unit_number).to eq(nil)
-        expect(city).to eq('Portland')
+        expect(city).to eq('Schenectady')
         expect(country).to eq('US')
-        expect(zip).to eq('41726-1234')
-        expect(state).to eq('OR')
+        expect(zip).to eq('12345-1234')
+        expect(state).to eq('NY')
       end
 
       it 'maps the other veteran info' do
@@ -243,10 +243,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(type_of_addr_change).to eq('TEMPORARY')
         expect(number_and_street).to eq('10 Peach St Unit 4 Room 1')
         expect(apartment_or_unit_number).to eq(nil)
-        expect(city).to eq('Atlanta')
+        expect(city).to eq('Schenectady')
         expect(country).to eq('US')
-        expect(zip).to eq('42220-9897')
-        expect(state).to eq('GA')
+        expect(zip).to eq('12345-9897')
+        expect(state).to eq('NY')
       end
     end
 

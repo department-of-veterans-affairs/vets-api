@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AskVAApi::Categories::Serializer do
+RSpec.describe AskVAApi::Contents::Serializer do
   let(:info) do
     {
       Name: 'Report Broken Links (provide link inform)',
@@ -17,11 +17,11 @@ RSpec.describe AskVAApi::Categories::Serializer do
       ContactPreferences: []
     }
   end
-  let(:category) { AskVAApi::Categories::Entity.new(info) }
-  let(:response) { described_class.new(category) }
+  let(:content) { AskVAApi::Contents::Entity.new(info) }
+  let(:response) { described_class.new(content) }
   let(:expected_response) do
     { data: { id: '792dbcee-eb64-eb11-bb23-000d3a579b83',
-              type: :categories,
+              type: :contents,
               attributes: {
                 name: info[:Name],
                 allow_attachments: info[:AllowAttachments],
