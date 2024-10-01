@@ -98,7 +98,7 @@ describe ClaimsApi::VANotifyJob, type: :job do
             rep_first_name: va_notify_rep.first_name,
             rep_last_name: va_notify_rep.last_name,
             representative_type: va_notify_dependent_form_data['representative']['type'],
-            address: va_notify_dependent_form_data['representative']['address']['addressLine1'],
+            address: "123 Fourth St.\n Apt. 3\n P.O Box 34",
             city: va_notify_dependent_form_data['representative']['address']['city'],
             state: va_notify_dependent_form_data['representative']['address']['stateCode'],
             zip: va_notify_dependent_form_data['representative']['address']['zipCode'],
@@ -155,6 +155,94 @@ describe ClaimsApi::VANotifyJob, type: :job do
     end
   end
 
+  describe '#format_zip_values' do
+    it 'formats two values correctly' do
+      expected = '54321-9876'
+      res = subject.send(:format_zip_values, '54321', '9876')
+
+      expect(res).to eq(expected)
+    end
+
+    it 'formats just zip first 5 value correctly' do
+      expected = '54321'
+      res = subject.send(:format_zip_values, '54321', nil)
+
+      expect(res).to eq(expected)
+    end
+
+    it 'formats just zip last 4 value correctly' do
+      expected = '9876'
+      res = subject.send(:format_zip_values, nil, '9876')
+
+      expect(res).to eq(expected)
+    end
+
+    it 'formats no values correctly' do
+      expected = ''
+      res = subject.send(:format_zip_values, nil, nil)
+
+      expect(res).to eq(expected)
+    end
+  end
+
+  describe '#value_or_default_for_field' do
+    it 'returns the values correctly' do
+      expected = 'field value'
+      res = subject.send(:value_or_default_for_field, 'field value')
+
+      expect(res).to eq(expected)
+    end
+
+    # We need this because sending nil in the template results in an error
+    it 'returns an empty string if nothing is present' do
+      expected = ''
+      res = subject.send(:value_or_default_for_field, nil)
+
+      expect(res).to eq(expected)
+    end
+  end
+
+  describe '#build_ind_poa_address' do
+    it 'build the address correctly' do
+      expected = "123 Fourth St.\n Apt. 3\n P.O Box 34"
+      res = subject.send(:build_ind_poa_address, rep_dep_poa)
+
+      expect(res).to eq(expected)
+    end
+  end
+
+  describe '#build_org_address' do
+    it 'build the address correctly' do
+      expected = "345 Sixth St.\n Suite 3"
+      res = subject.send(:build_org_address, va_notify_org)
+
+      expect(res).to eq(expected)
+    end
+  end
+
+  describe '#build_address' do
+    it 'formats the values correctly with line1 & line2 & line3' do
+      expected = "123 First St.\n Apt. 2\n Suite 5"
+      res = subject.send(:build_address, '123 First St.', 'Apt. 2', 'Suite 5')
+
+      expect(res).to eq(expected)
+    end
+
+    it 'formats the values correctly with line2 & line3' do
+      expected = "Apt. 2\n Suite 5"
+      res = subject.send(:build_address, nil, 'Apt. 2', 'Suite 5')
+
+      expect(res).to eq(expected)
+    end
+
+    it 'formats the values correctly with line1 & line3' do
+      expected = "123 First St.\n Suite 5"
+      res = subject.send(:build_address, '123 First St.', nil, 'Suite 5')
+
+      expect(res).to eq(expected)
+    end
+  end
+
   private
 
   def va_notify_rep_poa_form_data
@@ -195,7 +283,9 @@ describe ClaimsApi::VANotifyJob, type: :job do
         'registrationNumber' => '999999999999',
         'type' => 'ATTORNEY',
         'address' => {
-          'addressLine1' => '123',
+          'addressLine1' => '123 Fourth St.',
+          'addressLine2' => 'Apt. 3',
+          'addressLine3' => 'P.O Box 34',
           'city' => 'city',
           'stateCode' => 'OR',
           'country' => 'US',
