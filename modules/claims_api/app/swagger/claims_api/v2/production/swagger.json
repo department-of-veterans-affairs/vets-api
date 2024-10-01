@@ -3319,8 +3319,7 @@
                             "serviceBranch": "Air Force",
                             "serviceComponent": "Active",
                             "activeDutyBeginDate": "1964-11-14",
-                            "activeDutyEndDate": "1980-10-30",
-                            "separationLocationCode": "98289"
+                            "activeDutyEndDate": "1980-10-30"
                           }
                         ],
                         "servedInActiveCombatSince911": "NO",
@@ -3579,8 +3578,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -3597,10 +3595,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -3690,7 +3684,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "c57050e5-558e-4f9f-9a6b-68ea79752541",
+                        "id": "bfad656e-1dde-4b6e-a1fb-25e71dda77b2",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3854,7 +3848,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2023-10-30",
+                                "activeDutyEndDate": "2024-10-03",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -3873,10 +3867,6 @@
                               },
                               "receivingInactiveDutyTrainingPay": "YES"
                             },
-                            "federalActivation": {
-                              "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-09-21"
-                            },
                             "confinements": [
                               {
                                 "approximateBeginDate": "2018-06-04",
@@ -3886,7 +3876,11 @@
                                 "approximateBeginDate": "2020-06",
                                 "approximateEndDate": "2020-07"
                               }
-                            ]
+                            ],
+                            "federalActivation": {
+                              "activationDate": "2024-08-26",
+                              "anticipatedSeparationDate": "2024-10-03"
+                            }
                           },
                           "servicePay": {
                             "receivingMilitaryRetiredPay": "NO",
@@ -3921,7 +3915,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "e981c089-c851-4c90-8a76-87a956381c2e",
+                        "id": "5a72cbd5-317d-4d0a-a4e8-009375e1663f",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4085,8 +4079,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2023-10-30",
-                                "separationLocationCode": "98282"
+                                "activeDutyEndDate": "2023-10-30"
                               }
                             ],
                             "servedInActiveCombatSince911": "NO",
@@ -4103,10 +4096,6 @@
                                 "phoneNumber": "5555555"
                               },
                               "receivingInactiveDutyTrainingPay": "YES"
-                            },
-                            "federalActivation": {
-                              "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-10-31"
                             },
                             "confinements": [
                               {
@@ -6862,8 +6851,7 @@
                             "serviceBranch": "Air Force",
                             "serviceComponent": "Active",
                             "activeDutyBeginDate": "1964-11-14",
-                            "activeDutyEndDate": "1980-10-30",
-                            "separationLocationCode": "98289"
+                            "activeDutyEndDate": "1980-10-30"
                           }
                         ],
                         "servedInActiveCombatSince911": "NO",
@@ -7122,8 +7110,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -7140,10 +7127,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -7354,8 +7337,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -7372,10 +7354,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -9023,8 +9001,7 @@
                             "serviceBranch": "Air Force",
                             "serviceComponent": "Active",
                             "activeDutyBeginDate": "1964-11-14",
-                            "activeDutyEndDate": "1980-10-30",
-                            "separationLocationCode": "98289"
+                            "activeDutyEndDate": "1980-10-30"
                           }
                         ],
                         "servedInActiveCombatSince911": "NO",
@@ -9139,7 +9116,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "18853a53-9cc4-479a-8443-0f3c9bdea0af",
+                    "id": "fc82e68c-4d06-4ad7-96f5-4a6b88a67a1a",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -9302,8 +9279,7 @@
                             "serviceBranch": "Public Health Service",
                             "serviceComponent": "Active",
                             "activeDutyBeginDate": "2008-11-14",
-                            "activeDutyEndDate": "2023-10-30",
-                            "separationLocationCode": "98282"
+                            "activeDutyEndDate": "2023-10-30"
                           }
                         ],
                         "servedInActiveCombatSince911": "NO",
@@ -9320,10 +9296,6 @@
                             "phoneNumber": "5555555"
                           },
                           "receivingInactiveDutyTrainingPay": "YES"
-                        },
-                        "federalActivation": {
-                          "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-10-31"
                         },
                         "confinements": [
                           {
@@ -12799,8 +12771,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-09-19",
-                      "expirationDate": "2025-09-19",
+                      "creationDate": "2024-10-01",
+                      "expirationDate": "2025-10-01",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13597,7 +13569,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:132:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:134:in `representative'"
                       }
                     }
                   ]
@@ -13696,7 +13668,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b06d7ca0-bb23-4481-b9e1-6a15351e0d63",
+                    "id": "5124ffaa-59b1-4e22-af99-87517deed5bc",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14389,7 +14361,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4d21ac8b-52eb-48ea-930e-6277a1a272be",
+                    "id": "be9b1516-2422-4c00-8eda-3bfa779454c4",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16340,10 +16312,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "42002b9e-354f-40b4-a7c2-5b816a934c6b",
+                    "id": "ead985b8-f03f-464d-99eb-4dd9bbe31d75",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-09-19",
+                      "dateRequestAccepted": "2024-10-01",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
