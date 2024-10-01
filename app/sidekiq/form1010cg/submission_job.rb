@@ -43,7 +43,7 @@ module Form1010cg
       log_exception_to_sentry(e)
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
 
-      if Flipper.enabled?(:caregiver_1010)
+      if Flipper.enabled?(:caregiver1010)
         StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried") if job_metadata['retry_count'].zero?
       else
         increment_applications_retried(claim_id)

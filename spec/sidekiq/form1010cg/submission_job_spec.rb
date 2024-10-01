@@ -52,13 +52,13 @@ RSpec.describe Form1010cg::SubmissionJob do
     let(:job) { described_class.new }
 
     context 'when there is a standarderror' do
-      context 'caregiver_1010 flipper enabled' do
+      context 'caregiver1010 flipper enabled' do
         before do
-          Flipper.enable(:caregiver_1010)
+          Flipper.enable(:caregiver1010)
         end
 
         after do
-          Flipper.disable(:caregiver_1010)
+          Flipper.disable(:caregiver1010)
         end
 
         context 'when there is a standarderror' do
@@ -113,9 +113,9 @@ RSpec.describe Form1010cg::SubmissionJob do
         end
       end
 
-      context 'caregiver_1010 flipper not enabled' do
+      context 'caregiver1010 flipper not enabled' do
         before do
-          Flipper.disable(:caregiver_1010)
+          Flipper.disable(:caregiver1010)
         end
 
         it 'increments statsd' do
