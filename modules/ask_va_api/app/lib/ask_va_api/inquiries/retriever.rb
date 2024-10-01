@@ -5,10 +5,10 @@ module AskVAApi
     class InquiriesRetrieverError < StandardError; end
 
     class Retriever < BaseRetriever
-      attr_reader :icn, :user_mock_data, :entity_class
+      attr_reader :icn
 
-      def initialize(user_mock_data:, entity_class:, icn: nil)
-        super(user_mock_data:, entity_class:)
+      def initialize(icn: nil, **args)
+        super(**args)
         @icn = icn
       end
 
