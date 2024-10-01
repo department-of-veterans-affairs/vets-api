@@ -18,11 +18,11 @@ module SimpleFormsApi
       def initialize(**options)
         @config = options[:config] || SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
         @parent_dir = config.parent_dir
+        @presign_s3_url = config.presign_s3_url
 
         assign_defaults(options)
 
-        @temp_directory_path, @submission, @unique_filename = build_submission_archive(**options)
-        raise 'Failed to build SubmissionArchive.' unless temp_directory_path && submission
+        build_archive!(**options)
       rescue => e
         config.handle_error('SubmissionArchiver initialization failed', e)
       end
@@ -34,22 +34,22 @@ module SimpleFormsApi
 
         zip_directory! if upload_type == :remediation
 
-        upload_file_to_s3
-        cleanup
+        upload_to_s3
+        cleanup_temp_files
 
-        s3_path = build_path(s3_directory_path, local_upload_file_path.split('/').last)
-        generate_presigned_url(s3_path)
+        presign_s3_url ? generate_presigned_url(s3_get_presigned_path) : id
       rescue => e
         config.handle_error("Failed #{type} upload: #{id}", e)
       end
 
-      def cleanup
+      def cleanup_temp_files
         FileUtils.rm_rf(local_upload_file_path)
       end
 
       private
 
-      attr_reader :config, :id, :parent_dir, :submission, :temp_directory_path, :unique_filename, :upload_type
+      attr_reader :config, :id, :parent_dir, :presign_s3_url, :submission, :temp_directory_path, :unique_filename,
+                  :upload_type
 
       def assign_defaults(options)
         # The confirmation codes of any attachments which were originally submitted
@@ -64,27 +64,25 @@ module SimpleFormsApi
         @submission = options[:submission]
       end
 
-      def s3_uploader
-        @s3_uploader ||= config.uploader.new(id, s3_directory_path)
+      def build_archive!(**)
+        archive_data = config.submission_builder.new(**).run
+        assign_archive_data(archive_data)
       end
 
-      def build_submission_archive(**)
-        config.submission_builder.new(**).run
+      def assign_archive_data(archive_data)
+        @temp_directory_path, @submission, @unique_filename = archive_data
+        raise 'Failed to build SubmissionArchive.' unless temp_directory_path && submission
       end
 
-      def generate_presigned_url(*, **)
-        config.uploader.get_s3_link(build_path(*, **))
-      end
-
-      def zip_directory!(dir_path = temp_directory_path)
-        raise "Directory not found: #{dir_path}" unless File.directory?(dir_path)
+      def zip_directory!
+        raise "Directory not found: #{temp_directory_path}" unless File.directory?(temp_directory_path)
 
         Zip::File.open(local_upload_file_path, Zip::File::CREATE) do |zipfile|
-          Dir.chdir(dir_path) do
+          Dir.chdir(temp_directory_path) do
             Dir['**', '*'].each do |file|
               next if File.directory?(file)
 
-              zipfile.add(file, File.join(dir_path, file)) if File.file?(file)
+              zipfile.add(file, File.join(temp_directory_path, file)) if File.file?(file)
             end
           end
         end
@@ -96,7 +94,7 @@ module SimpleFormsApi
         )
       end
 
-      def upload_file_to_s3
+      def upload_to_s3
         return if File.directory?(local_upload_file_path)
 
         File.open(local_upload_file_path) do |file_obj|
@@ -105,12 +103,24 @@ module SimpleFormsApi
         end
       end
 
+      def s3_uploader
+        @s3_uploader ||= config.uploader.new(id, s3_directory_path)
+      end
+
       def s3_directory_path
         @s3_directory_path ||= build_path(parent_dir, upload_type.to_s, is_file: false)
       end
 
       def s3_upload_file_path
         @s3_upload_file_path ||= build_path(s3_directory_path, "#{unique_filename}.ext")
+      end
+
+      def s3_get_presigned_path
+        build_path(s3_directory_path, local_upload_file_path.split('/').last)
+      end
+
+      def generate_presigned_url(s3_path)
+        config.uploader.get_s3_link(s3_path)
       end
 
       def build_local_file_dir!(s3_key, dir_path = temp_directory_path)
