@@ -28,8 +28,8 @@ module SearchGsa
     end
     # rubocop:enable Lint/MissingSuper
 
-    # GETs a list of search results from Search.gov web results API
-    # @return [Search::ResultsResponse] wrapper around results data
+    # GETs a list of search results from api.gsa,gov API @return
+    # [Search::ResultsResponse] wrapper around results data
     #
     def results
       with_monitoring do
