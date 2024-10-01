@@ -10,7 +10,7 @@ module SearchGsa
 
     attribute :status, Integer
     attribute :body, Hash
-    attribute :pagination, SearchGsa::Pagination
+    attribute :pagination, Search::Pagination
 
     def initialize(status, pagination, attributes = nil)
       super(attributes) if attributes
@@ -45,7 +45,7 @@ module SearchGsa
     end
 
     def self.pagination_object(body)
-      SearchGsa::Pagination.new(body).object
+      Search::Pagination.new(body).object
     end
   end
 end

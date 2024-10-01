@@ -84,7 +84,7 @@ module SearchGsa
     end
 
     def limit
-      SearchGsa::Pagination::ENTRIES_PER_PAGE
+      Search::Pagination::ENTRIES_PER_PAGE
     end
 
     def handle_error(error)
