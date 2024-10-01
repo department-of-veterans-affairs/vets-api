@@ -39,7 +39,6 @@ module ClaimsApi
 
     protected
 
-    # email_address: 'rockwell.rice@oddball.io',recipient_identifier: @icn_for_vanotify
     def individual_accepted_email_contents(poa, rep)
       {
         recipient_identifier: icn_for_vanotify(poa.auth_headers),
