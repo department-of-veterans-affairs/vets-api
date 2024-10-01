@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'lib/search/shared_examples_for_pagination'
 
-describe Search::Service do
+describe SearchGsa::Service do
   subject { described_class.new(query) }
 
   let(:query) { 'benefits' }
@@ -45,7 +45,7 @@ describe Search::Service do
           expect { subject.results }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('SEARCH_400')
+            expect(e.errors.first.code).to eq('SEARCH_GSA_400')
           end
         end
       end
@@ -57,7 +57,7 @@ describe Search::Service do
           expect { subject.results }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(503)
-            expect(e.errors.first.code).to eq('SEARCH_503')
+            expect(e.errors.first.code).to eq('SEARCH_GSA_503')
           end
         end
       end
@@ -69,7 +69,7 @@ describe Search::Service do
           expect { subject.results }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(504)
-            expect(e.errors.first.code).to eq('SEARCH_504')
+            expect(e.errors.first.code).to eq('SEARCH_GSA_504')
           end
         end
       end
@@ -83,7 +83,7 @@ describe Search::Service do
           expect { subject.results }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('SEARCH_400')
+            expect(e.errors.first.code).to eq('SEARCH_GSA_400')
           end
         end
       end
@@ -97,7 +97,7 @@ describe Search::Service do
           expect { subject.results }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('SEARCH_400')
+            expect(e.errors.first.code).to eq('SEARCH_GSA_400')
           end
         end
       end
@@ -109,7 +109,7 @@ describe Search::Service do
           expect { subject.results }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(429)
-            expect(e.errors.first.code).to eq('SEARCH_429')
+            expect(e.errors.first.code).to eq('SEARCH_GSA_429')
           end
         end
       end
