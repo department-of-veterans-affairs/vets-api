@@ -13,35 +13,35 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         }
       }
     end
-
-    let(:auto_claim) do
-      JSON.parse(
-        Rails.root.join(
-          'modules',
-          'claims_api',
-          'spec',
-          'fixtures',
-          'v2',
-          'veterans',
-          'disability_compensation',
-          'form_526_json_api.json'
-        ).read
-      )
+    let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+    let(:form_data) do
+      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                             'disability_compensation', 'form_526_json_api.json').read
+      temp = JSON.parse(temp)
+      attributes = temp['data']['attributes']
+      attributes['serviceInformation']['federalActivation'] =
+        {
+          'activationDate' => activation_date,
+          'anticipatedSeparationDate' => anticipated_separation_date
+        }
+      attributes['serviceInformation']['placeOfLastOrAnticipatedSeparation'] = 'Aberdeen Proving Ground'
+      temp['data']['attributes'] = attributes
+      temp
     end
-
     let(:user) { FactoryBot.create(:user, :loa3) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
-
     let(:middle_initial) { 'L' }
     let(:created_at) { Timecop.freeze(Time.zone.now) }
-    let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
+    let(:form_attributes) { form_data.dig('data', 'attributes') || {} }
     let(:mapper) do
       ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, auth_headers, middle_initial,
                                                          created_at)
     end
+
+    let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }.freeze
+    let(:activation_date) { (Time.zone.today - 36.days).to_s }.freeze
 
     context '526 section 0, claim attributes' do
       it 'maps the attributes correctly' do
@@ -542,7 +542,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         mapped_disabilities = pdf_data[:data][:attributes][:claimInformation][:disabilities]
-        primary_disabilities = auto_claim['data']['attributes']['disabilities']
+        primary_disabilities = form_data['data']['attributes']['disabilities']
         has_toxic_exposure = if primary_disabilities.select do |a|
                                   a['isRelatedToToxicExposure']
                                 end.count.positive?
@@ -691,8 +691,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(other_name).to eq('YES')
         expect(alt_names).to eq(['john jacob', 'johnny smith'])
         expect(fed_orders).to eq('YES')
-        expect(fed_act).to eq({ month: '10', day: '01', year: '2023' })
-        expect(fed_sep).to eq({ month: '10', day: '31', year: '2024' })
+        expect(fed_act).to eq({ month: '08', day: '26', year: '2024' })
+        expect(fed_sep).to eq({ month: '10', day: '03', year: '2024' })
         expect(served_after_nine_eleven).to eq('NO')
       end
 
@@ -762,7 +762,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
     context '526 section 9, date and signature' do
       it 'maps the attributes correctly' do
-        auto_claim['data']['attributes']['claim_date'] = Timecop.freeze(Time.zone.parse('2023-11-01T08:00:00Z'))
+        form_data['data']['attributes']['claim_date'] = Timecop.freeze(Time.zone.parse('2023-11-01T08:00:00Z'))
         mapper.map_claim
 
         signature = pdf_data[:data][:attributes][:claimCertificationAndSignature][:signature]

@@ -227,6 +227,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
 
     context '526 section 6, service information: service periods' do
       it 'maps the attributes correctly' do
+        form_data['data']['attributes']['serviceInformation']['servicePeriods'][0]['separationLocationCode'] = '98282'
         service_periods = evss_data[:serviceInformation][:servicePeriods][0]
 
         expect(service_periods[:serviceBranch]).to eq('Public Health Service')
@@ -237,6 +238,12 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       end
 
       it 'maps the federalActivation to reserves attributes correctly' do
+        form_data['data']['attributes']['serviceInformation']['federalActivation'] =
+          {
+            activationDate: '2023-10-01',
+            anticipatedSeparationDate: '2024-10-31'
+          }
+
         reserves_addition = evss_data[:serviceInformation][:reservesNationalGuardService]
 
         expect(reserves_addition[:title10Activation][:title10ActivationDate]).to eq('2023-10-01')

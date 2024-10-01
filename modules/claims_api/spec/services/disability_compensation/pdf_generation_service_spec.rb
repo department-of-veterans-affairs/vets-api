@@ -12,14 +12,18 @@ describe ClaimsApi::DisabilityCompensation::PdfGenerationService do
   end
   let(:claim_date) { (Time.zone.today - 1.day).to_s }
   let(:anticipated_separation_date) { 2.days.from_now.strftime('%m-%d-%Y') }
+  let(:activation_date) { (Time.zone.today - 36.days).to_s }
   let(:form_data) do
     temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
                            'form_526_json_api.json').read
     temp = JSON.parse(temp)
     attributes = temp['data']['attributes']
     attributes['claimDate'] = claim_date
-    attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
-
+    attributes['serviceInformation']['federalActivation'] =
+      {
+        'activationDate' => activation_date,
+        'anticipatedSeparationDate' => anticipated_separation_date
+      }
     temp['data']['attributes']
   end
   let(:claim) do

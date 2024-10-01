@@ -19,17 +19,20 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
   end
 
   let(:claim_date) { (Time.zone.today - 1.day).to_s }
+  let(:activation_date) { 2.days.from_now.strftime('%m-%d-%Y') }
   let(:anticipated_separation_date) { 2.days.from_now.strftime('%m-%d-%Y') }
-
   let(:form_data) do
-    temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
-                           'form_526_json_api.json').read
+    temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                           'disability_compensation', 'form_526_json_api.json').read
     temp = JSON.parse(temp)
     attributes = temp['data']['attributes']
     attributes['claimDate'] = claim_date
-    attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
-
-    temp['data']['attributes']
+    attributes['serviceInformation']['federalActivation'] =
+      {
+        'activationDate' => activation_date,
+        'anticipatedSeparationDate' => anticipated_separation_date
+      }
+    temp['data']['attributes'] = attributes
   end
 
   let(:claim) do

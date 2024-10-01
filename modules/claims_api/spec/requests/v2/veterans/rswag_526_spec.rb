@@ -12,6 +12,26 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
   let(:synchronous_scopes) { %w[system/claim.read system/claim.write system/526.override] }
   let(:veteran_mpi_data) { MPIData.new }
   let(:veteran) { ClaimsApi::Veteran.new }
+  let(:claim_date) { (Time.zone.today - 1.day).to_s }
+  let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+  let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+  let(:activation_date) { (Time.zone.today - 36.days).to_s }
+  let(:data) do
+    temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                           'disability_compensation', 'form_526_json_api.json').read
+    temp = JSON.parse(temp)
+    attributes = temp['data']['attributes']
+    attributes['serviceInformation']['federalActivation'] =
+      {
+        'activationDate' => activation_date,
+        'anticipatedSeparationDate' => anticipated_separation_date
+      }
+    attributes['serviceInformation']['servicePeriods'][-1]['activeDutyEndDate'] = active_duty_end_date
+    attributes['serviceInformation']['servicePeriods'][0]['separationLocationCode'] = '98282'
+    temp['data']['attributes'] = attributes
+    temp.to_json
+    temp
+  end
 
   # Build the dropdown for examples
   def append_example_metadata(example, response)
@@ -91,20 +111,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       describe 'Getting a successful response' do
         response '202', 'Successful response' do
-          let(:claim_date) { (Time.zone.today - 1.day).to_s }
-          let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-          let(:data) do
-            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'disability_compensation', 'form_526_json_api.json').read
-            temp = JSON.parse(temp)
-            attributes = temp['data']['attributes']
-            attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
-              anticipated_separation_date
-            temp['data']['attributes'] = attributes
-            temp.to_json
-            temp
-          end
-
           let(:disability_comp_request) do
             data
           end
@@ -127,14 +133,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         response '401', 'Unauthorized' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                             'disability_compensation', 'default.json').read)
-
-          let(:data) do
-            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'disability_compensation', 'form_526_json_api.json').read
-            temp = JSON.parse(temp)
-            temp
-          end
-
           let(:disability_comp_request) do
             data
           end
@@ -159,20 +157,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       end
 
       describe 'Getting a 404 response' do
-        let(:claim_date) { (Time.zone.today - 1.day).to_s }
-        let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-        let(:data) do
-          temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                 'disability_compensation', 'form_526_json_api.json').read
-          temp = JSON.parse(temp)
-          attributes = temp['data']['attributes']
-          attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
-            anticipated_separation_date
-          temp['data']['attributes'] = attributes
-          temp.to_json
-          temp
-        end
-
         let(:disability_comp_request) do
           data
         end
@@ -333,20 +317,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       describe 'Getting a successful response' do
         response '202', 'Successful response' do
-          let(:claim_date) { (Time.zone.today - 1.day).to_s }
-          let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-          let(:data) do
-            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'disability_compensation', 'form_526_json_api.json').read
-            temp = JSON.parse(temp)
-            attributes = temp['data']['attributes']
-            attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
-              anticipated_separation_date
-            temp['data']['attributes'] = attributes
-            temp.to_json
-            temp
-          end
-
           schema SwaggerSharedComponents::V2.schemas[:sync_disability_compensation]
 
           def make_request(example)
@@ -405,14 +375,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         response '401', 'Unauthorized' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                             'disability_compensation', 'default.json').read)
-
-          let(:data) do
-            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'disability_compensation', 'form_526_json_api.json').read
-            temp = JSON.parse(temp)
-            temp
-          end
-
           let(:disability_comp_request) do
             data
           end
@@ -437,20 +399,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       end
 
       describe 'Getting a 404 response' do
-        let(:claim_date) { (Time.zone.today - 1.day).to_s }
-        let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-        let(:data) do
-          temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                 'disability_compensation', 'form_526_json_api.json').read
-          temp = JSON.parse(temp)
-          attributes = temp['data']['attributes']
-          attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
-            anticipated_separation_date
-          temp['data']['attributes'] = attributes
-          temp.to_json
-          temp
-        end
-
         let(:disability_comp_request) do
           data
         end
@@ -572,18 +520,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         response '200', 'Successful response with disability' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
                                             'disability', 'validate.json').read)
-          let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-          let(:data) do
-            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'disability_compensation', 'form_526_json_api.json').read
-            temp = JSON.parse(temp)
-            attributes = temp['data']['attributes']
-            attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
-              anticipated_separation_date
-            temp['data']['attributes'] = attributes
-            temp.to_json
-            temp
-          end
 
           before do |example|
             mock_ccg(scopes) do
@@ -609,14 +545,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         response '401', 'Unauthorized' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                             'disability_compensation', 'default.json').read)
-
-          let(:data) do
-            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'disability_compensation', 'form_526_json_api.json').read
-            temp = JSON.parse(temp)
-
-            temp
-          end
           let(:Authorization) { nil }
 
           before do |example|
@@ -641,20 +569,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       end
 
       describe 'Getting a 404 response' do
-        let(:claim_date) { (Time.zone.today - 1.day).to_s }
-        let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-        let(:data) do
-          temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                 'disability_compensation', 'form_526_json_api.json').read
-          temp = JSON.parse(temp)
-          attributes = temp['data']['attributes']
-          attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
-            anticipated_separation_date
-          temp['data']['attributes'] = attributes
-          temp.to_json
-          temp
-        end
-
         let(:disability_comp_request) do
           data
         end
@@ -768,14 +682,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2',
                                             'veterans', 'disability_compensation', 'attachments.json').read)
 
-          let(:data) do
-            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'disability_compensation', 'form_526_json_api.json').read
-            temp = JSON.parse(temp)
-
-            temp
-          end
-
           let(:scopes) { %w[system/claim.write] }
           let(:auto_claim) { create(:auto_established_claim_v2) }
           let(:attachment1) do
@@ -812,15 +718,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         response '401', 'Unauthorized' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                             'disability_compensation', 'default.json').read)
-
-          let(:data) do
-            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'disability_compensation', 'form_526_json_api.json').read
-            temp = JSON.parse(temp)
-
-            temp
-          end
-
           let(:scopes) { %w[system/claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
           let(:attachment1) do
@@ -911,13 +808,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
-      let(:data) do
-        temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                               'disability_compensation', 'form_526_generate_pdf_json_api.json').read
-        temp = JSON.parse(temp)
-
-        temp
-      end
       parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation_generate_pdf]
       pdf_description = <<~VERBIAGE
         Returns a filled out 526EZ form for a disability compensation claim (21-526EZ).
@@ -984,19 +874,6 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       describe 'Getting a 404 response' do
         let(:claim_date) { (Time.zone.today - 1.day).to_s }
-        let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-        let(:data) do
-          temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                 'disability_compensation', 'form_526_json_api.json').read
-          temp = JSON.parse(temp)
-          attributes = temp['data']['attributes']
-          attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
-            anticipated_separation_date
-          temp['data']['attributes'] = attributes
-          temp.to_json
-          temp
-        end
-
         let(:disability_comp_request) do
           data
         end

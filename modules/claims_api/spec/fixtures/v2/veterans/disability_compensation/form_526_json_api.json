@@ -156,8 +156,7 @@
             "serviceBranch": "Public Health Service",
             "serviceComponent": "Active",
             "activeDutyBeginDate": "2008-11-14",
-            "activeDutyEndDate": "2023-10-30",
-            "separationLocationCode": "98282"
+            "activeDutyEndDate": "2023-10-30"
           }
         ],
         "servedInActiveCombatSince911": "NO",
@@ -174,10 +173,6 @@
             "phoneNumber": "5555555"
           },
           "receivingInactiveDutyTrainingPay": "YES"
-        },
-        "federalActivation": {
-          "activationDate": "2023-10-01",
-          "anticipatedSeparationDate": "2024-10-31"
         },
         "confinements": [
           {
