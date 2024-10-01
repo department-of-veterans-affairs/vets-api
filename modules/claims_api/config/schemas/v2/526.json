@@ -86,13 +86,13 @@
               "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
               "minLength": 1,
               "maxLength": 30,
-              "example": "Portland"
+              "example": "Schenectady"
             },
             "state": {
               "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
               "type": ["string", "null"],
               "pattern": "^[a-z,A-Z]{2}$",
-              "example": "OR",
+              "example": "NY",
               "nullable": true
             },
             "country": {
@@ -193,13 +193,13 @@
           "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
           "minLength": 0,
           "maxLength": 30,
-          "example": "Portland"
+          "example": "Schenectady"
         },
         "state": {
           "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
           "type": ["string", "null"],
           "pattern": "^$|^[a-z,A-Z]{2}$",
-          "example": "OR",
+          "example": "NY",
           "nullable": true
         },
         "country": {

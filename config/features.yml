@@ -118,6 +118,10 @@ features:
     actor_type: user
     description: Enables next of kin experience for 10-10EZR applicants.
     enable_in_development: true
+  ezr_use_va_notify_on_submission_failure:
+    actor_type: user
+    description: Send submission failure email to Veteran using VANotify.
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -184,6 +188,10 @@ features:
   claims_api_local_bgs_refactor:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
+    enable_in_development: true
+  claims_api_bd_refactor:
+    actor_type: user
+    description: Diverts codepath to use refactored BD methods
     enable_in_development: true
   confirmation_page_new:
     actor_type: user
@@ -710,7 +718,10 @@ features:
     description: If enabled shows the digital form experience for form 10-7959a (IVC CHAMPVA claim form)
   form107959f1:
     actor_type: user
-    description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program)
+    description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program register form)
+  form107959f2:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-7959f-2 (Foreign Medical Program claim form)
   form_upload_flow:
     actor_type: user
     description: If enabled shows the find-a-form widget for the Form Upload Flow
@@ -1210,6 +1221,10 @@ features:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
     enable_in_development: true
+  use_veteran_models_for_appoint:
+    actor_type: user
+    description: Use the original veteran_x models to power Appoint a Rep entity search
+    enable_in_development: true
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
@@ -1692,3 +1707,6 @@ features:
   remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
+  show_yellow_ribbon_table:
+    actor_type: user
+    description: Used to show yellow ribbon table in Comparison Tool

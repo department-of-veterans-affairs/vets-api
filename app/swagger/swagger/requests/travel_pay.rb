@@ -47,7 +47,7 @@ module Swagger
           parameter do
             key :name, 'id'
             key :in, :path
-            key :description, 'The non-PII/PHI id of a claim (UUIDv4)'
+            key :description, 'The non-PII/PHI id of a claim (UUID - any version)'
             key :required, true
             key :type, :string
           end
