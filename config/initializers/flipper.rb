@@ -5,7 +5,6 @@ require 'flipper/adapters/active_record'
 require 'active_support/cache'
 require 'flipper/adapters/active_support_cache_store'
 require 'flipper/action_patch'
-require 'flipper/configuration_patch'
 require 'flipper/instrumentation/event_subscriber'
 
 FLIPPER_FEATURE_CONFIG = YAML.safe_load(File.read(Rails.root.join('config', 'features.yml')))
@@ -30,12 +29,10 @@ Rails.application.reloader.to_prepare do
     end
   end
 
-  # Modify Flipper::UI::Configuration to accept a custom view path.
-  Flipper::UI::Configuration.prepend(FlipperExtensions::ConfigurationPatch)
+  # Modify Flipper::UI::Action to use our custom views
+  Flipper::UI::Action.prepend(FlipperExtensions::ActionPatch)
 
   Flipper::UI.configure do |config|
-    # config.custom_views_path = Rails.root.join('lib', 'flipper', 'views')
-
     config.show_feature_description_in_list = true
     config.descriptions_source = lambda do |_keys|
       FLIPPER_FEATURE_CONFIG['features'].transform_values { |value| value['description'] }
@@ -74,8 +71,4 @@ Rails.application.reloader.to_prepare do
     # make sure we can still run rake tasks before table has been created
     nil
   end
-
-  # Modify Flipper::UI::Action to use custom views if they exist
-  # and to add descriptions and types for features.
-  # Flipper::UI::Action.prepend(FlipperExtensions::ActionPatch)
 end

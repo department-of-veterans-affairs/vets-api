@@ -6,58 +6,69 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="<%= script_name %>/octicons/octicons.css">
-    <link rel="stylesheet" href="/formation.min.css">
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" href="<%= script_name + bootstrap_css[:src] %>" integrity="<%= bootstrap_css[:hash] %>" crossorigin="anonymous">
+    <link rel="stylesheet" href="<%= script_name %>/css/application.css">
   </head>
   <body>
-    <header class="vads-u-background-color--primary-darkest" role="banner">
-      <div class="vads-l-grid-container vads-u-padding-y--3">
-        <div class="vads-l-row vads-u-align-items--center">
-          <div class="vads-l-col">
-            <a class="vads-u-font-size--xl vads-u-color--white vads-u-text-decoration--none" title="VA.gov Flipper Admin Home" href="/flipper">
-              <strong>VA.gov</strong>
-              <span class="vads-u-margin-left--1 vads-u-font-size--lg" style="font-weight: 300;">Flipper Admin</span>
+    <div class="row" style="background-color: #192D4E">
+      <div class="col-12">
+        <nav class="navbar navbar-expand navbar-dark py-2"> <!-- Added py-2 for vertical padding -->
+          <div class="container px-4" style="max-width: 1000px;"> <!-- Reduced max-width and added horizontal padding -->
+            <div class="d-flex justify-content-between align-items-center w-100">
+            <a href="/flipper" class="navbar-brand d-flex align-items-center">
+              <span class="fs-2 fw-bold me-2">VA.gov</span>
+              <span class="fs-4">Flipper Admin</span>
             </a>
+            <div class="navbar-nav ms-auto">
+              <a href="https://depo-platform-documentation.scrollhelp.site/developer-docs/feature-toggles-guide" class="navbar-brand" target="_blank">Docs</a>
+              <% if RequestStore.store[:flipper_user_email_for_log].blank? && !Rails.env.development? %>
+                <form action="/flipper/features" method="post" class="d-inline-block">
+                  <button type="submit" class="btn d-flex align-items-center" style="background-color: #000000; border-color: #000000; color: #ffffff; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#1a1a1a'; this.style.borderColor='#1a1a1a'; this.style.boxShadow='0 0 0 0.25rem rgba(255, 255, 255, 0.2)';" onmouseout="this.style.backgroundColor='#000000'; this.style.borderColor='#000000'; this.style.boxShadow='none';">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" class="me-2" style="width: 1.5em;">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.463 2 11.97c0 4.404 2.865 8.14 6.839 9.458.5.092.682-.216.682-.48 0-.236-.008-.864-.013-1.695-2.782.602-3.369-1.337-3.369-1.337-.454-1.151-1.11-1.458-1.11-1.458-.908-.618.069-.606.069-.606 1.003.07 1.531 1.027 1.531 1.027.892 1.524 2.341 1.084 2.91.828.092-.643.35-1.083.636-1.332-2.22-.251-4.555-1.107-4.555-4.927 0-1.088.39-1.979 1.029-2.675-.103-.252-.446-1.266.098-2.638 0 0 .84-.268 2.75 1.022A9.607 9.607 0 0 1 12 6.82c.85.004 1.705.114 2.504.336 1.909-1.29 2.747-1.022 2.747-1.022.546 1.372.202 2.386.1 2.638.64.696 1.028 1.587 1.028 2.675 0 3.83-2.339 4.673-4.566 4.92.359.307.678.915.678 1.846 0 1.332-.012 2.407-.012 2.734 0 .267.18.577.688.48 3.97-1.32 6.833-5.054 6.833-9.458C22 6.463 17.522 2 12 2Z" fill="currentColor"></path>
+                    </svg>
+                    Sign in to GitHub
+                  </button>
+                </form>
+              <% elsif !RequestStore.store[:flipper_authorized] && !Rails.env.development? %>
+                <form action="/flipper/features/logout" class="d-inline-block">
+                  <button type="submit" class="btn d-flex align-items-center" style="background-color: #000000; border-color: #000000; color: #ffffff; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#1a1a1a'; this.style.borderColor='#1a1a1a'; this.style.boxShadow='0 0 0 0.25rem rgba(255, 255, 255, 0.2)';" onmouseout="this.style.backgroundColor='#000000'; this.style.borderColor='#000000'; this.style.boxShadow='none';">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" class="me-2" style="width: 1.5em;">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.463 2 11.97c0 4.404 2.865 8.14 6.839 9.458.5.092.682-.216.682-.48 0-.236-.008-.864-.013-1.695-2.782.602-3.369-1.337-3.369-1.337-.454-1.151-1.11-1.458-1.11-1.458-.908-.618.069-.606.069-.606 1.003.07 1.531 1.027 1.531 1.027.892 1.524 2.341 1.084 2.91.828.092-.643.35-1.083.636-1.332-2.22-.251-4.555-1.107-4.555-4.927 0-1.088.39-1.979 1.029-2.675-.103-.252-.446-1.266.098-2.638 0 0 .84-.268 2.75 1.022A9.607 9.607 0 0 1 12 6.82c.85.004 1.705.114 2.504.336 1.909-1.29 2.747-1.022 2.747-1.022.546 1.372.202 2.386.1 2.638.64.696 1.028 1.587 1.028 2.675 0 3.83-2.339 4.673-4.566 4.92.359.307.678.915.678 1.846 0 1.332-.012 2.407-.012 2.734 0 .267.18.577.688.48 3.97-1.32 6.833-5.054 6.833-9.458C22 6.463 17.522 2 12 2Z" fill="currentColor"></path>
+                    </svg>
+                    Log out
+                  </button>
+                </form>
+              <% end %>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <div class="container mt-3">
+      <% unless Flipper::UI.configuration.banner_text.nil? %>
+        <div class="row">
+          <div class="alert alert-<%= Flipper::UI.configuration.banner_class %> text-center font-weight-bold">
+            <%= Flipper::UI.configuration.banner_text %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="features-links row mt-5">
+        <div class="col-12 col-xl-10 offset-xl-1">
+          <div class="content row mx-3 mx-sm-4 mx-md-5 px-3 px-sm-4 px-md-5">
+            <div class="col-12 col-xl-10 offset-xl-1">
+              <%== yield %>
+            </div>
           </div>
         </div>
       </div>
-    </header>
-
-    <div class="vads-l-grid-container" style="overflow-wrap: break-word;">
-      <% unless Flipper::UI.configuration.banner_text.nil? %>
-      <div class="vads-l-row">
-        <div class="alert alert-<%= Flipper::UI.configuration.banner_class %> text-center font-weight-bold">
-          <%= Flipper::UI.configuration.banner_text %>
-        </div>
-      </div>
-      <% end %>
-
-      <div class="vads-l-row">
-        <nav>
-          <ul class="nav nav-underline mb-3 align-items-center" style="margin-left: -24px;">
-            <% Flipper::UI.configuration.nav_items.each do |item| %>
-              <ul class="vads-u-margin--0 vads-u-padding--0 nav-item">
-                <a href="<%= url_for(item[:href]) %>" class="nav-link<%= " active" if request.url.start_with?(url_for(item[:href])) %>">
-                  <% if item[:title] != 'Settings' %>
-                  <b><%= item[:title] %></b>
-                </a>
-              </ul>
-              <% end %>
-            <% end %>
-          </ul>
-            <a href="https://depo-platform-documentation.scrollhelp.site/developer-docs/feature-toggles-guide">Docs</a>
-        </nav>
-      </div>
-
-      <div class="content vads-l-row">
-        <%== yield %>
-      </div>
     </div>
+
+    <script src="<%= script_name + popper_js[:src] %>" integrity="<%= popper_js[:hash] %>" crossorigin="anonymous"></script>
+    <script src="<%= script_name + bootstrap_js[:src] %>" integrity="<%= bootstrap_js[:hash] %>" crossorigin="anonymous"></script>
+    <script src="<%= script_name %>/js/application.js?v=<%= Flipper::VERSION %>"></script>
+    <script src="<%= script_name %>/js/version.js?v=<%= Flipper::VERSION %>"></script>
   </body>
 </html>
