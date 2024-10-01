@@ -178,6 +178,7 @@ module ClaimsApi
             veteran_participant_id: target_veteran.participant_id,
             dependent_participant_id:,
             veteran_file_number: file_number,
+            allow_poa_cadd: form_attributes[:consentAddressChange] ? 'Y' : nil,
             claimant_ssn:
           )
 
