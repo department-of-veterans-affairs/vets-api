@@ -35,20 +35,16 @@ module SimpleFormsApi
                   :submission
 
       def assign_defaults(options)
-        # The file paths of hydrated attachments which were originally submitted
-        @attachments = options[:attachments] || nil
-        # The UUID returned from the Benefits Intake API upon original submission
-        @benefits_intake_uuid = options[:benefits_intake_uuid] || nil
+        # The confirmation codes of any attachments which were originally submitted
+        @attachments = options[:attachments]
         # The local path where the submission PDF is stored
-        @file_path = options[:file_path] || nil
-        # Include a CSV file containing manifest data
-        @include_manifest = options[:include_manifest] || true
-        # Include a JSON file containing metadata of original submission
-        @include_metadata = options[:include_metadata] || true
+        @file_path = options[:file_path]
+        # The UUID returned from the Benefits Intake API upon original submission
+        @id = options[:id]
         # Data appended to the original submission headers
-        @metadata = options[:metadata] || nil
+        @metadata = options[:metadata]
         # The FormSubmission object representing the original data payload submitted
-        @submission = options[:submission] || nil
+        @submission = options[:submission]
       end
 
       def submission_already_hydrated?

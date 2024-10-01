@@ -2,29 +2,27 @@
 
 require 'csv'
 require 'fileutils'
+require 'simple_forms_api/form_submission_remediation/configuration/base'
 
 # Built in accordance with the following documentation:
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
 module SimpleFormsApi
   module S3
     class SubmissionArchiver
-      include Utils
       class << self
         def fetch_presigned_url(id, type: :submission)
           new(id:).generate_presigned_url(s3_upload_file_path, type:)
         end
       end
 
-      def initialize(parent_dir: 'vff-simple-forms', config: nil, **options)
-        @config = config || FormSubmissionRemediation::Configuration::Base.new
-        @parent_dir = parent_dir
+      def initialize(**options)
+        @config = options[:config] || SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
+        @parent_dir = config.parent_dir
 
-        defaults = default_options.merge(options)
+        assign_defaults(options)
 
-        @temp_directory_path, @submission, @unique_filename = build_submission_archive(**defaults)
+        @temp_directory_path, @submission, @unique_filename = build_submission_archive(**options)
         raise 'Failed to build SubmissionArchive.' unless temp_directory_path && submission
-
-        assign_instance_variables(defaults)
       rescue => e
         config.handle_error('SubmissionArchiver initialization failed', e)
       end
@@ -38,7 +36,9 @@ module SimpleFormsApi
 
         upload_file_to_s3
         cleanup
-        generate_presigned_url(build_path(s3_directory_path, local_upload_file_path.split('/').last))
+
+        s3_path = build_path(s3_directory_path, local_upload_file_path.split('/').last)
+        generate_presigned_url(s3_path)
       rescue => e
         config.handle_error("Failed #{type} upload: #{id}", e)
       end
@@ -51,14 +51,17 @@ module SimpleFormsApi
 
       attr_reader :config, :id, :parent_dir, :submission, :temp_directory_path, :unique_filename, :upload_type
 
-      def default_options
-        {
-          attachments: nil, # The confirmation codes of any attachments which were originally submitted
-          file_path: nil,   # The local path where the submission PDF is stored
-          id: nil,          # The UUID returned from the Benefits Intake API upon original submission
-          metadata: nil,    # Data appended to the original submission headers
-          submission: nil   # The FormSubmission object representing the original data payload submitted
-        }
+      def assign_defaults(options)
+        # The confirmation codes of any attachments which were originally submitted
+        @attachments = options[:attachments]
+        # The local path where the submission PDF is stored
+        @file_path = options[:file_path]
+        # The UUID returned from the Benefits Intake API upon original submission
+        @id = options[:id]
+        # Data appended to the original submission headers
+        @metadata = options[:metadata]
+        # The FormSubmission object representing the original data payload submitted
+        @submission = options[:submission]
       end
 
       def s3_uploader
