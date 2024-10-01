@@ -5,11 +5,28 @@ module FormAttachmentCreate
   include SentryLogging
 
   def create
+    debug_timestamp = Time.current.iso8601
+    if Flipper.enabled?(:hca_log_form_attachment_create)
+      log_message_to_sentry(
+        'begin form attachment creation',
+        :info,
+        file_data_present: filtered_params[:file_data].present?,
+        class_name: filtered_params[:file_data]&.class&.name,
+        debug_timestamp:
+      )
+    end
+
     validate_file_upload_class!
     save_attachment_to_cloud!
     save_attachment_to_db!
 
-    render json: serializer_klass.new(form_attachment)
+    serialized = serializer_klass.new(form_attachment)
+
+    if Flipper.enabled?(:hca_log_form_attachment_create)
+      log_message_to_sentry('finish form attachment creation', :info, serialized: serialized.present?, debug_timestamp:)
+    end
+
+    render json: serialized
   end
 
   private
