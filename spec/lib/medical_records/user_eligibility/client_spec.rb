@@ -98,5 +98,23 @@ describe UserEligibility::Client do
         expect(a_request(:get, %r{mhvapi/v1/usermgmt/usereligibility/isValidSMUser})).not_to have_been_made
       end
     end
+
+    context 'when user eligibility client fails' do
+      before do
+        Flipper.enable(:mhv_medical_records_new_eligibility_check)
+      end
+
+      let(:icn) { '1000000000V000000' }
+      let(:user_id) { '10000000' }
+      let(:client) { UserEligibility::Client.new(user_id, icn) }
+
+      it 'raises an error', :vcr do
+        VCR.use_cassette 'user_eligibility_client/perform_an_eligibility_check_with_client_failure' do
+          expect do
+            client.get_is_valid_sm_user
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+      end
+    end
   end
 end

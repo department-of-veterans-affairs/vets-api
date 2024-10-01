@@ -8,28 +8,57 @@ RSpec.describe Users::Services do
 
     let(:user) { build :user, :loa3 }
 
-    it 'returns an array of services authorized to the initialized user', :aggregate_failures do
-      expect(subject.class).to eq Array
-      expect(subject).to match_array(
-        %w[
-          facilities
-          hca
-          edu-benefits
-          evss-claims
-          lighthouse
-          form526
-          user-profile
-          appeals-status
-          form-save-in-progress
-          form-prefill
-          identity-proofed
-          vet360
-        ]
-      )
+    VCR.configure do |config|
+      config.register_request_matcher :wildcard_path do |request1, request2|
+        # Remove the user id and icn after `/isValidSMUser/` to handle any user id and icn
+        path1 = request1.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+        path2 = request2.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+        path1 == path2
+      end
+    end
+
+    context 'with initialized user' do
+      before do
+        VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_initialized_user',
+                            match_requests_on: %i[method wildcard_path])
+      end
+
+      after do
+        VCR.eject_cassette
+      end
+
+      it 'returns an array of services authorized to the initialized user', :aggregate_failures do
+        expect(subject.class).to eq Array
+        expect(subject).to match_array(
+          %w[
+            facilities
+            hca
+            edu-benefits
+            evss-claims
+            lighthouse
+            form526
+            user-profile
+            appeals-status
+            form-save-in-progress
+            form-prefill
+            identity-proofed
+            vet360
+          ]
+        )
+      end
     end
 
     context 'with an loa1 user' do
       let(:user) { build :user }
+
+      before do
+        VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_loa1_user',
+                            match_requests_on: %i[method wildcard_path])
+      end
+
+      after do
+        VCR.eject_cassette
+      end
 
       it 'returns only the services that are authorized to this loa1 user' do
         expect(subject).to match_array(
@@ -51,6 +80,8 @@ RSpec.describe Users::Services do
       before do
         Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
         VCR.insert_cassette('sm_client/session')
+        VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_services',
+                            match_requests_on: %i[method wildcard_path])
       end
 
       after do
@@ -59,6 +90,9 @@ RSpec.describe Users::Services do
       end
 
       it 'returns an array including the MHV services' do
+        puts 'VAPAT'
+        puts user.va_patient?
+        puts 'VAPAT'
         %w[health-records medical-records messaging rx].each do |service|
           expect(subject).to include(service)
         end

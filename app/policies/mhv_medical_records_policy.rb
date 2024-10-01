@@ -28,7 +28,7 @@ MHVMedicalRecordsPolicy = Struct.new(:user, :mhv_medical_records) do
       'MHV Premium SM account with no logins  in past 26 months',
       'MHV Premium SM account with Logins in past 26 months',
       'MHV Premium account with no SM'
-    ].any? { |substring| response.include?(substring) }
+    ].any? { |substring| response['accountStatus'].include?(substring) }
   rescue => e
     log_denial_details('MR ACCESS DENIED IN USER ELIGIBILITY POLICY', e)
     false
