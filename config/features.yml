@@ -1031,9 +1031,9 @@ features:
   profile_show_quick_submit_notification_setting:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
-  profile_show_proof_of_veteran_status:
+  profile_show_proof_of_veteran_status_eligible:
     actor_type: user
-    description: Show/Hide the proof of veteran status page and links
+    description: Include/exclude the proof of veteran status eligibility in service_history response
   profile_use_experimental:
     description: Use experimental features for Profile application - Do not remove
     enable_in_development: true
