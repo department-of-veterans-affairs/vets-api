@@ -3,14 +3,13 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'common/client/errors'
-require 'search_gsa/response'
+require 'search/response'
 require 'search_gsa/configuration'
 
 module SearchGsa
-  # This class builds a wrapper around Search.gov or api.gsa.gov web results API. Creating a new instance of class
+  # This class builds a wrapper around api.gsa.gov web results API. Creating a new instance of class
   # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
   #
-  # @see https://search.usa.gov/sites/7378/api_instructions
   # @see https://open.gsa.gov/api/searchgov-results/
   #
   class Service < Common::Client::Base
@@ -35,7 +34,7 @@ module SearchGsa
     def results
       with_monitoring do
         response = perform(:get, results_url, query_params)
-        SearchGsa::ResultsResponse.from(response)
+        Search::ResultsResponse.from(response)
       end
     rescue => e
       handle_error(e)
