@@ -56,7 +56,11 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
       let(:msg) do
         {
           'class' => 'YourJobClassName',
+<<<<<<< HEAD
           'args' => %w[123 123-abc],
+=======
+          'args' => %w[submissionID uuid],
+>>>>>>> 7d6de589aa (Update monitoring)
           'jid' => '12345abcde',
           'retry_count' => 5
         }
@@ -65,9 +69,15 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
       it 'handles MissingUserAttributesError' do
         expected_log_message = <<~LOG
           V0::Form5655::VBASubmissionJob retries exhausted:
+<<<<<<< HEAD
           submission_id: 123 | user_id: 123-abc
           Exception: #{missing_attributes_exception.class} - #{missing_attributes_exception.message}
           Backtrace: #{missing_attributes_exception.backtrace.join("\n")}
+=======
+          Exception: #{exception.class} - #{exception.message}
+          Backtrace: #{exception.backtrace.join("\n")}
+          submission_id: submissionID | user_id: uuid
+>>>>>>> 7d6de589aa (Update monitoring)
         LOG
 
         expect(StatsD).to receive(:increment).with(

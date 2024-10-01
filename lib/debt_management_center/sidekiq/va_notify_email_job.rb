@@ -10,7 +10,7 @@ module DebtManagementCenter
     class UnrecognizedIdentifier < StandardError; end
 
     sidekiq_retries_exhausted do |_msg, ex|
-      StatsD.increment("#{STATS_KEY}.exhausted")
+      StatsD.increment("#{STATS_KEY}.retries_exhausted")
       Rails.logger.error <<~LOG
         VANotifyEmailJob retries exhausted:
         Exception: #{ex.class} - #{ex.message}
