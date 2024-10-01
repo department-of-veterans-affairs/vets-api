@@ -74,120 +74,62 @@ module SwaggerSharedComponents
             in: :body,
             schema: {
               type: :object,
+              required: :pdf_generator2122,
               properties: {
-                organization_name: { type: :string, example: 'Veterans Organization' },
-                record_consent: { type: :boolean, example: true },
-                consent_address_change: { type: :boolean, example: false },
-                consent_limits: {
-                  type: :array,
-                  items: { type: :string },
-                  example: %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL]
-                },
-                conditions_of_appointment: {
-                  type: :array,
-                  items: { type: :string },
-                  example: %w[a123 b456 c789]
-                },
-                claimant: {
+                pdf_generator2122: {
                   type: :object,
                   properties: {
-                    name: name_parameters,
-                    address: address_parameters,
-                    date_of_birth: { type: :string, format: :date, example: '12/31/2000' },
-                    relationship: { type: :string, example: 'Spouse' },
-                    phone: { type: :string, example: '1234567890' },
-                    email: { type: :string, example: 'veteran@example.com' }
-                  }
-                },
-                veteran: {
-                  type: :object,
-                  properties: {
-                    insurance_numbers: {
+                    organization_name: { type: :string, example: 'Veterans Organization' },
+                    record_consent: { type: :boolean, example: true },
+                    consent_address_change: { type: :boolean, example: false },
+                    consent_limits: {
                       type: :array,
                       items: { type: :string },
-                      example: %w[123456789 987654321]
+                      example: %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL]
                     },
-                    name: name_parameters,
-                    address: address_parameters,
-                    ssn: { type: :string, example: '123456789' },
-                    va_file_number: { type: :string, example: '123456789' },
-                    date_of_birth: { type: :string, format: :date, example: '12/31/2000' },
-                    service_number: { type: :string, example: '123456789' },
-                    service_branch: { type: :string, example: 'Army' },
-                    service_branch_other: { type: :string, example: 'Other Branch' },
-                    phone: { type: :string, example: '1234567890' },
-                    email: { type: :string, example: 'veteran@example.com' }
-                  }
+                    conditions_of_appointment: {
+                      type: :array,
+                      items: { type: :string },
+                      example: %w[a123 b456 c789]
+                    },
+                    claimant: {
+                      type: :object,
+                      properties: {
+                        name: name_parameters,
+                        address: address_parameters,
+                        date_of_birth: { type: :string, format: :date, example: '12/31/2000' },
+                        relationship: { type: :string, example: 'Spouse' },
+                        phone: { type: :string, example: '1234567890' },
+                        email: { type: :string, example: 'veteran@example.com' }
+                      }
+                    },
+                    veteran: {
+                      type: :object,
+                      properties: {
+                        insurance_numbers: {
+                          type: :array,
+                          items: { type: :string },
+                          example: %w[123456789 987654321]
+                        },
+                        name: name_parameters,
+                        address: address_parameters,
+                        ssn: { type: :string, example: '123456789' },
+                        va_file_number: { type: :string, example: '123456789' },
+                        date_of_birth: { type: :string, format: :date, example: '12/31/2000' },
+                        service_number: { type: :string, example: '123456789' },
+                        service_branch: { type: :string, example: 'Army' },
+                        service_branch_other: { type: :string, example: 'Other Branch' },
+                        phone: { type: :string, example: '1234567890' },
+                        email: { type: :string, example: 'veteran@example.com' }
+                      }
+                    }
+                  },
+                  required: %w[organization_name record_consent veteran]
                 }
-              },
-              required: %w[organization_name record_consent veteran]
-            }
-          }
-      }
-    end
-
-    def self.schemas # rubocop:disable Metrics/MethodLength
-      disability_compensation_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            '526.json'
-          )
-        )
-      )
-      {
-        disability_compensation: {
-          name: 'data',
-          required: ['data'],
-          properties: {
-            data: {
-              type: :object,
-              required: %w[id type attributes],
-              properties: {
-                id: {
-                  type: 'string',
-                  example: '7d0de77e-b7bd-4db7-a8d9-69a25482c80a'
-                },
-                type: {
-                  type: 'string',
-                  example: 'form/526'
-                },
-                attributes: disability_compensation_json_schema.except('$schema')
               }
             }
           }
-        },
-        sync_disability_compensation: {
-          name: 'data',
-          required: ['data'],
-          properties: {
-            data: {
-              type: :object,
-              required: %w[id type attributes],
-              properties: {
-                id: {
-                  type: 'string',
-                  example: '7d0de77e-b7bd-4db7-a8d9-69a25482c80a'
-                },
-                type: {
-                  type: 'string',
-                  example: 'form/8675309'
-                },
-                attributes: format_response_for_sync_endpoint(disability_compensation_json_schema.except('$schema'))
-              }
-            }
-          }
-        }
       }
-    end
-
-    def self.format_response_for_sync_endpoint(schema)
-      schema['properties'].merge!({ 'claimId' => { 'type' => 'string', 'example' => '600517517' } })
-      schema
     end
   end
 end

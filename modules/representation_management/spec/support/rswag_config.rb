@@ -44,6 +44,16 @@ class RepresentationManagement::RswagConfig
         # basePath is not valid OAS v3
         servers: [
           {
+            url: 'http://localhost:3000',
+            description: 'Local server',
+            variables: {
+              version: {
+                default: 'v1'
+              }
+            }
+          },
+
+          {
             url: 'https://sandbox-api.va.gov',
             description: 'VA.gov API sandbox environment',
             variables: {

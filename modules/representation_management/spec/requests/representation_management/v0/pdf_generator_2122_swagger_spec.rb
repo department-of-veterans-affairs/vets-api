@@ -3,19 +3,21 @@
 require 'swagger_helper'
 require_relative '../../../support/swagger_shared_components/v0'
 
-RSpec.describe 'PDF Generator 21-22', type: :request do
+RSpec.describe 'PDF Generator 21-22', openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json',
+                                      type: :request do
   path '/representation_management/v0/pdf_generator2122' do
     post('Generate a PDF for form 21-22') do
       tags 'PDF Generation'
       consumes 'application/json'
       produces 'application/pdf'
       operationId 'createPdfForm2122'
-      # summary 'Generate a PDF for form 21-22'
 
       parameter SwaggerSharedComponents::V0.body_examples[:pdf_generator2122_parameter]
 
       response '200', 'PDF generated successfully' do
-        let(:pdf_generator2122) { SwaggerSharedComponents::V0.body_examples[:pdf_generator2122] }
+        let(:pdf_generator2122) do
+          SwaggerSharedComponents::V0.body_examples[:pdf_generator2122]
+        end
         run_test!
       end
 
@@ -23,11 +25,6 @@ RSpec.describe 'PDF Generator 21-22', type: :request do
         let(:pdf_generator2122) do
           SwaggerSharedComponents::V0.body_examples[:pdf_generator2122].delete(:organization_name)
         end
-        schema '$ref' => '#/components/schemas/Errors'
-        run_test!
-      end
-
-      response '500', 'Internal server error' do
         schema '$ref' => '#/components/schemas/Errors'
         run_test!
       end
