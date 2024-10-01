@@ -11,9 +11,7 @@ module SimpleFormsApi
         @config = options[:config] || SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
 
         validate_input(id)
-
-        @submission = FormSubmission.find_by(benefits_intake_uuid: id)
-        validate_submission
+        fetch_submission(id)
 
         @attachments = []
         @metadata = {}
@@ -29,6 +27,11 @@ module SimpleFormsApi
 
       def validate_input(id)
         raise ArgumentError, "No #{config.id_type} was provided" unless id
+      end
+
+      def fetch_submission(id)
+        @submission = config.submission_type.find_by(config.id_type => id)
+        validate_submission
       end
 
       def validate_submission
@@ -51,18 +54,17 @@ module SimpleFormsApi
       end
 
       def build_form(form_number)
-        form_class = "SimpleFormsApi::#{form_number.titleize.delete(' ')}".constantize
+        form_class_name = "SimpleFormsApi::#{form_number.titleize.delete(' ')}"
+        form_class = form_class_name.constantize
         form_class.new(form_data_hash)
       rescue NameError => e
-        config.handle_error("Form class not found for #{form_number}", e)
+        config.handle_error("Form class not found for #{form_class_name}", e)
       end
 
       def handle_submission_data(filler, form, form_number)
         @file_path = generate_file(filler)
-        validate_metadata(form)
-        process_attachments(form, form_number)
-      rescue => e
-        config.handle_error('Error handling submission data', e)
+        @metadata = validate_metadata(form)
+        @attachments = process_attachments(form, form_number)
       end
 
       def generate_file(filler)
@@ -72,7 +74,7 @@ module SimpleFormsApi
       end
 
       def validate_metadata(form)
-        @metadata = SimpleFormsApiSubmission::MetadataValidator.validate(
+        SimpleFormsApiSubmission::MetadataValidator.validate(
           form.metadata,
           zip_code_is_us_based: form.zip_code_is_us_based
         )
@@ -84,8 +86,11 @@ module SimpleFormsApi
         case form_number
         when 'vba_40_0247', 'vba_40_10007'
           form.handle_attachments(file_path)
+          []
         when 'vba_20_10207'
-          @attachments = form.get_attachments
+          form.get_attachments
+        else
+          []
         end
       rescue => e
         config.handle_error("Attachment handling failed for #{form_number}", e)
