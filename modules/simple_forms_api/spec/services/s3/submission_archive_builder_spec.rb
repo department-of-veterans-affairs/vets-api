@@ -26,7 +26,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
     [Time.zone.today.strftime('%-m.%d.%y'), 'form', form_type, 'vagov', benefits_intake_uuid].join('_')
   end
   let(:submission_builder) { OpenStruct.new(submission:, file_path:, attachments:, metadata:) }
-  let(:archive_builder_instance) { described_class.new(benefits_intake_uuid:) }
+  let(:archive_builder_instance) { described_class.new(id: benefits_intake_uuid) }
 
   before do
     allow(FormSubmission).to receive(:find_by).and_return(submission)
@@ -55,10 +55,10 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
     end
 
     context 'when no valid parameters are passed' do
-      let(:archive_builder_instance) { described_class.new(benefits_intake_uuid: nil) }
+      let(:archive_builder_instance) { described_class.new(id: nil) }
 
       it 'raises an exception' do
-        expect { new }.to raise_exception('No benefits_intake_uuid was provided')
+        expect { new }.to raise_exception('No id was provided')
       end
     end
   end
@@ -66,17 +66,17 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
   describe '#run' do
     subject(:run) { archive_builder_instance.run }
 
-    let(:temp_file_path) { Rails.root.join("tmp/#{benefits_intake_uuid}-random-letters-n-numbers-archive/").to_s }
+    let(:temp_file_path) { Rails.root.join('tmp', 'random-letters-n-numbers-archive').to_s }
 
     context 'when properly initialized' do
       it 'completes successfully' do
-        expect(run).to eq([temp_file_path, submission, submission_file_path])
+        expect(run).to eq(["#{temp_file_path}/", submission, submission_file_path])
       end
 
       it 'writes the submission pdf file' do
         run
         expect(File).to have_received(:write).with(
-          "#{temp_file_path}#{submission_file_path}.pdf", a_string_starting_with('%PDF')
+          "#{temp_file_path}/#{submission_file_path}.pdf", a_string_starting_with('%PDF')
         )
       end
 
@@ -84,20 +84,20 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
         run
         attachments.each_with_index do |_, i|
           expect(File).to have_received(:write).with(
-            "#{temp_file_path}attachment_#{i + 1}__#{submission_file_path}.pdf", a_string_starting_with('%PDF')
+            "#{temp_file_path}/attachment_#{i + 1}__#{submission_file_path}.pdf", a_string_starting_with('%PDF')
           )
         end
       end
 
       it 'writes the manifest file' do
         run
-        expect(CSV).to have_received(:open).with("#{temp_file_path}manifest_#{submission_file_path}.csv", 'wb')
+        expect(CSV).to have_received(:open).with("#{temp_file_path}/manifest_#{submission_file_path}.csv", 'wb')
       end
 
       it 'writes the metadata json file' do
         run
         expect(File).to have_received(:write).with(
-          "#{temp_file_path}metadata_#{submission_file_path}.json", metadata.to_json
+          "#{temp_file_path}/metadata_#{submission_file_path}.json", metadata.to_json
         )
       end
     end

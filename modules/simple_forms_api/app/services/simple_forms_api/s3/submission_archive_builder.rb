@@ -2,14 +2,19 @@
 
 require 'csv'
 require 'fileutils'
-require_relative 'utils'
+require 'simple_forms_api/form_submission_remediation/configuration/base'
 
 # Built in accordance with the following documentation:
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
 module SimpleFormsApi
   module S3
-    class SubmissionArchiveBuilder < Utils
-      def initialize(**options) # rubocop:disable Lint/MissingSuper
+    class SubmissionArchiveBuilder
+      def initialize(**options)
+        @config = options[:config] || SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
+        @temp_directory_path = config.temp_directory_path
+        @include_manifest = config.include_manifest || true
+        @include_metadata = config.include_metadata || true
+
         assign_defaults(options)
         hydrate_submission_data unless submission_already_hydrated?
       rescue => e
@@ -17,7 +22,7 @@ module SimpleFormsApi
       end
 
       def run
-        FileUtils.mkdir_p(temp_directory_path)
+        create_temp_directory
         process_submission_files
         [temp_directory_path, submission, submission_file_path]
       rescue => e
@@ -51,49 +56,53 @@ module SimpleFormsApi
       end
 
       def hydrate_submission_data
-        raise 'No benefits_intake_uuid was provided' unless benefits_intake_uuid
+        raise 'No id was provided' unless id
 
-        built_submission = SubmissionBuilder.new(benefits_intake_uuid:)
+        built_submission = SubmissionBuilder.new(id:)
         @file_path = built_submission.file_path
         @submission = built_submission.submission
-        @benefits_intake_uuid = @submission&.benefits_intake_uuid
+        @id = submission&.send(config.id_type)
         @attachments = built_submission.attachments || []
         @metadata = built_submission.metadata
       end
 
+      def create_temp_directory
+        FileUtils.mkdir_p(config.temp_directory_path)
+      end
+
       def process_submission_files
-        write_pdf
-        write_attachments if attachments&.any?
-        write_manifest if include_manifest
-        write_metadata if include_metadata
+        [
+          -> { write_pdf },
+          -> { write_attachments if attachments&.any? },
+          -> { write_manifest if include_manifest },
+          -> { write_metadata if include_metadata }
+        ].each do |task|
+          safely_execute_task(task)
+        end
+      end
+
+      def safely_execute_task(task)
+        task.call
       rescue => e
-        handle_error('Error during submission files processing', e)
+        config.handle_error("Error during processing task: #{task.source_location}", e)
       end
 
       def write_pdf
-        write_tempfile("#{submission_file_path}.pdf", File.read(file_path))
-      rescue => e
-        handle_error('Error during submission pdf processing', e)
+        write_file("#{submission_file_path}.pdf", File.read(file_path), 'submission pdf')
       end
 
       def write_metadata
-        write_tempfile("metadata_#{submission_file_path}.json", metadata.to_json)
-      rescue => e
-        handle_error('Error during metadata processing', e)
+        write_file("metadata_#{submission_file_path}.json", metadata.to_json, 'metadata')
       end
 
       def write_attachments
-        log_info("Processing #{attachments.count} attachments")
-        attachments.each_with_index { |file_path, i| process_attachment(i + 1, file_path) }
-      rescue => e
-        config.handle_error('Error during attachments processing', e)
+        config.log_info("Processing #{attachments.count} attachments")
+        attachments.each_with_index { |attachment, i| process_attachment(i + 1, attachment) }
       end
 
       def process_attachment(attachment_number, file_path)
-        log_info("Processing attachment ##{attachment_number}: #{file_path}")
-        write_tempfile("attachment_#{attachment_number}__#{submission_file_path}.pdf", File.read(file_path))
-      rescue => e
-        handle_error("Failed processing attachment #{attachment_number} (#{file_path})", e)
+        config.log_info("Processing attachment ##{attachment_number}: #{file_path}")
+        write_file("attachment_#{attachment_number}__#{submission_file_path}.pdf", File.read(file_path), 'attachment')
       end
 
       def write_manifest
@@ -101,7 +110,7 @@ module SimpleFormsApi
         manifest_path = File.join(temp_directory_path, file_name)
 
         CSV.open(manifest_path, 'wb') do |csv|
-          csv << ['Submission DateTime', 'Form Type', 'VA.gov ID', 'Veteran ID', 'First Name', 'Last Name']
+          csv << %w[SubmissionDateTime FormType VAGovID VeteranID FirstName LastName]
           csv << [
             submission.created_at,
             form_data_hash['form_number'],
@@ -115,16 +124,16 @@ module SimpleFormsApi
         config.handle_error("Failed writing manifest for submission: #{id}", e)
       end
 
-      def write_tempfile(file_name, payload)
-        File.write("#{temp_directory_path}#{file_name}", payload)
+      def write_file(file_name, payload, file_description)
+        File.write(File.join(config.temp_directory_path, file_name), payload)
       rescue => e
-        config.handle_error("Failed writing file #{file_name} for submission: #{id}", e)
+        config.handle_error("Failed writing #{file_description} file #{file_name} for submission: #{id}", e)
       end
 
       def form_data_hash
         @form_data_hash ||= JSON.parse(submission.form_data)
-      rescue => e
-        handle_error('Error parsing submission form data', e)
+      rescue JSON::ParserError => e
+        config.handle_error('Error parsing submission form data', e)
       end
 
       def submission_file_path
