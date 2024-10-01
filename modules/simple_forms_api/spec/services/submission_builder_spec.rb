@@ -3,7 +3,7 @@
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-RSpec.describe SimpleFormsApi::S3::SubmissionBuilder, skip: 'These are flaky, need to be fixed.' do
+RSpec.describe SimpleFormsApi::SubmissionBuilder, skip: 'These are flaky, need to be fixed.' do
   let(:form_type) { '21-10210' }
   let(:form_doc) { "vba_#{form_type.gsub('-', '_')}.json" }
   let(:form_data) do

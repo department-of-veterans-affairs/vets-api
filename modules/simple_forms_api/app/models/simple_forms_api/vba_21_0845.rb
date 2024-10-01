@@ -26,10 +26,9 @@ module SimpleFormsApi
     end
 
     def zip_code_is_us_based
-      @data.dig('authorizer_address',
-                'country') == 'USA' || @data.dig('person_address',
-                                                 'country') == 'USA' || @data.dig('organization_address',
-                                                                                  'country') == 'USA'
+      @data.dig('authorizer_address', 'country') == 'USA' ||
+        @data.dig('person_address', 'country') == 'USA' ||
+        @data.dig('organization_address', 'country') == 'USA'
     end
 
     def words_to_remove

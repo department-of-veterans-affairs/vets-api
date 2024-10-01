@@ -74,4 +74,22 @@ module SimpleFormsApi
       end
     end
   end
+
+  module LoggingAndErrorHandling
+    def log_info(message, **)
+      Rails.logger.info("SimpleFormsApi - #{message}", **)
+    end
+
+    def log_error(message, error, **details)
+      Rails.logger.error(
+        "SimpleFormsApi - #{message}",
+        details.merge(error: error.message, backtrace: error.backtrace.first(5))
+      )
+    end
+
+    def handle_error(message, error, **)
+      log_error(message, error, **)
+      raise error
+    end
+  end
 end
