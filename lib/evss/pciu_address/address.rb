@@ -20,7 +20,6 @@ module EVSS
     #   @return [String] The third line of the address (max 35 characters)
     #
     class Address < Vets::Model
-
       ADDRESS_TYPES = {
         domestic: 'DOMESTIC',
         international: 'INTERNATIONAL',

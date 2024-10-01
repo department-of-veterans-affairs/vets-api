@@ -12,7 +12,6 @@ module EVSS
     #   @return [String] The name of the issue.
     #
     class SpecialIssue < Vets::Model
-
       attribute :code, String
       attribute :name, String
     end
