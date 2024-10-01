@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AskVAApi
-  module Categories
+  module Contents
     class Entity
       attr_reader :id,
                   :name,
