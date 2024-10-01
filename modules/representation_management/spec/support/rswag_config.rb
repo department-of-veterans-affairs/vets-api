@@ -35,6 +35,65 @@ class RepresentationManagement::RswagConfig
             },
             Error: {
               type: :string
+            },
+            PowerOfAttorneyResponse: {
+              type: :object,
+              properties: {
+                data: {
+                  type: :object,
+                  properties: {
+                    id: {
+                      type: :string,
+                      example: '123456'
+                    },
+                    type: {
+                      type: :string,
+                      description: 'Specifies the category of Power of Attorney (POA) representation.',
+                      enum: %w[veteran_service_representatives veteran_service_organizations]
+                    },
+                    attributes: {
+                      type: :object,
+                      properties: {
+                        type: {
+                          type: :string,
+                          example: 'organization',
+                          description: 'Type of Power of Attorney representation',
+                          enum: %w[organization representative]
+                        },
+                        name: {
+                          type: :string,
+                          example: 'Veterans Association'
+                        },
+                        address_line1: {
+                          type: :string,
+                          example: '1234 Freedom Blvd'
+                        },
+                        city: {
+                          type: :string,
+                          example: 'Arlington'
+                        },
+                        state_code: {
+                          type: :string,
+                          example: 'VA'
+                        },
+                        zip_code: {
+                          type: :string,
+                          example: '22204'
+                        },
+                        phone: {
+                          type: :string,
+                          example: '555-1234'
+                        },
+                        email: {
+                          type: :string,
+                          example: 'contact@example.org'
+                        }
+                      },
+                      required: %w[type name address_line1 city state_code zip_code]
+                    }
+                  }
+                }
+              }
             }
           }
           # Put PowerOfAttorneyResponse here

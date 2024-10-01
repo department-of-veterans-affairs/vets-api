@@ -19,21 +19,33 @@ RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_ma
 
       produces 'application/json'
 
-      # response '200',
-      #          'Successfully checked for Power of Attorney information' do
-      #   schema oneOf: [
-      #     {
-      #       '$ref' => '#/components/schemas/PowerOfAttorneyResponse'
-      #     },
-      #     {
-      #       type: :object,
-      #       description: 'An empty JSON object indicating no Power of Attorney exists.',
-      #       example: {}
-      #     }
-      #   ]
+      response '200',
+               'Successfully checked for Power of Attorney information' do
+        before do
+          lh_response = {
+            'data' => {
+              'type' => 'organization',
+              'attributes' => {
+                'code' => 'abc'
+              }
+            }
+          }
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:get_power_of_attorney).and_return(lh_response)
+        end
 
-      #   run_test!
-      # end
+        schema oneOf: [
+          {
+            '$ref' => '#/components/schemas/PowerOfAttorneyResponse'
+          },
+          {
+            type: :object,
+            description: 'An empty JSON object indicating no Power of Attorney exists.',
+            example: {}
+          }
+        ]
+
+        run_test!
+      end
 
       # response '404', 'Not Found' do
       #   schema '$ref' => '#/components/responses/NotFoundError'
