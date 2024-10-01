@@ -9,16 +9,19 @@ module ClaimsApi
                                              'Please submit VA Form 21-686c to add this dependent.'
     POA_CODE_NOT_FOUND_ERROR_MESSAGE = 'The requested POA code could not be found.'
 
+    attr_reader :claimant_participant_id, :claimant_ssn
+
     def initialize(**options)
       @veteran_participant_id = options[:veteran_participant_id]
       @claimant_first_name = options[:claimant_first_name]
       @claimant_last_name = options[:claimant_last_name]
       @claimant_participant_id = options[:claimant_participant_id]
+      @claimant_ssn = nil
       @poa_code = options[:poa_code]
     end
 
     def validate_dependent_by_participant_id!
-      return @claimant_participant_id, @claimant_ssn if valid_participant_dependent_combo?
+      return nil if valid_participant_dependent_combo?
 
       raise ::Common::Exceptions::UnprocessableEntity.new(detail: CLAIMANT_NOT_A_DEPENDENT_ERROR_MESSAGE)
     end
@@ -39,15 +42,18 @@ module ClaimsApi
       ClaimsApi::PersonWebService.new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
     end
 
+    def matching_participant_id?(dependent)
+      return false unless normalize(@claimant_participant_id) == normalize(dependent[:ptcpnt_id])
+
+      @claimant_ssn = dependent[:ssn_nbr]
+
+      true
+    end
+
     def any_matching_dependents?(dependents)
       Array.wrap(dependents).any? do |dependent|
         # If the claimant_participant_id is present (most v2), use it to verify the dependent
-        if @claimant_participant_id.present? &&
-           normalize(@claimant_participant_id) == (normalize(dependent[:ptcpnt_id]))
-          @claimant_ssn = dependent[:ssn_nbr]
-
-          return true
-        end
+        return matching_participant_id?(dependent) if @claimant_participant_id.present?
 
         # Otherwise, we need to verify the dependent by first and last name (all v1 and some v2 without participant_ids)
         normalized_claimant_first_name = normalize(@claimant_first_name)

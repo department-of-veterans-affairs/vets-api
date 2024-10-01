@@ -166,8 +166,9 @@ module ClaimsApi
                                                                         poa_code:)
 
           service.validate_poa_code_exists!
-
           service.validate_dependent_by_participant_id!
+
+          [service.claimant_participant_id, service.claimant_ssn]
         end
 
         def assign_poa_to_dependent_claimant!(poa_code:, file_number:, dependent_participant_id:, claimant_ssn:)
