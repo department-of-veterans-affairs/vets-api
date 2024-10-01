@@ -39,7 +39,7 @@ module SimpleFormsApi
         # Include a CSV file containing manifest data
         @include_manifest = options[:include_manifest] || true
         # Include a JSON file containing metadata of original submission
-        @include_manifest = options[:include_metadata] || true
+        @include_metadata = options[:include_metadata] || true
         # Data appended to the original submission headers
         @metadata = options[:metadata] || nil
         # The FormSubmission object representing the original data payload submitted
