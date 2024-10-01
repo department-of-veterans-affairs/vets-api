@@ -153,12 +153,13 @@ describe SimpleFormsApi::NotificationEmail do
         context 'is a veteran' do
           context 'user is passed in' do
             let(:email) { 'email@fromrecord.com' }
-            let(:user) { build(:user, { email: }) }
+            let(:user) { build(:user) }
 
             it 'calls VANotify::EmailJob with user record email' do
               allow(VANotify::EmailJob).to receive(:perform_async)
               data['claim_ownership'] = 'self'
               data['claimant_type'] = 'veteran'
+              allow(user).to receive(:va_profile_email).and_return(email)
 
               subject = described_class.new(config, notification_type:, user:)
 
@@ -168,7 +169,7 @@ describe SimpleFormsApi::NotificationEmail do
                 email,
                 "form21_10210_#{notification_type}_email_template_id",
                 {
-                  'first_name' => 'JOHN',
+                  'first_name' => user.first_name.upcase,
                   'date_submitted' => date_submitted,
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => nil
@@ -199,55 +200,56 @@ describe SimpleFormsApi::NotificationEmail do
               )
             end
           end
+        end
 
-          context 'is not a veteran' do
-            context 'user is passed in' do
-              let(:email) { 'email@fromrecord.com' }
-              let(:user) { build(:user, { email: }) }
+        context 'is not a veteran' do
+          context 'user is passed in' do
+            let(:email) { 'email@fromrecord.com' }
+            let(:user) { build(:user) }
 
-              it 'calls VANotify::EmailJob with user record email' do
-                allow(VANotify::EmailJob).to receive(:perform_async)
-                data['claim_ownership'] = 'self'
-                data['claimant_type'] = 'non-veteran'
+            it 'calls VANotify::EmailJob with user record email' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+              data['claim_ownership'] = 'self'
+              data['claimant_type'] = 'non-veteran'
+              allow(user).to receive(:va_profile_email).and_return(email)
 
-                subject = described_class.new(config, notification_type:, user:)
+              subject = described_class.new(config, notification_type:, user:)
 
-                subject.send
+              subject.send
 
-                expect(VANotify::EmailJob).to have_received(:perform_async).with(
-                  email,
-                  "form21_10210_#{notification_type}_email_template_id",
-                  {
-                    'first_name' => 'JOE',
-                    'date_submitted' => date_submitted,
-                    'confirmation_number' => 'confirmation_number',
-                    'lighthouse_updated_at' => nil
-                  }
-                )
-              end
+              expect(VANotify::EmailJob).to have_received(:perform_async).with(
+                email,
+                "form21_10210_#{notification_type}_email_template_id",
+                {
+                  'first_name' => user.first_name.upcase,
+                  'date_submitted' => date_submitted,
+                  'confirmation_number' => 'confirmation_number',
+                  'lighthouse_updated_at' => nil
+                }
+              )
             end
+          end
 
-            context 'user is not passed in' do
-              it 'calls VANotify::EmailJob' do
-                allow(VANotify::EmailJob).to receive(:perform_async)
-                data['claim_ownership'] = 'self'
-                data['claimant_type'] = 'non-veteran'
+          context 'user is not passed in' do
+            it 'calls VANotify::EmailJob' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+              data['claim_ownership'] = 'self'
+              data['claimant_type'] = 'non-veteran'
 
-                subject = described_class.new(config, notification_type:)
+              subject = described_class.new(config, notification_type:)
 
-                subject.send
+              subject.send
 
-                expect(VANotify::EmailJob).to have_received(:perform_async).with(
-                  'claimant.long@address.com',
-                  "form21_10210_#{notification_type}_email_template_id",
-                  {
-                    'first_name' => 'JOE',
-                    'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-                    'confirmation_number' => 'confirmation_number',
-                    'lighthouse_updated_at' => nil
-                  }
-                )
-              end
+              expect(VANotify::EmailJob).to have_received(:perform_async).with(
+                'claimant.long@address.com',
+                "form21_10210_#{notification_type}_email_template_id",
+                {
+                  'first_name' => 'JOE',
+                  'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+                  'confirmation_number' => 'confirmation_number',
+                  'lighthouse_updated_at' => nil
+                }
+              )
             end
           end
         end
@@ -409,19 +411,25 @@ describe SimpleFormsApi::NotificationEmail do
       end
 
       describe 'signed in user' do
+        let(:email) { 'authorizer_email@example.com' }
+        let(:first_name) { 'John' }
+        let(:user) { build(:user, first_name:) }
+
+        before { allow(user).to receive(:va_profile_email).and_return(email) }
+
         it 'non-veteran authorizer' do
           allow(VANotify::EmailJob).to receive(:perform_async)
           data['authorizer_email'] = 'authorizer_email@example.com'
 
-          subject = described_class.new(config, user: create(:user))
+          subject = described_class.new(config, user:)
 
           subject.send
 
           expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            'authorizer_email@example.com',
+            email,
             'form21_0845_confirmation_email_template_id',
             {
-              'first_name' => 'JACK',
+              'first_name' => first_name.upcase,
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil
@@ -433,17 +441,15 @@ describe SimpleFormsApi::NotificationEmail do
           allow(VANotify::EmailJob).to receive(:perform_async)
           data['authorizer_type'] = 'veteran'
 
-          subject = described_class.new(config, user: create(:user))
-
-          allow(subject.user).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
+          subject = described_class.new(config, user:)
 
           subject.send
 
           expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            'abraham.lincoln@vets.gov',
+            email,
             'form21_0845_confirmation_email_template_id',
             {
-              'first_name' => 'JOHN',
+              'first_name' => first_name.upcase,
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil
@@ -591,7 +597,8 @@ describe SimpleFormsApi::NotificationEmail do
           )
           JSON.parse(fixture_path.read)
         end
-        let(:user) { create(:user, :loa3) }
+        let(:first_name) { 'Joe' }
+        let(:user) { create(:user, :loa3, first_name:) }
 
         it 'sends the confirmation email' do
           allow(VANotify::EmailJob).to receive(:perform_async)
@@ -604,7 +611,7 @@ describe SimpleFormsApi::NotificationEmail do
             user.va_profile_email,
             'form20_10207_confirmation_email_template_id',
             {
-              'first_name' => 'JOHN',
+              'first_name' => first_name.upcase,
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil
@@ -620,7 +627,8 @@ describe SimpleFormsApi::NotificationEmail do
           )
           JSON.parse(fixture_path.read)
         end
-        let(:user) { create(:user, :loa3) }
+        let(:first_name) { 'Joe' }
+        let(:user) { create(:user, :loa3, first_name:) }
 
         it 'sends the confirmation email' do
           allow(VANotify::EmailJob).to receive(:perform_async)
@@ -633,7 +641,7 @@ describe SimpleFormsApi::NotificationEmail do
             user.va_profile_email,
             'form20_10207_confirmation_email_template_id',
             {
-              'first_name' => 'JOE',
+              'first_name' => first_name.upcase,
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil
@@ -649,7 +657,8 @@ describe SimpleFormsApi::NotificationEmail do
           )
           JSON.parse(fixture_path.read)
         end
-        let(:user) { create(:user, :loa3) }
+        let(:first_name) { 'Joe' }
+        let(:user) { create(:user, :loa3, first_name:) }
 
         it 'sends the confirmation email' do
           allow(VANotify::EmailJob).to receive(:perform_async)
@@ -662,7 +671,7 @@ describe SimpleFormsApi::NotificationEmail do
             user.va_profile_email,
             'form20_10207_confirmation_email_template_id',
             {
-              'first_name' => 'JOHN',
+              'first_name' => first_name.upcase,
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil
@@ -678,20 +687,23 @@ describe SimpleFormsApi::NotificationEmail do
           )
           JSON.parse(fixture_path.read)
         end
-        let(:user) { create(:user, :loa3) }
+        let(:email) { 'email@fromrecord.com' }
+        let(:first_name) { 'Joe' }
+        let(:user) { create(:user, :loa3, first_name:) }
 
         it 'sends the confirmation email' do
           allow(VANotify::EmailJob).to receive(:perform_async)
+          allow(user).to receive(:va_profile_email).and_return(email)
 
           subject = described_class.new(config, user:)
 
           subject.send
 
           expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            user.va_profile_email,
+            email,
             'form20_10207_confirmation_email_template_id',
             {
-              'first_name' => 'JOE',
+              'first_name' => first_name.upcase,
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil
