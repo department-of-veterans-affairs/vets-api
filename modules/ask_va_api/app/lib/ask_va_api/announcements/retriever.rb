@@ -7,10 +7,6 @@ module AskVAApi
     ENDPOINT = 'announcements'
 
     class Retriever < BaseRetriever
-      def initialize(user_mock_data:, entity_class:)
-        super(user_mock_data:, entity_class:)
-      end
-
       private
 
       def fetch_data
