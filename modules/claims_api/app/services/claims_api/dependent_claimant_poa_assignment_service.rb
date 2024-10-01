@@ -43,7 +43,9 @@ module ClaimsApi
 
     def assign_poa_to_dependent_via_manage_ptcpnt_rlnshp?
       res = person_web_service.manage_ptcpnt_rlnshp_poa(ptcpnt_id_a: @dependent_participant_id,
-                                                        ptcpnt_id_b: poa_participant_id)
+                                                        ptcpnt_id_b: poa_participant_id,
+                                                        authzn_poa_access_ind: @allow_poa_access,
+                                                        authzn_change_clmant_addrs_ind: @allow_poa_cadd)
 
       if manage_ptcpnt_rlnshp_poa_success?(res)
         log(detail: 'POA assigned to dependent.')
