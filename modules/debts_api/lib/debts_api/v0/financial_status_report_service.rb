@@ -47,7 +47,7 @@ module DebtsApi
     #
     # @param form [JSON] JSON serialized form data of a Financial Status Report form (VA-5655)
     # @return [Hash]
-
+    #
     def submit_financial_status_report(form)
       with_monitoring_and_error_handling do
         form_builder = DebtsApi::V0::FsrFormBuilder.new(form, @file_number, @user)
