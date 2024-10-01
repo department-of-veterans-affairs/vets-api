@@ -78,7 +78,7 @@ module ClaimsApi
         def submit_power_of_attorney(poa_code, form_number)
           attributes = {
             status: ClaimsApi::PowerOfAttorney::PENDING,
-            auth_headers:,
+            auth_headers: auth_headers.merge!({ 'va_notify_recipient_identifier' => icn_for_vanotify }),
             form_data: form_attributes,
             current_poa: current_poa_code,
             header_md5:
@@ -88,7 +88,7 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
           unless Settings.claims_api&.poa_v2&.disable_jobs
-            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id, icn_for_vanotify)
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id)
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(

@@ -2,12 +2,11 @@
 
 module ClaimsApi
   class VANotifyJob < ClaimsApi::ServiceBase
-    def perform(poa_id, icn_for_vanotify, rep)
+    def perform(poa_id, rep)
       return if skip_notification_email?
 
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
       form_data = poa.form_data
-      @icn_for_vanotify = icn_for_vanotify
 
       if organization_filing?(form_data)
         org = find_org(poa, '2122')
@@ -43,7 +42,7 @@ module ClaimsApi
     # email_address: 'rockwell.rice@oddball.io',recipient_identifier: @icn_for_vanotify
     def individual_accepted_email_contents(poa, rep)
       {
-        recipient_identifier: @icn_for_vanotify,
+        recipient_identifier: icn_for_vanotify(poa.auth_headers),
         personalisation: {
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           rep_first_name: value_or_default_for_field(rep.first_name),
@@ -62,7 +61,7 @@ module ClaimsApi
 
     def organization_accepted_email_contents(poa, org)
       {
-        recipient_identifier: @icn_for_vanotify,
+        recipient_identifier: icn_for_vanotify(poa.auth_headers),
         personalisation: {
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           org_name: value_or_default_for_field(org.name),
@@ -117,17 +116,15 @@ module ClaimsApi
 
     def format_zip_values(first, last)
       # neither are required for either form
-      if first && last
-        "#{first}-#{last}"
-      elsif first && !last
-        first
-      elsif !first && last
-        last
-      end
+      [first, last].compact_blank.join('-')
     end
 
     def value_or_default_for_field(field)
       field || ''
+    end
+
+    def icn_for_vanotify(auth_headers)
+      auth_headers['va_notify_recipient_identifier']
     end
 
     def poa_form_data(poa)
@@ -152,12 +149,7 @@ module ClaimsApi
     end
 
     def build_address(line1, line2, line3)
-      address = ''.dup
-      address << line1 ? line1.to_s : ''
-      address << "\n #{line2}" if line2.present?
-      address << "\n #{line3}" if line3.present?
-
-      address
+      [line1, line2, line3].compact_blank.join("\n ")
     end
 
     def claimant_first_name(poa)
