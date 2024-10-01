@@ -22,10 +22,12 @@ module SearchGsa
 
     attr_reader :query, :page
 
+    # rubocop:disable Lint/MissingSuper
     def initialize(query, page = 1)
       @query = query
       @page = page.to_i
     end
+    # rubocop:enable Lint/MissingSuper
 
     # GETs a list of search results from Search.gov web results API
     # @return [Search::ResultsResponse] wrapper around results data
