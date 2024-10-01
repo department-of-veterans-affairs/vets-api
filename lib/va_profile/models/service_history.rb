@@ -80,6 +80,34 @@ module VAProfile
           end_date: episode['academy_end_date']
         )
       end
+
+      def self.determine_eligibility(episodes)
+        eligible_status = { confirmed: true, message: [] }
+        problem_status = {
+          confirmed: false,
+          message: [
+            'We’re sorry. There’s a problem with your discharge status records. We can’t provide a Veteran status card for you right now.',
+            'To fix the problem with your records, call the Defense Manpower Data Center at 800-538-9552 (TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
+          ]
+        }
+        not_eligible_status = {
+          confirmed: false,
+          message: [
+            'Our records show that you’re not eligible for a Veteran status card. To get a Veteran status card, you must have received an honorable discharge for at least one period of service.',
+            'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 (TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
+          ]
+        }
+
+        return problem_status if episodes.empty?
+
+        codes = episodes.map { |e| e.character_of_discharge_code }.uniq.compact
+        # Honorable discharge
+        return eligible_status if (codes & %w[A B H J]).any?
+        # Not honorable discharge
+        return not_eligible_status if (codes & %w[D E F K]).any? || codes.empty?
+        # No service history OR unknown (Z) discharge
+        problem_status
+      end
     end
   end
 end
