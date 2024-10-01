@@ -23,7 +23,7 @@ module Search
     end
 
     def base_path
-      flipper_enabled? ? Settings.search.gsa_url : Settings.search.url
+      Settings.search.gsa_url
     end
 
     # Breakers initialization requires this configuration which means the #base_path
