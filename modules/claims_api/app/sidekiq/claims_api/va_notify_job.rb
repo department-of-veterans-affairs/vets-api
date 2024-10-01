@@ -52,7 +52,7 @@ module ClaimsApi
           state: value_or_default_for_field(poa_form_data(poa)&.dig('representative', 'address', 'stateCode')),
           zip: value_or_default_for_field(rep_zip(poa)),
           email: value_or_default_for_field(rep.email),
-          phone: value_or_default_for_field(rep_phone(rep))
+          phone: rep_phone(rep)
         },
         template_id: Settings.claims_api.vanotify.representative_template_id
       }
@@ -89,11 +89,11 @@ module ClaimsApi
 
     def rep_phone(rep)
       # This field was added to adjust the values for phone numbers
-      # This should the the reps specific phone number
+      # This should be the the reps specific phone number
       if rep.phone_number.present?
         rep.phone_number
       # This might be the phone number for the organization
-      # the rep works for
+      # the rep works for so using it as a fallback preferring the first
       elsif rep.phone.present?
         rep.phone
       else
@@ -118,6 +118,7 @@ module ClaimsApi
       [first, last].compact_blank.join('-')
     end
 
+    # we need to send emapty string, nil causes an error to be returned
     def value_or_default_for_field(field)
       field || ''
     end

@@ -690,6 +690,12 @@ claims_api:
     use_mocks: false
   poa_v2:
     disable_jobs: false
+  vanotify:
+    representative_template_id: ~
+    service_organization_template_id: ~
+    services:
+      lighthouse:
+        api_key: ~
 
 connected_apps_api:
   connected_apps:
