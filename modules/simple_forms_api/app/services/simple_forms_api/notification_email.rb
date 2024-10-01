@@ -74,24 +74,15 @@ module SimpleFormsApi
       return unless SUPPORTED_FORMS.include?(form_number)
 
       data = form_specific_data || empty_form_specific_data
-
       return if data[:email].blank? || data[:personalization]['first_name'].blank?
 
       template_id = TEMPLATE_IDS[form_number][notification_type]
+      return unless template_id
 
       if at
-        VANotify::EmailJob.perform_at(
-          at,
-          data[:email],
-          template_id,
-          data[:personalization]
-        )
+        enqueue_email(at, template_id, data)
       else
-        VANotify::EmailJob.perform_async(
-          data[:email],
-          template_id,
-          data[:personalization]
-        )
+        send_email_now(template_id, data)
       end
     end
 
@@ -100,6 +91,35 @@ module SimpleFormsApi
     def check_missing_keys(config)
       missing_keys = %i[form_data form_number confirmation_number date_submitted].select { |key| config[key].nil? }
       raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
+    end
+
+    def enqueue_email(at, template_id, data)
+      # async job and we have a UserAccount
+      if user
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user.uuid,
+          template_id,
+          data[:personalization]
+        )
+      # async job and we don't have a UserAccount but form data should include email
+      else
+        VANotify::EmailJob.perform_at(
+          at,
+          data[:email],
+          template_id,
+          data[:personalization]
+        )
+      end
+    end
+
+    def send_email_now(template_id, data)
+      # sync job and form data should include email
+      VANotify::EmailJob.perform_async(
+        data[:email],
+        template_id,
+        data[:personalization]
+      )
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -240,12 +260,14 @@ module SimpleFormsApi
       # user's own claim
       # user is a veteran
       if @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'veteran'
-        [@form_data['veteran_email'], @form_data.dig('veteran_full_name', 'first')]
+        email = user&.email || @form_data['veteran_email']
+        [email, @form_data.dig('veteran_full_name', 'first')]
 
       # user's own claim
       # user is not a veteran
       elsif @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'non-veteran'
-        [@form_data['claimant_email'], @form_data.dig('claimant_full_name', 'first')]
+        email = user&.email || @form_data['claimant_email']
+        [email, @form_data.dig('claimant_full_name', 'first')]
 
       # someone else's claim
       # claimant (aka someone else) is a veteran

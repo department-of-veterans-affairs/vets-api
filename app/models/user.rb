@@ -34,6 +34,7 @@ class User < Common::RedisStore
   attribute :fingerprint, String
   attribute :needs_accepted_terms_of_use, Boolean
   attribute :credential_lock, Boolean
+  attribute :session_handle, String
 
   def account
     @account ||= Identity::AccountCreator.new(self).call
@@ -151,11 +152,12 @@ class User < Common::RedisStore
                             MHV::UserAccount::Creator.new(user_verification:).perform
                           else
                             log_mhv_user_account_error('User has no va_treatment_facility_ids')
+
                             nil
                           end
   rescue MHV::UserAccount::Errors::UserAccountError => e
     log_mhv_user_account_error(e.message)
-    nil
+    raise
   end
 
   def middle_name
@@ -398,6 +400,14 @@ class User < Common::RedisStore
 
   def va_profile_email
     vet360_contact_info&.email&.email_address
+  end
+
+  def vaprofile_contact_info
+    @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
+  end
+
+  def va_profile_v2_email
+    vaprofile_contact_info&.email&.email_address
   end
 
   def all_emails
