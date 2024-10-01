@@ -990,6 +990,8 @@ lib/sidekiq/form526_historical_data_exporter @department-of-veterans-affairs/vag
 lib/sidekiq/form526_job_status_tracker @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/dbex-trex @department-of-veterans-affairs/benefits-disability-2 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/sidekiq/monitored_worker.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/sidekiq/retry_monitoring.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+lib/sidekiq/job_metadata.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/sidekiq/job_metadata_middleware.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/sidekiq/semantic_logging.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/sidekiq/set_request_attributes.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/sidekiq/set_request_id.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
@@ -1496,6 +1498,7 @@ spec/lib/sidekiq/form526_backup_submission_process/submit_spec.rb @department-of
 spec/lib/sidekiq/form526_historical_data_exporter @department-of-veterans-affairs/vagov-claim-classification @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/form526_job_status_tracker @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/dbex-trex @department-of-veterans-affairs/benefits-disability-2 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/retry_monitoring_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/lib/sidekiq/job_metadata_middleware_spec.rb @department-of-veterans-affairs/vfs-10-10  @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq_stats_instrumentation @department-of-veterans-affairs/backend-review-group
 spec/lib/sign_in @department-of-veterans-affairs/octo-identity
 spec/lib/simple_forms_api_submission @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
