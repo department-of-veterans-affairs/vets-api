@@ -29,6 +29,10 @@ class EVSS::DocumentUpload
     rand(3600..3660) if count < 9
   end
 
+  sidekiq_retries_exhausted do |_msg, ex|
+    # should our team fill the gap here?
+  end
+
   def perform(auth_headers, user_uuid, document_hash)
     @auth_headers = auth_headers
     @user_uuid = user_uuid

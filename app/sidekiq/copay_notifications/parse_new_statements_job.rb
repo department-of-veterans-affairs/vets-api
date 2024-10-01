@@ -11,6 +11,10 @@ module CopayNotifications
     # number of jobs to perform at next interval
     BATCH_SIZE = Settings.mcp.notifications.batch_size
 
+    sidekiq_retries_exhausted do |_msg, ex|
+      # maybe we need something here just incase, it calls a job that has an exhaustion block
+    end
+
     def perform(statements_json_byte)
       StatsD.increment('api.copay_notifications.json_file.total')
       # Decode and parse large json file (~60-90k objects)

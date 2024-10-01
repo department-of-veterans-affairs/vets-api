@@ -14,6 +14,8 @@ module CopayNotifications
     include SentryLogging
     sidekiq_options retry: 14
 
+    # Should we remove this? Will it be needed in the future?
+
     def perform(vet360_id, template_id, backup_email = nil, personalisation = nil)
       person_resp = person_response(vet360_id)
       email_address = person_resp.person&.emails&.first&.email_address || backup_email

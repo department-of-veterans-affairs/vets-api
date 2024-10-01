@@ -17,7 +17,13 @@ module DebtsApi
       StatsD.increment("#{STATS_KEY}.retries_exhausted") # update monitors and dashbaords to use this naming convention to bring it inline with the other exhaustion blocks
       submission_id = job['args'][0]
       user_uuid = job['args'][1]
-      UserProfileAttributes.find(user_uuid)&.destroy
+      UserProfileAttributes.find(user_uuid)&.destroy # TODO: figure out why are we destroying here.
+      Rails.logger.error <<~LOG
+        V0::Form5655::VHA::VBSSubmissionJob retries exhausted:
+        Exception: #{ex.class} - #{ex.message}
+        Backtrace: #{ex.backtrace.join("\n")}
+        submission_id: #{submission_id} | user_id: #{user_uuid}
+      LOG
       submission = DebtsApi::V0::Form5655Submission.find(submission_id)
       submission.register_failure("VBS Submission Failed: #{job['error_message']}.")
     end

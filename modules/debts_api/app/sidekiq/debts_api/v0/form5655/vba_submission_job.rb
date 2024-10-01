@@ -14,8 +14,15 @@ module DebtsApi
 
     sidekiq_retries_exhausted do |job, _ex|
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
+      submission_id = job['args'][0]
       user_uuid = job['args'][1]
-      UserProfileAttributes.find(user_uuid)&.destroy
+      Rails.logger.error <<~LOG
+        V0::Form5655::VBASubmissionJob retries exhausted:
+        Exception: #{ex.class} - #{ex.message}
+        Backtrace: #{ex.backtrace.join("\n")}
+        submission_id: #{submission_id} | user_id: #{user_uuid}
+      LOG
+      UserProfileAttributes.find(user_uuid)&.destroy # TODO: figure out why are we destroying here.
     end
 
     def perform(submission_id, user_uuid)
