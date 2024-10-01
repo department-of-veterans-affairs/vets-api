@@ -107,14 +107,31 @@ describe SimpleFormsApi::NotificationEmail do
       end
 
       context 'send at time is specified' do
-        it 'sends the email at the specified time' do
-          time = double
-          allow(VANotify::EmailJob).to receive(:perform_at)
-          subject = described_class.new(config, notification_type:)
+        context 'user is passed in' do
+          let(:email) { 'email@fromrecord.com' }
+          let(:user) { create(:user, { email: }) }
 
-          subject.send(at: time)
+          it 'sends the email at the specified time' do
+            time = double
+            allow(VANotify::UserAccountJob).to receive(:perform_at)
+            subject = described_class.new(config, notification_type:, user:)
 
-          expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything)
+            subject.send(at: time)
+
+            expect(VANotify::UserAccountJob).to have_received(:perform_at).with(time, user.uuid, anything, anything)
+          end
+        end
+
+        context 'user is not passed in' do
+          it 'sends the email at the specified time' do
+            time = double
+            allow(VANotify::EmailJob).to receive(:perform_at)
+            subject = described_class.new(config, notification_type:)
+
+            subject.send(at: time)
+
+            expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything)
+          end
         end
       end
     end
