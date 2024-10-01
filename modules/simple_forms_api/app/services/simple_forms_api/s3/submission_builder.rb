@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/form_submission_remediation/configuration/base'
+
 module SimpleFormsApi
   module S3
     class SubmissionBuilder
-      include Utils
-
       attr_reader :file_path, :submission, :attachments, :metadata
 
-      def initialize(id:, config: nil)
-        @config = config || FormSubmissionRemediation::Configuration::Base.new
+      def initialize(id:, **options)
+        @config = options[:config] || SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
 
         validate_input(id)
 
@@ -27,12 +27,12 @@ module SimpleFormsApi
 
       attr_reader :config
 
-      def validate_input(benefits_intake_uuid)
-        raise ArgumentError, 'No benefits_intake_uuid was provided' unless benefits_intake_uuid
+      def validate_input(id)
+        raise ArgumentError, "No #{config.id_type} was provided" unless id
       end
 
       def validate_submission
-        raise 'Submission was not found or invalid' unless submission&.benefits_intake_uuid
+        raise 'Submission was not found or invalid' unless submission&.send(config.id_type)
         raise 'Submission cannot be built: Only VFF forms are supported' unless vff_form?
       end
 
@@ -67,6 +67,8 @@ module SimpleFormsApi
 
       def generate_file(filler)
         filler.generate(timestamp: submission.created_at)
+      rescue => e
+        config.handle_error('Error generating filled submission PDF', e)
       end
 
       def validate_metadata(form)
