@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Search::Configuration do
+describe SearchGsa::Configuration do
   describe '#service_name' do
     it 'has the expected service name' do
       expect(described_class.instance.service_name).to eq('Search/Results')
@@ -10,8 +10,8 @@ describe Search::Configuration do
   end
 
   describe '#base_path' do
-    it 'provides search.usa.gov search URL' do
-      expect(described_class.instance.base_path).to eq('https://search.usa.gov/api/v2/search/i14y')
+    it 'provides api.gsa.gov search URL' do
+      expect(described_class.instance.base_path).to eq('https://api.gsa.gov/technology/searchgov/v2/results/i14y')
     end
   end
 end
