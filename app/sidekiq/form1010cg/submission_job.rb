@@ -1,15 +1,19 @@
 # frozen_string_literal: true
 
 require 'sidekiq/monitored_worker'
+require 'sidekiq/job_metadata'
 
 module Form1010cg
   class SubmissionJob
     STATSD_KEY_PREFIX = "#{Form1010cg::Auditor::STATSD_KEY_PREFIX}.async.".freeze
     include Sidekiq::Job
     include Sidekiq::MonitoredWorker
+    include Sidekiq::JobMetadata
     include SentryLogging
 
     sidekiq_options(retry: 22)
+
+    attr_reader :job_metadata
 
     sidekiq_retries_exhausted do |msg, _e|
       StatsD.increment("#{STATSD_KEY_PREFIX}failed_no_retries_left", tags: ["claim_id:#{msg['args'][0]}"])
@@ -39,7 +43,11 @@ module Form1010cg
       log_exception_to_sentry(e)
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
 
-      increment_applications_retried(claim_id)
+      if Flipper.enabled?(:caregiver_1010)
+        StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried") if job_metadata['retry_count'].zero?
+      else
+        increment_applications_retried(claim_id)
+      end
 
       raise
     end

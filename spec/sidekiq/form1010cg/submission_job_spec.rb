@@ -52,22 +52,89 @@ RSpec.describe Form1010cg::SubmissionJob do
     let(:job) { described_class.new }
 
     context 'when there is a standarderror' do
-      it 'increments statsd' do
-        allow_any_instance_of(Form1010cg::Service).to receive(
-          :process_claim_v2!
-        ).and_raise(StandardError)
+      context 'caregiver_1010 flipper enabled' do
+        before do
+          Flipper.enable(:caregiver_1010)
+        end
 
-        expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
-        expect(StatsD).to receive(:increment).with('api.form1010cg.async.applications_retried')
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
+        after do
+          Flipper.disable(:caregiver_1010)
+        end
 
-        # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging
-        expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
+        context 'when there is a standarderror' do
+          before do
+            allow_any_instance_of(Form1010cg::Service).to receive(
+              :process_claim_v2!
+            ).and_raise(StandardError)
+            allow(StatsD).to receive(:increment).and_call_original
+          end
 
-        2.times do
-          expect do
-            job.perform(claim.id)
-          end.to raise_error(StandardError)
+          context 'incrementing applications_retried metric' do
+            before do
+              allow(job).to receive(:job_metadata).and_return('retry_count' => retry_count)
+            end
+
+            context 'first run' do
+              let(:retry_count) { 0 }
+
+              it 'increments applications_retried' do
+                expect(StatsD).to receive(:increment).with('api.form1010cg.async.applications_retried')
+
+                expect do
+                  job.perform(claim.id)
+                end.to raise_error(StandardError)
+              end
+            end
+
+            context 'first retry' do
+              let(:retry_count) { 1 }
+
+              it 'does not increment applications_retried' do
+                expect(StatsD).not_to receive(:increment).with('api.form1010cg.async.applications_retried')
+
+                expect do
+                  job.perform(claim.id)
+                end.to raise_error(StandardError)
+              end
+            end
+          end
+
+          it 'increments statsD' do
+            expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
+            expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
+            expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
+
+            2.times do
+              expect do
+                job.perform(claim.id)
+              end.to raise_error(StandardError)
+            end
+          end
+        end
+      end
+
+      context 'caregiver_1010 flipper not enabled' do
+        before do
+          Flipper.disable(:caregiver_1010)
+        end
+
+        it 'increments statsd' do
+          allow_any_instance_of(Form1010cg::Service).to receive(
+            :process_claim_v2!
+          ).and_raise(StandardError)
+
+          expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
+          expect(StatsD).to receive(:increment).with('api.form1010cg.async.applications_retried')
+          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
+
+          # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging
+          expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
+
+          2.times do
+            expect do
+              job.perform(claim.id)
+            end.to raise_error(StandardError)
+          end
         end
       end
     end
