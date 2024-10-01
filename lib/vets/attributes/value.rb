@@ -46,7 +46,11 @@ module Vets
           begin
             value = DateTime.parse(value) if value.is_a?(String)
           rescue ArgumentError
+<<<<<<< HEAD
             raise TypeError, "#{@name} could not be parsed into a Date"
+=======
+            raise TypeError, "#{@name} could not be parsed into a DateTime"
+>>>>>>> sjc-vets-model-inheritance
           end
         end
 
