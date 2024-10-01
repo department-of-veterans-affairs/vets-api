@@ -34,7 +34,7 @@ module EVSS
       private
 
       def set_effective_date
-        request_attrs.tap { |instance| instance[date_attr] = DateTime.now.utc }
+        request_attrs.instance_variable_set("@#{date_attr}", DateTime.current)
       end
 
       def remove_empty_attrs

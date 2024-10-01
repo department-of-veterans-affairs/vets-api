@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require 'evss/pciu/base_model'
+require 'vets/model'
 
 module EVSS
   module PCIU
-    ##
-    # Model for PCIU email addresses
-    #
-    # @!attribute email
-    #   @return [String] Email address between 6-255 characters containing an @-sign and a period to indicate a TLD
-    #
-    class EmailAddress < BaseModel
+    class EmailAddress < Vets::Model
+      ##
+      # Model for PCIU email addresses
+      #
+      # @!attribute email
+      #   @return [String] Email address between 6-255 characters containing an @-sign and a period to indicate a TLD
+      #
       VALID_EMAIL_REGEX = /.+@.+\..+/i
 
       attribute :email, String

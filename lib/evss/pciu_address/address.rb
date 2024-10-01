@@ -1,29 +1,25 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require_relative 'pciu_address_line_validator'
 
 module EVSS
   module PCIUAddress
-    ##
-    # Model for PCIU address
-    #
-    # @!attribute type
-    #   @return [String] Address type; one of %w[DOMESTIC INTERNATIONAL MILITARY]
-    # @!attribute address_effective_date
-    #   @return [DateTime] The date at which the address is known to be valid
-    # @!attribute address_one
-    #   @return [String] The first line of the address (max 35 characters)
-    # @!attribute address_two
-    #   @return [String] The second line of the address (max 35 characters)
-    # @!attribute address_three
-    #   @return [String] The third line of the address (max 35 characters)
-    #
-    class Address
-      include ActiveModel::Validations
-      include ActiveModel::Serialization
-      include Virtus.model(nullify_blank: true)
-
+    class Address < Vets::Model
+      ##
+      # Model for PCIU address
+      #
+      # @!attribute type
+      #   @return [String] Address type; one of %w[DOMESTIC INTERNATIONAL MILITARY]
+      # @!attribute address_effective_date
+      #   @return [DateTime] The date at which the address is known to be valid
+      # @!attribute address_one
+      #   @return [String] The first line of the address (max 35 characters)
+      # @!attribute address_two
+      #   @return [String] The second line of the address (max 35 characters)
+      # @!attribute address_three
+      #   @return [String] The third line of the address (max 35 characters)
+      #
       ADDRESS_TYPES = {
         domestic: 'DOMESTIC',
         international: 'INTERNATIONAL',
