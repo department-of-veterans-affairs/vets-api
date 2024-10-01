@@ -2,7 +2,7 @@
 
 require 'common/client/configuration/rest'
 
-module Search
+module SearchGsa
   class Configuration < Common::Client::Configuration::REST
     self.read_timeout = 30
 
@@ -19,11 +19,11 @@ module Search
     end
 
     def mock_enabled?
-      Settings.search.mock_search || false
+      Settings.search_gsa.mock_search || false
     end
 
     def base_path
-      Settings.search.url
+      Settings.search_gsa.url
     end
 
     def service_name
