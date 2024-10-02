@@ -462,6 +462,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:convert_date_no_day, date)
       expect(result).to eq('2024')
 
+      date = '2024-XX-12'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024')
+
+      date = '2024-XX'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024')
+
       date = '2024-03'
       result = transformer.send(:convert_date_no_day, date)
       expect(result).to eq('2024-03')
