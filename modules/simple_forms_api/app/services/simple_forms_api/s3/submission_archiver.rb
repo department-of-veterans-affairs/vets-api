@@ -90,10 +90,7 @@ module SimpleFormsApi
       def upload_file_to_s3
         return if File.directory?(local_upload_file_path)
 
-        File.open(local_upload_file_path) do |file_obj|
-          sanitized_file = CarrierWave::SanitizedFile.new(file_obj)
-          s3_uploader.store!(sanitized_file)
-        end
+        Utilities::S3MultipartUploader.new(local_upload_file_path).upload
       end
 
       def s3_directory_path

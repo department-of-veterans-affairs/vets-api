@@ -14,10 +14,12 @@ class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
       Aws::S3::Resource.new(client:)
     end
 
+    def new_s3_object(file_path)
+      new_s3_resource.bucket(s3_settings.bucket).object(file_path)
+    end
+
     def get_s3_link(file_path)
-      new_s3_resource.bucket(s3_settings.bucket)
-                     .object(file_path)
-                     .presigned_url(:get, expires_in: 30.minutes.to_i)
+      new_s3_object(file_path).presigned_url(:get, expires_in: 30.minutes.to_i)
     end
   end
 
