@@ -21,7 +21,7 @@
             </a>
             <div class="navbar-nav ms-auto">
               <a href="https://depo-platform-documentation.scrollhelp.site/developer-docs/feature-toggles-guide" class="navbar-brand" target="_blank">Docs</a>
-              <% if RequestStore.store[:flipper_user_email_for_log].blank? #&& !Rails.env.development? %>
+              <% if RequestStore.store[:flipper_user_email_for_log].blank? && !Rails.env.development? %>
                 <form action="/flipper/login" class="d-inline-block">
                   <%== csrf_input_tag %>
                   <button type="submit" class="btn d-flex align-items-center" style="background-color: #000000; border-color: #000000; color: #ffffff; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#1a1a1a'; this.style.borderColor='#1a1a1a'; this.style.boxShadow='0 0 0 0.25rem rgba(255, 255, 255, 0.2)';" onmouseout="this.style.backgroundColor='#000000'; this.style.borderColor='#000000'; this.style.boxShadow='none';">
@@ -31,7 +31,7 @@
                     Sign in to GitHub
                   </button>
                 </form>
-              <% elsif !RequestStore.store[:flipper_authorized] #&& !Rails.env.development? %>
+              <% else %>
                 <form action="/flipper/logout" class="d-inline-block">
                   <button type="submit" class="btn d-flex align-items-center" style="background-color: #000000; border-color: #000000; color: #ffffff; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#1a1a1a'; this.style.borderColor='#1a1a1a'; this.style.boxShadow='0 0 0 0.25rem rgba(255, 255, 255, 0.2)';" onmouseout="this.style.backgroundColor='#000000'; this.style.borderColor='#000000'; this.style.boxShadow='none';">
                     <svg viewBox="0 0 24 24" aria-hidden="true" class="me-2" style="width: 1.5em;">
@@ -56,10 +56,21 @@
         </div>
       <% end %>
 
-      <div class="features-links row mt-5">
+      <div class="features-links row mt-4">
+        <% if RequestStore.store[:flipper_user_email_for_log].blank? && !Rails.env.development? %>
+          <span class="d-block text-center fs-4 mb-4">If you'd like to modify feature toggles, please sign in with GitHub.</span>
+        <% elsif !RequestStore.store[:flipper_authorized] && !Rails.env.development? %>
+          <span class="d-block text-center fs-4 mb-4">
+            You are not authorized to perform any actions. Please see <a href="https://depo-platform-documentation.scrollhelp.site/developer-docs/flipper-ui-access" target="_blank">Platform Documentation</a> for more information.
+          </span>
+        <% end %>
         <div class="col-12 col-xl-10 offset-xl-1">
           <div class="content row mx-3 mx-sm-4 mx-md-5 px-3 px-sm-4 px-md-5">
-            <div class="col-12 col-xl-10 offset-xl-1">
+            <div class="col-12 col-xl-10 offset-xl-1" 
+              <% if !RequestStore.store[:flipper_authorized] %>
+                style="pointer-events: none; opacity: 0.5;"
+              <% end %>
+              >
               <%== yield %>
             </div>
           </div>
