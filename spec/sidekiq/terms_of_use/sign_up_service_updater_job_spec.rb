@@ -186,11 +186,11 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
     context 'when agreement is changed by ToU acceptance' do
       let(:response) { 'accepted' }
-      let(:status) { { opt_out: true, agreement_signed: false } }
+      let(:map_status) { { opt_out: true, agreement_signed: false } }
 
       before do
         allow(service_instance).to receive(:agreements_accept)
-        allow(service_instance).to receive(:status).and_return(status)
+        allow(service_instance).to receive(:map_status).and_return(map_status)
       end
 
       it 'agreement_unchanged returns false' do
@@ -205,11 +205,11 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
     context 'when agreement is changed by ToU being declined' do
       let(:response) { 'declined' }
-      let(:status) { { opt_out: false, agreement_signed: true } }
+      let(:map_status) { { opt_out: false, agreement_signed: true } }
 
       before do
         allow(service_instance).to receive(:agreements_decline)
-        allow(service_instance).to receive(:status).and_return(status)
+        allow(service_instance).to receive(:map_status).and_return(map_status)
       end
 
       it 'agreement_unchanged returns false' do
@@ -224,13 +224,13 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
     context 'when agreement is unchanged' do
       let(:expected_log) do
-        '[TermsOfUse][SignUpServiceUpdaterJob] Agreement not changed'
+        '[TermsOfUse][SignUpServiceUpdaterJob] Not updating Sign Up Service due to unchanged agreement'
       end
-      let(:status) { { opt_out: false, agreement_signed: true } }
+      let(:map_status) { { opt_out: false, agreement_signed: true } }
 
       before do
         allow(Rails.logger).to receive(:info)
-        allow(service_instance).to receive(:status).and_return(status)
+        allow(service_instance).to receive(:map_status).and_return(map_status)
       end
 
       it 'logs that the agreement is not changed' do

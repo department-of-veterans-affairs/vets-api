@@ -48,40 +48,40 @@ module TermsOfUse
       end
     end
 
-    def client
+    def map_client
       @client ||= MAP::SignUp::Service.new
     end
 
-    def status
-      @status ||= client.status(icn: mpi_profile.icn)
+    def map_status
+      @status ||= map_client.status(icn: mpi_profile.icn)
     end
 
-    def declined?
-      status[:opt_out] == true
+    def map_declined?
+      map_status[:opt_out]
     end
 
-    def accepted?
-      status[:agreement_signed] == true
+    def map_accepted?
+      map_status[:agreement_signed]
     end
 
     def agreement_unchanged?
       return false unless terms_of_use_agreement
 
-      unchanged = (terms_of_use_agreement.declined? == declined?) && (terms_of_use_agreement.accepted? == accepted?)
+      unchanged = (terms_of_use_agreement.accepted? && map_accepted?) || (terms_of_use_agreement.declined? && map_declined?)
 
-      if unchanged == true
-        Rails.logger.info("#{LOG_TITLE} Agreement not changed",
+      if unchanged
+        Rails.logger.info("#{LOG_TITLE} Not updating Sign Up Service due to unchanged agreement",
                           { icn: user_account.icn })
       end
       unchanged
     end
 
     def accept
-      client.agreements_accept(icn: mpi_profile.icn, signature_name:, version:)
+      map_client.agreements_accept(icn: mpi_profile.icn, signature_name:, version:)
     end
 
     def decline
-      client.agreements_decline(icn: mpi_profile.icn)
+      map_client.agreements_decline(icn: mpi_profile.icn)
     end
 
     def missing_sec_id?
