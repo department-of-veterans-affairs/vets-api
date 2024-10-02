@@ -3,11 +3,10 @@
 require 'rails_helper'
 
 describe TravelClaim::Client do
-  subject { described_class.build(check_in:, client_id:) }
+  subject { described_class.build(check_in:) }
 
   let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
   let(:check_in) { CheckIn::V2::Session.build(data: { uuid: }) }
-  let(:client_id) { 'test-client-id' }
 
   before do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
@@ -32,15 +31,6 @@ describe TravelClaim::Client do
 
     it 'has a session' do
       expect(subject.check_in).to be_a(CheckIn::V2::Session)
-    end
-
-    it 'has the client_id it is initialized with' do
-      expect(subject.client_id).to eq(client_id)
-    end
-
-    it 'has default client_id if not initialized with it' do
-      cls = described_class.build(check_in:)
-      expect(cls.client_id).to eq(Settings.check_in.travel_reimbursement_api_v2.client_id)
     end
   end
 
