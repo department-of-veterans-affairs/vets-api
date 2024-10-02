@@ -12,9 +12,9 @@ module TravelClaim
     CLAIMANT_ID_TYPE = 'icn'
     TRIP_TYPE = 'RoundTrip'
 
-    attr_reader :settings, :check_in
+    attr_reader :settings, :check_in, :client_id
 
-    def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :claims_base_path,
+    def_delegators :settings, :auth_url, :tenant_id, :client_secret, :scope, :claims_url, :claims_base_path,
                    :client_number, :subscription_key, :e_subscription_key, :s_subscription_key, :service_name
 
     ##
@@ -32,6 +32,7 @@ module TravelClaim
     def initialize(opts)
       @settings = Settings.check_in.travel_reimbursement_api_v2
       @check_in = opts[:check_in]
+      @client_id = opts[:client_id] || settings.client_id
     end
 
     ##
