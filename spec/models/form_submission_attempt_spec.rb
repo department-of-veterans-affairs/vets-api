@@ -22,6 +22,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
       let(:notification_type) { :error }
 
       it 'transitions to a failure state' do
+        allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send)
+
         form_submission_attempt = create(:form_submission_attempt)
 
         expect(form_submission_attempt)
@@ -55,6 +57,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
       let(:notification_type) { :received }
 
       it 'transitions to a vbms state' do
+        allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send)
+
         form_submission_attempt = create(:form_submission_attempt)
 
         expect(form_submission_attempt)
