@@ -36,6 +36,27 @@ class RepresentationManagement::RswagConfig
             Error: {
               type: :string
             },
+            # InternalServerError: {
+            #   type: :object,
+            #   properties: {
+            #     errors: {
+            #       type: :object,
+            #       properties: {
+            #         title: { type: :string, example: 'Internal server error' },
+            #         detail: { type: :string, example: 'Unexpected error occurred' },
+            #         code: { type: :string, example: '500' },
+            #         status: { type: :string, example: '500' },
+            #         meta: {
+            #           type: :object,
+            #           properties: {
+            #             exception: { type: :string, example: 'RuntimeError' },
+            #             backtrace: { type: :array, items: { type: :string } }
+            #           }
+            #         }
+            #       }
+            #     }
+            #   }
+            # },
             PowerOfAttorneyResponse: {
               type: :object,
               properties: {
