@@ -604,7 +604,7 @@
 
 # Search GSA
 - :name: 'Search GSA'
-  :base_uri: <%= "#{URI(Settings.search.gsa_url).host}:#{URI(Settings.search.gsa_url).port}" %>
+  :base_uri: <%= "#{URI(Settings.search_gsa.url).host}:#{URI(Settings.search_gsa.url).port}" %>
   :endpoints:
   # Search results
   - :method: :get

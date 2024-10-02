@@ -104,6 +104,6 @@ http_interactions:
       - '14658'
     body:
       encoding: UTF-8
-      string: '{"mhv_userprofileid":"12345678","isPremium":true,"isChampVA":true,"isPatient":true,"isSMAccountCreated":true,"message":"Existing MHV Account Found for ICN"}'
+      string: '{"mhv_userProfileId":"12345678","isPremium":true,"isChampVABeneficiary":true,"isPatient":true,"isSMAccountCreated":true,"message":"Existing MHV Account Found for ICN"}'
   recorded_at: Wed, 28 Aug 2024 19:56:07 GMT
 recorded_with: VCR 6.1.0
