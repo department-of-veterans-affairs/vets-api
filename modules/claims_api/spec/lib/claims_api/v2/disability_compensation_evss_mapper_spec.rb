@@ -84,10 +84,10 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       it 'maps the mailing address' do
         addr = evss_data[:veteran][:currentMailingAddress]
         expect(addr[:addressLine1]).to eq('1234 Couch Street')
-        expect(addr[:city]).to eq('Portland')
+        expect(addr[:city]).to eq('Schenectady')
         expect(addr[:country]).to eq('USA')
-        expect(addr[:zipFirstFive]).to eq('41726')
-        expect(addr[:state]).to eq('OR')
+        expect(addr[:zipFirstFive]).to eq('12345')
+        expect(addr[:state]).to eq('NY')
       end
 
       it 'maps the other veteran info' do
