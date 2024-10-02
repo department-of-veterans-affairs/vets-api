@@ -121,6 +121,13 @@
       :uid_location: header
       :uid_locator: 'vaapikey'
 
+- :name: 'MHV UserAccount Creation'
+  :base_uri: <%= "#{URI(Settings.mhv.account_creation.host).host}:#{URI(Settings.mhv.account_creation.host).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: '/v1/usermgmt/account-service/account'
+    :file_path: 'mhv/account_creation/create_account'
+
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
@@ -597,7 +604,7 @@
 
 # Search GSA
 - :name: 'Search GSA'
-  :base_uri: <%= "#{URI(Settings.search.gsa_url).host}:#{URI(Settings.search.gsa_url).port}" %>
+  :base_uri: <%= "#{URI(Settings.search_gsa.url).host}:#{URI(Settings.search_gsa.url).port}" %>
   :endpoints:
   # Search results
   - :method: :get

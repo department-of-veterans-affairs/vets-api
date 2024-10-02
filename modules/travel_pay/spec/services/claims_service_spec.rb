@@ -97,7 +97,7 @@ describe TravelPay::ClaimsService do
         service = TravelPay::ClaimsService.new
 
         expect { service.get_claim_by_id(*tokens, claim_id) }
-          .to raise_error(ArgumentError, /valid v4 UUID/i)
+          .to raise_error(ArgumentError, /valid UUID/i)
       end
     end
 
