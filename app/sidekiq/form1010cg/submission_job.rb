@@ -13,8 +13,6 @@ module Form1010cg
 
     sidekiq_options(retry: 22)
 
-    attr_reader :job_metadata
-
     sidekiq_retries_exhausted do |msg, _e|
       StatsD.increment("#{STATSD_KEY_PREFIX}failed_no_retries_left", tags: ["claim_id:#{msg['args'][0]}"])
     end

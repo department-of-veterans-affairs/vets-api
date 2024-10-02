@@ -2,6 +2,6 @@
 
 module Sidekiq
   module JobMetadata
-    # this Module is used to expose the job object metadata to the job
+    attr_accessor :job_metadata
   end
 end

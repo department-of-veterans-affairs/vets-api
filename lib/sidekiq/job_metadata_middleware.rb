@@ -5,7 +5,7 @@ module Sidekiq
     def call(job_instance, job_payload, _queue)
       return unless job_instance.is_a?(Sidekiq::JobMetadata)
 
-      job_instance.instance_variable_set(:@job_metadata, job_payload)
+      job_instance.job_metadata = job_payload
       yield
     end
   end
