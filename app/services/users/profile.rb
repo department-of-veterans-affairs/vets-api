@@ -59,7 +59,8 @@ module Users
 
     def account
       if Flipper.enabled? :veteran_onboarding_include_display_created_at_in_profile
-        { account_uuid: user.account_uuid, created_at: user.account&.created_at.iso8601 }
+        created_at = user.account&.created_at
+        { account_uuid: user.account_uuid, created_at: created_at ? created_at.iso8601 : '' }
       else
         { account_uuid: user.account_uuid }
       end
