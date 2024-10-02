@@ -108,6 +108,9 @@ development: &defaults
   va_profile_contact_info_response:
     namespace: va-profile-contact-info-response
     each_ttl: 3600 # 1 hour
+  va_profile_v2_contact_info_response:
+    namespace: va-profile-v2-contact-info-response
+    each_ttl: 3600 # 1 hour
   intent_to_file_response:
     namespace: intent-to-file-response
     each_ttl: 86400
@@ -199,6 +202,12 @@ development: &defaults
   brd_response_store:
     namespace: brd_response_store
     each_ttl: 82800
+  bgs_find_poas_response:
+    namespace: bgs_find_poas_response
+    each_ttl: 86400
+  travel_pay_store:
+    namespace: travel-pay-store
+    each_ttl: 3300 # 55 minutes
 test:
   <<: *defaults
   redis:

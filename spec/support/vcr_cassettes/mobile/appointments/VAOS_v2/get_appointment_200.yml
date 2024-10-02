@@ -81,6 +81,9 @@ http_interactions:
          }
       ]
    },
+   "reason_code":{
+      "text":"preferred modality: clinic|phone number: 3174485062|email: melissa.gra@va.gov|preferred dates:12/13/2022 PM,12/21/2022 AM|reason code:ROUTINEVISIT|comments:My leg!"
+   },
    "cancellable":false,
    "extension":{
       "cc_location":{

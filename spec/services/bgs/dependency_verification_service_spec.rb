@@ -22,6 +22,16 @@ RSpec.describe BGS::DependencyVerificationService do
       end
     end
 
+    it 'retuns an empty response if participant id is nil' do
+      VCR.use_cassette('bgs/diaries_service/read_diaries') do
+        allow(user).to receive(:participant_id).and_return(nil)
+        service = BGS::DependencyVerificationService.new(user)
+        diaries = service.read_diaries
+
+        expect(diaries).to eq({ dependency_decs: nil, diaries: [] })
+      end
+    end
+
     it 'does not include any dependency decisions that are in the future' do
       VCR.use_cassette('bgs/diaries_service/read_diaries') do
         allow(user).to receive(:participant_id).and_return('13014883')

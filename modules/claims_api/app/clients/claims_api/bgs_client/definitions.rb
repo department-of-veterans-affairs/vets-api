@@ -201,12 +201,52 @@ module ClaimsApi
             path: 'PersonWebService'
           )
 
+        module FindDependentsByPtcpntId
+          DEFINITION =
+            Action.new(
+              service: PersonWebService::DEFINITION,
+              name: 'findDependentsByPtcpntId',
+              key: 'DependentDTO'
+            )
+        end
+
         module FindPersonBySSN
           DEFINITION =
             Action.new(
               service: PersonWebService::DEFINITION,
               name: 'findPersonBySSN',
               key: 'PersonDTO'
+            )
+        end
+      end
+
+      ##
+      # StandardDataWebServiceBean
+      #
+      module StandardDataWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'StandardDataWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://standarddata.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module StandardDataWebService
+        DEFINITION =
+          Service.new(
+            bean: StandardDataWebServiceBean::DEFINITION,
+            path: 'StandardDataWebService'
+          )
+
+        module FindPOAs
+          DEFINITION =
+            Action.new(
+              service: StandardDataWebService::DEFINITION,
+              name: 'findPOAs',
+              key: 'PowerOfAttorneyDTO'
             )
         end
       end
@@ -244,9 +284,9 @@ module ClaimsApi
       end
 
       ##
-      # VdcBean
+      # Vdc
       #
-      module VdcBean
+      module Vdc
         DEFINITION =
           Bean.new(
             path: 'VDC',
@@ -260,7 +300,7 @@ module ClaimsApi
       module ManageRepresentativeService
         DEFINITION =
           Service.new(
-            bean: VdcBean::DEFINITION,
+            bean: Vdc::DEFINITION,
             path: 'ManageRepresentativeService'
           )
 
@@ -304,7 +344,7 @@ module ClaimsApi
       module VeteranRepresentativeService
         DEFINITION =
           Service.new(
-            bean: VdcBean::DEFINITION,
+            bean: Vdc::DEFINITION,
             path: 'VeteranRepresentativeService'
           )
 

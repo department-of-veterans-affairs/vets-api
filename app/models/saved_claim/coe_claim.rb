@@ -1,34 +1,37 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
-
 class SavedClaim::CoeClaim < SavedClaim
-  include SentryLogging
-
   FORM = '26-1880'
 
   def send_to_lgy(edipi:, icn:)
     @edipi = edipi
     @icn = icn
 
+    # If the EDIPI is blank, throw an error
     if @edipi.blank?
-      log_message_to_sentry(
-        'COE application cannot be submitted without an edipi!',
-        :error,
-        {},
-        { team: 'vfs-ebenefits' }
-      )
+      Rails.logger.error('COE application cannot be submitted without an edipi!')
+    # Otherwise, submit the claim to the LGY API
+    else
+      Rails.logger.info('Begin COE claim submission to LGY API', guid:)
+      response = lgy_service.put_application(payload: prepare_form_data)
+      Rails.logger.info('COE claim submitted to LGY API', guid:)
+
+      process_attachments!
+      response['reference_number']
+    end
+  rescue Common::Client::Errors::ClientError => e
+    # 502-503 errors happen frequently from LGY endpoint at the time of implementation
+    # and have not been corrected yet. We would like to seperate these from our monitoring for now
+    # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/90411
+    # and https://github.com/department-of-veterans-affairs/va.gov-team/issues/91111
+    if [503, 504].include?(e.status)
+      Rails.logger.info('LGY server unavailable or unresponsive',
+                        { status: e.status, messsage: e.message, body: e.body })
+    else
+      Rails.logger.error('LGY API returned error', { status: e.status, messsage: e.message, body: e.body })
     end
 
-    response = lgy_service.put_application(payload: prepare_form_data)
-    log_message_to_sentry(
-      "COE claim submitted to LGY: #{guid}",
-      :warn,
-      { attachment_id: guid },
-      { team: 'vfs-ebenefits' }
-    )
-    process_attachments!
-    response['reference_number']
+    raise e
   end
 
   def regional_office

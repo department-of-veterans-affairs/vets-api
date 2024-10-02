@@ -9,11 +9,14 @@ module Mobile
     #
     class FacilityInfo < Common::Resource
       attribute :id, Types::String
-      attribute :name, Types::String
-      attribute :city, Types::String
-      attribute :state, Types::String
-      attribute :cerner, Types::Bool
-      attribute :miles, Types::Float.optional
+      attribute :facilities, Types::Array do
+        attribute :id, Types::String
+        attribute :name, Types::String
+        attribute :city, Types::String
+        attribute :state, Types::String
+        attribute :cerner, Types::Bool
+        attribute :miles, Types::Float.optional
+      end
     end
   end
 end

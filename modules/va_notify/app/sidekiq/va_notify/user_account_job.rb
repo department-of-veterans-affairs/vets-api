@@ -14,6 +14,7 @@ module VANotify
 
       message = "#{job_class} retries exhausted"
       Rails.logger.error(message, { job_id:, error_class:, error_message: })
+      StatsD.increment("sidekiq.jobs.#{job_class.underscore}.retries_exhausted")
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -40,7 +41,7 @@ module VANotify
             args: { recipient_identifier: { id_value: user_account.id, id_type: 'UserAccountId' },
                     template_id:, personalisation: }
           },
-          { error: :va_notify_icn_job }
+          { error: :va_notify_user_account_job }
         )
       else
         raise e

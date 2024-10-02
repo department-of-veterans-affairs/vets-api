@@ -10,8 +10,6 @@ describe TravelClaim::Client do
 
   before do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_btsss_ssm_urls_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_api_v2_cutover').and_return(false)
   end
 
   describe '.build' do
@@ -400,7 +398,7 @@ describe TravelClaim::Client do
 
       it 'returns single subscription key in headers' do
         with_settings(Settings, vsp_environment: 'staging') do
-          with_settings(Settings.check_in.travel_reimbursement_api, subscription_key: 'subscription_key') do
+          with_settings(Settings.check_in.travel_reimbursement_api_v2, subscription_key: 'subscription_key') do
             expect(subject.send(:claims_default_header)).to eq(resp_headers)
           end
         end
@@ -418,7 +416,7 @@ describe TravelClaim::Client do
 
       it 'returns both subscription keys in headers' do
         with_settings(Settings, vsp_environment: 'production') do
-          with_settings(Settings.check_in.travel_reimbursement_api,
+          with_settings(Settings.check_in.travel_reimbursement_api_v2,
                         { e_subscription_key: 'e_key', s_subscription_key: 's_key' }) do
             expect(subject.send(:claims_default_header)).to eq(resp_headers)
           end

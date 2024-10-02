@@ -78,7 +78,8 @@ module EVSS
       }.freeze
 
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
-      # evss_data will look like JSON.parse(form526_submission.form_data)
+      # @param evss_data will look like JSON.parse(form526_submission.form_data)
+      # @return Requests::Form526
       def transform(evss_data)
         form526 = evss_data['form526']
         lh_request_body = Requests::Form526.new
@@ -289,6 +290,17 @@ module EVSS
           multiple_exposures +=
             transform_multiple_exposures_other_details(toxic_exposure_source['specifyOtherExposures'],
                                                        MULTIPLE_EXPOSURES_TYPE[:hazard])
+        end
+
+        # multiple exposures could have repeated values that LH will not accept in the primary path.
+        # remove them!
+        multiple_exposures.uniq! do |exposure|
+          [
+            exposure.exposure_dates.begin_date,
+            exposure.exposure_dates.end_date,
+            exposure.exposure_location,
+            exposure.hazard_exposed_to
+          ]
         end
 
         toxic_exposure_target.multiple_exposures = multiple_exposures
@@ -573,11 +585,17 @@ module EVSS
             dis.secondary_disabilities = transform_secondary_disabilities(disability_source)
           end
           if disability_source['cause'].present?
-            dis.exposure_or_event_or_injury = TOXIC_EXPOSURE_CAUSE_MAP[disability_source['cause'].upcase.to_sym]
+            dis.exposure_or_event_or_injury = format_exposure_text(disability_source['cause'],
+                                                                   dis.is_related_to_toxic_exposure)
           end
 
           dis
         end
+      end
+
+      def format_exposure_text(cause, related_to_toxic_exposure)
+        cause_text = TOXIC_EXPOSURE_CAUSE_MAP[cause.upcase.to_sym].dup
+        related_to_toxic_exposure ? cause_text.sub!(/[.]?$/, '; toxic exposure.') : cause_text
       end
 
       # rubocop:disable Naming/PredicateName
@@ -676,6 +694,15 @@ module EVSS
       end
 
       def convert_date_no_day(date)
+        year = date[0, 4]
+        month = date[5, 2]
+        day = date[8, 2]
+
+        # somehow, partial dates with the 'XX' (i.e. "2020-01-XX or 2020-XX-XX") are getting past FE validation
+        # fix here in the backend while a proper FE solution is found
+        return year if month.blank? || month.upcase == 'XX'
+        return "#{year}-#{month}" if day.blank? || day.upcase == 'XX'
+
         Date.parse(date).strftime('%Y-%m')
       end
     end

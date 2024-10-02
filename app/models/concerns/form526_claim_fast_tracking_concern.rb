@@ -120,14 +120,6 @@ module Form526ClaimFastTrackingConcern
     disabilities.pluck('diagnosticCode')
   end
 
-  def eligible_for_ep_merge?
-    user = User.find(user_uuid)
-    return true if Flipper.enabled?(:disability_526_ep_merge_multi_contention, user)
-    return false unless disabilities.count == 1
-
-    Flipper.enabled?(:disability_526_ep_merge_new_claims, user) ? increase_or_new? : increase_only?
-  end
-
   def prepare_for_evss!
     begin
       is_claim_fully_classified = update_classification!
@@ -136,7 +128,7 @@ module Form526ClaimFastTrackingConcern
       Rails.logger.error e.backtrace.join('\n')
     end
 
-    prepare_for_ep_merge! if eligible_for_ep_merge? && is_claim_fully_classified
+    prepare_for_ep_merge! if is_claim_fully_classified
 
     return if pending_eps? || disabilities_not_service_connected?
 
@@ -219,13 +211,9 @@ module Form526ClaimFastTrackingConcern
 
   # Submits contention information to the VRO contention classification service
   # adds classification to the form for each contention provided a classification
-  def update_contention_classification_all! # rubocop:disable Metrics/MethodLength
+  def update_contention_classification_all!
     contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
-    params = {
-      claim_id: saved_claim_id,
-      form526_submission_id: id,
-      contentions: contentions_array
-    }
+    params = { claim_id: saved_claim_id, form526_submission_id: id, contentions: contentions_array }
     classifier_response = classify_vagov_contentions(params)
     log_claim_level_metrics(classifier_response)
     classifier_response['contentions'].each do |contention|
