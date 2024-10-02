@@ -10,6 +10,7 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
       to,
       consumer_claims_totals: claims_totals,
       unsuccessful_claims_submissions:,
+      unsuccessful_va_gov_claims_submissions:,
       poa_totals:,
       unsuccessful_poa_submissions:,
       ews_totals:,
@@ -23,6 +24,14 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   def unsuccessful_claims_submissions
     [
       { id: '019be853-fd70-4b65-b37b-c3f3842aaaca', status: 'errored', source: 'GDIT', created_at: 1.day.ago.to_s }
+    ]
+  end
+
+  def unsuccessful_va_gov_claims_submissions
+    [
+      { id: '020be853-fd70-4b65-b37b-c3f3842aaac1', status: 'errored', source: 'VAGOV', created_at: 1.day.ago.to_s, transaction_id: '1' },
+      { id: '021be853-fd70-4b65-b37b-c3f3842aaac2', status: 'errored', source: 'VAGOV', created_at: 1.day.ago.to_s, transaction_id: '1' },
+      { id: '022be853-fd70-4b65-b37b-c3f3842aaac3', status: 'errored', source: 'VAGOV', created_at: 1.day.ago.to_s, transaction_id: '2' }
     ]
   end
 

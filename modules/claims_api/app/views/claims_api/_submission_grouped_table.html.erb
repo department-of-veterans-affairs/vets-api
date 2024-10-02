@@ -3,6 +3,7 @@
     <tr>
       <th>Created At</th>
       <th>GUID</th>
+      <th>Transaction ID</th>
     </tr>
   </thead>
   <tbody>
@@ -10,6 +11,7 @@
       <tr>
         <td><%= claim[:created_at] %></td>
         <td><%= claim[:id] %></td>
+        <td><%= claim[:transaction_id] %></td>
       </tr>
     <% end %>
   </tbody>
