@@ -67,7 +67,9 @@ module TermsOfUse
     def agreement_unchanged?
       return false unless terms_of_use_agreement
 
-      unchanged = (terms_of_use_agreement.accepted? && map_accepted?) || (terms_of_use_agreement.declined? && map_declined?)
+      unchanged = (
+        terms_of_use_agreement.accepted? && map_accepted?) || (terms_of_use_agreement.declined? && map_declined?
+                                                              )
 
       if unchanged
         Rails.logger.info("#{LOG_TITLE} Not updating Sign Up Service due to unchanged agreement",
