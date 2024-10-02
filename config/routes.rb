@@ -485,7 +485,8 @@ Rails.application.routes.draw do
     mount MockedAuthentication::Engine, at: '/mocked_authentication'
   end
 
-  get '/flipper/features/logout', to: 'flipper#logout'
+  get '/flipper/logout', to: 'flipper#logout'
+  get '/flipper/login', to: 'flipper#login'
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint
 
   unless Rails.env.test?
