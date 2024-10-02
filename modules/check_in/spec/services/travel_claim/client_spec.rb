@@ -38,7 +38,7 @@ describe TravelClaim::Client do
       expect(subject.client_number).to eq(client_number)
     end
 
-    it 'has default client_id if not initialized with it' do
+    it 'has default client_number if not initialized with it' do
       cls = described_class.build(check_in:)
       expect(cls.client_number).to eq(Settings.check_in.travel_reimbursement_api_v2.client_number)
     end
