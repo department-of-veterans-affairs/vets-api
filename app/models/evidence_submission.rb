@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class EvidenceSubmission < ApplicationRecord
   belongs_to :user_account
   has_kms_key
