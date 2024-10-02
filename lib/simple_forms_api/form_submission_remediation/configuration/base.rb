@@ -4,13 +4,14 @@ module SimpleFormsApi
   module FormSubmissionRemediation
     class Configuration
       class Base
-        attr_reader :id_type, :include_manifest, :include_metadata, :parent_dir
+        attr_reader :id_type, :include_manifest, :include_metadata, :parent_dir, :presign_s3_url
 
         def initialize
-          @id_type = 'benefits_intake_uuid' # The field to query the FormSubmission by
+          @id_type = :benefits_intake_uuid  # The field to query the FormSubmission by
           @include_manifest = true          # Include a CSV file containing manifest data
           @include_metadata = false         # Include a JSON file containing form submission metadata
           @parent_dir = '/'                 # The base directory in the S3 bucket where the archive will be stored
+          @presign_s3_url = true            # Once archived to S3, the service should generate & return a presigned_url
         end
 
         # Override to inject your team's own archive builder
@@ -32,6 +33,11 @@ module SimpleFormsApi
         # If overriding this, s3_settings method doesn't have to be set
         def uploader
           VeteranFacingFormsRemediationUploader
+        end
+
+        # The FormSubmission model to query against
+        def submission_type
+          FormSubmission
         end
 
         # The attachment model to query for form submission attachments
@@ -56,7 +62,7 @@ module SimpleFormsApi
 
         # Used in the VeteranFacingFormsRemediationUploader S3 uploader
         def s3_settings
-          vff_simple_forms.aws
+          Settings.vff_simple_forms.aws
         end
 
         # The base S3 resource used for all S3 manipulations

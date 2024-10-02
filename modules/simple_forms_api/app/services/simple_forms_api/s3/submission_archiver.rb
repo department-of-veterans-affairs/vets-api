@@ -104,7 +104,7 @@ module SimpleFormsApi
       end
 
       def s3_uploader
-        @s3_uploader ||= config.uploader.new(id, s3_directory_path)
+        @s3_uploader ||= config.uploader.new(config:, directory: s3_directory_path)
       end
 
       def s3_directory_path

@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/form_submission_remediation/configuration/base'
+
 class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
   include UploaderVirusScan
 
   class << self
     def s3_settings
-      Settings.vff_simple_forms.aws
+      config = SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
+      config.s3_settings
     end
 
     def new_s3_resource
@@ -29,11 +32,10 @@ class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
     %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
   end
 
-  def initialize(benefits_intake_uuid, directory)
-    raise 'The benefits_intake_uuid is missing.' if benefits_intake_uuid.blank?
-    raise 'The s3 directory is missing.' if directory.blank?
+  def initialize(config:, directory:)
+    raise 'The S3 directory is missing.' if directory.blank?
 
-    @benefits_intake_uuid = benefits_intake_uuid
+    @config = config || SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
     @directory = directory
 
     super()
@@ -47,7 +49,7 @@ class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
   private
 
   def set_storage_options!
-    settings = self.class.s3_settings
+    settings = @config.s3_settings
 
     self.aws_credentials = { region: settings.region }
     self.aws_acl = 'private'

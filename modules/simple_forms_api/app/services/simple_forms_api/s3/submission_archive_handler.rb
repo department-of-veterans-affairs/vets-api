@@ -3,8 +3,6 @@
 module SimpleFormsApi
   module S3
     class SubmissionArchiveHandler
-      include Utils
-
       PROGRESS_FILE_PATH = '/tmp/submission_archive_progress.json'
 
       def initialize(ids: [], config: nil)
