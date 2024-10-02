@@ -3,7 +3,7 @@
 module SimpleFormsApi
   class NotificationEmail
     attr_reader :form_number, :confirmation_number, :date_submitted, :lighthouse_updated_at, :notification_type, :user,
-                :form_data
+                :user_account, :form_data
 
     TEMPLATE_IDS = {
       'vba_21_0845' => {
@@ -54,7 +54,7 @@ module SimpleFormsApi
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
-    def initialize(config, notification_type: :confirmation, user: nil)
+    def initialize(config, notification_type: :confirmation, user: nil, user_account: nil)
       check_missing_keys(config)
 
       @form_data = config[:form_data]
@@ -69,6 +69,7 @@ module SimpleFormsApi
       @lighthouse_updated_at = config[:lighthouse_updated_at]
       @notification_type = notification_type
       @user = user
+      @user_account = user_account
     end
 
     def send(at: nil)
@@ -100,20 +101,20 @@ module SimpleFormsApi
 
     def enqueue_email(at, template_id)
       # async job and we have a UserAccount
-      if user
+      if user_account
         VANotify::UserAccountJob.perform_at(
           at,
-          user.uuid,
+          user_account.id,
           template_id,
           personalization
         )
       # async job and we don't have a UserAccount but form data should include email
       else
-        return if email_address.blank?
+        return if get_email_address.blank?
 
         VANotify::EmailJob.perform_at(
           at,
-          email_address,
+          get_email_address,
           template_id,
           personalization
         )
@@ -121,19 +122,19 @@ module SimpleFormsApi
     end
 
     def send_email_now(template_id)
-      # sync job and we have a @current_user
+      # sync job and we have a @current_user (User model)
       if user
         VANotify::EmailJob.perform_async(
-          user.va_profile_email,
+          user.email,
           template_id,
           personalization
         )
       # sync job and form data should include email
       else
-        return if email_address.blank?
+        return if get_email_address.blank?
 
         VANotify::EmailJob.perform_async(
-          email_address,
+          get_email_address,
           template_id,
           personalization
         )
@@ -141,8 +142,16 @@ module SimpleFormsApi
     end
 
     def personalization
+      first_name = get_first_name[form_number]&.upcase
+      if user
+        first_name = user.first_name&.upcase
+      elsif user_account
+        mpi_profile = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
+        first_name = mpi_profile.first_name
+      end
+
       out = {
-        'first_name' => user&.first_name&.upcase || first_name[form_number]&.upcase,
+        'first_name' => first_name.upcase,
         'date_submitted' => date_submitted,
         'confirmation_number' => confirmation_number,
         'lighthouse_updated_at' => lighthouse_updated_at
@@ -151,7 +160,7 @@ module SimpleFormsApi
       out
     end
 
-    def email_address
+    def get_email_address
       simple_email_addresses.merge(email_address2110210)[form_number]
     end
 
@@ -178,7 +187,7 @@ module SimpleFormsApi
       { 'vba_21_10210' => value }
     end
 
-    def first_name
+    def get_first_name
       simple_first_names.merge(first_name210845, first_name2110210, first_name2010207)
     end
 
