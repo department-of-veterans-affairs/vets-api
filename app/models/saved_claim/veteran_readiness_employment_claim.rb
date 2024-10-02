@@ -125,10 +125,17 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       send_to_lighthouse!(user)
     end
 
+    if user.present?
+      email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
+      Rails.logger.info('VRE claim sending email:', { email: email_addr, user_uuid: user.uuid })
+      VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
+                                             @sent_to_lighthouse).deliver_later
+    end
+
     if Flipper.enabled?(:veteran_readiness_employment_to_res)
       send_to_res(user)
     else
-      send_vre_email_form(user)
+      send_vre_form(user)
     end
   end
 
@@ -179,40 +186,24 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_to_res(user)
-    email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
-
     Rails.logger.info('VRE claim sending to RES service',
                       {
-                        email: email_addr,
                         user_uuid: user.uuid,
                         was_sent: @sent_to_lighthouse,
                         user_present: user.present?
                       })
-
-    if user.present?
-      VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
-                                             @sent_to_lighthouse).deliver_later
-    end
 
     service = RES::Ch31Form.new(user:, claim: self)
     service.submit
   end
 
-  def send_vre_email_form(user)
-    email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
-
+  def send_vre_form(user)
     Rails.logger.info('VRE claim sending to VRE service',
                       {
-                        email: email_addr,
                         user_uuid: user.uuid,
                         was_sent: @sent_to_lighthouse,
                         user_present: user.present?
                       })
-
-    if user.present?
-      VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
-                                             @sent_to_lighthouse).deliver_later
-    end
 
     # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
     # send the data to them. We always send a pdf to VBMS
