@@ -33,7 +33,7 @@ module TermsOfUse
       @user_account_uuid = user_account_uuid
       @version = version
 
-      return if !sec_id? || agreement_unchanged?
+      return if !missing_sec_id? || agreement_unchanged?
 
       log_updated_icn
       terms_of_use_agreement.accepted? ? accept : decline
@@ -84,7 +84,7 @@ module TermsOfUse
       client.agreements_decline(icn: mpi_profile.icn)
     end
 
-    def sec_id?
+    def missing_sec_id?
       if mpi_profile.sec_id.present?
         validate_multiple_sec_ids
         return true
