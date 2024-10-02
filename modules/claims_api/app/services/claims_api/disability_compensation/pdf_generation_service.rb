@@ -27,13 +27,7 @@ module ClaimsApi
           log_job_progress(auto_claim.id, '526EZ PDF generator PDF string returned', auto_claim.transaction_id)
 
           file_name = "#{SecureRandom.hex}.pdf"
-          path = ::Common::FileHelpers.generate_clamav_temp_file(pdf_string, file_name)
-          # temporary debugging of clam av
-          log_job_progress(
-            auto_claim.id,
-            "526EZ PDF generator PDF existence check: #{File.exist?(path)}, file size : #{File.size?(path)}",
-            auto_claim.transaction_id
-          )
+          path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
 
           upload = ActionDispatch::Http::UploadedFile.new({
                                                             filename: file_name,
