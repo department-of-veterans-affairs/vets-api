@@ -13,7 +13,9 @@ RSpec.describe AskVAApi::Categories::Entity do
       RequiresAuthentication: false,
       AllowAttachments: false,
       RankOrder: 0,
-      DisplayName: nil }
+      DisplayName: nil,
+      TopicType: 'Category',
+      ContactPreferences: [] }
   end
 
   let(:category) { creator.new(info) }
@@ -27,7 +29,9 @@ RSpec.describe AskVAApi::Categories::Entity do
                                           id: info[:Id],
                                           parent_id: info[:ParentId],
                                           rank_order: info[:RankOrder],
-                                          requires_authentication: info[:RequiresAuthentication]
+                                          requires_authentication: info[:RequiresAuthentication],
+                                          topic_type: info[:TopicType],
+                                          contact_preferences: info[:ContactPreferences]
                                         })
   end
 end
