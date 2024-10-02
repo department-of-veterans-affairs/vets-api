@@ -25,7 +25,9 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
   let(:submission_file_path) do
     [Time.zone.today.strftime('%-m.%d.%y'), 'form', form_type, 'vagov', benefits_intake_uuid].join('_')
   end
-  let(:submission_builder) { OpenStruct.new(submission:, file_path:, attachments:, metadata:) }
+  let(:submission_builder) do
+    instance_double(SimpleFormsApi::S3::SubmissionBuilder, submission:, file_path:, attachments:, metadata:)
+  end
   let(:archive_builder_instance) { described_class.new(id: benefits_intake_uuid) }
 
   before do

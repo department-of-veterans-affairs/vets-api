@@ -14,7 +14,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveHandler do
   let(:benefits_intake_uuids) { submissions.map(&:benefits_intake_uuid) }
 
   describe '#initialize' do
-    subject(:instance) { described_class.new(benefits_intake_uuids:) }
+    subject(:instance) { described_class.new(ids: benefits_intake_uuids) }
 
     context 'when no UUIDs are provided' do
       let(:benefits_intake_uuids) { [] }
@@ -28,14 +28,14 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveHandler do
   describe '#upload' do
     subject(:upload) { instance.upload }
 
-    let(:instance) { described_class.new(benefits_intake_uuids:) }
+    let(:instance) { described_class.new(ids: benefits_intake_uuids) }
     let(:presigned_url) { '/s3_presigned_url' }
     let(:archiver) { instance_double(SimpleFormsApi::S3::SubmissionArchiver) }
 
     before do
       allow(SimpleFormsApi::S3::SubmissionArchiver).to receive(:new).and_return(archiver)
       allow(archiver).to receive(:upload).and_return(presigned_url)
-      allow(instance).to receive(:log_info).and_call_original
+      allow(Rails.logger).to receive(:info).and_call_original
     end
 
     context 'when processing succeeds' do
@@ -43,9 +43,10 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveHandler do
 
       it 'logs the correct status messages for each submission' do
         submissions.each_with_index do |submission, index|
-          expect(instance).to have_received(:log_info).with(
-            "Archiving submission: #{submission.benefits_intake_uuid} " \
-            "##{index + 1} of #{submissions.size} total submissions"
+          expect(Rails.logger).to have_received(:info).with(
+            "Archiving remediation: #{submission.benefits_intake_uuid} " \
+            "##{index + 1} of #{submissions.size} total submissions",
+            {}
           )
         end
       end

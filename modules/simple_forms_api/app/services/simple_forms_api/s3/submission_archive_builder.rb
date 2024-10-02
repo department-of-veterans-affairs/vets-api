@@ -9,8 +9,8 @@ require 'simple_forms_api/form_submission_remediation/configuration/base'
 module SimpleFormsApi
   module S3
     class SubmissionArchiveBuilder
-      def initialize(**options)
-        @config = options[:config] || SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
+      def initialize(config: SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new, **options)
+        @config = config
         @temp_directory_path = config.temp_directory_path
         @include_manifest = config.include_manifest || true
         @include_metadata = config.include_metadata || true
@@ -31,20 +31,20 @@ module SimpleFormsApi
 
       private
 
-      attr_reader :attachments, :benefits_intake_uuid, :file_path, :include_manifest, :include_metadata, :metadata,
-                  :submission
+      attr_reader :attachments, :config, :file_path, :id, :include_manifest, :include_metadata, :metadata, :submission,
+                  :temp_directory_path
 
       def assign_defaults(options)
-        # The confirmation codes of any attachments which were originally submitted
+        # The file paths of any hydrated attachments which were originally included in the submission
         @attachments = options[:attachments]
         # The local path where the submission PDF is stored
         @file_path = options[:file_path]
-        # The UUID returned from the Benefits Intake API upon original submission
-        @id = options[:id]
-        # Data appended to the original submission headers
-        @metadata = options[:metadata]
         # The FormSubmission object representing the original data payload submitted
         @submission = options[:submission]
+        # The UUID returned from the Benefits Intake API upon original submission
+        @id = @submission&.send(config.id_type) || options[:id]
+        # Data appended to the original submission headers
+        @metadata = options[:metadata]
       end
 
       def submission_already_hydrated?
@@ -54,11 +54,16 @@ module SimpleFormsApi
       def hydrate_submission_data
         raise 'No id was provided' unless id
 
-        built_submission = SubmissionBuilder.new(id:)
+        built_submission = config.submission_builder.new(id:)
+        # The local path where the submission PDF is stored
         @file_path = built_submission.file_path
+        # The FormSubmission object representing the original data payload submitted
         @submission = built_submission.submission
+        # The UUID returned from the Benefits Intake API upon original submission
         @id = submission&.send(config.id_type)
+        # The file paths of any hydrated attachments which were originally included in the submission
         @attachments = built_submission.attachments || []
+        # Data appended to the original submission headers
         @metadata = built_submission.metadata
       end
 

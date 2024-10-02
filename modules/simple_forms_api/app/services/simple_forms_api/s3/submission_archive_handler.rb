@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/form_submission_remediation/configuration/base'
+
 module SimpleFormsApi
   module S3
     class SubmissionArchiveHandler
       PROGRESS_FILE_PATH = '/tmp/submission_archive_progress.json'
 
-      def initialize(ids: [], config: nil)
+      def initialize(ids: [], config: FormSubmissionRemediation::Configuration::Base.new)
         raise Common::Exceptions::ParameterMissing, 'ids' unless ids&.any?
 
         @ids = ids
-        @config = config || FormSubmissionRemediation::Configuration::Base.new
+        @config = config
         @parent_dir = config.parent_dir
         @presigned_urls = []
         load_progress
@@ -25,7 +27,7 @@ module SimpleFormsApi
         cleanup
         presigned_urls
       rescue => e
-        config.handle_error('Archiving submission collection failed.', e)
+        config.handle_error("Archiving #{type} collection failed.", e)
       end
 
       private
@@ -63,7 +65,7 @@ module SimpleFormsApi
         ids.each_with_index do |uuid, i|
           next if @processed_uuids.include? uuid
 
-          log_info("Archiving submission: #{uuid} ##{i + 1} of #{ids.count} total submissions")
+          config.log_info("Archiving #{type}: #{uuid} ##{i + 1} of #{ids.count} total submissions")
           presigned_url = archive_submission(uuid)
           @presigned_urls << presigned_url
           @processed_uuids << uuid
