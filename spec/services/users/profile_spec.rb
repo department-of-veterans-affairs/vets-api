@@ -84,6 +84,11 @@ RSpec.describe Users::Profile do
       it 'includes account uuid' do
         expect(subject.account[:account_uuid]).to eq(user.account_uuid)
       end
+
+      it 'includes created_at when feature flag enabled' do
+        Flipper.enable(:veteran_onboarding_include_display_created_at_in_profile)
+        expect(subject.account[:created_at]).to eq(user.account.created_at)
+      end
     end
 
     describe '#profile' do
