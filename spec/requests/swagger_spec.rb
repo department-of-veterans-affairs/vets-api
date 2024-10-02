@@ -3154,6 +3154,10 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     describe 'search' do
+      before do
+        Flipper.disable(:search_use_v2_gsa)
+      end
+
       context 'when successful' do
         it 'supports getting search results data' do
           VCR.use_cassette('search/success') do
