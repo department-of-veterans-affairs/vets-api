@@ -33,7 +33,7 @@ module TermsOfUse
       @user_account_uuid = user_account_uuid
       @version = version
 
-      return if !missing_sec_id? || agreement_unchanged?
+      return if missing_sec_id? || agreement_unchanged?
 
       log_updated_icn
       terms_of_use_agreement.accepted? ? accept : decline
@@ -49,11 +49,11 @@ module TermsOfUse
     end
 
     def map_client
-      @client ||= MAP::SignUp::Service.new
+      @map_client ||= MAP::SignUp::Service.new
     end
 
     def map_status
-      @status ||= map_client.status(icn: mpi_profile.icn)
+      @map_status ||= map_client.status(icn: mpi_profile.icn)
     end
 
     def map_declined?
@@ -89,12 +89,12 @@ module TermsOfUse
     def missing_sec_id?
       if mpi_profile.sec_id.present?
         validate_multiple_sec_ids
-        return true
+        return false
       end
 
       Rails.logger.info("#{LOG_TITLE} Sign Up Service not updated due to user missing sec_id",
                         { icn: user_account.icn })
-      false
+      true
     end
 
     def validate_multiple_sec_ids

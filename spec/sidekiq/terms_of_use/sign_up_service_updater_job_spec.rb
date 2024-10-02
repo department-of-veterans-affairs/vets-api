@@ -81,8 +81,11 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
     context 'when sec_id is present' do
       context 'sec_id validation' do
+        let(:status) { { opt_out: false, agreement_signed: false } }
+
         before do
           allow(service_instance).to receive(:agreements_accept)
+          allow(service_instance).to receive(:status).and_return(status)
           allow(Rails.logger).to receive(:info)
         end
 
@@ -96,7 +99,13 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
         context 'when multiple sec_id values are detected' do
           let(:sec_ids) { [sec_id, 'other-sec-id'] }
+          let(:status) { { opt_out: false, agreement_signed: false } }
+
           let(:expected_log) { '[TermsOfUse][SignUpServiceUpdaterJob] Multiple sec_id values detected' }
+
+          before do
+            allow(service_instance).to receive(:status).and_return(status)
+          end
 
           it 'logs a warning message' do
             job.perform(user_account_uuid, version)
@@ -116,8 +125,10 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       end
 
       context 'when the terms of use agreement is accepted' do
+        let(:status) { { opt_out: false, agreement_signed: false } }
         before do
           allow(service_instance).to receive(:agreements_accept)
+          allow(service_instance).to receive(:status).and_return(status)
         end
 
         context 'and user account icn does not equal the mpi profile icn' do
@@ -162,9 +173,11 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
           end
           let(:mpi_profile) { build(:mpi_profile, icn: mpi_icn, sec_id:, given_names:, family_name:) }
           let(:mpi_icn) { 'some-mpi-icn' }
+          let(:status) { { opt_out: false, agreement_signed: false } }
 
           before do
             allow(Rails.logger).to receive(:info)
+            allow(service_instance).to receive(:status).and_return(status)
           end
 
           it 'logs a detected changed ICN message' do
@@ -175,22 +188,41 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
           end
         end
 
+        # it 'updates the terms of use agreement in sign up service' do
+        #   job.perform(user_account_uuid, version)
+
+        #   expect(MAP::SignUp::Service).to have_received(:new)
+        #   expect(service_instance).to have_received(:agreements_decline).with(icn: mpi_profile.icn)
+        # end
+      end
+
+      context 'and user account icn does not equal the mpi profile icn' do
+        let(:mpi_profile) { build(:mpi_profile, icn: mpi_icn, sec_id:, given_names:, family_name:) }
+        let(:mpi_icn) { 'some-mpi-icn' }
+        let(:status) { { opt_out: false, agreement_signed: false } }
+        let(:response) { 'declined' }
+
+        before do
+          allow(service_instance).to receive(:status).and_return(status)
+          allow(service_instance).to receive(:agreements_decline)
+        end
+
         it 'updates the terms of use agreement in sign up service' do
           job.perform(user_account_uuid, version)
 
           expect(MAP::SignUp::Service).to have_received(:new)
-          expect(service_instance).to have_received(:agreements_decline).with(icn: mpi_profile.icn)
+          expect(service_instance).to have_received(:agreements_decline).with(icn: mpi_icn)
         end
       end
     end
 
     context 'when agreement is changed by ToU acceptance' do
       let(:response) { 'accepted' }
-      let(:map_status) { { opt_out: true, agreement_signed: false } }
+      let(:status) { { opt_out: true, agreement_signed: false } }
 
       before do
         allow(service_instance).to receive(:agreements_accept)
-        allow(service_instance).to receive(:map_status).and_return(map_status)
+        allow(service_instance).to receive(:status).and_return(status)
       end
 
       it 'agreement_unchanged returns false' do
@@ -205,20 +237,18 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
     context 'when agreement is changed by ToU being declined' do
       let(:response) { 'declined' }
-      let(:map_status) { { opt_out: false, agreement_signed: true } }
+      let(:status) { { opt_out: false, agreement_signed: true } }
 
       before do
         allow(service_instance).to receive(:agreements_decline)
-        allow(service_instance).to receive(:map_status).and_return(map_status)
+        allow(service_instance).to receive(:status).and_return(status)
       end
 
       it 'agreement_unchanged returns false' do
         job.perform(user_account_uuid, version)
 
         expect(MAP::SignUp::Service).to have_received(:new)
-        expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
-                                                                           signature_name: common_name,
-                                                                           version:)
+        expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)
       end
     end
 
@@ -226,17 +256,18 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       let(:expected_log) do
         '[TermsOfUse][SignUpServiceUpdaterJob] Not updating Sign Up Service due to unchanged agreement'
       end
-      let(:map_status) { { opt_out: false, agreement_signed: true } }
+      let(:status) { { opt_out: false, agreement_signed: true } }
 
       before do
         allow(Rails.logger).to receive(:info)
-        allow(service_instance).to receive(:map_status).and_return(map_status)
+        allow(service_instance).to receive(:status).and_return(status)
       end
 
       it 'logs that the agreement is not changed' do
         job.perform(user_account_uuid, version)
 
         expect(MAP::SignUp::Service).to have_received(:new)
+        # expect(service_instance).not_to have_received(:agreements_accept)
         expect(Rails.logger).to have_received(:info).with(expected_log, icn:)
       end
     end
