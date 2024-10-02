@@ -87,7 +87,7 @@ RSpec.describe Users::Profile do
 
       it 'includes created_at when feature flag enabled' do
         Flipper.enable(:veteran_onboarding_include_display_created_at_in_profile)
-        expect(subject.account[:created_at]).to eq(user.account.created_at)
+        expect(subject.account[:created_at]).to eq(user.account.created_at.iso8601)
       end
     end
 

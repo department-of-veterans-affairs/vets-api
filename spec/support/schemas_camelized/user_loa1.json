@@ -79,10 +79,17 @@
             "account": {
               "type": "object",
               "required": [
-                "accountUuid"
+                "accountUuid",
+                "createdAt"
               ],
               "properties": {
                 "accountUuid": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
+                "createdAt": {
                   "type": [
                     "string",
                     null
@@ -345,7 +352,10 @@
             },
             "onboarding": {
               "show": {
-                "type": ["boolean", "null"]
+                "type": [
+                  "boolean",
+                  "null"
+                ]
               }
             }
           }
