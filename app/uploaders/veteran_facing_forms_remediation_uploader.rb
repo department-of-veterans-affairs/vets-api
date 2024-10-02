@@ -32,10 +32,10 @@ class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
     %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
   end
 
-  def initialize(config:, directory:)
+  def initialize(directory:, config: SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new)
     raise 'The S3 directory is missing.' if directory.blank?
 
-    @config = config || SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
+    @config = config
     @directory = directory
 
     super()
