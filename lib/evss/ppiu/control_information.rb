@@ -29,27 +29,26 @@ module EVSS
       # @!attribute not_deceased_indicator
       #   @return [Bool] Returns true if the veteran is still alive
       #
-      attribute :can_update_address, Bool
-      attribute :corp_avail_indicator, Bool
-      attribute :corp_rec_found_indicator, Bool
-      attribute :has_no_bdn_payments_indicator, Bool
-      attribute :identity_indicator, Bool
-      attribute :is_competent_indicator, Bool
-      attribute :index_indicator, Bool
-      attribute :no_fiduciary_assigned_indicator, Bool
-      attribute :not_deceased_indicator, Bool
+      attribute :can_update_address, Bool, default: false
+      attribute :corp_avail_indicator, Bool, default: false
+      attribute :corp_rec_found_indicator, Bool, default: false
+      attribute :has_no_bdn_payments_indicator, Bool, default: false
+      attribute :identity_indicator, Bool, default: false
+      attribute :is_competent_indicator, Bool, default: false
+      attribute :index_indicator, Bool, default: false
+      attribute :no_fiduciary_assigned_indicator, Bool, default: false
+      attribute :not_deceased_indicator, Bool, default: false
 
       # This is used to map the misspelling we get from EVSS
       # to the correct spelling of "identity"
       def initialize(attrs)
+        # binding.pry
         attrs['identity_indicator'] = attrs['indentity_indicator']
         super
       end
 
       def authorized?
-        is_competent_indicator &&
-          no_fiduciary_assigned_indicator &&
-          not_deceased_indicator
+        is_competent_indicator && no_fiduciary_assigned_indicator && not_deceased_indicator
       end
     end
   end

@@ -26,8 +26,8 @@ module Mobile
       end
 
       def self.legacy_create_from_upstream(payment_information, user_uuid)
-        record = { id: user_uuid, account_control: payment_information.control_information.to_h,
-                   payment_account: payment_information.payment_account.to_h }
+        record = { id: user_uuid, account_control: payment_information.control_information.as_json.deep_symbolize_keys,
+                   payment_account: payment_information.payment_account.as_json.deep_symbolize_keys }
         record[:account_control][:can_update_payment] = payment_information.control_information.authorized?
         record[:payment_account][:account_number] =
           StringHelpers.mask_sensitive(record[:payment_account][:account_number])
