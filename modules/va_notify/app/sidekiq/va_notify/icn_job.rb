@@ -17,6 +17,7 @@ module VANotify
       StatsD.increment("sidekiq.jobs.#{job_class.underscore}.retries_exhausted")
     end
 
+    # rubocop:disable Metrics/MethodLength
     def perform(icn, template_id, personalisation = nil, api_key = Settings.vanotify.services.va_gov.api_key)
       notify_client = VaNotify::Service.new(api_key)
 
@@ -26,7 +27,7 @@ module VANotify
           template_id:, personalisation:
         }.compact
       )
-      StatsD.increment("api.vanotify.icn_job.success")
+      StatsD.increment('api.vanotify.icn_job.success')
     rescue Common::Exceptions::BackendServiceException => e
       if e.status_code == 400
         log_exception_to_sentry(
@@ -41,5 +42,6 @@ module VANotify
         raise e
       end
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
