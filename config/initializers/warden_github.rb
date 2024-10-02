@@ -13,10 +13,27 @@ module WardenGithubStrategyExtensions
     end
   end
 
+  def begin_flow!
+    # We want this redirect value for later in the flow
+    if request.path.include?('/flipper')
+      redirect = request.env['QUERY_STRING']&.split('=')&.[](1)
+      custom_session[:redirect] = redirect if redirect.present?
+    end
+
+    super
+  end
+
   def finalize_flow!
     session[:sidekiq_user] = load_user if scope == :sidekiq
     session[:coverband_user] = load_user if scope == :coverband
-    session[:flipper_user] = load_user if scope == :flipper
+    if scope == :flipper
+      # now we can grab the actual URL without the redirect param and redirect to the intended page
+      session[:flipper_user] = load_user
+      url = custom_session['return_to'].split('?').first
+      url += "/#{custom_session[:redirect]}" if custom_session[:redirect]
+      custom_session['return_to'] = url
+    end
+
     super
   end
 end

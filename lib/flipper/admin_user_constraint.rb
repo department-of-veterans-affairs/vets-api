@@ -24,7 +24,7 @@ module Flipper
       # allow GET requests (minus the oauth/callback requests, which need to pass through to finish oauth workflow)
       return true if (request.method == 'GET' &&
         request.path.exclude?('/callback') &&
-        request.params.exclude?('oauth')) ||
+        request.params.exclude?('redirect')) ||
                      Rails.env.development?
 
       authenticate(request)
