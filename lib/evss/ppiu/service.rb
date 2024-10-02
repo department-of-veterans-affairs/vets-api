@@ -52,9 +52,10 @@ module EVSS
       def save_sanitized_req_body(req_body)
         req_body = JSON.parse(req_body)
         req_body['requests'].each do |request|
-          request['paymentAccount']['accountNumber'] = '****'
+          payment_account = request['paymentAccount']
+          payment_account['accountNumber'] = '****'
+          payment_account.delete('financial_institution_name') if payment_account['financial_institution_name'].blank?
         end
-
         @sanitized_req_body = req_body
       end
 
@@ -73,8 +74,6 @@ module EVSS
       end
 
       def request_body(pay_info)
-        pay_info.delete('financial_institution_name') if pay_info['financial_institution_name'].blank?
-
         {
           'requests' => [
             {
