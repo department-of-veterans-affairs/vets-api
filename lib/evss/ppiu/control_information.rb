@@ -42,7 +42,6 @@ module EVSS
       # This is used to map the misspelling we get from EVSS
       # to the correct spelling of "identity"
       def initialize(attrs)
-        # binding.pry
         attrs['identity_indicator'] = attrs['indentity_indicator']
         super
       end
