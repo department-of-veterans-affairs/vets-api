@@ -10,12 +10,6 @@ module ClaimsApi
       end
     end
 
-    def unsuccessful_va_gov_claims_submissions
-      va_gov_errored_claims.pluck(:cid, :created_at, :id, :transaction_id).map do |cid, created_at, id|
-        { id:, created_at:, cid:, transaction_id: }
-      end
-    end
-
     def errored_claims
       ClaimsApi::AutoEstablishedClaim.where(
         'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
@@ -23,14 +17,13 @@ module ClaimsApi
       ).order(:cid, :status)
     end
 
-    def va_gov_errored_claims
+    def unsuccessful_va_gov_claims_submissions
       va_gov = ClaimsApi::AutoEstablishedClaim.select(:id, :transaction_id)
-      .where(created_at: @from..@to,
-             status: 'errored', cid: '0oagdm49ygCSJTp8X297')
-      .group(
-        :id, :transaction_id
-      )
-      va_gov.group_by(&:transaction_id)
+                                              .where(created_at: @from..@to,
+                                                     status: 'errored', cid: '0oagdm49ygCSJTp8X297')
+                                              .order(:transaction_id)
+      items = va_gov.pluck(:id, :transaction_id)
+      items.group_by
     end
 
     def with_special_issues(cid: nil)

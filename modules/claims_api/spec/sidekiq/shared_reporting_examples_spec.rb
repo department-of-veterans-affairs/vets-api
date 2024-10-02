@@ -57,4 +57,20 @@ RSpec.shared_examples 'shared reporting behavior' do
       expect(itf_totals[1]['VA Connect Pro'][:totals]).to eq(2)
     end
   end
+
+  it 'includes 526EZ claims from VaGov' do
+    with_settings(Settings.claims_api, report_enabled: true) do
+      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
+      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
+      create(:auto_established_claim_va_gov, :set_transaction_id, created_at: Time.zone.now).freeze
+      create(:auto_established_claim_va_gov, :set_transaction_id, created_at: Time.zone.now).freeze
+
+      job = described_class.new
+      job.perform
+      va_gov_groups = job.unsuccessful_va_gov_claims_submissions
+
+      expect(va_gov_groups.first.count).to eq(2)
+      expect(va_gov_groups.first[0]).to be_a(String)
+    end
+  end
 end

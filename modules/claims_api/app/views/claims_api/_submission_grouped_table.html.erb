@@ -1,17 +1,15 @@
 <table>
   <thead>
     <tr>
-      <th>Created At</th>
-      <th>GUID</th>
       <th>Transaction ID</th>
+      <th>GUID</th>
     </tr>
   </thead>
   <tbody>
-    <% claims&.each do |claim| %>
+    <% claims&.each_with_index do |grp, idx| %>
       <tr>
-        <td><%= claim[:created_at] %></td>
-        <td><%= claim[:id] %></td>
-        <td><%= claim[:transaction_id] %></td>
+        <td><%= grp[1] %>
+        <td><%= grp[0] %></td>
       </tr>
     <% end %>
   </tbody>
