@@ -67,13 +67,12 @@ module ClaimsApi
       raise e
     end
 
-    def upload_document(doc_type_name:, request_body:)
+    def upload_document(claim_id:, doc_type:, request_body:)
       # unless File.exist? pdf_path
       #   ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist,
       #                                               #{doc_type_to_plain_language(doc_type)}_id: #{claim.id}")
       #   raise Errno::ENOENT, pdf_path
       # end
-
       @multipart = true
       # body = generate_upload_body(claim:, doc_type:, pdf_path:, action:, original_filename:,
       #                             pctpnt_vet_id:)
@@ -84,14 +83,14 @@ module ClaimsApi
       res = res.deep_symbolize_keys
       request_id = res.dig(:data, :requestId)
       ClaimsApi::Logger.log('benefits_documents',
-                            detail: "Successfully uploaded #{doc_type_name} doc to BD,
-                                                    #{doc_type_name}_id: #{claim.id}",
+                            detail: "Successfully uploaded #{doc_type} doc to BD,
+                                                    #{doc_type}_id: #{claim_id}",
                             request_id:)
       res
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/upload failure for
-                                                    #{doc_type_name}_id: #{claim.id},
+                                                    #{doc_type}_id: #{claim_id},
                                                     #{e.message}")
       raise e
     end
@@ -133,7 +132,8 @@ module ClaimsApi
                              pctpnt_vet_id: nil)
       payload = {}
       auth_headers = claim.auth_headers
-      veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'], auth_headers['va_eauth_lastName'])
+      veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'],
+                                          auth_headers['va_eauth_lastName'])
       birls_file_num = determine_birls_file_number(doc_type, auth_headers)
       claim_id = get_claim_id(doc_type, claim)
       file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, action:)

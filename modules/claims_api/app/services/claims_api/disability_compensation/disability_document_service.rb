@@ -5,16 +5,15 @@ module ClaimsApi
     class DisabilityDocumentService < ServiceBase
       LOG_TAG = '526_v2_Disability_Document_service'
 
-      def create_upload(claim:, file_path:)
-        unless File.exist? file_path
+      def create_upload(claim:, pdf_path:, doc_type: 'L122', action: 'post', original_filename: nil)
+        unless File.exist? pdf_path
           ClaimsApi::Logger.log('benefits_documents', detail: "Error creating upload doc: #{file_path} doesn't exist,
                                                       claim_id: #{claim.id}")
           raise Errno::ENOENT, pdf_path
         end
 
-        request_body = generate_upload_body(claim:, doc_type:, file_path:, action:, original_filename:,
-                                            pctpnt_vet_id:)
-        ClaimsApi::BD.new.upload_document(file_path:, request_body:)
+        request_body = generate_upload_body(claim:, doc_type:, pdf_path:, action:, original_filename:)
+        ClaimsApi::BD.new.upload_document(claim_id: claim.id, doc_type:, request_body:)
       end
 
       private
@@ -33,8 +32,8 @@ module ClaimsApi
         # participant_id = pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)
         # system_name = 'Lighthouse' if %w[L075 L190].include?(doc_type)
         tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
-        data = build_body(doc_type:, file_name:, participant_id:, claim_id:,
-                          file_number: birls_file_num, system_name:, tracked_item_ids:)
+        data = build_body(doc_type:, file_name:, claim_id:,
+                          file_number: birls_file_num, tracked_item_ids:)
 
         fn = Tempfile.new('params')
         File.write(fn, data.to_json)
@@ -68,7 +67,7 @@ module ClaimsApi
 
       def build_body(options = {})
         data = {
-          systemName: options[:system_name].presence || 'VA.gov',
+          systemName: 'VA.gov',
           docType: options[:doc_type],
           fileName: options[:file_name],
           trackedItemIds: options[:tracked_item_ids].presence || []
