@@ -21,7 +21,7 @@ module Flipper
         return true
       end
 
-      # allow GET requests (minus the callback, which needs to pass through to finish auth flow)
+      # allow GET requests (minus the oauth/callback requests, which need to pass through to finish oauth workflow)
       return true if (request.method == 'GET' &&
         request.path.exclude?('/callback') &&
         request.params.exclude?('oauth')) ||
@@ -38,7 +38,7 @@ module Flipper
     end
 
     def self.authorized?(user)
-      return true if Rails.env.development?
+      #return true if Rails.env.development?
 
       org_name = Settings.flipper.github_organization
       team_id = Settings.flipper.github_team

@@ -15,6 +15,12 @@ Rails.application.configure do
 end
 
 Rails.application.reloader.to_prepare do
+  FLIPPER_ACTOR_USER = 'user'
+  FLIPPER_ACTOR_STRING = 'cookie_id'
+
+  # Modify Flipper::UI::Action to use our custom views
+  Flipper::UI::Action.prepend(FlipperExtensions::ActionPatch)
+
   Flipper.configure do |config|
     config.default do
       activerecord_adapter = Flipper::Adapters::ActiveRecord.new
@@ -29,20 +35,17 @@ Rails.application.reloader.to_prepare do
     end
   end
 
-  # Modify Flipper::UI::Action to use our custom views
-  Flipper::UI::Action.prepend(FlipperExtensions::ActionPatch)
-
   Flipper::UI.configure do |config|
+    config.feature_creation_enabled = false
+    config.feature_removal_enabled = false
     config.show_feature_description_in_list = true
+    config.confirm_disable = true
+    config.confirm_fully_enable = true
     config.descriptions_source = lambda do |_keys|
       FLIPPER_FEATURE_CONFIG['features'].transform_values { |value| value['description'] }
     end
   end
 
-  FLIPPER_ACTOR_USER = 'user'
-  FLIPPER_ACTOR_STRING = 'cookie_id'
-
-  Flipper::UI.configuration.feature_creation_enabled = false
   # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
   added_flippers = []
   begin
