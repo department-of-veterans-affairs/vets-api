@@ -60,6 +60,11 @@ RSpec.describe Vets::Model do
     it 'sets missing parameters to nil' do
       expect(address.instance_variable_get('@street2')).to be_nil
     end
+
+    it 'rejects unknown attributes' do
+      address = FakeAddress.new(street9: '456 Elm St')
+      expect(address).not_to respond_to(:street9)
+    end
   end
 
   describe '#attributes' do

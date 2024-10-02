@@ -80,18 +80,9 @@ module SimpleFormsApi
       return unless template_id
 
       if at
-        VANotify::EmailJob.perform_at(
-          at,
-          data[:email],
-          template_id,
-          data[:personalization]
-        )
+        enqueue_email(at, template_id, data)
       else
-        VANotify::EmailJob.perform_async(
-          data[:email],
-          template_id,
-          data[:personalization]
-        )
+        send_email_now(template_id, data)
       end
     end
 
@@ -100,6 +91,35 @@ module SimpleFormsApi
     def check_missing_keys(config)
       missing_keys = %i[form_data form_number confirmation_number date_submitted].select { |key| config[key].nil? }
       raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
+    end
+
+    def enqueue_email(at, template_id, data)
+      # async job and we have a UserAccount
+      if user
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user.uuid,
+          template_id,
+          data[:personalization]
+        )
+      # async job and we don't have a UserAccount but form data should include email
+      else
+        VANotify::EmailJob.perform_at(
+          at,
+          data[:email],
+          template_id,
+          data[:personalization]
+        )
+      end
+    end
+
+    def send_email_now(template_id, data)
+      # sync job and form data should include email
+      VANotify::EmailJob.perform_async(
+        data[:email],
+        template_id,
+        data[:personalization]
+      )
     end
 
     # rubocop:disable Metrics/MethodLength
