@@ -106,8 +106,10 @@ describe VAProfile::MilitaryPersonnel::Service do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
           response = subject.get_service_history
           message = [
-            'Our records show that you’re not eligible for a Veteran status card. To get a Veteran status card, you must have received an honorable discharge for at least one period of service.',
-            'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 (TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
+            'Our records show that you’re not eligible for a Veteran status card. To get a Veteran status card, you ' \
+            'must have received an honorable discharge for at least one period of service.',
+            'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 ' \
+            '(TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
           ]
 
           expect(response.vet_status_eligibility[:confirmed]).to eq(false)
