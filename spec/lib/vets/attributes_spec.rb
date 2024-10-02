@@ -10,7 +10,17 @@ class FakeCategory
   attribute :name, String, default: 'test'
 end
 
-class DummyModel
+class DummyParentModel
+  include Vets::Attributes
+
+  attribute :updated_at, DateTime, default: :current_time
+
+  def current_time
+    DateTime.new(2024, 9, 25, 10, 30, 0)
+  end
+end
+
+class DummyModel < DummyParentModel
   include Vets::Attributes
 
   attribute :name, String, default: 'Unknown'
@@ -63,9 +73,13 @@ RSpec.describe Vets::Attributes do
   end
 
   describe '.attribute_set' do
-    it 'returns an array of the attribute names' do
+    it 'returns an array of the attribute names from itself' do
       expected_attribute_set = %i[name age tags categories created_at]
-      expect(DummyModel.attribute_set).to eq(expected_attribute_set)
+      expect(DummyModel.attribute_set).to include(*expected_attribute_set)
+    end
+
+    it 'includes an array of attributes from ancestors' do
+      expect(DummyModel.attribute_set).to include(:updated_at)
     end
   end
 end
