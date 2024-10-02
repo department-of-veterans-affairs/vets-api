@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
 require 'sidekiq/monitored_worker'
-require 'sidekiq/job_metadata'
 
 module Form1010cg
   class SubmissionJob
     STATSD_KEY_PREFIX = "#{Form1010cg::Auditor::STATSD_KEY_PREFIX}.async.".freeze
     include Sidekiq::Job
     include Sidekiq::MonitoredWorker
-    include Sidekiq::JobMetadata
     include SentryLogging
 
     sidekiq_options(retry: 22)
@@ -18,11 +16,24 @@ module Form1010cg
     end
 
     def retry_limits_for_notification
+      return [1, 10] if Flipper.enabled?(:caregiver1010)
+
       [10]
     end
 
     def notify(params)
-      StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries", tags: ["params:#{params}"])
+      unless Flipper.enabled?(:caregiver1010)
+        StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries", tags: ["params:#{params}"])
+        return
+      end
+
+      # Increment on the 2nd run (initial run + 1 retry)
+      StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried") if (params['retry_count']).zero?
+
+      # Increment on the 11th run (intial run + 10 retries)
+      if params['retry_count'] == 10
+        StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries", tags: ["params:#{params}"])
+      end
     end
 
     def perform(claim_id)
@@ -41,11 +52,7 @@ module Form1010cg
       log_exception_to_sentry(e)
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
 
-      if Flipper.enabled?(:caregiver1010)
-        StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried") if job_metadata['retry_count'].zero?
-      else
-        increment_applications_retried(claim_id)
-      end
+      increment_applications_retried(claim_id) unless Flipper.enabled?(:caregiver1010)
 
       raise
     end
