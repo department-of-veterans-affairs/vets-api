@@ -4,30 +4,32 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'common/client/errors'
 require 'search/response'
-require 'search/configuration'
+require 'search_gsa/configuration'
 
-module Search
-  # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
+module SearchGsa
+  # This class builds a wrapper around api.gsa.gov web results API. Creating a new instance of class
   # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
   #
-  # @see https://search.usa.gov/sites/7378/api_instructions
+  # @see https://open.gsa.gov/api/searchgov-results/
   #
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
 
     STATSD_KEY_PREFIX = 'api.search'
 
-    configuration Search::Configuration
+    configuration SearchGsa::Configuration
 
     attr_reader :query, :page
 
+    # rubocop:disable Lint/MissingSuper
     def initialize(query, page = 1)
       @query = query
       @page = page.to_i
     end
+    # rubocop:enable Lint/MissingSuper
 
-    # GETs a list of search results from Search.gov web results API
-    # @return [Search::ResultsResponse] wrapper around results data
+    # GETs a list of search results from api.gsa,gov API @return
+    # [Search::ResultsResponse] wrapper around results data
     #
     def results
       with_monitoring do
@@ -47,7 +49,7 @@ module Search
     # Required params [affiliate, access_key, query]
     # Optional params [enable_highlighting, limit, offset, sort_by]
     #
-    # @see https://search.usa.gov/sites/7378/api_instructions
+    # @see https://open.gsa.gov/api/searchgov-results/
     #
     def query_params
       {
@@ -113,7 +115,7 @@ module Search
     def handle_429!(error)
       return unless error.status == 429
 
-      StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", tags: ['exception:429'])
+      StatsD.increment("#{SearchGsa::Service::STATSD_KEY_PREFIX}.exceptions", tags: ['exception:429'])
       raise_backend_exception(error_code_name(error.status), self.class, error)
     end
 
@@ -121,13 +123,13 @@ module Search
       return unless [503, 504].include?(error.status)
 
       # Catch when the error's structure doesn't match what's usually expected.
-      message = error.body.is_a?(Hash) ? parse_messages(error).first : 'Search API is down'
+      message = error.body.is_a?(Hash) ? parse_messages(error).first : 'SearchGSA API is down'
       save_error_details(message)
       raise_backend_exception(error_code_name(error.status), self.class, error)
     end
 
     def error_code_name(error_status)
-      "SEARCH_#{error_status}"
+      "SEARCH_GSA_#{error_status}"
     end
   end
 end
