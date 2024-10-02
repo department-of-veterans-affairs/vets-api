@@ -9,6 +9,12 @@ describe Vye::SundownSweep::DeleteProcessedS3Files, type: :worker do
   end
 
   it 'checks the existence of described_class' do
-    expect(described_class).to be_a(Class)
+    expect(Vye::CloudTransfer).to receive(:remove_aws_files_from_s3_buckets)
+
+    expect do
+      described_class.perform_async
+    end.to change { Sidekiq::Worker.jobs.size }.by(1)
+
+    described_class.drain
   end
 end

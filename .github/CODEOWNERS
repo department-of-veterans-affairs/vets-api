@@ -978,6 +978,7 @@ lib/saml @department-of-veterans-affairs/octo-identity
 lib/salesforce @department-of-veterans-affairs/govcio-vfep-codereviewers
 lib/scopes/form526_submission_state.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/search @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/search_gsa @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/search_typeahead @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/sentry @department-of-veterans-affairs/backend-review-group
 lib/sentry_logging.rb @department-of-veterans-affairs/backend-review-group
@@ -1077,6 +1078,7 @@ rakelib/support/vic_load_test.rb @department-of-veterans-affairs/octo-identity
 rakelib/test_user_account.rake @department-of-veterans-affairs/octo-identity
 rakelib/vbms.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 script/github-actions @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/concerns/form_attachment_create_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/concerns/traceable_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/config/initializers/staccato_spec.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/application_controller_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1483,6 +1485,7 @@ spec/lib/saml @department-of-veterans-affairs/octo-identity
 app/models/saved_claim @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/saved_claims_spec_helper.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/search @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/lib/search_gsa @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/search_click_tracking @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/search_typeahead @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/sentry @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
