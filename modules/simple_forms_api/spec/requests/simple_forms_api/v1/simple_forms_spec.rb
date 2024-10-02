@@ -641,7 +641,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          user.va_profile_email,
+          user.email,
           'form21_4142_confirmation_email_template_id',
           {
             'first_name' => user.first_name.upcase,
@@ -683,7 +683,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          user.va_profile_email,
+          user.email,
           'form21_10210_confirmation_email_template_id',
           {
             'first_name' => user.first_name.upcase,
@@ -731,7 +731,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          user.va_profile_email,
+          user.email,
           'form21p_0847_confirmation_email_template_id',
           {
             'first_name' => user.first_name.upcase,
@@ -774,7 +774,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          user.va_profile_email,
+          user.email,
           'form21_0972_confirmation_email_template_id',
           {
             'first_name' => user.first_name.upcase,
