@@ -95,7 +95,55 @@ class RepresentationManagement::RswagConfig
                 }
               }
             }
+          },
+          responses: {
+            # NotFoundError: {
+            #   description: 'Resource not found',
+            #   content: {
+            #     'application/json' => {
+            #       schema: {
+            #         type: :object,
+            #         properties: {
+            #           errors: {
+            #             type: :array,
+            #             items: {
+            #               type: :object,
+            #               properties: {
+            #                 title: { type: :string, example: 'Resource not found' },
+            #                 detail: { type: :string, example: 'Resource not found' },
+            #                 code: { type: :string, example: '404' },
+            #                 status: { type: :string, example: '404' }
+            #               }
+            #             }
+            #           }
+            #         }
+            #       }
+            #     }
+            #   }
+            # },
+            InternalServerError: {
+              description: 'Unexpected server error',
+              content: {
+                'application/json' => {
+                  schema: {
+                    type: :object,
+                    properties: {
+                      errors: {
+                        type: :object,
+                        properties: {
+                          title: { type: :string, example: 'Internal server error' },
+                          detail: { type: :string, example: 'Unexpected error occurred' },
+                          code: { type: :string, example: '500' },
+                          status: { type: :string, example: '500' }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
+
           # Put PowerOfAttorneyResponse here
           # Probably define veteran and claimant params here as well.
         },

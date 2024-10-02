@@ -33,7 +33,7 @@ RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_ma
           allow_any_instance_of(BenefitsClaims::Service).to receive(:get_power_of_attorney).and_return(lh_response)
         end
 
-        schema oneOf: [
+        schema anyOf: [
           {
             '$ref' => '#/components/schemas/PowerOfAttorneyResponse'
           },
@@ -47,15 +47,10 @@ RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_ma
         run_test!
       end
 
-      # response '404', 'Not Found' do
-      #   schema '$ref' => '#/components/responses/NotFoundError'
-      #   run_test!
-      # end
-
-      # response '500', 'Internal Server Error' do
-      #   schema '$ref' => '#/components/responses/InternalServerError'
-      #   run_test!
-      # end
+      response '500', 'Internal Server Error' do
+        schema '$ref' => '#/components/responses/InternalServerError'
+        run_test!
+      end
     end
   end
 end
