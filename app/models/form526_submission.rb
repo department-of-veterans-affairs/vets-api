@@ -78,6 +78,13 @@ class Form526Submission < ApplicationRecord
   # plus 1 week to accomodate for edge cases and our sidekiq jobs
   MAX_PENDING_TIME = 3.weeks
 
+  # used to track in APMs between systems such as Lighthouse
+  # example: can be used as a search parameter in Datadog
+  # TODO: follow-up in ticket #93563 to make this more robust, i.e. attempts of jobs, etc.
+  def system_transaction_id
+    "Form526Submission_#{id}"
+  end
+
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
   # submission process. Currently this passes directly to the retryable EVSS workflow, but if any
   # one-time setup or workflow redirection (e.g. for Claims Fast-Tracking) needs to happen, it should
