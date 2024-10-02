@@ -29,8 +29,6 @@ module ClaimsApi
         birls_file_num = auth_headers['va_eauth_birlsfilenumber']
         claim_id = claim.evss_id
         file_name = generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, action:)
-        # participant_id = pctpnt_vet_id if %w[L075 L190 L705].include?(doc_type)
-        # system_name = 'Lighthouse' if %w[L075 L190].include?(doc_type)
         tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
         data = build_body(doc_type:, file_name:, claim_id:,
                           file_number: birls_file_num, tracked_item_ids:)
