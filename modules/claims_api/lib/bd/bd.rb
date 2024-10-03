@@ -67,9 +67,9 @@ module ClaimsApi
       raise e
     end
 
-    def upload_document(claim_id:, doc_type:, request_body:)
+    def upload_document(claim_id:, doc_type:, body:)
       @multipart = true
-      res = client.post('documents', request_body)&.request_body
+      res = client.post('documents', body)&.body
 
       raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
 
