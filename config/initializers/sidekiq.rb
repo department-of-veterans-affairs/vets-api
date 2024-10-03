@@ -64,4 +64,5 @@ Rails.application.reloader.to_prepare do
   end
 
   Sidekiq.strict_args!(false)
+  RedisHealthChecker.sidekiq_redis_up
 end
