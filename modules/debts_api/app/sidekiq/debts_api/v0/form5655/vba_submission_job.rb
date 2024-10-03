@@ -12,15 +12,15 @@ module DebtsApi
 
     class MissingUserAttributesError < StandardError; end
 
-    sidekiq_retries_exhausted do |job, _ex|
+    sidekiq_retries_exhausted do |job, ex|
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
       submission_id = job['args'][0]
       user_uuid = job['args'][1]
       Rails.logger.error <<~LOG
         V0::Form5655::VBASubmissionJob retries exhausted:
+        submission_id: #{submission_id} | user_id: #{user_uuid}
         Exception: #{ex.class} - #{ex.message}
         Backtrace: #{ex.backtrace.join("\n")}
-        submission_id: #{submission_id} | user_id: #{user_uuid}
       LOG
       UserProfileAttributes.find(user_uuid)&.destroy # TODO: figure out why are we destroying here.
     end
