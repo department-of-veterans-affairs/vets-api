@@ -2,30 +2,36 @@
 
 module ClaimsApi
   class VANotifyJob < ClaimsApi::ServiceBase
+    # rubocop:disable Metrics/MethodLength
     def perform(poa_id, rep)
       return if skip_notification_email?
 
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+
+      unless poa
+        raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+          detail: "Could not find Power of Attorney with id: #{poa_id}"
+        )
+      end
+
       form_data = poa.form_data
 
       if organization_filing?(form_data)
         org = find_org(poa, '2122')
-
         send_organization_notification(poa, org)
       else
         poa_code_from_form('2122a', poa)
-
         send_representative_notification(poa, rep)
       end
     rescue => e
       ClaimsApi::Logger.log(
         'poa_update_notify_job',
-        retry: true,
         detail: "Failed to notify with error: #{get_error_message(e)}"
       )
 
       raise e
     end
+    # rubocop:enable Metrics/MethodLength
 
     # 2122a
     def send_representative_notification(poa, rep)
@@ -37,7 +43,7 @@ module ClaimsApi
       vanotify_service.send_email(organization_accepted_email_contents(poa, org))
     end
 
-    protected
+    private
 
     def individual_accepted_email_contents(poa, rep)
       {
@@ -46,10 +52,10 @@ module ClaimsApi
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           rep_first_name: value_or_default_for_field(rep.first_name),
           rep_last_name: value_or_default_for_field(rep.last_name),
-          representative_type: value_or_default_for_field(poa_form_data(poa)&.dig('representative', 'type')),
+          representative_type: value_or_default_for_field(poa.form_data.dig('representative', 'type')),
           address: value_or_default_for_field(build_ind_poa_address(poa)),
-          city: value_or_default_for_field(poa_form_data(poa)&.dig('representative', 'address', 'city')),
-          state: value_or_default_for_field(poa_form_data(poa)&.dig('representative', 'address', 'stateCode')),
+          city: value_or_default_for_field(poa.form_data.dig('representative', 'address', 'city')),
+          state: value_or_default_for_field(poa.form_data.dig('representative', 'address', 'stateCode')),
           zip: value_or_default_for_field(rep_zip(poa)),
           email: value_or_default_for_field(rep.email),
           phone: rep_phone(rep)
@@ -110,17 +116,13 @@ module ClaimsApi
       [first, last].compact_blank.join('-')
     end
 
-    # we need to send emapty string, nil causes an error to be returned
+    # we need to send empty string, nil causes an error to be returned
     def value_or_default_for_field(field)
       field || ''
     end
 
     def icn_for_vanotify(auth_headers)
       auth_headers['va_notify_recipient_identifier']
-    end
-
-    def poa_form_data(poa)
-      poa&.form_data
     end
 
     def build_ind_poa_address(poa)
