@@ -4,8 +4,9 @@ require 'rails_helper'
 require 'mhv/account_creation/service'
 
 RSpec.describe User, type: :model do
-  subject { described_class.new(build(:user)) }
+  subject { described_class.new(build(:user, loa:)) }
 
+  let(:loa) { loa_one }
   let(:loa_one) { { current: LOA::ONE, highest: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE, highest: LOA::THREE } }
   let(:user) { build(:user, :loa3) }
@@ -230,23 +231,38 @@ RSpec.describe User, type: :model do
     end
 
     describe 'invalidate_mpi_cache' do
+      let(:cache_exists) { true }
+
       before { allow_any_instance_of(MPIData).to receive(:cached?).and_return(cache_exists) }
 
-      context 'when mpi object exists with cached mpi response' do
-        let(:cache_exists) { true }
-
-        it 'clears the user mpi cache' do
-          expect_any_instance_of(MPIData).to receive(:destroy)
-          subject.invalidate_mpi_cache
-        end
-      end
-
-      context 'when mpi object does not exist with cached mpi response' do
-        let(:cache_exists) { false }
+      context 'when user is not loa3' do
+        let(:loa) { loa_one }
 
         it 'does not attempt to clear the user mpi cache' do
           expect_any_instance_of(MPIData).not_to receive(:destroy)
           subject.invalidate_mpi_cache
+        end
+      end
+
+      context 'when user is loa3' do
+        let(:loa) { loa_three }
+
+        context 'and mpi object exists with cached mpi response' do
+          let(:cache_exists) { true }
+
+          it 'clears the user mpi cache' do
+            expect_any_instance_of(MPIData).to receive(:destroy)
+            subject.invalidate_mpi_cache
+          end
+        end
+
+        context 'and mpi object does not exist with cached mpi response' do
+          let(:cache_exists) { false }
+
+          it 'does not attempt to clear the user mpi cache' do
+            expect_any_instance_of(MPIData).not_to receive(:destroy)
+            subject.invalidate_mpi_cache
+          end
         end
       end
     end
