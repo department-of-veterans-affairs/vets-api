@@ -906,8 +906,13 @@ search:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
   mock_search: false
-  gsa_url: https://api.gsa.gov/technology/searchgov/v2/results/i14y
   url: https://search.usa.gov/api/v2/search/i14y
+
+search_gsa:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  mock_search: false
+  url: https://api.gsa.gov/technology/searchgov/v2/results/i14y
 
 # Settings for search-typeahead
 search_typeahead:

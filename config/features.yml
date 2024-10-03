@@ -95,6 +95,9 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
+  hca_log_form_attachment_create:
+    actor_type: user
+    description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
   cg1010_oauth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
@@ -1718,7 +1721,7 @@ features:
     description: Used to show  maintenance alert for MGIB Verifications
   search_use_v2_gsa:
     actor_type: cookie_id
-    description: Swaps the Search Service's configuration url with an updated api.gsa.gov address
+    description: Swaps the Search Service's for one with an updated api.gsa.gov address
     enabled_in_development: true
   remove_pciu:
     actor_type: user
