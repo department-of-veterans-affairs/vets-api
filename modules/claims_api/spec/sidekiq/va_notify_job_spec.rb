@@ -29,11 +29,90 @@ describe ClaimsApi::VANotifyJob, type: :job do
 
   let(:vanotify_client) { instance_double(VaNotify::Service) }
 
-  # before do
-  #
-  #   allow(subject).to receive_messages(skip_notification_email?: false, vanotify_service: vanotify_client,
-  #                                      find_org: :va_notify_org)
-  #     # end
+  let(:va_notify_rep_poa_form_data) do
+    {
+      'representative' => {
+        'poaCode' => '072',
+        'firstName' => 'Myfn',
+        'lastName' => 'Myln',
+        'type' => 'ATTORNEY',
+        'address' => {
+          'addressLine1' => '123 First St.',
+          'addressLine2' => 'Apt. 2',
+          'city' => 'North Beach',
+          'stateCode' => 'OR',
+          'country' => 'US',
+          'zipCode' => '12345'
+        }
+      },
+      'recordConsent' => true,
+      'consentLimits' => []
+    }
+  end
+
+  let(:va_notify_dependent_form_data) do
+    {
+      'veteran' => {
+        'address' => {
+          'addressLine1' => '123',
+          'city' => 'city',
+          'stateCode' => 'OR',
+          'country' => 'US',
+          'zipCode' => '12345'
+        }
+      },
+      'representative' => {
+        'poaCode' => '067',
+        'registrationNumber' => '999999999999',
+        'type' => 'ATTORNEY',
+        'address' => {
+          'addressLine1' => '123 Fourth St.',
+          'addressLine2' => 'Apt. 3',
+          'addressLine3' => 'P.O Box 34',
+          'city' => 'city',
+          'stateCode' => 'OR',
+          'country' => 'US',
+          'zipCode' => '12345'
+        }
+      },
+      'claimant' => {
+        'claimantId' => '1111111V2222',
+        'address' => {
+          'addressLine1' => '456 Seventh St.',
+          'addressLine2' => 'Apt. 3',
+          'city' => 'city',
+          'stateCode' => 'OR',
+          'country' => 'US',
+          'zipCode' => '12345'
+        },
+        'relationship' => 'spouse'
+      }
+    }
+  end
+
+  let(:va_notify_org_poa_form_data) do
+    {
+      'serviceOrganization' => {
+        'poaCode' => '083'
+      },
+      'signatures' => {
+        'veteran' => 'helloWorld',
+        'representative' => 'helloWorld'
+      }
+    }
+  end
+
+  let(:va_notify_auth_headers) do
+    {
+      'va_eauth_firstName' => 'Jeffery',
+      'va_eauth_lastName' => 'Hayes',
+      'va_eauth_dodedipnid' => '1005648021',
+      'va_eauth_birlsfilenumber' => '123456',
+      'va_eauth_pid' => '600043202',
+      'va_eauth_pnid' => '796131729',
+      'va_notify_recipient_identifier' => '1111111V2222'
+    }
+  end
 
   describe '#perform' do
     context 'when the POA is updated to a representative' do
@@ -233,92 +312,5 @@ describe ClaimsApi::VANotifyJob, type: :job do
 
       expect(res).to eq(expected)
     end
-  end
-
-  def va_notify_rep_poa_form_data
-    {
-      'representative' => {
-        'poaCode' => '072',
-        'firstName' => 'Myfn',
-        'lastName' => 'Myln',
-        'type' => 'ATTORNEY',
-        'address' => {
-          'addressLine1' => '123 First St.',
-          'addressLine2' => 'Apt. 2',
-          'city' => 'North Beach',
-          'stateCode' => 'OR',
-          'country' => 'US',
-          'zipCode' => '12345'
-        }
-      },
-      'recordConsent' => true,
-      'consentLimits' => []
-    }
-  end
-
-  # rubocop:disable Metrics/MethodLength
-  def va_notify_dependent_form_data
-    {
-      'veteran' => {
-        'address' => {
-          'addressLine1' => '123',
-          'city' => 'city',
-          'stateCode' => 'OR',
-          'country' => 'US',
-          'zipCode' => '12345'
-        }
-      },
-      'representative' => {
-        'poaCode' => '067',
-        'registrationNumber' => '999999999999',
-        'type' => 'ATTORNEY',
-        'address' => {
-          'addressLine1' => '123 Fourth St.',
-          'addressLine2' => 'Apt. 3',
-          'addressLine3' => 'P.O Box 34',
-          'city' => 'city',
-          'stateCode' => 'OR',
-          'country' => 'US',
-          'zipCode' => '12345'
-        }
-      },
-      'claimant' => {
-        'claimantId' => '1111111V2222',
-        'address' => {
-          'addressLine1' => '456 Seventh St.',
-          'addressLine2' => 'Apt. 3',
-          'city' => 'city',
-          'stateCode' => 'OR',
-          'country' => 'US',
-          'zipCode' => '12345'
-        },
-        'relationship' => 'spouse'
-      }
-    }
-  end
-
-  # rubocop:enable Metrics/MethodLength
-  def va_notify_org_poa_form_data
-    {
-      'serviceOrganization' => {
-        'poaCode' => '083'
-      },
-      'signatures' => {
-        'veteran' => 'helloWorld',
-        'representative' => 'helloWorld'
-      }
-    }
-  end
-
-  def va_notify_auth_headers
-    {
-      'va_eauth_firstName' => 'Jeffery',
-      'va_eauth_lastName' => 'Hayes',
-      'va_eauth_dodedipnid' => '1005648021',
-      'va_eauth_birlsfilenumber' => '123456',
-      'va_eauth_pid' => '600043202',
-      'va_eauth_pnid' => '796131729',
-      'va_notify_recipient_identifier' => '1111111V2222'
-    }
   end
 end
