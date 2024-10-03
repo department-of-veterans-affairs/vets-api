@@ -52,6 +52,8 @@ module Pensions
     def perform(saved_claim_id, user_account_uuid = nil)
       init(saved_claim_id, user_account_uuid)
 
+      return if form_submission_pending_or_success
+
       # generate and validate claim pdf documents
       @form_path = process_document(@claim.to_pdf)
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
@@ -94,6 +96,20 @@ module Pensions
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
       @intake_service = BenefitsIntake::Service.new
+    end
+
+    ##
+    # Check FormSubmissionAttempts for record with 'pending' or 'success'
+    #
+    # @return false if unable to find a FormSubmission, matching the intake.uuid
+    # or there are no matching FormSubmissionAttempt aasm_states
+    #
+    def form_submission_pending_or_success
+      form_submission = @claim&.form_submissions&.find do |submission|
+        submission.benefits_intake_uuid == @intake_service.uuid
+      end
+
+      form_submission&.non_failure_attempt.present? || false
     end
 
     ##

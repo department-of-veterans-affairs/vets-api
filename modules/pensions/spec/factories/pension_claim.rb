@@ -23,5 +23,17 @@ FactoryBot.define do
         statementOfTruthSignature: 'Test User'
       }.to_json
     end
+
+    trait :pending do
+      after(:create) do |pension_claim|
+        create(:form_submission, :pending, saved_claim_id: pension_claim.id)
+      end
+    end
+
+    trait :failure do
+      after(:create) do |pension_claim|
+        create(:form_submission, :failure, saved_claim_id: pension_claim.id)
+      end
+    end
   end
 end

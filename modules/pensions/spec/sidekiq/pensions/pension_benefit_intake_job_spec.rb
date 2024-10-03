@@ -37,7 +37,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     it 'submits the saved claim successfully' do
-      allow(job).to receive(:process_document).and_return(pdf_path)
+      allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
 
       expect(FormSubmission).to receive(:create)
       expect(FormSubmissionAttempt).to receive(:create)
@@ -82,6 +82,42 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     # perform
+  end
+
+  describe '#form_submission_pending_or_success' do
+    before do
+      job.instance_variable_set(:@claim, claim)
+      allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+
+      job.instance_variable_set(:@intake_service, service)
+      allow(BenefitsIntake::Service).to receive(:new).and_return(service)
+    end
+
+    context 'with no form submissions' do
+      it 'returns false' do
+        expect(job.send(:form_submission_pending_or_success)).to eq(false)
+      end
+    end
+
+    context 'with pending form submission attempt' do
+      let(:claim) { create(:pensions_module_pension_claim, :pending) }
+
+      it 'return true' do
+        allow(service).to receive(:uuid).and_return(claim.form_submissions.first.benefits_intake_uuid)
+
+        expect(job.send(:form_submission_pending_or_success)).to eq(true)
+      end
+    end
+
+    context 'with failure form submission attempt' do
+      let(:claim) { create(:pensions_module_pension_claim, :failure) }
+
+      it 'return false' do
+        allow(service).to receive(:uuid).and_return(claim.form_submissions.first.benefits_intake_uuid)
+
+        expect(job.send(:form_submission_pending_or_success)).to eq(false)
+      end
+    end
   end
 
   describe '#process_document' do
