@@ -98,9 +98,7 @@ module SimpleFormsApi
     def enqueue_email(at, template_id, data)
       # async job and we have a UserAccount
       if user_account
-        mpi_profile = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
-        first_name = mpi_profile.first_name
-        data[:personalization]['first_name'] = first_name
+        data[:personalization]['first_name'] = get_first_name
         VANotify::UserAccountJob.perform_at(
           at,
           user_account.id,
@@ -140,6 +138,15 @@ module SimpleFormsApi
       end
     end
 
+    def get_first_name
+      if user_account
+        mpi_profile = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
+        mpi_profile.first_name
+      elsif user
+        user.first_name
+      end
+    end
+
     # rubocop:disable Metrics/MethodLength
     # email and personalization hash
     def form_specific_data
@@ -162,7 +169,7 @@ module SimpleFormsApi
 
         {
           email: @user&.va_profile_email,
-          personalization: default_personalization(@user.first_name)
+          personalization: default_personalization(get_first_name)
             .merge(form21_0966_personalization)
         }
       when 'vba_21_0972'
@@ -226,7 +233,7 @@ module SimpleFormsApi
     def form20_10206_contact_info
       # email address not required and omitted
       if @form_data['email_address'].blank? && @user
-        [@user&.va_profile_email, @form_data.dig('full_name', 'first')]
+        [@user.va_profile_email, @form_data.dig('full_name', 'first')]
 
       # email address not required and optionally entered
       else
@@ -261,7 +268,7 @@ module SimpleFormsApi
     def form21_0845_contact_info
       # (vet && signed in)
       if @form_data['authorizer_type'] == 'veteran' && @user
-        [@user&.va_profile_email, @form_data.dig('veteran_full_name', 'first')]
+        [@user.va_profile_email, @form_data.dig('veteran_full_name', 'first')]
 
       # (non-vet && signed in) || (non-vet && anon)
       elsif @form_data['authorizer_type'] == 'nonVeteran'
