@@ -12,7 +12,7 @@ module ClaimsApi
         )
       end
 
-      if organization_filing?(form_data)
+      if organization_filing?(poa.form_data)
         org = find_org(poa, '2122')
         send_organization_notification(poa, org)
       else
@@ -24,7 +24,6 @@ module ClaimsApi
         'poa_update_notify_job',
         detail: "Failed to notify with error: #{get_error_message(e)}"
       )
-
       raise e
     end
 
