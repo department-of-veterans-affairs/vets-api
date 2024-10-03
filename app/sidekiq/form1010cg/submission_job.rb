@@ -59,6 +59,7 @@ module Form1010cg
 
     private
 
+    # TODO: @coope93 to remove increment method and feature (:caregiver1010) after validating functionality
     def increment_applications_retried(claim_id)
       redis_key = "Form1010cg::SubmissionJob:#{claim_id}"
       return if $redis.get(redis_key).present?
