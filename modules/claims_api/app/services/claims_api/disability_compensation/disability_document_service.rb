@@ -71,7 +71,6 @@ module ClaimsApi
           trackedItemIds: options[:tracked_item_ids].presence || []
         }
         data[:claimId] = options[:claim_id] unless options[:claim_id].nil?
-        data[:participantId] = options[:participant_id] unless options[:participant_id].nil?
         data[:fileNumber] = options[:file_number] unless options[:file_number].nil?
         { data: }
       end
