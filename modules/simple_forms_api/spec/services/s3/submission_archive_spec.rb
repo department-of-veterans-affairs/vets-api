@@ -29,7 +29,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchive do
   let(:hydrated_submission_instance) do
     instance_double(SimpleFormsApi::S3::SubmissionRemediationData, submission:, file_path:, attachments:, metadata:)
   end
-  let(:archive_builder_instance) { described_class.new(id: benefits_intake_uuid) }
+  let(:submission_archive_instance) { described_class.new(id: benefits_intake_uuid) }
 
   before do
     allow(FormSubmission).to receive(:find_by).and_return(submission)
@@ -42,7 +42,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchive do
   end
 
   describe '#initialize' do
-    subject(:new) { archive_builder_instance }
+    subject(:new) { submission_archive_instance }
 
     context 'when initialized with a valid benefits_intake_uuid' do
       it 'successfully completes initialization' do
@@ -51,7 +51,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchive do
     end
 
     context 'when initialized with valid hydrated submission data' do
-      let(:archive_builder_instance) { described_class.new(submission:, file_path:, attachments:, metadata:) }
+      let(:submission_archive_instance) { described_class.new(submission:, file_path:, attachments:, metadata:) }
 
       it 'successfully completes initialization' do
         expect { new }.not_to raise_exception
@@ -59,7 +59,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchive do
     end
 
     context 'when no valid parameters are passed' do
-      let(:archive_builder_instance) { described_class.new(id: nil) }
+      let(:submission_archive_instance) { described_class.new(id: nil) }
 
       it 'raises an exception' do
         expect { new }.to raise_exception('No benefits_intake_uuid was provided')
@@ -68,15 +68,15 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchive do
   end
 
   describe '#build!' do
-    subject(:build) { archive_builder_instance.build! }
+    subject(:build_archive) { submission_archive_instance.build! }
 
     let(:temp_file_path) { Rails.root.join('tmp', 'random-letters-n-numbers-archive').to_s }
 
-    before { build }
+    before { build_archive }
 
     context 'when properly initialized' do
       it 'completes successfully' do
-        expect(build).to eq(["#{temp_file_path}/", submission, submission_file_path])
+        expect(build_archive).to eq(["#{temp_file_path}/", submission, submission_file_path])
       end
 
       it 'writes the submission pdf file' do

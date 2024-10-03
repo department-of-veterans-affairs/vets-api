@@ -14,9 +14,9 @@ module SimpleFormsApi
           @presign_s3_url = true            # Once archived to S3, the service should generate & return a presigned_url
         end
 
-        # Override to inject your team's own archive builder
-        def archive_builder
-          SimpleFormsApi::S3::SubmissionArchiveBuilder
+        # Override to inject your team's own submission archive
+        def submission_archive_class
+          SimpleFormsApi::S3::SubmissionArchive
         end
 
         # Override to inject your team's own archiver
@@ -24,7 +24,7 @@ module SimpleFormsApi
           SimpleFormsApi::S3::SubmissionArchiver
         end
 
-        # Override to inject your team's own submission builder
+        # Override to inject your team's own submission data builder
         def remediation_data_class
           SimpleFormsApi::S3::SubmissionRemediationData
         end

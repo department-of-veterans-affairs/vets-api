@@ -65,7 +65,7 @@ module SimpleFormsApi
       end
 
       def build_archive!(**)
-        archive_data = config.archive_builder.new(**).run
+        archive_data = config.submission_archive_class.new(**).build!
         assign_archive_data(archive_data)
       end
 

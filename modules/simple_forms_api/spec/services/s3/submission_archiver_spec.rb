@@ -22,7 +22,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiver do
       'businessLine' => 'CMP'
     }
   end
-  let(:archive_builder) { instance_double(SimpleFormsApi::S3::SubmissionArchiveBuilder) }
+  let(:submission_archive_instance) { instance_double(SimpleFormsApi::S3::SubmissionArchive) }
   let(:temp_file_path) { Rails.root.join('tmp', 'random-letters-n-numbers-archive').to_s }
   let(:submission_file_path) do
     [Time.zone.today.strftime('%-m.%d.%y'), 'form', form_type, 'vagov', benefits_intake_uuid].join('_')
@@ -32,8 +32,10 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiver do
 
   before do
     allow(FileUtils).to receive(:mkdir_p).and_return(true)
-    allow(SimpleFormsApi::S3::SubmissionArchiveBuilder).to(receive(:new).and_return(archive_builder))
-    allow(archive_builder).to receive(:run).and_return(["#{temp_file_path}/", submission, submission_file_path])
+    allow(SimpleFormsApi::S3::SubmissionArchive).to(receive(:new).and_return(submission_archive_instance))
+    allow(submission_archive_instance).to receive(:build!).and_return(
+      ["#{temp_file_path}/", submission, submission_file_path]
+    )
     allow(VeteranFacingFormsRemediationUploader).to receive_messages(new: uploader, get_s3_link: '/s3_url/stuff.pdf')
     allow(uploader).to receive_messages(store!: carrier_wave_file)
     allow(Rails.logger).to receive(:info).and_call_original

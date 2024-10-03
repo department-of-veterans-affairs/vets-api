@@ -18,7 +18,7 @@ module SimpleFormsApi
         assign_defaults(options)
         hydrate_submission_data unless submission_already_hydrated?
       rescue => e
-        config.handle_error('SubmissionArchiveBuilder initialization failed', e)
+        config.handle_error("#{self.class.name} initialization failed", e)
       end
 
       def build!
