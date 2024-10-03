@@ -54,7 +54,7 @@ module SimpleFormsApi
       def hydrate_submission_data
         raise "No #{config.id_type} was provided" unless id
 
-        built_submission = config.submission_class.new(id:).hydrate!
+        built_submission = config.remediation_data_class.new(id:).hydrate!
         # The local path where the submission PDF is stored
         @file_path = built_submission.file_path
         # The FormSubmission object representing the original data payload submitted

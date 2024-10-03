@@ -25,8 +25,8 @@ module SimpleFormsApi
         end
 
         # Override to inject your team's own submission builder
-        def submission_class
-          SimpleFormsApi::S3::Submission
+        def remediation_data_class
+          SimpleFormsApi::S3::SubmissionRemediationData
         end
 
         # Override to inject your team's own file uploader

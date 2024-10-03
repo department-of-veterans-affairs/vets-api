@@ -3,7 +3,7 @@
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-RSpec.describe SimpleFormsApi::S3::Submission do
+RSpec.describe SimpleFormsApi::S3::SubmissionRemediationData do
   let(:form_type) { '20-10207' }
   let(:fixtures_path) { 'modules/simple_forms_api/spec/fixtures' }
   let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_20_10207_with_supporting_documents.json').read }
@@ -92,7 +92,9 @@ RSpec.describe SimpleFormsApi::S3::Submission do
       let(:submission) { create(:form_submission, :pending, form_type: '12-34567', form_data:) }
 
       it 'raises an error' do
-        expect { new }.to raise_exception('Submission cannot be built: Only VFF forms are supported')
+        expect { new }.to raise_exception(
+          'SimpleFormsApi::S3::SubmissionRemediationData cannot be built: Only VFF forms are supported'
+        )
       end
     end
   end

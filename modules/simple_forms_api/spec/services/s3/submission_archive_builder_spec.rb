@@ -25,16 +25,16 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
   let(:submission_file_path) do
     [Time.zone.today.strftime('%-m.%d.%y'), 'form', form_type, 'vagov', benefits_intake_uuid].join('_')
   end
-  let(:new_submission_instance) { instance_double(SimpleFormsApi::S3::Submission) }
+  let(:new_submission_instance) { instance_double(SimpleFormsApi::S3::SubmissionRemediationData) }
   let(:hydrated_submission_instance) do
-    instance_double(SimpleFormsApi::S3::Submission, submission:, file_path:, attachments:, metadata:)
+    instance_double(SimpleFormsApi::S3::SubmissionRemediationData, submission:, file_path:, attachments:, metadata:)
   end
   let(:archive_builder_instance) { described_class.new(id: benefits_intake_uuid) }
 
   before do
     allow(FormSubmission).to receive(:find_by).and_return(submission)
     allow(SecureRandom).to receive(:hex).and_return('random-letters-n-numbers')
-    allow(SimpleFormsApi::S3::Submission).to receive(:new).and_return(new_submission_instance)
+    allow(SimpleFormsApi::S3::SubmissionRemediationData).to receive(:new).and_return(new_submission_instance)
     allow(new_submission_instance).to receive_messages(hydrate!: hydrated_submission_instance)
     allow(File).to receive(:write).and_return(true)
     allow(CSV).to receive(:open).and_return(true)

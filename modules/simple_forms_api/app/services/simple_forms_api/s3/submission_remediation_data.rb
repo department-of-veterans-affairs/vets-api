@@ -4,7 +4,7 @@ require 'simple_forms_api/form_submission_remediation/configuration/base'
 
 module SimpleFormsApi
   module S3
-    class Submission
+    class SubmissionRemediationData
       attr_reader :file_path, :submission, :attachments, :metadata
 
       def initialize(id:, **options)
@@ -45,7 +45,7 @@ module SimpleFormsApi
 
       def validate_submission
         raise 'Submission was not found or invalid' unless submission&.send(config.id_type)
-        raise 'Submission cannot be built: Only VFF forms are supported' unless vff_form?
+        raise "#{self.class} cannot be built: Only VFF forms are supported" unless vff_form?
       end
 
       def fetch_submission_form_number
