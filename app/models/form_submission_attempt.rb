@@ -84,7 +84,7 @@ class FormSubmissionAttempt < ApplicationRecord
     SimpleFormsApi::NotificationEmail.new(
       config,
       notification_type:,
-      user: user_account
+      user_account:
     ).send(at: time_to_send)
   end
 

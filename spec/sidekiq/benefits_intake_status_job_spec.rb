@@ -76,6 +76,8 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
 
     describe 'updating the form submission status' do
       it 'updates the status with vbms from the bulk status report endpoint' do
+        allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send)
+
         pending_form_submissions = create_list(:form_submission, 1, :pending)
         batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
         data = batch_uuids.map { |id| { 'id' => id, 'attributes' => { 'status' => 'vbms' } } }
@@ -96,6 +98,8 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       end
 
       it 'updates the status with error from the bulk status report endpoint' do
+        allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send)
+
         pending_form_submissions = create_list(:form_submission, 1, :pending)
         batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
         error_code = 'error-code'
@@ -121,6 +125,8 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       end
 
       it 'updates the status with expired from the bulk status report endpoint' do
+        allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send)
+
         pending_form_submissions = create_list(:form_submission, 1, :pending)
         batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
         data = batch_uuids.map { |id| { 'id' => id, 'attributes' => { 'status' => 'expired' } } }
