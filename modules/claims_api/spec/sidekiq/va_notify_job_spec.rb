@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'claims_api/v2/error/lighthouse_error_handler'
+require 'claims_api/common/exceptions/lighthouse/resource_not_found'
 
 describe ClaimsApi::VANotifyJob, type: :job do
   subject { described_class.new  }
