@@ -10,7 +10,6 @@ RepresentationManagement::Engine.routes.draw do
     resources :pdf_generator2122a, only: %i[create]
     resources :power_of_attorney, only: %i[index]
     get 'apidocs', to: 'apidocs#index'
-    get 'apidocz', to: 'apidocz#index'
     resources :apidocs2, only: [:index]
   end
 end

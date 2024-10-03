@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'swagger_helper'
-require 'rails_helper'
 
 RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json',
                                         type: :request do
