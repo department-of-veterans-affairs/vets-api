@@ -4,7 +4,7 @@ require 'simple_forms_api/form_submission_remediation/configuration/base'
 
 module SimpleFormsApi
   module S3
-    class SubmissionBuilder
+    class Submission
       attr_reader :file_path, :submission, :attachments, :metadata
 
       def initialize(id:, **options)
@@ -15,10 +15,19 @@ module SimpleFormsApi
 
         @attachments = []
         @metadata = {}
-
-        hydrate_submission
       rescue => e
-        config.handle_error('SubmissionBuilder initialization failed', e)
+        config.handle_error("#{self.class} initialization failed", e)
+      end
+
+      def hydrate!
+        form_number = fetch_submission_form_number
+        form = build_form(form_number)
+        filler = PdfFiller.new(form_number:, form:)
+
+        handle_submission_data(filler, form, form_number)
+        self
+      rescue => e
+        config.handle_error('Error hydrating submission', e)
       end
 
       private
@@ -37,16 +46,6 @@ module SimpleFormsApi
       def validate_submission
         raise 'Submission was not found or invalid' unless submission&.send(config.id_type)
         raise 'Submission cannot be built: Only VFF forms are supported' unless vff_form?
-      end
-
-      def hydrate_submission
-        form_number = fetch_submission_form_number
-        form = build_form(form_number)
-
-        filler = PdfFiller.new(form_number:, form:)
-        handle_submission_data(filler, form, form_number)
-      rescue => e
-        config.handle_error('Error rebuilding submission', e)
       end
 
       def fetch_submission_form_number
