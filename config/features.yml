@@ -468,8 +468,8 @@ features:
     enable_in_development: true
   disability_compensation_sync_modern_0781_flow:
     actor_type: user
-    description: enables a new form flow to for 0781 and 0781a in the 526 submission workflow
-    enable_in_development: false
+    description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
+    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
