@@ -8,7 +8,7 @@ require 'simple_forms_api/form_submission_remediation/configuration/base'
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
 module SimpleFormsApi
   module S3
-    class SubmissionArchiveBuilder
+    class SubmissionArchive
       def initialize(config: SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new, **options)
         @config = config
         @temp_directory_path = config.temp_directory_path
@@ -21,7 +21,7 @@ module SimpleFormsApi
         config.handle_error('SubmissionArchiveBuilder initialization failed', e)
       end
 
-      def run
+      def build!
         create_temp_directory
         process_submission_files
         [temp_directory_path, submission, submission_file_path]

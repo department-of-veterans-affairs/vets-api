@@ -3,7 +3,7 @@
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
+RSpec.describe SimpleFormsApi::S3::SubmissionArchive do
   let(:form_type) { '20-10207' }
   let(:fixtures_path) { 'modules/simple_forms_api/spec/fixtures' }
   let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_20_10207_with_supporting_documents.json').read }
@@ -67,25 +67,25 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
     end
   end
 
-  describe '#run' do
-    subject(:run) { archive_builder_instance.run }
+  describe '#build!' do
+    subject(:build) { archive_builder_instance.build! }
 
     let(:temp_file_path) { Rails.root.join('tmp', 'random-letters-n-numbers-archive').to_s }
 
+    before { build }
+
     context 'when properly initialized' do
       it 'completes successfully' do
-        expect(run).to eq(["#{temp_file_path}/", submission, submission_file_path])
+        expect(build).to eq(["#{temp_file_path}/", submission, submission_file_path])
       end
 
       it 'writes the submission pdf file' do
-        run
         expect(File).to have_received(:write).with(
           "#{temp_file_path}/#{submission_file_path}.pdf", a_string_starting_with('%PDF')
         )
       end
 
       it 'writes the attachment files' do
-        run
         attachments.each_with_index do |_, i|
           expect(File).to have_received(:write).with(
             "#{temp_file_path}/attachment_#{i + 1}__#{submission_file_path}.pdf", a_string_starting_with('%PDF')
@@ -94,12 +94,10 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
       end
 
       it 'writes the manifest file' do
-        run
         expect(CSV).to have_received(:open).with("#{temp_file_path}/manifest_#{submission_file_path}.csv", 'wb')
       end
 
       it 'writes the metadata json file' do
-        run
         expect(File).to have_received(:write).with(
           "#{temp_file_path}/metadata_#{submission_file_path}.json", metadata.to_json
         )
