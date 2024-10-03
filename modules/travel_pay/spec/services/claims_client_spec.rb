@@ -94,7 +94,8 @@ describe TravelPay::ClaimsClient do
     # POST create_claim
     it 'returns a claim ID from the claims endpoint' do
       claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
-      body = { 'appointmentId' => 'fake_btsss_appt_id', 'claimName' => '', 'claimantType' => 'Veteran' }.to_json
+      body = { 'appointmentId' => 'fake_btsss_appt_id', 'claimName' => 'SMOC claim',
+               'claimantType' => 'Veteran' }.to_json
       @stubs.post('/api/v1.1/claims', body) do
         [
           200,

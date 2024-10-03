@@ -30,7 +30,7 @@ module TravelPay
     #
     # @params {
     #  "appointmentId": "string", (BTSSS internal appointment ID - uuid)
-    #  "claimName": "string", (internal to BTSSS)
+    #  "claimName": "string",
     #  "claimantType": "Veteran" (currently, "Veteran" is the only claimant type supported)
     # }
     #
@@ -48,7 +48,7 @@ module TravelPay
         req.headers.merge!(claim_headers)
         req.body = {
           'appointmentId' => params['btsss_appt_id'],
-          'claimName' => params['claim_name'] || '',
+          'claimName' => params['claim_name'] || 'Travel reimbursement',
           'claimantType' => params['claimant_type'] || 'Veteran'
         }.to_json
       end
