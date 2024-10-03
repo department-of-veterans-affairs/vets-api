@@ -32,7 +32,7 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
             'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
             'errored', @from, @to, '0oagdm49ygCSJTp8X297'
           ).order(:cid, :status).pluck(:cid, :status, :id),
-          unsuccessful_va_gov_claims_submissions: [],
+          unsuccessful_va_gov_claims_submissions: nil,
           poa_totals: [],
           unsuccessful_poa_submissions: [],
           ews_totals: [],

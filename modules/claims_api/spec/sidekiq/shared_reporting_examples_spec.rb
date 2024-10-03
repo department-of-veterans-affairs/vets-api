@@ -69,8 +69,11 @@ RSpec.shared_examples 'shared reporting behavior' do
       job.perform
       va_gov_groups = job.unsuccessful_va_gov_claims_submissions
 
-      expect(va_gov_groups.first.count).to eq(2)
-      expect(va_gov_groups.first[0]).to be_a(String)
+      expect(va_gov_groups).to include('A')
+      expect(va_gov_groups).to include('B')
+      expect(va_gov_groups).to include('C')
+      expect(va_gov_groups['A'][0][:transaction_id]).to be_a(String)
+      expect(va_gov_groups['A'][0][:id]).to be_a(String)
     end
   end
 end

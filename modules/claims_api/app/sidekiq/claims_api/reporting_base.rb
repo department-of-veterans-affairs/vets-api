@@ -18,12 +18,17 @@ module ClaimsApi
     end
 
     def unsuccessful_va_gov_claims_submissions
-      va_gov = ClaimsApi::AutoEstablishedClaim.select(:id, :transaction_id)
-                                              .where(created_at: @from..@to,
-                                                     status: 'errored', cid: '0oagdm49ygCSJTp8X297')
-                                              .order(:transaction_id)
-      items = va_gov.pluck(:id, :transaction_id)
-      items.group_by
+      arr = errored_va_gov_claims.pluck(:transaction_id, :id).map do |transaction_id, id|
+        { transaction_id:, id: }
+      end
+      map_transaction_ids(arr) if arr.count > 1
+    end
+
+    def errored_va_gov_claims
+      ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to,
+                                            status: 'errored', cid: '0oagdm49ygCSJTp8X297')
+                                     .group(:id)
+                                     .order(:transaction_id)
     end
 
     def with_special_issues(cid: nil)
@@ -129,6 +134,25 @@ module ClaimsApi
         created_at: @from..@to,
         status: %w[errored]
       ).order(:cid, :status)
+    end
+
+    def map_transaction_ids(array)
+      # Dynamically generate unique keys like A, B, C, etc.
+      transaction_mapping = {}
+      key_sequence = ('A'..'Z').to_a
+      key_index = 0
+
+      # Map each unique transaction_id to a new key
+      array.each do |item|
+        transaction_id = item[:transaction_id]
+        unless transaction_mapping.key?(transaction_id)
+          transaction_mapping[transaction_id] = key_sequence[key_index]
+          key_index += 1
+        end
+      end
+
+      # Group the array by the new keys
+      array.group_by { |item| transaction_mapping[item[:transaction_id]] }
     end
   end
 end

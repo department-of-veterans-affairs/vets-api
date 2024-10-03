@@ -1,16 +1,17 @@
 <table>
   <thead>
     <tr>
-      <th>Transaction ID</th>
+      <th>Transaction Group</th>
       <th>GUID</th>
     </tr>
   </thead>
   <tbody>
-    <% claims&.each_with_index do |grp, idx| %>
-      <tr>
-        <td><%= grp[1] %>
-        <td><%= grp[0] %></td>
-      </tr>
+    <% claims&.each_with_index do |grps, idx| %>
+      <% grps[1]&.each do |arr| %>
+          <tr>
+            <td><%= grps[0] %></td><td><%= arr[:id] %></td>
+          </tr>
+      <% end %>
     <% end %>
   </tbody>
 </table>
