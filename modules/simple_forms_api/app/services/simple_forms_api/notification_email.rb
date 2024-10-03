@@ -2,7 +2,8 @@
 
 module SimpleFormsApi
   class NotificationEmail
-    attr_reader :form_number, :confirmation_number, :date_submitted, :lighthouse_updated_at, :notification_type, :user
+    attr_reader :form_number, :confirmation_number, :date_submitted, :lighthouse_updated_at, :notification_type, :user,
+                :user_account
 
     TEMPLATE_IDS = {
       'vba_21_0845' => {
@@ -53,7 +54,7 @@ module SimpleFormsApi
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
-    def initialize(config, notification_type: :confirmation, user: nil)
+    def initialize(config, notification_type: :confirmation, user: nil, user_account: nil)
       check_missing_keys(config)
 
       @form_data = config[:form_data]
@@ -68,30 +69,22 @@ module SimpleFormsApi
       @lighthouse_updated_at = config[:lighthouse_updated_at]
       @notification_type = notification_type
       @user = user
+      @user_account = user_account
     end
 
     def send(at: nil)
       return unless SUPPORTED_FORMS.include?(form_number)
 
       data = form_specific_data || empty_form_specific_data
-      return if data[:email].blank? || data[:personalization]['first_name'].blank?
+      return if data[:personalization]['first_name'].blank?
 
       template_id = TEMPLATE_IDS[form_number][notification_type]
       return unless template_id
 
       if at
-        VANotify::EmailJob.perform_at(
-          at,
-          data[:email],
-          template_id,
-          data[:personalization]
-        )
+        enqueue_email(at, template_id, data)
       else
-        VANotify::EmailJob.perform_async(
-          data[:email],
-          template_id,
-          data[:personalization]
-        )
+        send_email_now(template_id, data)
       end
     end
 
@@ -100,6 +93,51 @@ module SimpleFormsApi
     def check_missing_keys(config)
       missing_keys = %i[form_data form_number confirmation_number date_submitted].select { |key| config[key].nil? }
       raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
+    end
+
+    def enqueue_email(at, template_id, data)
+      # async job and we have a UserAccount
+      if user_account
+        mpi_profile = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
+        first_name = mpi_profile.first_name
+        data[:personalization]['first_name'] = first_name
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user_account.id,
+          template_id,
+          data[:personalization]
+        )
+      # async job and we don't have a UserAccount but form data should include email
+      else
+        return if data[:email].blank?
+
+        VANotify::EmailJob.perform_at(
+          at,
+          data[:email],
+          template_id,
+          data[:personalization]
+        )
+      end
+    end
+
+    def send_email_now(template_id, data)
+      # sync job and we have a User
+      if user
+        VANotify::EmailJob.perform_async(
+          user.va_profile_email,
+          template_id,
+          data[:personalization]
+        )
+      # sync job and form data should include email
+      else
+        return if data[:email].blank?
+
+        VANotify::EmailJob.perform_async(
+          data[:email],
+          template_id,
+          data[:personalization]
+        )
+      end
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -123,7 +161,7 @@ module SimpleFormsApi
         return unless Flipper.enabled?(:form21_0966_confirmation_email)
 
         {
-          email: @user.va_profile_email,
+          email: @user&.va_profile_email,
           personalization: default_personalization(@user.first_name)
             .merge(form21_0966_personalization)
         }
@@ -188,7 +226,7 @@ module SimpleFormsApi
     def form20_10206_contact_info
       # email address not required and omitted
       if @form_data['email_address'].blank? && @user
-        [@user.va_profile_email, @form_data.dig('full_name', 'first')]
+        [@user&.va_profile_email, @form_data.dig('full_name', 'first')]
 
       # email address not required and optionally entered
       else
@@ -202,7 +240,7 @@ module SimpleFormsApi
 
       return unless preparer_types.include?(@form_data['preparer_type'])
 
-      email_and_first_name = [@user.va_profile_email]
+      email_and_first_name = [@user&.va_profile_email]
       # veteran
       email_and_first_name << if @form_data['preparer_type'] == 'veteran'
                                 @form_data['veteran_full_name']['first']
@@ -223,7 +261,7 @@ module SimpleFormsApi
     def form21_0845_contact_info
       # (vet && signed in)
       if @form_data['authorizer_type'] == 'veteran' && @user
-        [@user.va_profile_email, @form_data.dig('veteran_full_name', 'first')]
+        [@user&.va_profile_email, @form_data.dig('veteran_full_name', 'first')]
 
       # (non-vet && signed in) || (non-vet && anon)
       elsif @form_data['authorizer_type'] == 'nonVeteran'
@@ -240,13 +278,13 @@ module SimpleFormsApi
       # user's own claim
       # user is a veteran
       if @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'veteran'
-        email = user&.email || @form_data['veteran_email']
+        email = user&.va_profile_email || @form_data['veteran_email']
         [email, @form_data.dig('veteran_full_name', 'first')]
 
       # user's own claim
       # user is not a veteran
       elsif @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'non-veteran'
-        email = user&.email || @form_data['claimant_email']
+        email = user&.va_profile_email || @form_data['claimant_email']
         [email, @form_data.dig('claimant_full_name', 'first')]
 
       # someone else's claim
