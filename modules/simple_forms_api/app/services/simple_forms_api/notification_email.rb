@@ -141,7 +141,11 @@ module SimpleFormsApi
     def get_first_name
       if user_account
         mpi_profile = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
-        mpi_profile.first_name
+        if mpi_profile
+          raise mpi_profile.error if mpi_profile.error
+
+          mpi_profile.first_name
+        end
       elsif user
         user.first_name
       end
