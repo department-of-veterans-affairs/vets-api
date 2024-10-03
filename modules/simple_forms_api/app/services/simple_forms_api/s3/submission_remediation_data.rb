@@ -5,18 +5,20 @@ require 'simple_forms_api/form_submission_remediation/configuration/base'
 module SimpleFormsApi
   module S3
     class SubmissionRemediationData
+      DEFAULT_CONFIG = SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
+
       attr_reader :file_path, :submission, :attachments, :metadata
 
-      def initialize(id:, **options)
-        @config = options[:config] || SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
-
+      def initialize(id:, config: DEFAULT_CONFIG)
         validate_input(id)
+
+        @config = config
         fetch_submission(id)
 
         @attachments = []
         @metadata = {}
       rescue => e
-        config.handle_error("#{self.class} initialization failed", e)
+        config.handle_error("#{self.class.name} initialization failed", e)
       end
 
       def hydrate!
@@ -61,12 +63,12 @@ module SimpleFormsApi
       end
 
       def handle_submission_data(filler, form, form_number)
-        @file_path = generate_file(filler)
+        @file_path = generate_pdf_file(filler)
         @metadata = validate_metadata(form)
         @attachments = process_attachments(form, form_number)
       end
 
-      def generate_file(filler)
+      def generate_pdf_file(filler)
         filler.generate(timestamp: submission.created_at)
       rescue => e
         config.handle_error('Error generating filled submission PDF', e)
