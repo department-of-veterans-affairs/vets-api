@@ -16,11 +16,24 @@ module Form1010cg
     end
 
     def retry_limits_for_notification
+      return [1, 10] if Flipper.enabled?(:caregiver1010)
+
       [10]
     end
 
     def notify(params)
-      StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries", tags: ["params:#{params}"])
+      unless Flipper.enabled?(:caregiver1010)
+        StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries", tags: ["params:#{params}"])
+        return
+      end
+
+      # Increment on the 2nd run (initial run + 1 retry)
+      StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried") if (params['retry_count']).zero?
+
+      # Increment on the 11th run (intial run + 10 retries)
+      if params['retry_count'] == 10
+        StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries", tags: ["params:#{params}"])
+      end
     end
 
     def perform(claim_id)
@@ -39,13 +52,14 @@ module Form1010cg
       log_exception_to_sentry(e)
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
 
-      increment_applications_retried(claim_id)
+      increment_applications_retried(claim_id) unless Flipper.enabled?(:caregiver1010)
 
       raise
     end
 
     private
 
+    # TODO: @coope93 to remove increment method and feature (:caregiver1010) after validating functionality
     def increment_applications_retried(claim_id)
       redis_key = "Form1010cg::SubmissionJob:#{claim_id}"
       return if $redis.get(redis_key).present?
