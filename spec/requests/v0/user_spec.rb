@@ -27,7 +27,7 @@ RSpec.describe 'V0::User', type: :request do
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
-      VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_v0_user',
+      VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                        match_requests_on: %i[method wildcard_path]) do
         VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
           get v0_user_url, params: nil, headers: v0_user_request_headers

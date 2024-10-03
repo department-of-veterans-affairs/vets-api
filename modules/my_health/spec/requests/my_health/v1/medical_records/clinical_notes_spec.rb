@@ -14,6 +14,15 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::ClinicalNotes', type: :request do
   let(:va_patient) { true }
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
+  VCR.configure do |config|
+    config.register_request_matcher :wildcard_path do |request1, request2|
+      # Remove the user id and icn after `/isValidSMUser/` to handle any user id and icn
+      path1 = request1.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+      path2 = request2.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+      path1 == path2
+    end
+  end
+
   before do
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
@@ -40,6 +49,15 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::ClinicalNotes', type: :request do
 
   context 'Premium User' do
     let(:mhv_account_type) { 'Premium' }
+
+    before do
+      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
+                          match_requests_on: %i[method wildcard_path])
+    end
+
+    after do
+      VCR.eject_cassette
+    end
 
     context 'not a va patient' do
       before { get '/my_health/v1/medical_records/clinical_notes' }

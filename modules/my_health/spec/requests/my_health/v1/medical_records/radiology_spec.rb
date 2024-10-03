@@ -13,6 +13,15 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Radiology', type: :request do
   let(:mhv_account_type) { 'Premium' }
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
+  VCR.configure do |config|
+    config.register_request_matcher :wildcard_path do |request1, request2|
+      # Remove the user id and icn after `/isValidSMUser/` to handle any user id and icn
+      path1 = request1.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+      path2 = request2.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+      path1 == path2
+    end
+  end
+
   before do
     bb_internal_client = BBInternal::Client.new(
       session: {

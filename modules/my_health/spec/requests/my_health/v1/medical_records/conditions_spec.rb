@@ -51,7 +51,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Conditions', type: :request do
     let(:mhv_account_type) { 'Premium' }
 
     before do
-      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_v0_user',
+      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                           match_requests_on: %i[method wildcard_path])
     end
 

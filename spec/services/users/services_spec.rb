@@ -19,7 +19,7 @@ RSpec.describe Users::Services do
 
     context 'with initialized user' do
       before do
-        VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_initialized_user',
+        VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_non_premium_user',
                             match_requests_on: %i[method wildcard_path])
       end
 
@@ -52,7 +52,7 @@ RSpec.describe Users::Services do
       let(:user) { build :user }
 
       before do
-        VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_loa1_user',
+        VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_non_premium_user',
                             match_requests_on: %i[method wildcard_path])
       end
 
@@ -80,7 +80,7 @@ RSpec.describe Users::Services do
       before do
         Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
         VCR.insert_cassette('sm_client/session')
-        VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_services',
+        VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                             match_requests_on: %i[method wildcard_path])
       end
 
