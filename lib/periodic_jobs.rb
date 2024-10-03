@@ -117,20 +117,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Send the daily report to the call center about spool file submissions
   mgr.register('5 4 * * 1-5', 'EducationForm::CreateSpoolSubmissionsReport')
 
-  # Download and cache facility access-to-care metric data
-  mgr.register('10 4 * * *', 'Facilities::DentalServiceReloadJob')
-
-  # Download and cache facility mental health phone number data
-  mgr.register('25 4 * * *', 'Facilities::MentalHealthReloadJob')
-
   # Send the daily 10203 report to the call center about spool file submissions
   mgr.register('35 4 * * 1-5', 'EducationForm::Create10203SpoolSubmissionsReport')
-
-  # Download and cache facility access-to-care metric data
-  mgr.register('45 4 * * *', 'Facilities::AccessDataDownload')
-
-  # Download and store drive time bands
-  mgr.register('55 4 * * *', 'Facilities::PSSGDownload')
 
   # Gather account login statistics for statsd
   mgr.register('0 6 * * *', 'AccountLoginStatisticsJob')
