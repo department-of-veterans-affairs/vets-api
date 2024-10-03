@@ -105,13 +105,16 @@ module DecisionReview
         status = upload['status']
         result = false unless UPLOAD_SUCCESSFUL_STATUS.include? status
 
-        upload_id = upload['id']
-        # Increment StatsD and log only for new errors
-        unless old_uploads_metadata.dig(upload_id, 'status') == ERROR_STATUS
-          StatsD.increment("#{STATSD_KEY_PREFIX}_upload.status", tags: ["status:#{status}"])
+        if status == ERROR_STATUS
+          upload_id = upload['id']
+          # Increment StatsD and log only for new errors
+          next if old_uploads_metadata.dig(upload_id, 'status') == ERROR_STATUS
+
           Rails.logger.info('DecisionReview::SavedClaimNodStatusUpdaterJob evidence status error',
                             { guid: nod.guid, lighthouse_upload_id: upload_id, detail: upload['detail'] })
         end
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}_upload.status", tags: ["status:#{status}"])
       end
 
       result
