@@ -33,6 +33,11 @@ module IvcChampva
       }
     end
 
+    def desired_stamps
+      applicant_country = @data.dig('applicant_address', 'country')
+      [{ coords: [525, 580], text: applicant_country, page: 0 }]
+    end
+
     def track_user_identity
       identity = data['certifier_role']
       StatsD.increment("#{STATS_KEY}.#{identity}")
