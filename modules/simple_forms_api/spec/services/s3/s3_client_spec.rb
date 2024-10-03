@@ -3,7 +3,7 @@
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-RSpec.describe SimpleFormsApi::S3::SubmissionArchiver do
+RSpec.describe SimpleFormsApi::S3::S3Client do
   let(:form_type) { '20-10207' }
   let(:fixtures_path) { 'modules/simple_forms_api/spec/fixtures' }
   let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_20_10207_with_supporting_documents.json').read }
@@ -32,6 +32,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiver do
 
   before do
     allow(FileUtils).to receive(:mkdir_p).and_return(true)
+    allow(File).to receive(:directory?).and_return(true)
     allow(SimpleFormsApi::S3::SubmissionArchive).to(receive(:new).and_return(submission_archive_instance))
     allow(submission_archive_instance).to receive(:build!).and_return(
       ["#{temp_file_path}/", submission, submission_file_path]
@@ -80,13 +81,13 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiver do
 
     context 'when an error occurs' do
       before do
-        allow(Zip::File).to receive(:open).and_raise(StandardError, 'oopsy')
+        allow(File).to receive(:directory?).and_return(false)
       end
 
       let(:instance) { described_class.new(benefits_intake_uuid:) }
 
       it 'raises the error' do
-        expect { upload }.to raise_exception(StandardError, 'oopsy')
+        expect { upload }.to raise_exception(Errno::ENOENT)
       end
     end
   end

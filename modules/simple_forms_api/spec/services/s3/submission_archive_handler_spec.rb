@@ -30,11 +30,11 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveHandler do
 
     let(:instance) { described_class.new(ids: benefits_intake_uuids) }
     let(:presigned_url) { '/s3_presigned_url' }
-    let(:archiver) { instance_double(SimpleFormsApi::S3::SubmissionArchiver) }
+    let(:s3_client) { instance_double(SimpleFormsApi::S3::S3Client, upload: presigned_url) }
 
     before do
-      allow(SimpleFormsApi::S3::SubmissionArchiver).to receive(:new).and_return(archiver)
-      allow(archiver).to receive(:upload).and_return(presigned_url)
+      allow(SimpleFormsApi::S3::S3Client).to receive(:new).and_return(s3_client)
+      allow(s3_client).to receive(:upload).and_return(presigned_url)
       allow(Rails.logger).to receive(:info).and_call_original
     end
 

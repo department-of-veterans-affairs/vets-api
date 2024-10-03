@@ -5,14 +5,14 @@ require 'simple_forms_api/form_submission_remediation/configuration/base'
 module SimpleFormsApi
   module S3
     class SubmissionRemediationData
-      DEFAULT_CONFIG = SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
+      DEFAULT_CONFIG = SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.freeze
 
       attr_reader :file_path, :submission, :attachments, :metadata
 
-      def initialize(id:, config: DEFAULT_CONFIG)
-        validate_input(id)
-
+      def initialize(id:, config: DEFAULT_CONFIG.new)
         @config = config
+
+        validate_input(id)
         fetch_submission(id)
 
         @attachments = []

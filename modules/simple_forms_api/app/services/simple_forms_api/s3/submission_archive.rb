@@ -9,6 +9,8 @@ require 'simple_forms_api/form_submission_remediation/configuration/base'
 module SimpleFormsApi
   module S3
     class SubmissionArchive
+      include FileUtilities
+
       DEFAULT_CONFIG = SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
 
       def initialize(config: DEFAULT_CONFIG, **options)
@@ -18,19 +20,20 @@ module SimpleFormsApi
         @include_metadata = config.include_metadata || true
 
         assign_defaults(options)
+        hydrate_submission_data unless submission_already_hydrated?
 
         @form_number = JSON.parse(submission&.form_data)['form_number']
-
-        hydrate_submission_data unless submission_already_hydrated?
       rescue => e
         config.handle_error("#{self.class.name} initialization failed", e)
       end
 
       def build!
-        FileUtilities.create_temp_directory!(temp_directory_path)
+        create_temp_directory!(temp_directory_path)
         process_submission_files
-        FileUtilities.zip_directory!(temp_directory_path) if archive_type == :remediation
-        submission_file_path
+
+        return "#{submission_file_path}.pdf" if archive_type == :submission
+
+        zip_directory!(config.parent_dir, temp_directory_path)
       rescue => e
         config.handle_error("Failed building submission: #{id}", e)
       end
@@ -52,7 +55,7 @@ module SimpleFormsApi
         # Data appended to the original submission headers
         @metadata = options[:metadata]
         # The type of archive to be created (:submission or :remediation)
-        @archive_type = options[:type]
+        @archive_type = options[:type] || :remediation
       end
 
       def submission_already_hydrated?
@@ -93,11 +96,11 @@ module SimpleFormsApi
       end
 
       def write_pdf
-        write_file("#{submission_file_path}.pdf", File.read(file_path), 'submission pdf')
+        create_file("#{submission_file_path}.pdf", File.read(file_path), 'submission pdf')
       end
 
       def write_metadata
-        write_file("metadata_#{submission_file_path}.json", metadata.to_json, 'metadata')
+        create_file("metadata_#{submission_file_path}.json", metadata.to_json, 'metadata')
       end
 
       def write_attachments
@@ -107,7 +110,7 @@ module SimpleFormsApi
 
       def process_attachment(attachment_number, file_path)
         config.log_info("Processing attachment ##{attachment_number}: #{file_path}")
-        write_file("attachment_#{attachment_number}__#{submission_file_path}.pdf", File.read(file_path), 'attachment')
+        create_file("attachment_#{attachment_number}__#{submission_file_path}.pdf", File.read(file_path), 'attachment')
       end
 
       def write_manifest
@@ -129,14 +132,14 @@ module SimpleFormsApi
         config.handle_error("Failed writing manifest for submission: #{id}", e)
       end
 
-      def write_file(file_name, payload, file_description, dir_path = config.temp_directory_path)
-        FileUtilities.write_file(dir_path, file_name, payload)
+      def create_file(file_name, payload, file_description, dir_path = config.temp_directory_path)
+        write_file(dir_path, file_name, payload)
       rescue => e
         config.handle_error("Failed writing #{file_description} file #{file_name} for submission: #{id}", e)
       end
 
       def submission_file_path
-        @submission_file_path ||= FileUtilities.unique_file_path(form_number, id)
+        @submission_file_path ||= unique_file_path(form_number, id)
       end
     end
   end

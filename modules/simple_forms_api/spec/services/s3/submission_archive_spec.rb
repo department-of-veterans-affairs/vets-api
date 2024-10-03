@@ -36,9 +36,10 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchive do
     allow(SecureRandom).to receive(:hex).and_return('random-letters-n-numbers')
     allow(SimpleFormsApi::S3::SubmissionRemediationData).to receive(:new).and_return(new_submission_instance)
     allow(new_submission_instance).to receive_messages(hydrate!: hydrated_submission_instance)
-    allow(File).to receive(:write).and_return(true)
+    allow(File).to receive_messages(write: true, directory?: true)
     allow(CSV).to receive(:open).and_return(true)
     allow(FileUtils).to receive(:mkdir_p).and_return(true)
+    allow(submission_archive_instance).to receive(:zip_directory!) { |_, dir| dir }
   end
 
   describe '#initialize' do
@@ -59,10 +60,8 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchive do
     end
 
     context 'when no valid parameters are passed' do
-      let(:submission_archive_instance) { described_class.new(id: nil) }
-
       it 'raises an exception' do
-        expect { new }.to raise_exception('No benefits_intake_uuid was provided')
+        expect { described_class.new(id: nil) }.to raise_exception('No benefits_intake_uuid was provided')
       end
     end
   end
@@ -76,7 +75,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchive do
 
     context 'when properly initialized' do
       it 'completes successfully' do
-        expect(build_archive).to eq(["#{temp_file_path}/", submission, submission_file_path])
+        expect(build_archive).to include(temp_file_path)
       end
 
       it 'writes the submission pdf file' do

@@ -9,6 +9,8 @@ require 'simple_forms_api/form_submission_remediation/configuration/base'
 module SimpleFormsApi
   module S3
     class S3Client
+      include FileUtilities
+
       DEFAULT_CONFIG = SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
 
       class << self
@@ -27,34 +29,28 @@ module SimpleFormsApi
         @file_path = options[:file_path]
         @id = options[:id]
 
-        build_archive!(config:, type:, **options)
+        @archive_path = build_archive!(config:, type:, **options)
       rescue => e
         config.handle_error("#{self.class.name} initialization failed", e)
       end
 
       def upload
-        config.log_info("Uploading #{type}: #{id} to S3 bucket")
+        config.log_info("Uploading #{upload_type}: #{id} to S3 bucket")
 
         upload_to_s3
-        FileUtilities.cleanup
+        cleanup(s3_upload_file_path)
 
         presign_s3_url ? s3_generate_presigned_url(s3_get_presigned_path) : id
       rescue => e
-        config.handle_error("Failed #{type} upload: #{id}", e)
+        config.handle_error("Failed #{upload_type} upload: #{id}", e)
       end
 
       private
 
-      attr_reader :config, :id, :parent_dir, :presign_s3_url, :temp_directory_path, :unique_filename, :upload_type
+      attr_reader :archive_path, :config, :id, :parent_dir, :presign_s3_url, :temp_directory_path, :upload_type
 
       def build_archive!(**)
-        archive_data = config.submission_archive_class.new(**).build!
-        assign_archive_data(archive_data)
-      end
-
-      def assign_archive_data(archive_data)
-        @unique_filename = archive_data
-        raise 'Failed to build SubmissionArchive.' unless temp_directory_path
+        config.submission_archive_class.new(**).build!
       end
 
       def upload_to_s3
@@ -67,31 +63,27 @@ module SimpleFormsApi
       end
 
       def s3_uploader
-        @s3_uploader ||= config.uploader.new(config:, directory: s3_directory_path)
+        @s3_uploader ||= config.uploader_class.new(config:, directory: s3_directory_path)
       end
 
       def s3_directory_path
-        @s3_directory_path ||= new_path(parent_dir, upload_type.to_s, is_file: false)
+        @s3_directory_path ||= build_path(:dir, parent_dir, upload_type.to_s)
       end
 
       def s3_upload_file_path
-        @s3_upload_file_path ||= new_path(s3_directory_path, "#{unique_filename}.ext")
+        @s3_upload_file_path ||= build_path(:file, s3_directory_path, "#{archive_path}.ext")
       end
 
       def s3_get_presigned_path
-        new_path(s3_directory_path, local_file_path.split('/').last)
+        build_path(:file, s3_directory_path, local_file_path.split('/').last)
       end
 
       def s3_generate_presigned_url(s3_path)
-        config.uploader.get_s3_link(s3_path)
+        config.uploader_class.get_s3_link(s3_path)
       end
 
       def local_file_path
-        FileUtilities.local_upload_file_path
-      end
-
-      def new_path(*, type: upload_type, **)
-        FileUtilities.build_path(*, type:, **)
+        @local_file_path ||= build_local_file_dir!(s3_upload_file_path, temp_directory_path, s3_directory_path)
       end
     end
   end

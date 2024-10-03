@@ -19,9 +19,9 @@ module SimpleFormsApi
           SimpleFormsApi::S3::SubmissionArchive
         end
 
-        # Override to inject your team's own archiver
-        def archiver
-          SimpleFormsApi::S3::SubmissionArchiver
+        # Override to inject your team's own s3 client
+        def s3_client
+          SimpleFormsApi::S3::S3Client
         end
 
         # Override to inject your team's own submission data builder
@@ -31,7 +31,7 @@ module SimpleFormsApi
 
         # Override to inject your team's own file uploader
         # If overriding this, s3_settings method doesn't have to be set
-        def uploader
+        def uploader_class
           VeteranFacingFormsRemediationUploader
         end
 

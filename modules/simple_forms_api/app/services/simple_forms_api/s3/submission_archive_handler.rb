@@ -5,9 +5,10 @@ require 'simple_forms_api/form_submission_remediation/configuration/base'
 module SimpleFormsApi
   module S3
     class SubmissionArchiveHandler
+      BASE_CONFIG = FormSubmissionRemediation::Configuration::Base.freeze
       PROGRESS_FILE_PATH = '/tmp/submission_archive_progress.json'
 
-      def initialize(ids: [], config: FormSubmissionRemediation::Configuration::Base.new)
+      def initialize(ids: [], config: BASE_CONFIG.new)
         raise Common::Exceptions::ParameterMissing, 'ids' unless ids&.any?
 
         @ids = ids
@@ -74,7 +75,7 @@ module SimpleFormsApi
       end
 
       def archive_submission(id)
-        config.archiver.new(id:, parent_dir:).upload(type:)
+        config.s3_client.new(id:, parent_dir:).upload(type:)
       end
     end
   end
