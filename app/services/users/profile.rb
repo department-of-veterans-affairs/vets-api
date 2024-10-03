@@ -58,12 +58,7 @@ module Users
     end
 
     def account
-      if Flipper.enabled? :veteran_onboarding_include_display_created_at_in_profile
-        created_at = user.account&.created_at
-        { account_uuid: user.account_uuid, created_at: created_at ? created_at.iso8601 : '' }
-      else
-        { account_uuid: user.account_uuid }
-      end
+      { account_uuid: user.account_uuid, created_at: user.initial_sign_in }
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'Account').serialize_error
       nil

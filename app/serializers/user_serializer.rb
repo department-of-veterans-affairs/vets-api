@@ -16,7 +16,7 @@ class UserSerializer
   def account
     {
       account_uuid: object.account_uuid,
-      created_at: object.created_at.iso8601
+      created_at: object.initial_sign_in
     }
   end
 end

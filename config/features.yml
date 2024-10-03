@@ -1398,10 +1398,6 @@ features:
     actor_type: user
     description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
     enable_in_development: true
-  veteran_onboarding_include_display_created_at_in_profile:
-    actor_type: user
-    description: Include 'created_at' timestamp in user account information
-    enable_in_development: true
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
