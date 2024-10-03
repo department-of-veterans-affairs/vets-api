@@ -8,6 +8,11 @@ class EVSS::DocumentUpload
   include Sidekiq::Job
   extend Logging::ThirdPartyTransaction::MethodWrapper
 
+  FILENAME_EXTENSION_MATCHER = /\.\w*$/
+  OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
+
+  NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
+
   attr_accessor :auth_headers, :user_uuid, :document_hash
 
   wrap_with_logging(
@@ -23,10 +28,28 @@ class EVSS::DocumentUpload
   )
 
   # retry for one day
-  sidekiq_options retry: 14, queue: 'low'
+  sidekiq_options retry: 1, queue: 'low'
   # Set minimum retry time to ~1 hour
-  sidekiq_retry_in do |count, _exception|
-    rand(3600..3660) if count < 9
+  # sidekiq_retry_in do |count, _exception|
+  #   rand(3600..3660) if count < 9
+  # end
+
+  sidekiq_retries_exhausted do |msg, _ex|
+    # There should be 3 args:
+    # 1) Auth headers needed to authenticate with EVSS
+    # 2) The uuid of the record in the UserAccount table
+    # 3) Document metadata
+    # icn = UserAccount.find(msg['args'][1]).icn
+    icn = '1013703884V470925'
+    first_name = msg['args'].first['va_eauth_firstName'].titleize
+    filename = obscured_filename(msg['args'][2]['file_name'])
+    date_submitted = format_issue_instant_for_mailers(msg['created_at'])
+
+    notify_client.send_email(
+      recipient_identifier: { id_value: icn, id_type: 'ICN' },
+      template_id: mailer_template_id,
+      personalisation: { first_name:, filename:, date_submitted: }
+    )
   end
 
   def perform(auth_headers, user_uuid, document_hash)
@@ -38,6 +61,35 @@ class EVSS::DocumentUpload
     pull_file_from_cloud!
     perform_document_upload_to_evss
     clean_up!
+  end
+
+  def self.obscured_filename(original_filename)
+    extension = original_filename[FILENAME_EXTENSION_MATCHER]
+    filename_without_extension = original_filename.gsub(FILENAME_EXTENSION_MATCHER, '')
+
+    if filename_without_extension.length > 5
+      # Obfuscate with the letter 'X'; we cannot obfuscate with special characters such as an asterisk,
+      # as these filenames appear in VA Notify Mailers and their templating engine uses markdown.
+      # Therefore, special characters can be interpreted as markdown and introduce formatting issues in the mailer
+      obfuscated_portion = filename_without_extension[3..-3].gsub(OBFUSCATED_CHARACTER_MATCHER, 'X')
+      filename_without_extension[0..2] + obfuscated_portion + filename_without_extension[-2..] + extension
+    else
+      original_filename
+    end
+  end
+
+  def self.format_issue_instant_for_mailers(issue_instant)
+    # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
+    timestamp = Time.at(issue_instant)
+    timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+  end
+
+  def self.mailer_template_id
+    NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
+  end
+
+  def self.notify_client
+    VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
   end
 
   private
