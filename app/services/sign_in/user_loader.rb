@@ -17,7 +17,9 @@ module SignIn
 
     def find_valid_user
       user = User.find(access_token.user_uuid)
-      user&.identity ? user : nil
+      return unless user&.identity && user&.session_handle == access_token.session_handle
+
+      user
     end
 
     def reload_user
@@ -26,7 +28,9 @@ module SignIn
       current_user.uuid = access_token.user_uuid
       current_user.last_signed_in = session.created_at
       current_user.fingerprint = request_ip
+      current_user.session_handle = access_token.session_handle
       current_user.save && user_identity.save
+      current_user.invalidate_mpi_cache
       current_user
     end
 

@@ -14,6 +14,33 @@ RSpec.describe 'V1::NoticeOfDisagreements', type: :request do
   end
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
 
+  let(:error_log_args) do
+    {
+      message: 'Overall claim submission failure!',
+      user_uuid: user.uuid,
+      action: 'Overall claim submission',
+      form_id: '10182',
+      upstream_system: nil,
+      downstream_system: 'Lighthouse',
+      is_success: false,
+      http: {
+        status_code: 422,
+        body: response_error_body
+      }
+    }
+  end
+
+  let(:response_error_body) do
+    {
+      'errors' => [{ 'title' => 'Missing required fields',
+                     'detail' => 'One or more expected fields were not found',
+                     'code' => '145',
+                     'source' => { 'pointer' => '/data/attributes' },
+                     'status' => '422',
+                     'meta' => { 'missing_fields' => ['boardReviewOption'] } }]
+    }
+  end
+
   before { sign_in_as(user) }
 
   describe '#create' do
@@ -52,12 +79,10 @@ RSpec.describe 'V1::NoticeOfDisagreements', type: :request do
                                                       http: {
                                                         status_code: 200,
                                                         body: '[Redacted]'
-                                                      },
-                                                      version_number: 'v2'
+                                                      }
                                                     })
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.success')
-        expect(StatsD).to receive(:increment).with('nod_evidence_upload.v2.queued')
         previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
         # Create an InProgressForm
         in_progress_form = create(:in_progress_form, user_uuid: user.uuid, form_id: '10182')
@@ -86,20 +111,7 @@ RSpec.describe 'V1::NoticeOfDisagreements', type: :request do
     it 'adds to the PersonalInformationLog when an exception is thrown and logs to StatsD and logger' do
       VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-422_V1') do
         allow(Rails.logger).to receive(:error)
-        expect(Rails.logger).to receive(:error).with({
-                                                       message: 'Overall claim submission failure!',
-                                                       user_uuid: user.uuid,
-                                                       action: 'Overall claim submission',
-                                                       form_id: '10182',
-                                                       upstream_system: nil,
-                                                       downstream_system: 'Lighthouse',
-                                                       is_success: false,
-                                                       http: {
-                                                         status_code: 422,
-                                                         body: anything
-                                                       },
-                                                       version_number: 'v2'
-                                                     })
+        expect(Rails.logger).to receive(:error).with(error_log_args)
         expect(Rails.logger).to receive(:error).with(
           message: "Exception occurred while submitting Notice Of Disagreement: #{extra_error_log_message}",
           backtrace: anything
