@@ -2,19 +2,15 @@
 
 module ClaimsApi
   class VANotifyJob < ClaimsApi::ServiceBase
-    # rubocop:disable Metrics/MethodLength
     def perform(poa_id, rep)
       return if skip_notification_email?
 
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
-
       unless poa
         raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
           detail: "Could not find Power of Attorney with id: #{poa_id}"
         )
       end
-
-      form_data = poa.form_data
 
       if organization_filing?(form_data)
         org = find_org(poa, '2122')
@@ -31,7 +27,6 @@ module ClaimsApi
 
       raise e
     end
-    # rubocop:enable Metrics/MethodLength
 
     # 2122a
     def send_representative_notification(poa, rep)

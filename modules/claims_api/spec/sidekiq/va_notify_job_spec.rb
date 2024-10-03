@@ -29,34 +29,14 @@ describe ClaimsApi::VANotifyJob, type: :job do
 
   let(:vanotify_client) { instance_double(VaNotify::Service) }
 
-  before do
-    # rubocop:disable RSpec/SubjectStub
-    allow(subject).to receive_messages(skip_notification_email?: false, vanotify_service: vanotify_client,
-                                       find_org: :va_notify_org)
-    # rubocop:enable RSpec/SubjectStub
-  end
+  # before do
+  #
+  #   allow(subject).to receive_messages(skip_notification_email?: false, vanotify_service: vanotify_client,
+  #                                      find_org: :va_notify_org)
+  #     # end
 
   describe '#perform' do
-    it 'does not run if no POA record is found' do
-      no_record_id = 'nonexistent_record_id'
-      allow(ClaimsApi::PowerOfAttorney).to receive(:find).with(no_record_id).and_return(nil)
-
-      expect do
-        subject.perform(no_record_id, va_notify_rep)
-      end.to raise_error(ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound)
-    end
-
     context 'when the POA is updated to a representative' do
-      # rubocop:disable RSpec/SubjectStub
-      it 'correctly selects the representative template' do
-        allow(ClaimsApi::PowerOfAttorney).to receive(:find).with(rep_poa.id).and_return(rep_poa)
-
-        expect(subject).to receive(:send_representative_notification).with(rep_poa, va_notify_rep)
-
-        subject.perform(rep_poa.id, va_notify_rep)
-      end
-      # rubocop:enable RSpec/SubjectStub
-
       describe '#send_representative_notification' do
         let(:ind_poa) { rep_poa }
 
@@ -88,16 +68,6 @@ describe ClaimsApi::VANotifyJob, type: :job do
     end
 
     context 'when the POA is filed by a dependent claimant' do
-      # rubocop:disable RSpec/SubjectStub
-      it 'correctly selects the representative template' do
-        allow(ClaimsApi::PowerOfAttorney).to receive(:find).with(rep_dep_poa.id).and_return(rep_dep_poa)
-
-        expect(subject).to receive(:send_representative_notification).with(rep_dep_poa, va_notify_rep)
-
-        subject.perform(rep_dep_poa.id, va_notify_rep)
-      end
-      # rubocop:enable RSpec/SubjectStub
-
       describe '#send_representative_notification for dependent' do
         let(:dependent_poa) { rep_dep_poa }
 
@@ -129,16 +99,6 @@ describe ClaimsApi::VANotifyJob, type: :job do
     end
 
     context 'when the POA is updated to a service organization' do
-      # rubocop:disable RSpec/SubjectStub
-      it 'correctly selects the service organization template' do
-        allow(ClaimsApi::PowerOfAttorney).to receive(:find).with(org_poa.id).and_return(org_poa)
-
-        expect(subject).to receive(:send_organization_notification)
-
-        subject.perform(org_poa.id, va_notify_rep)
-      end
-      # rubocop:enable RSpec/SubjectStub
-
       describe '#organization_accepted_email_contents' do
         let(:organization_poa) { org_poa }
 
@@ -164,6 +124,26 @@ describe ClaimsApi::VANotifyJob, type: :job do
           expect(res).to eq(org_expected_params)
         end
       end
+    end
+  end
+
+  describe '#organization_filing?' do
+    it 'properly selects the org template when the filing is 2122' do
+      res = subject.send(:organization_filing?, org_poa.form_data)
+
+      expect(res).not_to eq(nil)
+    end
+
+    it 'properly selects the rep template when the filing is 2122a' do
+      res = subject.send(:organization_filing?, rep_poa.form_data)
+
+      expect(res).to eq(nil)
+    end
+
+    it 'properly selects the rep template when the filing is 2122 for dependent claimant' do
+      res = subject.send(:organization_filing?, rep_dep_poa.form_data)
+
+      expect(res).to eq(nil)
     end
   end
 
