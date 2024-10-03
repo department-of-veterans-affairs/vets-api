@@ -85,7 +85,8 @@ RSpec.describe Users::Services do
       end
 
       after do
-        VCR.eject_cassette
+        VCR.eject_cassette(name: 'sm_client/session')
+        VCR.eject_cassette(name: 'user_eligibility_client/perform_an_eligibility_check_for_premium_user')
         Timecop.return
       end
 
