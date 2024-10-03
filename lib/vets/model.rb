@@ -15,6 +15,9 @@ module Vets
     include Vets::Attributes
 
     def initialize(params = {})
+      # Remove attributes that aren't defined in the class aka unknown
+      params.select! { |x| self.class.attribute_set.index(x.to_sym) }
+
       super
       # Ensure all attributes have a defined value (default to nil)
       self.class.attribute_set.each do |attr_name|
