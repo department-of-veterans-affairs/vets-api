@@ -34,7 +34,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
           config,
           notification_type:,
-          user: anything
+          user_account: anything
         ).and_return(notification_email)
         form_submission_attempt = create(:form_submission_attempt)
 
@@ -67,7 +67,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
           config,
           notification_type:,
-          user: anything
+          user_account: anything
         ).and_return(notification_email)
         form_submission_attempt = create(:form_submission_attempt)
 

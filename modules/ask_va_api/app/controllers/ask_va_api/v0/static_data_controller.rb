@@ -23,6 +23,11 @@ module AskVAApi
         render_result(@branch_of_service)
       end
 
+      def contents
+        get_resource('contents', user_mock_data: params[:user_mock_data], type: params[:type])
+        render_result(@contents)
+      end
+
       def categories
         get_resource('categories', user_mock_data: params[:user_mock_data])
         render_result(@categories)

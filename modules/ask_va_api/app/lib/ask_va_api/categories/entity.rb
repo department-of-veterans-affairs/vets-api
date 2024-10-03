@@ -11,7 +11,8 @@ module AskVAApi
                   :allow_attachments,
                   :rank_order,
                   :display_name,
-                  :topic_type
+                  :topic_type,
+                  :contact_preferences
 
       def initialize(info)
         @id = info[:Id]
@@ -23,6 +24,7 @@ module AskVAApi
         @rank_order = info[:RankOrder]
         @topic_type = info[:TopicType]
         @display_name = info[:DisplayName]
+        @contact_preferences = info[:ContactPreferences]
       end
     end
   end
