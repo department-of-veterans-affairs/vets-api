@@ -25,8 +25,8 @@ module SimpleFormsApi
         end
 
         # Override to inject your team's own submission builder
-        def submission_builder
-          SimpleFormsApi::S3::SubmissionBuilder
+        def submission_class
+          SimpleFormsApi::S3::Submission
         end
 
         # Override to inject your team's own file uploader
@@ -43,14 +43,6 @@ module SimpleFormsApi
         # The attachment model to query for form submission attachments
         def attachment_type
           PersistentAttachment
-        end
-
-        # When archiving directly after a submission, if all of the
-        # following data points are available, they can be passed in
-        # and the archive can be created without having to re-hydrate
-        # the form submission
-        def required_submission_data
-          %i[submission file_path attachments metadata]
         end
 
         # The temporary directory where form submissions will be

@@ -12,12 +12,27 @@ RSpec.describe SimpleFormsApi::S3::Submission do
   let(:benefits_intake_uuid) { submission.benefits_intake_uuid }
   let(:submission_instance) { described_class.new(id: benefits_intake_uuid) }
   let(:filler) { instance_double(SimpleFormsApi::PdfFiller) }
+  let(:attachments) { Array.new(5) { fixture_file_upload('doctors-note.pdf', 'application/pdf').path } }
+  let(:metadata) do
+    {
+      'veteranFirstName' => 'John',
+      'veteranLastName' => 'Veteran',
+      'fileNumber' => '321540987',
+      'zipCode' => '12345',
+      'source' => 'VA Platform Digital Forms',
+      'docType' => '20-10207',
+      'businessLine' => 'CMP'
+    }
+  end
+  let(:vba_20_10207_instance) { instance_double(SimpleFormsApi::VBA2010207, metadata:) }
 
   before do
     allow(FormSubmission).to receive(:find_by).with(benefits_intake_uuid:).and_return(submission)
     allow(SecureRandom).to receive(:hex).and_return('random-letters-n-numbers')
     allow(SimpleFormsApi::PdfFiller).to receive(:new).and_return(filler)
     allow(filler).to receive(:generate).with(timestamp: submission.created_at).and_return(file_path)
+    allow(SimpleFormsApi::VBA2010207).to receive(:new).and_return(vba_20_10207_instance)
+    allow(vba_20_10207_instance).to receive_messages(get_attachments: attachments, zip_code_is_us_based: true)
   end
 
   describe '#initialize' do
@@ -95,25 +110,30 @@ RSpec.describe SimpleFormsApi::S3::Submission do
       end
 
       it 'defaults to an empty array for attachments' do
-        expect(hydrated.attachments).to eq([])
+        expect(hydrated.attachments).to eq(attachments)
       end
 
       it 'generates valid metadata' do
-        expect(hydrated.metadata).to eq(
-          {
-            'veteranFirstName' => 'John',
-            'veteranLastName' => 'Veteran',
-            'fileNumber' => '321540987',
-            'zipCode' => '12345',
-            'source' => 'VA Platform Digital Forms',
-            'docType' => '20-10207',
-            'businessLine' => 'CMP'
-          }
-        )
+        expect(hydrated.metadata).to eq(metadata)
       end
 
-      context 'when the form is 20-10207 and has attachments' do
+      context 'when the form is 20-10207' do
         it 'generates a valid array of attachments' do
+          expect(hydrated.attachments).to eq(attachments)
+        end
+      end
+
+      context 'when the form is not 20-10207' do
+        let(:form_type) { '21-10210' }
+        let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_21_10210.json').read }
+        let(:vba_21_10210_instance) { instance_double(SimpleFormsApi::VBA2110210, metadata:) }
+
+        before do
+          allow(SimpleFormsApi::VBA2110210).to receive(:new).and_return(vba_20_10207_instance)
+          allow(vba_21_10210_instance).to receive_messages(zip_code_is_us_based: true)
+        end
+
+        it 'defaults to an empty array for attachments' do
           expect(hydrated.attachments).to eq([])
         end
       end
