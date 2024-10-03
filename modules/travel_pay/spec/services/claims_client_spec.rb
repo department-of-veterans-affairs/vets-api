@@ -96,7 +96,7 @@ describe TravelPay::ClaimsClient do
       claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
       body = { 'appointmentId' => 'fake_btsss_appt_id', 'claimName' => 'SMOC claim',
                'claimantType' => 'Veteran' }.to_json
-      @stubs.post('/api/v1.1/claims', body) do
+      @stubs.post('/api/v1.1/claims') do
         [
           200,
           {},
@@ -110,7 +110,7 @@ describe TravelPay::ClaimsClient do
       end
 
       client = TravelPay::ClaimsClient.new
-      new_claim_response = client.create_claim('veis_token', 'btsss_token', { 'btsss_appt_id' => 'fake_btsss_appt_id' })
+      new_claim_response = client.create_claim('veis_token', 'btsss_token', body)
       actual_claim_id = new_claim_response.body['data']['claimId']
 
       expect(actual_claim_id).to eq(claim_id)

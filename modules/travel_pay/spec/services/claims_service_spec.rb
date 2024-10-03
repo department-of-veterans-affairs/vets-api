@@ -158,11 +158,13 @@ describe TravelPay::ClaimsService do
       btsss_appt_id = '73611905-71bf-46ed-b1ec-e790593b8565'
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:create_claim)
-        .with(*tokens, { 'btsss_appt_id' => btsss_appt_id })
+        .with(*tokens, { 'btsss_appt_id' => btsss_appt_id, 'claim_name' => 'SMOC claim' })
         .and_return(new_claim_response)
 
       service = TravelPay::ClaimsService.new
-      actual_claim_response = service.create_new_claim(*tokens, { 'btsss_appt_id' => btsss_appt_id })
+      actual_claim_response = service.create_new_claim(*tokens,
+                                                       { 'btsss_appt_id' => btsss_appt_id,
+                                                         'claim_name' => 'SMOC claim' })
 
       expect(actual_claim_response['data']).to equal(new_claim_data['data'])
     end
