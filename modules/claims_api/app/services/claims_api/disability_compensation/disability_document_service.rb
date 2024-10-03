@@ -2,7 +2,7 @@
 
 module ClaimsApi
   module DisabilityCompensation
-    class DisabilityDocumentService < ServiceBase
+    class DisabilityDocumentService < DocumentServiceBase
       LOG_TAG = '526_v2_Disability_Document_service'
 
       def create_upload(claim:, pdf_path:, doc_type: 'L122', action: 'post', original_filename: nil)
@@ -40,10 +40,6 @@ module ClaimsApi
         payload
       end
 
-      def compact_veteran_name(first_name, last_name)
-        [first_name, last_name].compact_blank.join('_')
-      end
-
       def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, action:)
         if action == 'post' && doc_type == 'L122'
           "#{[veteran_name, claim_id, '526EZ'].compact_blank.join('_')}.pdf"
@@ -61,18 +57,6 @@ module ClaimsApi
         file_extension = File.extname(original_filename)
         base_filename = File.basename(original_filename, file_extension)
         base_filename[0...-12]
-      end
-
-      def build_body(options = {})
-        data = {
-          systemName: 'VA.gov',
-          docType: options[:doc_type],
-          fileName: options[:file_name],
-          trackedItemIds: options[:tracked_item_ids].presence || []
-        }
-        data[:claimId] = options[:claim_id] unless options[:claim_id].nil?
-        data[:fileNumber] = options[:file_number] unless options[:file_number].nil?
-        { data: }
       end
     end
   end
