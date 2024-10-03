@@ -7,6 +7,7 @@ require 'sidekiq/testing'
 RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :worker do
   describe '#perform' do
     let(:form_submission) { build(:debts_api_form5655_submission) }
+
     before do
       allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission)
     end

@@ -16,7 +16,7 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::VBSSubmissionJob, type: :worker do
           'jid' => '12345abcde',
           'retry_count' => 5
         }
-      end
+    end
 
     context 'when all retries are exhausted' do
       before do
