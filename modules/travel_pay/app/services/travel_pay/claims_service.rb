@@ -16,6 +16,26 @@ module TravelPay
       }
     end
 
+    def get_claim_by_id(veis_token, btsss_token, claim_id)
+      # ensure claim ID is the right format, allowing any version
+      uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
+
+      unless uuid_all_version_format.match?(claim_id)
+        raise ArgumentError, message: "Expected claim id to be a valid UUID, got #{claim_id}."
+      end
+
+      claims_response = client.get_claims(veis_token, btsss_token)
+
+      claims = claims_response.body['data']
+
+      claim = claims.find { |c| c['id'] == claim_id }
+
+      if claim
+        claim['claimStatus'] = claim['claimStatus'].underscore.titleize
+        claim
+      end
+    end
+
     private
 
     def filter_by_date(date_string, claims)

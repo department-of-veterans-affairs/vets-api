@@ -36,12 +36,9 @@ module AskVAApi
     end
 
     def handle_response_data(response:, error_class:)
-      case response
-      when Hash
-        response[:Data]
-      else
-        raise(error_class, response.body)
-      end
+      return response[:Data] if response.is_a?(Hash)
+
+      raise(error_class, response.body)
     end
   end
 end

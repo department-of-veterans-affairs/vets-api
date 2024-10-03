@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-
 module Preneeds
   # Models a currently buried person under a veteran's benefit from a {Preneeds::BurialForm} form
   #
@@ -10,7 +8,7 @@ module Preneeds
   # @!attribute name
   #   @return [Preneeds::FullName] currently buried person's full name
   #
-  class CurrentlyBuriedPerson < Preneeds::VirtusBase
+  class CurrentlyBuriedPerson < Preneeds::Base
     attribute :cemetery_number, String
     attribute :name, Preneeds::FullName
 

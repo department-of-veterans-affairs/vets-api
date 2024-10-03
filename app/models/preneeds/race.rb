@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Preneeds
-  class Race < Preneeds::VirtusBase
+  class Race < Preneeds::Base
     ATTRIBUTE_MAPPING = {
       'I' => :is_american_indian_or_alaskan_native,
       'A' => :is_asian,
@@ -13,7 +13,7 @@ module Preneeds
     }.freeze
 
     ATTRIBUTE_MAPPING.each_value do |attr|
-      attribute(attr, Boolean)
+      attribute(attr, Bool, default: false)
     end
 
     def as_eoas

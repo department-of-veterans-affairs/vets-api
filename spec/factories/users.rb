@@ -7,6 +7,7 @@ FactoryBot.define do
     uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
     last_signed_in { Time.now.utc }
     fingerprint { '111.111.1.1' }
+    session_handle { SecureRandom.hex }
     transient do
       authn_context { LOA::IDME_LOA1_VETS }
       email { 'abraham.lincoln@vets.gov' }
@@ -149,24 +150,6 @@ FactoryBot.define do
 
     trait :dependent do
       person_types { ['DEP'] }
-    end
-
-    trait :error do
-      authn_context { LOA::IDME_LOA3_VETS }
-
-      sign_in do
-        {
-          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
-          auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first
-        }
-      end
-
-      loa do
-        { current: LOA::THREE, highest: LOA::THREE }
-      end
-
-      idme_uuid { '6767671' }
     end
 
     trait :accountable do
