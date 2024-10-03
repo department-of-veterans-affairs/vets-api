@@ -10,7 +10,6 @@ describe Search::Service do
 
   before do
     allow_any_instance_of(described_class).to receive(:access_key).and_return('TESTKEY')
-    Flipper.disable(:search_use_v2_gsa)
   end
 
   describe '#results' do
@@ -50,18 +49,6 @@ describe Search::Service do
           end
         end
       end
-
-      it 'raises GSA exception if Flipper enabled', :aggregate_failures do
-        Flipper.enable(:search_use_v2_gsa)
-
-        VCR.use_cassette('search/empty_query', VCR::MATCH_EVERYTHING) do
-          expect { subject.results }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('SEARCH_GSA_400')
-          end
-        end
-      end
     end
 
     context 'when the upstream API gives a 503' do
@@ -74,18 +61,6 @@ describe Search::Service do
           end
         end
       end
-
-      it 'raises GSA exception if Flipper enabled', :aggregate_failures do
-        Flipper.enable(:search_use_v2_gsa)
-
-        VCR.use_cassette('search/503', VCR::MATCH_EVERYTHING) do
-          expect { subject.results }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(503)
-            expect(e.errors.first.code).to eq('SEARCH_GSA_503')
-          end
-        end
-      end
     end
 
     context 'when the upstream API gives a 504' do
@@ -95,18 +70,6 @@ describe Search::Service do
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(504)
             expect(e.errors.first.code).to eq('SEARCH_504')
-          end
-        end
-      end
-
-      it 'raises GSA exception if Flipper enabled', :aggregate_failures do
-        Flipper.enable(:search_use_v2_gsa)
-
-        VCR.use_cassette('search/504', VCR::MATCH_EVERYTHING) do
-          expect { subject.results }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(504)
-            expect(e.errors.first.code).to eq('SEARCH_GSA_504')
           end
         end
       end
@@ -124,20 +87,6 @@ describe Search::Service do
           end
         end
       end
-
-      it 'raises GSA exception if Flipper enabled', :aggregate_failures do
-        Flipper.enable(:search_use_v2_gsa)
-
-        VCR.use_cassette('search/invalid_access_key', VCR::MATCH_EVERYTHING) do
-          allow_any_instance_of(described_class).to receive(:access_key).and_return('INVALIDKEY')
-
-          expect { subject.results }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('SEARCH_GSA_400')
-          end
-        end
-      end
     end
 
     context 'with an invalid affiliate' do
@@ -152,20 +101,6 @@ describe Search::Service do
           end
         end
       end
-
-      it 'raises GSA exception if Flipper enabled', :aggregate_failures do
-        Flipper.enable(:search_use_v2_gsa)
-
-        VCR.use_cassette('search/invalid_affiliate', VCR::MATCH_EVERYTHING) do
-          allow_any_instance_of(described_class).to receive(:affiliate).and_return('INVALID')
-
-          expect { subject.results }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('SEARCH_GSA_400')
-          end
-        end
-      end
     end
 
     context 'when exceeding the API rate limit' do
@@ -175,18 +110,6 @@ describe Search::Service do
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(429)
             expect(e.errors.first.code).to eq('SEARCH_429')
-          end
-        end
-      end
-
-      it 'raises GSA exception if Flipper enabled', :aggregate_failures do
-        Flipper.enable(:search_use_v2_gsa)
-
-        VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
-          expect { subject.results }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(429)
-            expect(e.errors.first.code).to eq('SEARCH_GSA_429')
           end
         end
       end
