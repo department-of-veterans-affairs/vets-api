@@ -12,5 +12,4 @@ class UserSerializer
   attributes :services, :account, :profile, :va_profile, :veteran_status,
              :in_progress_forms, :prefills_available, :vet360_contact_information,
              :session, :onboarding
-
 end

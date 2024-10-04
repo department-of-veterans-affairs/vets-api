@@ -89,7 +89,7 @@ module Users
         idme_uuid: user.idme_uuid,
         id_theft_flag: user.id_theft_flag,
         initial_sign_in: user.initial_sign_in
-    }
+      }
     end
     # rubocop:enable Metrics/MethodLength
 
