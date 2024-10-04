@@ -140,7 +140,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
       end
     end
 
-    context 'when an upload is successfull' do
+    context 'when an upload is successful' do
       before do
         # Skip upload attempt logging
         allow(provider).to receive(:log_upload_attempt)
