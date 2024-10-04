@@ -23,7 +23,11 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
 
-      query_path = URI::HTTPS.build(path: '/api/v1.1/appointments', query: params.to_query)
+      query_path = if params.empty?
+                     'api/v1.1/appointments'
+                   else
+                     "api/v1.1/appointments?#{params.to_query}"
+                   end
 
       connection(server_url: btsss_url).get(query_path) do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
