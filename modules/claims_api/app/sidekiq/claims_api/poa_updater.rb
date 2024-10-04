@@ -28,7 +28,7 @@ module ClaimsApi
 
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
 
-        ClaimsApi::VANotifyJob.perform_async(poa_form.id, rep) if vanotify?(poa_form.auth_headers)
+        ClaimsApi::VANotifyJob.perform_async(poa_form.id, rep) if vanotify?(poa_form.auth_headers, rep)
 
         ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id) if enable_vbms_access?(poa_form:)
       else
@@ -46,8 +46,8 @@ module ClaimsApi
       poa_form.form_data['recordConsent'] && poa_form.form_data['consentLimits'].blank?
     end
 
-    def vanotify?(auth_headers)
-      auth_headers.key?('va_notify_recipient_identifier')
+    def vanotify?(auth_headers, rep)
+      auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?
     end
   end
 end
