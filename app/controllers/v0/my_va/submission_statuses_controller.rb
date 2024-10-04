@@ -7,7 +7,6 @@ module V0
     class SubmissionStatusesController < ApplicationController
       service_tag 'form-submission-statuses'
       before_action :controller_enabled?
-      before_action { authorize :lighthouse, :access? }
 
       def show
         report = Forms::SubmissionStatuses::Report.new(
