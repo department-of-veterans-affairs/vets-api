@@ -143,6 +143,15 @@ class RepresentationManagement::RswagConfig
             }
           },
           {
+            url: 'https://staging-api.va.gov',
+            description: 'VA.gov API staging environment',
+            variables: {
+              version: {
+                default: 'v1'
+              }
+            }
+          },
+          {
             url: 'https://api.va.gov',
             description: 'VA.gov API production environment',
             variables: {
