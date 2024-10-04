@@ -69,6 +69,9 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
+  caregiver1010:
+    actor_type: user
+    description: Enables exposing job object in caregiver submission job
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -95,6 +98,9 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
+  hca_log_form_attachment_create:
+    actor_type: user
+    description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
   cg1010_oauth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
@@ -1718,7 +1724,7 @@ features:
     description: Used to show  maintenance alert for MGIB Verifications
   search_use_v2_gsa:
     actor_type: cookie_id
-    description: Swaps the Search Service's configuration url with an updated api.gsa.gov address
+    description: Swaps the Search Service's for one with an updated api.gsa.gov address
     enabled_in_development: true
   remove_pciu:
     actor_type: user
