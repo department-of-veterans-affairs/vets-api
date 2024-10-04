@@ -112,7 +112,8 @@ describe SimpleFormsApi::NotificationEmail do
 
           it 'sends the email at the specified time' do
             time = double
-            mpi_profile = double(first_name: double, error: nil)
+            profile = double(given_names: [double])
+            mpi_profile = double(profile:, error: nil)
             allow(VANotify::UserAccountJob).to receive(:perform_at)
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(mpi_profile)
             subject = described_class.new(config, notification_type:, user_account:)
