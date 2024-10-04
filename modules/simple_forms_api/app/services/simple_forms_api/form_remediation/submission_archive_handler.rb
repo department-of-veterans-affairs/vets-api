@@ -1,16 +1,15 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api/form_submission_remediation/configuration/base'
+require 'simple_forms_api/form_remediation/configuration/base'
 
 module SimpleFormsApi
   module FormRemediation
     class SubmissionArchiveHandler
       include FileUtilities
 
-      BASE_CONFIG = FormSubmissionRemediation::Configuration::Base.freeze
       PROGRESS_FILE_PATH = '/tmp/submission_archive_progress.json'
 
-      def initialize(ids: [], config: BASE_CONFIG.new)
+      def initialize(ids: [], config: Configuration::Base.new)
         raise Common::Exceptions::ParameterMissing, 'ids' unless ids&.any?
 
         @ids = ids

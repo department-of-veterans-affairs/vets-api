@@ -27,7 +27,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
   let(:submission_file_path) do
     [Time.zone.today.strftime('%-m.%d.%y'), 'form', form_type, 'vagov', benefits_intake_uuid].join('_')
   end
-  let(:uploader) { instance_double(VeteranFacingFormsRemediationUploader) }
+  let(:uploader) { instance_double(SimpleFormsApi::FormRemediation::Uploader) }
   let(:carrier_wave_file) { instance_double(CarrierWave::Storage::Fog::File) }
 
   before do
@@ -37,7 +37,9 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
     allow(submission_archive_instance).to receive(:build!).and_return(
       ["#{temp_file_path}/", submission, submission_file_path]
     )
-    allow(VeteranFacingFormsRemediationUploader).to receive_messages(new: uploader, get_s3_link: '/s3_url/stuff.pdf')
+    allow(SimpleFormsApi::FormRemediation::Uploader).to(
+      receive_messages(new: uploader, get_s3_link: '/s3_url/stuff.pdf')
+    )
     allow(uploader).to receive_messages(store!: carrier_wave_file)
     allow(Rails.logger).to receive(:info).and_call_original
     allow(Rails.logger).to receive(:error).and_call_original

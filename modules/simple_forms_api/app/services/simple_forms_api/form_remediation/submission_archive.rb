@@ -2,7 +2,7 @@
 
 require 'csv'
 require 'fileutils'
-require 'simple_forms_api/form_submission_remediation/configuration/base'
+require 'simple_forms_api/form_remediation/configuration/base'
 
 # Built in accordance with the following documentation:
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
@@ -11,9 +11,7 @@ module SimpleFormsApi
     class SubmissionArchive
       include FileUtilities
 
-      DEFAULT_CONFIG = SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
-
-      def initialize(config: DEFAULT_CONFIG, **options)
+      def initialize(config: Configuration::Base.new, **options)
         @config = config
         @temp_directory_path = config.temp_directory_path
         @include_manifest = config.include_manifest || true

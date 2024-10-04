@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/form_remediation/configuration/base'
+
 module SimpleFormsApi
   module FormRemediation
     module FileUtilities
@@ -55,7 +57,7 @@ module SimpleFormsApi
       private
 
       def handle_error(*, **)
-        config = SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.new
+        config = Configuration::Base.new
         config.handle_error(*, **)
       end
     end

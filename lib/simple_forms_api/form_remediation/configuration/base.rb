@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  module FormSubmissionRemediation
+  module FormRemediation
     class Configuration
       class Base
         attr_reader :id_type, :include_manifest, :include_metadata, :parent_dir, :presign_s3_url
@@ -32,7 +32,7 @@ module SimpleFormsApi
         # Override to inject your team's own file uploader
         # If overriding this, s3_settings method doesn't have to be set
         def uploader_class
-          VeteranFacingFormsRemediationUploader
+          SimpleFormsApi::FormRemediation::Uploader
         end
 
         # The FormSubmission model to query against

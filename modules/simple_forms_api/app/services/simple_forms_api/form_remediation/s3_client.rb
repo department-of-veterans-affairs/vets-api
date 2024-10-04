@@ -2,7 +2,7 @@
 
 require 'csv'
 require 'fileutils'
-require 'simple_forms_api/form_submission_remediation/configuration/base'
+require 'simple_forms_api/form_remediation/configuration/base'
 
 # Built in accordance with the following documentation:
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
@@ -11,15 +11,13 @@ module SimpleFormsApi
     class S3Client
       include FileUtilities
 
-      DEFAULT_CONFIG = SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.freeze
-
       class << self
         def fetch_presigned_url(id, type: :submission)
           new(id:).s3_generate_presigned_url(s3_upload_file_path, type:)
         end
       end
 
-      def initialize(config: DEFAULT_CONFIG.new, type: :remediation, **options)
+      def initialize(config: Configuration::Base.new, type: :remediation, **options)
         @upload_type = type
         @config = config
         @parent_dir = config.parent_dir
