@@ -150,6 +150,18 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                   start: '2023-11-13T16:00:00Z',
                   end: '2023-11-13T16:30:00Z',
                   minutesDuration: 30,
+                  telehealth: {
+                    vvsKind: nil,
+                    atlas: nil
+                  },
+                  extension: {
+                    preCheckinAllowed: true,
+                    eCheckinAllowed: true,
+                    patientHasMobileGfe: nil
+                  },
+                  serviceCategory: [{
+                    text: 'REGULAR'
+                  }],
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
                   facilityTimezone: 'America/New_York',
@@ -171,6 +183,18 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                   start: '2023-12-11T16:00:00Z',
                   end: '2023-12-11T16:30:00Z',
                   minutesDuration: 30,
+                  telehealth: {
+                    vvsKind: nil,
+                    atlas: nil
+                  },
+                  extension: {
+                    preCheckinAllowed: true,
+                    eCheckinAllowed: true,
+                    patientHasMobileGfe: nil
+                  },
+                  serviceCategory: [{
+                    text: 'REGULAR'
+                  }],
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
                   facilityTimezone: 'America/New_York',
@@ -216,6 +240,18 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                   start: '2023-11-13T16:00:00Z',
                   end: '2023-11-13T16:30:00Z',
                   minutesDuration: 30,
+                  telehealth: {
+                    vvsKind: nil,
+                    atlas: nil
+                  },
+                  extension: {
+                    preCheckinAllowed: true,
+                    eCheckinAllowed: true,
+                    patientHasMobileGfe: nil
+                  },
+                  serviceCategory: [{
+                    text: 'REGULAR'
+                  }],
                   facilityName: nil,
                   facilityVistaSite: nil,
                   facilityTimezone: nil,
@@ -237,6 +273,18 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                   start: '2023-12-11T16:00:00Z',
                   end: '2023-12-11T16:30:00Z',
                   minutesDuration: 30,
+                  telehealth: {
+                    vvsKind: nil,
+                    atlas: nil
+                  },
+                  extension: {
+                    preCheckinAllowed: true,
+                    eCheckinAllowed: true,
+                    patientHasMobileGfe: nil
+                  },
+                  serviceCategory: [{
+                    text: 'REGULAR'
+                  }],
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
                   facilityTimezone: 'America/New_York',
@@ -281,6 +329,18 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                   start: '2023-11-13T16:00:00Z',
                   end: '2023-11-13T16:30:00Z',
                   minutesDuration: 30,
+                  telehealth: {
+                    vvsKind: nil,
+                    atlas: nil
+                  },
+                  extension: {
+                    preCheckinAllowed: true,
+                    eCheckinAllowed: true,
+                    patientHasMobileGfe: nil
+                  },
+                  serviceCategory: [{
+                    text: 'REGULAR'
+                  }],
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
                   facilityTimezone: 'America/New_York',
@@ -302,6 +362,18 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
                   start: '2023-12-11T16:00:00Z',
                   end: '2023-12-11T16:30:00Z',
                   minutesDuration: 30,
+                  telehealth: {
+                    vvsKind: nil,
+                    atlas: nil
+                  },
+                  extension: {
+                    preCheckinAllowed: true,
+                    eCheckinAllowed: true,
+                    patientHasMobileGfe: nil
+                  },
+                  serviceCategory: [{
+                    text: 'REGULAR'
+                  }],
                   facilityName: 'Ralph H. Johnson Department of Veterans Affairs Medical Center',
                   facilityVistaSite: '534',
                   facilityTimezone: 'America/New_York',

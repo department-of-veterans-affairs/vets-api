@@ -8,6 +8,8 @@ RSpec.describe 'V0::BackendStatus', type: :request do
 
   let(:user) { build(:user, :loa3) }
 
+  # TO-DO: After transition of Post-911 GI Bill to 24/7 availability, confirm show action
+  # and related logic can be completely removed
   describe '#show' do
     let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
     let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
@@ -26,6 +28,8 @@ RSpec.describe 'V0::BackendStatus', type: :request do
     end
 
     context 'for the gibs service' do
+      before { Flipper.disable(:sob_updated_design) }
+
       context 'during offline hours on saturday' do
         before { Timecop.freeze(offline_saturday) }
 
