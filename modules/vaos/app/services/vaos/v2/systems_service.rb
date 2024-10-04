@@ -10,7 +10,7 @@ module VAOS
                                page_number: nil)
         with_monitoring do
           page_size = 0 if page_size.nil? # 0 is the default for the VAOS service which means return all clinics
-          url = "/vaos/v1/locations/#{location_id}/clinics"
+          url = "/#{base_vaos_route}/locations/#{location_id}/clinics"
           url_params = {
             'patientIcn' => get_icn(clinical_service),
             'clinicIds' => get_clinic_ids(clinic_ids),
@@ -57,7 +57,7 @@ module VAOS
       end
 
       def get_slots_vaos(location_id:, clinic_id:, start_dt:, end_dt:)
-        url_path = "/vaos/v1/locations/#{location_id}/clinics/#{clinic_id}/slots"
+        url_path = "/#{base_vaos_route}/locations/#{location_id}/clinics/#{clinic_id}/slots"
         url_params = {
           'start' => start_dt,
           'end' => end_dt
