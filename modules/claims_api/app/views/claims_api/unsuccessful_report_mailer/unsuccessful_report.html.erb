@@ -60,6 +60,12 @@
     </h3>
     <%= render partial: 'claims_api/submission_table', locals: { claims: @unsuccessful_claims_submissions } unless @unsuccessful_claims_submissions.count.zero? %>
 
+    <h3>
+      <%= @unsuccessful_va_gov_claims_submissions&.count%>
+      <span class="title">526 VA GOV Errored Submissions</span>
+    </h3>
+    <%= render partial: 'claims_api/submission_grouped_table', locals: { claims: @unsuccessful_va_gov_claims_submissions } unless @unsuccessful_va_gov_claims_submissions&.count&.zero? %>
+    
     <hr>
     <h2>Power of Attorney Submissions</h2>
 
