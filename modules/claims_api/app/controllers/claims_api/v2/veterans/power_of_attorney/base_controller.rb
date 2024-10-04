@@ -46,16 +46,19 @@ module ClaimsApi
           poa_code = form_attributes.dig(base, 'poaCode')
 
           # Custom validations for POA submission, we must check this first
-          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(
-            target_veteran.participant_id, user_profile, poa_code
-          )
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile)
           # JSON validations for POA submission, will combine with previously captured errors and raise
           validate_json_schema(form_number.upcase)
           @rep_id = validate_registration_number!(base, poa_code)
+          claimant_data = validate_dependent_claimant(veteran_participant_id: target_veteran.participant_id,
+                                                      user_profile:, poa_code:, base:)
+
+          @claims_api_forms_validation_errors ||= []
+          @claims_api_forms_validation_errors.concat(claimant_data[:errors]) if claimant_data[:errors].present?
 
           add_claimant_data_to_form if user_profile
           # if we get here there were only validations file errors
-          if @claims_api_forms_validation_errors
+          if @claims_api_forms_validation_errors.present?
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
@@ -192,8 +195,6 @@ module ClaimsApi
         end
 
         def user_profile
-          return @user_profile if defined? @user_profile
-
           @user_profile ||= fetch_claimant
         end
 
