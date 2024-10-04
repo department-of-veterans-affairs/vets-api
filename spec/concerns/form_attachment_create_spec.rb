@@ -51,7 +51,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
           'begin form attachment creation',
           :info,
           file_data_present: true,
-          class_name: 'ActionDispatch::Http::UploadedFile',
+          klass: 'ActionDispatch::Http::UploadedFile',
           debug_timestamp: anything
         )
         expect(@controller).to receive(:log_message_to_sentry).with(
@@ -76,7 +76,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
           'begin form attachment creation',
           :info,
           file_data_present: true,
-          class_name: 'String',
+          klass: 'String',
           debug_timestamp: anything
         )
         expect(@controller).to receive(:log_exception_to_sentry).twice
@@ -92,7 +92,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
           'begin form attachment creation',
           :info,
           file_data_present: true,
-          class_name: 'ActionDispatch::Http::UploadedFile',
+          klass: 'ActionDispatch::Http::UploadedFile',
           debug_timestamp: anything
         )
         expect(@controller).to receive(:log_exception_to_sentry).twice
@@ -113,7 +113,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
           'begin form attachment creation',
           :info,
           file_data_present: true,
-          class_name: 'ActionDispatch::Http::UploadedFile',
+          klass: 'ActionDispatch::Http::UploadedFile',
           debug_timestamp: anything
         )
         expect(@controller).to receive(:log_exception_to_sentry)
