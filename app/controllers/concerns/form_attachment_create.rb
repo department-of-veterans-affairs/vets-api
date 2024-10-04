@@ -11,7 +11,7 @@ module FormAttachmentCreate
         'begin form attachment creation',
         :info,
         file_data_present: filtered_params[:file_data].present?,
-        class_name: filtered_params[:file_data]&.class&.name,
+        klass: filtered_params[:file_data]&.class&.name,
         debug_timestamp:
       )
     end
