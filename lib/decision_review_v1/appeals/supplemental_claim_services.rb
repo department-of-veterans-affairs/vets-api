@@ -60,7 +60,8 @@ module DecisionReviewV1
       end
 
       ##
-      # Creates a new 4142(a) PDF, and sends to central mail
+      # Creates a new 4142(a) PDF, and sends to Lighthouse or central mail
+      # Sending to central mail is deprecated
       #
       # @param appeal_submission_id
       # @param rejiggered_payload
