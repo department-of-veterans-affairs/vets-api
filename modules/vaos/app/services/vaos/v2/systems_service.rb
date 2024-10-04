@@ -9,20 +9,6 @@ module VAOS
                                page_size: nil,
                                page_number: nil)
         with_monitoring do
-          # page_size = 0 if page_size.nil? # 0 is the default for the VAOS service which means return all clinics
-          # url = "/vaos/v1/locations/#{location_id}/clinics"
-          # url_params = {
-          #   'patientIcn' => get_icn(clinical_service),
-          #   'clinicIds' => get_clinic_ids(clinic_ids),
-          #   'clinicalService' => clinical_service,
-          #   'pageSize' => page_size,
-          #   'pageNumber' => page_number
-          # }.compact
-          #
-          # #  'clinicalService' is used when retrieving clinics for appointment scheduling,
-          # #  triggering stop code filtering to avoid displaying unavailable clinics.
-          # url_params.merge!('enableStopCodeFilter' => true) if url_params['clinicalService'].present?
-
           response = get_clinics(location_id:, clinical_service:, clinic_ids:, page_size:, page_number:)
           response.body[:data].map { |clinic| OpenStruct.new(clinic) }
         end
