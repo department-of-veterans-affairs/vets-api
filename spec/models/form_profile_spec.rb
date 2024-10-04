@@ -803,7 +803,8 @@ RSpec.describe FormProfile, type: :model do
       'bankAccountType' => 'Checking',
       'bankName' => 'Comerica',
       'bankRoutingNumber' => '*****2115',
-      'startedFormVersion' => '2022'
+      'startedFormVersion' => '2022',
+      'syncModern0781Flow' => true
     }
   end
 
@@ -1809,6 +1810,7 @@ RSpec.describe FormProfile, type: :model do
 
             it 'returns prefilled 21-526EZ' do
               Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+              Flipper.disable(:disability_compensation_remove_pciu)
               Flipper.disable(:disability_compensation_remove_pciu)
               Flipper.enable(:disability_526_toxic_exposure, user)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
