@@ -10,12 +10,12 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::VBSSubmissionJob, type: :worker do
     let(:user) { build(:user, :loa3) }
     let(:user_data) { build(:user_profile_attributes) }
     let(:msg) do
-        {
-          'class' => 'YourJobClassName',
-          'args' => %w[123 123-abc],
-          'jid' => '12345abcde',
-          'retry_count' => 5
-        }
+      {
+        'class' => 'YourJobClassName',
+        'args' => %w[123 123-abc],
+        'jid' => '12345abcde',
+        'retry_count' => 5
+      }
     end
 
     context 'when all retries are exhausted' do
