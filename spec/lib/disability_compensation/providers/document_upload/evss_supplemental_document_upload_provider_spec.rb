@@ -77,7 +77,7 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
           .and_return(faraday_response)
 
         expect(StatsD).to receive(:increment).with(
-          'my_upload_job_prefix.evss_supplemental_document_upload_provider.success'
+          'my_upload_job_prefix.evss_supplemental_document_upload_provider.upload_success'
         )
 
         provider.submit_upload_document(evss_claim_document, file_body)
@@ -104,7 +104,7 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
 
       it 'increments a StatsD failure metric' do
         expect(StatsD).to receive(:increment).with(
-          'my_upload_job_prefix.evss_supplemental_document_upload_provider.failed'
+          'my_upload_job_prefix.evss_supplemental_document_upload_provider.upload_failure'
         )
         provider.log_upload_failure(error_class, error_message)
       end
