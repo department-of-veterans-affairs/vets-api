@@ -29,6 +29,7 @@ describe VAOS::V2::SystemsService do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
         end
+
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/systems/get_facility_clinics_400', match_requests_on: %i[method path query]) do
             expect do
@@ -58,6 +59,7 @@ describe VAOS::V2::SystemsService do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
         end
+
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/systems/get_facility_clinics_400', match_requests_on: %i[method path query]) do
             expect do
