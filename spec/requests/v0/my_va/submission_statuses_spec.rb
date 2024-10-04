@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'forms/submission_statuses/gateway'
 
 RSpec.describe 'V0::MyVA::SubmissionStatuses', type: :request do
-  let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
+  let(:user) { build(:user, :loa1) }
 
   before do
     sign_in_as(user)
