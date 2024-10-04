@@ -13,10 +13,4 @@ class UserSerializer
              :in_progress_forms, :prefills_available, :vet360_contact_information,
              :session, :onboarding
 
-  def account
-    {
-      account_uuid: object.account_uuid,
-      created_at: object.initial_sign_in
-    }
-  end
 end

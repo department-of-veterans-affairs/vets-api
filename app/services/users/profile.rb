@@ -58,7 +58,7 @@ module Users
     end
 
     def account
-      { account_uuid: user.account_uuid, created_at: user.initial_sign_in }
+      { account_uuid: user.account_uuid }
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'Account').serialize_error
       nil
@@ -87,8 +87,9 @@ module Users
         sec_id: user.sec_id,
         logingov_uuid: user.logingov_uuid,
         idme_uuid: user.idme_uuid,
-        id_theft_flag: user.id_theft_flag
-      }
+        id_theft_flag: user.id_theft_flag,
+        initial_sign_in: user.initial_sign_in
+    }
     end
     # rubocop:enable Metrics/MethodLength
 

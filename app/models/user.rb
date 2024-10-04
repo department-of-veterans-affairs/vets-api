@@ -49,7 +49,7 @@ class User < Common::RedisStore
   end
 
   def initial_sign_in
-    user_account ? user_account.created_at.iso8601 : ""
+    user_account.created_at
   end
 
   def credential_lock

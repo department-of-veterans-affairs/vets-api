@@ -84,10 +84,6 @@ RSpec.describe Users::Profile do
       it 'includes account uuid' do
         expect(subject.account[:account_uuid]).to eq(user.account_uuid)
       end
-
-      it 'includes created_at' do
-        expect(subject.account[:created_at]).to eq(user.initial_sign_in)
-      end
     end
 
     describe '#profile' do
@@ -172,6 +168,10 @@ RSpec.describe Users::Profile do
             expect(profile[:claims][:form526_required_identifier_presence]).to eq(nil)
           end
         end
+      end
+
+      it 'includes initial_sign_in' do
+        expect(profile[:initial_sign_in]).to eq(user.initial_sign_in)
       end
 
       it 'includes email' do

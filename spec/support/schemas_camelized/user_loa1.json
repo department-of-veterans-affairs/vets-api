@@ -79,17 +79,10 @@
             "account": {
               "type": "object",
               "required": [
-                "accountUuid",
-                "createdAt"
+                "accountUuid"
               ],
               "properties": {
                 "accountUuid": {
-                  "type": [
-                    "string",
-                    null
-                  ]
-                },
-                "createdAt": {
                   "type": [
                     "string",
                     null
@@ -108,6 +101,7 @@
                 "gender",
                 "zip",
                 "lastSignedIn",
+                "initialSignIn",
                 "loa",
                 "multifactor",
                 "verified",
@@ -162,6 +156,12 @@
                   ]
                 },
                 "lastSignedIn": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
+                "initialSignIn": {
                   "type": [
                     "string",
                     null
