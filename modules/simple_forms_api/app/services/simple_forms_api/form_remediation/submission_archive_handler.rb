@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api/form_remediation/configuration/base'
-
 module SimpleFormsApi
   module FormRemediation
     class SubmissionArchiveHandler
@@ -9,7 +7,7 @@ module SimpleFormsApi
 
       PROGRESS_FILE_PATH = '/tmp/submission_archive_progress.json'
 
-      def initialize(ids: [], config: Configuration::Base.new)
+      def initialize(ids: [], config:)
         raise Common::Exceptions::ParameterMissing, 'ids' unless ids&.any?
 
         @ids = ids
@@ -18,7 +16,7 @@ module SimpleFormsApi
         @presigned_urls = []
         load_progress
       rescue => e
-        config.handle_error('SubmissionArchiveHandler initialization failed', e)
+        config.handle_error("#{self.class.name} initialization failed", e)
       end
 
       def upload(type: :remediation)
