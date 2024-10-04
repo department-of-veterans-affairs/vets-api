@@ -62,12 +62,9 @@ class LighthouseSupplementalDocumentUploadProvider
     handle_lighthouse_response(api_response)
   end
 
-  # To call in the sidekiq_retries_exhausted block of the including job
-  # This is meant to log an upload attempt that was retried and eventually given up on,
-  # so we can investigate the failure in Datadog
+  # To call in the sidekiq_retries_exhausted block of the including job for DataDog monitoring
   #
-  # @param uploading_job_class [String] the job where we are uploading the Lighthouse Document
-  # (e.g. UploadBDDInstructions)
+  # @param uploading_job_class [String] the job uploading the document (e.g. UploadBDDInstructions)
   # @param error_class [String] the Error class of the exception that exhausted the upload job
   # @param error_message [String] the message in the exception that exhausted the upload job
   def log_uploading_job_failure(uploading_job_class, error_class, error_message)
@@ -145,22 +142,14 @@ class LighthouseSupplementalDocumentUploadProvider
     end
   end
 
-  # Parses a response from the Lighthouse Benefits Document API
-  # If there is a problem with the upload, Lighthouse provides an array of error hashes
-  # (See spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
-  # for an example).
-  #
-  # If the upload succeeds, we get success metadata nested under a 'data' key, a success flag and a requestId
-  # we can use to poll Lighthouse for the document's status later
+  # @param response_body [JSON] Lighthouse API response returned from the UploadSupplementalDocumentService
   def lighthouse_success_response?(response_body)
     !response_body['errors'] && response_body.dig('data', 'success') && response_body.dig('data', 'requestId')
   end
 
   # Creates a Lighthouse526DocumentUpload polling record
   #
-  # @param lighthouse_request_id [String] unique ID Lighthouse provides us in the API response after we
-  # upload a document. We use this ID in the Form526DocumentUploadPollingJob chron job to check the status
-  # of the document after Lighthouse has received it.
+  # @param lighthouse_request_id [String] unique ID Lighthouse provides us in the API response for polling later
   def create_lighthouse_polling_record(lighthouse_request_id)
     Lighthouse526DocumentUpload.create!(
       form526_submission: @form526_submission,

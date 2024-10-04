@@ -173,8 +173,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
 
     context 'when we get a non-200 response from Lighthouse' do
       let(:error_response_body) do
-        # Based on error response Lighthouse returned saved in VCR cassette:
-        # spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
+        # Based on spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
         {
           'errors' => [
             {
@@ -223,7 +222,6 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
       end
     end
 
-    # Will be called in the sidekiq_retries_exhausted block of the including job
     context 'uploading job failure' do
       let(:uploading_job_class) { 'MyUploadJob' }
       let(:error_class) { 'StandardError' }
