@@ -3,7 +3,7 @@
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-RSpec.describe SimpleFormsApi::S3::SubmissionArchiveHandler do
+RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchiveHandler do
   let(:form_type) { '21-10210' }
   let(:form_data) { File.read("modules/simple_forms_api/spec/fixtures/form_json/vba_#{form_type.tr('-', '_')}.json") }
   let(:submissions) do
@@ -30,10 +30,10 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveHandler do
 
     let(:instance) { described_class.new(ids: benefits_intake_uuids) }
     let(:presigned_url) { '/s3_presigned_url' }
-    let(:s3_client) { instance_double(SimpleFormsApi::S3::S3Client, upload: presigned_url) }
+    let(:s3_client) { instance_double(SimpleFormsApi::FormRemediation::S3Client, upload: presigned_url) }
 
     before do
-      allow(SimpleFormsApi::S3::S3Client).to receive(:new).and_return(s3_client)
+      allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:new).and_return(s3_client)
       allow(s3_client).to receive(:upload).and_return(presigned_url)
       allow(Rails.logger).to receive(:info).and_call_original
     end

@@ -16,17 +16,17 @@ module SimpleFormsApi
 
         # Override to inject your team's own submission archive
         def submission_archive_class
-          SimpleFormsApi::S3::SubmissionArchive
+          SimpleFormsApi::FormRemediation::SubmissionArchive
         end
 
         # Override to inject your team's own s3 client
         def s3_client
-          SimpleFormsApi::S3::S3Client
+          SimpleFormsApi::FormRemediation::S3Client
         end
 
         # Override to inject your team's own submission data builder
         def remediation_data_class
-          SimpleFormsApi::S3::SubmissionRemediationData
+          SimpleFormsApi::FormRemediation::SubmissionRemediationData
         end
 
         # Override to inject your team's own file uploader

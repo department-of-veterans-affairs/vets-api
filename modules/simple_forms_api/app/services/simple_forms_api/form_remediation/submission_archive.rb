@@ -7,7 +7,7 @@ require 'simple_forms_api/form_submission_remediation/configuration/base'
 # Built in accordance with the following documentation:
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
 module SimpleFormsApi
-  module S3
+  module FormRemediation
     class SubmissionArchive
       include FileUtilities
 

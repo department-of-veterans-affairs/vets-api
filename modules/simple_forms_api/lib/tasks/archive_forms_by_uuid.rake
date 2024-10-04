@@ -19,7 +19,7 @@ namespace :simple_forms_api do
       )
 
       # Call the service object synchronously and get the presigned URLs
-      handler = SimpleFormsApi::S3::SubmissionArchiveHandler.new(ids: benefits_intake_uuids)
+      handler = SimpleFormsApi::FormRemediation::SubmissionArchiveHandler.new(ids: benefits_intake_uuids)
       presigned_urls = handler.upload(type: type.to_sym)
 
       Rails.logger.info('SubmissionArchiveHandler completed successfully.')

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  module S3
+  module FormRemediation
     module FileUtilities
       def zip_directory!(parent_dir, file_path)
         base_dir = build_path(:dir, parent_dir, 'remediation', ext: '.zip')

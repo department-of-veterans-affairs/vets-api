@@ -3,7 +3,7 @@
 require 'simple_forms_api/form_submission_remediation/configuration/base'
 
 module SimpleFormsApi
-  module S3
+  module FormRemediation
     class SubmissionRemediationData
       DEFAULT_CONFIG = SimpleFormsApi::FormSubmissionRemediation::Configuration::Base.freeze
 
