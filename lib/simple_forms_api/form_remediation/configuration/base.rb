@@ -2,7 +2,7 @@
 
 module SimpleFormsApi
   module FormRemediation
-    class Configuration
+    module Configuration
       class Base
         attr_reader :id_type, :include_manifest, :include_metadata, :parent_dir, :presign_s3_url
 
@@ -52,9 +52,9 @@ module SimpleFormsApi
           @temp_directory_path ||= Rails.root.join("tmp/#{SecureRandom.hex}-archive/").to_s
         end
 
-        # Used in the VeteranFacingFormsRemediationUploader S3 uploader
+        # Used in the SimpleFormsApi::FormRemediation::Uploader S3 uploader
         def s3_settings
-          Settings.vff_simple_forms.aws
+          raise NotImplementedError, 'Class must implement s3_settings method'
         end
 
         # The base S3 resource used for all S3 manipulations
