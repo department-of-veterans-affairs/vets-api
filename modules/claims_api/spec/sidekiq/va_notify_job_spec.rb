@@ -8,7 +8,7 @@ describe ClaimsApi::VANotifyJob, type: :job do
 
   let(:va_notify_org) do
     create(:organization, address_line1: '345 Sixth St.', address_line2: 'Suite 3',
-                          zip_code: '12345', zip_suffix: '9876', city: 'Pensacola', state_code: 'FL')
+                          zip_code: '12345', zip_suffix: '9876', city: 'Pensacola', state: 'FL')
   end
 
   let(:va_notify_rep) do
@@ -30,64 +30,23 @@ describe ClaimsApi::VANotifyJob, type: :job do
   let(:vanotify_client) { instance_double(VaNotify::Service) }
 
   let(:va_notify_rep_poa_form_data) do
-    {
-      'representative' => {
-        'poaCode' => '072',
-        'firstName' => 'Myfn',
-        'lastName' => 'Myln',
-        'type' => 'ATTORNEY',
-        'address' => {
-          'addressLine1' => '123 First St.',
-          'addressLine2' => 'Apt. 2',
-          'city' => 'North Beach',
-          'stateCode' => 'OR',
-          'country' => 'US',
-          'zipCode' => '12345'
-        }
-      },
-      'recordConsent' => true,
-      'consentLimits' => []
-    }
+    data = JSON.parse(
+      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
+                      'veterans', 'power_of_attorney', '2122a', 'valid.json').read
+    )
+
+    form_data = data['data']['attributes']
+    form_data
   end
 
   let(:va_notify_dependent_form_data) do
-    {
-      'veteran' => {
-        'address' => {
-          'addressLine1' => '123',
-          'city' => 'city',
-          'stateCode' => 'OR',
-          'country' => 'US',
-          'zipCode' => '12345'
-        }
-      },
-      'representative' => {
-        'poaCode' => '067',
-        'registrationNumber' => '999999999999',
-        'type' => 'ATTORNEY',
-        'address' => {
-          'addressLine1' => '123 Fourth St.',
-          'addressLine2' => 'Apt. 3',
-          'addressLine3' => 'P.O Box 34',
-          'city' => 'city',
-          'stateCode' => 'OR',
-          'country' => 'US',
-          'zipCode' => '12345'
-        }
-      },
-      'claimant' => {
-        'claimantId' => '1111111V2222',
-        'address' => {
-          'addressLine1' => '456 Seventh St.',
-          'addressLine2' => 'Apt. 3',
-          'city' => 'city',
-          'stateCode' => 'OR',
-          'country' => 'US',
-          'zipCode' => '12345'
-        },
-        'relationship' => 'spouse'
-      }
-    }
+    data = JSON.parse(
+      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
+                      'veterans', 'power_of_attorney', '2122a', 'valid_with_claimant.json').read
+    )
+
+    form_data = data['data']['attributes']
+    form_data
   end
 
   let(:va_notify_org_poa_form_data) do
@@ -127,10 +86,8 @@ describe ClaimsApi::VANotifyJob, type: :job do
               rep_first_name: va_notify_rep.first_name,
               rep_last_name: va_notify_rep.last_name,
               representative_type: va_notify_rep_poa_form_data['representative']['type'],
-              address: "123 First St.\n Apt. 2",
-              city: va_notify_rep_poa_form_data['representative']['address']['city'],
-              state: va_notify_rep_poa_form_data['representative']['address']['stateCode'],
-              zip: va_notify_rep_poa_form_data['representative']['address']['zipCode'],
+              address: "123\n 2a",
+              location: 'city, OR 12345-6789',
               email: va_notify_rep.email,
               phone: va_notify_rep.phone_number
             },
@@ -158,10 +115,8 @@ describe ClaimsApi::VANotifyJob, type: :job do
               rep_first_name: va_notify_rep.first_name,
               rep_last_name: va_notify_rep.last_name,
               representative_type: va_notify_dependent_form_data['representative']['type'],
-              address: "123 Fourth St.\n Apt. 3\n P.O Box 34",
-              city: va_notify_dependent_form_data['representative']['address']['city'],
-              state: va_notify_dependent_form_data['representative']['address']['stateCode'],
-              zip: va_notify_dependent_form_data['representative']['address']['zipCode'],
+              address: "123 Park Plaza\n Suite 2a",
+              location: 'Portland, OR 12345-6789',
               email: va_notify_rep.email,
               phone: va_notify_rep.phone_number
             },
@@ -188,9 +143,7 @@ describe ClaimsApi::VANotifyJob, type: :job do
               first_name: organization_poa.auth_headers['va_eauth_firstName'],
               org_name: va_notify_org.name,
               address: "345 Sixth St.\n Suite 3",
-              city: va_notify_org.city,
-              state: va_notify_org.state_code,
-              zip: "#{va_notify_org.zip_code}-#{va_notify_org.zip_suffix}",
+              location: 'Pensacola, FL 12345-9876',
               phone: ''
             },
             template_id: Settings.claims_api.vanotify.service_organization_template_id
@@ -275,7 +228,7 @@ describe ClaimsApi::VANotifyJob, type: :job do
 
   describe '#build_ind_poa_address' do
     it 'build the address correctly' do
-      expected = "123 Fourth St.\n Apt. 3\n P.O Box 34"
+      expected = "123 Park Plaza\n Suite 2a"
       res = subject.send(:build_ind_poa_address, rep_dep_poa)
 
       expect(res).to eq(expected)

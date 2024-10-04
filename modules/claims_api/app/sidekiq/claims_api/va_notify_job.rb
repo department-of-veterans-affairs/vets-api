@@ -48,9 +48,7 @@ module ClaimsApi
           rep_last_name: value_or_default_for_field(rep.last_name),
           representative_type: value_or_default_for_field(poa.form_data.dig('representative', 'type')),
           address: value_or_default_for_field(build_ind_poa_address(poa)),
-          city: value_or_default_for_field(poa.form_data.dig('representative', 'address', 'city')),
-          state: value_or_default_for_field(poa.form_data.dig('representative', 'address', 'stateCode')),
-          zip: value_or_default_for_field(rep_zip(poa)),
+          location: value_or_default_for_field(rep_location(poa)),
           email: value_or_default_for_field(rep.email),
           phone: rep_phone(rep)
         },
@@ -65,9 +63,7 @@ module ClaimsApi
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           org_name: value_or_default_for_field(org.name),
           address: build_org_address(org),
-          city: value_or_default_for_field(org.city),
-          state: value_or_default_for_field(org.state_code),
-          zip: value_or_default_for_field(org_zip(org)),
+          location: value_or_default_for_field(org_location(org)),
           phone: value_or_default_for_field(org.phone)
         },
         template_id: Settings.claims_api.vanotify.service_organization_template_id
@@ -93,15 +89,39 @@ module ClaimsApi
       end
     end
 
-    def rep_zip(poa)
-      first_five = poa.form_data.dig('representative', 'address', 'zipCode')
-      last_four = poa.form_data.dig('representative', 'address', 'zipCodeSuffix')
+    def rep_location(poa)
+      address = poa.form_data.dig('representative', 'address')
+      city = address['city']
+      state = address['stateCode']
+      zip = rep_zip(address)
+
+      build_location(city, state, zip)
+    end
+
+    def org_location(org)
+      city = org.city
+      state_or_province = org.state_code || org.state || org.province
+      zip = org_zip(org)
+
+      build_location(city, state_or_province, zip)
+    end
+
+    def build_location(city, state_or_province, zip)
+      location = [city, state_or_province].compact_blank.join(', ')
+      [location, zip].compact_blank.join(' ')
+    end
+
+    def rep_zip(address)
+      first_five = address['zipCode']
+      last_four = address['zipCodeSuffix']
+
       format_zip_values(first_five, last_four)
     end
 
     def org_zip(org)
       zip = org.zip_code
       suffx = org.zip_suffix
+
       format_zip_values(zip, suffx)
     end
 

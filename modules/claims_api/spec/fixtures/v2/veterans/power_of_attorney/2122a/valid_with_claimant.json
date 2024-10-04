@@ -1,0 +1,43 @@
+{
+  "data": {
+    "attributes": {
+      "veteran": {
+        "address": {
+          "addressLine1":  "123 Fourth St.",
+          "addressLine2": "Apt. 3",
+          "addressLine3": "P.O. Box 34",
+          "city": "Portland",
+          "country":  "US",
+          "stateCode":"OR",
+          "zipCode": "12345",
+          "zipCodeSuffix":"6789"
+        }
+      },
+      "representative": {
+        "poaCode": "067",
+        "registrationNumber": "999999999999",
+        "type": "ATTORNEY",
+        "address": {
+          "addressLine1":  "123 Park Plaza",
+          "addressLine2": "Suite 2a",
+          "city": "Portland",
+          "country":  "US",
+          "stateCode":"OR",
+          "zipCode": "12345",
+          "zipCodeSuffix":"6789"
+        }
+      },
+      "claimant" :{
+        "address": {
+          "addressLine1":  "456 first St.",
+          "addressLine2": "2a",
+          "city": "Portland",
+          "country":  "US",
+          "stateCode": "OR",
+          "zipCode": "97531"
+        },
+        "relationship": "Spouse"
+      }
+    }
+  }
+}
