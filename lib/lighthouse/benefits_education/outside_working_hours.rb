@@ -2,6 +2,8 @@
 
 require 'common/exceptions/base_error'
 
+# TO-DO: Remove this error after transition of LTS to 24/7 availability and associated lines
+# in exceptions.en.yml
 module BenefitsEducation
   ##
   # Custom error for when the user is attempting to access the service

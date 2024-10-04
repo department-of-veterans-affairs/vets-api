@@ -2,6 +2,8 @@
 
 require 'backend_services'
 
+# TO-DO: After transition of Post-911 GI Bill to 24/7 availability, confirm
+# BackendStatus (singular) model and related logic can be removed
 class BackendStatus
   include ActiveModel::Serialization
   include ActiveModel::Validations
@@ -18,16 +20,18 @@ class BackendStatus
   end
 
   def available?
-    gibs_service? ? BenefitsEducation::Service.within_scheduled_uptime? : true
+    service_subject_to_downtime? ? BenefitsEducation::Service.within_scheduled_uptime? : true
   end
 
   def uptime_remaining
-    gibs_service? ? BenefitsEducation::Service.seconds_until_downtime.to_i : 0
+    service_subject_to_downtime? ? BenefitsEducation::Service.seconds_until_downtime.to_i : 0
   end
 
   private
 
-  def gibs_service?
+  def service_subject_to_downtime?
+    return false if Flipper.enabled?(:sob_updated_design)
+
     @name == BackendServices::GI_BILL_STATUS
   end
 end
