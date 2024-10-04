@@ -18,7 +18,7 @@ module ClaimsApi
 
         errors = validate_claimant(service:, base:)
 
-        return { errors: errors } if errors.present?
+        return { errors: } if errors.present?
 
         build_claimant_data(service:)
       end
@@ -57,7 +57,7 @@ module ClaimsApi
         }
       end
 
-      validate_dependent(service:, errors:)
+      def validate_dependent(service:, errors:)
         service.validate_dependent_by_participant_id!
       rescue ::Common::Exceptions::UnprocessableEntity
         errors << {
