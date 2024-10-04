@@ -107,22 +107,24 @@ describe SimpleFormsApi::NotificationEmail do
       end
 
       context 'send at time is specified' do
-        context 'user is passed in' do
-          let(:email) { 'email@fromrecord.com' }
-          let(:user) { create(:user, { email: }) }
+        context 'user_account is passed in' do
+          let(:user_account) { create(:user_account) }
 
           it 'sends the email at the specified time' do
             time = double
+            mpi_profile = double(first_name: double, error: nil)
             allow(VANotify::UserAccountJob).to receive(:perform_at)
-            subject = described_class.new(config, notification_type:, user:)
+            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(mpi_profile)
+            subject = described_class.new(config, notification_type:, user_account:)
 
             subject.send(at: time)
 
-            expect(VANotify::UserAccountJob).to have_received(:perform_at).with(time, user.uuid, anything, anything)
+            expect(VANotify::UserAccountJob).to have_received(:perform_at).with(time, user_account.id, anything,
+                                                                                anything)
           end
         end
 
-        context 'user is not passed in' do
+        context 'user and user_account are not passed in' do
           it 'sends the email at the specified time' do
             time = double
             allow(VANotify::EmailJob).to receive(:perform_at)
@@ -152,8 +154,7 @@ describe SimpleFormsApi::NotificationEmail do
       context 'users own claim' do
         context 'is a veteran' do
           context 'user is passed in' do
-            let(:email) { 'email@fromrecord.com' }
-            let(:user) { build(:user, { email: }) }
+            let(:user) { build(:user) }
 
             it 'calls VANotify::EmailJob with user record email' do
               allow(VANotify::EmailJob).to receive(:perform_async)
@@ -165,7 +166,7 @@ describe SimpleFormsApi::NotificationEmail do
               subject.send
 
               expect(VANotify::EmailJob).to have_received(:perform_async).with(
-                email,
+                user.va_profile_email,
                 "form21_10210_#{notification_type}_email_template_id",
                 {
                   'first_name' => 'JOHN',
@@ -202,8 +203,7 @@ describe SimpleFormsApi::NotificationEmail do
 
           context 'is not a veteran' do
             context 'user is passed in' do
-              let(:email) { 'email@fromrecord.com' }
-              let(:user) { build(:user, { email: }) }
+              let(:user) { build(:user) }
 
               it 'calls VANotify::EmailJob with user record email' do
                 allow(VANotify::EmailJob).to receive(:perform_async)
@@ -215,7 +215,7 @@ describe SimpleFormsApi::NotificationEmail do
                 subject.send
 
                 expect(VANotify::EmailJob).to have_received(:perform_async).with(
-                  email,
+                  user.va_profile_email,
                   "form21_10210_#{notification_type}_email_template_id",
                   {
                     'first_name' => 'JOE',
@@ -409,16 +409,18 @@ describe SimpleFormsApi::NotificationEmail do
       end
 
       describe 'signed in user' do
+        let(:user) { create(:user) }
+
         it 'non-veteran authorizer' do
           allow(VANotify::EmailJob).to receive(:perform_async)
           data['authorizer_email'] = 'authorizer_email@example.com'
 
-          subject = described_class.new(config, user: create(:user))
+          subject = described_class.new(config, user:)
 
           subject.send
 
           expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            'authorizer_email@example.com',
+            user.va_profile_email,
             'form21_0845_confirmation_email_template_id',
             {
               'first_name' => 'JACK',
