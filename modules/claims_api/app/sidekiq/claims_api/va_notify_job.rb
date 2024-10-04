@@ -136,7 +136,7 @@ module ClaimsApi
     end
 
     def icn_for_vanotify(auth_headers)
-      auth_headers['va_notify_recipient_identifier']
+      auth_headers[ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY]
     end
 
     def build_ind_poa_address(poa)
