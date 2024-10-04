@@ -173,7 +173,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
 
     context 'when we get a non-200 response from Lighthouse' do
       let(:error_response_body) do
-        # Based on spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
+        # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
         {
           'errors' => [
             {
