@@ -8,14 +8,8 @@ class EVSSSupplementalDocumentUploadProvider
   STATSD_PROVIDER_METRIC = 'evss_supplemental_document_upload_provider'
 
   # @param form526_submission [Form526Submission]
-  #
-  # @param va_document_type [String] The VA document code, which corresponds to
-  # the type of document being uploaded ('Buddy/Lay Statement', 'Disability Benefits Questionnaire (DBQ)' etc.)
-  # These types are mapped in LighthouseDocument::DOCUMENT_TYPES
-  #
-  # @param statsd_metric_prefix [String] the metrics prefix the job calling this provider wants us to use when logging
-  # (e.g. 'worker.evss.submit_form526_bdd_instructions' for the UploadBddInstructions job)
-  #
+  # @param va_document_type [String] VA document code; see LighthouseDocument::DOCUMENT_TYPES
+  # @param statsd_metric_prefix [String] prefix, e.g. 'worker.evss.submit_form526_bdd_instructions' from including job
   def initialize(form526_submission, va_document_type, statsd_metric_prefix)
     @form526_submission = form526_submission
     @va_document_type = va_document_type
@@ -28,10 +22,6 @@ class EVSSSupplementalDocumentUploadProvider
   # an assembly of file-related EVSS metadata, not the actual uploaded file itself
   #
   # @param file_name [String] The name of the file we want to appear in EVSS
-  # @param document_type [String] The VA document code, which corresponds to
-  # the type of document being uploaded ('Buddy/Lay Statement', 'Disability Benefits Questionnaire (DBQ)' etc.)
-  # These types are mapped in EVSSClaimDocument[DOCUMENT_TYPES]
-  #
   # @return [EVSSClaimDocument]
   def generate_upload_document(file_name)
     EVSSClaimDocument.new(

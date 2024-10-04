@@ -16,13 +16,8 @@ class LighthouseSupplementalDocumentUploadProvider
 
   # @param form526_submission [Form526Submission]
   #
-  # @param va_document_type [String] The VA document code, which corresponds to
-  # the type of document being uploaded ('Buddy/Lay Statement', 'Disability Benefits Questionnaire (DBQ)' etc.)
-  # These types are mapped in LighthouseDocument::DOCUMENT_TYPES
-  #
-  # @param statsd_metric_prefix [String] the metrics prefix the job calling this provider wants us to use when logging
-  # (e.g. 'worker.evss.submit_form526_bdd_instructions' for the UploadBddInstructions job)
-  #
+  # @param va_document_type [String] VA document code, see LighthouseDocument::DOCUMENT_TYPES
+  # @param statsd_metric_prefix [String] prefix, e.g. 'worker.evss.submit_form526_bdd_instructions' from including job
   def initialize(form526_submission, va_document_type, statsd_metric_prefix)
     @form526_submission = form526_submission
     @va_document_type = va_document_type
@@ -81,9 +76,6 @@ class LighthouseSupplementalDocumentUploadProvider
 
   private
 
-  # Processes the response from Lighthouse and logs accordingly. If the upload is successful, creates
-  # a polling record so we can check on the status of the document after Lighthouse has receieved it
-  #
   # @param api_response [Faraday::Response] Lighthouse API response returned from the UploadSupplementalDocumentService
   def handle_lighthouse_response(api_response)
     response_body = api_response.body['data']
