@@ -6,6 +6,7 @@ RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_ma
                                         type: :request do
   let(:user) { create(:user, :loa3) }
 
+  # rubocop:disable RSpec/ScatteredSetup
   path '/representation_management/v0/power_of_attorney' do
     before do
       sign_in_as(user)
@@ -52,4 +53,5 @@ RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_ma
       end
     end
   end
+  # rubocop:enable RSpec/ScatteredSetup
 end
