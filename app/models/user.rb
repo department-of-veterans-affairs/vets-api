@@ -311,7 +311,7 @@ class User < Common::RedisStore
   # Other MPI
 
   def invalidate_mpi_cache
-    return unless mpi.mpi_response_is_cached?
+    return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response
 
     mpi.destroy
     @mpi = nil
