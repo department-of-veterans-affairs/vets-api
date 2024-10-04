@@ -101,8 +101,8 @@ module Pensions
     ##
     # Check FormSubmissionAttempts for record with 'pending' or 'success'
     #
-    # @return false if unable to find a FormSubmission, matching the intake.uuid
-    # or there are no matching FormSubmissionAttempt aasm_states
+    # @return true if FormSubmissionAttempt has 'pending' or 'success'
+    # @return false if unable to find a FormSubmission or FormSubmissionAttempt not 'pending' or 'success'
     #
     def form_submission_pending_or_success
       @claim&.form_submissions&.any? do |form_submission|
