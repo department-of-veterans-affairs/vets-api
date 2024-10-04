@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Post911GIBillStatus', type: :request do
+RSpec.describe 'V1::Post911GIBillStatus', type: :request do
   include SchemaMatchers
 
   let(:tz) { ActiveSupport::TimeZone.new(BenefitsEducation::Service::OPERATING_ZONE) }
@@ -15,6 +15,7 @@ RSpec.describe 'V0::Post911GIBillStatus', type: :request do
     allow(Settings.evss).to receive(:mock_gi_bill_status).and_return(false)
   end
 
+  # TO-DO: Rename context after transition of LTS to 24/7 availability
   context 'inside working hours' do
     before { Timecop.freeze(noon) }
 
@@ -31,8 +32,12 @@ RSpec.describe 'V0::Post911GIBillStatus', type: :request do
     end
   end
 
+  # TO-DO: Remove context after transition of LTS to 24/7 availability
   context 'outside working hours' do
-    before { Timecop.freeze(midnight) }
+    before do
+      Flipper.disable(:sob_updated_design)
+      Timecop.freeze(midnight)
+    end
 
     after { Timecop.return }
 

@@ -8,7 +8,16 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
   let(:submission) { create(:form526_submission) }
   let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
   let(:file_name) { Faker::File.file_name }
-  let(:provider) { EVSSSupplementalDocumentUploadProvider.new(submission) }
+
+  let(:va_document_type) { 'L023' }
+
+  let(:provider) do
+    EVSSSupplementalDocumentUploadProvider.new(
+      submission,
+      va_document_type,
+      'my_upload_job_prefix'
+    )
+  end
 
   let(:evss_claim_document) do
     EVSSClaimDocument.new(
@@ -23,16 +32,14 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
   describe '#generate_upload_document' do
     it 'generates an EVSSClaimDocument' do
       file_name = Faker::File.file_name
-      document_type = 'L023'
-
-      upload_document = provider.generate_upload_document(file_name, document_type)
+      upload_document = provider.generate_upload_document(file_name)
 
       expect(upload_document).to be_an_instance_of(EVSSClaimDocument)
       expect(upload_document).to have_attributes(
         {
           evss_claim_id: submission.submitted_claim_id,
           file_name:,
-          document_type:
+          document_type: va_document_type
         }
       )
     end
@@ -55,14 +62,25 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
 
   describe '#submit_upload_document' do
     context 'for a valid payload' do
-      let(:faraday_response) { instance_double(Faraday::Response) }
+      it 'submits the document via the EVSSDocumentService' do
+        expect_any_instance_of(EVSS::DocumentsService).to receive(:upload)
+          .with(file_body, evss_claim_document)
 
-      it 'submits the document via the EVSSDocumentService and returns the API response' do
+        provider.submit_upload_document(evss_claim_document, file_body)
+      end
+
+      it 'increments a StatsD success metric' do
+        faraday_response = instance_double(Faraday::Response)
+
         allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
           .with(file_body, evss_claim_document)
           .and_return(faraday_response)
 
-        expect(provider.submit_upload_document(evss_claim_document, file_body)).to eq(faraday_response)
+        expect(StatsD).to receive(:increment).with(
+          'my_upload_job_prefix.evss_supplemental_document_upload_provider.upload_success'
+        )
+
+        provider.submit_upload_document(evss_claim_document, file_body)
       end
     end
   end
@@ -72,15 +90,12 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
     # since submissions have callbacks that log to StatsD and we need to test
     # only the metrics in this class
     let(:submission) { instance_double(Form526Submission) }
-    let(:provider) { EVSSSupplementalDocumentUploadProvider.new(submission) }
-
-    describe 'log_upload_success' do
-      it 'increments a StatsD success metric' do
-        expect(StatsD).to receive(:increment).with(
-          'my_upload_job_prefix.evss_supplemental_document_upload_provider.success'
-        )
-        provider.log_upload_success('my_upload_job_prefix')
-      end
+    let(:provider) do
+      EVSSSupplementalDocumentUploadProvider.new(
+        submission,
+        va_document_type,
+        'my_upload_job_prefix'
+      )
     end
 
     describe 'log_upload_failure' do
@@ -89,9 +104,9 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
 
       it 'increments a StatsD failure metric' do
         expect(StatsD).to receive(:increment).with(
-          'my_upload_job_prefix.evss_supplemental_document_upload_provider.failed'
+          'my_upload_job_prefix.evss_supplemental_document_upload_provider.upload_failure'
         )
-        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
+        provider.log_upload_failure(error_class, error_message)
       end
 
       it 'logs to the Rails logger' do
@@ -104,7 +119,7 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
           }
         )
 
-        provider.log_upload_failure('my_upload_job_prefix', error_class, error_message)
+        provider.log_upload_failure(error_class, error_message)
       end
     end
   end
