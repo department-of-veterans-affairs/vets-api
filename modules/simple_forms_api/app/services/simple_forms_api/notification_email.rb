@@ -143,10 +143,13 @@ module SimpleFormsApi
         mpi_profile = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
         if mpi_profile
           raise mpi_profile.error if mpi_profile.error
+          raise 'First name not found in MPI profile' unless mpi_profile.first_name
 
           mpi_profile.first_name
         end
       elsif user
+        raise 'First name not found in user profile' unless user.first_name
+
         user.first_name
       end
     end
