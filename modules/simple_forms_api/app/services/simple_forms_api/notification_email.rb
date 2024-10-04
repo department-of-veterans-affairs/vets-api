@@ -99,6 +99,8 @@ module SimpleFormsApi
       # async job and we have a UserAccount
       if user_account
         data[:personalization]['first_name'] = get_first_name
+        return if data[:personalization]['first_name'].blank?
+
         VANotify::UserAccountJob.perform_at(
           at,
           user_account.id,
@@ -107,7 +109,7 @@ module SimpleFormsApi
         )
       # async job and we don't have a UserAccount but form data should include email
       else
-        return if data[:email].blank?
+        return if data[:email].blank? || data[:personalization]['first_name'].blank?
 
         VANotify::EmailJob.perform_at(
           at,
@@ -121,6 +123,8 @@ module SimpleFormsApi
     def send_email_now(template_id, data)
       # sync job and we have a User
       if user
+        return if data[:personalization]['first_name'].blank?
+
         VANotify::EmailJob.perform_async(
           user.va_profile_email,
           template_id,
@@ -128,7 +132,7 @@ module SimpleFormsApi
         )
       # sync job and form data should include email
       else
-        return if data[:email].blank?
+        return if data[:email].blank? || data[:personalization]['first_name'].blank?
 
         VANotify::EmailJob.perform_async(
           data[:email],
@@ -140,17 +144,21 @@ module SimpleFormsApi
 
     def get_first_name
       if user_account
-        mpi_profile = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
-        if mpi_profile
-          raise mpi_profile.error if mpi_profile.error
-          raise 'First name not found in MPI profile' unless mpi_profile.first_name
+        mpi_response = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
+        if mpi_response
+          error = mpi_response.error
+          Rails.logger.error('MPI response error', { error: }) if error
 
-          mpi_profile.first_name
+          first_name = mpi_response.profile&.given_names&.first
+          Rails.logger.error('MPI profile missing first_name') unless first_name
+
+          first_name
         end
       elsif user
-        raise 'First name not found in user profile' unless user.first_name
+        first_name = user.first_name
+        Rails.logger.error('First name not found in user profile') unless first_name
 
-        user.first_name
+        first_name
       end
     end
 
