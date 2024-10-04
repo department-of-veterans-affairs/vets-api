@@ -5,6 +5,8 @@ require 'simple_forms_api/form_submission_remediation/configuration/base'
 module SimpleFormsApi
   module S3
     class SubmissionArchiveHandler
+      include FileUtilities
+
       BASE_CONFIG = FormSubmissionRemediation::Configuration::Base.freeze
       PROGRESS_FILE_PATH = '/tmp/submission_archive_progress.json'
 
@@ -25,7 +27,7 @@ module SimpleFormsApi
 
         archive_individual_submissions
         presigned_urls = read_urls_from_file
-        cleanup
+        cleanup(PROGRESS_FILE_PATH)
         presigned_urls
       rescue => e
         config.handle_error("Archiving #{type} collection failed.", e)
@@ -34,10 +36,6 @@ module SimpleFormsApi
       private
 
       attr_reader :config, :ids, :parent_dir, :presigned_urls, :type
-
-      def cleanup
-        FileUtils.rm_rf(PROGRESS_FILE_PATH)
-      end
 
       def load_progress
         if File.exist?(PROGRESS_FILE_PATH)
@@ -75,7 +73,7 @@ module SimpleFormsApi
       end
 
       def archive_submission(id)
-        config.s3_client.new(id:, parent_dir:).upload(type:)
+        config.s3_client.new(id:, parent_dir:, type:).upload
       end
     end
   end
