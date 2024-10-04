@@ -212,6 +212,18 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses the new claim phase designs
     enable_in_development: true
+  cst_include_ddl_5103_letters:
+    actor_type: user
+    description: When enabled, the Download Decision Letters feature includes 5103 letters
+    enable_in_development: true
+  cst_include_ddl_boa_letters:
+    actor_type: user
+    description: When enabled, the Download Decision Letters feature includes Board of Appeals decision letters
+    enable_in_development: true
+  cst_include_ddl_sqd_letters:
+    actor_type: user
+    description: When enabled, the Download Decision Letters feature includes Subsequent Development Letters
+    enable_in_development: true
   cst_use_lighthouse_5103:
     actor_type: user
     description: When enabled, claims status tool uses the Lighthouse API for the 5103 endpoint
@@ -224,26 +236,18 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses the Lighthouse API for the show endpoint
     enable_in_development: true
-  cst_include_ddl_boa_letters:
+  cst_send_evidence_failure_emails:
     actor_type: user
-    description: When enabled, the Download Decision Letters feature includes Board of Appeals decision letters
+    description: When enabled, emails will be sent when evidence uploads from the CST fail
     enable_in_development: true
-  cst_include_ddl_5103_letters:
+  cst_synchronous_evidence_uploads:
     actor_type: user
-    description: When enabled, the Download Decision Letters feature includes 5103 letters
-    enable_in_development: true
-  cst_include_ddl_sqd_letters:
-    actor_type: user
-    description: When enabled, the Download Decision Letters feature includes Subsequent Development Letters
+    description: When enabled, claims status tool uses synchronous evidence uploads
     enable_in_development: true
   cst_use_dd_rum:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
     enable_in_development: false
-  cst_synchronous_evidence_uploads:
-    actor_type: user
-    description: When enabled, claims status tool uses synchronous evidence uploads
-    enable_in_development: true
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
