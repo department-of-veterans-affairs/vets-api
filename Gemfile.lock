@@ -793,6 +793,8 @@ GEM
     rack-test (2.1.0)
       rack (>= 1.3)
     rack-timeout (0.7.0)
+    rack-utf8_sanitizer (1.9.1)
+      rack (>= 1.0, < 4.0)
     rack-vcr (0.1.6)
       vcr (>= 2.9)
     rackup (1.0.0)
@@ -1238,6 +1240,7 @@ DEPENDENCIES
   rack-cors
   rack-test (= 2.1.0)
   rack-timeout
+  rack-utf8_sanitizer
   rack-vcr
   rails (~> 7.1.3)
   rails-session_cookie
