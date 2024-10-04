@@ -120,7 +120,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     let(:header_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY }
 
     context 'when the header key and rep are present' do
-      it 'parses the headers and checks the rep and acts as expected' do
+      it 'sends the vanotify job' do
         poa.auth_headers.merge!({
                                   header_key => 'this_value'
                                 })
@@ -132,8 +132,8 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
       end
     end
 
-    context 'when the rep is not present' do
-      it 'parses the headers and detects no rep as expected' do
+    context 'does not send the va notify job' do
+      it 'when the rep is not present' do
         poa.auth_headers.merge!({
                                   header_key => 'this_value'
                                 })
@@ -144,7 +144,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
         subject.new.perform(poa.id, nil)
       end
 
-      it 'parses the headers and detects no key present as expected' do
+      it 'when the header key is not present' do
         expect(ClaimsApi::VANotifyJob).not_to receive(:perform_async)
 
         subject.new.perform(poa.id, 'Rep data')
