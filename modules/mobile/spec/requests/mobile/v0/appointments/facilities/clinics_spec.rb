@@ -57,7 +57,8 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.parsed_body.dig('errors', 0, 'source',
-                                                       'vamfBody'))['message']).to eq('clinicalService: param is invalid')
+                                                       'vamfBody')) ['message'])
+              .to eq('clinicalService: param is invalid')
           end
         end
       end
@@ -108,7 +109,8 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.parsed_body.dig('errors', 0, 'source',
-                                                       'vamfBody'))['message']).to eq('clinicalService: param is invalid')
+                                                       'vamfBody'))['message'])
+              .to eq('clinicalService: param is invalid')
           end
         end
       end
