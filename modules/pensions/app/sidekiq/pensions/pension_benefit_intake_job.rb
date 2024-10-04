@@ -105,11 +105,9 @@ module Pensions
     # or there are no matching FormSubmissionAttempt aasm_states
     #
     def form_submission_pending_or_success
-      form_submission = @claim&.form_submissions&.find do |submission|
-        submission.benefits_intake_uuid == @intake_service.uuid
-      end
-
-      form_submission&.non_failure_attempt.present? || false
+      @claim&.form_submissions&.any? do |form_submission|
+        form_submission.non_failure_attempt.present?
+      end || false
     end
 
     ##
