@@ -51,6 +51,10 @@ class FormSubmission < ApplicationRecord
     end
   end
 
+  def form_data
+    super || '{}'
+  end
+
   def latest_pending_attempt
     form_submission_attempts.where(aasm_state: 'pending').order(created_at: :asc).last
   end
