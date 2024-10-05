@@ -177,7 +177,7 @@ module SimpleFormsApi
     # personalization hash shared by all simple form confirmation emails
     def default_personalization(first_name)
       {
-        'first_name' => first_name&.capitalize,
+        'first_name' => first_name&.titleize,
         'date_submitted' => date_submitted,
         'confirmation_number' => confirmation_number,
         'lighthouse_updated_at' => lighthouse_updated_at
