@@ -45,23 +45,44 @@ module ClaimsApi
           base = form_number == '2122' ? 'serviceOrganization' : 'representative'
           poa_code = form_attributes.dig(base, 'poaCode')
 
-          # Custom validations for POA submission, we must check this first
+          @claims_api_forms_validation_errors ||= []
           @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile)
-          # JSON validations for POA submission, will combine with previously captured errors and raise
+
           validate_json_schema(form_number.upcase)
           @rep_id = validate_registration_number!(base, poa_code)
-          claimant_data = validate_dependent_claimant(veteran_participant_id: target_veteran.participant_id,
-                                                      user_profile:, poa_code:, base:)
 
-          @claims_api_forms_validation_errors ||= []
-          @claims_api_forms_validation_errors.concat(claimant_data[:errors]) if claimant_data[:errors].present?
+          dependent_claimant_errors = validate_dependent_claimant(veteran_participant_id: target_veteran.participant_id,
+                                                                  user_profile:, poa_code:, base:)
+          @claims_api_forms_validation_errors.concat(dependent_claimant_errors) if dependent_claimant_errors.any?
 
           add_claimant_data_to_form if user_profile
-          # if we get here there were only validations file errors
-          if @claims_api_forms_validation_errors.present?
+
+          if @claims_api_forms_validation_errors.any?
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
+        end
+
+        def feature_enabled_and_claimant_present?
+          Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
+        end
+
+        def assign_poa_to_dependent_claimant!(poa_code:)
+          return nil unless feature_enabled_and_claimant_present?
+
+          claimant = user_profile.profile
+
+          service = ClaimsApi::DependentClaimantPoaAssignmentService.new(
+            poa_code:,
+            veteran_participant_id: target_veteran.participant_id,
+            dependent_participant_id: claimant.participant_id,
+            veteran_file_number: @file_number,
+            allow_poa_access: form_attributes[:recordConsent].present? ? 'Y' : nil,
+            allow_poa_cadd: form_attributes[:consentAddressChange].present? ? 'Y' : nil,
+            claimant_ssn: claimant.ssn
+          )
+
+          service.assign_poa_to_dependent_claimant!
         end
 
         def validate_registration_number!(base, poa_code)

@@ -12,15 +12,15 @@ module ClaimsApi
       end
 
       def validate_dependent_claimant(veteran_participant_id:, user_profile:, poa_code:, base:)
-        return {} unless feature_enabled_and_claimant_present?
+        return [] unless feature_enabled_and_claimant_present?
+
+        errors = []
 
         service = build_dependent_claimant_verification_service(veteran_participant_id:, user_profile:, poa_code:)
 
-        errors = validate_claimant(service:, base:)
+        validate_claimant(service:, errors:, base:)
 
-        return { errors: } if errors.present?
-
-        build_claimant_data(service:)
+        errors
       end
 
       private
@@ -39,13 +39,9 @@ module ClaimsApi
                                                             poa_code:)
       end
 
-      def validate_claimant(service:, base:)
-        errors = []
-
+      def validate_claimant(service:, errors:, base:)
         validate_poa_code(service:, errors:, base:)
         validate_dependent(service:, errors:)
-
-        errors
       end
 
       def validate_poa_code(service:, errors:, base:)
