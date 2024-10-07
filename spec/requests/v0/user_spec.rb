@@ -11,7 +11,7 @@ RSpec.describe 'V0::User', type: :request do
     let(:mhv_user) { build(:user, :mhv) }
     let(:v0_user_request_headers) { {} }
     let(:edipi) { '1005127153' }
-    let(:mhv_user_verification) { create(:mhv_user_verification)}
+    let(:mhv_user_verification) { create(:mhv_user_verification) }
 
     before do
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
