@@ -95,7 +95,7 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def time_to_send
-    now = Time.zone.now
+    now = Time.now.in_time_zone('Eastern Time (US & Canada)')
     if now.hour < HOUR_TO_SEND_NOTIFICATIONS
       now.change(hour: HOUR_TO_SEND_NOTIFICATIONS,
                  min: 0)
