@@ -223,13 +223,13 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
         allow(service_instance).to receive(:status).and_return(status)
       end
 
-      it 'it updates the terms of use agreement in sign up service' do
+      it 'updates the terms of use agreement in sign up service' do
         job.perform(user_account_uuid, version)
 
         expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)
       end
 
-      it 'it does not log that the agreement has not changed' do
+      it 'does not log that the agreement has not changed' do
         job.perform(user_account_uuid, version)
 
         expect(Rails.logger).not_to have_received(:info).with(expected_log, icn:)
@@ -254,7 +254,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
         expect(Rails.logger).to have_received(:info).with(expected_log, icn:)
       end
 
-      it 'it does not update terms of use agreement in sign up service' do
+      it 'does not update terms of use agreement in sign up service' do
         job.perform(user_account_uuid, version)
 
         expect(service_instance).not_to have_received(:agreements_accept)
@@ -273,18 +273,18 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
         allow(service_instance).to receive(:agreements_accept)
       end
 
-      it 'it does not log that the agreement has not changed' do
+      it 'does not log that the agreement has not changed' do
         job.perform(user_account_uuid, version)
 
         expect(Rails.logger).not_to have_received(:info).with(expected_log, icn:)
       end
 
-      it 'it updates the terms of use agreement in sign up service' do
+      it 'updates the terms of use agreement in sign up service' do
         job.perform(user_account_uuid, version)
 
         expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
-                                                                               signature_name: common_name,
-                                                                               version:)
+                                                                           signature_name: common_name,
+                                                                           version:)
       end
     end
 
