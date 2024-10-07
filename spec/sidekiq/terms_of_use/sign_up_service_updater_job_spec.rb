@@ -126,6 +126,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
       context 'when the terms of use agreement is accepted' do
         let(:status) { { opt_out: false, agreement_signed: false } }
+
         before do
           allow(service_instance).to receive(:agreements_accept)
           allow(service_instance).to receive(:status).and_return(status)
@@ -228,7 +229,6 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       it 'agreement_unchanged returns false' do
         job.perform(user_account_uuid, version)
 
-        expect(MAP::SignUp::Service).to have_received(:new)
         expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
                                                                            signature_name: common_name,
                                                                            version:)
@@ -247,7 +247,6 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       it 'agreement_unchanged returns false' do
         job.perform(user_account_uuid, version)
 
-        expect(MAP::SignUp::Service).to have_received(:new)
         expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)
       end
     end
@@ -266,9 +265,34 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       it 'logs that the agreement is not changed' do
         job.perform(user_account_uuid, version)
 
-        expect(MAP::SignUp::Service).to have_received(:new)
-        # expect(service_instance).not_to have_received(:agreements_accept)
         expect(Rails.logger).to have_received(:info).with(expected_log, icn:)
+      end
+    end
+
+    context 'when agreement is changed' do
+      let(:expected_log) do
+        '[TermsOfUse][SignUpServiceUpdaterJob] Not updating Sign Up Service due to unchanged agreement'
+      end
+      let(:status) { { opt_out: false, agreement_signed: false } }
+
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(service_instance).to receive(:status).and_return(status)
+        allow(service_instance).to receive(:agreements_accept)
+      end
+
+      it 'it does not log that the agreement is not changed' do
+        job.perform(user_account_uuid, version)
+
+        expect(Rails.logger).not_to have_received(:info).with(expected_log, icn:)
+      end
+
+      it 'it makes an agreements change call' do
+        job.perform(user_account_uuid, version)
+
+        expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
+                                                                               signature_name: common_name,
+                                                                               version:)
       end
     end
 
