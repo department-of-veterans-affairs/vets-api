@@ -6,7 +6,7 @@
 #  Passing a custom type:
 #    bundle exec rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456,submission]
 namespace :simple_forms_api do
-  desc 'Kick off the SubmissionArchiveHandler to archive submissions to S3 and print presigned URLs'
+  desc 'Kick off the ArchiveBatchProcessingJob to archive submissions to S3 and print presigned URLs'
   task :archive_forms_by_uuid, %i[benefits_intake_uuids type] => :environment do |_, args|
     benefits_intake_uuids = args[:benefits_intake_uuids].to_s.split(/[,\s]+/)
     type = args[:type] || :remediation
@@ -15,15 +15,16 @@ namespace :simple_forms_api do
       validate_input!(benefits_intake_uuids)
 
       Rails.logger.info(
-        "Starting SubmissionArchiveHandler for UUIDs: #{benefits_intake_uuids.join(', ')} using type: #{type}"
+        "Starting ArchiveBatchProcessingJob for UUIDs: #{benefits_intake_uuids.join(', ')} using type: #{type}"
       )
 
       # Call the service object synchronously and get the presigned URLs
       config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
-      handler = SimpleFormsApi::FormRemediation::SubmissionArchiveHandler.new(ids: benefits_intake_uuids, config:)
-      presigned_urls = handler.upload(type: type.to_sym)
+      presigned_urls = SimpleFormsApi::FormRemediation::ArchiveBatchProcessingJob.perform(
+        ids: benefits_intake_uuids, config:, type: type.to_sym
+      )
 
-      Rails.logger.info('SubmissionArchiveHandler completed successfully.')
+      Rails.logger.info('ArchiveBatchProcessingJob completed successfully.')
 
       # ArgoCD makes it impossible to download any files so
       # the URLs must be printed to the console.
