@@ -103,10 +103,6 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
           let(:expected_log) { '[TermsOfUse][SignUpServiceUpdaterJob] Multiple sec_id values detected' }
 
-          before do
-            allow(service_instance).to receive(:status).and_return(status)
-          end
-
           it 'logs a warning message' do
             job.perform(user_account_uuid, version)
 
@@ -166,6 +162,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
         before do
           allow(service_instance).to receive(:agreements_decline)
+          allow(service_instance).to receive(:status).and_return(status)
         end
 
         context 'and user account icn does not equal the mpi profile icn' do
