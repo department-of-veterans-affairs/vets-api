@@ -11,10 +11,12 @@ RSpec.describe 'V0::User', type: :request do
     let(:mhv_user) { build(:user, :mhv) }
     let(:v0_user_request_headers) { {} }
     let(:edipi) { '1005127153' }
+    let(:mhv_user_verification) { create(:mhv_user_verification)}
 
     before do
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
+      allow_any_instance_of(User).to receive(:user_verification).and_return(mhv_user_verification)
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
@@ -27,7 +29,6 @@ RSpec.describe 'V0::User', type: :request do
       let(:mhv_user) { build(:user, :mhv, :no_mpi_profile) }
 
       it 'GET /v0/user - returns proper json' do
-        create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id)
         assert_response :success
         expect(response).to match_response_schema('user_loa3')
       end
@@ -254,6 +255,7 @@ RSpec.describe 'V0::User', type: :request do
     let(:edipi) { '1005127153' }
 
     before do
+      create(:user_verification, idme_uuid: user.idme_uuid)
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
         sign_in_as(user)
         allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
