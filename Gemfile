@@ -13,7 +13,6 @@ path 'modules' do
   gem 'avs'
   gem 'check_in'
   gem 'claims_api'
-  gem 'covid_research'
   gem 'covid_vaccine'
   gem 'debts_api'
   gem 'dhp_connected_devices'
