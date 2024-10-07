@@ -25,6 +25,12 @@ class FormSubmissionAttempt < ApplicationRecord
 
     event :fail do
       after do
+        Rails.logger.info({
+                            message: 'Preparing to send Form Submission Attempt error email',
+                            form_submission_id:,
+                            benefits_intake_uuid: form_submission&.benefits_intake_uuid,
+                            form_type: form_submission&.form_type
+                          })
         enqueue_result_email(:error) if Flipper.enabled?(:simple_forms_email_notifications)
       end
 
@@ -89,7 +95,7 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def time_to_send
-    now = Time.zone.now
+    now = Time.now.in_time_zone('Eastern Time (US & Canada)')
     if now.hour < HOUR_TO_SEND_NOTIFICATIONS
       now.change(hour: HOUR_TO_SEND_NOTIFICATIONS,
                  min: 0)

@@ -15,6 +15,7 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtEncoder do
       let(:expected_sub) { service_account_access_token.user_identifier }
       let(:expected_exp) { service_account_access_token.expiration_time.to_i }
       let(:expected_iat) { service_account_access_token.created_time.to_i }
+      let(:expected_nbf) { service_account_access_token.created_time.to_i }
       let(:expected_version) { service_account_access_token.version }
       let(:expected_scopes) { service_account_access_token.scopes }
       let(:expected_service_account_id) { service_account_access_token.service_account_id }
@@ -32,6 +33,7 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtEncoder do
         expect(decoded_jwt.sub).to eq expected_sub
         expect(decoded_jwt.exp).to eq expected_exp
         expect(decoded_jwt.iat).to eq expected_iat
+        expect(decoded_jwt.nbf).to eq expected_nbf
         expect(decoded_jwt.version).to eq expected_version
         expect(decoded_jwt.scopes).to eq expected_scopes
         expect(decoded_jwt.service_account_id).to eq expected_service_account_id
