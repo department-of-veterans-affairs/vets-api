@@ -11,12 +11,11 @@ RSpec.describe 'V0::User', type: :request do
     let(:mhv_user) { build(:user, :mhv) }
     let(:v0_user_request_headers) { {} }
     let(:edipi) { '1005127153' }
-    let(:mhv_user_verification) { create(:mhv_user_verification) }
+    let!(:mhv_user_verification) { create(:mhv_user_verification, backing_idme_uuid: mhv_user.mhv_correlation_id) }
 
     before do
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
-      allow_any_instance_of(User).to receive(:user_verification).and_return(mhv_user_verification)
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
@@ -133,6 +132,7 @@ RSpec.describe 'V0::User', type: :request do
 
     context 'with missing MHV accounts' do
       let(:mhv_user) { build(:user, :mhv, mhv_ids: nil, active_mhv_ids: nil, mhv_correlation_id: nil) }
+      let!(:mhv_user_verification) { create(:mhv_user_verification, backing_idme_uuid: mhv_user.idme_uuid) }
 
       before do
         sign_in_as(mhv_user)
