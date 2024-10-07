@@ -48,18 +48,16 @@ module ClaimsApi
           base = form_number == '2122' ? 'serviceOrganization' : 'representative'
           poa_code = form_attributes.dig(base, 'poaCode')
 
-          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile) || []
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(
+            user_profile:, veteran_participant_id: target_veteran.participant_id, poa_code:, base:
+          )
 
           validate_json_schema(form_number.upcase)
           @rep_id = validate_registration_number!(base, poa_code)
 
-          dependent_claimant_errors = validate_dependent_claimant(veteran_participant_id: target_veteran.participant_id,
-                                                                  user_profile:, poa_code:, base:)
-          @claims_api_forms_validation_errors.concat(dependent_claimant_errors) if dependent_claimant_errors.any?
-
           add_claimant_data_to_form if user_profile
 
-          if @claims_api_forms_validation_errors.any?
+          if @claims_api_forms_validation_errors
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
