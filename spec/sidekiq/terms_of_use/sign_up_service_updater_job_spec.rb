@@ -254,7 +254,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
         expect(Rails.logger).to have_received(:info).with(expected_log, icn:)
       end
 
-      it 'it does not make an agreements change call' do
+      it 'it does not update terms of use agreement in sign up service' do
         job.perform(user_account_uuid, version)
 
         expect(service_instance).not_to have_received(:agreements_accept)
