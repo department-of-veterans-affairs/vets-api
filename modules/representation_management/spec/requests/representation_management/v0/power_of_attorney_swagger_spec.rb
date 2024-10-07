@@ -47,6 +47,18 @@ RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_ma
         run_test!
       end
 
+      response '422', 'Unprocessable Entity' do
+        before do
+          allow_any_instance_of(BenefitsClaims::Service)
+            .to receive(:get_power_of_attorney)
+            .and_raise(Common::Exceptions::UnprocessableEntity)
+        end
+
+        schema '$ref' => '#/components/responses/InternalServerError'
+
+        run_test!
+      end
+
       response '500', 'Internal Server Error' do
         schema '$ref' => '#/components/responses/InternalServerError'
         run_test!
