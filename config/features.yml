@@ -473,6 +473,10 @@ features:
     actor_type: user
     description: enable to test the backup submission path. DO NOT TOGGLE THIS FLAG UNLESS YOU ARE A MEMBER OF DISABILITY BENEFITS EXPERIENCE TEAM.
     enable_in_development: true
+  disability_compensation_sync_modern_0781_flow:
+    actor_type: user
+    description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
+    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -1038,9 +1042,9 @@ features:
   profile_show_quick_submit_notification_setting:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
-  profile_show_proof_of_veteran_status:
+  profile_show_proof_of_veteran_status_eligible:
     actor_type: user
-    description: Show/Hide the proof of veteran status page and links
+    description: Include/exclude the proof of veteran status eligibility in service_history response
   profile_use_experimental:
     description: Use experimental features for Profile application - Do not remove
     enable_in_development: true

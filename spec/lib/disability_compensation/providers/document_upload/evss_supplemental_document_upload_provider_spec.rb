@@ -5,17 +5,17 @@ require 'disability_compensation/providers/document_upload/evss_supplemental_doc
 require 'support/disability_compensation_form/shared_examples/supplemental_document_upload_provider'
 
 RSpec.describe EVSSSupplementalDocumentUploadProvider do
-  let(:submission) { create(:form526_submission) }
+  let(:submission) { create(:form526_submission, :with_submitted_claim_id) }
   let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
   let(:file_name) { Faker::File.file_name }
 
   let(:va_document_type) { 'L023' }
 
-  let(:provider) do
+  let!(:provider) do
     EVSSSupplementalDocumentUploadProvider.new(
       submission,
       va_document_type,
-      'my_upload_job_prefix'
+      'my_stats_metric_prefix'
     )
   end
 
@@ -25,6 +25,11 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
       document_type: 'L023',
       file_name:
     )
+  end
+
+  before do
+    # Disallow actual API calls
+    allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
   end
 
   it_behaves_like 'supplemental document upload provider'
@@ -68,58 +73,136 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
 
         provider.submit_upload_document(evss_claim_document, file_body)
       end
+    end
+  end
 
-      it 'increments a StatsD success metric' do
-        faraday_response = instance_double(Faraday::Response)
+  describe 'events logging' do
+    context 'when attempting to upload a document' do
+      before do
+        # Skip success logging
+        allow(provider).to receive(:log_upload_success)
+      end
 
-        allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
-          .with(file_body, evss_claim_document)
-          .and_return(faraday_response)
+      it 'logs to the Rails logger' do
+        expect(Rails.logger).to receive(:info).with(
+          'EVSSSupplementalDocumentUploadProvider upload attempted',
+          {
+            class: 'EVSSSupplementalDocumentUploadProvider',
+            submission_id: submission.submitted_claim_id,
+            user_uuid: submission.user_uuid,
+            va_document_type_code: va_document_type,
+            primary_form: 'Form526'
+          }
+        )
 
+        provider.submit_upload_document(evss_claim_document, file_body)
+      end
+
+      it 'increments a StatsD attempt metric' do
         expect(StatsD).to receive(:increment).with(
-          'my_upload_job_prefix.evss_supplemental_document_upload_provider.success'
+          'my_stats_metric_prefix.evss_supplemental_document_upload_provider.upload_attempt'
         )
 
         provider.submit_upload_document(evss_claim_document, file_body)
       end
     end
-  end
 
-  describe 'logging methods' do
-    # We don't want to generate an actual submission for these tests,
-    # since submissions have callbacks that log to StatsD and we need to test
-    # only the metrics in this class
-    let(:submission) { instance_double(Form526Submission) }
-    let(:provider) do
-      EVSSSupplementalDocumentUploadProvider.new(
-        submission,
-        va_document_type,
-        'my_upload_job_prefix'
-      )
-    end
-
-    describe 'log_upload_failure' do
-      let(:error_class) { 'StandardError' }
-      let(:error_message) { 'Something broke' }
-
-      it 'increments a StatsD failure metric' do
-        expect(StatsD).to receive(:increment).with(
-          'my_upload_job_prefix.evss_supplemental_document_upload_provider.failed'
-        )
-        provider.log_upload_failure(error_class, error_message)
+    context 'when an upload is successfull' do
+      before do
+        # Skip upload attempt logging
+        allow(provider).to receive(:log_upload_attempt)
       end
 
       it 'logs to the Rails logger' do
-        expect(Rails.logger).to receive(:error).with(
-          'EVSSSupplementalDocumentUploadProvider upload failure',
+        expect(Rails.logger).to receive(:info).with(
+          'EVSSSupplementalDocumentUploadProvider upload successful',
           {
             class: 'EVSSSupplementalDocumentUploadProvider',
+            submission_id: submission.submitted_claim_id,
+            user_uuid: submission.user_uuid,
+            va_document_type_code: va_document_type,
+            primary_form: 'Form526'
+          }
+        )
+
+        provider.submit_upload_document(evss_claim_document, file_body)
+      end
+
+      it 'increments a StatsD success metric' do
+        expect(StatsD).to receive(:increment).with(
+          'my_stats_metric_prefix.evss_supplemental_document_upload_provider.upload_success'
+        )
+
+        provider.submit_upload_document(evss_claim_document, file_body)
+      end
+    end
+
+    # The EVSS::DocumentsService client we used in this API provider has custom exception logic
+    # for unsucessful upload responses from EVSS (which still have a 200 response code)
+    # We want to preserve this behavior while logging the event for tracking purposes
+    context 'when an upload raises an EVSS response error' do
+      before do
+        # Skip upload attempt logging
+        allow(provider).to receive(:log_upload_attempt)
+        allow_any_instance_of(EVSS::DocumentsService).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
+      end
+
+      it 'logs to the Rails logger, increments a StatsD failure metric, and re-raises the error' do
+        expect(Rails.logger).to receive(:error).with(
+          'EVSSSupplementalDocumentUploadProvider upload failed',
+          {
+            class: 'EVSSSupplementalDocumentUploadProvider',
+            submission_id: submission.submitted_claim_id,
+            user_uuid: submission.user_uuid,
+            va_document_type_code: va_document_type,
+            primary_form: 'Form526'
+          }
+        )
+
+        # Ensure we don't increment the success metric
+        expect(StatsD).not_to receive(:increment).with(
+          'my_stats_metric_prefix.evss_supplemental_document_upload_provider.upload_success'
+        )
+
+        expect(StatsD).to receive(:increment).with(
+          'my_stats_metric_prefix.evss_supplemental_document_upload_provider.upload_failure'
+        )
+
+        expect { provider.submit_upload_document(evss_claim_document, file_body) }.to raise_exception(
+          EVSS::ErrorMiddleware::EVSSError
+        )
+      end
+    end
+
+    # Will be called in the sidekiq_retries_exhausted block of the including job
+    context 'uploading job failure' do
+      let(:uploading_job_class) { 'MyUploadJob' }
+      let(:error_class) { 'StandardError' }
+      let(:error_message) { 'Something broke' }
+
+      it 'logs to the Rails logger' do
+        expect(Rails.logger).to receive(:error).with(
+          "#{uploading_job_class} EVSSSupplementalDocumentUploadProvider Failure",
+          {
+            class: 'EVSSSupplementalDocumentUploadProvider',
+            submission_id: submission.submitted_claim_id,
+            user_uuid: submission.user_uuid,
+            va_document_type_code: va_document_type,
+            primary_form: 'Form526',
+            uploading_job_class:,
             error_class:,
             error_message:
           }
         )
 
-        provider.log_upload_failure(error_class, error_message)
+        provider.log_uploading_job_failure(uploading_job_class, error_class, error_message)
+      end
+
+      it 'increments a StatsD failure metric' do
+        expect(StatsD).to receive(:increment).with(
+          'my_stats_metric_prefix.evss_supplemental_document_upload_provider.upload_job_failed'
+        )
+        provider.log_uploading_job_failure(uploading_job_class, error_class, error_message)
       end
     end
   end
