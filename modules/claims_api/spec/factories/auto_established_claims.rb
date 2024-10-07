@@ -71,6 +71,25 @@ FactoryBot.define do
       .read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_no_flashes_no_special_issues.json'.split('/')).to_s))
       json['data']['attributes']
     end
+    cid { '0oagdm49ygCSJTp8X297' }
+    transaction_id { Faker::Number.number(digits: 20) }
+    created_at { Faker::Date.between(from: 1.day.ago, to: Time.zone.now) }
+    status { ClaimsApi::AutoEstablishedClaim::ERRORED }
+  end
+
+  trait :set_transaction_id do
+    transaction_id { '25' }
+  end
+
+  factory :auto_established_claim_without_flashes_or_special_issues, class: 'ClaimsApi::AutoEstablishedClaim' do
+    id { SecureRandom.uuid }
+    evss_id { nil }
+    auth_headers { { test: ('a'..'z').to_a.shuffle.join } }
+    form_data do
+      json = JSON.parse(File
+      .read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_no_flashes_no_special_issues.json'.split('/')).to_s))
+      json['data']['attributes']
+    end
     cid {
       %w[0oa9uf05lgXYk6ZXn297 0oa66qzxiq37neilh297 0oadnb0o063rsPupH297 0oadnb1x4blVaQ5iY297
          0oadnavva9u5F6vRz297 0oagdm49ygCSJTp8X297 0oaqzbqj9wGOCJBG8297 0oao7p92peuKEvQ73297].sample

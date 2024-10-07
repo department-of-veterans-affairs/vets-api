@@ -12,8 +12,8 @@ module ClaimsApi
 
     def errored_claims
       ClaimsApi::AutoEstablishedClaim.where(
-        created_at: @from..@to,
-        status: %w[errored]
+        'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
+        'errored', @from, @to, '0oagdm49ygCSJTp8X297'
       ).order(:cid, :status)
     end
 
