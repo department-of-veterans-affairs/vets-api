@@ -188,13 +188,6 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
             expect(Rails.logger).to have_received(:info).with(expected_log, { icn:, mpi_icn: })
           end
         end
-
-        # it 'updates the terms of use agreement in sign up service' do
-        #   job.perform(user_account_uuid, version)
-
-        #   expect(MAP::SignUp::Service).to have_received(:new)
-        #   expect(service_instance).to have_received(:agreements_decline).with(icn: mpi_profile.icn)
-        # end
       end
 
       context 'and user account icn does not equal the mpi profile icn' do
@@ -217,37 +210,29 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       end
     end
 
-    context 'when agreement is changed by ToU acceptance' do
-      let(:response) { 'accepted' }
-      let(:status) { { opt_out: true, agreement_signed: false } }
-
-      before do
-        allow(service_instance).to receive(:agreements_accept)
-        allow(service_instance).to receive(:status).and_return(status)
+    context 'when terms of use agreement is declined' do
+      let(:expected_log) do
+        '[TermsOfUse][SignUpServiceUpdaterJob] Not updating Sign Up Service due to unchanged agreement'
       end
-
-      it 'agreement_unchanged returns false' do
-        job.perform(user_account_uuid, version)
-
-        expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
-                                                                           signature_name: common_name,
-                                                                           version:)
-      end
-    end
-
-    context 'when agreement is changed by ToU being declined' do
       let(:response) { 'declined' }
       let(:status) { { opt_out: false, agreement_signed: true } }
 
       before do
+        allow(Rails.logger).to receive(:info)
         allow(service_instance).to receive(:agreements_decline)
         allow(service_instance).to receive(:status).and_return(status)
       end
 
-      it 'agreement_unchanged returns false' do
+      it 'it updates the terms of use agreement in sign up service' do
         job.perform(user_account_uuid, version)
 
         expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)
+      end
+
+      it 'it does not log that the agreement has not changed' do
+        job.perform(user_account_uuid, version)
+
+        expect(Rails.logger).not_to have_received(:info).with(expected_log, icn:)
       end
     end
 
@@ -276,7 +261,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       end
     end
 
-    context 'when agreement is changed' do
+    context 'when a terms of use agreement is accpeted' do
       let(:expected_log) do
         '[TermsOfUse][SignUpServiceUpdaterJob] Not updating Sign Up Service due to unchanged agreement'
       end
@@ -288,13 +273,13 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
         allow(service_instance).to receive(:agreements_accept)
       end
 
-      it 'it does not log that the agreement is not changed' do
+      it 'it does not log that the agreement has not changed' do
         job.perform(user_account_uuid, version)
 
         expect(Rails.logger).not_to have_received(:info).with(expected_log, icn:)
       end
 
-      it 'it makes an agreements change call' do
+      it 'it updates the terms of use agreement in sign up service' do
         job.perform(user_account_uuid, version)
 
         expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
