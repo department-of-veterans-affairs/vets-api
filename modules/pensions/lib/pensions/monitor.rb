@@ -48,7 +48,25 @@ module Pensions
     def track_create_attempt(claim, current_user)
       StatsD.increment("#{CLAIM_STATS_KEY}.attempt")
       Rails.logger.info('21P-527EZ submission to Sidekiq begun',
-                        { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid })
+                        { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid,
+                          statsd: "#{CLAIM_STATS_KEY}.attempt" })
+    end
+
+    ##
+    # log POST claim save validation error
+    # @see PensionClaimsController
+    #
+    # @param in_progress_form [InProgressForm]
+    # @param claim [Pension::SavedClaim]
+    # @param current_user [User]
+    # @param e [Error]
+    #
+    def track_create_validation_error(in_progress_form, claim, current_user)
+      StatsD.increment("#{CLAIM_STATS_KEY}.validation_error")
+      Rails.logger.error('21P-527EZ submission validation error',
+                         { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid,
+                           in_progress_form_id: in_progress_form&.id, errors: claim&.errors&.errors,
+                           statsd: "#{CLAIM_STATS_KEY}.validation_error" })
     end
 
     ##
@@ -65,7 +83,7 @@ module Pensions
       Rails.logger.error('21P-527EZ submission to Sidekiq failed',
                          { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid,
                            in_progress_form_id: in_progress_form&.id, errors: claim&.errors&.errors,
-                           message: e&.message })
+                           message: e&.message, statsd: "#{CLAIM_STATS_KEY}.failure" })
     end
 
     ##
@@ -78,17 +96,29 @@ module Pensions
     #
     def track_create_success(in_progress_form, claim, current_user)
       StatsD.increment("#{CLAIM_STATS_KEY}.success")
-      if claim.form_start_date
-        claim_duration = claim.created_at - claim.form_start_date
-        tags = ["form_id:#{claim.form_id}"]
-        StatsD.measure('saved_claim.time-to-file', claim_duration, tags:)
-      end
       context = {
         confirmation_number: claim&.confirmation_number,
         user_uuid: current_user&.uuid,
-        in_progress_form_id: in_progress_form&.id
+        in_progress_form_id: in_progress_form&.id,
+        statsd: "#{CLAIM_STATS_KEY}.success"
       }
       Rails.logger.info('21P-527EZ submission to Sidekiq success', context)
+    end
+
+    ##
+    # log process_attachments! error
+    # @see PensionClaimsController
+    #
+    # @param claim [Pension::SavedClaim]
+    # @param current_user [User]
+    # @param e [Error]
+    #
+    def track_process_attachment_error(in_progress_form, claim, current_user)
+      StatsD.increment("#{CLAIM_STATS_KEY}.process_attachment_error")
+      Rails.logger.error('21P-527EZ process attachment error',
+                         { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid,
+                           in_progress_form_id: in_progress_form&.id, errors: claim&.errors&.errors,
+                           statsd: "#{CLAIM_STATS_KEY}.process_attachment_error" })
     end
 
     ##

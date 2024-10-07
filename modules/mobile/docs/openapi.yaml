@@ -61,7 +61,7 @@ paths:
   /v0/appeal/{id}:
     get:
       description: Returns info on all user's claims and appeals for mobile overview
-        page
+        page. Should be identical to the following docs https://developer.va.gov/explore/api/appeals-status/docs?version=current
       parameters:
         - description: Appeal Id
           in: path
@@ -81,7 +81,7 @@ paths:
                 Docket 2:
                   value:
                     $ref: ./examples/appeals/appeal_docket_2.yml
-                Null Docket:
+                Empty Docket:
                   value:
                     $ref: ./examples/appeals/appeal_docket_null.yml
               schema:
@@ -207,7 +207,18 @@ paths:
         '401':
           $ref: '#/components/responses/401'
         '403':
-          $ref: '#/components/responses/403'
+          content:
+            application/json:
+              examples:
+                Missing Facilities:
+                  value:
+                    $ref: ./examples/appointments/forbidden_facilities_error.yml
+                No VAOS Access:
+                  value:
+                    $ref: ./examples/appointments/forbidden_no_vaos_access_error.yml
+                No ICN:
+                  value:
+                    $ref: ./examples/appointments/forbidden_no_icn_error.yml
         '404':
           $ref: '#/components/responses/404'
         '408':

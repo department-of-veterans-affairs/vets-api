@@ -49,7 +49,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
       context 'error handling tests' do
         cassettes_directory = 'lighthouse/veteran_verification/disability_rating'
 
-        Lighthouse::ServiceException::ERROR_MAP.except(422).each_key do |status|
+        Lighthouse::ServiceException::ERROR_MAP.except(422, 499, 501).each_key do |status|
           cassette_path = "#{cassettes_directory}/#{status == 404 ? '404_ICN' : status}_response"
 
           it "returns #{status} response" do

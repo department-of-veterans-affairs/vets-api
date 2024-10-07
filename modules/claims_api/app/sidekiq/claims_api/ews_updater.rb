@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs'
-require 'bgs_service/benefit_claim_service'
+require 'bgs_service/benefit_claim_web_service'
 
 module ClaimsApi
   class EwsUpdater < ClaimsApi::ServiceBase
@@ -11,7 +11,7 @@ module ClaimsApi
 
     def perform(ews_id)
       ews = ClaimsApi::EvidenceWaiverSubmission.find(ews_id)
-      bgs_claim = benefit_claim_service(ews).find_bnft_claim(claim_id: ews.claim_id)
+      bgs_claim = benefit_claim_web_service(ews).find_bnft_claim(claim_id: ews.claim_id)
 
       if bgs_claim&.dig(:bnft_claim_dto).blank?
         ews.status = ClaimsApi::EvidenceWaiverSubmission::ERRORED
@@ -28,9 +28,9 @@ module ClaimsApi
 
     private
 
-    def benefit_claim_service(ews)
-      @bms ||= ClaimsApi::BenefitClaimService.new(external_uid: ews.auth_headers['va_eauth_pnid'],
-                                                  external_key: ews.auth_headers['va_eauth_pnid'])
+    def benefit_claim_web_service(ews)
+      @bms ||= ClaimsApi::BenefitClaimWebService.new(external_uid: ews.auth_headers['va_eauth_pnid'],
+                                                     external_key: ews.auth_headers['va_eauth_pnid'])
     end
 
     def update_bgs_claim(ews, bgs_claim)

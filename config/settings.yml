@@ -514,20 +514,6 @@ hca:
     user: "HCASvcUsr"
     pass: "password"
 
-# Settings for the facility locator
-locators:
-  vha: https://gis.va.gov/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/
-  nca: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer/0
-  vba: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0
-  vc: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_VetCenters/FeatureServer/0
-  vha_access_satisfaction: https://www.accesstopwt.va.gov/
-  vha_access_waittime: https://www.accesstocare.va.gov/
-  base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
-  gis_base_path: https://gis.va.gov/server/rest/services/VA
-  drive_time_band_base_path: https://vhanflwebgistst.v08.med.va.gov
-  providers_enabled: false
-  mock_gis: false
-
 ppms:
   url: https://some.fakesite.com
   apim_url: https://some.other.fakesite.com
@@ -900,8 +886,13 @@ search:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
   mock_search: false
-  gsa_url: https://api.gsa.gov/technology/searchgov/v2/results/i14y
   url: https://search.usa.gov/api/v2/search/i14y
+
+search_gsa:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  mock_search: false
+  url: https://api.gsa.gov/technology/searchgov/v2/results/i14y
 
 # Settings for search-typeahead
 search_typeahead:
@@ -1308,15 +1299,27 @@ vanotify:
         form1995_confirmation_email: form1995_confirmation_email_template_id
         form21_0966_confirmation_email: form21_0966_confirmation_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
+        form21_0972_error_email: form21_0972_error_email_template_id
+        form21_0972_received_email: form21_0972_received_email_template_id
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
         form21_10210_error_email: form21_10210_error_email_template_id
         form21_10210_received_email: form21_10210_received_email_template_id
         form20_10206_confirmation_email: form20_10206_confirmation_email_template_id
+        form20_10206_error_email: form20_10206_error_email_template_id
+        form20_10206_received_email: form20_10206_received_email_template_id
         form20_10207_confirmation_email: form20_10207_confirmation_email_template_id
+        form20_10207_error_email: form20_10207_error_email_template_id
+        form20_10207_received_email: form20_10207_received_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
+        form21_0845_error_email: form21_0845_error_email_template_id
+        form21_0845_received_email: form21_0845_received_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
+        form21p_0847_error_email: form21p_0847_error_email_template_id
+        form21p_0847_received_email: form21p_0847_received_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
+        form21_4142_error_email: form21_4142_error_email_template_id
+        form21_4142_received_email: form21_4142_received_email_template_id
         form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
@@ -1374,6 +1377,7 @@ vanotify:
       api_key: fake_secret
       template_id:
         form1010_ez_failure_email: fake_template_id
+        form1010_ezr_failure_email: fake_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
