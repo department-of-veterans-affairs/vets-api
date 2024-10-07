@@ -14,7 +14,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   # BDD Document Type
   let(:va_document_type) { 'L023' }
 
-  let(:provider) do
+  let!(:provider) do
     LighthouseSupplementalDocumentUploadProvider.new(
       submission,
       va_document_type,
