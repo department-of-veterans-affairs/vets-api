@@ -20,9 +20,8 @@ namespace :simple_forms_api do
 
       # Call the service object synchronously and get the presigned URLs
       config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
-      presigned_urls = SimpleFormsApi::FormRemediation::ArchiveBatchProcessingJob.perform(
-        ids: benefits_intake_uuids, config:, type: type.to_sym
-      )
+      job = SimpleFormsApi::FormRemediation::ArchiveBatchProcessingJob.new
+      presigned_urls = job.perform(ids: benefits_intake_uuids, config:, type: type.to_sym)
 
       Rails.logger.info('ArchiveBatchProcessingJob completed successfully.')
 
