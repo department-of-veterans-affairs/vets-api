@@ -68,9 +68,37 @@ class RepresentationManagement::RswagConfig
                           type: :string,
                           example: '1234 Freedom Blvd'
                         },
+                        address_line2: {
+                          type: :string,
+                          example: 'Suite 200'
+                        },
+                        address_line3: {
+                          type: :string,
+                          example: 'Building 3'
+                        },
+                        address_type: {
+                          type: :string,
+                          example: 'DOMESTIC'
+                        },
                         city: {
                           type: :string,
                           example: 'Arlington'
+                        },
+                        country_name: {
+                          type: :string,
+                          example: 'United States'
+                        },
+                        country_code_iso3: {
+                          type: :string,
+                          example: 'USA'
+                        },
+                        province: {
+                          type: :string,
+                          example: 'VA'
+                        },
+                        international_postal_code: {
+                          type: :string,
+                          example: '22204'
                         },
                         state_code: {
                           type: :string,
@@ -79,6 +107,10 @@ class RepresentationManagement::RswagConfig
                         zip_code: {
                           type: :string,
                           example: '22204'
+                        },
+                        zip_suffix: {
+                          type: :string,
+                          example: '1234'
                         },
                         phone: {
                           type: :string,
