@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Flipper
-  class AdminUserConstraint
+  class RouteAuthorization
     def self.matches?(request)
       # Confirm that requests to toggle (POST to /boolean) are authorized
       url_pattern = %r{\A/flipper/features/[^/]+/boolean\z}

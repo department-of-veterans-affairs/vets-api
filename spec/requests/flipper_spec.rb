@@ -9,7 +9,7 @@ RSpec.describe 'flipper', type: :request do
       mount Flipper::UI.app(
         Flipper.instance,
         rack_protection: { except: :authenticity_token }
-      ) => '/flipper', constraints: Flipper::AdminUserConstraint
+      ) => '/flipper', constraints: Flipper::RouteAuthorization
     end
     yield
     Rails.application.reload_routes!
