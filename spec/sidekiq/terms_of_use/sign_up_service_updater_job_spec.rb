@@ -260,12 +260,19 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       before do
         allow(Rails.logger).to receive(:info)
         allow(service_instance).to receive(:status).and_return(status)
+        allow(service_instance).to receive(:agreements_accept)
       end
 
       it 'logs that the agreement is not changed' do
         job.perform(user_account_uuid, version)
 
         expect(Rails.logger).to have_received(:info).with(expected_log, icn:)
+      end
+
+      it 'it does not make an agreements change call' do
+        job.perform(user_account_uuid, version)
+
+        expect(service_instance).not_to have_received(:agreements_accept)
       end
     end
 
