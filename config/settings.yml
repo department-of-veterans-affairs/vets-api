@@ -1402,13 +1402,6 @@ va_forms:
     api_key: ""
     channel_id: ""
 
-# Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
-genisis:
-  base_url: https://vaausapprne60.aac.dva.va.gov
-  service_path: /COVID19Service
-  user: TestUser
-  pass: bogus
-
 # Settings for connecting AFS Veteran Services
 dgi:
   jwt:
