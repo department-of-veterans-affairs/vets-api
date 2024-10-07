@@ -16,5 +16,9 @@ properties:
       - denied
       - remand
       - cavc_remand
+      - Granted
+      - dismissed_matter_of_law
+      - Dismissed
+      - Deferred
   date:
     type: string
