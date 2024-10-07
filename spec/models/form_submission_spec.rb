@@ -14,6 +14,14 @@ RSpec.describe FormSubmission, type: :model do
     it { is_expected.to validate_presence_of(:form_type) }
   end
 
+  describe '#form_data' do
+    it 'defaults to an empty hash in a string' do
+      form_submission = create(:form_submission, form_data: nil)
+
+      expect(form_submission.form_data).to eq '{}'
+    end
+  end
+
   describe 'user form submission statuses' do
     before do
       @fsa, @fsb, @fsc = create_list(:form_submission, 3, user_account:)
@@ -84,6 +92,22 @@ RSpec.describe FormSubmission, type: :model do
         results = FormSubmission.with_form_types(nil).to_a
 
         expect(results.count).to eq(3)
+      end
+    end
+
+    context 'latest_pending_attempt' do
+      it 'returns db record' do
+        form_submission = FormSubmission.with_form_types(nil).first
+
+        expect(form_submission.latest_pending_attempt).not_to be_nil
+      end
+    end
+
+    context 'non_failure_attempt' do
+      it 'returns db record' do
+        form_submission = FormSubmission.with_form_types(nil).first
+
+        expect(form_submission.non_failure_attempt).not_to be_nil
       end
     end
   end

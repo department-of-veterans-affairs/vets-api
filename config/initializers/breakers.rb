@@ -14,7 +14,6 @@ require 'evss/documents_service'
 require 'evss/letters/service'
 require 'evss/pciu_address/configuration'
 require 'evss/reference_data/configuration'
-require 'facilities/bulk_configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
@@ -26,6 +25,7 @@ require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
 require 'search/configuration'
+require 'search_gsa/configuration'
 require 'search_typeahead/configuration'
 require 'search_click_tracking/configuration'
 require 'va_profile/address_validation/configuration'
@@ -57,8 +57,6 @@ Rails.application.reloader.to_prepare do
     EVSS::Dependents::Configuration.instance.breakers_service,
     EVSS::ReferenceData::Configuration.instance.breakers_service,
     Gibft::Configuration.instance.breakers_service,
-    Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
-    Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
     GI::Configuration.instance.breakers_service,
     HCA::Configuration.instance.breakers_service,
     MHVAC::Configuration.instance.breakers_service,
@@ -73,6 +71,7 @@ Rails.application.reloader.to_prepare do
     VAProfile::MilitaryPersonnel::Configuration.instance.breakers_service,
     VAProfile::VeteranStatus::Configuration.instance.breakers_service,
     Search::Configuration.instance.breakers_service,
+    SearchGsa::Configuration.instance.breakers_service,
     SearchTypeahead::Configuration.instance.breakers_service,
     SearchClickTracking::Configuration.instance.breakers_service,
     VAOS::Configuration.instance.breakers_service,

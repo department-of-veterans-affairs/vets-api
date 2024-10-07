@@ -3154,6 +3154,10 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     describe 'search' do
+      before do
+        Flipper.disable(:search_use_v2_gsa)
+      end
+
       context 'when successful' do
         it 'supports getting search results data' do
           VCR.use_cassette('search/success') do
@@ -3794,6 +3798,7 @@ RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :de
 
     context 'GI Bill Status' do
       it 'supports getting Gi Bill Status' do
+        Flipper.enable(:sob_updated_design)
         Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
         expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 401)
         VCR.use_cassette('lighthouse/benefits_education/200_response') do
@@ -3803,6 +3808,7 @@ RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :de
       end
 
       it 'supports Gi Bill Status 503 condition' do
+        Flipper.disable(:sob_updated_design)
         Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 00:15:06'))
         expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 503, headers)
         Timecop.return
