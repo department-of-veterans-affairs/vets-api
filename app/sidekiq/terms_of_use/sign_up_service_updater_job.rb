@@ -56,21 +56,14 @@ module TermsOfUse
       @map_status ||= map_client.status(icn: mpi_profile.icn)
     end
 
-    def map_declined?
-      map_status[:opt_out]
-    end
-
-    def map_accepted?
-      map_status[:agreement_signed]
-    end
-
     def agreement_unchanged?
       if terms_of_use_agreement.declined? != map_status[:opt_out] ||
-        terms_of_use_agreement.accepted? != map_status[:agreement_signed]
+         terms_of_use_agreement.accepted? != map_status[:agreement_signed]
         return false
       end
 
-      Rails.logger.info("#{LOG_TITLE} Not updating Sign Up Service due to unchanged agreement", { icn: user_account.icn })
+      Rails.logger.info("#{LOG_TITLE} Not updating Sign Up Service due to unchanged agreement",
+                        { icn: user_account.icn })
       true
     end
 
