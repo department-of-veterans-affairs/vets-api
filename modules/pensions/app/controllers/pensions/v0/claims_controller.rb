@@ -56,7 +56,7 @@ module Pensions
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        claim.upload_to_lighthouse(current_user)
+        process_and_upload_to_lighthouse(in_progress_form, claim)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 
@@ -68,6 +68,15 @@ module Pensions
       end
 
       private
+
+      def process_and_upload_to_lighthouse(in_progress_form, claim)
+        claim.process_attachments!
+
+        Pensions::PensionBenefitIntakeJob.perform_async(claim.id, current_user&.user_account_uuid)
+      rescue => e
+        monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+        raise e
+      end
 
       # Filters out the parameters to form access.
       def filtered_params

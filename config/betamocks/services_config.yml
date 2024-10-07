@@ -126,7 +126,7 @@
   :endpoints:
   - :method: :post
     :path: '/v1/usermgmt/account-service/account'
-    :file_path: 'mhv/account_creation/create_account'
+    :file_path: 'mhv/account_creation/create_account/default'
 
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
@@ -610,29 +610,6 @@
   - :method: :get
     :path: "/technology/searchgov/v2/results/i14y"
     :file_path: "search/default"
-
-#GIS
-- :name: 'GIS'
-  :base_uri: <%= "#{URI(Settings.locators.gis_base_path).host}:#{URI(Settings.locators.gis_base_path).port}" %>
-  :endpoints:
-    # VHA
-    - :method: :get
-      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/query"
-      :file_path: "gis/vha/facilities"
-    - :method: :get
-      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0"
-      :file_path: "gis/vha/metadata"
-
-#PSSG
-- :name: 'PSSG'
-  :base_uri: <%= "#{URI(Settings.locators.drive_time_band_base_path).host}:#{URI(Settings.locators.drive_time_band_base_path).port}" %>
-  :endpoints:
-    - :method: :get
-      :path: "/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/*"
-      :file_path: "pssg/drivetime_bands"
-      :cache_multiple_responses:
-        :uid_location: query
-        :uid_locator:  resultOffset
 
 #VANotify
 - :name: 'VANotify'

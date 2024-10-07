@@ -803,7 +803,8 @@ RSpec.describe FormProfile, type: :model do
       'bankAccountType' => 'Checking',
       'bankName' => 'Comerica',
       'bankRoutingNumber' => '*****2115',
-      'startedFormVersion' => '2022'
+      'startedFormVersion' => '2022',
+      'syncModern0781Flow' => true
     }
   end
 

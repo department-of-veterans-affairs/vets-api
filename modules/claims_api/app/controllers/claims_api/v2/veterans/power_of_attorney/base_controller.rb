@@ -15,6 +15,7 @@ module ClaimsApi
         include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
         FORM_NUMBER_INDIVIDUAL = '2122A'
+        VA_NOTIFY_KEY = 'va_notify_recipient_identifier'
 
         def show
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
@@ -78,7 +79,7 @@ module ClaimsApi
         def submit_power_of_attorney(poa_code, form_number)
           attributes = {
             status: ClaimsApi::PowerOfAttorney::PENDING,
-            auth_headers:,
+            auth_headers: auth_headers.merge!({ VA_NOTIFY_KEY => icn_for_vanotify }),
             form_data: form_attributes,
             current_poa: current_poa_code,
             header_md5:
@@ -195,6 +196,10 @@ module ClaimsApi
           return @user_profile if defined? @user_profile
 
           @user_profile ||= fetch_claimant
+        end
+
+        def icn_for_vanotify
+          params[:veteranId]
         end
 
         def fetch_claimant
