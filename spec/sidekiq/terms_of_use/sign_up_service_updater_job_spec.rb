@@ -175,7 +175,6 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
 
           before do
             allow(Rails.logger).to receive(:info)
-            allow(service_instance).to receive(:status).and_return(status)
           end
 
           it 'logs a detected changed ICN message' do
