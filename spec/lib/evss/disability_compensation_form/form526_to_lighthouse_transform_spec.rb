@@ -398,6 +398,71 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('YES')
     end
 
+    it 'filters and transforms multiple exposure details correctly' do
+      # data sample mimics if a user filled out date data for a toxic exposure item
+      # and then went back and unselected the options
+      deselected_multiple_exposures_details = data.merge({
+                                                           'gulfWar1990' => {
+                                                             'iraq' => false,
+                                                             'kuwait' => false,
+                                                             'qatar' => false
+                                                           },
+                                                           'gulfWar2001' => {
+                                                             'iraq' => { 'startDate' => '1991-03-XX',
+                                                                         'endDate' => '1992-01-01' },
+                                                             'qatar' => { 'startDate' => '1991-03-01',
+                                                                          'endDate' => '1992-01-01' },
+                                                             'kuwait' => { 'startDate' => '1991-03-15' }
+                                                           },
+                                                           'herbicide' => {
+                                                             'cambodia' => false,
+                                                             'guam' => false,
+                                                             'laos' => false
+                                                           },
+                                                           'herbicideDetails' => {
+                                                             'cambodia' => {
+                                                               'startDate' => '1991-03-01',
+                                                               'endDate' => '1992-01-01'
+                                                             },
+                                                             'guam' => {
+                                                               'startDate' => '1991-02-12',
+                                                               'endDate' => '1991-06-01'
+                                                             },
+                                                             'laos' => {
+                                                               'startDate' => '1991-03-15'
+                                                             }
+                                                           },
+                                                           'otherExposures' => {
+                                                             'asbestos' => false,
+                                                             'chemical' => false,
+                                                             'mos' => false,
+                                                             'mustardgas' => false,
+                                                             'radiation' => false,
+                                                             'water' => false
+                                                           },
+                                                           'otherExposuresDetails' => {
+                                                             'asbestos' => {
+                                                               'startDate' => '1991-03-01',
+                                                               'endDate' => '1992-01-01'
+                                                             },
+                                                             'radiation' => {
+                                                               'startDate' => '1991-03-01',
+                                                               'endDate' => '1992-01-01'
+                                                             },
+                                                             'chemical' => {
+                                                               'startDate' => '1991-03-01'
+                                                             },
+                                                             'mos' => {
+                                                               'endDate' => '1991-03-01'
+                                                             }
+                                                           },
+                                                           'otherHerbicideLocations' => nil,
+                                                           'specifyOtherExposures' => nil
+                                                         })
+      result = transformer.send(:transform_toxic_exposure, deselected_multiple_exposures_details)
+      expect(result.multiple_exposures).to eq([])
+    end
+
     it 'transforms gulf war, herbicide and hazard multiple exposure dates' do
       result = transformer.send(:transform_multiple_exposures, data['gulfWar1990Details'])
       expect(result[0].exposure_dates.begin_date).to eq('1991-03')
@@ -644,6 +709,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_other_exposures, none_option_with_no_other['otherExposures'],
                                 none_option_with_no_other['specifyOtherExposures'])
       expect(result).to eq(nil)
+    end
+
+    it 'filters unselected items from details objects correctly' do
+      source = { 'afghanistan' => true, 'bahrain' => true, 'jordan' => true, 'kuwait' => true, 'iraq' => true,
+                 'qatar' => false }
+      details = { 'iraq' => { startDate: '1991-03-01', endDate: '1992-01-01' },
+                  'qatar' => { startDate: '1991-02-12', endDate: '1991-06-01' },
+                  'kuwait' => { startDate: '1991-03-15' } }
+      result = transformer.send(:filtered_details, source, details)
+
+      expect(result).to eq({ 'iraq' => { startDate: '1991-03-01', endDate: '1992-01-01' },
+                             'kuwait' => { startDate: '1991-03-15' } })
     end
   end
 end

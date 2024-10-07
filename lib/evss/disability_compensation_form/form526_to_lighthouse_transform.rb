@@ -267,25 +267,39 @@ module EVSS
 
         # create an Array[Requests::MultipleExposures]
         multiple_exposures = []
-        if toxic_exposure_source['gulfWar1990Details'].present?
-          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar1990Details'])
+
+        gulf_war1990_details = toxic_exposure_source['gulfWar1990Details']
+        if gulf_war1990_details.present? && gulf_war1990.present?
+          filtered_gulf_war1990_details = filtered_details(gulf_war1990, gulf_war1990_details)
+          multiple_exposures += transform_multiple_exposures(filtered_gulf_war1990_details)
         end
-        if toxic_exposure_source['gulfWar2001Details'].present?
-          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar2001Details'])
+
+        gulf_war2001_details = toxic_exposure_source['gulfWar2001Details']
+        if gulf_war2001_details.present? && gulf_war2001.present?
+          filtered_gulf_war2001_details = filtered_details(gulf_war2001, gulf_war2001_details)
+          multiple_exposures += transform_multiple_exposures(filtered_gulf_war2001_details)
         end
-        if toxic_exposure_source['herbicideDetails'].present?
-          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['herbicideDetails'],
+
+        herbicide_details = toxic_exposure_source['herbicideDetails']
+        if herbicide_details.present? && herbicide.present?
+          filtered_herbicide_details = filtered_details(herbicide, herbicide_details)
+          multiple_exposures += transform_multiple_exposures(filtered_herbicide_details,
                                                              MULTIPLE_EXPOSURES_TYPE[:herbicide])
         end
+
         if values_present(toxic_exposure_source['otherHerbicideLocations'])
           multiple_exposures +=
             transform_multiple_exposures_other_details(toxic_exposure_source['otherHerbicideLocations'],
                                                        MULTIPLE_EXPOSURES_TYPE[:herbicide])
         end
-        if toxic_exposure_source['otherExposuresDetails'].present?
-          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposuresDetails'],
+
+        other_exposures_details = toxic_exposure_source['otherExposuresDetails']
+        if other_exposures_details.present? && other_exposures.present?
+          filtered_other_exposures_details = filtered_details(other_exposures, other_exposures_details)
+          multiple_exposures += transform_multiple_exposures(filtered_other_exposures_details,
                                                              MULTIPLE_EXPOSURES_TYPE[:hazard])
         end
+
         if values_present(toxic_exposure_source['specifyOtherExposures'])
           multiple_exposures +=
             transform_multiple_exposures_other_details(toxic_exposure_source['specifyOtherExposures'],
@@ -349,6 +363,35 @@ module EVSS
         end
 
         [obj]
+      end
+
+      # Filters a details object (i.e. gulfwar1990Details) of "false" or "unchecked" attributes from the source object
+      # example:
+      # {
+      #   "gulfWar1990": {
+      #     "afghanistan": true,
+      #     "bahrain": true,
+      #     "jordan": true,
+      #     "kuwait": true,
+      #     "iraq": true,
+      #     "qatar": false #<- this should be removed from the matching details object
+      #   },
+      #   "gulfWar1990Details": {
+      #     "iraq": {
+      #       "startDate": "1991-03-01",
+      #       "endDate": "1992-01-01"
+      #     },
+      #     "qatar": { #<- remove this
+      #                "startDate": "1991-02-12",
+      #                "endDate": "1991-06-01"
+      #     },
+      #     "kuwait": {
+      #       "startDate": "1991-03-15"
+      #     }
+      #   }
+      # }
+      def filtered_details(source, details)
+        details.select { |obj| source[obj].present? }
       end
 
       def transform_gulf_war(gulf_war1990, gulf_war2001)
