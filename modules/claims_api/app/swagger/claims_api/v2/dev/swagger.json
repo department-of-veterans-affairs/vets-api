@@ -5077,7 +5077,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "eb843fc3-8604-46ae-a08d-c60ce6bd9d9b",
+                        "id": "842d260d-1ffe-4a29-b5ed-117b38bd3ad5",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5262,7 +5262,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-10-02"
+                              "anticipatedSeparationDate": "2024-10-05"
                             },
                             "confinements": [
                               {
@@ -5308,7 +5308,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "f05ebeae-33e2-42d7-8a2c-b2e293ea3d3a",
+                        "id": "9580281a-95bc-4a99-8171-10b987a1b887",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -10526,7 +10526,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b482d045-7bdc-44c9-9729-435c9518ba34",
+                    "id": "854bc725-fa9e-438e-bc7f-9a484160cf30",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13269,127 +13269,176 @@
         ],
         "responses": {
           "200": {
-            "description": "claim response",
+            "description": "errored claim response",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "id": "555555555",
-                    "type": "claim",
-                    "attributes": {
-                      "claimTypeCode": "400PREDSCHRG",
-                      "claimDate": "2017-05-02",
-                      "claimPhaseDates": {
-                        "phaseChangeDate": "2017-10-18",
-                        "currentPhaseBack": false,
-                        "latestPhaseType": "COMPLETE",
-                        "previousPhases": {
-                          "phase7CompleteDate": "2017-10-18"
-                        }
-                      },
-                      "claimType": "Compensation",
-                      "closeDate": "2017-10-18",
-                      "contentions": [
-                        {
-                          "name": "abnormal heart (New)"
-                        },
-                        {
-                          "name": "abscess kidney (New)"
-                        },
-                        {
-                          "name": "encephalitis lethargica residuals (New)"
-                        },
-                        {
-                          "name": "dracunculiasis (New)"
-                        },
-                        {
-                          "name": "gingivitis (New)"
-                        },
-                        {
-                          "name": "abnormal weight loss (New)"
-                        },
-                        {
-                          "name": "groin condition (New)"
-                        },
-                        {
-                          "name": "metritis (New)"
-                        }
-                      ],
-                      "decisionLetterSent": false,
-                      "developmentLetterSent": false,
-                      "documentsNeeded": false,
-                      "endProductCode": "404",
-                      "evidenceWaiverSubmitted5103": false,
-                      "errors": [
+                "examples": {
+                  "returns a 200 response for established claim": {
+                    "value": {
+                      "data": {
+                        "id": "555555555",
+                        "type": "claim",
+                        "attributes": {
+                          "claimTypeCode": "400PREDSCHRG",
+                          "claimDate": "2017-05-02",
+                          "claimPhaseDates": {
+                            "phaseChangeDate": "2017-10-18",
+                            "currentPhaseBack": false,
+                            "latestPhaseType": "COMPLETE",
+                            "previousPhases": {
+                              "phase7CompleteDate": "2017-10-18"
+                            }
+                          },
+                          "claimType": "Compensation",
+                          "closeDate": "2017-10-18",
+                          "contentions": [
+                            {
+                              "name": "abnormal heart (New)"
+                            },
+                            {
+                              "name": "abscess kidney (New)"
+                            },
+                            {
+                              "name": "encephalitis lethargica residuals (New)"
+                            },
+                            {
+                              "name": "dracunculiasis (New)"
+                            },
+                            {
+                              "name": "gingivitis (New)"
+                            },
+                            {
+                              "name": "abnormal weight loss (New)"
+                            },
+                            {
+                              "name": "groin condition (New)"
+                            },
+                            {
+                              "name": "metritis (New)"
+                            }
+                          ],
+                          "decisionLetterSent": false,
+                          "developmentLetterSent": false,
+                          "documentsNeeded": false,
+                          "endProductCode": "404",
+                          "evidenceWaiverSubmitted5103": false,
+                          "errors": [
 
-                      ],
-                      "jurisdiction": "National Work Queue",
-                      "lighthouseId": null,
-                      "maxEstClaimDate": null,
-                      "minEstClaimDate": null,
-                      "status": "CANCELED",
-                      "submitterApplicationCode": "EBN",
-                      "submitterRoleCode": "VET",
-                      "supportingDocuments": [
-                        {
-                          "documentId": "{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}",
-                          "documentTypeLabel": "Medical",
-                          "originalFileName": null,
-                          "trackedItemId": null,
-                          "uploadDate": null
+                          ],
+                          "jurisdiction": "National Work Queue",
+                          "lighthouseId": null,
+                          "maxEstClaimDate": null,
+                          "minEstClaimDate": null,
+                          "status": "CANCELED",
+                          "submitterApplicationCode": "EBN",
+                          "submitterRoleCode": "VET",
+                          "supportingDocuments": [
+                            {
+                              "documentId": "{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}",
+                              "documentTypeLabel": "Medical",
+                              "originalFileName": null,
+                              "trackedItemId": null,
+                              "uploadDate": null
+                            }
+                          ],
+                          "tempJurisdiction": null,
+                          "trackedItems": [
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "21-4142a",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293440,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Employment info needed",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293443,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Accidental injury - 21-4176 needed",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293444,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Buddy mentioned - No complete address",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293446,
+                              "uploadsAllowed": false
+                            }
+                          ]
                         }
-                      ],
-                      "tempJurisdiction": null,
-                      "trackedItems": [
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "21-4142a",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293440,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Employment info needed",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293443,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Accidental injury - 21-4176 needed",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293444,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Buddy mentioned - No complete address",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293446,
-                          "uploadsAllowed": false
+                      }
+                    }
+                  },
+                  "returns a 200 response for errored claim": {
+                    "value": {
+                      "data": {
+                        "id": null,
+                        "type": "claim",
+                        "attributes": {
+                          "claimTypeCode": null,
+                          "claimDate": null,
+                          "claimPhaseDates": null,
+                          "claimType": null,
+                          "closeDate": null,
+                          "contentions": null,
+                          "decisionLetterSent": null,
+                          "developmentLetterSent": null,
+                          "documentsNeeded": null,
+                          "endProductCode": null,
+                          "evidenceWaiverSubmitted5103": null,
+                          "errors": [
+                            {
+                              "detail": "ERROR must match d{7}",
+                              "source": "form526/serviceInformation/reservesNationalGuardService/unitPhone/phoneNumber/Pattern"
+                            },
+                            {
+                              "detail": "ERROR must match d{7}",
+                              "source": "form526/veteran/homelessness/pointOfContact/primaryPhone/phoneNumber/Pattern"
+                            }
+                          ],
+                          "jurisdiction": null,
+                          "lighthouseId": "d5536c5c-0465-4038-a368-1a9d9daf65c9",
+                          "maxEstClaimDate": null,
+                          "minEstClaimDate": null,
+                          "status": "ERRORED",
+                          "submitterApplicationCode": null,
+                          "submitterRoleCode": null,
+                          "supportingDocuments": [
+
+                          ],
+                          "tempJurisdiction": null,
+                          "trackedItems": [
+
+                          ]
                         }
-                      ]
+                      }
                     }
                   }
                 },
@@ -13773,7 +13822,46 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "benefit_claim_details_dto": {
+                    "attention_needed": "No",
+                    "base_end_prdct_type_cd": "400",
+                    "benefit_claim_id": "555555555",
+                    "bnft_claim_lc_status": {
+                      "phase_chngd_dt": "2017-10-18T08:23:35.000+00:00",
+                      "phase_type": "COMPLETE",
+                      "phase_type_change_ind": "78"
+                    },
+                    "bnft_claim_type_cd": "400PREDSCHRG",
+                    "claim_complete_dt": "2017-10-18T08:23:35.000+00:00",
+                    "claim_dt": "2017-05-02",
+                    "claim_status": "CAN",
+                    "claim_status_type": "Compensation",
+                    "contentions": "abnormal heart (New), abscess kidney (New), encephalitis lethargica residuals (New), dracunculiasis (New), gingivitis (New), abnormal weight loss (New), groin condition (New), metritis (New)",
+                    "decision_notification_sent": "No",
+                    "development_letter_sent": "No",
+                    "end_prdct_type_cd": "404",
+                    "errors": [
+
+                    ],
+                    "poa": "RANDOM E PERSON",
+                    "program_type": "CPL",
+                    "ptcpnt_clmant_id": "111111111",
+                    "ptcpnt_vet_id": "111111111",
+                    "regional_office_jrsdctn": "National Work Queue",
+                    "submtr_applcn_type_cd": "EBN",
+                    "submtr_role_type_cd": "VET",
+                    "temp_regional_office_jrsdctn": null,
+                    "wsyswwn": {
+                      "address_line1": "National Work Queue",
+                      "address_line2": "810 Vermont Avenue NW",
+                      "address_line3": null,
+                      "city": "Washington",
+                      "state": "DC",
+                      "zip": "20420"
+                    }
+                  },
+                  "@xmlns:ns0": "http://claimstatus.services.ebenefits.vba.va.gov/"
                 }
               }
             }
@@ -14186,8 +14274,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-09-30",
-                      "expirationDate": "2025-09-30",
+                      "creationDate": "2024-10-03",
+                      "expirationDate": "2025-10-03",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -15083,7 +15171,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ceb05896-10e7-47f7-aab4-5ac12570f1ab",
+                    "id": "10295307-73bb-4825-95f5-02d6df41a4e1",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15776,7 +15864,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "aa12527e-85d9-4791-b98f-6193d204b213",
+                    "id": "9abb338d-2390-472c-bb0a-8a1c7da2ba32",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17727,10 +17815,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "69f815eb-24fe-4190-b419-044ceae7ab77",
+                    "id": "3b595df2-25af-4c3e-a48b-56478c80983d",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-09-30",
+                      "dateRequestAccepted": "2024-10-03",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
