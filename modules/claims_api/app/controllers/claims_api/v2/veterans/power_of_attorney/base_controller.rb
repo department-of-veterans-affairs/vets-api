@@ -42,11 +42,13 @@ module ClaimsApi
         private
 
         def shared_form_validation(form_number)
+          # validate target veteran exists
+          target_veteran
+
           base = form_number == '2122' ? 'serviceOrganization' : 'representative'
           poa_code = form_attributes.dig(base, 'poaCode')
 
-          @claims_api_forms_validation_errors ||= []
-          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile)
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile) || []
 
           validate_json_schema(form_number.upcase)
           @rep_id = validate_registration_number!(base, poa_code)
