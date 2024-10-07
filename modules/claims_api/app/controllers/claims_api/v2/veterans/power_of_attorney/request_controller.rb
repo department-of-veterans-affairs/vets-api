@@ -10,6 +10,9 @@ module ClaimsApi
         FORM_NUMBER = 'POA_REQUEST'
 
         def request_representative
+          # validate target veteran exists
+          target_veteran
+
           poa_code = form_attributes.dig('poa', 'poaCode')
           @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile)
 
