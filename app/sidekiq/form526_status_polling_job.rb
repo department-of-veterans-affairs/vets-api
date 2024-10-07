@@ -53,6 +53,7 @@ class Form526StatusPollingJob
     if %w[error expired].include? status
       log_result('failure')
       form_submission.rejected!
+      Form526SubmissionFailureEmailJob.perform_async(form526_submission_id: form_submission.id)
     elsif status == 'vbms'
       log_result('true_success')
       form_submission.accepted!

@@ -7,6 +7,8 @@ class Form526SubmissionRemediation < ApplicationRecord
   validate :validate_context_on_create_update
   validate :ensure_success_if_ignored_as_duplicate
 
+  enum remediation_type: { manual: 0, ignored_as_duplicate: 1, email_notified: 2 }
+
   before_create :initialize_lifecycle
 
   enum remediation_type: { manual: 0, ignored_as_duplicate: 1, email_notified: 2 }
