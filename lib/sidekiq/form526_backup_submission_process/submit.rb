@@ -52,6 +52,20 @@ module Sidekiq
           'Form 526 Backup Submission Retries exhausted',
           { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
         )
+
+        # [wipn8923] none of this has been checked yet
+        first_name = parsed_form.dig('veteranFullName', 'first')
+        template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ezr_failure_email
+        api_key = Settings.vanotify.services.benefits_disability.api_key
+        salutation = first_name ? "Dear #{first_name}," : ''
+
+        VANotify::EmailJob.perform_async(
+          email,
+          template_id,
+          { 'salutation' => salutation },
+          api_key
+        )
+        Form526SubmissionRemediation.create(type: :failure_email, lifecycle: ["failed with error: #{error_message}"])
       rescue => e
         ::Rails.logger.error(
           'Failure in Form526BackupSubmission#sidekiq_retries_exhausted',
