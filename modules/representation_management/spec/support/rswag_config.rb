@@ -7,7 +7,7 @@ class RepresentationManagement::RswagConfig
         openapi: '3.0.1',
         info: {
           title: 'va.gov Representation Management API',
-          version: '1.0.0',
+          version: '0.1.0',
           termsOfService: 'https://developer.va.gov/terms-of-service',
           description: 'The API for managing representation for VA Forms 21-22 and 21-22a'
         },
@@ -153,14 +153,13 @@ class RepresentationManagement::RswagConfig
           }
         },
         paths: {},
-        # basePath is not valid OAS v3
         servers: [
           {
             url: 'http://localhost:3000',
             description: 'Local server',
             variables: {
               version: {
-                default: 'v1'
+                default: 'v0'
               }
             }
           },
@@ -170,7 +169,7 @@ class RepresentationManagement::RswagConfig
             description: 'VA.gov API sandbox environment',
             variables: {
               version: {
-                default: 'v1'
+                default: 'v0'
               }
             }
           },
@@ -179,7 +178,7 @@ class RepresentationManagement::RswagConfig
             description: 'VA.gov API staging environment',
             variables: {
               version: {
-                default: 'v1'
+                default: 'v0'
               }
             }
           },
@@ -188,7 +187,7 @@ class RepresentationManagement::RswagConfig
             description: 'VA.gov API production environment',
             variables: {
               version: {
-                default: 'v1'
+                default: 'v0'
               }
             }
           }

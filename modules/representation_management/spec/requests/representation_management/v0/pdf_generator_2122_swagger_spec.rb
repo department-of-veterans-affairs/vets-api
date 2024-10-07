@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'swagger_helper'
+require Rails.root.join('spec', 'rswag_override.rb').to_s
 require_relative '../../../support/swagger_shared_components/v0'
 
 RSpec.describe 'PDF Generator 21-22', openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json',
