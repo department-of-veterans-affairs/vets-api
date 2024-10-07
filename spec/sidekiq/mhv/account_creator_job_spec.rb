@@ -23,35 +23,36 @@ RSpec.describe MHV::AccountCreatorJob, type: :job do
   end
 
   before do
-    Sidekiq::Testing.inline!
     allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
     allow(mhv_client).to receive(:create_account).and_return(mhv_response_body)
   end
 
   describe '#perform' do
-    context 'when a UserVerification exists' do
-      it 'calls the MHV::UserAccount::Creator service class and returns the created MHVUserAccount instance' do
-        expect(MHV::UserAccount::Creator).to receive(:new).with(user_verification:).and_call_original
-        job.perform(user_verification.id)
-      end
+    Sidekiq::Testing.inline! do
+      context 'when a UserVerification exists' do
+        it 'calls the MHV::UserAccount::Creator service class and returns the created MHVUserAccount instance' do
+          expect(MHV::UserAccount::Creator).to receive(:new).with(user_verification:).and_call_original
+          job.perform(user_verification.id)
+        end
 
-      context 'when the MHV API call is successful' do
-        it 'creates & returns a new MHVUserAccount instance' do
-          response = job.perform(user_verification.id)
-          expect(response).to be_an_instance_of(MHVUserAccount)
+        context 'when the MHV API call is successful' do
+          it 'creates & returns a new MHVUserAccount instance' do
+            response = job.perform(user_verification.id)
+            expect(response).to be_an_instance_of(MHVUserAccount)
+          end
         end
       end
-    end
 
-    context 'when a UserVerification does not exist' do
-      let(:expected_error_id) { 999 }
-      let(:expected_error_message) do
-        "MHV AccountCreatorJob failed: UserVerification not found for id #{expected_error_id}"
-      end
+      context 'when a UserVerification does not exist' do
+        let(:expected_error_id) { 999 }
+        let(:expected_error_message) do
+          "MHV AccountCreatorJob failed: UserVerification not found for id #{expected_error_id}"
+        end
 
-      it 'logs an error' do
-        expect(Rails.logger).to receive(:error).with(expected_error_message)
-        job.perform(expected_error_id)
+        it 'logs an error' do
+          expect(Rails.logger).to receive(:error).with(expected_error_message)
+          job.perform(expected_error_id)
+        end
       end
     end
   end
