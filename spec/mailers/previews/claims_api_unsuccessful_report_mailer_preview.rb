@@ -6,9 +6,6 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   def build
     to = Time.zone.now
     from = 1.day.ago
-    reporting_base.db_clean
-    reporting_base.call_factories
-    reporting_base.gather_consumers
 
     ClaimsApi::UnsuccessfulReportMailer.build(
       from,
@@ -32,15 +29,6 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
 
   def unsuccessful_va_gov_claims_submissions
     reporting_base.unsuccessful_va_gov_claims_submissions
-  end
-
-  def unsuccessful_va_gov_claims_submissions
-    {
-      A: [{ transaction_id: '13259605526122682833', id: '82664de8-b3de-4e6f-aec1-8da32287f42f' }],
-      B: [{ transaction_id: '25', id: '30de2023-c86f-448d-a5d8-c129d9db1175' },
-          { transaction_id: '25', id: 'd4acf34d-5bb8-42fc-9b1d-55d5ef4040e6' }],
-      C: [{ transaction_id: '33282616173397531367', id: '92a8f4c6-e1a7-435a-8134-921ed1548f45' }]
-    }
   end
 
   def claims_totals
