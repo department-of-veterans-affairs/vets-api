@@ -3579,8 +3579,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -3597,10 +3596,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -3690,7 +3685,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "53a89319-954b-4f30-96c8-c4b832d104a6",
+                        "id": "3715233b-cf79-4b21-9300-c8332428b8a8",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3875,7 +3870,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-10-05"
+                              "anticipatedSeparationDate": "2024-10-10"
                             },
                             "confinements": [
                               {
@@ -3921,7 +3916,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "a71d411d-5626-416f-9c01-366b3c2719f2",
+                        "id": "86887bd3-07f9-4e56-ace0-6ce6f537792f",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -7122,8 +7117,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -7140,10 +7134,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -9139,7 +9129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "de754a68-be13-4767-a299-dc7587bf23ab",
+                    "id": "369558d0-b970-493c-9a75-4b63a3294011",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12887,8 +12877,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-10-03",
-                      "expirationDate": "2025-10-03",
+                      "creationDate": "2024-10-08",
+                      "expirationDate": "2025-10-08",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13685,7 +13675,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:134:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:162:in `representative'"
                       }
                     }
                   ]
@@ -13784,7 +13774,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "fc09bcf9-4334-40f9-83cd-e105223c5e77",
+                    "id": "4ee7b7ea-452b-4f21-8f0f-61cf8c078cd4",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14477,7 +14467,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "da954be2-3a04-4889-adec-7ea428c56e2b",
+                    "id": "cf0c0b97-34f7-4adc-a86e-59c123db82ad",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16428,10 +16418,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6ccb865e-ef3f-4999-ace0-963a62194085",
+                    "id": "73e28581-64b0-4748-b9f2-5c56d654b4eb",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-10-03",
+                      "dateRequestAccepted": "2024-10-08",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
