@@ -12,7 +12,7 @@ describe ClaimsApi::BD do
                                                                              tracked_items: [234, 235])
   end.freeze
   let(:claim) { create(:auto_established_claim, evss_id: 600_400_688, id: '581128c6-ad08-4b1e-8b82-c3640e829fb3') }
-  let(:body) { "test body" }
+  let(:body) { 'test body' }
 
   before do
     allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
