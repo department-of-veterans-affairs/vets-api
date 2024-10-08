@@ -12,6 +12,7 @@ RSpec.describe MHV::AccountCreatorJob, type: :job do
   let(:email) { 'some-email@email.com' }
   let(:mhv_client) { instance_double(MHV::AccountCreation::Service) }
   let(:job) { described_class.new }
+  let(:break_cache) { true }
   let(:mhv_response_body) do
     {
       user_profile_id: '12345678',
@@ -31,7 +32,7 @@ RSpec.describe MHV::AccountCreatorJob, type: :job do
     Sidekiq::Testing.inline! do
       context 'when a UserVerification exists' do
         it 'calls the MHV::UserAccount::Creator service class and returns the created MHVUserAccount instance' do
-          expect(MHV::UserAccount::Creator).to receive(:new).with(user_verification:).and_call_original
+          expect(MHV::UserAccount::Creator).to receive(:new).with(user_verification:, break_cache:).and_call_original
           job.perform(user_verification.id)
         end
 

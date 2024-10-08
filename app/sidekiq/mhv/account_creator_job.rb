@@ -10,7 +10,7 @@ module MHV
 
     def perform(id)
       user_verification = UserVerification.find(id)
-      MHV::UserAccount::Creator.new(user_verification:).perform
+      MHV::UserAccount::Creator.new(user_verification:, break_cache: true).perform
     rescue ActiveRecord::RecordNotFound
       Rails.logger.error("MHV AccountCreatorJob failed: UserVerification not found for id #{id}")
     end
