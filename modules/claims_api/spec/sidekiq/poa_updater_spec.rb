@@ -132,6 +132,21 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
       end
     end
 
+    context 'when the flipper is on' do
+      it 'does not send the vanotify job' do
+        Flipper.disable(:lighthouse_claims_api_v2_poa_va_notify)
+
+        poa.auth_headers.merge!({
+                                  header_key => 'this_value'
+                                })
+        poa.save!
+
+        expect(ClaimsApi::VANotifyJob).not_to receive(:perform_async)
+
+        subject.new.perform(poa.id, 'Rep Data')
+      end
+    end
+
     context 'does not send the va notify job' do
       it 'when the rep is not present' do
         poa.auth_headers.merge!({

@@ -5,8 +5,7 @@ require 'rails_helper'
 vcr_options = {
   cassette_name: '/facilities/va/lighthouse',
   match_requests_on: %i[path query],
-  allow_playback_repeats: true,
-  record: :new_episodes
+  allow_playback_repeats: true
 }
 
 RSpec.describe FacilitiesApi::V2::Lighthouse::Client, team: :facilities, vcr: vcr_options do
