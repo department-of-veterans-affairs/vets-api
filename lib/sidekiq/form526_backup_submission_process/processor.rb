@@ -442,7 +442,7 @@ module Sidekiq
           provider:,
           # this sends the auth headers and if we want the "breakered" or "non-breakered" version
           options: { auth_headers: headers, breakered: },
-          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: @user_account.icn }),
+          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: submission.user_account.icn }),
           feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
         )
       end
