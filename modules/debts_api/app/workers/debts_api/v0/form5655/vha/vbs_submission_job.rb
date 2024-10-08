@@ -17,7 +17,7 @@ module DebtsApi
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
       submission_id = job['args'][0]
       user_uuid = job['args'][1]
-      UserProfileAttributes.find(user_uuid)&.destroy # TODO: figure out why are we destroying here.
+      UserProfileAttributes.find(user_uuid)&.destroy
       submission = DebtsApi::V0::Form5655Submission.find(submission_id)
       submission.register_failure("VBS Submission Failed: #{job['error_message']}.")
     end
