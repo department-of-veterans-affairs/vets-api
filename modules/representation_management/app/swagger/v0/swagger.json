@@ -18,6 +18,51 @@
   ],
   "components": {
     "schemas": {
+      "ErrorModel": {
+        "type": "object",
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "title"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "exception": {
+                      "type": "string"
+                    },
+                    "backtrace": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "Errors": {
         "type": "object",
         "required": [
@@ -459,7 +504,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/InternalServerError"
+                  "$ref": "#/components/schemas/ErrorModel"
                 }
               }
             }
@@ -469,7 +514,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/InternalServerError"
+                  "$ref": "#/components/schemas/ErrorModel"
                 }
               }
             }

@@ -52,6 +52,19 @@ class RepresentationManagement::RswagConfig
                 }
               }
             },
+            Errors: {
+              type: :object,
+              required: [:errors],
+              properties: {
+                errors: {
+                  type: :array,
+                  items: { '$ref' => '#/components/schemas/Error' }
+                }
+              }
+            },
+            Error: {
+              type: :string
+            },
             PowerOfAttorneyResponse: {
               type: :object,
               properties: {
