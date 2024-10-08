@@ -17,9 +17,7 @@ describe VAProfile::Models::ServiceHistory do
 
   context 'when service history json is present' do
     it 'returns a service_history model' do
-      data = JSON.parse(json)
-      episode_type = VAProfile::Models::ServiceHistory::MILITARY_SERVICE_EPISODE
-      model = VAProfile::Models::ServiceHistory.build_from(data, episode_type)
+      model = create_model(json)
 
       expect(model).not_to be_nil
       expect(model.branch_of_service).to eq('National Guard')
@@ -46,5 +44,83 @@ describe VAProfile::Models::ServiceHistory do
       model = VAProfile::Models::ServiceHistory.build_from(data, nil)
       expect(model).to be_nil
     end
+  end
+
+  describe '#determing_eligibility' do
+    let(:not_eligible_message) do
+      [
+        'Our records show that you’re not eligible for a Veteran status card. To get a Veteran status card, you must ' \
+        'have received an honorable discharge for at least one period of service.',
+        'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 ' \
+        '(TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
+      ]
+    end
+    let(:problem_message) do
+      [
+        'We’re sorry. There’s a problem with your discharge status records. We can’t provide a Veteran status card ' \
+        'for you right now.',
+        'To fix the problem with your records, call the Defense Manpower Data Center at 800-538-9552 (TTY: 711). ' \
+        'They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
+      ]
+    end
+
+    it 'returns not eligible with service history missing characterOfDischargeCode' do
+      eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+
+      expect(eligibility).to eq({ confirmed: false, message: not_eligible_message })
+    end
+
+    it 'returns not eligible with dishonorable service history' do
+      json = '{
+        "branch_of_service_text": "National Guard",
+        "period_of_service_begin_date": "2010-01-01",
+        "period_of_service_end_date": "2015-12-31",
+        "period_of_service_type_code": "N",
+        "period_of_service_type_text": "National Guard member",
+        "character_of_discharge_code":"D"
+      }'
+      eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+
+      expect(eligibility).to eq({ confirmed: false, message: not_eligible_message })
+    end
+
+    it 'returns eligible with honorable service history' do
+      json = '{
+        "branch_of_service_text": "National Guard",
+        "period_of_service_begin_date": "2010-01-01",
+        "period_of_service_end_date": "2015-12-31",
+        "period_of_service_type_code": "N",
+        "period_of_service_type_text": "National Guard member",
+        "character_of_discharge_code":"A"
+      }'
+      eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+
+      expect(eligibility).to eq({ confirmed: true, message: [] })
+    end
+
+    it 'returns problem message with no service history' do
+      eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([])
+      expect(eligibility).to eq({ confirmed: false, message: problem_message })
+    end
+
+    it 'returns problem message with service history containing unknown discharge code' do
+      json = '{
+        "branch_of_service_text": "National Guard",
+        "period_of_service_begin_date": "2010-01-01",
+        "period_of_service_end_date": "2015-12-31",
+        "period_of_service_type_code": "N",
+        "period_of_service_type_text": "National Guard member",
+        "character_of_discharge_code":"Z"
+      }'
+      eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+
+      expect(eligibility).to eq({ confirmed: false, message: problem_message })
+    end
+  end
+
+  def create_model(json)
+    data = JSON.parse(json)
+    episode_type = VAProfile::Models::ServiceHistory::MILITARY_SERVICE_EPISODE
+    VAProfile::Models::ServiceHistory.build_from(data, episode_type)
   end
 end

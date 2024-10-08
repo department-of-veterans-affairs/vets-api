@@ -116,5 +116,34 @@ module Vye
       # remove everything from the chunked bucket
       clear_from(path: 'chunks')
     end
+
+    # There's a requirement to deleting deactivated bdns.
+    # Because of the RI rules and the performance hit that causes, we start from the
+    # bottom of the RI treee and work our way up.
+    # We do NOT delete the verifications but rather nullify their reference to parent rows
+    # UserInfo and Award.
+    def delete_inactive_bdns
+      bdn_clone_ids = Vye::BdnClone.where(is_active: nil, export_ready: nil).pluck(:id)
+      bdn_clone_ids.each do |bdn_clone_id|
+        Vye::DirectDepositChange.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
+        Vye::AddressChange.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
+        Vye::Award.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
+
+        # We're not worried about validations here because it wouldn't be in the table if it wasn't valid
+        # rubocop:disable Rails/SkipsModelValidations
+        Vye::Verification
+          .joins(:user_info)
+          .where(vye_user_infos: { bdn_clone_id: })
+          .in_batches
+          .update_all(user_info_id: nil, award_id: nil)
+        # rubocop:enable Rails/SkipsModelValidations
+
+        # nuke user infos
+        Vye::UserInfo.where(bdn_clone_id:).delete_all
+
+        # nuke bdn_clone
+        Vye::BdnClone.find(bdn_clone_id).destroy
+      end
+    end
   end
 end

@@ -79,8 +79,10 @@ class FormSubmissionAttempt < ApplicationRecord
   private
 
   def enqueue_result_email(notification_type)
+    raw_form_data = form_submission.form_data || '{}'
+    form_data = JSON.parse(raw_form_data)
     config = {
-      form_data: JSON.parse(form_submission.form_data),
+      form_data:,
       form_number: form_submission.form_type,
       confirmation_number: form_submission.benefits_intake_uuid,
       date_submitted: created_at.strftime('%B %d, %Y'),
@@ -95,7 +97,7 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def time_to_send
-    now = Time.zone.now
+    now = Time.now.in_time_zone('Eastern Time (US & Canada)')
     if now.hour < HOUR_TO_SEND_NOTIFICATIONS
       now.change(hour: HOUR_TO_SEND_NOTIFICATIONS,
                  min: 0)
