@@ -21,6 +21,7 @@ module ClaimsApi
       payload[:file] = Faraday::UploadIO.new(pdf_path.to_s, 'application/pdf')
       payload
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def compact_veteran_name(first_name, last_name)
       [first_name, last_name].compact_blank.join('_')
