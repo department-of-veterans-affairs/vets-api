@@ -13,7 +13,8 @@ module DebtsApi
     class MissingUserAttributesError < StandardError; end
 
     sidekiq_retries_exhausted do |job, _ex|
-      StatsD.increment("#{STATS_KEY}.failure")
+      StatsD.increment("#{STATS_KEY}.failure") # Deprecate this in favor of exhausted naming convention below
+      StatsD.increment("#{STATS_KEY}.retries_exhausted")
       submission_id = job['args'][0]
       user_uuid = job['args'][1]
       UserProfileAttributes.find(user_uuid)&.destroy
