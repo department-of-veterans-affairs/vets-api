@@ -22,7 +22,7 @@ module DebtsApi
         Backtrace: #{ex.backtrace.join("\n")}
         submission_id: #{submission_id} | user_id: #{user_uuid}
       LOG
-      UserProfileAttributes.find(user_uuid)&.destroy # TODO: figure out why are we destroying here.
+      UserProfileAttributes.find(user_uuid)&.destroy
     end
 
     def perform(submission_id, user_uuid)
