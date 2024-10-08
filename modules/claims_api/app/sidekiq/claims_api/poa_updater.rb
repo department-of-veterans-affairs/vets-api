@@ -47,7 +47,11 @@ module ClaimsApi
     end
 
     def vanotify?(auth_headers, rep)
-      auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?
+      if Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify)
+        auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?
+      else
+        false
+      end
     end
   end
 end
