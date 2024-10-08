@@ -33,27 +33,33 @@
               ],
               "properties": {
                 "title": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "Unprocessable Entity"
                 },
                 "detail": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "Your request could not be processed"
                 },
                 "code": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "422"
                 },
                 "status": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "422"
                 },
                 "meta": {
                   "type": "object",
                   "properties": {
                     "exception": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "UnprocessableEntity"
                     },
                     "backtrace": {
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "type": "string",
+                        "example": "stack trace line"
                       }
                     }
                   }

@@ -33,17 +33,23 @@ class RepresentationManagement::RswagConfig
                     type: :object,
                     required: [:title],
                     properties: {
-                      title: { type: :string },
-                      detail: { type: :string },
-                      code: { type: :string },
-                      status: { type: :string },
+                      title: { type: :string,
+                               example: 'Unprocessable Entity' },
+                      detail: { type: :string,
+                                example: 'Your request could not be processed' },
+                      code: { type: :string,
+                              example: '422' },
+                      status: { type: :string,
+                                example: '422' },
                       meta: {
                         type: :object,
                         properties: {
-                          exception: { type: :string },
+                          exception: { type: :string,
+                                       example: 'UnprocessableEntity' },
                           backtrace: {
                             type: :array,
-                            items: { type: :string }
+                            items: { type: :string,
+                                     example: 'stack trace line' }
                           }
                         }
                       }
