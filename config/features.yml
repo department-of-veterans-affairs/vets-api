@@ -473,6 +473,10 @@ features:
     actor_type: user
     description: enable to test the backup submission path. DO NOT TOGGLE THIS FLAG UNLESS YOU ARE A MEMBER OF DISABILITY BENEFITS EXPERIENCE TEAM.
     enable_in_development: true
+  disability_compensation_sync_modern_0781_flow:
+    actor_type: user
+    description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
+    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -790,6 +794,10 @@ features:
     actor_type: user
     description: Enable/disable dependent claimant support for POA requests
     enable_in_development: true
+  lighthouse_claims_api_v2_poa_va_notify:
+    actor_type: user
+    description: Enable/disable the VA ntofication emails in V2 POA
+    enable_in_development: false
   lighthouse_claims_v2_poa_requests_skip_bgs:
     actor_type: user
     description: Enable/disable skipping BGS calls for POA Requests

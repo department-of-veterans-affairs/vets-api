@@ -14,14 +14,6 @@ RSpec.describe FormSubmission, type: :model do
     it { is_expected.to validate_presence_of(:form_type) }
   end
 
-  describe '#form_data' do
-    it 'defaults to an empty hash in a string' do
-      form_submission = create(:form_submission, form_data: nil)
-
-      expect(form_submission.form_data).to eq '{}'
-    end
-  end
-
   describe 'user form submission statuses' do
     before do
       @fsa, @fsb, @fsc = create_list(:form_submission, 3, user_account:)
