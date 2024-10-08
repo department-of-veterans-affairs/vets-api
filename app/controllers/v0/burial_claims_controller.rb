@@ -41,8 +41,8 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
-      # this method also calls claim.process_attachments!
-      claim.submit_to_structured_data_services!
+      # this method also calls Lighthouse::SubmitBenefitsIntakeClaim.perform_async
+      claim.process_attachments!
 
       monitor.track_create_success(in_progress_form, claim, current_user)
 
