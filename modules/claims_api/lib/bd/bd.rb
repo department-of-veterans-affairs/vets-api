@@ -67,7 +67,7 @@ module ClaimsApi
       raise e
     end
 
-    def upload_document(claim_id:, doc_type:, body:)
+    def upload_document(claim_id:, doc_type:, doc_type_name:, body:)
       @multipart = true
       res = client.post('documents', body)&.body
 
@@ -76,8 +76,8 @@ module ClaimsApi
       res = res.deep_symbolize_keys
       request_id = res.dig(:data, :requestId)
       ClaimsApi::Logger.log('benefits_documents',
-                            detail: "Successfully uploaded #{doc_type} doc to BD,
-                                                    #{doc_type}_id: #{claim_id}",
+                            detail: "Successfully uploaded #{doc_type_name} doc to BD,
+                                                   #{doc_type_name}_id: #{claim_id}",
                             request_id:)
       res
     rescue => e

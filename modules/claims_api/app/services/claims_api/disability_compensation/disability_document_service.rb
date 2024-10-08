@@ -13,7 +13,8 @@ module ClaimsApi
         end
 
         body = generate_body(claim:, doc_type:, pdf_path:, original_filename:)
-        ClaimsApi::BD.new.upload_document(claim_id: claim.id, doc_type:, body:)
+        doc_type_name = doc_type_to_plain_language(doc_type)
+        ClaimsApi::BD.new.upload_document(claim_id: claim.id, doc_type:, doc_type_name:, body:)
       end
 
       private
@@ -28,7 +29,7 @@ module ClaimsApi
                                             auth_headers['va_eauth_lastName'])
         birls_file_number = auth_headers['va_eauth_birlsfilenumber']
         claim_id = claim.evss_id
-        form_name = doc_type == 'L122' ? '526EZ' : original_filename
+        form_name = '526EZ' if doc_type == 'L122'
         file_name = generate_file_name(veteran_name:, claim_id:, form_name:, original_filename:)
         system_name = 'VA.gov'
         tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
@@ -54,6 +55,15 @@ module ClaimsApi
         file_extension = File.extname(original_filename)
         base_filename = File.basename(original_filename, file_extension)
         base_filename[0...-12]
+      end
+
+      def doc_type_to_plain_language(doc_type)
+        case doc_type
+        when 'L122'
+          'claim'
+        else
+          'supporting'
+        end
       end
     end
   end

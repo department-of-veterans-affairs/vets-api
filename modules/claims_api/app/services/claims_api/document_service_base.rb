@@ -26,6 +26,8 @@ module ClaimsApi
       [first_name, last_name].compact_blank.join('_')
     end
 
+    private
+
     def build_body(options = {})
       data = {
         systemName: options[:system_name],
