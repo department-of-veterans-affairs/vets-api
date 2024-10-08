@@ -26,7 +26,12 @@ module VANotify
           template_id:, personalisation:
         }.compact
       )
+      StatsD.increment('api.vanotify.icn_job.success')
     rescue Common::Exceptions::BackendServiceException => e
+      handle_backend_exception(e, icn, template_id, personalisation)
+    end
+
+    def handle_backend_exception(e, icn, template_id, personalisation)
       if e.status_code == 400
         log_exception_to_sentry(
           e,

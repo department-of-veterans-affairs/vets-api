@@ -2,7 +2,7 @@
 
 module Vye
   class SundownSweep
-    class PurgesStaleVerifications
+    class PurgeStaleVerifications
       include Sidekiq::Worker
 
       def perform; end

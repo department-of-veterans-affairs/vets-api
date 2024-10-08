@@ -126,7 +126,7 @@
   :endpoints:
   - :method: :post
     :path: '/v1/usermgmt/account-service/account'
-    :file_path: 'mhv/account_creation/create_account'
+    :file_path: 'mhv/account_creation/create_account/default'
 
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>

@@ -466,9 +466,9 @@ GEM
     flipper-active_record (1.3.1)
       activerecord (>= 4.2, < 8)
       flipper (~> 1.3.1)
-    flipper-active_support_cache_store (1.3.0)
+    flipper-active_support_cache_store (1.3.1)
       activesupport (>= 4.2, < 8)
-      flipper (~> 1.3.0)
+      flipper (~> 1.3.1)
     flipper-ui (1.3.1)
       erubi (>= 1.0.0, < 2.0.0)
       flipper (~> 1.3.1)
@@ -600,7 +600,7 @@ GEM
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     jwe (0.4.0)
-    jwt (2.8.2)
+    jwt (2.9.3)
       base64
     kms_encrypted (1.6.0)
       activesupport (>= 6.1)
@@ -718,7 +718,7 @@ GEM
     ostruct (0.6.0)
     ox (2.14.18)
     parallel (1.26.3)
-    parallel_tests (4.7.1)
+    parallel_tests (4.7.2)
       parallel
     parser (3.3.5.0)
       ast (~> 2.4.1)
@@ -978,7 +978,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.16.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.19.0)
+    sentry-ruby (5.21.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
