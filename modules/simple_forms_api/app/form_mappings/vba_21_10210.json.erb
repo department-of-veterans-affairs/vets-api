@@ -9,9 +9,9 @@
   "vba210304[0].#subform[0].Last_Name[0]": "<%= form.data.dig('veteran_full_name', 'last') %>",
 
   <%# 2. Social Security Number %>
-  "vba210304[0].#subform[0].SSN1[0]": <%= form.data['veteran_ssn']&.[](0..2) %>",
-  "vba210304[0].#subform[0].SSN2[0]": <%= form.data['veteran_ssn']&.[](3..4) %>",
-  "vba210304[0].#subform[0].SSN3[0]": <%= form.data['veteran_ssn']&.[](5..8) %>",
+  "vba210304[0].#subform[0].SSN1[0]": "<%= form.data['veteran_ssn']&.[](0..2) %>",
+  "vba210304[0].#subform[0].SSN2[0]": "<%= form.data['veteran_ssn']&.[](3..4) %>",
+  "vba210304[0].#subform[0].SSN3[0]": "<%= form.data['veteran_ssn']&.[](5..8) %>",
 
   <%# 3. VA File Number %>
   "vba210304[0].#subform[0].VA_File_Number_If_Applicable[0]": "<%= form.data['veteran_va_file_number'] %>",
