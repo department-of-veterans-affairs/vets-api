@@ -61,7 +61,7 @@ RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_ma
       end
 
       response '500', 'Internal Server Error' do
-        schema '$ref' => '#/components/responses/InternalServerError'
+        schema '$ref' => '#/components/schemas/Errors'
         run_test!
       end
     end
