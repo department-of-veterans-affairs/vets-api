@@ -60,7 +60,6 @@
       <% end %>
 
       <div class="features-links row mt-4">
-        <%= feature_name if defined?(feature_name)%>
         <% if RequestStore.store[:flipper_user_email_for_log].blank? && !Rails.env.development? %>
           <span class="d-block text-center fs-4 mb-4">If you'd like to modify feature toggles, please sign in with GitHub.</span>
         <% elsif !RequestStore.store[:flipper_authorized] && !Rails.env.development? %>

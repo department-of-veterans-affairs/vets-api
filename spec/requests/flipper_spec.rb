@@ -52,12 +52,12 @@ RSpec.describe 'flipper', type: :request do
         assert_response :success
       end
 
-      it 'can see a list of features, but they are NOT clickable (NOT hrefs to feature page)' do
+      it 'can see a list of features, but they are inside of a disabled div and not clickable' do
         get '/flipper/features'
         body = Nokogiri::HTML(response.body)
-        feature_link = body.at_css('a[href*="/flipper/features/this_is_only_a_test"]')
+        disabled_div = body.at_css('div[style="pointer-events: none; opacity: 0.5;"]')
         expect(response.body).to include('this_is_only_a_test')
-        expect(feature_link).to be_nil
+        expect(disabled_div).not_to be_nil
         assert_response :success
       end
     end
@@ -101,12 +101,12 @@ RSpec.describe 'flipper', type: :request do
       context 'Unauthorized user' do
         unauthorized_message = 'You are not authorized to perform any actions'
 
-        it 'can see a list of features, but they are NOT clickable (NOT hrefs to feature page)' do
+        it 'can see a list of features, but they are inside of a disabled div and not clickable' do
           get '/flipper/features'
           body = Nokogiri::HTML(response.body)
-          feature_link = body.at_css('a[href*="/flipper/features/this_is_only_a_test"]')
+          disabled_div = body.at_css('div[style="pointer-events: none; opacity: 0.5;"]')
           expect(response.body).to include('this_is_only_a_test')
-          expect(feature_link).to be_nil
+          expect(disabled_div).not_to be_nil
           assert_response :success
         end
 
@@ -154,13 +154,13 @@ RSpec.describe 'flipper', type: :request do
         assert_response :success
       end
 
-      it 'cannot see the feature name in the title (h1) or button to enable/disable' do
+      it 'can see the feature name in the title (h4) but div is disabled' do
         get '/flipper/features/this_is_only_a_test'
         body = Nokogiri::HTML(response.body)
-        title = body.at_css('h1:contains("this_is_only_a_test")')
-        toggle_button = body.at_css('button:contains("for everyone")')
-        expect(title).to be_nil
-        expect(toggle_button).to be_nil
+        title = body.at_css('h4:contains("this_is_only_a_test")')
+        disabled_div = body.at_css('div[style="pointer-events: none; opacity: 0.5;"]')
+        expect(title).not_to be_nil
+        expect(disabled_div).not_to be_nil
         assert_response :success
       end
     end
@@ -186,34 +186,34 @@ RSpec.describe 'flipper', type: :request do
         assert_response :success
       end
 
-      context 'Authorized user (organization and team membership)' do
+      context 'and Authorized user (organization and team membership)' do
         before do
           allow(user).to receive(:organization_member?).with(Settings.sidekiq.github_organization).and_return(true)
           allow(user).to receive(:team_member?).with(Settings.sidekiq.github_team).and_return(true)
           Flipper.disable(:this_is_only_a_test)
         end
 
-        it 'can see the feature name in title and button to enable/disable feature' do
+        it 'can see the feature name in title (h4) and button to enable/disable feature' do
           get '/flipper/features/this_is_only_a_test'
           body = Nokogiri::HTML(response.body)
-          title = body.at_css('h1:contains("this_is_only_a_test")')
-          toggle_button = body.at_css('button:contains("Enable for everyone")')
+          title = body.at_css('h4:contains("this_is_only_a_test")')
+          toggle_button = body.at_css('button:contains("Fully Enable")')
           expect(title).not_to be_nil
           expect(toggle_button).not_to be_nil
           assert_response :success
         end
       end
 
-      context 'Unauthorized user' do
+      context 'and Unauthorized user' do
         unauthorized_message = 'You are not authorized to perform any actions'
 
-        it 'cannot see the feature name in the title (h1) or button to enable/disable' do
+        it 'sees the feature name in the title (h4), but div is disabled' do
           get '/flipper/features/this_is_only_a_test'
           body = Nokogiri::HTML(response.body)
-          title = body.at_css('h1:contains("this_is_only_a_test")')
-          toggle_button = body.at_css('button:contains("for everyone")')
-          expect(title).to be_nil
-          expect(toggle_button).to be_nil
+          title = body.at_css('h4:contains("this_is_only_a_test")')
+          disabled_div = body.at_css('div[style="pointer-events: none; opacity: 0.5;"]')
+          expect(title).not_to be_nil
+          expect(disabled_div).not_to be_nil
           assert_response :success
         end
 
