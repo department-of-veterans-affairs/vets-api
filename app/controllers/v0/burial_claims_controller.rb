@@ -63,12 +63,6 @@ module V0
       raise e
     end
 
-    private
-
-    def central_mail_submission
-      CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
-    end
-
     def create_claim
       if Flipper.enabled?(:va_burial_v2)
         form = filtered_params[:form]
@@ -78,10 +72,16 @@ module V0
       end
     end
 
+    private
+
+    def central_mail_submission
+      CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
+    end
+
     def process_and_upload_to_lighthouse(in_progress_form, claim)
       claim.process_attachments!
 
-      Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
+      Lighthouse::SubmitBenefitsIntakeClaim.perform_async(claim.id)
     rescue => e
       monitor.track_process_attachment_error(in_progress_form, claim, current_user)
       raise e
