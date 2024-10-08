@@ -5,8 +5,21 @@ require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe SimpleFormsApi::PdfFiller do
   forms = %w[
-    vba_21_0966 vba_21_0966-min vba_21_0972 vba_21_0972-min vba_21_10210 vba_21_10210-min vba_21_4138 vba_21_4138-min
-    vba_21_4142 vba_21_4142-min vba_21p_0847 vba_21p_0847-min vba_26_4555 vba_26_4555-min vba_40_0247 vba_40_0247
+    vba_21_0966
+    vba_21_0966-min
+    vba_21_0972
+    vba_21_0972-min
+    vba_21_10210
+    vba_21_10210-min
+    vba_21_4138
+    vba_21_4138-min
+    vba_21_4142
+    vba_21_4142-min
+    vba_21p_0847
+    vba_21p_0847-min
+    vba_26_4555
+    vba_26_4555-min
+    vba_40_0247
     vba_40_0247-min
   ]
 
