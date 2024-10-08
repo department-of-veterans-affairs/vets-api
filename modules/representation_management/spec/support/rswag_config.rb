@@ -23,18 +23,34 @@ class RepresentationManagement::RswagConfig
         ],
         components: {
           schemas: {
-            Errors: {
+            ErrorModel: {
               type: :object,
               required: [:errors],
               properties: {
                 errors: {
                   type: :array,
-                  items: { '$ref' => '#/components/schemas/Error' }
+                  items: {
+                    type: :object,
+                    required: [:title],
+                    properties: {
+                      title: { type: :string },
+                      detail: { type: :string },
+                      code: { type: :string },
+                      status: { type: :string },
+                      meta: {
+                        type: :object,
+                        properties: {
+                          exception: { type: :string },
+                          backtrace: {
+                            type: :array,
+                            items: { type: :string }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
-            },
-            Error: {
-              type: :string
             },
             PowerOfAttorneyResponse: {
               type: :object,
@@ -163,7 +179,6 @@ class RepresentationManagement::RswagConfig
               }
             }
           },
-
           {
             url: 'https://sandbox-api.va.gov',
             description: 'VA.gov API sandbox environment',

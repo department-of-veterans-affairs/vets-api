@@ -26,7 +26,7 @@ RSpec.describe 'PDF Generator 21-22', openapi_spec: 'modules/representation_mana
         let(:pdf_generator2122) do
           SwaggerSharedComponents::V0.body_examples[:pdf_generator2122].delete(:organization_name)
         end
-        schema '$ref' => '#/components/schemas/Errors'
+        schema '$ref' => '#/components/schemas/ErrorModel'
         run_test!
       end
     end
