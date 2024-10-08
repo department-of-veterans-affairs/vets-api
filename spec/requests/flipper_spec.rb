@@ -27,7 +27,7 @@ RSpec.describe 'flipper', type: :request do
   end
   let(:user) { Warden::GitHub::User.new(default_attrs) }
 
-  github_oauth_message = "If you'd like to modify feature toggles, please sign in with GitHub"
+  github_oauth_message = "If you'd like to modify feature toggles, please login with GitHub"
 
   before do
     allow_any_instance_of(Warden::Proxy).to receive(:authenticate!).and_return(user)
@@ -47,7 +47,7 @@ RSpec.describe 'flipper', type: :request do
       it 'is shown a button to sign in with GitHub' do
         get '/flipper/features'
         body = Nokogiri::HTML(response.body)
-        signin_button = body.at_css('button:contains("Sign in to GitHub")')
+        signin_button = body.at_css('button:contains("Login with GitHub")')
         expect(signin_button).not_to be_nil
         assert_response :success
       end
@@ -78,12 +78,12 @@ RSpec.describe 'flipper', type: :request do
       it 'is not shown a button to sign in with GitHub' do
         get '/flipper/features'
         body = Nokogiri::HTML(response.body)
-        signin_button = body.at_css('button:contains("Sign in to GitHub")')
+        signin_button = body.at_css('button:contains("Login with GitHub")')
         expect(signin_button).to be_nil
         assert_response :success
       end
 
-      context 'Authorized user (organization and team membership)' do
+      context 'and Authorized user (organization and team membership)' do
         before do
           allow(user).to receive(:organization_member?).with(Settings.sidekiq.github_organization).and_return(true)
           allow(user).to receive(:team_member?).with(Settings.sidekiq.github_team).and_return(true)
@@ -93,12 +93,14 @@ RSpec.describe 'flipper', type: :request do
           get '/flipper/features'
           body = Nokogiri::HTML(response.body)
           feature_link = body.at_css('a[href*="/flipper/features/this_is_only_a_test"]')
+          content_div = body.at_css('div#content')
           expect(feature_link).not_to be_nil
+          expect(content_div).not_to be_nil
           assert_response :success
         end
       end
 
-      context 'Unauthorized user' do
+      context 'but Unauthorized user' do
         unauthorized_message = 'You are not authorized to perform any actions'
 
         it 'can see a list of features, but they are inside of a disabled div and not clickable' do
@@ -149,23 +151,23 @@ RSpec.describe 'flipper', type: :request do
       it 'is shown a button to sign in with GitHub' do
         get '/flipper/features/this_is_only_a_test'
         body = Nokogiri::HTML(response.body)
-        signin_button = body.at_css('button:contains("Sign in to GitHub")')
+        signin_button = body.at_css('button:contains("Login with GitHub")')
         expect(signin_button).not_to be_nil
         assert_response :success
       end
 
-      it 'can see the feature name in the title (h4) but div is disabled' do
+      it 'cannot see the feature name or content div on the page' do
         get '/flipper/features/this_is_only_a_test'
         body = Nokogiri::HTML(response.body)
         title = body.at_css('h4:contains("this_is_only_a_test")')
-        disabled_div = body.at_css('div[style="pointer-events: none; opacity: 0.5;"]')
-        expect(title).not_to be_nil
-        expect(disabled_div).not_to be_nil
+        content_div = body.at_css('div#content')
+        expect(title).to be_nil
+        expect(content_div).to be_nil
         assert_response :success
       end
     end
 
-    context 'Authenticated user (through GitHub Oauth)' do
+    context 'Authenticated (through GitHub Oauth)' do
       before do
         # Mimic the functionality of the end of the OAuth handshake, where #finalize_flow! (`warden_github.rb`)
         # is called, setting the value of request.session[:flipper_user] to the mocked Warden::Github user
@@ -181,7 +183,7 @@ RSpec.describe 'flipper', type: :request do
       it 'is not shown a button to sign in with GitHub' do
         get '/flipper/features/this_is_only_a_test'
         body = Nokogiri::HTML(response.body)
-        signin_button = body.at_css('button:contains("Sign in to Github")')
+        signin_button = body.at_css('button:contains("Login with Github")')
         expect(signin_button).to be_nil
         assert_response :success
       end
@@ -204,16 +206,16 @@ RSpec.describe 'flipper', type: :request do
         end
       end
 
-      context 'and Unauthorized user' do
+      context 'but Unauthorized user' do
         unauthorized_message = 'You are not authorized to perform any actions'
 
-        it 'sees the feature name in the title (h4), but div is disabled' do
+        it 'cannot see the feature name or content div on the page' do
           get '/flipper/features/this_is_only_a_test'
           body = Nokogiri::HTML(response.body)
           title = body.at_css('h4:contains("this_is_only_a_test")')
-          disabled_div = body.at_css('div[style="pointer-events: none; opacity: 0.5;"]')
-          expect(title).not_to be_nil
-          expect(disabled_div).not_to be_nil
+          content_div = body.at_css('div#content')
+          expect(title).to be_nil
+          expect(content_div).to be_nil
           assert_response :success
         end
 
