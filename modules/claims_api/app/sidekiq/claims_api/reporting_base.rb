@@ -168,8 +168,8 @@ module ClaimsApi
 
       FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
       FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
-      FactoryBot.create(:auto_established_claim_va_gov, :set_transaction_id, created_at: Time.zone.now)
-      FactoryBot.create(:auto_established_claim_va_gov, :set_transaction_id, created_at: Time.zone.now)
+      FactoryBot.create(:auto_established_claim_va_gov, :transaction_id_25, created_at: Time.zone.now)
+      FactoryBot.create(:auto_established_claim_va_gov, :transaction_id_25, created_at: Time.zone.now)
 
       FactoryBot.create(:auto_established_claim_v2, status: 'errored')
       FactoryBot.create(:auto_established_claim_v2, status: 'pending')

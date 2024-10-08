@@ -62,8 +62,8 @@ RSpec.shared_examples 'shared reporting behavior' do
     with_settings(Settings.claims_api, report_enabled: true) do
       create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
       create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
-      create(:auto_established_claim_va_gov, :set_transaction_id, created_at: Time.zone.now).freeze
-      create(:auto_established_claim_va_gov, :set_transaction_id, created_at: Time.zone.now).freeze
+      create(:auto_established_claim_va_gov, :transaction_id_25, created_at: Time.zone.now).freeze
+      create(:auto_established_claim_va_gov, :transaction_id_25, created_at: Time.zone.now).freeze
 
       job = described_class.new
       job.perform

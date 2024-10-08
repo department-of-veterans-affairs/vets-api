@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require './modules/claims_api/app/sidekiq/claims_api/reporting_base'
 
 class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
@@ -45,15 +46,15 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   def claims_totals
     [
       { 'consumer 1' => { pending: 2,
-      errored: 1,
-      totals: 3,
-      percentage_with_flashes: '50.0%',
-      percentage_with_special_issues: '50.0%' } },
+                          errored: 1,
+                          totals: 3,
+                          percentage_with_flashes: '50.0%',
+                          percentage_with_special_issues: '50.0%' } },
       { 'consumer 2' => { pending: 3,
-      errored: 3,
-      totals: 6,
-      percentage_with_flashes: '50.0%',
-      percentage_with_special_issues: '50.0%' } }
+                          errored: 3,
+                          totals: 6,
+                          percentage_with_flashes: '50.0%',
+                          percentage_with_special_issues: '50.0%' } }
     ]
     # reporting_base.claims_totals
   end
@@ -67,7 +68,7 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
         'consumer 2' => { totals: 8, updated: 3, errored: 2, pending: 1, uploaded: 2 }
       }
     ]
-        
+
     # reporting_base.poa_totals
   end
 
@@ -76,7 +77,6 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   end
 
   def ews_totals
-
     [
       {
         'consumer 1' => { totals: 10, updated: 5, errored: 2, pending: 1, uploaded: 2 }
@@ -102,8 +102,6 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
       }
     ]
   end
-
-  private
 
   def reporting_base
     ClaimsApi::ReportingBase.new
