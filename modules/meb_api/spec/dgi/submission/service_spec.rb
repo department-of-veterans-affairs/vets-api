@@ -16,9 +16,8 @@ RSpec.describe MebApi::DGI::Submission::Service do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:claimant_params) do
     {
-      form_id: 1,
-      '@type': 'Chapter33',
       education_benefit: {
+        '@type': 'Chapter33',
         claimant: {
           first_name: 'Herbert',
           middle_name: 'Hoover',
@@ -101,6 +100,7 @@ RSpec.describe MebApi::DGI::Submission::Service do
     # Now that we're sure the structure exists, assign the values
     duplicated_params[:education_benefit][:direct_deposit][:account_number] = '******1234'
     duplicated_params[:education_benefit][:direct_deposit][:routing_number] = '*****2115'
+
     duplicated_params
   end
   let(:service) { MebApi::DGI::Submission::Service.new(user) }

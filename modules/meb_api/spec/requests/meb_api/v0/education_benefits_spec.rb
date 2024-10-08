@@ -154,9 +154,8 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
   describe 'POST /meb_api/v0/submit_claim' do
     let(:claimant_params) do
       {
-        form_id: 1,
-        '@type': 'Chapter33',
         education_benefit: {
+          '@type': 'Chapter33',
           claimant: {
             first_name: 'Herbert',
             middle_name: 'Hoover',
