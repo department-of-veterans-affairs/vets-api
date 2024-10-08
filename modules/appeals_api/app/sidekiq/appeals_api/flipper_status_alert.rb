@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'flipper/utilities/bulk_feature_checker'
 
 module AppealsApi
   class FlipperStatusAlert
