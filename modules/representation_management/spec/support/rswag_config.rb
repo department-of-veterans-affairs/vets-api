@@ -9,7 +9,7 @@ class RepresentationManagement::RswagConfig
           title: 'va.gov Representation Management API',
           version: '0.1.0',
           termsOfService: 'https://developer.va.gov/terms-of-service',
-          description: 'The API for managing representation for VA Forms 21-22 and 21-22a'
+          description: 'A set of APIs powering the POA Widget, Find a Representative, and Appoint a Representative.'
         },
         tags: [
           {

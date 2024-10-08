@@ -65,7 +65,7 @@ namespace :rswag do
   end
 
   namespace :representation_management do
-    desc 'Generate rswag docs for the representation_management'
+    desc 'Generate rswag docs for representation_management'
     task build: :environment do
       ENV['PATTERN'] = 'modules/representation_management/spec/requests/**/*_spec.rb'
       ENV['RAILS_MODULE'] = 'representation_management'
