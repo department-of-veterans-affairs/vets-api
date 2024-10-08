@@ -70,6 +70,9 @@ module ClaimsApi
         def assign_poa_to_dependent_claimant!(poa_code:)
           return nil unless feature_enabled_and_claimant_present?
 
+          # Assign the veteranʼs file number
+          file_number_check
+
           claimant = user_profile.profile
 
           service = ClaimsApi::DependentClaimantPoaAssignmentService.new(
@@ -82,7 +85,7 @@ module ClaimsApi
             claimant_ssn: claimant.ssn
           )
 
-          service.assign_poa_to_dependent_claimant!
+          service.assign_poa_to_dependent!
         end
 
         def validate_registration_number!(base, poa_code)
