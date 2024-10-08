@@ -84,8 +84,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         },
         'Maximum Attributes' => {
           value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                            'disability_compensation', 'form_526_json_api.json').read)
-
+                                            'disability_compensation', 'valid_526_maximum.json').read)
         }
       }
 

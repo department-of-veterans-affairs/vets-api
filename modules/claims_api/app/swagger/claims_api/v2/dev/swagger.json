@@ -4966,8 +4966,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -4984,10 +4983,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -5077,7 +5072,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "842d260d-1ffe-4a29-b5ed-117b38bd3ad5",
+                        "id": "4a388f05-e149-4a38-9cc2-e3ece862e217",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5262,7 +5257,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-10-05"
+                              "anticipatedSeparationDate": "2024-10-10"
                             },
                             "confinements": [
                               {
@@ -5308,7 +5303,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "9580281a-95bc-4a99-8171-10b987a1b887",
+                        "id": "bcc4f0d1-71c3-4b1d-9fe7-b9c94c51ebbf",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -10526,7 +10521,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "854bc725-fa9e-438e-bc7f-9a484160cf30",
+                    "id": "9a083804-718e-489b-b734-b7829545ac26",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -14274,8 +14269,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-10-03",
-                      "expirationDate": "2025-10-03",
+                      "creationDate": "2024-10-08",
+                      "expirationDate": "2025-10-08",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -15072,7 +15067,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:134:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:135:in `representative'"
                       }
                     }
                   ]
@@ -15171,7 +15166,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "10295307-73bb-4825-95f5-02d6df41a4e1",
+                    "id": "302072a0-ee9c-4936-a44b-3493a7043e4c",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15864,7 +15859,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9abb338d-2390-472c-bb0a-8a1c7da2ba32",
+                    "id": "730ef862-70a8-4618-b86a-de305ab97888",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17815,10 +17810,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3b595df2-25af-4c3e-a48b-56478c80983d",
+                    "id": "2415d8b3-ee24-475b-aa5f-41f020c71f98",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-10-03",
+                      "dateRequestAccepted": "2024-10-08",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
