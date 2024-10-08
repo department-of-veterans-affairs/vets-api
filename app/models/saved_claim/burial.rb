@@ -94,5 +94,3 @@ class SavedClaim::Burial < CentralMailClaim
     " - #{claimed.join(" \n - ")}"
   end
 end
-
-end
