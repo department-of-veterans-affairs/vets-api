@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'flipper/utilities/bulk_feature_checker'
 
 describe VBADocuments::FlipperStatusAlert, type: :job do
   include FixtureHelpers
