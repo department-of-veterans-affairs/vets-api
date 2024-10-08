@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 998cfd9d48db75a5533e33785d6523933f7e9b36
+  revision: be610f6623ef1fac432e5616372d4a5eadb93773
   branch: master
   specs:
-    vets_json_schema (24.2.9)
+    vets_json_schema (24.4.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -715,7 +715,7 @@ GEM
     ostruct (0.6.0)
     ox (2.14.18)
     parallel (1.26.3)
-    parallel_tests (4.7.1)
+    parallel_tests (4.7.2)
       parallel
     parser (3.3.5.0)
       ast (~> 2.4.1)
@@ -975,7 +975,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.16.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.19.0)
+    sentry-ruby (5.21.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)

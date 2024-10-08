@@ -730,7 +730,7 @@ RSpec.describe FormProfile, type: :model do
         'street2' => street_check[:street2],
         'city' => user.address[:city],
         'state' => user.address[:state],
-        'country' => 'US',
+        'country' => 'USA',
         'postal_code' => user.address[:postal_code][0..4]
       },
       'claimantPhone' => us_phone,

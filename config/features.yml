@@ -782,6 +782,10 @@ features:
     actor_type: user
     description: Enable/disable dependent claimant support for POA requests
     enable_in_development: true
+  lighthouse_claims_api_v2_poa_va_notify:
+    actor_type: user
+    description: Enable/disable the VA ntofication emails in V2 POA
+    enable_in_development: false
   lighthouse_claims_v2_poa_requests_skip_bgs:
     actor_type: user
     description: Enable/disable skipping BGS calls for POA Requests
@@ -1299,6 +1303,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for tickets with the label vaos-v2-next will be behind this flag
+  va_online_scheduling_vaos_alternate_route:
+    actor_type: user
+    enable_in_development: false
+    description: Toggle for the vaos module to use an alternate vaos-service route
   va_online_scheduling_clinic_filter:
     actor_type: user
     enable_in_development: true
