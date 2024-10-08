@@ -18,9 +18,9 @@ module DebtsApi
       user_uuid = job['args'][1]
       Rails.logger.error <<~LOG
         V0::Form5655::VBASubmissionJob retries exhausted:
+        submission_id: #{submission_id} | user_id: #{user_uuid}
         Exception: #{ex.class} - #{ex.message}
         Backtrace: #{ex.backtrace.join("\n")}
-        submission_id: #{submission_id} | user_id: #{user_uuid}
       LOG
       UserProfileAttributes.find(user_uuid)&.destroy
     end
