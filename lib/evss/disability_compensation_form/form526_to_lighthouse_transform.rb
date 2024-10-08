@@ -287,9 +287,9 @@ module EVSS
                                                              MULTIPLE_EXPOSURES_TYPE[:herbicide])
         end
 
-        if values_present(toxic_exposure_source['otherHerbicideLocations'])
+        if values_present(other_herbicide_locations) && other_herbicide_locations['description'].present?
           multiple_exposures +=
-            transform_multiple_exposures_other_details(toxic_exposure_source['otherHerbicideLocations'],
+            transform_multiple_exposures_other_details(other_herbicide_locations,
                                                        MULTIPLE_EXPOSURES_TYPE[:herbicide])
         end
 
@@ -300,9 +300,9 @@ module EVSS
                                                              MULTIPLE_EXPOSURES_TYPE[:hazard])
         end
 
-        if values_present(toxic_exposure_source['specifyOtherExposures'])
+        if values_present(specify_other_exposures) && specify_other_exposures['description'].present?
           multiple_exposures +=
-            transform_multiple_exposures_other_details(toxic_exposure_source['specifyOtherExposures'],
+            transform_multiple_exposures_other_details(specify_other_exposures,
                                                        MULTIPLE_EXPOSURES_TYPE[:hazard])
         end
 
@@ -410,7 +410,7 @@ module EVSS
       def transform_herbicide(herbicide, other_herbicide_locations)
         filtered_results_herbicide = herbicide&.filter { |k| k != 'notsure' }
         herbicide_value = (values_present(filtered_results_herbicide) ||
-                          values_present(other_herbicide_locations)) &&
+          (other_herbicide_locations.present? && other_herbicide_locations['description'].present?)) &&
                           !none_of_these(filtered_results_herbicide)
 
         herbicide_service = Requests::HerbicideHazardService.new
@@ -420,7 +420,10 @@ module EVSS
       end
 
       def transform_other_exposures(other_exposures, specify_other_exposures)
-        return nil if none_of_these(other_exposures) && !values_present(specify_other_exposures)
+        if none_of_these(other_exposures) &&
+           (specify_other_exposures.present? && specify_other_exposures['description'].blank?)
+          return nil
+        end
 
         filtered_results_other_exposures = other_exposures&.filter { |k, v| k != 'notsure' && v }
         additional_hazard_exposures_service = Requests::AdditionalHazardExposures.new
@@ -429,7 +432,9 @@ module EVSS
             HAZARDS_LH_ENUM[k.to_sym]
           end
         end
-        other = HAZARDS_LH_ENUM[:other] if values_present(specify_other_exposures)
+        if specify_other_exposures.present? && specify_other_exposures['description'].present?
+          other = HAZARDS_LH_ENUM[:other]
+        end
         additional_hazard_exposures_service.additional_exposures << other if other.present?
         return nil if additional_hazard_exposures_service.additional_exposures == []
 
@@ -743,6 +748,7 @@ module EVSS
 
         # somehow, partial dates with the 'XX' (i.e. "2020-01-XX or 2020-XX-XX") are getting past FE validation
         # fix here in the backend while a proper FE solution is found
+        return nil if year.downcase.include?('x')
         return year if month.blank? || month.upcase == 'XX'
         return "#{year}-#{month}" if day.blank? || day.upcase == 'XX'
 
