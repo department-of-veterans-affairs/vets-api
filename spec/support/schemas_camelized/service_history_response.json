@@ -36,6 +36,21 @@
                 }
               },
               "type": "array"
+            },
+            "vetStatusEligibility": {
+              "description": "Proof of status card eligibility confirmation and message",
+              "items": {
+                "type": "object"
+              },
+              "properties": {
+                "confirmed": {
+                  "type": "boolean"
+                },
+                "message" : {
+                  "type": "array"
+                }
+              },
+              "type": "object"
             }
           },
           "type": "object"

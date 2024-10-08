@@ -47,22 +47,66 @@ class EVSSSupplementalDocumentUploadProvider
   #
   # @return [Faraday::Response] The EVSS::DocumentsService API calls are implemented with Faraday
   def submit_upload_document(evss_claim_document, file_body)
+    log_upload_attempt
+
     client = EVSS::DocumentsService.new(@form526_submission.auth_headers)
     client.upload(file_body, evss_claim_document)
 
-    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_SUCCESS_METRIC}")
+    # EVSS::DocumentsService uploads throw a EVSS::ErrorMiddleware::EVSSError if they fail
+    # If no exception is raised, log a success response
+    log_upload_success
+  rescue EVSS::ErrorMiddleware::EVSSError => e
+    # If exception is raised, log and re-raise the error
+    log_upload_failure
+    raise e
   end
 
-  def log_upload_failure(error_class, error_message)
-    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
-
+  # To call in the sidekiq_retries_exhausted block of the including job
+  # This is meant to log an upload attempt that was retried and eventually given up on,
+  # so we can investigate the failure in Datadog
+  #
+  # @param uploading_job_class [String] the job where we are uploading the EVSSClaimDocument
+  # (e.g. UploadBDDInstructions)
+  # @param error_class [String] the Error class of the exception that exhausted the upload job
+  # @param error_message [String] the message in the exception that exhausted the upload job
+  def log_uploading_job_failure(uploading_job_class, error_class, error_message)
     Rails.logger.error(
-      'EVSSSupplementalDocumentUploadProvider upload failure',
+      "#{uploading_job_class} EVSSSupplementalDocumentUploadProvider Failure",
       {
-        class: 'EVSSSupplementalDocumentUploadProvider',
+        **base_logging_info,
+        uploading_job_class:,
         error_class:,
         error_message:
       }
     )
+
+    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STASTD_UPLOAD_JOB_FAILED_METRIC}")
+  end
+
+  private
+
+  def base_logging_info
+    {
+      class: 'EVSSSupplementalDocumentUploadProvider',
+      submission_id: @form526_submission.submitted_claim_id,
+      user_uuid: @form526_submission.user_uuid,
+      va_document_type_code: @va_document_type,
+      primary_form: 'Form526'
+    }
+  end
+
+  def log_upload_attempt
+    Rails.logger.info('EVSSSupplementalDocumentUploadProvider upload attempted', base_logging_info)
+    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_ATTEMPT_METRIC}")
+  end
+
+  def log_upload_success
+    Rails.logger.info('EVSSSupplementalDocumentUploadProvider upload successful', base_logging_info)
+    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_SUCCESS_METRIC}")
+  end
+
+  def log_upload_failure
+    Rails.logger.error('EVSSSupplementalDocumentUploadProvider upload failed', base_logging_info)
+    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
   end
 end

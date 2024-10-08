@@ -42,6 +42,7 @@ describe TravelPay::ClaimsClient do
         .and_return('veis_token', 'btsss_token')
     end
 
+    # GET
     it 'returns response from claims endpoint' do
       @stubs.get('/api/v1/claims') do
         [
@@ -88,6 +89,31 @@ describe TravelPay::ClaimsClient do
       actual_claim_ids = claims_response.body['data'].pluck('id')
 
       expect(actual_claim_ids).to eq(expected_ids)
+    end
+
+    # POST create_claim
+    it 'returns a claim ID from the claims endpoint' do
+      claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+      body = { 'appointmentId' => 'fake_btsss_appt_id', 'claimName' => 'SMOC claim',
+               'claimantType' => 'Veteran' }.to_json
+      @stubs.post('/api/v1.1/claims') do
+        [
+          200,
+          {},
+          {
+            'data' =>
+              {
+                'claimId' => claim_id
+              }
+          }
+        ]
+      end
+
+      client = TravelPay::ClaimsClient.new
+      new_claim_response = client.create_claim('veis_token', 'btsss_token', body)
+      actual_claim_id = new_claim_response.body['data']['claimId']
+
+      expect(actual_claim_id).to eq(claim_id)
     end
   end
 end
