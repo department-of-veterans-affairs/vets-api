@@ -24,36 +24,80 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       FileUtils.rm_f(response_pdf)
     end
 
-    it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
-      form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
-      claim     = build(:caregivers_assistance_claim, form: form_data)
-      body      = { caregivers_assistance_claim: { form: form_data } }.to_json
+    context 'caregiver1010 flipper off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(false)
+      end
 
-      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-        form: form_data
-      ).and_return(
-        claim
-      )
+      it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
+        form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
+        claim     = build(:caregivers_assistance_claim, form: form_data)
+        body      = { caregivers_assistance_claim: { form: form_data } }.to_json
 
-      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid') # When the saved claim is initialized
-      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
+        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+          form: form_data
+        ).and_return(
+          claim
+        )
 
-      post(endpoint, params: body, headers:)
+        expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid') # When the saved claim is initialized
+        expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
 
-      expect(response).to have_http_status(:ok)
+        post(endpoint, params: body, headers:)
 
-      # download response conent (the pdf) to disk
-      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
+        expect(response).to have_http_status(:ok)
 
-      # compare it with the pdf fixture
-      expect(
-        pdfs_fields_match?(response_pdf, expected_pdf)
-      ).to eq(true)
+        # download response conent (the pdf) to disk
+        File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
 
-      # ensure that the tmp file was deleted
-      expect(
-        File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-      ).to eq(false)
+        # compare it with the pdf fixture
+        expect(
+          pdfs_fields_match?(response_pdf, expected_pdf)
+        ).to eq(true)
+
+        # ensure that the tmp file was deleted
+        expect(
+          File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
+        ).to eq(false)
+      end
+    end
+
+    context 'caregiver1010 flipper on' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(true)
+      end
+
+      it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
+        form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
+        claim     = build(:caregivers_assistance_claim, form: form_data)
+        body      = { caregivers_assistance_claim: { form: form_data } }.to_json
+
+        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+          form: form_data
+        ).and_return(
+          claim
+        )
+
+        expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid') # When the saved claim is initialized
+        expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
+
+        post(endpoint, params: body, headers:)
+
+        expect(response).to have_http_status(:ok)
+
+        # download response conent (the pdf) to disk
+        File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
+
+        # compare it with the pdf fixture
+        expect(
+          pdfs_fields_match?(response_pdf, expected_pdf)
+        ).to eq(true)
+
+        # ensure that the tmp file was deleted
+        expect(
+          File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
+        ).to eq(false)
+      end
     end
   end
 
