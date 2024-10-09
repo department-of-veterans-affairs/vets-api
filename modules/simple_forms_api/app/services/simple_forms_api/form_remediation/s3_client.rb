@@ -81,7 +81,7 @@ module SimpleFormsApi
       end
 
       def local_file_path
-        @local_file_path ||= build_local_file_dir!(s3_upload_file_path, temp_directory_path, s3_directory_path)
+        @local_file_path ||= create_local_file_path(s3_upload_file_path, temp_directory_path, s3_directory_path)
       end
     end
   end
