@@ -29,6 +29,9 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     let(:evss_claim_id) { 123_456_789 }
     let(:saved_claim) { FactoryBot.create(:va526ez) }
 
+    ap user
+    exit
+
     describe '.perform_async' do
       let(:form_json) do
         File.read('spec/support/disability_compensation_form/submissions/with_4142.json')
