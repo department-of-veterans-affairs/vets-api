@@ -91,9 +91,15 @@ module SimpleFormsApi
       def upload_file_to_s3(path = local_upload_file_path)
         return if File.directory?(path)
 
-        File.open(path) do |file_obj|
-          sanitized_file = CarrierWave::SanitizedFile.new(file_obj)
-          s3_uploader.store!(sanitized_file)
+        log_info("Starting upload of file to S3: #{path}")
+        begin
+          File.open(path) do |file_obj|
+            sanitized_file = CarrierWave::SanitizedFile.new(file_obj)
+            s3_uploader.store!(sanitized_file)
+          end
+          log_info("File successfully uploaded to S3: #{path}")
+        rescue => e
+          handle_error('Failed to upload file to S3', e)
         end
       end
 
@@ -109,37 +115,58 @@ module SimpleFormsApi
         s3_path = build_path(s3_directory_path, "manifest_#{unique_filename}.csv")
         Dir.mktmpdir do |dir|
           local_path = File.join(dir, s3_path)
+
+          log_info("Downloading existing manifest from S3: #{s3_path}")
           existing_manifest = download_file_from_s3(s3_path, local_path)
+
+          log_info("Appending data to manifest: #{local_path}")
           append_to_local_file(existing_manifest.nil?, local_path)
+
+          log_info("Uploading updated manifest to S3: #{s3_path}")
           upload_file_to_s3(local_path)
         end
+      rescue => e
+        handle_error('Failed to update manifest', e)
       end
 
       def download_file_from_s3(from_path, to_path)
         bucket = VeteranFacingFormsRemediationUploader.s3_settings.bucket
+        log_info("Downloading file from S3 path: #{from_path}")
         s3_resource.bucket(bucket).object(from_path).get(response_target: to_path)
+        log_info("Successfully downloaded file from S3: #{from_path}")
       rescue Aws::S3::Errors::NoSuchKey
         nil
+      rescue => e
+        handle_error('Failed to download file from S3', e)
       end
 
       def append_to_local_file(new_manifest, path)
-        CSV.open(path, 'ab') do |csv|
-          if new_manifest
-            csv << ['Submission DateTime', 'Form Type', 'VA.gov ID', 'Veteran ID', 'First Name', 'Last Name']
+        log_info("Appending data to CSV at path: #{path}")
+        begin
+          CSV.open(path, 'ab') do |csv|
+            if new_manifest
+              log_info('Creating new manifest and adding headers')
+              csv << ['Submission DateTime', 'Form Type', 'VA.gov ID', 'Veteran ID', 'First Name', 'Last Name']
+            end
+            csv << [
+              submission.created_at,
+              form_number,
+              benefits_intake_uuid,
+              metadata['fileNumber'],
+              metadata['veteranFirstName'],
+              metadata['veteranLastName']
+            ]
           end
-          csv << [
-            submission.created_at,
-            form_number,
-            benefits_intake_uuid,
-            metadata['fileNumber'],
-            metadata['veteranFirstName'],
-            metadata['veteranLastName']
-          ]
+          log_info("Successfully appended data to CSV: #{path}")
+        rescue => e
+          handle_error('Failed to append data to CSV', e)
         end
       end
 
       def form_number
         JSON.parse(submission.form_data)['form_number']
+      rescue JSON::ParserError => e
+        handle_error('Failed to parse form data for form_number', e)
       end
 
       def dated_directory
