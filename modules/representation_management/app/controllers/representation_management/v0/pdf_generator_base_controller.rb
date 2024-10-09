@@ -48,6 +48,7 @@ module RepresentationManagement
       end
 
       def flatten_claimant_params(claimant_params)
+        country_code = normalize_country_code_to_alpha2(claimant_params.dig(:claimant, :address, :country))
         {
           claimant_first_name: claimant_params.dig(:claimant, :name, :first),
           claimant_middle_initial: claimant_params.dig(:claimant, :name, :middle),
@@ -58,7 +59,7 @@ module RepresentationManagement
           claimant_address_line2: claimant_params.dig(:claimant, :address, :address_line2),
           claimant_city: claimant_params.dig(:claimant, :address, :city),
           claimant_state_code: claimant_params.dig(:claimant, :address, :state_code),
-          claimant_country: claimant_params.dig(:claimant, :address, :country),
+          claimant_country: country_code,
           claimant_zip_code: claimant_params.dig(:claimant, :address, :zip_code),
           claimant_zip_code_suffix: claimant_params.dig(:claimant, :address, :zip_code_suffix),
           claimant_phone: claimant_params.dig(:claimant, :phone),
@@ -67,6 +68,7 @@ module RepresentationManagement
       end
 
       def flatten_veteran_params(veteran_params)
+        country_code = normalize_country_code_to_alpha2(veteran_params.dig(:veteran, :address, :country))
         {
           veteran_first_name: veteran_params.dig(:veteran, :name, :first),
           veteran_middle_initial: veteran_params.dig(:veteran, :name, :middle),
@@ -79,7 +81,7 @@ module RepresentationManagement
           veteran_address_line2: veteran_params.dig(:veteran, :address, :address_line2),
           veteran_city: veteran_params.dig(:veteran, :address, :city),
           veteran_state_code: veteran_params.dig(:veteran, :address, :state_code),
-          veteran_country: veteran_params.dig(:veteran, :address, :country),
+          veteran_country: country_code,
           veteran_zip_code: veteran_params.dig(:veteran, :address, :zip_code),
           veteran_zip_code_suffix: veteran_params.dig(:veteran, :address, :zip_code_suffix),
           veteran_phone: veteran_params.dig(:veteran, :phone),
@@ -101,6 +103,14 @@ module RepresentationManagement
           zip_code
           zip_code_suffix
         ]
+      end
+
+      def normalize_country_code_to_alpha2(country_code)
+        if country_code.present?
+          IsoCountryCodes.find(country_code).alpha2
+        else
+          ''
+        end
       end
 
       def feature_enabled
