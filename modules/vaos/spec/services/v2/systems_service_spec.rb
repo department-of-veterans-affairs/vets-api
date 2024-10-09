@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../support/vaos_path_matcher'
 
 describe VAOS::V2::SystemsService do
   subject { VAOS::V2::SystemsService.new(user) }
