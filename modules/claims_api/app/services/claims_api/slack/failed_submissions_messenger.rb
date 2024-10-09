@@ -20,7 +20,7 @@ module ClaimsApi
 
       def notify!
         slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                               channel: '#vaapi-alerts-testing',
+                                               channel: '#api-benefits-claims-alerts',
                                                username: 'Failed Submissions Messenger')
 
         notification_message = build_notification_message
