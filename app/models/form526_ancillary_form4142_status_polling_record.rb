@@ -1,0 +1,2 @@
+class Form526AncillaryForm4142StatusPollingRecord < ApplicationRecord
+end

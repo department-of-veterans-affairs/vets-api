@@ -2,7 +2,7 @@
 
 require 'benefits_intake_service/service'
 
-class Form526ParanoidSuccessPollingJob
+class Form526ParanoidSuccessPollingJob < BenefitsIntakeStatusPollingJob
   include Sidekiq::Job
   sidekiq_options retry: false
 
@@ -15,25 +15,7 @@ class Form526ParanoidSuccessPollingJob
     @change_totals = {}
   end
 
-  def perform
-    Rails.logger.info('Beginning Form 526 paranoid_success polling')
-    submissions.in_batches(of: max_batch_size) do |batch|
-      batch_ids = batch.pluck(:backup_submitted_claim_id).flatten
-      response = api_to_poll.get_bulk_status_of_uploads(batch_ids)
-      handle_response(response)
-    end
-    Rails.logger.info('Form 526 paranoid_success polling complete',
-                      total_checked:, change_totals:)
-  rescue => e
-    Rails.logger.error('Error processing 526 paranoid_success batch',
-                       class: self.class.name, message: e.message)
-  end
-
   private
-
-  def api_to_poll
-    @api_to_poll ||= BenefitsIntakeService::Service.new
-  end
 
   def submissions
     @submissions ||= Form526Submission.paranoid_success_type

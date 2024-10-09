@@ -2,7 +2,7 @@
 
 require 'benefits_intake_service/service'
 
-class Form526StatusPollingJob < BenefitsIntakeStatusPollingJob
+class Form526AncillaryForm4142StatusPollingJob < BenefitsIntakeStatusPollingJob
 
   def initialize(max_batch_size: MAX_BATCH_SIZE)
     @max_batch_size = max_batch_size
@@ -24,10 +24,6 @@ class Form526StatusPollingJob < BenefitsIntakeStatusPollingJob
   end
 
   private
-
-  def submissions
-    @submissions ||= Form526Submission.pending_backup
-  end
 
   def handle_response(response)
     response.body['data']&.each do |submission|
@@ -58,8 +54,26 @@ class Form526StatusPollingJob < BenefitsIntakeStatusPollingJob
     end
   end
 
-  def log_result(result)
-    StatsD.increment("#{STATS_KEY}.submission_status.526.#{result}")
-    StatsD.increment("#{STATS_KEY}.submission_status.all_forms.#{result}")
+
+  def log_details(result) 
+    ::Rails.logger.info({
+      form_id: Form526Submission::FORM_4142,
+      parent_form_id: Form526Submission::FORM_526,
+      message: 'Form526 Submission, Form4142 polled status result',
+      submission_id:,
+      lighthouse_submission: {
+        id: 
+      }
+    })
   end
+
+
+  def log_result(result)
+    StatsD.increment("#{STATS_KEY}.526.#{result}")
+    StatsD.increment("#{STATS_KEY}.4142.#{result}")
+    log_details(result)
+  end
+
+
+
 end
