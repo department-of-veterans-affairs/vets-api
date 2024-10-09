@@ -280,7 +280,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
             Flipper.enable(:disability_compensation_upload_bdd_instructions_to_lighthouse)
 
             subject.within_sidekiq_retries_exhausted_block(sidekiq_job_exhaustion_errors) do
-              expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:log_uploading_job_failure)
+              expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+                .to receive(:log_uploading_job_failure)
                 .with(EVSS::DisabilityCompensationForm::UploadBddInstructions, 'Broken Job Error', 'Your Job Broke')
             end
           end
