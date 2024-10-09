@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/v2/error/lighthouse_error_handler'
+require 'bgs_service/manage_representative_service'
 require 'claims_api/v2/json_format_validation'
 
 module ClaimsApi
@@ -8,6 +9,16 @@ module ClaimsApi
     module Veterans
       class PowerOfAttorney::RequestController < ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController
         FORM_NUMBER = 'POA_REQUEST'
+
+        def index
+          poa_codes = form_attributes['poaCodes']
+          service = ManageRepresentativeService.new(external_uid: 'power-of-attorney-request',
+                                                    external_key: 'power-of-attorney-request')
+
+          res = service.read_poa_request(poa_codes:)
+
+          render json: res[:poa_request_respond_return_vo_list], status: :ok
+        end
 
         def request_representative
           # validate target veteran exists
