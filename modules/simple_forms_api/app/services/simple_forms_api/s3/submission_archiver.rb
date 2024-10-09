@@ -14,10 +14,10 @@ module SimpleFormsApi
         end
       end
 
-      def initialize(parent_dir: 'vff-simple-forms', **options) # rubocop:disable Lint/MissingSuper
+      def initialize(parent_dir: '', **options) # rubocop:disable Lint/MissingSuper
         @parent_dir = parent_dir
         defaults = default_options.merge(options)
-        @temp_directory_path, @submission, @unique_filename = build_submission_archive(**defaults)
+        @temp_directory_path, @submission, @unique_filename, @metadata = build_submission_archive(**defaults)
         raise 'Failed to build SubmissionArchive.' unless temp_directory_path && submission
 
         assign_instance_variables(defaults)
@@ -45,7 +45,8 @@ module SimpleFormsApi
 
       private
 
-      attr_reader :benefits_intake_uuid, :parent_dir, :submission, :temp_directory_path, :unique_filename, :upload_type
+      attr_reader :benefits_intake_uuid, :metadata, :parent_dir, :submission, :temp_directory_path, :unique_filename,
+                  :upload_type
 
       def default_options
         {
@@ -87,21 +88,58 @@ module SimpleFormsApi
         handle_error("Failed to zip temp directory: #{temp_directory_path} to location: #{local_upload_file_path}", e)
       end
 
-      def upload_file_to_s3
-        return if File.directory?(local_upload_file_path)
+      def upload_file_to_s3(path = local_upload_file_path)
+        return if File.directory?(path)
 
-        File.open(local_upload_file_path) do |file_obj|
+        File.open(path) do |file_obj|
           sanitized_file = CarrierWave::SanitizedFile.new(file_obj)
           s3_uploader.store!(sanitized_file)
         end
       end
 
       def s3_directory_path
-        @s3_directory_path ||= build_path(parent_dir, upload_type.to_s, is_file: false)
+        @s3_directory_path ||= build_path(parent_dir, upload_type.to_s, dated_directory, is_file: false)
       end
 
       def s3_upload_file_path
         @s3_upload_file_path ||= build_path(s3_directory_path, "#{unique_filename}.ext")
+      end
+
+      def s3_update_manifest
+        s3_path = build_path(s3_directory_path, "manifest_#{unique_filename}.csv")
+        Dir.mktmpdir do |dir|
+          local_path = File.join(dir, s3_path)
+          existing_manifest = download_file_from_s3(s3_path, local_path)
+          append_to_local_file(existing_manifest.nil?, local_path)
+          upload_file_to_s3(local_path)
+        end
+      end
+
+      def download_file_from_s3(from_path, to_path)
+        bucket = VeteranFacingFormsRemediationUploader.s3_settings.bucket
+        s3_resource.bucket(bucket).object(from_path).get(response_target: to_path)
+      rescue Aws::S3::Errors::NoSuchKey
+        nil
+      end
+
+      def append_to_local_file(new_manifest, path)
+        CSV.open(path, 'ab') do |csv|
+          if new_manifest
+            csv << ['Submission DateTime', 'Form Type', 'VA.gov ID', 'Veteran ID', 'First Name', 'Last Name']
+          end
+          csv << [
+            submission.created_at,
+            JSON.parse(submission.form_data)['form_number'],
+            benefits_intake_uuid,
+            metadata['fileNumber'],
+            metadata['veteranFirstName'],
+            metadata['veteranLastName']
+          ]
+        end
+      end
+
+      def dated_directory
+        "#{Time.zone.today.strftime('%-m.%d.%y')}-Form#{form_number}"
       end
 
       def build_local_file_dir!(s3_key, dir_path = temp_directory_path)
