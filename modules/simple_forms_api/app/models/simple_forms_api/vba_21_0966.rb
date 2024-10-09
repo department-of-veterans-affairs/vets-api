@@ -1,16 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA210966
-    include BaseForm
-    include Virtus.model(nullify_blank: true)
+  class VBA210966 < BaseForm
     STATS_KEY = 'api.simple_forms_api.21_0966'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def populate_veteran_data(user)
       @data['veteran_full_name'] ||= {
