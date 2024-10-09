@@ -3,7 +3,6 @@
 require 'benefits_intake_service/service'
 
 class Form526StatusPollingJob < BenefitsIntakeStatusPollingJob
-
   def initialize(max_batch_size: MAX_BATCH_SIZE)
     @max_batch_size = max_batch_size
     @total_handled = 0

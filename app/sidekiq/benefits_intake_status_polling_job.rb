@@ -36,7 +36,7 @@ class BenefitsIntakeStatusPollingJob
   end
 
   def submissions
-    raise NotImplementedError, "Required submissions records method not implimented. Impliment a `#{self.class.name}.submissions` method."
+    raise NotImplementedError,
+          "Required submissions records method not implimented. Impliment a `#{self.class.name}.submissions` method."
   end
-
 end

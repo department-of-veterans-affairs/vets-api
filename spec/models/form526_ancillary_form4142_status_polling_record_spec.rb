@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Form526AncillaryForm4142StatusPollingRecord, type: :model do

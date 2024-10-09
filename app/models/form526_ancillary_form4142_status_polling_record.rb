@@ -1,5 +1,5 @@
-class Form526AncillaryForm4142StatusPollingRecord < ApplicationRecord
-   def needs_polled
+# frozen_string_literal: true
 
-   end
+class Form526AncillaryForm4142StatusPollingRecord < ApplicationRecord
+  def needs_polled; end
 end
