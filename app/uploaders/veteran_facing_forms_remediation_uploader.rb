@@ -5,12 +5,17 @@ class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
 
   class << self
     def s3_settings
-      Settings.vff_simple_forms.aws
+      Settings.reports.aws
     end
 
     def new_s3_resource
-      client = Aws::S3::Client.new(region: s3_settings.region)
-      Aws::S3::Resource.new(client:)
+      # client = Aws::S3::Client.new(region: s3_settings.region)
+      # Aws::S3::Resource.new(client:)
+      Aws::S3::Resource.new(
+        region: Settings.reports.aws.region,
+        access_key_id: Settings.reports.aws.access_key_id,
+        secret_access_key: Settings.reports.aws.secret_access_key
+      )
     end
 
     def get_s3_link(file_path)
