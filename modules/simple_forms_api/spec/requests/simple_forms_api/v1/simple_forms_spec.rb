@@ -244,24 +244,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           end
         end
 
-        context 'Flipper for simple_forms_lighthouse_benefits_intake_service' do
-          after { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
-
-          context 'when flipped on' do
-            before { Flipper.enable(:simple_forms_lighthouse_benefits_intake_service) }
-
-            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
-            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
-            it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_documents.json'
-          end
-
-          context 'when flipped off' do
-            before { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
-
-            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
-            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
-          end
-        end
+        it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
+        it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
+        it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_documents.json'
       end
 
       context 'LOA3 authenticated' do
@@ -631,11 +616,12 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   end
 
   describe 'email confirmations' do
-    before do
-      sign_in
-    end
-
     let(:confirmation_number) { 'some_confirmation_number' }
+    let(:user) { build(:user) }
+
+    before do
+      sign_in(user)
+    end
 
     describe '21_4142' do
       let(:data) do
@@ -655,7 +641,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'veteran.surname@address.com',
+          user.va_profile_email,
           'form21_4142_confirmation_email_template_id',
           {
             'first_name' => 'VETERAN',
@@ -697,7 +683,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'my.long.email.address@email.com',
+          user.va_profile_email,
           'form21_10210_confirmation_email_template_id',
           {
             'first_name' => 'JACK',
@@ -745,7 +731,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'preparer_address@email.com',
+          user.va_profile_email,
           'form21p_0847_confirmation_email_template_id',
           {
             'first_name' => 'ARTHUR',
@@ -788,7 +774,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'preparer@email.com',
+          user.va_profile_email,
           'form21_0972_confirmation_email_template_id',
           {
             'first_name' => 'PREPARE',
@@ -889,6 +875,24 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
             expect(response).to have_http_status(:error)
 
+            expect(VANotify::EmailJob).not_to have_received(:perform_async)
+          end
+        end
+
+        context 'no new intent to file added' do
+          before do
+            allow_any_instance_of(SimpleFormsApi::IntentToFile).to receive(:submit).and_return([nil, Time.zone.now])
+            allow_any_instance_of(SimpleFormsApi::IntentToFile)
+              .to receive(:existing_intents)
+              .and_return({ 'compensation' => {}, 'pension' => {}, 'survivor' => {} })
+          end
+
+          it 'does not send a confirmation email' do
+            data['preparer_identification'] = 'VETERAN'
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:ok)
             expect(VANotify::EmailJob).not_to have_received(:perform_async)
           end
         end

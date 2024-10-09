@@ -95,7 +95,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'user.fingerprint does not match request IP' do
-        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+        let!(:user) do
+          create(:user, :loa3, uuid: access_token_object.user_uuid, session_handle: access_token_object.session_handle)
+        end
         let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
         let(:log_context) { { request_ip: request.remote_ip, fingerprint: user.fingerprint } }
 
@@ -156,7 +158,11 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
           let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
           let!(:user) do
-            create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.remote_ip)
+            create(:user,
+                   :loa3,
+                   uuid: access_token_object.user_uuid,
+                   fingerprint: request.remote_ip,
+                   session_handle: access_token_object.session_handle)
           end
           let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
           let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
@@ -240,7 +246,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'user.fingerprint does not match request IP' do
-        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+        let!(:user) do
+          create(:user, :loa3, uuid: access_token_object.user_uuid, session_handle: access_token_object.session_handle)
+        end
         let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
         let(:log_context) { { request_ip: request.remote_ip, fingerprint: user.fingerprint } }
 

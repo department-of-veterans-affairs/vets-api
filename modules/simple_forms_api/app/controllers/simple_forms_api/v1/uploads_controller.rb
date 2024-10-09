@@ -90,7 +90,7 @@ module SimpleFormsApi
         confirmation_number, expiration_date = intent_service.submit
         form.track_user_identity(confirmation_number)
 
-        if Flipper.enabled?(:simple_forms_email_confirmations)
+        if confirmation_number && Flipper.enabled?(:simple_forms_email_confirmations)
           send_confirmation_email(parsed_form_data, get_form_id, confirmation_number)
         end
 
@@ -270,11 +270,12 @@ module SimpleFormsApi
           confirmation_number:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y')
         }
-        SimpleFormsApi::NotificationEmail.new(
+        notification_email = SimpleFormsApi::NotificationEmail.new(
           config,
           notification_type: :confirmation,
           user: @current_user
-        ).send
+        )
+        notification_email.send
       end
     end
   end

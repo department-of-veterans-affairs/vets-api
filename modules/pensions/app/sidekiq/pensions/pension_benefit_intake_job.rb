@@ -52,6 +52,8 @@ module Pensions
     def perform(saved_claim_id, user_account_uuid = nil)
       init(saved_claim_id, user_account_uuid)
 
+      return if form_submission_pending_or_success
+
       # generate and validate claim pdf documents
       @form_path = process_document(@claim.to_pdf)
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
@@ -59,8 +61,9 @@ module Pensions
 
       upload_document
 
-      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
+
+      send_confirmation_email
 
       @intake_service.uuid
     rescue => e
@@ -93,6 +96,18 @@ module Pensions
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
       @intake_service = BenefitsIntake::Service.new
+    end
+
+    ##
+    # Check FormSubmissionAttempts for record with 'pending' or 'success'
+    #
+    # @return true if FormSubmissionAttempt has 'pending' or 'success'
+    # @return false if unable to find a FormSubmission or FormSubmissionAttempt not 'pending' or 'success'
+    #
+    def form_submission_pending_or_success
+      @claim&.form_submissions&.any? do |form_submission|
+        form_submission.non_failure_attempt.present?
+      end || false
     end
 
     ##
@@ -184,16 +199,23 @@ module Pensions
     end
 
     ##
-    # Delete temporary stamped PDF files for this job instance.
+    # Being VANotify job to send email to veteran
     #
-    # @raise [PensionBenefitIntakeError] if unable to delete file
+    def send_confirmation_email
+      @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
+    rescue => e
+      @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
+    end
+
+    ##
+    # Delete temporary stamped PDF files for this job instance
+    # catches any error, logs but does NOT re-raise - prevent job retry
     #
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
       @pension_monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
-      raise PensionBenefitIntakeError, e.message
     end
   end
 end

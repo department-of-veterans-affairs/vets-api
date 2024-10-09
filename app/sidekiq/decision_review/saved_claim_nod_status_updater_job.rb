@@ -14,6 +14,8 @@ module DecisionReview
 
     SUCCESSFUL_STATUS = %w[complete].freeze
 
+    ERROR_STATUS = 'error'
+
     UPLOAD_SUCCESSFUL_STATUS = %w[vbms].freeze
 
     ATTRIBUTES_TO_STORE = %w[status detail createDate updateDate].freeze
@@ -34,11 +36,11 @@ module DecisionReview
         params = { metadata: attributes.merge(uploads: uploads_metadata).to_json, metadata_updated_at: timestamp }
 
         # only set delete date if attachments are all successful as well
-        if all_uploads_successful?(uploads_metadata) && SUCCESSFUL_STATUS.include?(status)
+        if check_attachments_status(nod, uploads_metadata) && SUCCESSFUL_STATUS.include?(status)
           params[:delete_date] = timestamp + RETENTION_PERIOD
           StatsD.increment("#{STATSD_KEY_PREFIX}.delete_date_update")
         else
-          StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])
+          handle_form_status_metrics_and_logging(nod, status)
         end
 
         nod.update(params)
@@ -83,16 +85,45 @@ module DecisionReview
       result
     end
 
-    def all_uploads_successful?(uploads_metadata)
+    def handle_form_status_metrics_and_logging(nod, status)
+      if status == ERROR_STATUS
+        # ignore logging and metrics for stale errors
+        return if JSON.parse(nod.metadata || '{}')['status'] == ERROR_STATUS
+
+        Rails.logger.info('DecisionReview::SavedClaimNodStatusUpdaterJob form status error', guid: nod.guid)
+      end
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])
+    end
+
+    def check_attachments_status(nod, uploads_metadata)
       result = true
+
+      old_uploads_metadata = extract_uploads_metadata(nod.metadata)
 
       uploads_metadata.each do |upload|
         status = upload['status']
         result = false unless UPLOAD_SUCCESSFUL_STATUS.include? status
+
+        if status == ERROR_STATUS
+          upload_id = upload['id']
+          # Increment StatsD and log only for new errors
+          next if old_uploads_metadata.dig(upload_id, 'status') == ERROR_STATUS
+
+          Rails.logger.info('DecisionReview::SavedClaimNodStatusUpdaterJob evidence status error',
+                            { guid: nod.guid, lighthouse_upload_id: upload_id, detail: upload['detail'] })
+        end
+
         StatsD.increment("#{STATSD_KEY_PREFIX}_upload.status", tags: ["status:#{status}"])
       end
 
       result
+    end
+
+    def extract_uploads_metadata(metadata)
+      return {} if metadata.nil?
+
+      JSON.parse(metadata).fetch('uploads', []).index_by { |upload| upload['id'] }
     end
 
     def enabled?

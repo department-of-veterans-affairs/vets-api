@@ -332,7 +332,9 @@ module Sidekiq
 
         form_version = submission.saved_claim.parsed_form['startedFormVersion']
         if form_version.present?
-          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json)
+          transaction_id = submission.system_transaction_id
+          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json,
+                                            transaction_id)
           content = resp.env.response_body
         else
           resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:evss], form_json.to_json)
@@ -344,11 +346,14 @@ module Sidekiq
       end
 
       # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
-      def get_form_from_external_api(headers, provider, form_json)
+      # @param headers auth headers for evss transmission
+      # @param provider which provider is desired? :evss or :lighthouse
+      # @param form_json the request body as a hash
+      # @param transaction_id for lighthouse provider only: to track submission's journey in APM(s) across systems
+      def get_form_from_external_api(headers, provider, form_json, transaction_id = nil)
         # get the "breakered" version
         service = choose_provider(headers, provider, breakered: true)
-
-        service.generate_526_pdf(form_json)
+        service.generate_526_pdf(form_json, transaction_id)
       end
 
       def get_uploads

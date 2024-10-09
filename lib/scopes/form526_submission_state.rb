@@ -24,7 +24,9 @@ module Scopes
       }
 
       scope :accepted_to_primary_path, lambda {
-        accepted_to_lighthouse_primary_path.or(accepted_to_evss_primary_path)
+        lh = accepted_to_lighthouse_primary_path.pluck(:id)
+        evss = accepted_to_evss_primary_path.pluck(:id)
+        where(id: lh + evss)
       }
       scope :accepted_to_evss_primary_path, lambda {
         where.not(submitted_claim_id: nil)
@@ -112,7 +114,7 @@ module Scopes
 
       scope :failure_type, lambda {
         # filtering in stages avoids timeouts. see doc for more info
-        allids = all.pluck(:id)
+        allids = where(submitted_claim_id: nil).pluck(:id)
         filter1 = where(id: allids - accepted_to_primary_path.pluck(:id)).pluck(:id)
         filter2 = where(id: filter1 - accepted_to_backup_path.pluck(:id)).pluck(:id)
         filter3 = where(id: filter2 - remediated.pluck(:id)).pluck(:id)

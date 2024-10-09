@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-
 module Preneeds
   # Models service record information for a {Preneeds::BurialForm} form
   #
@@ -16,7 +14,7 @@ module Preneeds
   # @!attribute date_range
   #   @return [Preneeds::DateRange] service date range
   #
-  class ServiceRecord < Preneeds::VirtusBase
+  class ServiceRecord < Preneeds::Base
     attribute :service_branch, String
     attribute :discharge_type, String
     attribute :highest_rank, String
@@ -29,8 +27,8 @@ module Preneeds
     def as_eoas
       hash = {
         branchOfService: service_branch, dischargeType: discharge_type,
-        enteredOnDutyDate: date_range.try(:[], :from), highestRank: highest_rank,
-        nationalGuardState: national_guard_state, releaseFromDutyDate: date_range.try(:[], :to)
+        enteredOnDutyDate: date_range.try(:from), highestRank: highest_rank,
+        nationalGuardState: national_guard_state, releaseFromDutyDate: date_range.try(:to)
       }
 
       %i[

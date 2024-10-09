@@ -21,7 +21,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   describe '#get_person' do
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
           expect(response.person).to be_a(VAProfile::Models::V2::Person)
@@ -38,16 +38,34 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       # end
 
       it 'has a bad address' do
-        VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response.person.addresses[0].bad_address).to eq(nil)
         end
       end
     end
 
-    context 'when not successful' do
-      let(:user) { build(:user, :error) }
+    context 'when person response has no body data' do
+      it 'returns 200' do
+        VCR.use_cassette('va_profile/v2/contact_information/person_without_data', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person
+          expect(response).to be_ok
+          expect(response.person).to be_a(VAProfile::Models::V2::Person)
+        end
+      end
+    end
+  end
 
+  describe '#get_person error' do
+    let(:user) { build(:user, :loa3) }
+
+    before do
+      Flipper.enable(:va_v3_contact_information_service)
+      allow_any_instance_of(User).to receive(:vet360_id).and_return('6767671')
+      allow_any_instance_of(User).to receive(:idme_uuid).and_return(nil)
+    end
+
+    context 'when not successful' do
       context 'with a 400 error' do
         it 'returns nil person' do
           VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
@@ -66,33 +84,9 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
             { va_profile: :person_not_found },
             :warning
           )
-
           response = subject.get_person
           expect(response).not_to be_ok
           expect(response.person).to be_nil
-        end
-      end
-    end
-    # VCR 503 errors help
-    # context 'when service returns a 503 error code' do
-    #   let(:vet360_id) { '' }
-    #   it 'raises a BackendServiceException error' do
-    #     VCR.use_cassette('va_profile/v2/contact_information/person_status_500', VCR::MATCH_EVERYTHING) do
-    #       expect { subject.get_person }.to raise_error do |e|
-    #         expect(e).to be_a(Common::Exceptions::BackendServiceException)
-    #         expect(e.status_code).to eq(500)
-    #         expect(e.errors.first.code).to eq('VET360_CORE500')
-    #       end
-    #     end
-    #   end
-    # end
-
-    context 'when person response has no body data' do
-      it 'returns 200' do
-        VCR.use_cassette('va_profile/v2/contact_information/person_without_data', VCR::MATCH_EVERYTHING) do
-          response = subject.get_person
-          expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::V2::Person)
         end
       end
     end
@@ -137,9 +131,9 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     context 'when successful' do
       it 'creates an old_email record' do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-            old_email = user.vet360_contact_info.email.email_address
+            old_email = user.vaprofile_contact_info.email.email_address
             expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
 
             response = subject.put_email(email)
@@ -313,7 +307,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   # ADDRESS is failing
   context 'update model methods' do
     before do
-      VCR.insert_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING)
+      VCR.insert_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
     end
 
@@ -347,7 +341,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
         context "when the #{spec_data[:model_name]} doesnt exist" do
           before do
-            allow_any_instance_of(VAProfileRedis::ContactInformation).to receive(spec_data[:attr]).and_return(nil)
+            allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(spec_data[:attr]).and_return(nil)
           end
 
           it 'makes a post request' do
@@ -437,7 +431,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     end
   end
 
-  describe '#send_contact_change_notification' do
+  describe '#send_contact_change_notification', :initiate_vaprofile, :skip_vet360 do
     let(:transaction) { double }
     let(:transaction_status) do
       OpenStruct.new(
@@ -466,7 +460,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       context 'transaction notification doesnt exist' do
         context 'users email is blank' do
           it 'doesnt send an email' do
-            expect(user).to receive(:va_profile_email).and_return(nil)
+            expect(user).to receive(:va_profile_v2_email).and_return(nil)
 
             expect(VANotifyEmailJob).not_to receive(:perform_async)
             subject.send(:send_contact_change_notification, transaction_status, :email)
@@ -475,11 +469,11 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
         context 'users email exists' do
           it 'sends an email' do
-            VCR.use_cassette('va_profile/v2/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
               allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
 
               expect(VANotifyEmailJob).to receive(:perform_async).with(
-                user.va_profile_email,
+                user.va_profile_v2_email,
                 described_class::CONTACT_INFO_CHANGE_TEMPLATE,
                 { 'contact_info' => 'Email address' }
               )
