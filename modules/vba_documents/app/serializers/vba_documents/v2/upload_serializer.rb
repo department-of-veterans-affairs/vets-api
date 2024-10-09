@@ -8,7 +8,6 @@ module VBADocuments
 
       attr_reader :observers
 
-      attribute :status
       attribute :location, if: proc { !Settings.vba_documents.v2_upload_endpoint_enabled } do |object, params|
         object.get_location if params[:render_location]
       rescue => e

@@ -11,13 +11,7 @@ module VBADocuments
     set_type :document_upload
     set_id :guid
 
-    attribute :guid
-
-    attribute :status do |object|
-      object.status == 'vbms' ? 'success' : object.status
-    end
-
-    attribute :code
+    attribute :guid, :status, :code
 
     attribute :detail do |object|
       detail = object.detail.to_s
