@@ -1,0 +1,109 @@
+
+http_interactions:
+- request:
+    method: post
+    uri: https://staging-api.va.gov/v0/sign_in/token
+    body:
+      encoding: UTF-8
+      string: '{"grant_type":"urn:ietf:params:oauth:grant-type:jwt-bearer","assertion":"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJzdWIiOiIxMDEwMVY5NjQxNDQiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAvdjAvc2lnbl9pbi90b2tlbiIsImlhdCI6MTcyNDg5ODY2MiwiZXhwIjoxNzI0ODk4OTYyLCJqdGkiOiI3N2NhZmRlNTdkZWI4OTdkY2Y3Yjg2YmM1YjNjMDZmNyIsInNjb3BlcyI6WyJodHRwczovL21odi1pbnRiLWFwaS5teWhlYWx0aC52YS5nb3YvbWh2YXBpL3YxL3VzZXJtZ210L2FjY291bnQtc2VydmljZS9hY2NvdW50Il0sInNlcnZpY2VfYWNjb3VudF9pZCI6ImMzNGI4NmYyMTMwZmYzY2Q0YjFkMzA5YmMwOWQ4NzQwIn0.g0ZaRIXyYLLUgYRn8yJqdT2BHrRDgXLZIVOjsdYbuqzqWEKEMXZJQsQPseM903XXM5vZ6LMoXC48uU19ZZs9Yz-QBbm8S4s9N6EayLP0ZyigUhtYIJI0FIDdkUrZSn3q3f7s0t9lNL-SlxFRUmwU-vpJrlT0MvkQ571d626TDKvaLl44reCsNoY3Kwk1xgbZHqDj0x3oGB-_YRFG5EkvPHrrXMYxlV0N8MQEAeZcW_AcM0CIZKI54slRyUCiLUurf3EzDFp0TPn9h7IN8x3XwylJu6FB89pTVR9vHir06iL_egxtkK0p0C9G5um-Cmi_Sk36eD-tyNr_SoO50eKQ8FZ4Lump-UhzxCuAbbCpjLlmnykSXbwwkl41t5IICRxKz5_-zTfyhfRqpwrM8hjbdxWDOpbpgN5MLB8EX6GmJo1UGSnhu86y-9hWGm3RMLItR_uuXyx6N-CN-Wb8LVWw00elikhj_dyPLARkiYmbyYu-h0cuW38M1FLgzlA4nTPx0831EAkM75Y_gPQd6mKrZpgcRVA3nQgazYeykYW7cmA4oLJ5S0sWwVX6c5WjpMEJ8KiccUf7-IHXi4_8UKHBmK_HXEk0dTWYc3cvmtlu_eF7oiXt-ZL61pFWBjzAeu18JN0QyJj4nKtr-J9kDhbVEjbuqm_CqPd6ionzRJgGIRE"}'
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      X-Git-Sha:
+      - MISSING_GIT_REVISION
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - W/"8f1609ce8a01221b218e183b578a7857"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - 78e70a5a-0576-4343-a6c3-a44aae71c000
+      X-Runtime:
+      - '0.138483'
+      Vary:
+      - Accept, Origin
+      Content-Length:
+      - '844'
+    body:
+      encoding: UTF-8
+      string: '{"data":{"access_token":"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJ2YS5nb3Ygc2lnbiBpbiIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMCIsImp0aSI6ImNkYzNmN2JlLTQ5MTMtNGQxZC04ZTI4LTRhNmJkZmJiYjYxOCIsInN1YiI6IjEwMTAxVjk2NDE0NCIsImV4cCI6MTcyNDg5ODk2MiwiaWF0IjoxNzI0ODk4NjYyLCJ2ZXJzaW9uIjoiVjAiLCJzY29wZXMiOlsiaHR0cHM6Ly9taHYtaW50Yi1hcGkubXloZWFsdGgudmEuZ292L21odmFwaS92MS91c2VybWdtdC9hY2NvdW50LXNlcnZpY2UvYWNjb3VudCJdLCJzZXJ2aWNlX2FjY291bnRfaWQiOiJjMzRiODZmMjEzMGZmM2NkNGIxZDMwOWJjMDlkODc0MCIsInVzZXJfYXR0cmlidXRlcyI6e319.Ld_KvqHnm2HDuZE0sO5LAbILSA9ccPahuZXBDbvnDI2Vl9n1TPUovCo7V1iQr50T_kttgZtE4fz5FIs8wpbsTfC2G2CtT2TEaT6wKODBAXb2Fdyskv7lkN29K_PlhW8_HJIFiaSpxIcg2AQxvByTnfAvOZ4qWjBu16OXqnJjC4koLpyL-tcj0yO9tMzd_Cup8irdmLcDruqIjfkG1sIyuFHTAKThBX0_3oDs5eNSEM20Iwd3pxylfP8RmN67WrMo38oH53skJNg2BorfsLwebcr3JjLmJQJcRR7fypovBqXSMjDiXLMOkg6NTr23XfOmxmnEbJLx936U1uOuWpg4hA"}}'
+  recorded_at: Thu, 29 Aug 2024 02:31:02 GMT
+- request:
+    method: post
+    uri: "https://apigw-intb.aws.myhealth.va.gov/v1/usermgmt/account-service/account"
+    body:
+      encoding: UTF-8
+      string: '{"icn":"1012830712V627751","email":"some-email@email.com","vaTermsOfUseStatus":"accepted","vaTermsOfUseDateTime":"2017-07-26T19:56:07Z","vaTermsOfUseRevision":"3","vaTermsOfUseLegalVersion":"1.0","vaTermsOfUseDocTitle":"VA Enterprise Terms of Use"}'
+    headers:
+      Authorization:
+      - Bearer some-bearer-token
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 403
+      message: Bad Request
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      X-Runtime:
+      - '0.026178'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains
+      Vary:
+      - Accept-Encoding
+      Expires:
+      - Wed, 28 Aug 2024 19:56:07 GMT
+      Cache-Control:
+      - max-age=0, no-cache, no-store
+      Pragma:
+      - no-cache
+      Date:
+      - Wed, 28 Aug 2024 19:56:07 GMT
+      Content-Length:
+      - '14658'
+    body:
+      encoding: UTF-8
+      string: '{"errorCode":808,"message":"Application authentication failed"}'
+  recorded_at: Wed, 28 Aug 2024 19:56:07 GMT
+recorded_with: VCR 6.1.0
