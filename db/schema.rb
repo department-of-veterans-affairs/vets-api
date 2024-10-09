@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_07_180915) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -673,6 +673,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.boolean "ignored_as_duplicate", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "remediation_type", default: 0
     t.index ["form526_submission_id"], name: "index_form526_submission_remediations_on_form526_submission_id"
   end
 

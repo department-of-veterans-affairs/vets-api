@@ -69,7 +69,7 @@ August 2023 - August 2024 Team
 | Wayne Weibel | wayne.weibel@adhocteam.us |
 | Tai Wilkin   | tai.wilkin@coforma.io     |
 | Todd Rizzolo | todd.rizzolo@adhocteam.us |
-| Scott Gorman | scott.gorman@adhocteam.us |
+| Bryan Alexander | bryan.alexander@adhocteam.us |
 | Daniel Lim   | daniel.lim@adhocteam.us   |
 
 ## Troubleshooting

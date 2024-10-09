@@ -38,9 +38,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEm
   end
 
   describe 'logging' do
-    it 'increments a Statsd metric' do
+    before do
       allow(notification_client).to receive(:send_email)
+    end
 
+    it 'increments a Statsd metric' do
       expect do
         subject.perform_async(form526_submission.id)
         subject.drain
@@ -49,9 +51,25 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEm
       )
     end
 
-    it 'creates a Form526JobStatus' do
-      allow(notification_client).to receive(:send_email)
+    it 'logs to the Rails logger' do
+      allow(Rails.logger).to receive(:info)
+      exhaustion_time = Time.new(1985, 10, 26).utc
 
+      Timecop.freeze(exhaustion_time) do
+        subject.perform_async(form526_submission.id)
+        subject.drain
+
+        expect(Rails.logger).to have_received(:info).with(
+          'Form0781DocumentUploadFailureEmail notification dispatched',
+          {
+            form526_submission_id: form526_submission.id,
+            timestamp: exhaustion_time
+          }
+        )
+      end
+    end
+
+    it 'creates a Form526JobStatus' do
       expect do
         subject.perform_async(form526_submission.id)
         subject.drain

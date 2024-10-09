@@ -29,10 +29,9 @@ module Lighthouse
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
 
-    def perform(saved_claim_id)
-      @claim = SavedClaim.find(saved_claim_id)
+    def perform(saved_claim_id) # rubocop:disable Metrics/MethodLength
+      init(saved_claim_id)
 
-      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
       @pdf_path = if @claim.form_id == '21P-530V2'
                     process_record(@claim, @claim.created_at, @claim.form_id)
                   else
@@ -46,13 +45,24 @@ module Lighthouse
       raise BenefitsIntakeClaimError, response.body unless response.success?
 
       Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_log_details)
-      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.success")
+
+      send_confirmation_email
+
+      @lighthouse_service.uuid
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', generate_log_details(e))
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
       @form_submission_attempt&.fail!
       raise
     ensure
       cleanup_file_paths
+    end
+
+    def init(saved_claim_id)
+      @claim = SavedClaim.find(saved_claim_id)
+
+      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
     end
 
     def generate_metadata
@@ -82,11 +92,17 @@ module Lighthouse
         y: 770,
         text_only: true
       )
-      if form_id.present? && ['21P-530V2'].include?(form_id)
-        stamped_pdf_with_form(form_id, stamped_path2, timestamp)
-      else
-        stamped_path2
-      end
+      document = if form_id.present? && ['21P-530V2'].include?(form_id)
+                   stamped_pdf_with_form(form_id, stamped_path2,
+                                         timestamp)
+                 else
+                   stamped_path2
+                 end
+
+      @lighthouse_service.valid_document?(document:)
+    rescue => e
+      StatsD.increment("#{STATSD_KEY_PREFIX}.document_upload_error")
+      raise e
     end
 
     def split_file_and_path(path)
@@ -120,9 +136,9 @@ module Lighthouse
 
     def generate_log_details(e = nil)
       details = {
-        claim_id: @claim.id,
-        benefits_intake_uuid: @lighthouse_service.uuid,
-        confirmation_number: @claim.confirmation_number
+        claim_id: @claim&.id,
+        benefits_intake_uuid: @lighthouse_service&.uuid,
+        confirmation_number: @claim&.confirmation_number
       }
       details['error'] = e.message if e
       details
@@ -151,6 +167,14 @@ module Lighthouse
 
     def check_zipcode(address)
       address['country'].upcase.in?(%w[USA US])
+    end
+
+    def send_confirmation_email
+      @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
+    rescue => e
+      Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
+                        generate_log_details(e))
+      StatsD.increment("#{STATSD_KEY_PREFIX}.send_confirmation_email.failure")
     end
   end
 end

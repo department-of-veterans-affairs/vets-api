@@ -114,10 +114,11 @@ module BenefitsClaims
     # @option options [hash] :auth_params a hash to send in auth params to create the access token
     # @option options [hash] :generate_pdf call the generatePdf endpoint to receive the 526 pdf
     # @option options [hash] :asynchronous call the asynchronous endpoint
+    # @option options [hash] :transaction_id submission endpoint tracking
     def submit526(body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       endpoint, path = submit_endpoint(options)
 
-      body = prepare_submission_body(body)
+      body = prepare_submission_body(body, options[:transaction_id])
 
       response = config.post(
         path,
@@ -144,7 +145,7 @@ module BenefitsClaims
     def validate526(body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       endpoint = '{icn}/526/validate'
       path = "#{@icn}/526/validate"
-      body = prepare_submission_body(body)
+      body = prepare_submission_body(body, options[:transaction_id])
 
       response = config.post(
         path,
@@ -162,24 +163,27 @@ module BenefitsClaims
 
     private
 
-    def build_request_body(body)
+    def build_request_body(body, transaction_id = "vagov-#{SecureRandom}")
       body = body.as_json
       if body.dig('data', 'attributes').nil?
         body = {
           data: {
             type: 'form/526',
             attributes: body
+          },
+          meta: {
+            transaction_id:
           }
         }
       end
       body.as_json.deep_transform_keys { |k| k.camelize(:lower) }
     end
 
-    def prepare_submission_body(body)
+    def prepare_submission_body(body, transaction_id)
       # if we're coming straight from the transformation service without
-      # making this a jsonapi request body first ({data: {type:, attributes}}),
+      # making this a jsonapi request body first ({data: {type:, attributes}, meta: {transactionId:}}),
       # this will put it in the correct format for transmission
-      body = build_request_body(body)
+      body = build_request_body(body, transaction_id)
 
       # Inflection settings force 'current_va_employee' to render as 'currentVAEmployee' in the above camelize() call
       # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.

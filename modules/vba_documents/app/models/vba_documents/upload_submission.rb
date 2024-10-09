@@ -10,6 +10,9 @@ module VBADocuments
     include SetGuid
     include SentryLogging
     include Webhooks
+
+    attribute :s3_deleted, default: false
+
     send(:validates_uniqueness_of, :guid)
     before_save :record_status_change, if: :status_changed?
     before_save :clear_resolved_error

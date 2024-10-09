@@ -16,7 +16,7 @@ class EvssGeneratePdfProvider
                end
   end
 
-  def generate_526_pdf(form_content)
+  def generate_526_pdf(form_content, _transaction_id = nil)
     @service.get_form526(form_content)
   end
 end

@@ -15,6 +15,8 @@ class FormSubmissionAttempt < ApplicationRecord
   # If we get around to doing that, we shouldn't need the following line.
   self.ignored_columns += %w[error_message response]
 
+  HOUR_TO_SEND_NOTIFICATIONS = 9
+
   aasm do
     after_all_transitions :log_status_change
 
@@ -22,6 +24,16 @@ class FormSubmissionAttempt < ApplicationRecord
     state :failure, :success, :vbms
 
     event :fail do
+      after do
+        Rails.logger.info({
+                            message: 'Preparing to send Form Submission Attempt error email',
+                            form_submission_id:,
+                            benefits_intake_uuid: form_submission&.benefits_intake_uuid,
+                            form_type: form_submission&.form_type
+                          })
+        enqueue_result_email(:error) if Flipper.enabled?(:simple_forms_email_notifications)
+      end
+
       transitions from: :pending, to: :failure
     end
 
@@ -30,8 +42,16 @@ class FormSubmissionAttempt < ApplicationRecord
     end
 
     event :vbms do
+      after do
+        enqueue_result_email(:received) if Flipper.enabled?(:simple_forms_email_notifications)
+      end
+
       transitions from: :pending, to: :vbms
       transitions from: :success, to: :vbms
+    end
+
+    event :remediate do
+      transitions from: :failure, to: :vbms
     end
   end
 
@@ -53,6 +73,38 @@ class FormSubmissionAttempt < ApplicationRecord
     else
       log_hash[:message] = 'Form Submission Attempt State change'
       Rails.logger.info(log_hash)
+    end
+  end
+
+  private
+
+  def enqueue_result_email(notification_type)
+    raw_form_data = form_submission.form_data || '{}'
+    form_data = JSON.parse(raw_form_data)
+    config = {
+      form_data:,
+      form_number: form_submission.form_type,
+      confirmation_number: form_submission.benefits_intake_uuid,
+      date_submitted: created_at.strftime('%B %d, %Y'),
+      lighthouse_updated_at: lighthouse_updated_at&.strftime('%B %d, %Y')
+    }
+
+    SimpleFormsApi::NotificationEmail.new(
+      config,
+      notification_type:,
+      user_account:
+    ).send(at: time_to_send)
+  end
+
+  def time_to_send
+    now = Time.now.in_time_zone('Eastern Time (US & Canada)')
+    if now.hour < HOUR_TO_SEND_NOTIFICATIONS
+      now.change(hour: HOUR_TO_SEND_NOTIFICATIONS,
+                 min: 0)
+    else
+      now.tomorrow.change(
+        hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0
+      )
     end
   end
 end

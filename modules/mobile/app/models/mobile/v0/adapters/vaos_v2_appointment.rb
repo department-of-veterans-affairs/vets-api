@@ -122,7 +122,6 @@ module Mobile
 
           Mobile::V0::Appointment.new(adapted_appointment)
         end
-
         # rubocop:enable Metrics/MethodLength
 
         private
