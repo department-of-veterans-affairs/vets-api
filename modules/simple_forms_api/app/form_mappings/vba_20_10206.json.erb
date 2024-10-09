@@ -92,9 +92,9 @@
   "form1[0].#subform[9].LastFourNumbers[7]": "<%= form.data.dig('citizen_id', 'ssn')&.[](5..8) %>",
 
   "form1[0].#subform[9].Signature[0]": "<%= form.data['statement_of_truth_signature'] %>",
-  "form1[0].#subform[9].Month[1]": "<%= form.signature_date.strftime('%m') %>",
-  "form1[0].#subform[9].Day[1]": "<%= form.signature_date.strftime('%d') %>",
-  "form1[0].#subform[9].Year[1]": "<%= form.signature_date.strftime('%Y') %>",
+  "form1[0].#subform[9].Month[1]": "<%= form&.signature_date&.strftime('%m') %>",
+  "form1[0].#subform[9].Day[1]": "<%= form&.signature_date&.strftime('%d') %>",
+  "form1[0].#subform[9].Year[1]": "<%= form&.signature_date&.strftime('%Y') %>",
 
   "form1[0].#subform[9].Month[2]": "<%= %>",
   "form1[0].#subform[9].Day[2]": "<%= %>",
