@@ -70,7 +70,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveBuilder do
 
     context 'when properly initialized' do
       it 'completes successfully' do
-        expect(run).to eq([temp_file_path, submission, submission_file_path])
+        expect(run).to eq([temp_file_path, submission, submission_file_path, metadata])
       end
 
       it 'writes the submission pdf file' do
