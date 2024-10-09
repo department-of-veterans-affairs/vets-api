@@ -23,8 +23,13 @@ class ModVBADocIndex < ActiveRecord::Migration[7.1]
   end
 
   def down
-    change_column_null :vba_documents_upload_submissions, :s3_deleted, true
-    change_column_default :vba_documents_upload_submissions, :s3_deleted, from: false, to: nil
+    change_column_null :vba_documents_upload_submissions, 
+                       :s3_deleted, 
+                       true
+    change_column_default :vba_documents_upload_submissions, 
+                          :s3_deleted, 
+                          from: false, 
+                          to: nil
     add_index :vba_documents_upload_submissions, 
               [:status, :created_at],
               name: 'index_vba_docs_upload_submissions_status_created_at',
