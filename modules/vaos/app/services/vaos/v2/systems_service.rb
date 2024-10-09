@@ -32,9 +32,9 @@ module VAOS
       def get_clinics(location_id:, clinical_service:, clinic_ids:, page_size:, page_number:)
         page_size = 0 if page_size.nil? # 0 is the default for the VAOS service which means return all clinics
         url = if Flipper.enabled?(:va_online_scheduling_use_vpg, user)
-                "/#{base_vaos_route}/v1/locations/#{location_id}/clinics"
+                "/vpg/v1/locations/#{location_id}/clinics"
               else
-                "/vaos/v1/locations/#{location_id}/clinics"
+                "/#{base_vaos_route}/locations/#{location_id}/clinics"
               end
 
         url_params = {
