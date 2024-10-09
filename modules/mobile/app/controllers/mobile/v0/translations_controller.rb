@@ -26,7 +26,8 @@ module Mobile
       end
 
       def file_last_changed
-        file.mtime.to_i
+        timestamp = `git log -1 --format='%ci' #{file}`
+        timestamp.to_datetime.to_i
       end
     end
   end
