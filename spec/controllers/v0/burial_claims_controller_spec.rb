@@ -117,6 +117,4 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       subject.send(:log_validation_error_to_metadata, in_progress_form, claim)
     end
   end
-
-
 end
