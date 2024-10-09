@@ -146,7 +146,12 @@ module CentralMail
 
       lighthouse_service.upload_doc(**payload)
 
-      polling_record = Form4142StatusPollingRecord.new(submission_id:, benefits_intake_uuid:)
+      polling_record = Form4142StatusPollingRecord.new(
+        submission_id:, 
+        submission_class: Form526Submission.class_name,
+        benefits_intake_uuid: lighthouse_service.uuid
+      )
+      polling_record.save!
 
       Rails.logger.info(
         'Successful Form4142 Submission to Lighthouse',

@@ -29,8 +29,6 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     let(:evss_claim_id) { 123_456_789 }
     let(:saved_claim) { FactoryBot.create(:va526ez) }
 
-    ap user
-    exit
 
     describe '.perform_async' do
       let(:form_json) do
@@ -210,18 +208,25 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         it 'Creates a form 4142 submission polling record' do
           expect do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-              subject.perform_async(submission.id)
-              described_class.drain
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                subject.perform_async(submission.id)
+                described_class.drain
+              end
             end
-          end.to change(Form4142StatusPollingRecord.count, :size).by(1)
+          end.to change(Form4142StatusPollingRecord, :count).by(1)
+          expect(Form4142StatusPollingRecord.last.submission_id).to eq(submission.id)
+          expect(Form4142StatusPollingRecord.last.status).to eq('pending')
+
         end
 
         it 'submits successfully' do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-            subject.perform_async(submission.id)
-            jid = subject.jobs.last['jid']
-            described_class.drain
-            expect(jid).not_to be_empty
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              subject.perform_async(submission.id)
+              jid = subject.jobs.last['jid']
+              described_class.drain
+              expect(jid).not_to be_empty
+            end
           end
         end
 
@@ -287,7 +292,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       context 'with a client error' do
         it 'raises a central mail response error' do
           skip 'The VCR cassette needs to be changed to contain Lighthouse specific data.'
-          VCR.use_cassette('central_mail/submit_4142_400') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
             subject.perform_async(submission.id)
             expect { described_class.drain }.to raise_error(CentralMail::SubmitForm4142Job::CentralMailResponseError)
           end

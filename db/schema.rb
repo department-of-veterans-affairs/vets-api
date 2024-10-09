@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_08_150707) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -466,6 +466,18 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
   end
 
+  create_table "credential_adoption_email_records", force: :cascade do |t|
+    t.string "icn", null: false
+    t.string "email_address", null: false
+    t.string "email_template_id", null: false
+    t.datetime "email_triggered_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_credential_adoption_email_records_on_email_address"
+    t.index ["email_template_id"], name: "index_credential_adoption_email_records_on_email_template_id"
+    t.index ["icn"], name: "index_credential_adoption_email_records_on_icn"
+  end
+
   create_table "deprecated_user_accounts", force: :cascade do |t|
     t.uuid "user_account_id"
     t.bigint "user_verification_id"
@@ -576,6 +588,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
 
+  create_table "email_records", force: :cascade do |t|
+    t.string "va_notify_id"
+    t.integer "email_type"
+    t.integer "email_state"
+    t.integer "tracked_item_id"
+    t.string "tracked_item_class"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "evss_claims", id: :serial, force: :cascade do |t|
     t.integer "evss_id", null: false
     t.json "data", null: false
@@ -650,6 +672,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["veteran_icn", "tax_year"], name: "index_form1095_bs_on_veteran_icn_and_tax_year", unique: true
+  end
+
+  create_table "form4142_status_polling_records", force: :cascade do |t|
+    t.string "benefits_intake_uuid"
+    t.integer "submission_id"
+    t.string "submission_class"
+    t.integer "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "form526_job_statuses", id: :serial, force: :cascade do |t|
@@ -832,6 +863,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
     t.index ["user_account_id"], name: "index_in_progress_forms_on_user_account_id"
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
+  end
+
+  create_table "inherited_proof_verified_user_accounts", force: :cascade do |t|
+    t.uuid "user_account_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
   end
 
   create_table "intent_to_file_queue_exhaustions", force: :cascade do |t|
@@ -1305,6 +1343,17 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.index ["user_account_id", "form_id"], name: "index_in_progress_reminders_sent_user_account_form_id", unique: true
   end
 
+  create_table "vba_documents_git_items", force: :cascade do |t|
+    t.string "url", null: false
+    t.jsonb "git_item"
+    t.boolean "notified", default: false
+    t.string "label"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
+    t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
+  end
+
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
     t.integer "month", null: false
     t.integer "year", null: false
@@ -1332,6 +1381,17 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
     t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at", where: "(s3_deleted IS NOT TRUE)"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
+  end
+
+  create_table "versions", force: :cascade do |t|
+    t.string "item_type", null: false
+    t.bigint "item_id", null: false
+    t.string "event", null: false
+    t.string "whodunnit"
+    t.text "object"
+    t.datetime "created_at", precision: nil
+    t.text "object_changes"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
   create_table "veteran_device_records", force: :cascade do |t|

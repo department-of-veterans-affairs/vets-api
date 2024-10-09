@@ -3,6 +3,7 @@ class CreateForm4142StatusPollingRecords < ActiveRecord::Migration[7.1]
     create_table :form4142_status_polling_records do |t|
       t.string :benefits_intake_uuid
       t.integer :submission_id
+      t.string :submission_class
       t.integer :status
 
       t.timestamps
