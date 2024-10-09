@@ -36,7 +36,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     end
   end
 
-  context 'catastrophic failure state' do
+  context 'failures' do
     describe 'when all retries are exhausted' do
       let!(:form526_submission) { create(:form526_submission) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
@@ -49,6 +49,15 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
         end
         form526_job_status.reload
         expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
+      end
+
+      # [wipn8923] new spec
+      it 'remediates the submission via an email notification' do
+        args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
+        subject.within_sidekiq_retries_exhausted_block(args) do
+          allow(Form526SubmissionFailureEmail).to receive(:perform_async).with(form526_submission_id: form526_submission.id)
+          expect(Form526SubmissionFailureEmail).to receive(:perform_async).with(form526_submission_id: form526_submission.id)
+        end
       end
     end
   end
