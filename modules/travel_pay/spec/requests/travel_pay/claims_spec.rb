@@ -25,6 +25,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
           get '/travel_pay/v0/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
           expect(response).to have_http_status(:ok)
           claim_ids = JSON.parse(response.body)['data'].pluck('id')
+
           expect(claim_ids).to eq(expected_claim_ids)
         end
       end

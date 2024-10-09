@@ -6,6 +6,7 @@ require_relative './base_client'
 module TravelPay
   class TokenClient < TravelPay::BaseClient
     def initialize(client_number)
+      super()
       @client_number = client_number
     end
 
@@ -34,13 +35,12 @@ module TravelPay
       sts_token = request_sts_token(user)
 
       btsss_url = Settings.travel_pay.base_url
-      client_number = Settings.travel_pay.client_number
       correlation_id = SecureRandom.uuid
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
 
       response = connection(server_url: btsss_url).post('api/v1/Auth/access-token') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['BTSSS-API-Client-Number'] = client_number.to_s
+        req.headers['BTSSS-API-Client-Number'] = @client_number.to_s
         req.headers['X-Correlation-ID'] = correlation_id
         req.headers.merge!(claim_headers)
         req.body = { authJwt: sts_token }

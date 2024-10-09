@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module TravelPay
-  class TokenService
-    def initialize(client, current_user)
-      @client = client
-      @user = current_user
+  class AuthenticatedSession < TravelPay::Session
+    def initialize(client_number, current_user)
+      super(client_number, current_user)
+      @client = TravelPay::TokenClient.new(client_number)
     end
 
     #
@@ -25,6 +25,7 @@ module TravelPay
     end
 
     private
+
     def request_new_tokens
       veis_token = @client.request_veis_token
       btsss_token = @client.request_btsss_token(veis_token, @user)
