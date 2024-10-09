@@ -75,9 +75,9 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       let(:scopes) { %w[system/claim.read system/claim.write] }
 
       request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-      'disability_compensation', 'form_526_json_api.json').read)
-      request_template["data"]["attributes"]["serviceInformation"].delete('federalActivation')
-      request_template["data"]["attributes"]["serviceInformation"]["servicePeriods"].each do |per|
+                                                    'disability_compensation', 'form_526_json_api.json').read)
+      request_template['data']['attributes']['serviceInformation'].delete('federalActivation')
+      request_template['data']['attributes']['serviceInformation']['servicePeriods'].each do |per|
         per.delete('separationLocationCode')
       end
 
@@ -323,9 +323,9 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       merged_values[:data] = parsed_json['data']
 
       request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-      'disability_compensation', 'form_526_json_api.json').read)
-      request_template["data"]["attributes"]["serviceInformation"].delete('federalActivation')
-      request_template["data"]["attributes"]["serviceInformation"]["servicePeriods"].each do |per|
+                                                    'disability_compensation', 'form_526_json_api.json').read)
+      request_template['data']['attributes']['serviceInformation'].delete('federalActivation')
+      request_template['data']['attributes']['serviceInformation']['servicePeriods'].each do |per|
         per.delete('separationLocationCode')
       end
       parameter in: :body, examples: {
