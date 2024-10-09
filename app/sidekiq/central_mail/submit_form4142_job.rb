@@ -133,7 +133,7 @@ module CentralMail
 
     def upload_to_lighthouse
       Rails.logger.info(
-        'Successful Form4142 Submission to Lighthouse',
+        'Successful Form4142 Upload Intake UUID aquired from Lighthouse',
         { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id }
       )
 
@@ -145,6 +145,14 @@ module CentralMail
       }
 
       lighthouse_service.upload_doc(**payload)
+
+      polling_record = Form4142StatusPollingRecord.new(submission_id:, benefits_intake_uuid:)
+
+      Rails.logger.info(
+        'Successful Form4142 Submission to Lighthouse',
+        { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id,
+          polling_record_id: polling_record.id }
+      )
     end
 
     def generate_metadata
@@ -160,7 +168,7 @@ module CentralMail
         'businessLine' => '',
         'fileNumber' => filenumber
       }
-
+      Rails.logger.debug metadata
       SimpleFormsApiSubmission::MetadataValidator
         .validate(metadata, zip_code_is_us_based: usa_based?)
     end
