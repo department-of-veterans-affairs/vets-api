@@ -7,6 +7,13 @@ require_relative 'shared_reporting_examples_spec'
 RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
   subject { described_class.new }
 
+  before do
+    ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).destroy_all
+    ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).destroy_all
+    ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).destroy_all
+    ClaimsApi::IntentToFile.where(created_at: @from..@to).destroy_all
+  end
+
   include_context 'shared reporting defaults'
 
   shared_examples 'sends mail with expected totals' do

@@ -32,32 +32,13 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   end
 
   def claims_totals
-    [
-      { 'consumer 1' => { pending: 2,
-                          errored: 1,
-                          totals: 3,
-                          percentage_with_flashes: '50.0%',
-                          percentage_with_special_issues: '50.0%' } },
-      { 'consumer 2' => { pending: 3,
-                          errored: 3,
-                          totals: 6,
-                          percentage_with_flashes: '50.0%',
-                          percentage_with_special_issues: '50.0%' } }
-    ]
-    # reporting_base.claims_totals
+    call_factories
+
+    reporting_base.claims_totals
   end
 
   def poa_totals
-    [
-      {
-        'consumer 1' => { totals: 10, updated: 5, errored: 2, pending: 1, uploaded: 2 }
-      },
-      {
-        'consumer 2' => { totals: 8, updated: 3, errored: 2, pending: 1, uploaded: 2 }
-      }
-    ]
-
-    # reporting_base.poa_totals
+    reporting_base.poa_totals
   end
 
   def unsuccessful_poa_submissions
@@ -65,14 +46,7 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   end
 
   def ews_totals
-    [
-      {
-        'consumer 1' => { totals: 10, updated: 5, errored: 2, pending: 1, uploaded: 2 }
-      },
-      {
-        'consumer 2' => { totals: 8, updated: 3, errored: 2, pending: 1, uploaded: 2 }
-      }
-    ]
+    reporting_base.ews_totals
   end
 
   def unsuccessful_evidence_waiver_submissions
@@ -80,18 +54,71 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   end
 
   def itf_totals
-    # reporting_base.itf_totals
-    [
-      {
-        'consumer 1' => { totals: 2, submitted: 1, errored: 1 }
-      },
-      {
-        'consumer 2' => { totals: 1, submitted: 1, errored: 0 }
-      }
-    ]
+    reporting_base.itf_totals
   end
 
   def reporting_base
     ClaimsApi::ReportingBase.new
+  end
+
+  def call_factories
+    db_clean
+    make_claims
+    make_poas
+    make_ews_submissions
+    make_itfs
+    gather_consumers
+  end
+
+  def make_claims
+    FactoryBot.create(:auto_established_claim_v2, status: 'errored')
+    FactoryBot.create(:auto_established_claim_v2, status: 'errored')
+
+    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
+    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
+    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
+    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
+
+    FactoryBot.create(:auto_established_claim_v2, status: 'errored')
+    FactoryBot.create(:auto_established_claim_v2, status: 'pending')
+    FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues)
+    FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues)
+    FactoryBot.create(:auto_established_claim_with_supporting_documents)
+    FactoryBot.create(:auto_established_claim)
+  end
+
+  def make_poas
+    FactoryBot.create(:power_of_attorney, :errored)
+    FactoryBot.create(:power_of_attorney, :errored)
+    FactoryBot.create(:power_of_attorney)
+    FactoryBot.create(:power_of_attorney)
+  end
+
+  def make_ews_submissions
+    FactoryBot.create(:claims_api_evidence_waiver_submission, :errored)
+    FactoryBot.create(:claims_api_evidence_waiver_submission)
+    FactoryBot.create(:claims_api_evidence_waiver_submission, :errored)
+    FactoryBot.create(:claims_api_evidence_waiver_submission)
+  end
+
+  def make_itfs
+    FactoryBot.create(:claims_api_intent_to_file, :itf_errored)
+    FactoryBot.create(:claims_api_intent_to_file, :itf_errored)
+    FactoryBot.create(:claims_api_intent_to_file)
+  end
+
+  def gather_consumers
+    @claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:cid).uniq
+    @poa_consumers = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).pluck(:cid).uniq
+    @ews_consumers = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).pluck(:cid).uniq
+    @itf_consumers = ClaimsApi::IntentToFile.where(created_at: @from..@to).pluck(:cid).uniq
+  end
+
+  def db_clean
+    # destroys anything created in the last 24 hours
+    ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).destroy_all
+    ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).destroy_all
+    ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).destroy_all
+    ClaimsApi::IntentToFile.where(created_at: @from..@to).destroy_all
   end
 end
