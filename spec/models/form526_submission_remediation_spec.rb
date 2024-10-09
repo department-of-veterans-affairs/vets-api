@@ -17,8 +17,7 @@ RSpec.describe Form526SubmissionRemediation, type: :model do
   describe 'validations' do
     context 'remediation_type validation' do
       it do
-        should define_enum_for(:remediation_type)
-          .with_values([:manual, :ignored_as_duplicate, :email_notified])
+        is_expected.to(define_enum_for(:remediation_type).with_values(%i[manual ignored_as_duplicate email_notified]))
       end
     end
 
