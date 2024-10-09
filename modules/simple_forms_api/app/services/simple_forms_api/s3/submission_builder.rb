@@ -46,7 +46,8 @@ module SimpleFormsApi
 
       def build_form(form_number)
         form_class = "SimpleFormsApi::#{form_number.titleize.delete(' ')}".constantize
-        form_class.new(form_data_hash)
+        form = form_class.new(form_data_hash)
+        form.signature_date = submission.created_at
       rescue NameError => e
         handle_error("Form class not found for #{form_number}", e)
       end
