@@ -5,7 +5,7 @@ module SimpleFormsApi
     class SubmissionArchiveHandler < Utils
       PROGRESS_FILE_PATH = '/tmp/submission_archive_progress.json'
 
-      def initialize(benefits_intake_uuids: [], parent_dir: 'vff-simple-forms') # rubocop:disable Lint/MissingSuper
+      def initialize(benefits_intake_uuids: [], parent_dir: '') # rubocop:disable Lint/MissingSuper
         raise Common::Exceptions::ParameterMissing, 'benefits_intake_uuids' unless benefits_intake_uuids&.any?
 
         @benefits_intake_uuids = benefits_intake_uuids
