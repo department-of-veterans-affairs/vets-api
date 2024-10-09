@@ -3,7 +3,8 @@
 require 'json'
 
 module SimpleFormsApi
-  class VBA4010007 < BaseForm
+  class VBA4010007
+    include BaseForm
     include Virtus.model(nullify_blank: true)
     STATS_KEY = 'api.simple_forms_api.40_10007'
     attribute :data
