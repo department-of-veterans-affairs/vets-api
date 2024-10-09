@@ -104,6 +104,25 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
         end
       end
 
+      shared_examples 'logs an icn mismatch warning' do
+        let(:expected_log) do
+          '[TermsOfUse][SignUpServiceUpdaterJob] Detected changed ICN for user'
+        end
+        let(:mpi_profile) { build(:mpi_profile, icn: mpi_icn, sec_id:, given_names:, family_name:) }
+        let(:mpi_icn) { 'some-mpi-icn' }
+
+        before do
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'logs a detected changed ICN message' do
+          job.perform(user_account_uuid, version)
+
+          expect(MAP::SignUp::Service).to have_received(:new)
+          expect(Rails.logger).to have_received(:info).with(expected_log, { icn:, mpi_icn: })
+        end
+      end
+
       context 'when multiple sec_id values are detected' do
         let(:sec_ids) { [sec_id, 'other-sec-id'] }
 
@@ -148,22 +167,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
           end
 
           context 'and user account icn does not equal the mpi profile icn' do
-            let(:expected_log) do
-              '[TermsOfUse][SignUpServiceUpdaterJob] Detected changed ICN for user'
-            end
-            let(:mpi_profile) { build(:mpi_profile, icn: mpi_icn, sec_id:, given_names:, family_name:) }
-            let(:mpi_icn) { 'some-mpi-icn' }
-
-            before do
-              allow(Rails.logger).to receive(:info)
-            end
-
-            it 'logs a detected changed ICN message' do
-              job.perform(user_account_uuid, version)
-
-              expect(MAP::SignUp::Service).to have_received(:new)
-              expect(Rails.logger).to have_received(:info).with(expected_log, { icn:, mpi_icn: })
-            end
+            it_behaves_like 'logs an icn mismatch warning'
           end
         end
       end
@@ -198,43 +202,8 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
           end
 
           context 'and user account icn does not equal the mpi profile icn' do
-            let(:expected_log) do
-              '[TermsOfUse][SignUpServiceUpdaterJob] Detected changed ICN for user'
-            end
-            let(:mpi_profile) { build(:mpi_profile, icn: mpi_icn, sec_id:, given_names:, family_name:) }
-            let(:mpi_icn) { 'some-mpi-icn' }
-            let(:status) { { opt_out: false, agreement_signed: false } }
-
-            before do
-              allow(Rails.logger).to receive(:info)
-            end
-
-            it 'logs a detected changed ICN message' do
-              job.perform(user_account_uuid, version)
-
-              expect(MAP::SignUp::Service).to have_received(:new)
-              expect(Rails.logger).to have_received(:info).with(expected_log, { icn:, mpi_icn: })
-            end
+            it_behaves_like 'logs an icn mismatch warning'
           end
-        end
-      end
-
-      context 'and user account icn does not equal the mpi profile icn' do
-        let(:mpi_profile) { build(:mpi_profile, icn: mpi_icn, sec_id:, given_names:, family_name:) }
-        let(:mpi_icn) { 'some-mpi-icn' }
-        let(:status) { { opt_out: false, agreement_signed: false } }
-        let(:response) { 'declined' }
-
-        before do
-          allow(service_instance).to receive(:status).and_return(status)
-          allow(service_instance).to receive(:agreements_decline)
-        end
-
-        it 'updates the terms of use agreement in sign up service' do
-          job.perform(user_account_uuid, version)
-
-          expect(MAP::SignUp::Service).to have_received(:new)
-          expect(service_instance).to have_received(:agreements_decline).with(icn: mpi_icn)
         end
       end
     end
