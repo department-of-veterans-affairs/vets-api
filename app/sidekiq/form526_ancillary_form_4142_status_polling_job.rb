@@ -26,7 +26,7 @@ class Form526AncillaryForm4142StatusPollingJob < BenefitsIntakeStatusPollingJob
 
   def submissions
     # TODO
-    # Form526AncillaryForm4142StatusPollingRecord.needs_polled
+    Form4142StatusPollingRecord.needs_polled
   end
 
   def handle_response(response)

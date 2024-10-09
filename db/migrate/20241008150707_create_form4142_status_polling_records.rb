@@ -1,4 +1,4 @@
-class CreateForm4142StatusPollingRecord < ActiveRecord::Migration[7.1]
+class CreateForm4142StatusPollingRecords < ActiveRecord::Migration[7.1]
   def change
     create_table :form4142_status_polling_records do |t|
       t.string :benefits_intake_uuid

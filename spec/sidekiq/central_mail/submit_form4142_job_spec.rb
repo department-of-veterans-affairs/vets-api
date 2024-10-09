@@ -204,9 +204,17 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           end.to change(subject.jobs, :size).by(1)
         end
 
+        it 'Creates a form 4142 submission polling record' do
+          expect do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              subject.perform_async(submission.id)
+              described_class.drain
+            end
+          end.to change(Form4142StatusPollingRecord.count, :size).by(1)
+        end
+
         it 'submits successfully' do
-          skip 'The VCR cassette needs to be changed to contain Lighthouse specific data.'
-          VCR.use_cassette('central_mail/submit_4142') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
             subject.perform_async(submission.id)
             jid = subject.jobs.last['jid']
             described_class.drain
