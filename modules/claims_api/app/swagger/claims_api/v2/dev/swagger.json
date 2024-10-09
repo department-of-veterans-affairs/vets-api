@@ -4966,8 +4966,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -4984,10 +4983,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -5077,7 +5072,11 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
+<<<<<<< HEAD
                         "id": "58ed9f78-79c5-4142-80ef-cd5227d437e6",
+=======
+                        "id": "03739502-0cb3-4c75-a13a-b62b9141df35",
+>>>>>>> master
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5262,7 +5261,11 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
+<<<<<<< HEAD
                               "anticipatedSeparationDate": "2024-10-11"
+=======
+                              "anticipatedSeparationDate": "2024-10-10"
+>>>>>>> master
                             },
                             "confinements": [
                               {
@@ -5308,7 +5311,11 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
+<<<<<<< HEAD
                         "id": "506b63ab-8dfe-44b6-9924-3ed0dee9c3ca",
+=======
+                        "id": "9ac9026d-40c2-418a-95a4-a3a82e9f7021",
+>>>>>>> master
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -8509,8 +8516,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -8527,10 +8533,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -10526,7 +10528,11 @@
               "application/json": {
                 "example": {
                   "data": {
+<<<<<<< HEAD
                     "id": "3118bf08-403f-4132-b0dc-40ceb6dea7a1",
+=======
+                    "id": "9199a0dd-94c0-4920-9395-687df0a1427f",
+>>>>>>> master
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -14274,8 +14280,13 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
+<<<<<<< HEAD
                       "creationDate": "2024-10-09",
                       "expirationDate": "2025-10-09",
+=======
+                      "creationDate": "2024-10-08",
+                      "expirationDate": "2025-10-08",
+>>>>>>> master
                       "type": "compensation",
                       "status": "active"
                     }
@@ -15171,7 +15182,11 @@
               "application/json": {
                 "example": {
                   "data": {
+<<<<<<< HEAD
                     "id": "5350a482-e058-474e-a7aa-a72e2ced4729",
+=======
+                    "id": "9a5f9832-701f-48ff-8748-5b9ffc576c63",
+>>>>>>> master
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15864,7 +15879,11 @@
               "application/json": {
                 "example": {
                   "data": {
+<<<<<<< HEAD
                     "id": "d6e6326e-78f4-482a-b074-28b22a418e4a",
+=======
+                    "id": "9c53735e-8d4a-4e05-aaf6-5faad0fb35d9",
+>>>>>>> master
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17805,10 +17824,17 @@
               "application/json": {
                 "example": {
                   "data": {
+<<<<<<< HEAD
                     "id": "75964577-a760-4817-b70c-a2849a7e6525",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2024-10-09",
+=======
+                    "id": "06228ddb-efef-4d60-808a-c2a8192bb952",
+                    "type": "claimsApiPowerOfAttorneys",
+                    "attributes": {
+                      "dateRequestAccepted": "2024-10-08",
+>>>>>>> master
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
