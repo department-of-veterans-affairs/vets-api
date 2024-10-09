@@ -9,6 +9,7 @@ module VAProfile
       attribute :episodes, Array
       attribute :uniformed_service_initial_entry_date, String
       attribute :release_from_active_duty_date, String
+      attribute :vet_status_eligibility, Object
 
       def self.from(current_user, raw_response = nil)
         body = raw_response&.body
@@ -16,6 +17,18 @@ module VAProfile
         episodes = []
         episodes += get_military_service_episodes(body)
         episodes += get_academy_attendance_episodes(body) if include_academy_attendance?(current_user)
+
+        if Flipper.enabled?(:profile_show_proof_of_veteran_status_eligible)
+          eligibility = get_eligibility(episodes)
+
+          return new(
+            raw_response&.status,
+            episodes: episodes ? sort_by_begin_date(episodes) : episodes,
+            uniformed_service_initial_entry_date: get_uniformed_service_initial_entry_date(body),
+            release_from_active_duty_date: get_release_from_active_duty_date(body),
+            vet_status_eligibility: eligibility
+          )
+        end
 
         new(
           raw_response&.status,
@@ -67,6 +80,10 @@ module VAProfile
 
       def self.include_academy_attendance?(current_user)
         Flipper.enabled?(:profile_show_military_academy_attendance, current_user)
+      end
+
+      def self.get_eligibility(episodes)
+        VAProfile::Models::ServiceHistory.determine_eligibility(episodes)
       end
     end
   end

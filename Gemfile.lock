@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 998cfd9d48db75a5533e33785d6523933f7e9b36
+  revision: be610f6623ef1fac432e5616372d4a5eadb93773
   branch: master
   specs:
-    vets_json_schema (24.2.9)
+    vets_json_schema (24.4.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -466,9 +466,9 @@ GEM
     flipper-active_record (1.3.1)
       activerecord (>= 4.2, < 8)
       flipper (~> 1.3.1)
-    flipper-active_support_cache_store (1.3.0)
+    flipper-active_support_cache_store (1.3.1)
       activesupport (>= 4.2, < 8)
-      flipper (~> 1.3.0)
+      flipper (~> 1.3.1)
     flipper-ui (1.3.1)
       erubi (>= 1.0.0, < 2.0.0)
       flipper (~> 1.3.1)
@@ -580,7 +580,7 @@ GEM
       ruby-vips (>= 2.0.17, < 3)
     io-console (0.7.2)
     io-console (0.7.2-java)
-    irb (1.14.0)
+    irb (1.14.1)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     iso_country_codes (0.7.8)
@@ -600,7 +600,7 @@ GEM
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     jwe (0.4.0)
-    jwt (2.8.2)
+    jwt (2.9.3)
       base64
     kms_encrypted (1.6.0)
       activesupport (>= 6.1)
@@ -718,7 +718,7 @@ GEM
     ostruct (0.6.0)
     ox (2.14.18)
     parallel (1.26.3)
-    parallel_tests (4.7.1)
+    parallel_tests (4.7.2)
       parallel
     parser (3.3.5.0)
       ast (~> 2.4.1)
@@ -914,7 +914,7 @@ GEM
       json-schema (>= 2.2, < 5.0)
       railties (>= 5.2, < 8.0)
       rspec-core (>= 2.14)
-    rswag-ui (2.14.0)
+    rswag-ui (2.15.0)
       actionpack (>= 5.2, < 8.0)
       railties (>= 5.2, < 8.0)
     rtesseract (3.1.3)
@@ -940,7 +940,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.52.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (3.0.5)
+    rubocop-rspec (3.1.0)
       rubocop (~> 1.61)
     rubocop-rspec_rails (2.30.0)
       rubocop (~> 1.61)
@@ -978,7 +978,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.16.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.19.0)
+    sentry-ruby (5.21.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
@@ -1018,7 +1018,7 @@ GEM
       ffi
     ssrf_filter (1.1.2)
     staccato (0.5.3)
-    statsd-instrument (3.9.0)
+    statsd-instrument (3.9.2)
     stringio (3.1.1)
     strong_migrations (2.0.0)
       activerecord (>= 6.1)
