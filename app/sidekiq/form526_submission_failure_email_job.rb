@@ -63,7 +63,7 @@ class Form526SubmissionFailureEmail
   def perform
     send_email
     track_remedial_action
-    log_dispatch
+    log_success
   rescue => e
     log_failure(e)
     raise
@@ -79,15 +79,13 @@ class Form526SubmissionFailureEmail
     email_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
     template_id = Settings.vanotify.services.benefits_disability.template_id
       .form526_submission_failure_notification_template_id
-    email_address = submission.veteran_email_address
-    first_name = submission.get_first_name
-    date_submitted = submission.format_creation_time_for_mailers
+
     email_client.send_email(
-      email_address:,
+      email_address: submission.veteran_email_address,
       template_id:,
       personalisation: {
-        first_name:,
-        date_submitted:
+        first_name: submission.get_first_name,
+        date_submitted: submission.format_creation_time_for_mailers
       }
     )
   end
@@ -98,7 +96,7 @@ class Form526SubmissionFailureEmail
                                         lifecycle: ["failed with error: #{error_message}"])
   end
 
-  def log_dispatch(form526_submission_id)
+  def log_success(form526_submission_id)
     Rails.logger.info(
       'Form526SubmissionFailureEmail notification dispatched',
       {
