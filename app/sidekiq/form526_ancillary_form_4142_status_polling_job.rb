@@ -24,6 +24,11 @@ class Form526AncillaryForm4142StatusPollingJob < BenefitsIntakeStatusPollingJob
   end
 
   private
+  
+  def submissions
+    # TODO
+    # Form526AncillaryForm4142StatusPollingRecord.needs_polled
+  end
 
   def handle_response(response)
     response.body['data']&.each do |submission|
