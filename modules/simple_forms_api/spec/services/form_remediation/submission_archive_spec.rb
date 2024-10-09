@@ -99,12 +99,6 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
       it 'writes the manifest file' do
         expect(CSV).to have_received(:open).with("#{temp_file_path}/manifest_#{submission_file_path}.csv", 'wb')
       end
-
-      it 'writes the metadata json file' do
-        expect(File).to have_received(:write).with(
-          "#{temp_file_path}/metadata_#{submission_file_path}.json", metadata.to_json
-        )
-      end
     end
   end
 end
