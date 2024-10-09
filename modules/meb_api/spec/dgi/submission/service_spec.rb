@@ -17,7 +17,7 @@ RSpec.describe MebApi::DGI::Submission::Service do
   let(:claimant_params) do
     {
       education_benefit: {
-        '@type': 'Chapter33',
+        '@type': "Chapter33",
         claimant: {
           first_name: 'Herbert',
           middle_name: 'Hoover',
