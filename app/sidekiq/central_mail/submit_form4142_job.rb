@@ -173,7 +173,7 @@ module CentralMail
         'businessLine' => '',
         'fileNumber' => filenumber
       }
-      Rails.logger.debug metadata
+
       SimpleFormsApiSubmission::MetadataValidator
         .validate(metadata, zip_code_is_us_based: usa_based?)
     end
