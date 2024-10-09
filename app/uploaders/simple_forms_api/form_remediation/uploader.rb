@@ -36,6 +36,7 @@ module SimpleFormsApi
 
       def initialize(directory:, config: Configuration::Base.new)
         raise 'The S3 directory is missing.' if directory.blank?
+        raise 'The configuration is missing.' unless config
 
         @config = config
         @directory = directory
