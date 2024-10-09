@@ -15,6 +15,13 @@ RSpec.describe Form526SubmissionRemediation, type: :model do
   end
 
   describe 'validations' do
+    context 'remediation_type validation' do
+      it do
+        should define_enum_for(:remediation_type)
+          .with_values([:manual, :ignored_as_duplicate, :email_notified])
+      end
+    end
+
     context 'lifecycle validation' do
       it 'is invalid without context on create' do
         expect(subject).not_to be_valid

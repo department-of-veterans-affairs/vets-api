@@ -9,6 +9,8 @@ class Form526SubmissionRemediation < ApplicationRecord
 
   before_create :initialize_lifecycle
 
+  enum remediation_type: { manual: 0, ignored_as_duplicate: 1, email_notified: 2 }
+
   STATSD_KEY_PREFIX = 'form526_submission_remediation'
 
   def mark_as_unsuccessful(context)
