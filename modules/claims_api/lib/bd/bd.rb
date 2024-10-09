@@ -67,7 +67,7 @@ module ClaimsApi
       raise e
     end
 
-    def upload_document(claim_id:, doc_type:, doc_type_name:, body:)
+    def upload_document(claim_id:, doc_type_name:, body:)
       @multipart = true
       res = client.post('documents', body)&.body
 
@@ -83,7 +83,7 @@ module ClaimsApi
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/upload failure for
-                                                    #{doc_type}_id: #{claim_id},
+                                                    #{doc_type_name}_id: #{claim_id},
                                                     #{e.message}")
       raise e
     end

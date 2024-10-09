@@ -14,7 +14,7 @@ module ClaimsApi
 
         body = generate_body(claim:, doc_type:, pdf_path:, original_filename:)
         doc_type_name = doc_type_to_plain_language(doc_type)
-        ClaimsApi::BD.new.upload_document(claim_id: claim.id, doc_type:, doc_type_name:, body:)
+        ClaimsApi::BD.new.upload_document(claim_id: claim.id, doc_type_name:, body:)
       end
 
       private
