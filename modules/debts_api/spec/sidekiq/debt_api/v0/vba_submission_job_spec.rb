@@ -38,5 +38,61 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         expect(form_submission.error_message).to eq('uhoh')
       end
     end
+
+    context 'with retries exhausted' do
+      let(:config) { described_class }
+      let(:missing_attributes_exception) do
+        e = DebtsApi::V0::Form5655::VBASubmissionJob::MissingUserAttributesError.new('abc-123')
+        allow(e).to receive(:backtrace).and_return(%w[backtrace1 backtrace2])
+        e
+      end
+
+      let(:standard_exception) do
+        e = StandardError.new('abc-123')
+        allow(e).to receive(:backtrace).and_return(%w[backtrace1 backtrace2])
+        e
+      end
+
+      let(:msg) do
+        {
+          'class' => 'YourJobClassName',
+          'args' => %w[123 123-abc],
+          'jid' => '12345abcde',
+          'retry_count' => 5
+        }
+      end
+
+      it 'handles MissingUserAttributesError' do
+        expected_log_message = <<~LOG
+          V0::Form5655::VBASubmissionJob retries exhausted:
+          submission_id: 123 | user_id: 123-abc
+          Exception: #{missing_attributes_exception.class} - #{missing_attributes_exception.message}
+          Backtrace: #{missing_attributes_exception.backtrace.join("\n")}
+        LOG
+
+        expect(StatsD).to receive(:increment).with(
+          "#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.retries_exhausted"
+        )
+
+        expect(Rails.logger).to receive(:error).with(expected_log_message)
+        config.sidekiq_retries_exhausted_block.call(msg, missing_attributes_exception)
+      end
+
+      it 'handles unexpected errors' do
+        expected_log_message = <<~LOG
+          V0::Form5655::VBASubmissionJob retries exhausted:
+          submission_id: 123 | user_id: 123-abc
+          Exception: #{standard_exception.class} - #{standard_exception.message}
+          Backtrace: #{standard_exception.backtrace.join("\n")}
+        LOG
+
+        expect(StatsD).to receive(:increment).with(
+          "#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.retries_exhausted"
+        )
+
+        expect(Rails.logger).to receive(:error).with(expected_log_message)
+        config.sidekiq_retries_exhausted_block.call(msg, standard_exception)
+      end
+    end
   end
 end
