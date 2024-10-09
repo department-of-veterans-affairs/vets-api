@@ -70,6 +70,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
       allow(StatsD).to receive(:increment)
     end
 
+    let(:perform_upload) do
+      subject.perform_async(submission.id)
+      described_class.drain
+    end
+
     context 'when the disability_compensation_upload_bdd_instructions_to_lighthouse flipper is enabled' do
       let(:faraday_response) { instance_double(Faraday::Response) }
       let(:lighthouse_request_id) { Faker::Number.number(digits: 8) }
@@ -105,27 +110,21 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
       it 'uploads a BDD Instruction PDF to Lighthouse' do
         expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
           .with(file_read, expected_lighthouse_document)
-
-        subject.perform_async(submission.id)
-        described_class.drain
+        perform_upload
       end
 
       it 'logs the upload attempt with the correct job prefix' do
         expect(StatsD).to receive(:increment).with(
           "#{expected_statsd_metrics_prefix}.upload_attempt"
         )
-
-        subject.perform_async(submission.id)
-        described_class.drain
+        perform_upload
       end
 
       it 'increments the correct StatsD success metric' do
         expect(StatsD).to receive(:increment).with(
           "#{expected_statsd_metrics_prefix}.upload_success"
         )
-
-        subject.perform_async(submission.id)
-        described_class.drain
+        perform_upload
       end
 
       it 'creates a pending Lighthouse526DocumentUpload record for the submission so we can poll Lighthouse later' do
@@ -138,8 +137,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
 
         expect(Lighthouse526DocumentUpload.where(**upload_attributes).count).to eq(0)
 
-        subject.perform_async(submission.id)
-        described_class.drain
+        perform_upload
 
         expect(Lighthouse526DocumentUpload.where(**upload_attributes).count).to eq(1)
       end
@@ -180,8 +178,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
             }
           )
 
-          subject.perform_async(submission.id)
-          described_class.drain
+          perform_upload
         end
 
         it 'increments the correct status failure metric' do
@@ -189,8 +186,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
             "#{expected_statsd_metrics_prefix}.upload_failure"
           )
 
-          subject.perform_async(submission.id)
-          described_class.drain
+          perform_upload
         end
       end
     end
@@ -218,8 +214,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
         expect_any_instance_of(EVSS::DocumentsService).to receive(:upload)
           .with(file_read, evss_claim_document)
 
-        subject.perform_async(submission.id)
-        described_class.drain
+        perform_upload
       end
 
       it 'logs the upload attempt with the correct job prefix' do
@@ -227,8 +222,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
           "#{expected_statsd_metrics_prefix}.upload_attempt"
         )
 
-        subject.perform_async(submission.id)
-        described_class.drain
+        perform_upload
       end
 
       it 'increments the correct StatsD success metric' do
@@ -236,16 +230,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
           "#{expected_statsd_metrics_prefix}.upload_success"
         )
 
-        subject.perform_async(submission.id)
-        described_class.drain
+        perform_upload
       end
 
       context 'when an upload raises an EVSS response error' do
-        before do
-          allow_any_instance_of(EVSS::DocumentsService).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
-        end
-
         it 'logs an upload error' do
+          allow_any_instance_of(EVSS::DocumentsService).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
           expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_upload_failure)
 
           expect do
@@ -272,6 +262,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
       end
 
       context 'when the API Provider uploads are enabled' do
+        before do
+          Flipper.enable(:disability_compensation_use_api_provider_for_bdd_instructions)
+        end
+
         let(:sidekiq_job_exhaustion_errors) do
           {
             'jid' => form526_job_status.job_id,
@@ -281,16 +275,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
           }
         end
 
-        before do
-          Flipper.enable(:disability_compensation_use_api_provider_for_bdd_instructions)
-        end
-
         context 'for a Lighthouse upload' do
-          before do
-            Flipper.enable(:disability_compensation_upload_bdd_instructions_to_lighthouse)
-          end
-
           it 'logs the job failure' do
+            Flipper.enable(:disability_compensation_upload_bdd_instructions_to_lighthouse)
+
             subject.within_sidekiq_retries_exhausted_block(sidekiq_job_exhaustion_errors) do
               expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:log_uploading_job_failure)
                 .with(EVSS::DisabilityCompensationForm::UploadBddInstructions, 'Broken Job Error', 'Your Job Broke')
@@ -299,11 +287,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
         end
 
         context 'for an EVSS Upload' do
-          before do
-            Flipper.disable(:disability_compensation_upload_bdd_instructions_to_lighthouse)
-          end
-
           it 'logs the job failure' do
+            Flipper.disable(:disability_compensation_upload_bdd_instructions_to_lighthouse)
+
             subject.within_sidekiq_retries_exhausted_block(sidekiq_job_exhaustion_errors) do
               expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_uploading_job_failure)
                 .with(EVSS::DisabilityCompensationForm::UploadBddInstructions, 'Broken Job Error', 'Your Job Broke')
