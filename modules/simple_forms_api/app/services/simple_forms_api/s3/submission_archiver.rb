@@ -14,7 +14,7 @@ module SimpleFormsApi
         end
       end
 
-      def initialize(parent_dir: '', **options) # rubocop:disable Lint/MissingSuper
+      def initialize(parent_dir: 'vff-simple-forms', **options) # rubocop:disable Lint/MissingSuper
         @parent_dir = parent_dir
         defaults = default_options.merge(options)
         @temp_directory_path, @submission, @unique_filename, @metadata = build_submission_archive(**defaults)
@@ -129,13 +129,17 @@ module SimpleFormsApi
           end
           csv << [
             submission.created_at,
-            JSON.parse(submission.form_data)['form_number'],
+            form_number,
             benefits_intake_uuid,
             metadata['fileNumber'],
             metadata['veteranFirstName'],
             metadata['veteranLastName']
           ]
         end
+      end
+
+      def form_number
+        JSON.parse(submission.form_data)['form_number']
       end
 
       def dated_directory
