@@ -13,9 +13,9 @@ module ClaimsApi
           @page4_path = nil
         end
 
-        def construct(data, id: SecureRandom.uuid)
+        def construct(data, created_at:, id: SecureRandom.uuid)
           sign_pdf_text(data)
-          fill_pdf(data)
+          fill_pdf(data, created_at)
           combine_pdf(id, @page1_path, @page2_path, @page3_path, @page4_path)
         end
 
@@ -108,14 +108,14 @@ module ClaimsApi
         # Fill in pdf form fields based on data provided.
         #
         # @param data [Hash] Data to fill in pdf form with
-        def fill_pdf(data)
+        def fill_pdf(data, created_at)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
 
           temp_path = Rails.root.join('tmp', "poa_#{Time.now.to_i}_page_1.pdf")
           pdftk.fill_form(
             @page1_path,
             temp_path,
-            page1_options(data),
+            page1_options(data, created_at),
             flatten: true
           )
           @page1_path = temp_path
@@ -124,7 +124,7 @@ module ClaimsApi
           pdftk.fill_form(
             @page2_path,
             temp_path,
-            page2_options(data),
+            page2_options(data, created_at),
             flatten: true
           )
           @page2_path = temp_path

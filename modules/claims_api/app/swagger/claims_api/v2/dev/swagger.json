@@ -5077,7 +5077,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "842d260d-1ffe-4a29-b5ed-117b38bd3ad5",
+                        "id": "58ed9f78-79c5-4142-80ef-cd5227d437e6",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5262,7 +5262,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-10-05"
+                              "anticipatedSeparationDate": "2024-10-11"
                             },
                             "confinements": [
                               {
@@ -5308,7 +5308,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "9580281a-95bc-4a99-8171-10b987a1b887",
+                        "id": "506b63ab-8dfe-44b6-9924-3ed0dee9c3ca",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -10526,7 +10526,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "854bc725-fa9e-438e-bc7f-9a484160cf30",
+                    "id": "3118bf08-403f-4132-b0dc-40ceb6dea7a1",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -14274,8 +14274,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-10-03",
-                      "expirationDate": "2025-10-03",
+                      "creationDate": "2024-10-09",
+                      "expirationDate": "2025-10-09",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -15072,7 +15072,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:134:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:162:in `representative'"
                       }
                     }
                   ]
@@ -15171,7 +15171,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "10295307-73bb-4825-95f5-02d6df41a4e1",
+                    "id": "5350a482-e058-474e-a7aa-a72e2ced4729",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15864,7 +15864,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9abb338d-2390-472c-bb0a-8a1c7da2ba32",
+                    "id": "d6e6326e-78f4-482a-b074-28b22a418e4a",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16390,11 +16390,6 @@
                                 "pattern": ".@.",
                                 "maxLength": 61,
                                 "example": "veteran_representative@example.com"
-                              },
-                              "appointmentDate": {
-                                "description": "Date of appointment with Veteran.",
-                                "type": "string",
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                               }
                             }
                           },
@@ -17698,11 +17693,6 @@
                                 "pattern": ".@.",
                                 "maxLength": 61,
                                 "example": "veteran_representative@example.com"
-                              },
-                              "appointmentDate": {
-                                "description": "Date of appointment with Veteran.",
-                                "type": "string",
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                               }
                             }
                           },
@@ -17815,10 +17805,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3b595df2-25af-4c3e-a48b-56478c80983d",
+                    "id": "75964577-a760-4817-b70c-a2849a7e6525",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-10-03",
+                      "dateRequestAccepted": "2024-10-09",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
