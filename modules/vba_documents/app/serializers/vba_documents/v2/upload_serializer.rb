@@ -4,9 +4,10 @@ require './lib/webhooks/utilities'
 module VBADocuments
   module V2
     class UploadSerializer < VBADocuments::UploadSerializer
+      set_type :document_upload
+
       attr_reader :observers
 
-      attribute :status
       attribute :location, if: proc { !Settings.vba_documents.v2_upload_endpoint_enabled } do |object, params|
         object.get_location if params[:render_location]
       rescue => e
