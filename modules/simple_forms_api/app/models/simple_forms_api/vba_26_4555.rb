@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA264555
+  class VBA264555 < BaseForm
     include Virtus.model(nullify_blank: true)
 
     attribute :data

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA214138
+  class VBA214138 < BaseForm
     include Virtus.model(nullify_blank: true)
     STATS_KEY = 'api.simple_forms_api.21_4138'
 
