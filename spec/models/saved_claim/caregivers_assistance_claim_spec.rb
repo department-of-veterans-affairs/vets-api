@@ -36,7 +36,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
     end
 
     context 'passes arguments to PdfFill::Filler#fill_form' do
-      it 'only the file name' do
+      it 'converts to pdf with the file name alone' do
         expect(PdfFill::Filler).to receive(
           :fill_form
         ).with(
@@ -48,7 +48,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
         claim.to_pdf('my_other_filename')
       end
 
-      it 'only the options' do
+      it 'converts to pdf with the options alone' do
         expect(PdfFill::Filler).to receive(
           :fill_form
         ).with(
@@ -61,7 +61,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
         claim.to_pdf(save: true)
       end
 
-      it 'filename and options' do
+      it 'converts to pdf with the filename and options' do
         expect(PdfFill::Filler).to receive(
           :fill_form
         ).with(
