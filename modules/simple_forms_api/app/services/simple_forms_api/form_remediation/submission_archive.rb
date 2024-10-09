@@ -14,8 +14,8 @@ module SimpleFormsApi
       def initialize(config: Configuration::Base.new, **options)
         @config = config
         @temp_directory_path = config.temp_directory_path
-        @include_manifest = config.include_manifest || true
-        @include_metadata = config.include_metadata || true
+        @include_manifest = config.include_manifest
+        @include_metadata = config.include_metadata
 
         assign_defaults(options)
         hydrate_submission_data unless submission_already_hydrated?
