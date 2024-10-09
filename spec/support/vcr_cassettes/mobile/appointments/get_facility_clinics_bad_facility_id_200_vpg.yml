@@ -1,0 +1,59 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://veteran.apps.va.gov/vpg/v1/locations/999AA/clinics?clinicalService=audiology&enableStopCodeFilter=true&pageSize=0
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Referer:
+          - https://review-instance.va.gov
+        X-Vamf-Jwt:
+          - stubbed_token
+        X-Request-Id:
+          - ''
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Fri, 08 Oct 2021 17:16:25 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - '2066'
+        Server:
+          - openresty
+        X-Vamf-Version:
+          - 1.10.0
+        B3:
+          - d59a397d6ff313e3-0534a9f1c0bcf50e-1
+        Access-Control-Allow-Headers:
+          - x-vamf-jwt
+        X-Vamf-Build:
+          - 58ec2e2
+        X-Vamf-Timestamp:
+          - '2021-08-18T13:44:12+0000'
+        Access-Control-Allow-Origin:
+          - "*"
+        Access-Control-Allow-Methods:
+          - GET,OPTIONS
+        Access-Control-Max-Age:
+          - '3600'
+        Strict-Transport-Security:
+          - max-age=63072000; includeSubDomains; preload
+      body:
+        encoding: UTF-8
+        string: '{"data": []}'
+    recorded_at: Fri, 08 Oct 2021 17:16:25 GMT
+recorded_with: VCR 6.0.0

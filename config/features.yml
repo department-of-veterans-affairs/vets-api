@@ -473,6 +473,10 @@ features:
     actor_type: user
     description: enable to test the backup submission path. DO NOT TOGGLE THIS FLAG UNLESS YOU ARE A MEMBER OF DISABILITY BENEFITS EXPERIENCE TEAM.
     enable_in_development: true
+  disability_compensation_sync_modern_0781_flow:
+    actor_type: user
+    description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
+    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -790,6 +794,10 @@ features:
     actor_type: user
     description: Enable/disable dependent claimant support for POA requests
     enable_in_development: true
+  lighthouse_claims_api_v2_poa_va_notify:
+    actor_type: user
+    description: Enable/disable the VA ntofication emails in V2 POA
+    enable_in_development: false
   lighthouse_claims_v2_poa_requests_skip_bgs:
     actor_type: user
     description: Enable/disable skipping BGS calls for POA Requests
@@ -930,22 +938,6 @@ features:
     actor_type: user
     description: Enables/disables filter feature for medications list
     enable_in_development: true
-  mhv_to_logingov_account_transition:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer experience (Identity)
-    enable_in_development: false
-  mhv_to_logingov_account_transition_modal:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer modal experience (Identity)
-    enable_in_development: false
-  mhv_to_logingov_account_transition_banner:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer banner experience (Identity)
-    enable_in_development: false
-  mhv_to_logingov_account_transition_urgent:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
-    enable_in_development: false
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -1307,6 +1299,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for tickets with the label vaos-v2-next will be behind this flag
+  va_online_scheduling_vaos_alternate_route:
+    actor_type: user
+    enable_in_development: false
+    description: Toggle for the vaos module to use an alternate vaos-service route
   va_online_scheduling_clinic_filter:
     actor_type: user
     enable_in_development: true
