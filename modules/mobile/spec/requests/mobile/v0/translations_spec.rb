@@ -2,15 +2,17 @@
 
 require_relative '../../../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile::V0::Translations', :skip_json_api_validation, type: :request do
+RSpec.describe 'Mobile::V0::Translations', type: :request do
   describe 'GET /mobile/v0/translations' do
-    let(:file_last_changed) { Rails.root.join('modules/mobile/app/assets/translations/en/common.json').mtime.to_i }
+    let(:file_last_changed) do
+      Rails.root.join('modules', 'mobile', 'app', 'assets', 'translations', 'en', 'common.json').mtime.to_i
+    end
 
     before do
       sis_user
     end
 
-    context 'when no timestamp is provided' do
+    context 'when no timestamp is provided', :skip_json_api_validation do
       it 'returns file' do
         get '/mobile/v0/translations', headers: sis_headers
 
@@ -23,7 +25,7 @@ RSpec.describe 'Mobile::V0::Translations', :skip_json_api_validation, type: :req
       end
     end
 
-    context 'when timestamp is before when the translation file was last changed' do
+    context 'when timestamp is before when the translation file was last changed', :skip_json_api_validation do
       it 'returns file' do
         get '/mobile/v0/translations', headers: sis_headers, params: { last_downloaded: file_last_changed - 10 }
 

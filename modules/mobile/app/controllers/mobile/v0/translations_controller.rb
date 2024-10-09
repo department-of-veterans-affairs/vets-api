@@ -22,7 +22,7 @@ module Mobile
       private
 
       def file
-        Rails.root.join('modules/mobile/app/assets/translations/en/common.json')
+        Rails.root.join('modules', 'mobile', 'app', 'assets', 'translations', 'en', 'common.json')
       end
 
       def file_last_changed
