@@ -3685,11 +3685,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-<<<<<<< HEAD
-                        "id": "b732b9b3-9386-46e8-aa11-13b081e93066",
-=======
-                        "id": "3715233b-cf79-4b21-9300-c8332428b8a8",
->>>>>>> master
+                        "id": "9b23d156-6ce0-4ad8-8ba2-78d2f65c422c",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3874,11 +3870,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-<<<<<<< HEAD
                               "anticipatedSeparationDate": "2024-10-11"
-=======
-                              "anticipatedSeparationDate": "2024-10-10"
->>>>>>> master
                             },
                             "confinements": [
                               {
@@ -3924,11 +3916,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-<<<<<<< HEAD
-                        "id": "8496827c-f490-45cf-b2d4-49ef20b73134",
-=======
-                        "id": "86887bd3-07f9-4e56-ace0-6ce6f537792f",
->>>>>>> master
+                        "id": "efa4c6af-6058-42ca-851d-48adcdf256b4",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -9141,11 +9129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-<<<<<<< HEAD
-                    "id": "3deba696-1a83-4730-81d9-dc41cbb09770",
-=======
-                    "id": "369558d0-b970-493c-9a75-4b63a3294011",
->>>>>>> master
+                    "id": "655cf458-1833-409d-8ecc-d9327d8ccfde",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12893,13 +12877,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-<<<<<<< HEAD
                       "creationDate": "2024-10-09",
                       "expirationDate": "2025-10-09",
-=======
-                      "creationDate": "2024-10-08",
-                      "expirationDate": "2025-10-08",
->>>>>>> master
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13795,11 +13774,7 @@
               "application/json": {
                 "example": {
                   "data": {
-<<<<<<< HEAD
-                    "id": "53a22a6b-1b2a-4862-8b0c-fab5a96d8635",
-=======
-                    "id": "4ee7b7ea-452b-4f21-8f0f-61cf8c078cd4",
->>>>>>> master
+                    "id": "a886dcd1-79ac-4677-9bfe-07a6a55f1d93",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14492,11 +14467,7 @@
               "application/json": {
                 "example": {
                   "data": {
-<<<<<<< HEAD
-                    "id": "e013084c-aea9-4c70-9ca3-208ebf175db9",
-=======
-                    "id": "cf0c0b97-34f7-4adc-a86e-59c123db82ad",
->>>>>>> master
+                    "id": "ef66475e-4358-4f79-8280-d013e4767951",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16437,17 +16408,10 @@
               "application/json": {
                 "example": {
                   "data": {
-<<<<<<< HEAD
-                    "id": "fe288112-0287-4ca3-aeca-f0f7929382a9",
+                    "id": "b791fbfe-9f11-4e61-850f-700c352c2663",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2024-10-09",
-=======
-                    "id": "73e28581-64b0-4748-b9f2-5c56d654b4eb",
-                    "type": "claimsApiPowerOfAttorneys",
-                    "attributes": {
-                      "dateRequestAccepted": "2024-10-08",
->>>>>>> master
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
