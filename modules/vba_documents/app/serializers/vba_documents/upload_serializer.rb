@@ -11,7 +11,7 @@ module VBADocuments
     set_type :document_upload
     set_id :guid
 
-    attribute :guid, :status, :code
+    attributes :guid, :status, :code
 
     attribute :detail do |object|
       detail = object.detail.to_s
