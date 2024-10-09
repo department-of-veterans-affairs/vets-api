@@ -100,6 +100,9 @@ spec:
           volumeMounts:
 {{ toYaml $root.Values.common.volumeMounts | indent 12 }}
           env:
+            - name: SETTINGS__HOSTNAME
+              valueFrom:
+
             - name: POD_NAME
               valueFrom:
                 fieldRef:
