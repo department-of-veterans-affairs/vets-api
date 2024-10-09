@@ -68,6 +68,7 @@ module EVSS
         super(form526_submission_id)
         submission = Form526Submission.find(form526_submission_id)
 
+        # [wipn8923] what are the advantages?
         with_tracking('Form526DocumentUploadFailureEmail', submission.saved_claim_id, form526_submission_id) do
           @notify_client ||= VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
           send_notification_mailer(submission, supporting_evidence_attachment_guid)
