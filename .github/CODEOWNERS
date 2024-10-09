@@ -651,7 +651,6 @@ app/sidekiq/pager_duty @department-of-veterans-affairs/va-api-engineers @departm
 app/sidekiq/preneeds @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/schema_contract @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/sign_in @department-of-veterans-affairs/octo-identity
-app/sidekiq/structured_data/process_data_job.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/terms_of_use @department-of-veterans-affairs/octo-identity
 app/sidekiq/test_user_dashboard @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
 app/sidekiq/test_user_dashboard/daily_maintenance.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
@@ -1351,7 +1350,6 @@ spec/sidekiq/schema_contract @department-of-veterans-affairs/va-api-engineers @d
 spec/sidekiq/sidekiq_stats_job_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/sign_in @department-of-veterans-affairs/octo-identity
 spec/sidekiq/sign_in/delete_expired_sessions_job_spec.rb @department-of-veterans-affairs/octo-identity
-spec/sidekiq/structured_data/process_data_job_spec.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/terms_of_use @department-of-veterans-affairs/octo-identity
 spec/sidekiq/test_user_dashboard @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/transactional_email_analytics_job_spec.rb @department-of-veterans-affairs/backend-review-group
