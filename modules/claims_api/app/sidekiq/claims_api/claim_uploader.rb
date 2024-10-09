@@ -48,7 +48,8 @@ module ClaimsApi
 
     def claim_bd_upload_document(claim, doc_type, pdf_path, original_filename) # rubocop:disable Metrics/MethodLength
       if Flipper.enabled? :claims_api_bd_refactor
-        DisabilityCompensation::DisabilityDocumentService.new.create_upload(claim:, pdf_path:, original_filename:)
+        DisabilityCompensation::DisabilityDocumentService.new.create_upload(claim:, pdf_path:, doc_type:,
+                                                                            original_filename:)
       else
         ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:, original_filename:)
       end
