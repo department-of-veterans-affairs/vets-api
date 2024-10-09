@@ -2,19 +2,19 @@
 http_interactions:
 - request:
     method: get
-    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/11111%5EPI%5E200VETS%5EUSDVA
+    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1781151%5EPI%5E200VETS%5EUSDVA
     body:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Vets.gov Agent
-      Content-Type:
-      - application/json
-      Cufsystemname:
-      - VETSGOV
       Accept:
       - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -26,10 +26,10 @@ http_interactions:
       - 'true'
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-440884886", dtSInfo;desc="0"
-      - dtRpid;desc="930550547", dtSInfo;desc="0"
+      - dtRpid;desc="-277417432", dtSInfo;desc="0"
+      - dtRpid;desc="707587539", dtSInfo;desc="0"
       Vaprofiletxauditid:
-      - 4da2001b-9798-4163-b534-dd02a7728455
+      - 0e4279a5-9705-4246-97cc-e52e9ebc2ce0
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
@@ -46,7 +46,7 @@ http_interactions:
       - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
         about: blob: ws: wss:'
       Date:
-      - Thu, 29 Aug 2024 18:40:50 GMT
+      - Wed, 18 Sep 2024 21:15:44 GMT
       Referrer-Policy:
       - no-referrer
       Content-Type:
@@ -57,13 +57,9 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"4da2001b-9798-4163-b534-dd02a7728455","status":"COMPLETED_SUCCESS","bio":{"createDate":"2018-06-22T02:44:25Z","updateDate":"2018-06-22T02:44:25Z","txAuditId":"7f42926a-7050-4ee6-bc16-a61ef5a5b479","sourceSystem":"VHAES","sourceDate":"2015-12-02T23:45:50Z","sourceSystemUser":"anonymousUser","vaProfileId":11111,"addresses":[{"createDate":"2018-06-22T02:44:25Z","updateDate":"2024-05-21T05:07:52Z","txAuditId":"fe793b89-7b4f-4d26-a664-68f89b0c2d86","sourceSystem":"VAPROFILE_TEST_PARTNER","sourceDate":"2024-05-21T05:03:23Z","originatingSourceSystem":"stringT","sourceSystemUser":"stringTS","effectiveStartDate":"2024-05-21T05:03:23Z","confirmationDate":"2024-05-21T05:03:23Z","vaProfileId":11111,"addressId":11193,"addressType":"Domestic","addressPOU":"CORRESPONDENCE","badAddress":true,"addressLine1":"2122
-        W Taylor St","cityName":"Chicago","state":{"stateName":"Illinois","stateCode":"IL"},"zipCode5":"60612","zipCode4":"4281","county":{"countyName":"Cook
-        County","countyCode":"17031"},"country":{"countryName":"United States","countryCodeFIPS":"US","countryCodeISO2":"US","countryCodeISO3":"USA"},"latitude":"41.8692","longitude":"-87.6789","geocodePrecision":"32","geocodeDate":"2024-05-21T05:07:52Z"},{"createDate":"2022-05-26T16:01:40Z","updateDate":"2024-06-28T18:01:17Z","txAuditId":"4c4b8587-6289-4c39-9ee9-436dcf41f19c","sourceSystem":"VAPROFILE_TEST_PARTNER","sourceDate":"2024-06-28T17:59:26Z","effectiveStartDate":"2024-06-28T17:59:26Z","vaProfileId":11111,"addressId":324489,"addressType":"Domestic","addressPOU":"RESIDENCE","badAddress":false,"addressLine1":"125
-        King Richard Rd","cityName":"Starkville","state":{"stateName":"Mississippi","stateCode":"MS"},"zipCode5":"39759","zipCode4":"3848","county":{"countyName":"Oktibbeha
-        County","countyCode":"28105"},"country":{"countryName":"United States","countryCodeFIPS":"US","countryCodeISO2":"US","countryCodeISO3":"USA"},"latitude":"33.4473","longitude":"-88.8085","geocodePrecision":"31","geocodeDate":"2024-06-28T18:01:17Z"}],"telephones":[{"createDate":"2022-06-02T17:27:59Z","updateDate":"2024-04-05T16:41:35Z","txAuditId":"cf11367a-a7fd-4f10-970d-15700eaf54ae","sourceSystem":"VAPROFILE_TEST_PARTNER","sourceDate":"2024-04-05T16:36:21Z","sourceSystemUser":"Dinh","effectiveStartDate":"2024-04-05T16:36:21Z","vaProfileId":11111,"telephoneId":292421,"internationalIndicator":false,"phoneType":"WORK","countryCode":"1","areaCode":"703","phoneNumber":"4435633","carrier":"Teleport
-        Communications America, LLC","classification":{"classificationCode":1,"classificationName":"LANDLINE"}},{"createDate":"2022-06-02T17:27:59Z","updateDate":"2024-06-21T17:16:52Z","txAuditId":"3bd0a305-f51d-4d29-9595-8ed05406490e","sourceSystem":"IAN_MCEWAN","sourceDate":"2024-06-21T17:16:50Z","effectiveStartDate":"2024-06-21T17:16:50Z","vaProfileId":11111,"telephoneId":292422,"internationalIndicator":false,"phoneType":"HOME","countryCode":"1","areaCode":"240","phoneNumber":"4430038","carrier":"T-Mobile
-        USA, Inc.","classification":{"classificationCode":0,"classificationName":"MOBILE"}},{"createDate":"2023-04-07T16:39:34Z","updateDate":"2024-02-22T15:35:35Z","txAuditId":"75d0a8b9-d2da-4812-a0a7-bb9e80f6e8ed","sourceSystem":"VAPROFILE_TEST_PARTNER","sourceDate":"2024-02-22T15:32:49Z","sourceSystemUser":"Dinh","effectiveStartDate":"2024-02-22T15:32:49Z","vaProfileId":11111,"telephoneId":355423,"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"703","phoneNumber":"4435633","carrier":"Teleport
-        Communications America, LLC","classification":{"classificationCode":1,"classificationName":"LANDLINE"}}],"emails":[{"createDate":"2024-01-08T19:12:59Z","updateDate":"2024-07-09T18:59:07Z","txAuditId":"675510e9-7472-4996-a2b1-8b84cdcba8cb","sourceSystem":"VAPROFILE_TEST_PARTNER","sourceDate":"2024-07-09T17:16:55Z","effectiveStartDate":"2024-07-09T17:16:55Z","confirmationDate":"2024-07-09T17:16:55Z","vaProfileId":11111,"emailId":282288,"emailAddressText":"dataqualityvalid@gmail.com"}]}}'
-  recorded_at: Thu, 29 Aug 2024 18:40:51 GMT
+      string: '{"txAuditId":"0e4279a5-9705-4246-97cc-e52e9ebc2ce0","status":"COMPLETED_SUCCESS","bio":{"createDate":"2024-08-27T17:56:23Z","updateDate":"2024-08-27T17:56:23Z","txAuditId":"74aa8ff5-8faf-454c-98b0-ebd5406174c0","sourceSystem":"VETSGOV","sourceDate":"2024-08-27T17:56:23Z","vaProfileId":1781151,"addresses":[{"createDate":"2024-08-29T21:08:17Z","updateDate":"2024-09-18T19:07:30Z","txAuditId":"7c198f17-a3b8-415f-b0fd-e19ab1edcf3a","sourceSystem":"VETSGOV","sourceDate":"2024-09-17T16:09:37Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","effectiveStartDate":"2024-09-17T16:09:37Z","vaProfileId":1781151,"addressId":577127,"addressType":"Domestic","addressPOU":"RESIDENCE","addressLine1":"1495
+        Martin Luther King Rd","cityName":"Fulton","state":{"stateName":"Mississippi","stateCode":"MS"},"zipCode5":"38843","county":{"countyName":"Itawamba
+        County","countyCode":"28057"},"country":{"countryName":"United States","countryCodeFIPS":"US","countryCodeISO2":"US","countryCodeISO3":"USA"},"latitude":"34.1989","longitude":"-88.5261","geocodePrecision":"31","geocodeDate":"2024-09-18T19:07:30Z"}],"telephones":[{"createDate":"2024-08-27T19:13:04Z","updateDate":"2024-09-12T23:46:47Z","txAuditId":"c915d801-5693-4860-b2df-83baa8c3c910","sourceSystem":"VETSGOV","sourceDate":"2024-08-28T18:51:06Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2024-08-28T18:51:06Z","vaProfileId":1781151,"telephoneId":458781,"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551235","voiceMailAcceptableInd":true,"carrier":"Multiple
+        OCN Listing","classification":{"classificationCode":4,"classificationName":"OTHER"}}],"emails":[{"createDate":"2024-08-27T17:56:23Z","updateDate":"2024-09-12T21:22:57Z","txAuditId":"c3c712ea-0cfb-484b-b81e-22f11ee0dcaf","sourceSystem":"VETSGOV","sourceDate":"2024-08-27T18:51:06Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2024-08-27T18:51:06Z","vaProfileId":1781151,"emailId":318927,"emailAddressText":"person43@example.com"}]}}'
+  recorded_at: Wed, 18 Sep 2024 21:15:44 GMT
 recorded_with: VCR 6.3.1

@@ -6,6 +6,7 @@ require 'json'
 
 RSpec.describe AccreditationService do
   let(:parsed_body) { { field: 'value' } }
+  let(:user_uuid) { 'test-user-uuid' }
 
   describe '#submit_form21a' do
     context 'when the request is successful' do
@@ -13,7 +14,7 @@ RSpec.describe AccreditationService do
         stub_request(:post, 'http://localhost:5000/api/v1/accreditation/applications/form21a')
           .to_return(status: 200, body: parsed_body.to_json, headers: { 'Content-Type' => 'application/json' })
 
-        response = described_class.submit_form21a(parsed_body)
+        response = described_class.submit_form21a(parsed_body, user_uuid)
 
         expect(response.status).to eq(200)
         expect(response.body).to eq(parsed_body.stringify_keys)
@@ -21,11 +22,16 @@ RSpec.describe AccreditationService do
     end
 
     context 'when the connection fails' do
-      it 'returns a service unavailable status' do
+      it 'logs the error and returns a service unavailable status' do
         stub_request(:post, 'http://localhost:5000/api/v1/accreditation/applications/form21a')
           .to_raise(Faraday::ConnectionFailed.new('Accreditation Service connection failed'))
 
-        response = described_class.submit_form21a(parsed_body)
+        expect(Rails.logger).to receive(:error).with(
+          "Accreditation Service connection failed for user with user_uuid=#{user_uuid}: " \
+          'Accreditation Service connection failed, URL: http://localhost:5000/api/v1/accreditation/applications/form21a'
+        )
+
+        response = described_class.submit_form21a(parsed_body, user_uuid)
 
         expect(response.status).to eq(:service_unavailable)
         expect(JSON.parse(response.body)['errors']).to eq('Accreditation Service unavailable')
@@ -33,11 +39,15 @@ RSpec.describe AccreditationService do
     end
 
     context 'when the request times out' do
-      it 'returns a request timeout status' do
+      it 'logs the error and returns a request timeout status' do
         stub_request(:post, 'http://localhost:5000/api/v1/accreditation/applications/form21a')
           .to_raise(Faraday::TimeoutError.new('Request timed out'))
 
-        response = described_class.submit_form21a(parsed_body)
+        expect(Rails.logger).to receive(:error).with(
+          "Accreditation Service request timed out for user with user_uuid=#{user_uuid}: Request timed out"
+        )
+
+        response = described_class.submit_form21a(parsed_body, user_uuid)
 
         expect(response.status).to eq(:request_timeout)
         expect(JSON.parse(response.body)['errors']).to eq('Accreditation Service request timed out')

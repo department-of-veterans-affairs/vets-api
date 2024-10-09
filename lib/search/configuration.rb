@@ -23,7 +23,7 @@ module Search
     end
 
     def base_path
-      "#{Settings.search.url}/search/i14y"
+      Settings.search.url
     end
 
     def service_name

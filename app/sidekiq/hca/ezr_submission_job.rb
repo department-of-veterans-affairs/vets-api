@@ -25,6 +25,8 @@ module HCA
           error_class: 'Form1010Ezr FailedWontRetry'
         )
 
+        send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
+
         log_message_to_sentry(
           '1010EZR total failure',
           :error,
@@ -36,6 +38,24 @@ module HCA
 
     def self.decrypt_form(encrypted_form)
       JSON.parse(HealthCareApplication::LOCKBOX.decrypt(encrypted_form))
+    end
+
+    def self.send_failure_email(parsed_form)
+      email = parsed_form['email']
+      return if email.blank?
+
+      first_name = parsed_form.dig('veteranFullName', 'first')
+      template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ezr_failure_email
+      api_key = Settings.vanotify.services.health_apps_1010.api_key
+      salutation = first_name ? "Dear #{first_name}," : ''
+
+      VANotify::EmailJob.perform_async(
+        email,
+        template_id,
+        { 'salutation' => salutation },
+        api_key
+      )
+      StatsD.increment("#{STATSD_KEY_PREFIX}.submission_failure_email_sent")
     end
 
     def perform(encrypted_form, user_uuid)

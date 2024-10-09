@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 shared_examples 'supplemental document upload provider' do
-  subject { described_class.new(submission) }
+  subject { described_class.new(submission, 'My Document Type', 'my_metrics_prefix') }
 
   let(:submission) { create(:form526_submission) }
 

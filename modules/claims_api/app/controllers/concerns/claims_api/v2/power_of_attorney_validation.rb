@@ -5,15 +5,66 @@
 module ClaimsApi
   module V2
     module PowerOfAttorneyValidation
-      def validate_form_2122_and_2122a_submission_values(user_profile)
-        validate_claimant(user_profile)
+      def validate_form_2122_and_2122a_submission_values(user_profile:, veteran_participant_id: nil, poa_code: nil,
+                                                         base: nil)
+        validate_claimant_fields(user_profile)
+        if [veteran_participant_id, user_profile, poa_code, base].all?(&:present?)
+          validate_dependent_claimant(veteran_participant_id:, user_profile:, poa_code:, base:)
+        end
+
         # collect errors and pass back to the controller
         raise_error_collection if @errors
       end
 
       private
 
-      def validate_claimant(user_profile)
+      def feature_enabled_and_claimant_present?
+        Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
+      end
+
+      def validate_dependent_claimant(veteran_participant_id:, user_profile:, poa_code:, base:)
+        return nil unless feature_enabled_and_claimant_present?
+
+        service = build_dependent_claimant_verification_service(veteran_participant_id:, user_profile:,
+                                                                poa_code:)
+
+        validate_claimant(service:, base:)
+      end
+
+      def build_dependent_claimant_verification_service(veteran_participant_id:, user_profile:, poa_code:)
+        claimant = user_profile.profile
+
+        ClaimsApi::DependentClaimantVerificationService.new(veteran_participant_id:,
+                                                            claimant_first_name: claimant.given_names.first,
+                                                            claimant_last_name: claimant.family_name,
+                                                            claimant_participant_id: claimant.participant_id,
+                                                            poa_code:)
+      end
+
+      def validate_claimant(service:, base:)
+        validate_poa_code(service:, base:)
+        validate_dependent(service:)
+      end
+
+      def validate_poa_code(service:, base:)
+        service.validate_poa_code_exists!
+      rescue ::Common::Exceptions::UnprocessableEntity
+        collect_error_messages(
+          source: "/#{base}/poaCode",
+          detail: ClaimsApi::DependentClaimantVerificationService::POA_CODE_NOT_FOUND_ERROR_MESSAGE
+        )
+      end
+
+      def validate_dependent(service:)
+        service.validate_dependent_by_participant_id!
+      rescue ::Common::Exceptions::UnprocessableEntity
+        collect_error_messages(
+          source: '/claimant/claimantId',
+          detail: ClaimsApi::DependentClaimantVerificationService::CLAIMANT_NOT_A_DEPENDENT_ERROR_MESSAGE
+        )
+      end
+
+      def validate_claimant_fields(user_profile)
         return if form_attributes['claimant'].blank?
 
         validate_claimant_id_included(user_profile)
