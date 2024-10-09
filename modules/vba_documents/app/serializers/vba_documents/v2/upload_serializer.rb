@@ -4,6 +4,8 @@ require './lib/webhooks/utilities'
 module VBADocuments
   module V2
     class UploadSerializer < VBADocuments::UploadSerializer
+      set_type :document_upload
+
       attr_reader :observers
 
       attribute :status
