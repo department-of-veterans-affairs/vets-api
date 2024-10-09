@@ -18,7 +18,7 @@ describe ClaimsApi::DisabilityCompensation::DisabilityDocumentService do
     let(:veteran_name) { 'John_Smith' }
     let(:claim_id) { '600_400_688' }
     let(:form_name) { '526EZ' }
-    let(:original_filename) { 'original_filename_IRT56SX99qs.pdf' }
+    let(:original_filename) { '' }
     let(:doc_type) { 'L122' }
 
     it 'generates the correct filename for L122' do
@@ -26,31 +26,19 @@ describe ClaimsApi::DisabilityCompensation::DisabilityDocumentService do
       expect(result).to be_a String
       expect(result).to eq 'John_Smith_600_400_688_526EZ.pdf'
     end
-
-    it 'generates the correct plain language doctype for L122' do
-      result = subject.send(:doc_type_to_plain_language, doc_type)
-      expect(result).to be_a String
-      expect(result).to eq 'claim'
-    end
   end
 
   describe 'other attachments (doc_type: L023)' do
     let(:veteran_name) { 'John_Smith' }
     let(:claim_id) { '600_400_688' }
-    let(:form_name) { '' }
-    let(:original_filename) { 'original_filename' }
+    let(:form_name) { 'supporting' }
+    let(:original_filename) { 'original_filename_IRT56SX99qs.pdf' }
     let(:doc_type) { 'L023' }
 
     it 'generates the correct filename for L023' do
       result = subject.send(:generate_file_name, veteran_name:, claim_id:, form_name:, original_filename:)
       expect(result).to be_a String
-      expect(result).to eq 'John_Smith_600_400_688_origi.pdf'
-    end
-
-    it 'generates the correct plain language doctype for L023' do
-      result = subject.send(:doc_type_to_plain_language, doc_type)
-      expect(result).to be_a String
-      expect(result).to eq 'supporting'
+      expect(result).to eq 'John_Smith_600_400_688_original_filename.pdf'
     end
   end
 end

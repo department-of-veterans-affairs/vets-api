@@ -13,7 +13,7 @@ module ClaimsApi
         end
 
         body = generate_body(claim:, doc_type:, pdf_path:, original_filename:)
-        doc_type_name = doc_type_to_plain_language(doc_type)
+        doc_type_name = doc_type == 'L122' ? 'claim' : 'supporting'
         ClaimsApi::BD.new.upload_document(claim_id: claim.id, doc_type_name:, body:)
       end
 
@@ -29,7 +29,7 @@ module ClaimsApi
                                             auth_headers['va_eauth_lastName'])
         birls_file_number = auth_headers['va_eauth_birlsfilenumber']
         claim_id = claim.evss_id
-        form_name = '526EZ' if doc_type == 'L122'
+        form_name = doc_type == 'L122' ? '526EZ' : 'supporting'
         file_name = generate_file_name(veteran_name:, claim_id:, form_name:, original_filename:)
         system_name = 'VA.gov'
         tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
@@ -40,10 +40,10 @@ module ClaimsApi
 
       def generate_file_name(veteran_name:, claim_id:, form_name:, original_filename:)
         if form_name == '526EZ'
-          "#{[veteran_name, claim_id, form_name].compact_blank.join('_')}.pdf"
-        else
-          filename = get_original_supporting_doc_file_name(original_filename)
-          "#{[veteran_name, claim_id, filename].compact_blank.join('_')}.pdf"
+          build_file_name(veteran_name:, identifier: claim_id, suffix: form_name)
+        elsif form_name == 'supporting'
+          file_name = get_original_supporting_doc_file_name(original_filename)
+          build_file_name(veteran_name:, identifier: claim_id, suffix: file_name)
         end
       end
 
@@ -55,15 +55,6 @@ module ClaimsApi
         file_extension = File.extname(original_filename)
         base_filename = File.basename(original_filename, file_extension)
         base_filename[0...-12]
-      end
-
-      def doc_type_to_plain_language(doc_type)
-        case doc_type
-        when 'L122'
-          'claim'
-        else
-          'supporting'
-        end
       end
     end
   end
