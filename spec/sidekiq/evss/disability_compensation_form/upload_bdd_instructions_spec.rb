@@ -7,7 +7,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
 
   before do
     Sidekiq::Job.clear_all
-    # Explain this change
     Flipper.disable(:disability_compensation_use_api_provider_for_bdd_instructions)
   end
 
