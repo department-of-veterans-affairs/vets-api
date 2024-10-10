@@ -99,5 +99,25 @@ module Burials
       }
       Rails.logger.info('21P-530EZ submission to Sidekiq success', context)
     end
+
+    ##
+    # log process_attachments! error
+    # @see BurialClaimsController
+    #
+    # @param in_progress_form [InProgressForm]
+    # @param claim [SavedClaim::Burial]
+    # @param current_user [User]
+    #
+    def track_process_attachment_error(in_progress_form, claim, current_user)
+      StatsD.increment("#{CLAIM_STATS_KEY}.process_attachment_error")
+      context = {
+        confirmation_number: claim&.confirmation_number,
+        user_uuid: current_user&.uuid,
+        in_progress_form_id: in_progress_form&.id,
+        errors: claim&.errors&.errors,
+        statsd: "#{CLAIM_STATS_KEY}.process_attachment_error"
+      }
+      Rails.logger.error('21P-530EZ process attachment error', context)
+    end
   end
 end
