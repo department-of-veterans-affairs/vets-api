@@ -57,28 +57,26 @@ class RepresentationManagement::RswagConfig
           items: {
             type: :object,
             required: [:title],
-            properties: {
-              title: { type: :string,
-                       example: 'Unprocessable Entity' },
-              detail: { type: :string,
-                        example: 'Your request could not be processed' },
-              code: { type: :string,
-                      example: '422' },
-              status: { type: :string,
-                        example: '422' },
-              meta: {
-                type: :object,
-                properties: {
-                  exception: { type: :string,
-                               example: 'UnprocessableEntity' },
-                  backtrace: {
-                    type: :array,
-                    items: { type: :string,
-                             example: 'stack trace line' }
-                  }
-                }
-              }
-            }
+            properties: individual_detailed_error
+          }
+        }
+      }
+    }
+  end
+
+  def individual_detailed_error
+    {
+      title: { type: :string, example: 'Unprocessable Entity' },
+      detail: { type: :string, example: 'Your request could not be processed' },
+      code: { type: :string, example: '422' },
+      status: { type: :string, example: '422' },
+      meta: {
+        type: :object,
+        properties: {
+          exception: { type: :string, example: 'UnprocessableEntity' },
+          backtrace: {
+            type: :array,
+            items: { type: :string, example: 'stack trace line' }
           }
         }
       }
@@ -120,81 +118,45 @@ class RepresentationManagement::RswagConfig
               description: 'Specifies the category of Power of Attorney (POA) representation.',
               enum: %w[veteran_service_representatives veteran_service_organizations]
             },
-            attributes: {
-              type: :object,
-              properties: {
-                type: {
-                  type: :string,
-                  example: 'organization',
-                  description: 'Type of Power of Attorney representation',
-                  enum: %w[organization representative]
-                },
-                name: {
-                  type: :string,
-                  example: 'Veterans Association'
-                },
-                address_line1: {
-                  type: :string,
-                  example: '1234 Freedom Blvd'
-                },
-                address_line2: {
-                  type: :string,
-                  example: 'Suite 200'
-                },
-                address_line3: {
-                  type: :string,
-                  example: 'Building 3'
-                },
-                address_type: {
-                  type: :string,
-                  example: 'DOMESTIC'
-                },
-                city: {
-                  type: :string,
-                  example: 'Arlington'
-                },
-                country_name: {
-                  type: :string,
-                  example: 'United States'
-                },
-                country_code_iso3: {
-                  type: :string,
-                  example: 'USA'
-                },
-                province: {
-                  type: :string,
-                  example: 'VA'
-                },
-                international_postal_code: {
-                  type: :string,
-                  example: '22204'
-                },
-                state_code: {
-                  type: :string,
-                  example: 'VA'
-                },
-                zip_code: {
-                  type: :string,
-                  example: '22204'
-                },
-                zip_suffix: {
-                  type: :string,
-                  example: '1234'
-                },
-                phone: {
-                  type: :string,
-                  example: '555-1234'
-                },
-                email: {
-                  type: :string,
-                  example: 'contact@example.org'
-                }
-              },
-              required: %w[type name address_line1 city state_code zip_code]
-            }
+            attributes: power_of_attorney_attributes
           }
         }
       }
+    }
+  end
+
+  def power_of_attorney_attributes
+    {
+      type: :object,
+      properties: {
+        type: {
+          type: :string,
+          example: 'organization',
+          description: 'Type of Power of Attorney representation',
+          enum: %w[organization representative]
+        }.merge(power_of_attorney_detailed_attributes)
+      },
+      required: %w[type name address_line1 city state_code zip_code]
+    }
+  end
+
+  def power_of_attorney_detailed_attributes
+    {
+      name: { type: :string, example: 'Veterans Association' },
+      address_line1: { type: :string, example: '1234 Freedom Blvd' },
+      address_line2: { type: :string, example: 'Suite 200' },
+      address_line3: { type: :string, example: 'Building 3' },
+      address_type: { type: :string, example: 'DOMESTIC' },
+      city: { type: :string, example: 'Arlington' },
+      country_name: { type: :string, example: 'United States' },
+      country_code_iso3: { type: :string, example: 'USA' },
+      province: { type: :string, example: 'VA' },
+      international_postal_code: { type: :string, example: '22204' },
+      state_code: { type: :string, example: 'VA' },
+      zip_code: { type: :string, example: '22204' },
+      zip_suffix: { type: :string, example: '1234' },
+      phone: { type: :string, example: '555-1234' },
+      email: { type: :string, example: 'contact@example.org' }
     }
   end
 
