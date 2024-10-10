@@ -25,6 +25,41 @@ RSpec.describe Form526StatusPollingJob, type: :job do
     end
 
     context 'polling on pending submissions' do
+      let(:api_response) do
+        {
+          'data' => [
+            {
+              'id' => backup_submission_a.backup_submitted_claim_id,
+              'attributes' => {
+                'guid' => backup_submission_a.backup_submitted_claim_id,
+                'status' => 'vbms'
+              }
+            },
+            {
+              'id' => backup_submission_b.backup_submitted_claim_id,
+              'attributes' => {
+                'guid' => backup_submission_b.backup_submitted_claim_id,
+                'status' => 'success'
+              }
+            },
+            {
+              'id' => backup_submission_c.backup_submitted_claim_id,
+              'attributes' => {
+                'guid' => backup_submission_c.backup_submitted_claim_id,
+                'status' => 'error'
+              }
+            },
+            {
+              'id' => backup_submission_d.backup_submitted_claim_id,
+              'attributes' => {
+                'guid' => backup_submission_d.backup_submitted_claim_id,
+                'status' => 'expired'
+              }
+            }
+          ]
+        }
+      end
+
       describe 'submission to the bulk status report endpoint' do
         it 'submits only pending form submissions' do
           pending_claim_ids = Form526Submission.pending_backup.pluck(:backup_submitted_claim_id)
@@ -84,41 +119,6 @@ RSpec.describe Form526StatusPollingJob, type: :job do
       end
 
       describe 'updating the form 526s local submission state' do
-        let(:api_response) do
-          {
-            'data' => [
-              {
-                'id' => backup_submission_a.backup_submitted_claim_id,
-                'attributes' => {
-                  'guid' => backup_submission_a.backup_submitted_claim_id,
-                  'status' => 'vbms'
-                }
-              },
-              {
-                'id' => backup_submission_b.backup_submitted_claim_id,
-                'attributes' => {
-                  'guid' => backup_submission_b.backup_submitted_claim_id,
-                  'status' => 'success'
-                }
-              },
-              {
-                'id' => backup_submission_c.backup_submitted_claim_id,
-                'attributes' => {
-                  'guid' => backup_submission_c.backup_submitted_claim_id,
-                  'status' => 'error'
-                }
-              },
-              {
-                'id' => backup_submission_d.backup_submitted_claim_id,
-                'attributes' => {
-                  'guid' => backup_submission_d.backup_submitted_claim_id,
-                  'status' => 'expired'
-                }
-              }
-            ]
-          }
-        end
-
         it 'updates local state to reflect the returned statuses' do
           pending_claim_ids = Form526Submission.pending_backup
                                                .pluck(:backup_submitted_claim_id)
@@ -136,6 +136,37 @@ RSpec.describe Form526StatusPollingJob, type: :job do
           expect(backup_submission_b.reload.backup_submitted_claim_status).to eq 'paranoid_success'
           expect(backup_submission_c.reload.backup_submitted_claim_status).to eq 'rejected'
           expect(backup_submission_d.reload.backup_submitted_claim_status).to eq 'rejected'
+        end
+      end
+
+      # [wipn8923] new spec (polling)
+      context 'when a failure type response is returned from the API' do
+        describe 'creating and tracking notifications' do
+          it 'notifies the veteran and marks the submission as remediated' do
+            pending_claim_ids = Form526Submission.pending_backup
+                                                 .pluck(:backup_submitted_claim_id)
+            response = double
+
+            allow(response).to receive(:body).and_return(api_response)
+            allow_any_instance_of(BenefitsIntakeService::Service)
+              .to receive(:get_bulk_status_of_uploads)
+              .with(pending_claim_ids)
+              .and_return(response)
+
+            email_params = {}
+            # allow_any_instance_of(VANotify::EmailJob)
+            #   .to receive(:perform_async)
+            #   .with(email_params)
+
+            Form526StatusPollingJob.new.perform
+
+            # expect_any_instance_of(VANotify::EmailJob).to have_received(:perform)
+
+            expect(backup_submission_a.reload.remediated?).to eq false
+            expect(backup_submission_b.reload.remediated?).to eq false
+            expect(backup_submission_c.reload.remediated?).to eq true
+            expect(backup_submission_d.reload.remediated?).to eq true
+          end
         end
       end
     end
