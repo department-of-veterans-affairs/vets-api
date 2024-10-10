@@ -161,6 +161,7 @@ RSpec.describe 'V0::User', type: :request do
 
     context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', :skip_vet360 do
       before do
+        Flipper.disable(:remove_pciu)
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
         allow_any_instance_of(VAProfile::Service).to receive(:perform).and_raise(

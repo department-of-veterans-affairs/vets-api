@@ -10,6 +10,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
   describe '#save_and_await_response' do
     before do
       Flipper.disable(:va_v3_contact_information_service)
+      Flipper.disable(:remove_pciu)
     end
 
     let(:params) { build(:va_profile_address, vet360_id: user.vet360_id, validation_key: nil) }

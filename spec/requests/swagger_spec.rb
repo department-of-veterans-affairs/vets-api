@@ -34,6 +34,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
 
   Flipper.disable(:va_v3_contact_information_service)
+  Flipper.disable(:remove_pciu)
   let(:cassette_path) do
     if Flipper.enabled?(:va_v3_contact_information_service)
       'va_profile/v2/contact_information'
@@ -2243,8 +2244,9 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profiles' do
+    describe 'profiles', :skip_va_profile_user do
       Flipper.disable(:va_v3_contact_information_service)
+      Flipper.disable(:remove_pciu)
       let(:mhv_user) { create(:user, :loa3) }
 
       it 'supports getting service history data' do
@@ -2650,7 +2652,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profile/status' do
+    describe 'profile/status', :skip_va_profile_user do
       before do
         # vet360_id appears in the API request URI so we need it to match the cassette
         allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
@@ -2702,7 +2704,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profile/person/status/:transaction_id' do
+    describe 'profile/person/status/:transaction_id', :skip_va_profile_user do
       let(:user_without_vet360_id) { build(:user, :loa3) }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user_without_vet360_id, nil, true) } } }
 
@@ -2737,12 +2739,13 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profiles v2', :skip_vet360, :initiate_vaprofile do
+    describe 'profiles v2', :skip_vet360 do
       let(:vet360_id) { '1781151' }
       let(:mhv_user) { build(:user, :loa3, vet360_id:) }
 
       before do
         Flipper.enable(:va_v3_contact_information_service)
+        Flipper.enable(:remove_pciu)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
         sign_in_as(mhv_user)
       end
@@ -3013,12 +3016,13 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profile/status v2', :skip_vet360, :initiate_vaprofile do
+    describe 'profile/status v2', :skip_vet360 do
       let(:vet360_id) { '1781151' }
       let(:user) { build(:user, :loa3, vet360_id:) }
 
       before do
         Flipper.enable(:va_v3_contact_information_service)
+        Flipper.enable(:remove_pciu)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
         sign_in_as(user)
       end
@@ -3070,6 +3074,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
       before do
         Flipper.enable(:va_v3_contact_information_service)
+        Flipper.enable(:remove_pciu)
         allow_any_instance_of(User).to receive(:vet360_id).and_return('1781151')
       end
 
