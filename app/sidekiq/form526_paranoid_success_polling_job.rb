@@ -10,8 +10,7 @@ class Form526ParanoidSuccessPollingJob < BenefitsIntakeStatusPollingJob
   attr_reader :max_batch_size, :change_totals, :total_checked
 
   def initialize(max_batch_size: MAX_BATCH_SIZE)
-    @max_batch_size = max_batch_size
-    @total_checked = 0
+    super
     @change_totals = {}
   end
 

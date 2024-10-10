@@ -9,6 +9,8 @@ require 'logging/third_party_transaction'
 # TODO: Update Namespace once we are 100% done with CentralMail here
 module CentralMail
   class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job
+    POLLING_FLIPPER_KEY = :disability_526_form4142_polling_records
+
     extend Logging::ThirdPartyTransaction::MethodWrapper
 
     # this is required to make instance variables available to logs via
@@ -131,27 +133,32 @@ module CentralMail
       @lighthouse_service ||= BenefitsIntakeService::Service.new(with_upload_location: true)
     end
 
+    def payload_hash(lighthouse_service_location)
+      {
+        upload_url: lighthouse_service_location,
+        file: { file: @pdf_path, file_name: @pdf_path.split('/').last },
+        metadata: generate_metadata.to_json,
+        attachments: []
+      }
+    end
+
     def upload_to_lighthouse
       Rails.logger.info(
         'Successful Form4142 Upload Intake UUID aquired from Lighthouse',
         { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id }
       )
 
-      payload = {
-        upload_url: lighthouse_service.location,
-        file: { file: @pdf_path, file_name: @pdf_path.split('/').last },
-        metadata: generate_metadata.to_json,
-        attachments: []
-      }
-
+      payload = payload_hash(lighthouse_service.location)
       lighthouse_service.upload_doc(**payload)
 
-      polling_record = Form4142StatusPollingRecord.new(
-        submission_id:,
-        submission_class: Form526Submission.class_name,
-        benefits_intake_uuid: lighthouse_service.uuid
-      )
-      polling_record.save!
+      if Flipper.enabled?(POLLING_FLIPPER_KEY)
+        polling_record = Form4142StatusPollingRecord.new(
+          submission_id:,
+          submission_class: Form526Submission.class_name,
+          benefits_intake_uuid: lighthouse_service.uuid
+        )
+        polling_record.save!
+      end
 
       Rails.logger.info(
         'Successful Form4142 Submission to Lighthouse',

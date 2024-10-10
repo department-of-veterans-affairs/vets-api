@@ -3,12 +3,16 @@
 require 'benefits_intake_service/service'
 
 class Form526AncillaryForm4142StatusPollingJob < BenefitsIntakeStatusPollingJob
-  def initialize(max_batch_size: MAX_BATCH_SIZE)
-    @max_batch_size = max_batch_size
-    @total_handled = 0
-  end
+  POLLING_FLIPPER_KEY = :disability_526_form4142_polling_records
+  EMAIL_FLIPPER_KEY = :disability_526_form4142_polling_record_failure_email
+  OVERAL_4142_MAILER_KEY = :form526_send_4142_failure_notification
 
   def perform
+    unless Flipper.enabled?(POLLING_FLIPPER_KEY)
+      msg = "#{class_name} disabled via flipper :#{POLLING_FLIPPER_KEY}"
+      Rails.logger.info(msg)
+      return true
+    end
     Rails.logger.info('Beginning Form 526 Intake Status polling')
     submissions.in_batches(of: max_batch_size) do |batch|
       batch_ids = batch.pluck(:benefits_intake_uuid).flatten
@@ -28,6 +32,16 @@ class Form526AncillaryForm4142StatusPollingJob < BenefitsIntakeStatusPollingJob
 
   def self.pending_ids
     pending.pluck(:benefits_intake_uuid)
+  end
+
+  def send_failure_email!(status, polling_record, original_status)
+    if Flipper.enabled?(OVERALL_4142_MAILER_KEY) && Flipper.enabled?(EMAIL_FLIPPER_KEY)
+      EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(polling_record.submission_id)
+    else
+      message = "#{class_name} email disabled via flipper :#{EMAIL_FLIPPER_KEY} or :#{OVERALL_4142_MAILER_KEY}"
+      log_hash = log_detail_hash(status:, polling_record:, original_status:, message:)
+      Rails.logger.info(log_hash)
+    end
   end
 
   private
@@ -50,28 +64,26 @@ class Form526AncillaryForm4142StatusPollingJob < BenefitsIntakeStatusPollingJob
       polling_record.status = :errored
       polling_record.save!
       log_result('errored', polling_record, original_status)
+      send_failure_email!(status, polling_record, original_status)
     elsif status == 'vbms'
       polling_record.status = :success
       polling_record.save!
       log_result('success', polling_record, original_status)
     else
       Rails.logger.info(
-        'Unknown or incomplete status returned from Benefits Intake API for 526 submission',
-        status:,
-        previous_status: original_status,
-        submission_id: polling_record.submission_id,
-        lighthouse_submission: {
-          id: polling_record.benefits_intake_uuid
-        }
+        log_detail_hash(message: 'Unknown or incomplete status returned from Benefits Intake API for 526 submission',
+                        status:,
+                        polling_record:,
+                        original_status:)
       )
     end
   end
 
-  def log_details(result, polling_record, original_status)
-    info = {
+  def log_detail_hash(result:, polling_record:, original_status:, message:)
+    {
       form_id: Form526Submission::FORM_4142,
       parent_form_id: Form526Submission::FORM_526,
-      message: 'Form526 Submission, Form4142 polled status result',
+      message:,
       result:,
       previous_status: original_status,
       submission_id: polling_record.submission_id,
@@ -79,7 +91,11 @@ class Form526AncillaryForm4142StatusPollingJob < BenefitsIntakeStatusPollingJob
         id: polling_record.benefits_intake_uuid
       }
     }
-    ::Rails.logger.info(info)
+  end
+
+  def log_details(result, polling_record, original_status)
+    ::Rails.logger.info(log_detail_hash(message: 'Form526 Submission, Form4142 polled status result', result:,
+                                        polling_record:, original_status:))
   end
 
   def log_result(result, polling_record, original_status)

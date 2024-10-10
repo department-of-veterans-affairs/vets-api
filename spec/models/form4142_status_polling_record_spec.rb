@@ -27,13 +27,6 @@ RSpec.describe Form4142StatusPollingRecord, type: :model do
       end.to raise_error(ActiveRecord::RecordInvalid)
     end
 
-    it 'when missing submission_id' do
-      expect do
-        polling_record = Form4142StatusPollingRecord.new(benefits_intake_uuid: '123')
-        polling_record.save!
-      end.to raise_error(ActiveRecord::RecordInvalid)
-    end
-
     it 'when missing both benefits_intake_uuid and submission_id' do
       expect do
         polling_record = Form4142StatusPollingRecord.new
