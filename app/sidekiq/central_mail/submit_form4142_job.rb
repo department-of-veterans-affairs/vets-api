@@ -147,7 +147,7 @@ module CentralMail
       lighthouse_service.upload_doc(**payload)
 
       polling_record = Form4142StatusPollingRecord.new(
-        submission_id:, 
+        submission_id:,
         submission_class: Form526Submission.class_name,
         benefits_intake_uuid: lighthouse_service.uuid
       )

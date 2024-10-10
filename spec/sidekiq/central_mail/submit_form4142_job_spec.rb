@@ -29,7 +29,6 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     let(:evss_claim_id) { 123_456_789 }
     let(:saved_claim) { FactoryBot.create(:va526ez) }
 
-
     describe '.perform_async' do
       let(:form_json) do
         File.read('spec/support/disability_compensation_form/submissions/with_4142.json')
@@ -214,9 +213,10 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
               end
             end
           end.to change(Form4142StatusPollingRecord, :count).by(1)
-          expect(Form4142StatusPollingRecord.last.submission_id).to eq(submission.id)
-          expect(Form4142StatusPollingRecord.last.status).to eq('pending')
-
+          record = Form4142StatusPollingRecord.last
+          expect(record.submission_id).to eq(submission.id)
+          expect(record.status).to eq('pending')
+          expect(record.submission_class).to eq('Form526Submission')
         end
 
         it 'submits successfully' do

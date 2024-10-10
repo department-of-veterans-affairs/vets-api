@@ -66,7 +66,6 @@ module EVSS
 
         with_tracking('Form0781DocumentUploadFailureEmail', form526_submission.saved_claim_id, form526_submission_id) do
           notify_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
-
           email_address = form526_submission.veteran_email_address
           first_name = form526_submission.get_first_name
           date_submitted = form526_submission.format_creation_time_for_mailers

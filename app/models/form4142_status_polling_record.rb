@@ -5,6 +5,4 @@ class Form4142StatusPollingRecord < ApplicationRecord
   validates :submission_id, presence: true
 
   enum :status, { pending: 0, errored: 1, success: 2 }, default: :pending
-
-
 end
