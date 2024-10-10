@@ -62,6 +62,11 @@ module HCA
       user = User.find(user_uuid)
       parsed_form = self.class.decrypt_form(encrypted_form)
 
+      # Temporary. We need a way to test a failing form submission in staging.
+      # This will raise an error only if the flag is enabled.
+      # Will remove once we confirm the submission failure email is being sent.
+      raise if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
+
       Form1010Ezr::Service.new(user).submit_sync(parsed_form)
     rescue VALIDATION_ERROR => e
       Form1010Ezr::Service.new(nil).log_submission_failure(parsed_form)
