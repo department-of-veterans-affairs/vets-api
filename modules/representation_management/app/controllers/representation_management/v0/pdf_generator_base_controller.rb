@@ -48,45 +48,47 @@ module RepresentationManagement
       end
 
       def flatten_claimant_params(claimant_params)
-        country_code = normalize_country_code_to_alpha2(claimant_params.dig(:claimant, :address, :country))
+        claimant = claimant_params[:claimant]
+        address = claimant[:address]
+        country_code = normalize_country_code_to_alpha2(address[:country])
         {
-          claimant_first_name: claimant_params.dig(:claimant, :name, :first),
-          claimant_middle_initial: claimant_params.dig(:claimant, :name, :middle),
-          claimant_last_name: claimant_params.dig(:claimant, :name, :last),
-          claimant_date_of_birth: claimant_params.dig(:claimant, :date_of_birth),
-          claimant_relationship: claimant_params.dig(:claimant, :relationship),
-          claimant_address_line1: claimant_params.dig(:claimant, :address, :address_line1),
-          claimant_address_line2: claimant_params.dig(:claimant, :address, :address_line2),
-          claimant_city: claimant_params.dig(:claimant, :address, :city),
-          claimant_state_code: claimant_params.dig(:claimant, :address, :state_code),
+          claimant_first_name: claimant.dig(:name, :first),
+          claimant_middle_initial: claimant.dig(:name, :middle),
+          claimant_last_name: claimant.dig(:name, :last),
+          claimant_date_of_birth: claimant[:date_of_birth],
+          claimant_relationship: claimant[:relationship],
+          claimant_address_line1: address[:address_line1],
+          claimant_address_line2: address[:address_line2],
+          claimant_city: address[:city],
+          claimant_state_code: address[:state_code],
           claimant_country: country_code,
-          claimant_zip_code: claimant_params.dig(:claimant, :address, :zip_code),
-          claimant_zip_code_suffix: claimant_params.dig(:claimant, :address, :zip_code_suffix),
-          claimant_phone: claimant_params.dig(:claimant, :phone),
-          claimant_email: claimant_params.dig(:claimant, :email)
+          claimant_zip_code: address[:zip_code],
+          claimant_zip_code_suffix: address[:zip_code_suffix],
+          claimant_phone: claimant[:phone],
+          claimant_email: claimant[:email]
         }
       end
 
       def flatten_veteran_params(veteran_params)
-        country_code = normalize_country_code_to_alpha2(veteran_params.dig(:veteran, :address, :country))
-        {
-          veteran_first_name: veteran_params.dig(:veteran, :name, :first),
-          veteran_middle_initial: veteran_params.dig(:veteran, :name, :middle),
-          veteran_last_name: veteran_params.dig(:veteran, :name, :last),
-          veteran_social_security_number: veteran_params.dig(:veteran, :ssn),
-          veteran_va_file_number: veteran_params.dig(:veteran, :va_file_number),
-          veteran_date_of_birth: veteran_params.dig(:veteran, :date_of_birth),
-          veteran_service_number: veteran_params.dig(:veteran, :service_number),
-          veteran_address_line1: veteran_params.dig(:veteran, :address, :address_line1),
-          veteran_address_line2: veteran_params.dig(:veteran, :address, :address_line2),
-          veteran_city: veteran_params.dig(:veteran, :address, :city),
-          veteran_state_code: veteran_params.dig(:veteran, :address, :state_code),
+        veteran = veteran_params[:veteran]
+        address = veteran[:address]
+        country_code = normalize_country_code_to_alpha2(address[:country])
+        { veteran_first_name: veteran.dig(:name, :first),
+          veteran_middle_initial: veteran.dig(:name, :middle),
+          veteran_last_name: veteran.dig(:name, :last),
+          veteran_social_security_number: veteran[:ssn],
+          veteran_va_file_number: veteran[:va_file_number],
+          veteran_date_of_birth: veteran[:date_of_birth],
+          veteran_service_number: veteran[:service_number],
+          veteran_address_line1: address[:address_line1],
+          veteran_address_line2: address[:address_line2],
+          veteran_city: address[:city],
+          veteran_state_code: address[:state_code],
           veteran_country: country_code,
-          veteran_zip_code: veteran_params.dig(:veteran, :address, :zip_code),
-          veteran_zip_code_suffix: veteran_params.dig(:veteran, :address, :zip_code_suffix),
-          veteran_phone: veteran_params.dig(:veteran, :phone),
-          veteran_email: veteran_params.dig(:veteran, :email)
-        }
+          veteran_zip_code: address[:zip_code],
+          veteran_zip_code_suffix: address[:zip_code_suffix],
+          veteran_phone: veteran[:phone],
+          veteran_email: veteran[:email] }
       end
 
       def name_params_permitted
