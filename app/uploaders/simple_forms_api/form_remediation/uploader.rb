@@ -23,6 +23,14 @@ module SimpleFormsApi
                          .object(file_path)
                          .presigned_url(:get, expires_in: 30.minutes.to_i)
         end
+
+        def get_s3_file(from_path, to_path)
+          new_s3_resource.bucket(s3_settings.bucket)
+                         .object(from_path)
+                         .get(response_target: to_path)
+        rescue Aws::S3::Errors::NoSuchKey
+          nil
+        end
       end
 
       def size_range
