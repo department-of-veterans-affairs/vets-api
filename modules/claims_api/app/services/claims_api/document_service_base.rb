@@ -31,6 +31,10 @@ module ClaimsApi
       "#{[veteran_name, identifier, suffix].compact_blank.join('_')}.pdf"
     end
 
+    def find_pctpnt_vet_id(auth_headers, pctpnt_vet_id)
+      pctpnt_vet_id.presence || auth_headers['va_eauth_pid']
+    end
+
     private
 
     def build_body(options = {})
