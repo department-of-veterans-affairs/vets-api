@@ -823,7 +823,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    uuid: logingov_uuid,
+                    user_uuid: logingov_uuid,
                     authentication_time:
                   }
                 end
@@ -995,7 +995,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    uuid: idme_uuid,
+                    user_uuid: idme_uuid,
                     authentication_time:
                   }
                 end
@@ -1129,7 +1129,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  uuid: backing_idme_uuid,
+                  user_uuid: backing_idme_uuid,
                   authentication_time:
                 }
               end
@@ -1278,7 +1278,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  uuid: backing_idme_uuid,
+                  user_uuid: backing_idme_uuid,
                   authentication_time:
                 }
               end

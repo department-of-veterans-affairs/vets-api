@@ -10,16 +10,20 @@ module ClaimsApi
         FORM_NUMBER = 'POA_REQUEST'
 
         def request_representative
+          # validate target veteran exists
           target_veteran
-          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile)
+
+          poa_code = form_attributes.dig('poa', 'poaCode')
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile:)
+
           validate_json_schema(FORM_NUMBER)
           validate_accredited_representative(form_attributes.dig('poa', 'registrationNumber'),
-                                             form_attributes.dig('poa', 'poaCode'))
-          validate_accredited_organization(form_attributes.dig('poa', 'poaCode'))
+                                             poa_code)
+          validate_accredited_organization(poa_code)
 
           # if we get here, the only errors not raised are form value validation errors
           if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
 

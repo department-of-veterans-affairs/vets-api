@@ -25,10 +25,12 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     end
   end
 
-  describe '#index when "cst_include_ddl_boa_letters" is enabled and "cst_include_ddl_5103_letters" is disabled' do
+  describe '#index when "cst_include_ddl_boa_letters" is enabled
+  and "cst_include_ddl_5103_letters" and "cst_include_ddl_sqd_letters" are disabled' do
     before do
       Flipper.enable(:cst_include_ddl_boa_letters)
       Flipper.disable(:cst_include_ddl_5103_letters)
+      Flipper.disable(:cst_include_ddl_sqd_letters)
     end
 
     it 'lists correct documents' do
@@ -40,10 +42,12 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     end
   end
 
-  describe '#index when "cst_include_ddl_5103_letters" is enabled and "cst_include_ddl_boa_letters" is disabled' do
+  describe '#index when "cst_include_ddl_5103_letters" is enabled
+  and "cst_include_ddl_boa_letters" and "cst_include_ddl_sqd_letters" are disabled' do
     before do
       Flipper.enable(:cst_include_ddl_5103_letters)
       Flipper.disable(:cst_include_ddl_boa_letters)
+      Flipper.disable(:cst_include_ddl_sqd_letters)
     end
 
     it 'lists correct documents' do
@@ -55,10 +59,29 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     end
   end
 
-  describe '#index when "cst_include_ddl_5103_letters" and "cst_include_ddl_boa_letters" feature flags are disabled' do
+  describe '#index when "cst_include_ddl_sqd_letters" is enabled
+  and "cst_include_ddl_boa_letters" and "cst_include_ddl_5103_letters" are disabled' do
     before do
       Flipper.disable(:cst_include_ddl_5103_letters)
       Flipper.disable(:cst_include_ddl_boa_letters)
+      Flipper.enable(:cst_include_ddl_sqd_letters)
+    end
+
+    it 'lists correct documents' do
+      get(:index)
+      letters = JSON.parse(response.body)
+      allowed_letters = letters.select { |d| %w[184 34 408 700 859 864 942 1605].include?(d['doc_type']) }
+
+      expect(allowed_letters.length).to eql(letters.length)
+    end
+  end
+
+  describe '#index when "cst_include_ddl_5103_letters", "cst_include_ddl_boa_letters",
+  and "cst_include_ddl_sqd_letters" feature flags are disabled' do
+    before do
+      Flipper.disable(:cst_include_ddl_5103_letters)
+      Flipper.disable(:cst_include_ddl_boa_letters)
+      Flipper.disable(:cst_include_ddl_sqd_letters)
     end
 
     it 'lists correct documents' do
@@ -97,6 +120,7 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     before do
       Flipper.enable(:cst_include_ddl_5103_letters)
       Flipper.enable(:cst_include_ddl_boa_letters)
+      Flipper.enable(:cst_include_ddl_sqd_letters)
       allow(Rails.logger).to receive(:info)
     end
 
@@ -105,27 +129,41 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
       expect(Rails.logger)
         .to have_received(:info)
         .with('DDL Document Types Metadata',
-              { message_type: 'ddl.doctypes_metadata',
-                document_type_metadata: [
-                  { doc_type: '27',
-                    type_description: 'Board Of Appeals Decision Letter' },
-                  { doc_type: '858',
-                    type_description: 'Custom 5103 Notice' },
-                  { doc_type: '706',
-                    type_description: '5103/DTA Letter' },
-                  { doc_type: '184',
-                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
-                  { doc_type: '184',
-                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
-                  { doc_type: '184',
-                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
-                  { doc_type: '704',
-                    type_description: 'Standard 5103 Notice' },
-                  { doc_type: '184',
-                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
-                  { doc_type: '184',
-                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' }
-                ] })
+              message_type: 'ddl.doctypes_metadata',
+              document_type_metadata: contain_exactly(
+                { doc_type: '27',
+                  type_description: 'Board Of Appeals Decision Letter' },
+                { doc_type: '864',
+                  type_description: 'General Records Request (Medical)' },
+                { doc_type: '859',
+                  type_description: 'Subsequent Development letter' },
+                { doc_type: '700',
+                  type_description: 'MAP-D Development letter' },
+                { doc_type: '408',
+                  type_description: 'VA Examination Letter' },
+                { doc_type: '34',
+                  type_description: 'Correspondence' },
+                { doc_type: '858',
+                  type_description: 'Custom 5103 Notice' },
+                { doc_type: '1605',
+                  type_description: 'General Records Request (Non-Medical)' },
+                { doc_type: '942',
+                  type_description: 'Final Attempt Letter' },
+                { doc_type: '706',
+                  type_description: '5103/DTA Letter' },
+                { doc_type: '184',
+                  type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                { doc_type: '184',
+                  type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                { doc_type: '184',
+                  type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                { doc_type: '704',
+                  type_description: 'Standard 5103 Notice' },
+                { doc_type: '184',
+                  type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                { doc_type: '184',
+                  type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' }
+              ))
     end
   end
 end

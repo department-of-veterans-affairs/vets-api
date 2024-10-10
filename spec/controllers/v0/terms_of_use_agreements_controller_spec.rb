@@ -23,46 +23,6 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
     allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile_response)
   end
 
-  describe 'GET #current_status' do
-    subject { get :current_status, params: { icn: } }
-
-    it 'returns ok status' do
-      subject
-      expect(response).to have_http_status(:ok)
-    end
-
-    context 'when a terms of use agreement exists for the authenticated user' do
-      let!(:terms_of_use_acceptance) do
-        create(:terms_of_use_agreement, user_account:, response: terms_response, agreement_version:)
-      end
-
-      context 'and terms of use agreement has been accepted' do
-        let(:terms_response) { 'accepted' }
-
-        it 'returns accepted status' do
-          subject
-          expect(JSON.parse(response.body)['agreement_status']).to eq(terms_response)
-        end
-      end
-
-      context 'and terms of use agreement has been declined' do
-        let(:terms_response) { 'declined' }
-
-        it 'returns declined status' do
-          subject
-          expect(JSON.parse(response.body)['agreement_status']).to eq(terms_response)
-        end
-      end
-    end
-
-    context 'when a terms of use agreement does not exist for the authenticated user' do
-      it 'returns nil status' do
-        subject
-        expect(JSON.parse(response.body)['agreement_status']).to eq(nil)
-      end
-    end
-  end
-
   describe 'GET #latest' do
     subject { get :latest, params: { version: agreement_version, terms_code: } }
 
@@ -96,7 +56,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
     end
 
     context 'when user is authenticated with a sign in service cookie' do
-      let(:access_token_object) { create(:access_token, user_uuid: user.uuid) }
+      let(:access_token_object) { create(:access_token, user_uuid: user.uuid, session_handle: user.session_handle) }
       let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
 
       before do

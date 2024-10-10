@@ -27,7 +27,10 @@ module SearchTypeahead
     #
     def suggestions
       with_monitoring do
-        Faraday.get(suggestions_url, query_params)
+        Faraday.get(suggestions_url, query_params) do |req|
+          req.options.timeout = 2
+          req.options.open_timeout = 2
+        end
       end
     rescue => e
       e

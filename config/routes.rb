@@ -22,13 +22,17 @@ Rails.application.routes.draw do
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
 
-  get '/sign_in/openid_connect/certs' => 'sign_in/openid_connect_certificates#index'
+  namespace :sign_in do
+    get '/openid_connect/certs', to: 'openid_connect_certificates#index'
 
-  unless Settings.vsp_environment == 'production'
-    namespace :sign_in do
-      resources :client_configs
-      resources :service_account_configs
+    unless Settings.vsp_environment == 'production'
+      resources :client_configs, param: :client_id
+      resources :service_account_configs, param: :service_account_id
     end
+  end
+
+  namespace :sts do
+    get '/terms_of_use/current_status', to: 'terms_of_use#current_status'
   end
 
   namespace :v0, defaults: { format: 'json' } do
@@ -91,12 +95,13 @@ Rails.application.routes.draw do
 
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
-    resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
 
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
+      resource :mhv_user_account, only: [:show], controller: 'user/mhv_user_accounts'
     end
+
     resource :veteran_onboarding, only: %i[show update]
 
     resource :education_benefits_claims, only: %i[create show] do
@@ -118,8 +123,12 @@ Rails.application.routes.draw do
     resource :hca_attachments, only: :create
     resource :form1010_ezr_attachments, only: :create
 
-    resources :caregivers_assistance_claims, only: :create
-    post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
+    resources :caregivers_assistance_claims, only: :create do
+      collection do
+        get(:facilities)
+        post(:download_pdf)
+      end
+    end
 
     namespace :form1010cg do
       resources :attachments, only: :create
@@ -133,10 +142,7 @@ Rails.application.routes.draw do
 
     resources :dependents_verifications, only: %i[create index]
 
-    if Settings.central_mail.upload.enabled
-      resources :pension_claims, only: %i[create show]
-      resources :burial_claims, only: %i[create show]
-    end
+    resources :burial_claims, only: %i[create show] if Settings.central_mail.upload.enabled
 
     post 'form0969', to: 'income_and_assets_claims#create'
     get 'form0969', to: 'income_and_assets_claims#show'
@@ -168,8 +174,6 @@ Rails.application.routes.draw do
     resource :rated_disabilities_discrepancies, only: %i[show]
 
     namespace :virtual_agent do
-      get 'claim', to: 'virtual_agent_claim#index'
-      get 'claim/:id', to: 'virtual_agent_claim#show'
       get 'claims', to: 'virtual_agent_claim_status#index'
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
@@ -213,16 +217,6 @@ Rails.application.routes.draw do
     end
 
     resources :appeals, only: :index
-
-    namespace :higher_level_reviews do
-      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
-    end
-    resources :higher_level_reviews, only: %i[create show]
-
-    namespace :notice_of_disagreements do
-      get 'contestable_issues', to: 'contestable_issues#index'
-    end
-    resources :notice_of_disagreements, only: %i[create show]
 
     scope :messaging do
       scope :health do
@@ -300,9 +294,6 @@ Rails.application.routes.draw do
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
-      namespace :direct_deposits do
-        resource :disability_compensations, only: %i[show update]
-      end
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do
@@ -333,15 +324,9 @@ Rails.application.routes.draw do
       resources :communication_preferences, only: %i[index create update]
       resources :contacts, only: %i[index]
 
-      resources :ch33_bank_accounts, only: %i[index]
-      put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
     end
-
-    get '/account_controls/credential_index', to: 'account_controls#credential_index'
-    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
-    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
 
     resources :search, only: :index
     resources :search_typeahead, only: :index
@@ -422,6 +407,8 @@ Rails.application.routes.draw do
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
+
+    resource :decision_review_evidence, only: :create
 
     namespace :higher_level_reviews do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'

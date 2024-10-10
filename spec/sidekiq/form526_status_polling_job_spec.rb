@@ -24,92 +24,10 @@ RSpec.describe Form526StatusPollingJob, type: :job do
       create(:form526_submission, :backup_path, :backup_rejected)
     end
 
-    context 'polling on parnoid success type submissions' do
-      let(:api_response) do
-        {
-          'data' => [
-            {
-              'id' => paranoid_submission_a.backup_submitted_claim_id,
-              'attributes' => {
-                'guid' => paranoid_submission_a.backup_submitted_claim_id,
-                'status' => 'success'
-              }
-            },
-            {
-              'id' => paranoid_submission_b.backup_submitted_claim_id,
-              'attributes' => {
-                'guid' => paranoid_submission_b.backup_submitted_claim_id,
-                'status' => 'processing'
-              }
-            },
-            {
-              'id' => paranoid_submission_c.backup_submitted_claim_id,
-              'attributes' => {
-                'guid' => paranoid_submission_c.backup_submitted_claim_id,
-                'status' => 'error'
-              }
-            }
-          ]
-        }
-      end
-
-      describe 'submission to the bulk status report endpoint' do
-        it 'submits only paranoid_success form submissions' do
-          paranoid_claim_ids = Form526Submission.paranoid_success_type.pluck(:backup_submitted_claim_id)
-          response = double
-          allow(response).to receive(:body).and_return(api_response)
-          allow_any_instance_of(BenefitsIntakeService::Service)
-            .to receive(:get_bulk_status_of_uploads)
-            .with(paranoid_claim_ids)
-            .and_return(response)
-
-          expect(paranoid_claim_ids).to contain_exactly(
-            paranoid_submission_a.backup_submitted_claim_id,
-            paranoid_submission_b.backup_submitted_claim_id,
-            paranoid_submission_c.backup_submitted_claim_id
-          )
-
-          expect_any_instance_of(BenefitsIntakeService::Service)
-            .to receive(:get_bulk_status_of_uploads)
-            .with(paranoid_claim_ids)
-            .and_return(response)
-
-          Form526StatusPollingJob.new(paranoid: true).perform
-        end
-      end
-
-      describe 'updating changed states' do
-        it 'updates paranoid submissions to their correct state' do
-          paranoid_claim_ids = Form526Submission.paranoid_success_type.pluck(:backup_submitted_claim_id)
-          response = double
-          allow(response).to receive(:body).and_return(api_response)
-          allow_any_instance_of(BenefitsIntakeService::Service)
-            .to receive(:get_bulk_status_of_uploads)
-            .with(paranoid_claim_ids)
-            .and_return(response)
-
-          expect(paranoid_claim_ids).to contain_exactly(
-            paranoid_submission_a.backup_submitted_claim_id,
-            paranoid_submission_b.backup_submitted_claim_id,
-            paranoid_submission_c.backup_submitted_claim_id
-          )
-
-          Form526StatusPollingJob.new(paranoid: true).perform
-          paranoid_submission_a.reload
-          paranoid_submission_b.reload
-          paranoid_submission_c.reload
-
-          expect(paranoid_submission_a.backup_submitted_claim_status).to eq 'paranoid_success'
-          expect(paranoid_submission_b.backup_submitted_claim_status).to eq nil
-          expect(paranoid_submission_c.backup_submitted_claim_status).to eq 'rejected'
-        end
-      end
-    end
-
     context 'polling on pending submissions' do
       describe 'submission to the bulk status report endpoint' do
         it 'submits only pending form submissions' do
-          pending_claim_ids = Form526Submission.pending_backup_submissions.pluck(:backup_submitted_claim_id)
+          pending_claim_ids = Form526Submission.pending_backup.pluck(:backup_submitted_claim_id)
           response = double
           allow(response).to receive(:body).and_return({ 'data' => [] })
 
@@ -158,8 +76,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
             .with(
               'Error processing 526 Intake Status batch',
               class: 'Form526StatusPollingJob',
-              message:,
-              paranoid: false
+              message:
             )
           expect(Rails.logger)
             .not_to have_received(:info).with('Form 526 Intake Status polling complete')
@@ -203,7 +120,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
         end
 
         it 'updates local state to reflect the returned statuses' do
-          pending_claim_ids = Form526Submission.pending_backup_submissions
+          pending_claim_ids = Form526Submission.pending_backup
                                                .pluck(:backup_submitted_claim_id)
           response = double
 

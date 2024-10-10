@@ -15,6 +15,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Flipper.disable(:disability_526_classifier_new_claims)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_526_classifier_multi_contention)
+    Flipper.disable(:disability_compensation_production_tester)
+    Flipper.disable(:disability_compensation_fail_submission)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -67,6 +69,16 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       expect do
         described_class.drain
       end.to raise_error(error_class).and not_change(backup_klass.jobs, :size)
+    end
+
+    def expect_non_retryable_error
+      subject.perform_async(submission.id)
+      expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
+      expect(Form526JobStatus).to receive(:upsert).thrice
+      expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to(
+        receive(:non_retryable_error_handler).and_call_original
+      )
+      described_class.drain
     end
 
     context 'with contention classification enabled' do
@@ -447,6 +459,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                  submit_endpoint: 'claims_api')
         end
 
+        let(:headers) { { 'content-type' => 'application/json' } }
+
         before do
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
         end
@@ -457,6 +471,49 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:success]
           submission.reload
           expect(submission.submitted_claim_id).to eq(Form526JobStatus.last.submission.submitted_claim_id)
+        end
+
+        it 'retries UpstreamUnprocessableEntity errors' do
+          body = { 'errors' => [{ 'status' => '422', 'title' => 'Backend Service Exception',
+                                  'detail' => 'The claim failed to establish' }] }
+
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
+            .and_raise(Faraday::UnprocessableEntityError.new(
+                         body:,
+                         status: 422,
+                         headers:
+                       ))
+          expect_retryable_error(Common::Exceptions::UpstreamUnprocessableEntity)
+        end
+
+        it 'does not retry UnprocessableEntity errors with "pointer" defined' do
+          body = { 'errors' => [{ 'status' => '422', 'title' => 'Backend Service Exception',
+                                  'detail' => 'The claim failed to establish',
+                                  'source' => { 'pointer' => 'data/attributes/' } }] }
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
+            .and_raise(Faraday::UnprocessableEntityError.new(
+                         body:, status: 422, headers:
+                       ))
+          expect_non_retryable_error
+        end
+
+        it 'does not retry UnprocessableEntity errors with "retries will fail" in detail message' do
+          body = { 'errors' => [{ 'status' => '422', 'title' => 'Backend Service Exception',
+                                  'detail' => 'The claim failed to establish. rEtries WilL fAiL.' }] }
+          allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
+            .and_raise(Faraday::UnprocessableEntityError.new(
+                         body:, status: 422, headers:
+                       ))
+          expect_non_retryable_error
+        end
+
+        Lighthouse::ServiceException::ERROR_MAP.slice(429, 499, 500, 501, 502, 503).each do |status, error_class|
+          it "throws a #{status} error if Lighthouse sends it back" do
+            allow_any_instance_of(Form526Submission).to receive(:prepare_for_evss!).and_return(nil)
+            allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
+              .and_raise(error_class.new(status:))
+            expect_retryable_error(error_class)
+          end
         end
       end
     end
@@ -638,7 +695,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           subject.perform_async(submission.id)
           expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
           expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
-                                          .and not_change(backup_klass.jobs, :size)
+            .and not_change(backup_klass.jobs, :size)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:retryable_error]
           expect(backup_klass.jobs.count).to eq(backup_jobs_count)
         end
@@ -651,7 +708,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           subject.perform_async(submission.id)
           expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
           expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
-                                          .and not_change(backup_klass.jobs, :size)
+            .and not_change(backup_klass.jobs, :size)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:retryable_error]
         end
       end

@@ -61,7 +61,7 @@ module IvcChampva
             first_name: form.first_name,
             last_name: form.last_name,
             form_number: form.form_number,
-            file_count: fetch_forms_by_uuid(form_uuid).count,
+            file_count: fetch_forms_by_uuid(form_uuid).where('file_name LIKE ?', '%supporting_doc%').count,
             pega_status: form.pega_status,
             created_at: form.created_at.strftime('%B %d, %Y')
           }

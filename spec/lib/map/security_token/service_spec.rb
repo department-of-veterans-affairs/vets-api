@@ -91,6 +91,26 @@ describe MAP::SecurityToken::Service do
         end
       end
 
+      context 'when response is not successful with a 500 error' do
+        let(:context) { { error: expected_error_message } }
+        let(:expected_error_message) { 'server_error' }
+        let(:expected_error_status) { 500 }
+        let(:expected_message) { "#{log_prefix} token failed, server error" }
+        let(:expected_error_response) do
+          "#{expected_message}, status: #{expected_error_status}, application: #{application}, " \
+            "icn: #{icn}, context: #{context}"
+        end
+        let(:expected_error) { Common::Client::Errors::ClientError }
+        let(:expected_log_values) { { status: expected_error_status, application:, icn:, context: } }
+
+        it 'raises a client error with expected message and creates a log' do
+          VCR.use_cassette('map/security_token_service_500_response') do
+            expect(Rails.logger).to receive(:error).with(expected_message, expected_log_values)
+            expect { subject }.to raise_error(expected_error, expected_error_response)
+          end
+        end
+      end
+
       context 'when request to STS times out' do
         let(:expected_error) { Common::Exceptions::GatewayTimeout }
         let(:expected_error_message) { 'Gateway timeout' }

@@ -61,7 +61,7 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
 
     describe 'when a record was manually removed from s3' do
       let(:upload_manually_removed) do
-        FactoryBot.create(:upload_submission_manually_removed, status: 'received', s3_deleted: nil,
+        FactoryBot.create(:upload_submission_manually_removed, status: 'received', s3_deleted: false,
                                                                created_at: 11.days.ago)
       end
       let(:upload_old) { FactoryBot.create(:upload_submission, status: 'received', created_at: 12.days.ago) }

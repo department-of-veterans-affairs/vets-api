@@ -31,6 +31,8 @@ RSpec.describe VANotify::IcnJob, type: :worker do
         }
       )
 
+      expect(StatsD).to receive(:increment).with('api.vanotify.icn_job.success')
+
       described_class.new.perform(icn, template_id)
     end
 
@@ -92,17 +94,17 @@ RSpec.describe VANotify::IcnJob, type: :worker do
       }
     end
 
-    it 'logs an error to the Rails console' do
-      described_class.within_sidekiq_retries_exhausted_block(msg, error) do
-        expect(Rails.logger).to receive(:error).with(
-          'VANotify::IcnJob retries exhausted',
-          {
-            job_id: 123,
-            error_class: 'RuntimeError',
-            error_message: 'an error occurred!'
-          }
-        )
-      end
+    it 'logs an error to the Rails console and increments StatsD counter' do
+      expect(Rails.logger).to receive(:error).with(
+        'VANotify::IcnJob retries exhausted',
+        {
+          job_id: 123,
+          error_class: 'RuntimeError',
+          error_message: 'an error occurred!'
+        }
+      )
+      expect(StatsD).to receive(:increment).with('sidekiq.jobs.va_notify/icn_job.retries_exhausted')
+      described_class.sidekiq_retries_exhausted_block.call(msg, error)
     end
   end
 end

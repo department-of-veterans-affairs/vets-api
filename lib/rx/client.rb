@@ -17,8 +17,14 @@ module Rx
     configuration Rx::Configuration
     client_session Rx::ClientSession
 
+    STATSD_KEY_PREFIX = 'api.mhv.rxrefill'
     CACHE_TTL = 3600 * 1 # 1 hour cache
     CACHE_TTL_ZERO = 0
+
+    def initialize(session:, upstream_request: nil)
+      @upstream_request = upstream_request
+      super(session:)
+    end
 
     def request(method, path, params = {}, headers = {}, options = {})
       super(method, path, params, headers, options)
@@ -133,7 +139,10 @@ module Rx
     # @return [Faraday::Env]
     #
     def post_refill_rxs(ids)
-      perform(:post, 'prescription/rxrefill', ids, token_headers)
+      if (result = perform(:post, 'prescription/rxrefill', ids, token_headers))
+        increment_refill(ids.size)
+      end
+      result
     end
 
     ##
@@ -146,6 +155,7 @@ module Rx
       if (result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers))
         keys = [cache_key('getactiverx'), cache_key('gethistoryrx')].compact
         Common::Collection.bust(keys) unless keys.empty?
+        increment_refill
       end
       result
     end
@@ -187,6 +197,12 @@ module Rx
       return nil if session.user_id.blank?
 
       "#{session.user_id}:#{action}"
+    end
+
+    def increment_refill(count = 1)
+      tags = []
+      tags.append("source_app:#{@upstream_request.env['SOURCE_APP']}") if @upstream_request
+      StatsD.increment("#{STATSD_KEY_PREFIX}.refills.requested", count, tags:)
     end
 
     # NOTE: After June 17, MHV will roll out an improvement that collapses these

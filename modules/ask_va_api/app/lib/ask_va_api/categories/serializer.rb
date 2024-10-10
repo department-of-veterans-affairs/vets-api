@@ -12,7 +12,9 @@ module AskVAApi
                  :display_name,
                  :parent_id,
                  :rank_order,
-                 :requires_authentication
+                 :requires_authentication,
+                 :topic_type,
+                 :contact_preferences
     end
   end
 end

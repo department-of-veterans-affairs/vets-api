@@ -55,14 +55,28 @@ module V0
         if %w[jpg jpeg png pdf].include? file_extension.downcase
           document_data = build_document_data(attachment)
 
-          response = lgy_service.post_document(payload: document_data)
-          unless response.status == 201
-            status = response.status
-            break
-          end
+          status = post_document(document_data)
+          break unless status == 201
         end
       end
-      render(json: status)
+      render(json: status, status: status == 201 ? 200 : 500)
+    end
+
+    def post_document(document_data)
+      response = lgy_service.post_document(payload: document_data)
+      response.status
+    rescue Common::Client::Errors::ClientError => e
+      # 502-503 errors happen frequently from LGY endpoint at the time of implementation
+      # and have not been corrected yet. We would like to seperate these from our monitoring for now
+      # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/90411
+      # and https://github.com/department-of-veterans-affairs/va.gov-team/issues/91111
+      if [503, 504].include?(e.status)
+        Rails.logger.info('LGY server unavailable or unresponsive',
+                          { status: e.status, messsage: e.message, body: e.body })
+      else
+        Rails.logger.error('LGY API returned error', { status: e.status, messsage: e.message, body: e.body })
+      end
+      e.status
     end
 
     def document_download

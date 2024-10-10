@@ -24,6 +24,7 @@ module V0
 
     def show
       dependents = dependent_service.get_dependents
+      dependents[:diaries] = dependency_verification_service.read_diaries
       render json: DependentsSerializer.new(dependents)
     rescue => e
       log_exception_to_sentry(e)
@@ -57,6 +58,10 @@ module V0
 
     def dependent_service
       @dependent_service ||= BGS::DependentService.new(current_user)
+    end
+
+    def dependency_verification_service
+      @dependency_verification_service ||= BGS::DependencyVerificationService.new(current_user)
     end
 
     def stats_key

@@ -7,6 +7,7 @@ FactoryBot.define do
     uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
     last_signed_in { Time.now.utc }
     fingerprint { '111.111.1.1' }
+    session_handle { SecureRandom.hex }
     transient do
       authn_context { LOA::IDME_LOA1_VETS }
       email { 'abraham.lincoln@vets.gov' }
@@ -345,6 +346,24 @@ FactoryBot.define do
 
       after(:build) do
         allow(BGS.configuration).to receive_messages(env: 'prepbepbenefits', client_ip: '10.247.35.119')
+      end
+    end
+
+    trait :api_auth_v2 do
+      vet360_id { '1781151' }
+      authn_context { LOA::IDME_LOA3_VETS }
+      sign_in do
+        {
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: 'sis',
+          client_id: SAML::URLService::MOBILE_CLIENT_ID
+        }
+      end
+      loa do
+        {
+          current: LOA::THREE,
+          highest: LOA::THREE
+        }
       end
     end
 

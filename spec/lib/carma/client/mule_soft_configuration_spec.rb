@@ -4,13 +4,37 @@ require 'rails_helper'
 require 'carma/client/mule_soft_configuration'
 
 describe CARMA::Client::MuleSoftConfiguration do
+  subject { described_class.instance }
+
+  let(:host) { 'https://www.somesite.gov' }
+
+  describe 'connection' do
+    let(:faraday) { double('Faraday::Connection') }
+
+    it 'creates a new Faraday connection with the correct base path' do
+      allow(Settings.form_10_10cg.carma.mulesoft).to receive(:host).and_return(host)
+      expect(Faraday).to receive(:new).with("#{host}/va-carma-caregiver-papi/api/")
+      subject.connection
+    end
+
+    it 'creates the connection' do
+      allow(Faraday).to receive(:new).and_yield(faraday)
+
+      expect(faraday).to receive(:use).once.with(:breakers)
+      expect(faraday).to receive(:request).once.with(:instrumentation, { name: 'CARMA::Client::MuleSoftConfiguration' })
+      expect(faraday).to receive(:adapter).once.with(Faraday.default_adapter)
+
+      subject.connection
+    end
+  end
+
   describe 'id and secret' do
     before do
       allow(Settings.form_10_10cg.carma.mulesoft).to receive_messages(client_id: fake_id, client_secret: fake_secret)
     end
 
     context 'have values' do
-      subject { described_class.instance.base_request_headers }
+      subject { super().base_request_headers }
 
       let(:fake_id) { 'BEEFCAFE1234' }
       let(:fake_secret) { 'C0FFEEFACE4321' }
@@ -24,8 +48,12 @@ describe CARMA::Client::MuleSoftConfiguration do
     end
   end
 
+  it 'returns class name as service_name' do
+    expect(subject.service_name).to eq('CARMA::Client::MuleSoftConfiguration')
+  end
+
   describe 'timeout' do
-    subject { described_class.instance.timeout }
+    subject { super().timeout }
 
     context 'has a configured value' do
       before do
@@ -48,11 +76,19 @@ describe CARMA::Client::MuleSoftConfiguration do
     end
   end
 
+  describe 'settings' do
+    let(:expected_settings) { 'my_fake_settings_value' }
+
+    before do
+      allow(Settings.form_10_10cg.carma).to receive(:mulesoft).and_return(expected_settings)
+    end
+
+    it 'returns expected settings path' do
+      expect(subject.settings).to eq(expected_settings)
+    end
+  end
+
   describe 'base_path' do
-    subject { described_class.instance }
-
-    let(:host) { 'https://www.somesite.gov' }
-
     before do
       allow(Settings.form_10_10cg.carma.mulesoft).to receive(:host).and_return(host)
     end

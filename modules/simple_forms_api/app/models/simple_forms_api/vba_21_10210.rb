@@ -34,20 +34,20 @@ module SimpleFormsApi
     end
 
     def desired_stamps
-      [{ coords: [50, 160], text: data['statement_of_truth_signature'], page: 2 }]
+      [{ coords: [50, 195], text: data['statement_of_truth_signature'], page: 2 }]
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(timestamp = Time.current)
       [
         {
-          coords: [460, 710],
+          coords: [452, 690],
           text: 'Application Submitted:',
           page: 0,
           font_size: 12
         },
         {
-          coords: [460, 690],
-          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          coords: [452, 670],
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: 0,
           font_size: 12
         }

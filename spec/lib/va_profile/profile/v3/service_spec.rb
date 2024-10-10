@@ -60,8 +60,10 @@ describe VAProfile::Profile::V3::Service do
     let(:va_profile_tx_audit_id) do
       cassette_data['http_interactions'][0]['response']['headers']['Vaprofiletxauditid'][0]
     end
+    let(:code) { 'MVI203' }
     let(:debug_data) do
       {
+        code:,
         status:,
         message:,
         va_profile_tx_audit_id:
@@ -96,6 +98,7 @@ describe VAProfile::Profile::V3::Service do
       let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_404' }
       let(:status) { 404 }
       let(:message) { 'MVI201 MviNotFound The person with the identifier requested was not found in MVI.' }
+      let(:code) { 'MVI201' }
 
       it 'includes messages received from the api' do
         response = subject.get_health_benefit_bio
@@ -113,23 +116,9 @@ describe VAProfile::Profile::V3::Service do
     context '500 response' do
       let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
       let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_500' }
-      let(:status) { 500 }
-      let(:message) do
-        result = 'MVI203 MviResponseError MVI returned acknowledgement error code '
-        result += 'AE with error detail: More Than One Active Correlation Exists'
-        result
-      end
 
-      it 'includes messages recieved from the api' do
-        response = subject.get_health_benefit_bio
-        expect(response.status).to eq(500)
-        expect(response.contacts.size).to eq(0)
-        expect(response.messages.size).to eq(1)
-      end
-
-      it 'calls Sentry.set_extras' do
-        expect(Sentry).to receive(:set_extras).once.with(debug_data)
-        subject.get_health_benefit_bio
+      it 'raises an error' do
+        expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::BackendServiceException)
       end
     end
 

@@ -41,6 +41,10 @@ RSpec.describe SchoolCertifyingOfficialsMailer, type: [:mailer] do
         expect(subject.body.raw_source).to include('and exclude in-progress credits):')
         expect(subject.body.raw_source).to include('Total required credits for STEM degree program')
       end
+
+      it 'includes the correct stem link' do
+        expect(subject.body.raw_source).to include('https://www.va.gov/resources/approved-fields-of-study-for-the-stem-scholarship?utm_source=confirmation_email&utm_medium=email&utm_campaign=stem_approved_programs')
+      end
     end
   end
 end

@@ -37,6 +37,7 @@ module Vye
     end
 
     def activate!
+      user_info_count = 0
       Rails.logger.info "#{self.class.name}: proceeding with activation"
       transaction do
         old = self.class.find_by(is_active: true)
@@ -50,10 +51,11 @@ module Vye
 
         update!(is_active: true)
         # rubocop:disable Rails/SkipsModelValidations
-        UserInfo.where(bdn_clone_id: id).update_all(bdn_clone_active: true)
+        user_info_count = UserInfo.where(bdn_clone_id: id).update_all(bdn_clone_active: true)
         # rubocop:enable Rails/SkipsModelValidations
       end
-      Rails.logger.info "#{self.class.name}: activation complete"
+      Rails.logger.info "#{self.class.name}: activation complete with #{user_info_count} user_info records"
+      user_info_count
     rescue
       Rails.logger.error "#{self.class.name}: there was a problem during activation"
       raise

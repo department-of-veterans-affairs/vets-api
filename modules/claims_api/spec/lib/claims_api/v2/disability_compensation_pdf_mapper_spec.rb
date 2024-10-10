@@ -151,10 +151,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         state = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:state]
         expect(number_and_street).to eq('1234 Couch Street Unit 4 Room 1')
         expect(apartment_or_unit_number).to eq(nil)
-        expect(city).to eq('Portland')
+        expect(city).to eq('Schenectady')
         expect(country).to eq('US')
-        expect(zip).to eq('41726-1234')
-        expect(state).to eq('OR')
+        expect(zip).to eq('12345-1234')
+        expect(state).to eq('NY')
       end
 
       it 'maps the other veteran info' do
@@ -213,13 +213,13 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       context 'international address' do
         it 'maps the address to overflow' do
           form_attributes['veteranIdentification']['mailingAddress']['country'] = 'Afghanistan'
-          form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = 'asdf1234'
+          form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '151-8557'
           form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = nil
           form_attributes['veteranIdentification']['mailingAddress']['zipLastFour'] = nil
           mapper.map_claim
           zip = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:zip]
 
-          expect(zip).to eq('asdf1234')
+          expect(zip).to eq('151-8557')
         end
       end
     end
@@ -243,10 +243,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(type_of_addr_change).to eq('TEMPORARY')
         expect(number_and_street).to eq('10 Peach St Unit 4 Room 1')
         expect(apartment_or_unit_number).to eq(nil)
-        expect(city).to eq('Atlanta')
+        expect(city).to eq('Schenectady')
         expect(country).to eq('US')
-        expect(zip).to eq('42220-9897')
-        expect(state).to eq('GA')
+        expect(zip).to eq('12345-9897')
+        expect(state).to eq('NY')
       end
     end
 
@@ -276,6 +276,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       end
 
       it 'maps the homeless_point_of_contact' do
+        form_attributes['homeless'].delete('isAtRiskOfBecomingHomeless')
+        form_attributes['homeless'].delete('isCurrentlyHomeless')
         mapper.map_claim
 
         homeless_point_of_contact = pdf_data[:data][:attributes][:homelessInformation][:pointOfContact]
@@ -539,53 +541,51 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       it 'maps the attributes correctly' do
         mapper.map_claim
 
-        claim_info = pdf_data[:data][:attributes][:claimInformation]
-
-        name = claim_info[:disabilities][0][:disability]
-        relevance = claim_info[:disabilities][0][:serviceRelevance]
-        date = claim_info[:disabilities][0][:approximateDate]
-        event = claim_info[:disabilities][0][:exposureOrEventOrInjury]
-        attribut_count = claim_info[:disabilities][0].count
-        secondary_name = claim_info[:disabilities][1][:disability]
-        secondary_event = claim_info[:disabilities][1][:exposureOrEventOrInjury]
-        secondary_relevance = claim_info[:disabilities][1][:serviceRelevance]
-        has_conditions = pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures]
-        yyyy_date_format = claim_info[:disabilities][2][:approximateDate]
-
-        expect(has_conditions).to eq('YES')
-        expect(name).to eq('Traumatic Brain Injury')
-        expect(relevance).to eq('ABCDEFG')
-        expect(date).to eq('03/11/2018')
-        expect(yyyy_date_format).to eq('2015')
-        expect(event).to eq('EXPOSURE')
-        expect(attribut_count).to eq(4)
-        expect(secondary_name).to eq('Cancer - Musculoskeletal - Elbow')
-        expect(secondary_event).to eq('EXPOSURE')
-        expect(secondary_relevance).to eq('ABCDEFG')
-      end
-
-      it 'maps the secondary disability name to the primary disability correctly' do
-        disability_name = form_attributes['disabilities'][0]['name']
-        secondary_disability_name = form_attributes['disabilities'][0]['secondaryDisabilities'][0]['name']
-        sd_label = "#{secondary_disability_name} secondary to: #{disability_name}"
-
-        mapper.map_claim
-
-        claim_info = pdf_data[:data][:attributes][:claimInformation]
-
-        secondary_disability_label = claim_info[:disabilities][3][:disability]
-
-        expect(secondary_disability_label).to eq(sd_label)
-      end
-    end
-
-    context '526 section 5, claim info: disabilities, & has conditions attribute' do
-      it 'maps the has_condition related to exposure method correctly' do
-        mapper.map_claim
-
+        mapped_disabilities = pdf_data[:data][:attributes][:claimInformation][:disabilities]
+        primary_disabilities = auto_claim['data']['attributes']['disabilities']
+        has_toxic_exposure = if primary_disabilities.select do |a|
+                                  a['isRelatedToToxicExposure']
+                                end.count.positive?
+                               'YES'
+                             else
+                               'NO'
+                             end
+        accepted_fields = %w[disability approximateDate exposureOrEventOrInjury serviceRelevance].map(&:to_sym)
         has_conditions = pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures]
 
-        expect(has_conditions).to eq('YES')
+        mapped_names = mapped_disabilities.pluck(:disability).sort
+        mapped_relevance = mapped_disabilities.pluck(:serviceRelevance).sort
+        mapped_date = mapped_disabilities.pluck(:approximateDate).sort
+        mapped_exposure = mapped_disabilities.pluck(:exposureOrEventOrInjury).sort
+        mapped_keys = mapped_disabilities[0].keys
+
+        request_secondary_disabilities = primary_disabilities.pluck('secondaryDisabilities').compact
+        request_disabilities = (primary_disabilities + request_secondary_disabilities).flatten
+        secondary = primary_disabilities.select { _1['secondaryDisabilities'].present? }
+        request_primary_names = primary_disabilities.pluck('name')
+        request_secondary_names = secondary.map do |s|
+          s['secondaryDisabilities'].map do |a|
+            "#{a['name']} secondary to: #{s['name']}"
+          end
+        end.flatten
+        request_names = (request_primary_names + request_secondary_names).sort
+        request_relevance = request_disabilities.pluck('serviceRelevance').sort
+        request_date = request_disabilities.pluck('approximateDate')
+        split_dates = request_date.map do |a|
+          a.split('-')
+        end
+        converted_request_dates = split_dates.map { |a| [a[1], a[2], a[0]].compact.join('/') }.sort
+        request_exposure = request_disabilities.pluck('exposureOrEventOrInjury').sort
+
+        expect(mapped_names).to eq(request_names)
+        expect(mapped_relevance).to eq(request_relevance)
+        expect(mapped_date).to eq(converted_request_dates)
+        expect(mapped_exposure).to eq(request_exposure)
+        expect(has_conditions).to eq(has_toxic_exposure)
+        # TODO: eq is risky here as it forces ALL keys - these may be blank
+        # if the value provided is nil
+        # include was not playing nice when they matched perfectly
+        expect(accepted_fields).to eq(mapped_keys)
       end
     end
 

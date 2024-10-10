@@ -3,7 +3,6 @@
 module Mobile
   module V0
     module Adapters
-      # rubocop:disable Metrics/ClassLength
       class VAOSV2Appointment
         APPOINTMENT_TYPES = {
           va: 'VA',
@@ -90,16 +89,16 @@ module Mobile
           adapted_appointment = {
             id: appointment[:id],
             appointment_type:,
-            appointment_ien: extract_station_and_ien(appointment),
+            appointment_ien: appointment[:ien],
             cancel_id:,
-            comment:,
+            comment: appointment[:patient_comments],
             facility_id:,
             sta6aid: facility_id,
             healthcare_provider:,
-            healthcare_service: nil, # set to nil until we decide what the purpose of this field was meant to be
+            healthcare_service: nil, # set to nil because it is deprecated
             location:,
             physical_location: appointment[:physical_location],
-            minutes_duration: minutes_duration(appointment[:minutes_duration]),
+            minutes_duration: appointment[:minutes_duration],
             phone_only: appointment[:kind] == PHONE_KIND,
             start_date_local:,
             start_date_utc:,
@@ -107,7 +106,7 @@ module Mobile
             status_detail: cancellation_reason(appointment[:cancelation_reason]),
             time_zone: timezone,
             vetext_id:,
-            reason:,
+            reason: appointment[:reason_for_appointment],
             is_covid_vaccine: appointment[:service_type] == COVID_SERVICE,
             is_pending: appointment_request?,
             proposed_times:,
@@ -128,7 +127,7 @@ module Mobile
         private
 
         def appointment_request?
-          requested_periods.present?
+          appointment[:requested_periods].present?
         end
 
         # to match web behavior, prefer the value found in the practitioners list over the preferred_provider_name.
@@ -151,17 +150,6 @@ module Mobile
           end
         end
 
-        def extract_station_and_ien(appointment)
-          return nil if appointment[:identifier].nil?
-
-          regex = %r{VistADefinedTerms/409_(84|85)}
-          identifier = appointment[:identifier].find { |id| id[:system]&.match? regex }
-
-          return if identifier.nil?
-
-          identifier[:value]&.split(':', 2)&.second
-        end
-
         # this does not match the way friendly name is set for web.
         # our mocks do not match the web mocks 1:1 so different data is needed
         def friendly_location_name
@@ -171,11 +159,7 @@ module Mobile
         end
 
         def patient_phone_number
-          phone_number = if reason_code_contains_embedded_data?
-                           embedded_data[:phone]
-                         else
-                           contact(appointment.dig(:contact, :telecom), CONTACT_TYPE[:phone])
-                         end
+          phone_number = contact(appointment.dig(:contact, :telecom), CONTACT_TYPE[:phone])
 
           return nil unless phone_number
 
@@ -242,26 +226,17 @@ module Mobile
         def contact(telecom, type)
           return nil if telecom.blank?
 
-          telecom.select { |contact| contact[:type] == type }&.dig(0, :value)
+          telecom.select { |contact| contact&.try(:dig, :type) == type }&.dig(0, :value)
         end
 
         def proposed_times
-          return nil if requested_periods.nil?
+          return nil unless appointment[:requested_periods]
 
-          requested_periods.map do |period|
-            date, time = if reason_code_contains_embedded_data?
-                           period.split(' ')
-                         else
-                           start_date = time_to_datetime(period[:start])
-                           date = start_date.strftime('%m/%d/%Y')
-                           time = start_date.hour.zero? ? 'AM' : 'PM'
-                           [date, time]
-                         end
-
-            {
-              date:,
-              time:
-            }
+          appointment[:requested_periods].map do |period|
+            start_date = time_to_datetime(period[:start])
+            date = start_date.strftime('%m/%d/%Y')
+            time = start_date.hour.zero? ? 'AM' : 'PM'
+            { date:, time: }
           end
         end
 
@@ -269,22 +244,11 @@ module Mobile
           STATUSES[appointment[:status].to_sym]
         end
 
-        def requested_periods
-          @requested_periods ||= begin
-            if reason_code_contains_embedded_data?
-              date_string = embedded_data[:preferred_dates]
-              return date_string&.split(',')
-            end
-
-            appointment[:requested_periods]
-          end
-        end
-
         def start_date_utc
           @start_date_utc ||= begin
             start = appointment[:start]
             if start.nil?
-              sorted_dates = requested_periods.map do |period|
+              sorted_dates = appointment[:requested_periods].map do |period|
                 time_to_datetime(period[:start])
               end.sort
               future_dates = sorted_dates.select { |period| period > DateTime.now }
@@ -453,21 +417,6 @@ module Mobile
           { area_code: nil, number: nil, extension: nil }
         end
 
-        def healthcare_service
-          if va_appointment?
-            appointment[:service_name] || appointment[:physical_location]
-          else
-            appointment.dig(:extension, :cc_location, :practice_name)
-          end
-        end
-
-        def minutes_duration(minutes_duration)
-          # not in raw data, matches va.gov default for cc appointments
-          return 60 if appointment_type == APPOINTMENT_TYPES[:cc] && minutes_duration.nil?
-
-          minutes_duration
-        end
-
         def va_appointment?
           [APPOINTMENT_TYPES[:va],
            APPOINTMENT_TYPES[:va_video_connect_gfe],
@@ -476,49 +425,8 @@ module Mobile
            APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type)
         end
 
-        def comment
-          return embedded_data[:comment] if reason_code_contains_embedded_data?
-
-          appointment[:comment] || appointment.dig(:reason_code, :text)
-        end
-
-        def reason
-          return REASONS[embedded_data[:reason_code]] if reason_code_contains_embedded_data?
-
-          appointment.dig(:reason_code, :coding, 0, :code)
-        end
-
         def patient_email
-          return embedded_data[:email] if reason_code_contains_embedded_data?
-
           contact(appointment.dig(:contact, :telecom), CONTACT_TYPE[:email])
-        end
-
-        # the upstream server that hosts VA appointment requests (acheron) does not support some fields
-        # so the front end puts all of that data into a comment, which is returned from upstream
-        # as reason_code text. We must parse out some parts of that data. If any of those values is
-        # present, we assume it's an acheron appointment and use only acheron values for relevant attributes.
-        def reason_code_contains_embedded_data?
-          @reason_code_contains_embedded_data ||= embedded_data.values.any?
-        end
-
-        def embedded_data
-          @embedded_data ||= {
-            phone: embedded_data_match('phone number'),
-            email: embedded_data_match('email'),
-            preferred_dates: embedded_data_match('preferred dates'),
-            reason_code: embedded_data_match('reason code'),
-            comment: embedded_data_match('comments')
-          }
-        end
-
-        def embedded_data_match(key)
-          camelized_key = key.gsub(' ', '_').camelize(:lower)
-          match = reason_code_match(key) || reason_code_match(camelized_key)
-
-          return nil unless match
-
-          match[2].strip.presence
         end
 
         def reason_code_match(key)
@@ -529,7 +437,6 @@ module Mobile
           time.is_a?(DateTime) ? time : DateTime.parse(time)
         end
       end
-      # rubocop:enable Metrics/ClassLength
     end
   end
 end

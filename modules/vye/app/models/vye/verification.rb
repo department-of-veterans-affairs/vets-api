@@ -21,37 +21,41 @@ module Vye
         .order('vye_verifications.user_info_id, vye_verifications.created_at DESC')
     }
 
-    def self.report_rows
-      export_ready.each_with_object([]) do |record, result|
-        user_info = record.user_info
+    def self.each_report_row
+      return to_enum(:each_report_row) unless block_given?
 
-        result << {
-          stub_nm: user_info.stub_nm,
-          ssn: user_info.ssn,
-          transact_date: record.transact_date.strftime('%Y%m%d'),
-          rpo_code: user_info.rpo_code,
-          indicator: user_info.indicator,
-          source_ind: source_inds[record.source_ind]
-        }
+      export_ready.in_batches(of: 1000) do |batch|
+        batch.each do |record|
+          user_info = record.user_info
+
+          yield({
+            stub_nm: user_info.stub_nm,
+            td_number: user_info.td_number,
+            transact_date: record.transact_date.strftime('%Y%m%d'),
+            rpo_code: user_info.rpo_code,
+            indicator: user_info.indicator,
+            source_ind: source_inds[record.source_ind]
+          })
+        end
       end
     end
 
     REPORT_TEMPLATE =
       YAML.load(<<-END_OF_TEMPLATE).gsub(/\n/, '')
       |-
-        %7<stub_nm>s
-        %9<ssn>s
-        %8<transact_date>s
-        %3<rpo_code>s
-        %1<indicator>s
-        %1<source_ind>s
+        %-7<stub_nm>s
+        %-9<td_number>s
+        %-8<transact_date>s
+        %-3<rpo_code>s
+        %-1<indicator>s
+        %-1<source_ind>s
       END_OF_TEMPLATE
 
     private_constant :REPORT_TEMPLATE
 
     def self.write_report(io)
-      report_rows.each do |record|
-        io.puts(format(REPORT_TEMPLATE, record))
+      each_report_row do |row|
+        io.puts(format(REPORT_TEMPLATE, row))
       end
     end
   end

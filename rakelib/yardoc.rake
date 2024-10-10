@@ -1,18 +1,13 @@
 # frozen_string_literal: true
 
-desc 'run yardoc against changed files, or supplied file list'
+desc 'run yardoc against changed files'
 task yardoc: :environment do
   require 'rainbow'
-
-  # dynamically create dummy tasks to prevent rake error
-  ARGV.each { |a| task(a.to_sym {}) }
 
   head_sha = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
   base_sha = 'origin/master'
 
-  # get the glob list
-  globs = ARGV[1..]
-  globs = ['*.rb', '*.rake'] if globs.empty?
+  globs = ['*.rb']
 
   # git diff the glob list - only want to check the changed files
   globs = globs.map { |g| "'#{g}'" }.join(' ')

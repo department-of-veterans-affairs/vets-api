@@ -8,15 +8,18 @@ module AskVAApi
 
       attributes :inquiry_number,
                  :attachments,
+                 :category_name,
+                 :created_on,
                  :correspondences,
-                 :has_attachments,
                  :has_been_split,
+                 :inquiry_topic,
                  :level_of_authentication,
                  :last_update,
+                 :queue_id,
+                 :queue_name,
                  :status,
                  :submitter_question,
                  :school_facility_code,
-                 :topic,
                  :veteran_relationship
 
       attribute :correspondences do |obj|
