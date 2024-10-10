@@ -14,13 +14,13 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/apivore
-  revision: f8ccd476f6c5301f5ebe4e2dd5b30ff0e567ffc1
-  tag: v2.0.0.vsp
+  revision: 1c7d19c4a52f71a3ef07940697ad9520f1872dd6
+  tag: v2.1.0.vsp
   specs:
-    apivore (2.0.0.vsp)
+    apivore (2.1.0.vsp)
       actionpack (>= 4)
       hashie (~> 5.0)
-      json-schema (~> 4.0)
+      json-schema (~> 5.0)
       rspec (~> 3)
       rspec-expectations (~> 3.1)
       rspec-mocks (~> 3.1)
@@ -80,6 +80,17 @@ GIT
     vets_json_schema (24.4.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
+
+GIT
+  remote: https://github.com/rswag/rswag
+  revision: 7773c33bc5373f721e421ba3f4695e1eb0e239ba
+  branch: master
+  specs:
+    rswag-specs (0.0.0)
+      activesupport (>= 5.2, < 8.0)
+      json-schema (>= 2.2, < 6.0)
+      railties (>= 5.2, < 8.0)
+      rspec-core (>= 2.14)
 
 PATH
   remote: modules
@@ -590,8 +601,8 @@ GEM
     jruby-openssl (0.15.0-java)
     json (2.7.2)
     json (2.7.2-java)
-    json-schema (4.3.1)
-      addressable (>= 2.8)
+    json-schema (5.0.0)
+      addressable (~> 2.8)
     json_schemer (2.3.0)
       bigdecimal
       hana (~> 1.3)
