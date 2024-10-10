@@ -12,7 +12,7 @@ module Pensions
 
     initializer 'pensions.zero_silent_failures' do |app|
       app.config.to_prepare do
-        require_all __dir__ + '/../zero_silent_failures'
+        require_all "#{__dir__}/../zero_silent_failures"
       end
     end
 
