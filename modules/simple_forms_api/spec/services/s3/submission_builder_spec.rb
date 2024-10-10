@@ -16,7 +16,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionBuilder do
   let(:builder_instance) { described_class.new(benefits_intake_uuid:) }
   let(:filler_double) { instance_double(SimpleFormsApi::PdfFiller) }
   let(:file_path) { '/tmp/vba_21_10210-random-letters-n-numbers-tmp.pdf' }
-  let(:signature_date) { created_at.in_time_zone('America/Chicago') }
+  let(:signature_date) { submission.created_at.in_time_zone('America/Chicago') }
 
   before do
     allow(FormSubmission).to receive(:find_by).and_return(submission)
