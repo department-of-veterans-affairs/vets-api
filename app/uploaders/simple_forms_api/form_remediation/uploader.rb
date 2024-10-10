@@ -40,7 +40,7 @@ module SimpleFormsApi
       rescue Aws::S3::Errors::NoSuchKey
         nil
       rescue => e
-        handle_error('An error occured while downloading the file.', e)
+        config.handle_error('An error occured while downloading the file.', e)
       end
 
       private
