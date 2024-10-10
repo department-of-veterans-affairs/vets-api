@@ -32,7 +32,7 @@ module SimpleFormsApi
         FileUtils.mkdir_p(dir_path)
       end
 
-      def build_local_file_dir!(s3_key, dir_path, s3_dir_path)
+      def create_local_file_path(s3_key, dir_path, s3_dir_path)
         local_path = Pathname.new(s3_key).relative_path_from(Pathname.new(s3_dir_path))
         final_path = Pathname.new(dir_path).join(local_path)
 
