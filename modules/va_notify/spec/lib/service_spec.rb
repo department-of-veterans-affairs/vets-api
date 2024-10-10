@@ -79,9 +79,11 @@ describe VaNotify::Service do
     it 'calls notifications client' do
       allow(Notifications::Client).to receive(:new).and_return(notification_client)
       allow(notification_client).to receive(:send_email)
+      allow(StatsD).to receive(:increment).with('api.vanotify.send_email.success')
 
       subject.send_email(send_email_parameters)
       expect(notification_client).to have_received(:send_email).with(send_email_parameters)
+      expect(StatsD).to receive(:increment).with('api.vanotify.send_email.success')
     end
   end
 
