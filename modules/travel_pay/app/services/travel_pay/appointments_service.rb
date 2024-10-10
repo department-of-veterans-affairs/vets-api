@@ -2,6 +2,10 @@
 
 module TravelPay
   class AppointmentsService
+    def initialize(travel_pay_session)
+      @session = travel_pay_session
+    end
+
     ##
     # gets all appointments and finds the singular BTSSS appointment that matches the provided datetime
     # @params: datetime string ('2024-01-01T12:45:34.465Z')
@@ -23,7 +27,8 @@ module TravelPay
     # }
     #
     #
-    def get_appointment_by_date_time(veis_token, btsss_token, params = {})
+    def get_appointment_by_date_time(params = {})
+      @session.get_tokens => { veis_token:, btsss_token: }
       faraday_response = client.get_all_appointments(veis_token, btsss_token, { 'excludeWithClaims' => true })
       raw_appointments = faraday_response.body['data'].deep_dup
       appointment = find_by_date_time(params['appt_datetime'], raw_appointments)

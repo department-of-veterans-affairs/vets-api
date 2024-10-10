@@ -89,7 +89,7 @@ describe TravelPay::AppointmentsClient do
 
   context '/appointments' do
     before do
-      allow_any_instance_of(TravelPay::TokenService)
+      allow_any_instance_of(TravelPay::AuthenticatedSession)
         .to receive(:get_tokens)
         .and_return(*tokens)
     end

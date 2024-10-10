@@ -2,7 +2,13 @@
 
 module TravelPay
   class ClaimsService
-    def get_claims(veis_token, btsss_token, params = {})
+    def initialize(travel_pay_session)
+      @session = travel_pay_session
+    end
+
+    # def get_claims(veis_token, btsss_token, params = {})
+    def get_claims(params = {})
+      @session.get_tokens => { veis_token:, btsss_token: }
       faraday_response = client.get_claims(veis_token, btsss_token)
       raw_claims = faraday_response.body['data'].deep_dup
 
@@ -16,7 +22,7 @@ module TravelPay
       }
     end
 
-    def get_claim_by_id(veis_token, btsss_token, claim_id)
+    def get_claim_by_id(claim_id)
       # ensure claim ID is the right format, allowing any version
       uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
 
@@ -24,6 +30,7 @@ module TravelPay
         raise ArgumentError, message: "Expected claim id to be a valid UUID, got #{claim_id}."
       end
 
+      @session.get_tokens => { veis_token:, btsss_token: }
       claims_response = client.get_claims(veis_token, btsss_token)
 
       claims = claims_response.body['data']
@@ -36,7 +43,7 @@ module TravelPay
       end
     end
 
-    def create_new_claim(veis_token, btsss_token, params = {})
+    def create_new_claim(params = {})
       # ensure appt ID is the right format, allowing any version
       uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
 
@@ -50,6 +57,7 @@ module TravelPay
               message: "Expected BTSSS appointment id to be a valid UUID, got #{params['btsss_appt_id']}."
       end
 
+      @session.get_tokens => { veis_token:, btsss_token: }
       new_claim_response = client.create_claim(veis_token, btsss_token, params)
 
       new_claim_response.body
