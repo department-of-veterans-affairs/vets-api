@@ -7,12 +7,12 @@ module ClaimsApi
     #
     # @return {parameters, file}
     # rubocop:disable Metrics/ParameterLists
-    def generate_upload_body(claim_id:, system_name:, doc_type:, pdf_path:, file_name:, birls_file_number:,
+    def generate_upload_body(identifier:, system_name:, doc_type:, pdf_path:, file_name:, birls_file_number:,
                              participant_id:, tracked_item_ids:)
 
       payload = {}
 
-      data = build_body(claim_id:, system_name:, doc_type:, file_name:, participant_id:,
+      data = build_body(identifier:, system_name:, doc_type:, file_name:, participant_id:,
                         file_number: birls_file_number, tracked_item_ids:)
 
       fn = Tempfile.new('params')
