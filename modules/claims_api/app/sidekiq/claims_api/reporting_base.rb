@@ -142,22 +142,18 @@ module ClaimsApi
     end
 
     def map_transaction_ids(array)
-      # Dynamically generate unique keys like A, B, C, etc.
       transaction_mapping = {}
-      key_sequence = ('A'..'Z').to_a
-      key_index = 0
 
       # Map each unique transaction_id to a new key
-      array.each do |item|
+      array&.each do |item|
         transaction_id = item[:transaction_id]
-        unless transaction_mapping.key?(transaction_id)
-          transaction_mapping[transaction_id] = key_sequence[key_index]
-          key_index += 1
+        if !transaction_mapping.key?(transaction_id) && transaction_id.present?
+          transaction_mapping[transaction_id] = transaction_id[-5..transaction_id.length]
         end
       end
 
       # Group the array by the new keys
-      array.group_by { |item| transaction_mapping[item[:transaction_id]] }
+      array.group_by { |item| transaction_mapping[item[:transaction_id]] }.sort
     end
   end
 end
