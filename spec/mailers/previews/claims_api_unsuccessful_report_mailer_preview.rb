@@ -62,7 +62,6 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   end
 
   def call_factories
-    db_clean
     make_claims
     make_poas
     make_ews_submissions
@@ -71,40 +70,40 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   end
 
   def make_claims
-    FactoryBot.create(:auto_established_claim_v2, :errored)
-    FactoryBot.create(:auto_established_claim, :errored)
+    FactoryBot.build(:auto_established_claim_v2, :errored)
+    FactoryBot.build(:auto_established_claim, :errored)
 
-    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
-    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
-    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
-    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
+    FactoryBot.build(:auto_established_claim_va_gov, created_at: Time.zone.now)
+    FactoryBot.build(:auto_established_claim_va_gov, created_at: Time.zone.now)
+    FactoryBot.build(:auto_established_claim_va_gov, created_at: Time.zone.now)
+    FactoryBot.build(:auto_established_claim_va_gov, created_at: Time.zone.now)
 
-    FactoryBot.create(:auto_established_claim_v2, :errored)
-    FactoryBot.create(:auto_established_claim_v2, :pending)
-    FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues)
-    FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues)
-    FactoryBot.create(:auto_established_claim_with_supporting_documents)
-    FactoryBot.create(:auto_established_claim)
+    FactoryBot.build(:auto_established_claim_v2, :errored)
+    FactoryBot.build(:auto_established_claim_v2, :pending)
+    FactoryBot.build(:auto_established_claim_without_flashes_or_special_issues)
+    FactoryBot.build(:auto_established_claim_without_flashes_or_special_issues)
+    FactoryBot.build(:auto_established_claim_with_supporting_documents)
+    FactoryBot.build(:auto_established_claim)
   end
 
   def make_poas
-    FactoryBot.create(:power_of_attorney, :errored)
-    FactoryBot.create(:power_of_attorney, :errored)
-    FactoryBot.create(:power_of_attorney)
-    FactoryBot.create(:power_of_attorney)
+    FactoryBot.build(:power_of_attorney, :errored)
+    FactoryBot.build(:power_of_attorney, :errored)
+    FactoryBot.build(:power_of_attorney)
+    FactoryBot.build(:power_of_attorney)
   end
 
   def make_ews_submissions
-    FactoryBot.create(:claims_api_evidence_waiver_submission, :errored)
-    FactoryBot.create(:claims_api_evidence_waiver_submission)
-    FactoryBot.create(:claims_api_evidence_waiver_submission, :errored)
-    FactoryBot.create(:claims_api_evidence_waiver_submission)
+    FactoryBot.build(:claims_api_evidence_waiver_submission, :errored)
+    FactoryBot.build(:claims_api_evidence_waiver_submission)
+    FactoryBot.build(:claims_api_evidence_waiver_submission, :errored)
+    FactoryBot.build(:claims_api_evidence_waiver_submission)
   end
 
   def make_itfs
-    FactoryBot.create(:intent_to_file, :itf_errored)
-    FactoryBot.create(:intent_to_file, :itf_errored)
-    FactoryBot.create(:intent_to_file)
+    FactoryBot.build(:intent_to_file, :itf_errored)
+    FactoryBot.build(:intent_to_file, :itf_errored)
+    FactoryBot.build(:intent_to_file)
   end
 
   def gather_consumers
@@ -112,13 +111,5 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
     @poa_consumers = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).pluck(:cid).uniq
     @ews_consumers = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).pluck(:cid).uniq
     @itf_consumers = ClaimsApi::IntentToFile.where(created_at: @from..@to).pluck(:cid).uniq
-  end
-
-  def db_clean
-    # destroys anything created in the last 24 hours
-    ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).destroy_all
-    ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).destroy_all
-    ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).destroy_all
-    ClaimsApi::IntentToFile.where(created_at: @from..@to).destroy_all
   end
 end
