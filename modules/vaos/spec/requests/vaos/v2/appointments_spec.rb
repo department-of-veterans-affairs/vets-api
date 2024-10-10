@@ -799,6 +799,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       context 'when the VAOS service errors on retrieving an appointment' do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
+          Flipper.disable(:va_online_scheduling_vaos_alternate_route)
         end
 
         it 'returns a 502 status code' do
