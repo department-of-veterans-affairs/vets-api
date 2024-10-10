@@ -54,7 +54,7 @@ module SimpleFormsApi
         [Time.zone.today.strftime('%-m.%d.%y'), 'form', form_number, 'vagov', id].join('_')
       end
 
-      def dated_directory
+      def dated_directory_name(form_number)
         "#{Time.zone.today.strftime('%-m.%d.%y')}-Form#{form_number}"
       end
 
