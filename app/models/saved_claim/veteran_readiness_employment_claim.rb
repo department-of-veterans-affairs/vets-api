@@ -118,7 +118,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   # Common method for VRE form submission:
   # * Adds information from user to payload
   # * Submits to VBMS if participant ID is there, to Lighthouse if not.
-  # * Sends email if user is present
+  # * Sends email
   # * Sends to RES or VRE service based on flipper status
   # @param user [User] user account of submitting user
   # @return [Hash] Response payload of service that was used (RES or VRE)
@@ -137,7 +137,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
                                            @sent_to_lighthouse).deliver_later
 
-    if Flipper.enabled?(:veteran_readiness_employment_to_res)
+    if Flipper.enabled?(:veteran_readiness_employment_to_res, user)
       send_to_res(user)
     else
       send_vre_form(user)
