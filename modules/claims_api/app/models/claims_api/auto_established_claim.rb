@@ -436,7 +436,8 @@ module ClaimsApi
 
     def transformed_reserves_national_guard_service
       unit_phone = form_data&.dig('serviceInformation', 'reservesNationalGuardService', 'unitPhone')
-      unit_phone['phoneNumber'].delete!('-') if unit_phone.present? && unit_phone['phoneNumber'].include?('-')
+      unit_phone['phoneNumber'].gsub!(/[-\s]/, '') if unit_phone.present? && unit_phone['phoneNumber'].include?('-')
+      unit_phone['areaCode'].gsub!(/\s/, '') if unit_phone.present? && unit_phone['areaCode'].match?(/\s/)
     end
 
     # Legacy claimsApi code previously allowed servicePay-related service branch
