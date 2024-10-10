@@ -11,6 +11,10 @@ RSpec.describe UserSerializer do
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
+  before do
+    create(:user_verification, idme_uuid: user.idme_uuid)
+  end
+
   context 'when initialized with an object that cannot be called by each of the attributes' do
     it 'raises an error' do
       expect { serialize(user, serializer_class: described_class) }.to raise_error(NoMethodError)
