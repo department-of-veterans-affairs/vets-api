@@ -6,7 +6,7 @@ module Mobile
       skip_before_action :authenticate
 
       def download
-        if params[:last_downloaded].nil? || (Integer(params[:last_downloaded]) < file_last_changed)
+        if params[:current_version].nil? || (Integer(params[:current_version]) < file_last_changed)
           response.headers['Content-Version'] = file_last_changed
           send_file(
             file,
@@ -22,12 +22,14 @@ module Mobile
       private
 
       def file
-        Rails.root.join('modules', 'mobile', 'app', 'assets', 'translations', 'en', 'common.json')
+        @file ||= Rails.root.join('modules', 'mobile', 'app', 'assets', 'translations', 'en', 'common.json')
       end
 
       def file_last_changed
-        timestamp = `git log -1 --format='%ci' #{file}`
-        timestamp.to_datetime.to_i
+        @file_last_changed ||= begin
+          timestamp = `git log -1 --format='%ci' #{file}`
+          timestamp.to_datetime.to_i
+        end
       end
     end
   end
