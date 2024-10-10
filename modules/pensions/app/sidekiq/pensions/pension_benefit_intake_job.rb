@@ -50,6 +50,18 @@ module Pensions
     # @return [UUID] benefits intake upload uuid
     #
     def perform(saved_claim_id, user_account_uuid = nil)
+      batch = Sidekiq::Batch.new
+      batch.description = 'PensionBenefitIntakeJob and email confirmation on success'
+      batch.on(:success, self.class, :perform_main_task)
+
+      batch.jobs do
+        perform_main_task(saved_claim_id, user_account_uuid)
+      end
+    ensure
+      cleanup_file_paths
+    end
+
+    def perform_main_task(saved_claim_id, user_account_uuid)
       init(saved_claim_id, user_account_uuid)
 
       return if form_submission_pending_or_success
@@ -63,15 +75,11 @@ module Pensions
 
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
-      send_confirmation_email
-
       @intake_service.uuid
     rescue => e
       @pension_monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
       @form_submission_attempt&.fail!
       raise e
-    ensure
-      cleanup_file_paths
     end
 
     private
@@ -96,6 +104,13 @@ module Pensions
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
       @intake_service = BenefitsIntake::Service.new
+    end
+
+    ##
+    # When the perform Sidekiq::Batch is fully successful, then trigger the confirmation email
+    #
+    def on_success(_status, _options)
+      send_confirmation_email
     end
 
     ##
