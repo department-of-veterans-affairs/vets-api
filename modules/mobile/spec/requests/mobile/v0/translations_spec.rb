@@ -16,7 +16,7 @@ RSpec.describe 'Mobile::V0::Translations', type: :request do
 
     context 'when no timestamp is provided', :skip_json_api_validation do
       it 'returns file' do
-        get '/mobile/v0/translations', headers: sis_headers
+        get '/mobile/v0/translations/download', headers: sis_headers
 
         expect(response).to have_http_status(:ok)
         expect(response.headers['Content-Version']).to eq(file_last_changed)
@@ -30,7 +30,8 @@ RSpec.describe 'Mobile::V0::Translations', type: :request do
 
     context 'when timestamp is before when the translation file was last changed', :skip_json_api_validation do
       it 'returns file' do
-        get '/mobile/v0/translations', headers: sis_headers, params: { last_downloaded: file_last_changed - 10 }
+        get '/mobile/v0/translations/download', headers: sis_headers,
+                                                params: { last_downloaded: file_last_changed - 10 }
 
         expect(response).to have_http_status(:ok)
         expect(response.headers['Content-Version']).to eq(file_last_changed)
@@ -43,11 +44,11 @@ RSpec.describe 'Mobile::V0::Translations', type: :request do
     end
 
     context 'when timestamp is equal to or after when the translation file was last changed' do
-      it 'sends ok' do
-        get '/mobile/v0/translations', headers: sis_headers, params: { last_downloaded: file_last_changed }
+      it 'returns no content' do
+        get '/mobile/v0/translations/download', headers: sis_headers, params: { last_downloaded: file_last_changed }
 
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to eq(' ')
+        expect(response).to have_http_status(:no_content)
+        expect(response.body).to be_empty
       end
     end
   end

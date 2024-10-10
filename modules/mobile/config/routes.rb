@@ -81,7 +81,7 @@ Mobile::Engine.routes.draw do
     get '/push/prefs/:endpoint_sid', to: 'push_notifications#get_prefs'
     put '/push/prefs/:endpoint_sid', to: 'push_notifications#set_pref'
     post '/push/send', to: 'push_notifications#send_notification'
-    get '/translations', to: 'translations#show'
+    get '/translations/download', to: 'translations#download'
     get '/user', to: 'users#show'
     get '/user/authorized-services', to: 'authorized_services#index'
     get '/user/contact-info', to: 'contact_info#show'

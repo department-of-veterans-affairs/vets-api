@@ -5,9 +5,8 @@ module Mobile
     class TranslationsController < ApplicationController
       skip_before_action :authenticate
 
-      def show
-        last_downloaded = params[:last_downloaded]&.to_i
-        if last_downloaded.nil? || (last_downloaded < file_last_changed)
+      def download
+        if params[:last_downloaded].nil? || (Integer(params[:last_downloaded]) < file_last_changed)
           response.headers['Content-Version'] = file_last_changed
           send_file(
             file,
@@ -16,7 +15,7 @@ module Mobile
             disposition: 'attachment'
           )
         else
-          render status: :ok
+          head :no_content
         end
       end
 
