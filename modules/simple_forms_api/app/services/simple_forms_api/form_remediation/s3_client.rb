@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require 'csv'
-require 'fileutils'
 require 'simple_forms_api/form_remediation/configuration/base'
+require_relative 'file_utilities'
 
 # Built in accordance with the following documentation:
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
