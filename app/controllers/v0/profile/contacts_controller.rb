@@ -7,17 +7,54 @@ module V0
     class ContactsController < ApplicationController
       service_tag 'profile'
       before_action { authorize :vet360, :access? }
+      before_action :check_feature_enabled, only: %i[create update destroy]
 
       # GET /v0/profile/contacts
       def index
-        response = service.get_health_benefit_bio
+        response = read_service.get_health_benefit_bio
         render json: ContactSerializer.new(response.contacts), status: response.status
+      end
+
+      # POST /v0/profile/contacts
+      def create
+        # use write_service to create a record
+
+        # placeholder response
+        render json: {}, status: :created
+      end
+
+      # PUT /v0/profile/contacts
+      def update
+        # use write_service to update a record
+
+        # placeholder response. use 'status: :accepted' if data is not immediately available
+        render json: {}, status: :ok
+      end
+
+      # DELETE /v0/profile/contacts
+      def destroy
+        # use write_service to set the effectiveEndDate to delete a record
+
+        # placeholder response
+        render json: {}, status: :ok
       end
 
       private
 
-      def service
+      def read_service
         VAProfile::Profile::V3::Service.new(current_user)
+      end
+
+      def write_service
+        # VAProfile::HealthBenefit::Service.new(current_user)
+      end
+
+      def feature_enabled?
+        Flipper.enabled?(:profile_contacts_create_update_delete_enabled, current_user)
+      end
+
+      def check_feature_enabled
+        routing_error unless feature_enabled?
       end
     end
   end

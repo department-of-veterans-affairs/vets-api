@@ -3643,6 +3643,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     describe '/v0/profile/contacts' do
+      before { Flipper.enable(:profile_contacts_create_update_delete_enabled) }
+
       context 'unauthenticated user' do
         it 'returns unauthorized status code' do
           expect(subject).to validate(:get, '/v0/profile/contacts', 401)
@@ -3666,6 +3668,21 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
           end
         end
+      end
+
+      context 'post request' do
+        it 'returns 201 created status code' # pending
+        it 'returns 422 status code' # pending
+      end
+
+      context 'put request' do
+        it 'returns 200 success status (or 202 accepted) code' # pending
+        it 'returns 422 status code and validation errors' # pending
+      end
+
+      context 'delete request' do
+        it 'returns 200 success status code' # pending
+        it 'returns 422 status code' # pending
       end
     end
   end

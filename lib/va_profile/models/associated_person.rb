@@ -26,6 +26,24 @@ module VAProfile
         POWER_OF_ATTORNEY
       ].freeze
 
+      RELATIONSHIPS = [
+        'BROTHER',
+        'CHILD-IN-LAW',
+        'DAUGHTER',
+        'EXTENDED FAMILY MEMBER',
+        'FATHER',
+        'GRANDCHILD',
+        'HUSBAND',
+        'MOTHER',
+        'NIECE/NEPHEW',
+        'SISTER',
+        'SON',
+        'STEPCHILD',
+        'UNRELATED FRIEND',
+        'WARD',
+        'WIFE'
+      ].freeze
+
       attribute :contact_type, String
       attribute :given_name, Common::TitlecaseString
       attribute :middle_name, Common::TitlecaseString
