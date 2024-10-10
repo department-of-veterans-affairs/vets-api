@@ -26,16 +26,20 @@ module VaNotify
       with_monitoring do
         notify_client.send_email(args)
       end
+      StatsD.increment('api.vanotify.service_send_email.success')
     rescue => e
       handle_error(e)
+      StatsD.increment('api.vanotify.service_send_email.error')
     end
 
     def send_sms(args)
       with_monitoring do
         notify_client.send_sms(args)
       end
+      StatsD.increment('api.vanotify.service_send_sms.success')
     rescue => e
       handle_error(e)
+      StatsD.increment('api.vanotify.service_send_sms.error')
     end
 
     private
