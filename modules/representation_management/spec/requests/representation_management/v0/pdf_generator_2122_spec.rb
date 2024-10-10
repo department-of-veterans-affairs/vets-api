@@ -27,7 +27,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
               address_line2: '',
               city: 'ClaimantCity',
               state_code: 'CC',
-              country: 'US',
+              country: 'USA', # This is a 3 character country code as submitted by the frontend
               zip_code: '12345',
               zip_code_suffix: '6789'
             }
@@ -51,7 +51,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
               address_line2: '',
               city: 'VeteranCity',
               state_code: 'VC',
-              country: 'US',
+              country: 'USA', # This is a 3 character country code as submitted by the frontend
               zip_code: '98765',
               zip_code_suffix: '4321'
             }
