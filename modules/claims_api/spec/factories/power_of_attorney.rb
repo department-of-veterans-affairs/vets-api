@@ -4,7 +4,6 @@ FactoryBot.define do
   factory :power_of_attorney, class: 'ClaimsApi::PowerOfAttorney',
                               parent: :claims_api_base_factory do
     id { SecureRandom.uuid }
-
     source_data { { name: 'Abe Lincoln', icn: '123', email: '1@2.com' } }
     form_data do
       json = JSON.parse(File
