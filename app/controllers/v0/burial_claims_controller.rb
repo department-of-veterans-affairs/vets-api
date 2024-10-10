@@ -7,16 +7,6 @@ module V0
   class BurialClaimsController < ClaimsBaseController
     service_tag 'burial-application'
 
-    # an identifier that matches the parameter that the form will be set as in the JSON submission.
-    def short_name
-      'burial_claim'
-    end
-
-    # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
-    def claim_class
-      SavedClaim::Burial
-    end
-
     def show
       # TODO: update FE to no longer poll for submission, @see Pensions::ClaimsController
       claim = claim_class.find_by!(guid: params[:id])
@@ -73,6 +63,16 @@ module V0
     end
 
     private
+
+    # an identifier that matches the parameter that the form will be set as in the JSON submission.
+    def short_name
+      'burial_claim'
+    end
+
+    # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
+    def claim_class
+      SavedClaim::Burial
+    end
 
     def central_mail_submission
       CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
