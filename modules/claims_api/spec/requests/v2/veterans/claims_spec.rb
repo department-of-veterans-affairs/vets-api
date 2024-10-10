@@ -1311,7 +1311,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
           let(:claim) do
             create(
               :auto_established_claim_with_supporting_documents,
-              :status_errored,
+              :errored,
               source: 'abraham lincoln',
               veteran_icn: veteran_id,
               evss_response: [

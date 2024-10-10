@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
   let(:auto_form) { create(:auto_established_claim_va_gov, auth_headers: { some: 'data' }) }.freeze
-  let(:pending_record) { create(:auto_established_claim) }.freeze
+  let(:pending_record) { create(:auto_established_claim, :special_issues, :flashes) }.freeze
 
   describe 'encrypted attributes' do
     it 'does the thing' do
@@ -736,7 +736,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
   describe "'remove_encrypted_fields' callback" do
     context "when 'status' is 'established'" do
-      let(:auto_form) { create(:auto_established_claim, :status_established, auth_headers: { some: 'data' }) }
+      let(:auto_form) { create(:auto_established_claim, :established, auth_headers: { some: 'data' }) }
 
       context 'and the record is updated' do
         it "erases the 'form_data' attribute" do
@@ -760,7 +760,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         end
 
         it "does not erase the 'file_data' attribute" do
-          auto_form = build(:auto_established_claim, :status_established, auth_headers: { some: 'data' })
+          auto_form = build(:auto_established_claim, :established, auth_headers: { some: 'data' })
           file = Rack::Test::UploadedFile.new(
             ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
           )
