@@ -12,6 +12,7 @@ describe ClaimsApi::BD do
                                                                        tracked_items: [234, 235])
   end.freeze
   let(:claim) { create(:auto_established_claim, evss_id: 600_400_688, id: '581128c6-ad08-4b1e-8b82-c3640e829fb3') }
+  let(:body) { 'test body' }
 
   before do
     allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
@@ -25,6 +26,14 @@ describe ClaimsApi::BD do
       it 'uploads a document to BD' do
         VCR.use_cassette('claims_api/bd/upload') do
           result = subject.upload(claim:, pdf_path:, doc_type: 'L122')
+          expect(result).to be_a Hash
+          expect(result[:data][:success]).to be true
+        end
+      end
+
+      it 'uploads a document to BD using refactored #upload_document' do
+        VCR.use_cassette('claims_api/bd/upload') do
+          result = subject.upload_document(claim_id: claim.evss_id, doc_type_name: 'claim', body:)
           expect(result).to be_a Hash
           expect(result[:data][:success]).to be true
         end
