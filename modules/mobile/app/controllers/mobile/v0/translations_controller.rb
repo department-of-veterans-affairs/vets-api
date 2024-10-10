@@ -7,7 +7,8 @@ module Mobile
 
       def show
         last_downloaded = params[:last_downloaded]&.to_i
-        if last_downloaded.nil? || (last_downloaded.to_i < file_last_changed)
+        if last_downloaded.nil? || (last_downloaded < file_last_changed)
+          response.headers['Content-Version'] = file_last_changed
           send_file(
             file,
             type: 'application/json',

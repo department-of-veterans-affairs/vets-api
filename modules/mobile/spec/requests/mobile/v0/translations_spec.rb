@@ -19,6 +19,7 @@ RSpec.describe 'Mobile::V0::Translations', type: :request do
         get '/mobile/v0/translations', headers: sis_headers
 
         expect(response).to have_http_status(:ok)
+        expect(response.headers['Content-Version']).to eq(file_last_changed)
         expect(response.headers['Content-Disposition'])
           .to eq("attachment; filename=\"common.json\"; filename*=UTF-8''common.json")
         expect(response.headers['Content-Transfer-Encoding']).to eq('binary')
@@ -32,6 +33,7 @@ RSpec.describe 'Mobile::V0::Translations', type: :request do
         get '/mobile/v0/translations', headers: sis_headers, params: { last_downloaded: file_last_changed - 10 }
 
         expect(response).to have_http_status(:ok)
+        expect(response.headers['Content-Version']).to eq(file_last_changed)
         expect(response.headers['Content-Disposition'])
           .to eq("attachment; filename=\"common.json\"; filename*=UTF-8''common.json")
         expect(response.headers['Content-Transfer-Encoding']).to eq('binary')
