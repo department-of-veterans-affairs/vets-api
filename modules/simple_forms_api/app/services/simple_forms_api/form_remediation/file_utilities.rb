@@ -65,7 +65,7 @@ module SimpleFormsApi
           csv << row
         end
       rescue => e
-        config.handle_error("Failed writing manifest for submission: #{id}", e)
+        handle_error("Failed writing manifest for submission: #{id}", e)
       end
 
       private

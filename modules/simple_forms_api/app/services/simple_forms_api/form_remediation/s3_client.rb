@@ -70,7 +70,7 @@ module SimpleFormsApi
           upload_to_s3(local_path)
         end
       rescue => e
-        handle_error('Failed to update manifest', e)
+        config.handle_error('Failed to update manifest', e)
       end
 
       def s3_uploader
