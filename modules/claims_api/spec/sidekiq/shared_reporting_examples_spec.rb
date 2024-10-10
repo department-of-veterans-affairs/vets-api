@@ -51,11 +51,11 @@ RSpec.shared_examples 'shared reporting behavior' do
       itf_totals = job.itf_totals
 
       expect(itf_totals[0]['VA TurboClaim'][:submitted]).to eq(1)
-      expect(itf_totals[0]['VA TurboClaim'][:errored]).to eq(1)
+      expect(itf_totals[0]['VA TurboClaim'][:itf_errored]).to eq(1)
       expect(itf_totals[0]['VA TurboClaim'][:totals]).to eq(2)
 
       expect(itf_totals[1]['VA Connect Pro'][:submitted]).to eq(1)
-      expect(itf_totals[1]['VA Connect Pro'][:errored]).to eq(1)
+      expect(itf_totals[1]['VA Connect Pro'][:itf_errored]).to eq(1)
       expect(itf_totals[1]['VA Connect Pro'][:totals]).to eq(2)
     end
   end
@@ -64,8 +64,8 @@ RSpec.shared_examples 'shared reporting behavior' do
     with_settings(Settings.claims_api, report_enabled: true) do
       create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
       create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
-      create(:auto_established_claim_va_gov, :transaction_id_25, created_at: Time.zone.now).freeze
-      create(:auto_established_claim_va_gov, :transaction_id_25, created_at: Time.zone.now).freeze
+      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
+      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
 
       job = described_class.new
       job.perform

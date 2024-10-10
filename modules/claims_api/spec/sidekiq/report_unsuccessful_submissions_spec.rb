@@ -18,7 +18,7 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
                                 .pluck(:cid, :status, :id, :created_at)
     end
 
-    xit 'sends mail' do
+    it 'sends mail' do
       with_settings(Settings.claims_api,
                     report_enabled: true) do
         Timecop.freeze

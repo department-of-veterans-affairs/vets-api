@@ -71,16 +71,16 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   end
 
   def make_claims
-    FactoryBot.create(:auto_established_claim_v2, status: 'errored')
-    FactoryBot.create(:auto_established_claim_v2, status: 'errored')
+    FactoryBot.create(:auto_established_claim_v2, :errored)
+    FactoryBot.create(:auto_established_claim, :errored)
 
     FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
     FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
     FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
     FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
 
-    FactoryBot.create(:auto_established_claim_v2, status: 'errored')
-    FactoryBot.create(:auto_established_claim_v2, status: 'pending')
+    FactoryBot.create(:auto_established_claim_v2, :errored)
+    FactoryBot.create(:auto_established_claim_v2, :pending)
     FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues)
     FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues)
     FactoryBot.create(:auto_established_claim_with_supporting_documents)
@@ -102,9 +102,9 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   end
 
   def make_itfs
-    FactoryBot.create(:claims_api_intent_to_file, :itf_errored)
-    FactoryBot.create(:claims_api_intent_to_file, :itf_errored)
-    FactoryBot.create(:claims_api_intent_to_file)
+    FactoryBot.create(:intent_to_file, :itf_errored)
+    FactoryBot.create(:intent_to_file, :itf_errored)
+    FactoryBot.create(:intent_to_file)
   end
 
   def gather_consumers
