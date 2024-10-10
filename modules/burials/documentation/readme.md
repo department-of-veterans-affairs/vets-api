@@ -1,10 +1,10 @@
-# Pensions Documentation
+# Burials Documentation
 
 Pension & Burial Program (PBP)
 
 ## ADR
 
-The pensions team uses [ADR Tools](https://github.com/npryce/adr-tools/tree/master) to document important engineering related decisions for the vets-api repo. The goal is to capture the technical decisions our group makes so that anyone new to our team or following behind will be able to understand the reasons for the decisions.
+The PBP team uses [ADR Tools](https://github.com/npryce/adr-tools/tree/master) to document important engineering related decisions for the vets-api repo. The goal is to capture the technical decisions our group makes so that anyone new to our team or following behind will be able to understand the reasons for the decisions.
 
 Additional architectural decisions made by other teams can be found here:
 https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/tree/master/teams/benefits/architectural-decision-records
@@ -12,14 +12,12 @@ https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/tree/mas
 | Decision                                                                                                    |
 | ----------------------------------------------------------------------------------------------------------- |
 | [Use ADR to document important engineering decisions](./adr/0001-record-architecture-decisions.md)          |
-| [Move the pensions specific code to the modules folder](./adr/0002-use-modules-folder-for-pensions-code.md) |
+| [Move the burials specific code to the modules folder](./adr/0002-use-modules-folder-for-burials-code.md) |
 |                                                                                                             |
 
 ## Folder structure
 
 For more information on the Ruby on Rails directory structure, please refer to https://github.com/jwipeout/rails-directory-structure-guide
-
-#### June 2024
 
 The current folder structure generally follows the default directory structure that **Ruby on Rails** comes with.
 
@@ -43,18 +41,6 @@ The current folder structure generally follows the default directory structure t
 ##### Spec Folder
 
 - Contains the tests for vets-api
-
-Summary Folder Structure
-
-![Folder](./diagrams_images/june_2024_folder_structure.png)
-
-#### Planned Folder Structure
-
-As discussed in this [ADR decision](./adr/0002-use-modules-folder-for-pensions-code.md), the pensions team has decided to move as much pension specific code out of the `app` folder as possible.
-
-The new folder structure will look like:
-
-![Folder](./diagrams_images/future_folder_structure.png)
 
 ## Team
 

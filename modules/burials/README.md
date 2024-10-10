@@ -1,4 +1,4 @@
-# Pensions
+# Burials
 
 Pension & Burial Program (PBP)
 
