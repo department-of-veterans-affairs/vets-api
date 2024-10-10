@@ -36,7 +36,7 @@ module ClaimsApi
         end
 
         # rubocop:disable Layout/LineLength
-        def page2_options(data, created_at)
+        def page2_options(data)
           base_form = 'F[0].Page_2[0]'
           {
             # Header
@@ -54,14 +54,14 @@ module ClaimsApi
             # Item 21
             "#{base_form}.I_Authorize[0]": data['consentAddressChange'] == true ? 1 : 0,
             # Item 22B
-            "#{base_form}.Date_Signed[0]": I18n.l(created_at.to_date, format: :va_form),
+            "#{base_form}.Date_Signed[0]": I18n.l(data['appointmentDate'].to_date, format: :va_form),
             # Item 23B
-            "#{base_form}.Date_Signed[1]": I18n.l(created_at.to_date, format: :va_form)
+            "#{base_form}.Date_Signed[1]": I18n.l(data['appointmentDate'].to_date, format: :va_form)
           }
         end
 
         # rubocop:disable Metrics/MethodLength
-        def page1_options(data, created_at)
+        def page1_options(data)
           base_form = 'F[0].Page_1[0]'
           {
             # Section I
@@ -121,7 +121,7 @@ module ClaimsApi
             # Item 17
             "#{base_form}.Email_Address[0]": data.dig('serviceOrganization', 'email'),
             # Item 18
-            "#{base_form}.Date_Of_This_Appointment[0]": I18n.l(created_at.to_date, format: :va_form)
+            "#{base_form}.Date_Of_This_Appointment[0]": I18n.l(data['appointmentDate'].to_date, format: :va_form)
           }
         end
         # rubocop:enable Metrics/MethodLength

@@ -134,6 +134,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
           'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
         },
+        'appointmentDate' => power_of_attorney.created_at,
         'text_signatures' => {
           'page2' => [
             {
@@ -158,7 +159,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
     constructor = ClaimsApi::V2::PoaPdfConstructor::Individual.new
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22A', 'v2',
                                    'signed_filled_final.pdf')
-    generated_pdf = constructor.construct(data, id: power_of_attorney.id, created_at: power_of_attorney.created_at)
+    generated_pdf = constructor.construct(data, id: power_of_attorney.id)
     expect(generated_pdf).to match_pdf_content_of(expected_pdf)
   end
 
@@ -172,6 +173,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
           'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
         },
+        'appointmentDate' => power_of_attorney.created_at,
         'text_signatures' => {
           'page2' => [
             {
@@ -196,7 +198,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
     constructor = ClaimsApi::V2::PoaPdfConstructor::Individual.new
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22A', 'v2',
                                    'signed_filled_final_other_service_branch.pdf')
-    generated_pdf = constructor.construct(data, id: power_of_attorney.id, created_at: power_of_attorney.created_at)
+    generated_pdf = constructor.construct(data, id: power_of_attorney.id)
     expect(generated_pdf).to match_pdf_content_of(expected_pdf)
   end
 end

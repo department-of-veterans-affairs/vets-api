@@ -78,6 +78,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
           'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
         },
+        'appointmentDate' => power_of_attorney.created_at,
         'text_signatures' => {
           'page2' => [
             {
@@ -104,7 +105,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
     constructor = ClaimsApi::V2::PoaPdfConstructor::Organization.new
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22', 'v2',
                                    'signed_filled_final.pdf')
-    generated_pdf = constructor.construct(data, id: power_of_attorney.id, created_at: power_of_attorney.created_at)
+    generated_pdf = constructor.construct(data, id: power_of_attorney.id)
     expect(generated_pdf).to match_pdf_content_of(expected_pdf)
   end
 end

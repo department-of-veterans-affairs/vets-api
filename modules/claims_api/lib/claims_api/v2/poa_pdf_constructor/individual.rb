@@ -35,7 +35,7 @@ module ClaimsApi
           @page4_path = page4_template_path
         end
 
-        def page2_options(data, created_at)
+        def page2_options(data)
           base_form = 'form1[0].#subform[1]'
           {
             # Header
@@ -51,17 +51,17 @@ module ClaimsApi
             "#{base_form}.AuthorizationForRepActClaimantsBehalf[0]": data['consentAddressChange'] == true ? 1 : 0,
             # Conditions of Appointment
             # Item 22B
-            "#{base_form}.Date_Signed[0]": I18n.l(created_at.to_date, format: :va_form),
+            "#{base_form}.Date_Signed[0]": I18n.l(data['appointmentDate'].to_date, format: :va_form),
             # Item 23
             "#{base_form}.LIMITATIONS[0]": data['conditionsOfAppointment']&.join(', '),
             # Item 24B
-            "#{base_form}.Date_Signed[1]": I18n.l(created_at.to_date, format: :va_form)
+            "#{base_form}.Date_Signed[1]": I18n.l(data['appointmentDate'].to_date, format: :va_form)
           }
         end
 
         # rubocop:disable Metrics/MethodLength
         # rubocop:disable Layout/LineLength
-        def page1_options(data, _created_at = nil)
+        def page1_options(data)
           base_form = 'form1[0].#subform[0]'
           {
             # Section !

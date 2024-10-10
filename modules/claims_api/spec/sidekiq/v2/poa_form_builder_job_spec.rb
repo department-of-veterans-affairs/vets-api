@@ -68,6 +68,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      }
                    }
                  )
+                 .deep_merge(
+                   {
+                     'appointmentDate' => power_of_attorney.created_at
+                   }
+                 )
           final_data = data.deep_merge(
             {
               'text_signatures' => {
@@ -94,7 +99,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Individual)
             .to receive(:construct)
-            .with(final_data, id: power_of_attorney.id, created_at: power_of_attorney.created_at)
+            .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
           subject.new.perform(power_of_attorney.id, '2122A', rep.id)
@@ -190,6 +195,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      }
                    }
                  )
+                 .deep_merge(
+                   {
+                     'appointmentDate' => power_of_attorney.created_at
+                   }
+                 )
           final_data = data.deep_merge(
             {
               'text_signatures' => {
@@ -216,7 +226,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Individual)
             .to receive(:construct)
-            .with(final_data, id: power_of_attorney.id, created_at: power_of_attorney.created_at)
+            .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
           subject.new.perform(power_of_attorney.id, '2122A', rep.id)
@@ -273,6 +283,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                    }
                  }
                )
+               .deep_merge(
+                 {
+                   'appointmentDate' => power_of_attorney.created_at
+                 }
+               )
         final_data = data.deep_merge(
           {
             'text_signatures' => {
@@ -301,7 +316,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
         VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
           expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Organization)
             .to receive(:construct)
-            .with(final_data, id: power_of_attorney.id, created_at: power_of_attorney.created_at)
+            .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
           subject.new.perform(power_of_attorney.id, '2122', rep.id)
@@ -393,6 +408,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                    }
                  }
                )
+               .deep_merge(
+                 {
+                   'appointmentDate' => power_of_attorney.created_at
+                 }
+               )
         final_data = data.deep_merge(
           {
             'text_signatures' => {
@@ -421,7 +441,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
         VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
           expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Organization)
             .to receive(:construct)
-            .with(final_data, id: power_of_attorney.id, created_at: power_of_attorney.created_at)
+            .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
           subject.new.perform(power_of_attorney.id, '2122', rep.id)
