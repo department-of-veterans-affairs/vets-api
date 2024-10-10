@@ -1,7 +1,7 @@
 require 'common/file_helpers'
 require 'pdf_utilities/datestamp_pdf'
 
-module Burials
+module Pensions
   module ZeroSilentFailures
     class ManualRemediation
       class << self
@@ -10,22 +10,27 @@ module Burials
 
           metadata = generate_metadata(claim)
           metafile = Common::FileHelpers.generate_random_file(metadata.to_json)
-          files = [{ name: 'metadata.json', path: metafile }]
+          files = [{ name: "#{claim.form_id}_#{claim.id}-metadata.json", path: metafile }]
 
           filepath = claim.to_pdf
-          files << { name: File.basename(filepath), path: stamp_pdf(filepath) }
+          Rails.logger.info "Stamping #{claim.form_id} #{claim.id} - #{filepath}"
+          files << { name: File.basename(filepath), path: stamp_pdf(filepath, claim.created_at) }
 
           claim.persistent_attachments.each do |pa|
             filename = "#{claim.form_id}_#{claim.id}-attachment_#{pa.id}.pdf"
             filepath = pa.to_pdf
-            files << { name: filename, path: stamp_pdf(filepath) }
+            Rails.logger.info "Stamping #{claim.form_id} #{claim.id} Attachment #{pa.id} - #{filepath}"
+            files << { name: filename, path: stamp_pdf(filepath, claim.created_at) }
           end
 
           zipfile = zip_files(files)
+          Rails.logger.info("Packaged #{claim.form_id} #{claim.id} - #{zipfile}")
 
-          puts
-          puts aws_upload_zipfile(zipfile)
-          puts
+          if Settings.vsp_environment == 'production'
+            link = aws_upload_zipfile(zipfile)
+            Rails.logger.info("Download #{link}")
+            Common::FileHelpers.delete_file_if_exists(zipfile)
+          end
         end
 
         private
@@ -34,7 +39,7 @@ module Burials
           form = claim.parsed_form
           address = form['claimantAddress'] || form['veteranAddress']
 
-          lighthouse_benefit_intake_submission = FormSubmission.where(saved_claim_id: claim.id).order(id: :desc).last
+          lighthouse_benefit_intake_submission = FormSubmission.where(saved_claim_id: claim.id).order(id: :asc).last
 
           {
             claimId: claim.id,
@@ -52,18 +57,18 @@ module Burials
           }
         end
 
-        def stamp_pdf(pdf_path)
+        def stamp_pdf(pdf_path, timestamp = nil)
           begin
             datestamp = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
             watermark = PDFUtilities::DatestampPdf.new(datestamp).run(
               text: 'FDC Reviewed - VA.gov Submission',
               x: 429,
               y: 770,
-              timestamp:,
-              text_only: true
+              text_only: true,
+              timestamp:
             )
           rescue
-            puts "Error stamping pdf: #{pdf_path}"
+            Rails.logger.error "Error stamping pdf: #{pdf_path}"
           end
 
           watermark || pdf_path
@@ -73,11 +78,11 @@ module Burials
           zip_file_path = "#{Common::FileHelpers.random_file_path}.zip"
           Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
             files.each do |file|
-              puts file
+              Rails.logger.info(file)
               begin
                 zipfile.add(file[:name], file[:path])
               rescue
-                puts "Error adding to zip: #{file}"
+                Rails.logger.error "Error adding to zip: #{file}"
               end
             end
           end
