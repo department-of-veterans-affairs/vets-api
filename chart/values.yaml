@@ -1,4 +1,8 @@
 ssmPath: /dsva-vagov/vets-api/dev/
+parameters:
+  SETTINGS__HOSTNAME: "hostname"
+  SETTINGS__VSP_ENVIRONMENT: "vsp_environment"
+  SETTINGS__VIRTUAL_HOSTS: "virtual_hosts"
 appName:
 target_env:
 domain:

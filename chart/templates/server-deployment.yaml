@@ -100,9 +100,6 @@ spec:
           volumeMounts:
 {{ toYaml $root.Values.common.volumeMounts | indent 12 }}
           env:
-            - name: SETTINGS__HOSTNAME
-              valueFrom:
-
             - name: POD_NAME
               valueFrom:
                 fieldRef:
@@ -122,6 +119,13 @@ spec:
                   name: {{ $keys }}
                   key: {{ $secret.name }}
           {{- end }}
+          {{- end }}
+          {{- range $key, $path := .Values.parameters }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: common_environment_vars
+                  key: {{ $key }}
           {{- end }}
         {{- if $root.Values.clamav.enabled  }}
         - name: clamav
