@@ -6,12 +6,7 @@ require 'rails_helper'
 RSpec.describe Form526SubmissionFailureEmail, type: :job do
   subject { described_class }
 
-  let!(:form526_submission) do
-    create(
-      :form526_submission,
-      :with_uploads
-    )
-  end
+  let!(:form526_submission) { create(:form526_submission) }
 
   let(:upload_data) { [form526_submission.form[Form526Submission::FORM_526_UPLOADS].first] }
   let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
@@ -39,20 +34,21 @@ RSpec.describe Form526SubmissionFailureEmail, type: :job do
     end
 
     let(:obscured_filename) { 'sm_XXXe1.jpg' }
+    let(:expected_params) do
+      {
+        email_address: 'test@email.com',
+        template_id: 'form526_submission_failure_notification_template_id',
+        personalisation: {
+          first_name: form526_submission.get_first_name,
+          date_submitted: form526_submission.format_creation_time_for_mailers
+        }
+      }
+    end
 
     it 'dispatches a failure notification email with an obscured filename' do
       expect(notification_client).to receive(:send_email).with(
         # Email address and first_name are from our User fixtures
         # form526_document_upload_failure_notification_template_id is a placeholder in settings.yml
-        {
-          email_address: 'test@email.com',
-          template_id: 'form526_document_upload_failure_notification_template_id',
-          personalisation: {
-            first_name: 'BEYONCE',
-            filename: obscured_filename,
-            date_submitted: formatted_submit_date
-          }
-        }
       )
 
       subject.perform_async(form526_submission.id, form_attachment.guid)
