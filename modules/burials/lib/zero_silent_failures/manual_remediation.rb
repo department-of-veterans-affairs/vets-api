@@ -1,12 +1,12 @@
 require 'common/file_helpers'
 require 'pdf_utilities/datestamp_pdf'
 
-module Pensions
+module Burials
   module ZeroSilentFailures
     class ManualRemediation
       class << self
         def package_claim(saved_claim_id)
-          claim = SavedClaim::Burials.find(saved_claim_id)
+          claim = SavedClaim::Burial.find(saved_claim_id)
 
           metadata = generate_metadata(claim)
           metafile = Common::FileHelpers.generate_random_file(metadata.to_json)
@@ -14,13 +14,17 @@ module Pensions
 
           filepath = claim.to_pdf
           Rails.logger.info "Stamping #{claim.form_id} #{claim.id} - #{filepath}"
-          files << { name: File.basename(filepath), path: stamp_pdf(filepath, claim.created_at) }
+          stamped = stamp_pdf(filepath, claim.created_at)
+          stamped = stamped_pdf_with_form(claim.form_id, stamped, claim.created_at) if ['21P-530V2'].include?(claim.form_id)
+          files << { name: File.basename(filepath), path:  stamped }
 
           claim.persistent_attachments.each do |pa|
             filename = "#{claim.form_id}_#{claim.id}-attachment_#{pa.id}.pdf"
             filepath = pa.to_pdf
             Rails.logger.info "Stamping #{claim.form_id} #{claim.id} Attachment #{pa.id} - #{filepath}"
-            files << { name: filename, path: stamp_pdf(filepath, claim.created_at) }
+            stamped = stamp_pdf(filepath, claim.created_at)
+            stamped = stamped_pdf_with_form(claim.form_id, stamped, claim.created_at) if ['21P-530V2'].include?(claim.form_id)
+            files << { name: filename, path: stamped }
           end
 
           zipfile = zip_files(files)
@@ -62,7 +66,7 @@ module Pensions
             datestamp = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
             watermark = PDFUtilities::DatestampPdf.new(datestamp).run(
               text: 'FDC Reviewed - VA.gov Submission',
-              x: 429,
+              x: 400,
               y: 770,
               text_only: true,
               timestamp:
@@ -72,6 +76,20 @@ module Pensions
           end
 
           watermark || pdf_path
+        end
+
+        def stamped_pdf_with_form(form_id, path, timestamp)
+          PDFUtilities::DatestampPdf.new(path).run(
+            text: 'Application Submitted on va.gov',
+            x: 425,
+            y: 675,
+            text_only: true, # passing as text only because we override how the date is stamped in this instance
+            timestamp:,
+            page_number: 5,
+            size: 9,
+            template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+            multistamp: true
+          )
         end
 
         def zip_files(files)
