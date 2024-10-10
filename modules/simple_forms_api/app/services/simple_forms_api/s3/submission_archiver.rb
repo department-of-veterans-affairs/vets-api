@@ -17,7 +17,7 @@ module SimpleFormsApi
       def initialize(parent_dir: 'vff-simple-forms', **options) # rubocop:disable Lint/MissingSuper
         @parent_dir = parent_dir
         defaults = default_options.merge(options)
-        @temp_directory_path, @submission, @unique_filename, @metadata = build_submission_archive(**defaults)
+        @temp_directory_path, @submission, @unique_filename = build_submission_archive(**defaults)
         raise 'Failed to build SubmissionArchive.' unless temp_directory_path && submission
 
         assign_instance_variables(defaults)
@@ -45,8 +45,7 @@ module SimpleFormsApi
 
       private
 
-      attr_reader :benefits_intake_uuid, :metadata, :parent_dir, :submission, :temp_directory_path, :unique_filename,
-                  :upload_type
+      attr_reader :benefits_intake_uuid, :parent_dir, :submission, :temp_directory_path, :unique_filename, :upload_type
 
       def default_options
         {
@@ -88,89 +87,21 @@ module SimpleFormsApi
         handle_error("Failed to zip temp directory: #{temp_directory_path} to location: #{local_upload_file_path}", e)
       end
 
-      def upload_file_to_s3(path = local_upload_file_path)
-        return if File.directory?(path)
+      def upload_file_to_s3
+        return if File.directory?(local_upload_file_path)
 
-        log_info("Starting upload of file to S3: #{path}")
-        begin
-          File.open(path) do |file_obj|
-            sanitized_file = CarrierWave::SanitizedFile.new(file_obj)
-            s3_uploader.store!(sanitized_file)
-          end
-          log_info("File successfully uploaded to S3: #{path}")
-        rescue => e
-          handle_error('Failed to upload file to S3', e)
+        File.open(local_upload_file_path) do |file_obj|
+          sanitized_file = CarrierWave::SanitizedFile.new(file_obj)
+          s3_uploader.store!(sanitized_file)
         end
       end
 
       def s3_directory_path
-        @s3_directory_path ||= build_path(parent_dir, upload_type.to_s, dated_directory, is_file: false)
+        @s3_directory_path ||= build_path(parent_dir, upload_type.to_s, is_file: false)
       end
 
       def s3_upload_file_path
         @s3_upload_file_path ||= build_path(s3_directory_path, "#{unique_filename}.ext")
-      end
-
-      def s3_update_manifest
-        s3_path = build_path(s3_directory_path, "manifest_#{unique_filename}.csv")
-        Dir.mktmpdir do |dir|
-          local_path = File.join(dir, s3_path)
-
-          log_info("Downloading existing manifest from S3: #{s3_path}")
-          existing_manifest = download_file_from_s3(s3_path, local_path)
-
-          log_info("Appending data to manifest: #{local_path}")
-          append_to_local_file(existing_manifest.nil?, local_path)
-
-          log_info("Uploading updated manifest to S3: #{s3_path}")
-          upload_file_to_s3(local_path)
-        end
-      rescue => e
-        handle_error('Failed to update manifest', e)
-      end
-
-      def download_file_from_s3(from_path, to_path)
-        bucket = VeteranFacingFormsRemediationUploader.s3_settings.bucket
-        log_info("Downloading file from S3 path: #{from_path}")
-        s3_resource.bucket(bucket).object(from_path).get(response_target: to_path)
-        log_info("Successfully downloaded file from S3: #{from_path}")
-      rescue Aws::S3::Errors::NoSuchKey
-        nil
-      rescue => e
-        handle_error('Failed to download file from S3', e)
-      end
-
-      def append_to_local_file(new_manifest, path)
-        log_info("Appending data to CSV at path: #{path}")
-        begin
-          CSV.open(path, 'ab') do |csv|
-            if new_manifest
-              log_info('Creating new manifest and adding headers')
-              csv << ['Submission DateTime', 'Form Type', 'VA.gov ID', 'Veteran ID', 'First Name', 'Last Name']
-            end
-            csv << [
-              submission.created_at,
-              form_number,
-              benefits_intake_uuid,
-              metadata['fileNumber'],
-              metadata['veteranFirstName'],
-              metadata['veteranLastName']
-            ]
-          end
-          log_info("Successfully appended data to CSV: #{path}")
-        rescue => e
-          handle_error('Failed to append data to CSV', e)
-        end
-      end
-
-      def form_number
-        JSON.parse(submission.form_data)['form_number']
-      rescue JSON::ParserError => e
-        handle_error('Failed to parse form data for form_number', e)
-      end
-
-      def dated_directory
-        "#{Time.zone.today.strftime('%-m.%d.%y')}-Form#{form_number}"
       end
 
       def build_local_file_dir!(s3_key, dir_path = temp_directory_path)

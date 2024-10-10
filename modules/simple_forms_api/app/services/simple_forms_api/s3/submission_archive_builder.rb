@@ -19,7 +19,7 @@ module SimpleFormsApi
       def run
         FileUtils.mkdir_p(temp_directory_path)
         process_submission_files
-        [temp_directory_path, submission, submission_file_path, metadata]
+        [temp_directory_path, submission, submission_file_path]
       rescue => e
         handle_error("Failed building submission: #{benefits_intake_uuid}", e)
       end
