@@ -39,6 +39,8 @@ module SimpleFormsApi
         s3_obj(from_path).get(response_target: to_path)
       rescue Aws::S3::Errors::NoSuchKey
         nil
+      rescue => e
+        handle_error('An error occured while downloading the file.', e)
       end
 
       private
