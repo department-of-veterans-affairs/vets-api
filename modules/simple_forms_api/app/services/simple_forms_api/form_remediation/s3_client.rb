@@ -36,7 +36,7 @@ module SimpleFormsApi
         config.log_info("Uploading #{upload_type}: #{id} to S3 bucket")
 
         upload_to_s3
-        s3_update_manifest
+        s3_update_manifest if config.include_manifest
         cleanup(s3_upload_file_path)
 
         presign_s3_url ? s3_generate_presigned_url(s3_get_presigned_path) : id
