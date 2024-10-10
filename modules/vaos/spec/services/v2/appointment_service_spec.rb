@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../support/vaos_path_matcher'
 
 describe VAOS::V2::AppointmentsService do
   include ActiveSupport::Testing::TimeHelpers
@@ -60,6 +59,7 @@ describe VAOS::V2::AppointmentsService do
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     Flipper.enable_actor(:appointments_consolidation, user)
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
   describe '#post_appointment' do

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../support/vaos_path_matcher'
 
 describe VAOS::V2::SystemsService do
   subject { VAOS::V2::SystemsService.new(user) }
@@ -9,6 +8,10 @@ describe VAOS::V2::SystemsService do
   let(:user) { build(:user, :vaos) }
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+
+  before do
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+  end
 
   describe '#get_facility_clinics' do
     context 'using VAOS' do

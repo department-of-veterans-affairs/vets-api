@@ -7,6 +7,7 @@ RSpec.describe 'VAOS::V2::Patients', :skip_mvi, type: :request do
 
   before do
     Flipper.enable('va_online_scheduling')
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
