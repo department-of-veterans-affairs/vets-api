@@ -31,7 +31,7 @@ module SimpleFormsApi
 
         return "#{submission_file_path}.pdf" if archive_type == :submission
 
-        zip_directory!(config.parent_dir, temp_directory_path)
+        zip_directory!(config.parent_dir, temp_directory_path, submission_file_path)
 
         [temp_directory_path, manifest_entry]
       rescue => e

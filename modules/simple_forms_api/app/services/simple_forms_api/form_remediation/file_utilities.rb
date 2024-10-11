@@ -5,23 +5,26 @@ require 'simple_forms_api/form_remediation/configuration/base'
 module SimpleFormsApi
   module FormRemediation
     module FileUtilities
-      def zip_directory!(parent_dir, file_path)
-        base_dir = build_path(:dir, parent_dir, 'remediation', ext: '.zip')
-        raise "Directory not found: #{base_dir}" unless File.directory?(base_dir)
+      def zip_directory!(parent_dir, temp_dir, unique_filename)
+        raise "Directory not found: #{temp_dir}" unless File.directory?(temp_dir)
 
-        Zip::File.open(file_path, Zip::File::CREATE) do |zipfile|
-          Dir.chdir(base_dir) do
+        s3_dir = build_path(:dir, parent_dir, 'remediation')
+        s3_file_path = build_path(:file, s3_dir, unique_filename, ext: '.zip')
+        zip_file_path = build_local_path_from_s3(s3_dir, s3_file_path, temp_dir)
+
+        Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+          Dir.chdir(temp_dir) do
             Dir['**', '*'].each do |file|
               next if File.directory?(file)
 
-              zipfile.add(file, File.join(base_dir, file)) if File.file?(file)
+              zipfile.add(file, File.join(temp_dir, file)) if File.file?(file)
             end
           end
         end
 
-        file_path
+        zip_file_path
       rescue => e
-        handle_error("Failed to zip temp directory: #{base_dir} to location: #{file_path}", e)
+        handle_error("Failed to zip temp directory: #{temp_dir} to location: #{zip_file_path}", e)
       end
 
       def cleanup(path)
@@ -32,9 +35,9 @@ module SimpleFormsApi
         FileUtils.mkdir_p(dir_path)
       end
 
-      def create_local_file_path(s3_key, dir_path, s3_dir_path)
-        local_path = Pathname.new(s3_key).relative_path_from(Pathname.new(s3_dir_path))
-        final_path = Pathname.new(dir_path).join(local_path)
+      def build_local_path_from_s3(s3_dir, s3_key, local_dir)
+        local_file_path = Pathname.new(s3_key).relative_path_from(Pathname.new(s3_dir))
+        final_path = Pathname.new(local_dir).join(local_file_path)
 
         FileUtils.mkdir_p(final_path.dirname)
         final_path.to_s
@@ -42,8 +45,9 @@ module SimpleFormsApi
 
       def build_path(path_type, base_dir, *, ext: '.pdf')
         file_ext = path_type == :file ? ext : ''
-        path = Pathname.new(base_dir.to_s).join(*).sub_ext(file_ext)
-        path.to_s
+        path = Pathname.new(base_dir.to_s).join(*)
+        path = path.to_s + file_ext unless file_ext.empty?
+        path
       end
 
       def write_file(dir_path, file_name, payload)
