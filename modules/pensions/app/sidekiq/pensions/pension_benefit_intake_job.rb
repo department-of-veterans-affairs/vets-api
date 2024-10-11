@@ -50,9 +50,11 @@ module Pensions
     # @return [UUID] benefits intake upload uuid
     #
     def perform(saved_claim_id, user_account_uuid = nil)
+      Sidekiq::Testing.inline!
       batch = Sidekiq::Batch.new
       batch.description = 'PensionBenefitIntakeJob and email confirmation on success'
-      batch.on(:success, self.class, :perform_main_task)
+      # This will implicitly hit 'on_sucess' callback when 'perform_main_task' is successful
+      batch.on(:success, self.class)
 
       batch.jobs do
         perform_main_task(saved_claim_id, user_account_uuid)
@@ -82,6 +84,16 @@ module Pensions
       raise e
     end
 
+    # Called by Sidekiq::Batch as perform_main_task is successfully run
+    # The workflow batch success handler
+    #
+    # @param _status [Sidekiq::Batch::Status] the status of the batch
+    # @param options [Hash] payload set in the workflow batch
+    #
+    def on_success(_status, _options)
+      send_confirmation_email
+    end
+
     private
 
     ##
@@ -104,13 +116,6 @@ module Pensions
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
       @intake_service = BenefitsIntake::Service.new
-    end
-
-    ##
-    # When the perform Sidekiq::Batch is fully successful, then trigger the confirmation email
-    #
-    def on_success(_status, _options)
-      send_confirmation_email
     end
 
     ##
