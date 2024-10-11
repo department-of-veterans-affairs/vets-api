@@ -75,6 +75,13 @@
                 <%== yield %>
               </div>
             <% end %>
+            <% if (defined?(feature_name) && !@feature.boolean_value && (RequestStore.store[:flipper_authorized] || Settings.flipper.github_oauth_key.blank?)) %>
+              <div class="col-12 col-xl-10 offset-xl-1">
+                <div class="alert alert-info" role="alert">
+                  For more information on how to use actors and groups, please see the <a href="https://depo-platform-documentation.scrollhelp.site/developer-docs/feature-toggles-guide" class="alert-link" target="_blank">Feature Toggles Guide</a>.
+                </div>
+              </div>
+            <% end %>
           </div>
         </div>
       </div>
