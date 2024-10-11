@@ -92,7 +92,8 @@ module SignIn
         parent_refresh_token_hash: refresh_token_hash,
         anti_csrf_token: updated_anti_csrf_token,
         last_regeneration_time:,
-        user_attributes: session.user_attributes_hash
+        user_attributes: session.user_attributes_hash,
+        device_secret_hash: session.hashed_device_secret
       )
     end
 
@@ -150,6 +151,12 @@ module SignIn
 
     def access_token
       @access_token ||= create_access_token
+    end
+
+    def hashed_device_secret
+      return unless validated_credential.device_sso
+
+      @hashed_device_secret ||= get_hash(device_secret)
     end
   end
 end

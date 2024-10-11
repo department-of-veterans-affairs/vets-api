@@ -16,7 +16,7 @@ module VetsApi
         if RbConfig::CONFIG['host_os'] =~ /darwin/i
           install_postgres
           run_brewfile
-          pex_install_postgis
+          validate_postgis_installed
           configuring_clamav_antivirus
           install_pdftk
         else
@@ -70,8 +70,9 @@ module VetsApi
         puts 'Done'
       end
 
-      def pex_install_postgis
-        return if ShellCommand.run("psql -U postgres -d vets-api -c 'SELECT PostGIS_Version();' | grep -q '(1 row)'")
+      def validate_postgis_installed
+        ShellCommand.run_quiet("psql -U postgres -d postgres -c 'CREATE EXTENSION IF NOT EXISTS postgis;'")
+        return if ShellCommand.run("psql -U postgres -d postgres -c 'SELECT PostGIS_Version();' | grep -q '(1 row)'")
 
         g_cppflags = '-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include'
         cflags = '-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include'

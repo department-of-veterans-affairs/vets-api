@@ -22,7 +22,7 @@ describe Veteran::User do
         allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({ person_poa_history: { person_poa: [{ begin_dt: Time.zone.now, legacy_poa_cd: '033' }] } })
         veteran = Veteran::User.new(user)
-        expect(veteran.power_of_attorney.code).to eq('044')
+        expect(veteran.power_of_attorney.code).to eq('074')
         expect(veteran.previous_power_of_attorney.code).to eq('033')
       end
     end
@@ -59,7 +59,7 @@ describe Veteran::User do
         allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({ person_poa_history: { person_poa: { begin_dt: Time.zone.now, legacy_poa_cd: '033' } } })
         veteran = Veteran::User.new(user)
-        expect(veteran.power_of_attorney.code).to eq('044')
+        expect(veteran.power_of_attorney.code).to eq('074')
         expect(veteran.previous_power_of_attorney.code).to eq('033')
       end
     end

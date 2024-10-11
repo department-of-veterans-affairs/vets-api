@@ -34,6 +34,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/salesforce/configuration.rb'
     add_filter 'lib/va_profile/address_validation/configuration.rb'
     add_filter 'lib/search/response.rb'
+    add_filter 'lib/search_gsa/response.rb'
     add_filter 'lib/va_profile/exceptions/builder.rb'
     add_filter 'lib/va_profile/response.rb'
     add_filter 'modules/appeals_api/app/swagger'

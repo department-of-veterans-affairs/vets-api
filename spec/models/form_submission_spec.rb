@@ -86,5 +86,21 @@ RSpec.describe FormSubmission, type: :model do
         expect(results.count).to eq(3)
       end
     end
+
+    context 'latest_pending_attempt' do
+      it 'returns db record' do
+        form_submission = FormSubmission.with_form_types(nil).first
+
+        expect(form_submission.latest_pending_attempt).not_to be_nil
+      end
+    end
+
+    context 'non_failure_attempt' do
+      it 'returns db record' do
+        form_submission = FormSubmission.with_form_types(nil).first
+
+        expect(form_submission.non_failure_attempt).not_to be_nil
+      end
+    end
   end
 end

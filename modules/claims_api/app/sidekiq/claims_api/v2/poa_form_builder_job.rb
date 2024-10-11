@@ -29,7 +29,7 @@ module ClaimsApi
           upload_to_vbms(power_of_attorney, output_path)
         end
 
-        ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
+        ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep)
       rescue VBMS::Unknown
         rescue_vbms_error(power_of_attorney)
       rescue Errno::ENOENT

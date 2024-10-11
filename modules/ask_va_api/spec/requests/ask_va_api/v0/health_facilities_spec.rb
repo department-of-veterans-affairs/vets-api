@@ -70,8 +70,7 @@ end
 vcr_options = {
   cassette_name: '/facilities/va/lighthouse',
   match_requests_on: %i[path query],
-  allow_playback_repeats: true,
-  record: :new_episodes
+  allow_playback_repeats: true
 }
 
 RSpec.describe AskVAApi::V0::HealthFacilitiesController, team: :facilities, type: :request, vcr: vcr_options do

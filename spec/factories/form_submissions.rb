@@ -33,9 +33,9 @@ FactoryBot.define do
       created_at { '2024-03-08' }
     end
 
-    trait :with_form210966 do
+    trait :with_form210845 do
       user_account_id { '' }
-      form_type { '21-0966' }
+      form_type { '21-0845' }
       benefits_intake_uuid { '6d353dee-a0e0-40e3-a25c-9b652247a0d9' }
       created_at { '2024-03-12' }
     end

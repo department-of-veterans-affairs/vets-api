@@ -19,7 +19,7 @@ shared_examples_for 'saved_claim' do
 
   describe '#process_attachments!' do
     it 'starts a job to submit the saved claim' do
-      expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(instance.id)
+      expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async).with(instance.id)
 
       instance.process_attachments!
     end

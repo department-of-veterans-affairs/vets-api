@@ -933,6 +933,13 @@ module Swagger
                       property :character_of_discharge_code, type: :string, example: 'DVN', description: 'The abbreviated code used to reference the status of a Servicemember upon termination of an episode'
                     end
                   end
+                  property :vet_status_eligibility do
+                    key :type, :object
+                    items do
+                      property :confirmed, type: :boolean
+                      property :message, type: :array
+                    end
+                  end
                 end
               end
             end

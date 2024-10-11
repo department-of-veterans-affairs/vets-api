@@ -107,6 +107,8 @@ RSpec.describe DecisionReview::SavedClaimNodStatusUpdaterJob, type: :job do
         let(:upload_id4) { SecureRandom.uuid }
 
         before do
+          allow(Rails.logger).to receive(:info)
+
           SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}')
           SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}')
           SavedClaim::NoticeOfDisagreement.create(guid: guid3, form: '{}')
@@ -177,6 +179,8 @@ RSpec.describe DecisionReview::SavedClaimNodStatusUpdaterJob, type: :job do
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.saved_claim_nod_status_updater_upload.status', tags: ['status:processing'])
             .exactly(2).times
+          expect(Rails.logger).not_to have_received(:info)
+            .with('DecisionReview::SavedClaimNodStatusUpdaterJob evidence status error', anything)
         end
       end
 

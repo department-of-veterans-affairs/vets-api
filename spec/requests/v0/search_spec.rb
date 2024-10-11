@@ -9,6 +9,10 @@ Rspec.describe 'V0::Search', type: :request do
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
+  before do
+    Flipper.disable(:search_use_v2_gsa)
+  end
+
   describe 'GET /v0/search' do
     context 'with a 200 response' do
       it 'matches the search schema', :aggregate_failures do

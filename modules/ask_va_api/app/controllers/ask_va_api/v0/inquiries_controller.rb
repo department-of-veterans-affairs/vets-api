@@ -27,7 +27,12 @@ module AskVAApi
 
       def download_attachment
         entity_class = Attachments::Entity
-        att = Attachments::Retriever.new(id: params[:id], service: mock_service, entity_class:).call
+        att = Attachments::Retriever.new(
+          id: params[:id],
+          service: mock_service,
+          user_mock_data: nil,
+          entity_class:
+        ).call
 
         raise InvalidAttachmentError if att.blank?
 

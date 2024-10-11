@@ -213,6 +213,26 @@ RSpec.describe Form1010cg::Service do
       expect(result).to eq('NOT_FOUND')
     end
 
+    it 'returns "NOT_FOUND" when nothing is found and no error is returned' do
+      subject = described_class.new(
+        build(
+          :caregivers_assistance_claim,
+          form: {
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
+          }.to_json
+        )
+      )
+
+      expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
+        OpenStruct.new(ok?: false, not_found?: false, error: nil)
+      )
+
+      result = subject.icn_for('veteran')
+
+      expect(result).to eq('NOT_FOUND')
+    end
+
     it 'returns a cached responses when called more than once for a given subject' do
       subject = described_class.new(
         build(

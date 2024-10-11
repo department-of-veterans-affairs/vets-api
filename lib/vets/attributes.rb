@@ -24,7 +24,8 @@ module Vets
       end
 
       def attribute_set
-        attributes.keys
+        # grabs attribute keys from parent classes
+        ancestors.select { |klass| klass.respond_to?(:attributes) }.flat_map { |klass| klass.attributes.keys }.uniq
       end
 
       private

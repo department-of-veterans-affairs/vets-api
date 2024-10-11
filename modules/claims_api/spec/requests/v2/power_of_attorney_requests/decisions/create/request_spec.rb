@@ -456,7 +456,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests::Decisions#create', :bgs,
       }
 
       mock_ccg(scopes, allow_playback_repeats: true) do
-        use_soap_cassette('acceptance', use_spec_name_prefix: true, record: :new_episodes) do
+        use_soap_cassette('acceptance', use_spec_name_prefix: true) do
           perform_request(params)
 
           expect(response).to(

@@ -78,6 +78,10 @@ module Veteran
         where(query, params)
       end
 
+      def organizations
+        Veteran::Service::Organization.where(poa: poa_codes)
+      end
+
       def self.max_per_page
         Constants::MAX_PER_PAGE
       end
@@ -85,7 +89,15 @@ module Veteran
       #
       # Set the full_name attribute for the representative
       def set_full_name
-        self.full_name = "#{first_name} #{last_name}"
+        self.full_name = if first_name.blank? && last_name.blank?
+                           ''
+                         elsif first_name.blank?
+                           last_name
+                         elsif last_name.blank?
+                           first_name
+                         else
+                           "#{first_name} #{last_name}"
+                         end
       end
 
       #

@@ -44,6 +44,7 @@ RSpec.describe BenefitsEducation::Service do
     end
   end
 
+  # TO-DO: Remove this context after transition of LTS to 24/7 availability
   describe 'uptime/downtime tests' do
     let(:tz) { ActiveSupport::TimeZone.new(described_class::OPERATING_ZONE) }
     let(:late_time) { tz.parse('1st Feb 2018 23:00:00') }

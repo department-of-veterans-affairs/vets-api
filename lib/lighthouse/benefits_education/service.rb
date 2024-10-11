@@ -15,6 +15,7 @@ module BenefitsEducation
 
     STATSD_KEY_PREFIX = 'api.benefits_education'
 
+    # TO-DO: Remove these constants after transition of LTS to 24/7 availability
     OPERATING_ZONE = 'Eastern Time (US & Canada)'
     OPERATING_HOURS = {
       start: 6,
@@ -67,6 +68,8 @@ module BenefitsEducation
     end
 
     ##
+    # TO-DO: Remove this method after transition of LTS to 24/7 availability
+    #
     # @return [Boolean] Is the current time within the system's scheduled uptime
     #
     def self.within_scheduled_uptime?
@@ -79,6 +82,8 @@ module BenefitsEducation
     end
 
     ##
+    # TO-DO: Remove this method after transition of LTS to 24/7 availability
+    #
     # @return [Integer] The number of seconds until scheduled system downtime begins
     #
     def self.seconds_until_downtime
@@ -94,6 +99,8 @@ module BenefitsEducation
     end
 
     ##
+    # TO-DO: Remove this method after transition of LTS to 24/7 availability
+    #
     # @return [String] Next earliest date and time that the service will be available
     #
     def self.retry_after_time

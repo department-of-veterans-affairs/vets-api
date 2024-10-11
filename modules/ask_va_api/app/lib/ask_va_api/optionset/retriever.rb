@@ -7,8 +7,8 @@ module AskVAApi
     class Retriever < BaseRetriever
       attr_reader :name
 
-      def initialize(name:, user_mock_data:, entity_class:)
-        super(user_mock_data:, entity_class:)
+      def initialize(name:, **args)
+        super(**args)
         @name = name
       end
 

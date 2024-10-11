@@ -52,7 +52,7 @@ module VBADocuments
       if rejected.present?
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Non-string values for keys: #{rejected.join(',')}")
       end
-      if (FILE_NUMBER_REGEX =~ metadata['fileNumber']).nil?
+      if (FILE_NUMBER_REGEX =~ metadata['fileNumber'].strip).nil?
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Non-numeric or invalid-length fileNumber')
       end
 
@@ -76,6 +76,7 @@ module VBADocuments
 
     def perfect_metadata(model, parts, timestamp)
       metadata = JSON.parse(parts['metadata'])
+      metadata['fileNumber'] = metadata['fileNumber'].strip
       metadata['source'] = "#{model.consumer_name} via VA API"
       metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = model.guid

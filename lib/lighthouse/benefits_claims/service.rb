@@ -181,7 +181,7 @@ module BenefitsClaims
 
     def prepare_submission_body(body, transaction_id)
       # if we're coming straight from the transformation service without
-      # making this a jsonapi request body first ({data: {type:, attributes}}),
+      # making this a jsonapi request body first ({data: {type:, attributes}, meta: {transactionId:}}),
       # this will put it in the correct format for transmission
       body = build_request_body(body, transaction_id)
 

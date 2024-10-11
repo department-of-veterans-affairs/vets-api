@@ -6,7 +6,7 @@
     </tr>
   </thead>
   <tbody>
-    <% claims.each do |claim| %>
+    <% claims&.each do |claim| %>
       <tr>
         <td><%= claim[:created_at] %></td>
         <td><%= claim[:id] %></td>

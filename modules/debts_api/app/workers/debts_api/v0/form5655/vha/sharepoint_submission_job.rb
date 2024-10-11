@@ -11,7 +11,8 @@ module DebtsApi
     sidekiq_options retry: 4
 
     sidekiq_retries_exhausted do |job, _ex|
-      StatsD.increment("#{STATS_KEY}.failure")
+      StatsD.increment("#{STATS_KEY}.failure") # Deprecate this in favor of exhausted naming convention below
+      StatsD.increment("#{STATS_KEY}.retries_exhausted")
       submission_id = job['args'][0]
       submission = DebtsApi::V0::Form5655Submission.find(submission_id)
       submission.register_failure("SharePoint Submission Failed: #{job['error_message']}.")

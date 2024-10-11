@@ -94,7 +94,7 @@ module V0
     end
 
     def lighthouse_facilities_params
-      params.permit(
+      params.except(:format).permit(
         :zip,
         :state,
         :lat,

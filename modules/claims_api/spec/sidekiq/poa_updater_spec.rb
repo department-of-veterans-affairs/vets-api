@@ -111,6 +111,62 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     end
   end
 
+  context 'deciding to send a VA Notify email' do
+    before do
+      create_mock_lighthouse_service
+    end
+
+    let(:poa) { create_poa }
+    let(:header_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY }
+
+    context 'when the header key and rep are present' do
+      it 'sends the vanotify job' do
+        poa.auth_headers.merge!({
+                                  header_key => 'this_value'
+                                })
+        poa.save!
+
+        expect(ClaimsApi::VANotifyJob).to receive(:perform_async)
+
+        subject.new.perform(poa.id, 'Rep Data')
+      end
+    end
+
+    context 'when the flipper is on' do
+      it 'does not send the vanotify job' do
+        Flipper.disable(:lighthouse_claims_api_v2_poa_va_notify)
+
+        poa.auth_headers.merge!({
+                                  header_key => 'this_value'
+                                })
+        poa.save!
+
+        expect(ClaimsApi::VANotifyJob).not_to receive(:perform_async)
+
+        subject.new.perform(poa.id, 'Rep Data')
+      end
+    end
+
+    context 'does not send the va notify job' do
+      it 'when the rep is not present' do
+        poa.auth_headers.merge!({
+                                  header_key => 'this_value'
+                                })
+        poa.save!
+
+        expect(ClaimsApi::VANotifyJob).not_to receive(:perform_async)
+
+        subject.new.perform(poa.id, nil)
+      end
+
+      it 'when the header key is not present' do
+        expect(ClaimsApi::VANotifyJob).not_to receive(:perform_async)
+
+        subject.new.perform(poa.id, 'Rep data')
+      end
+    end
+  end
+
   context 'when an errored job has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
       poa = create_poa

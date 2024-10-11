@@ -48,6 +48,10 @@ class User < Common::RedisStore
     @account_id ||= account&.id
   end
 
+  def initial_sign_in
+    user_account.created_at
+  end
+
   def credential_lock
     return @credential_lock unless @credential_lock.nil?
 
@@ -307,7 +311,7 @@ class User < Common::RedisStore
   # Other MPI
 
   def invalidate_mpi_cache
-    return unless mpi.mpi_response_is_cached?
+    return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response
 
     mpi.destroy
     @mpi = nil

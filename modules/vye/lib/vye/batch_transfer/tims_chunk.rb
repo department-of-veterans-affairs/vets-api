@@ -5,8 +5,6 @@ module Vye
     class TimsChunk < Vye::BatchTransfer::Chunk
       FEED_FILENAME = 'tims32towave.txt'
 
-      private_constant :FEED_FILENAME
-
       def self.feed_filename = FEED_FILENAME
 
       def initialize(offset:, block_size:, filename:)

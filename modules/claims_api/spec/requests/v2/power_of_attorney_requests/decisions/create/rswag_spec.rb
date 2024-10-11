@@ -68,7 +68,7 @@ describe 'PowerOfAttorney', metadata do
           )
 
           mock_ccg(scopes) do
-            use_soap_cassette('declined', use_spec_name_prefix: true, record: :new_episodes) do
+            use_soap_cassette('declined', use_spec_name_prefix: true) do
               submit_request(example.metadata)
             end
           end

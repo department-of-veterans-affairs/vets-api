@@ -14,6 +14,9 @@ module V0
       render json: BackendStatusesSerializer.new(backend_statuses, options)
     end
 
+    # TO-DO: After transition of Post-911 GI Bill to 24/7 availability, confirm show action
+    # and related logic can be completely removed
+    #
     # GET /v0/backend_statuses/:service
     def show
       render json: BackendStatusSerializer.new(backend_status)
@@ -45,10 +48,6 @@ module V0
 
     def recognized_service?
       BackendServices.all.include?(backend_service)
-    end
-
-    def backend_status_is_available
-      backend_service == BackendServices::GI_BILL_STATUS
     end
   end
 end

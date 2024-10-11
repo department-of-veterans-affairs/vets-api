@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
-  include SetAWSConfig
   include UploaderVirusScan
 
   class << self
@@ -22,7 +21,7 @@ class VeteranFacingFormsRemediationUploader < CarrierWave::Uploader::Base
   end
 
   def size_range
-    (1.byte)..(100.megabytes)
+    (1.byte)...(150.megabytes)
   end
 
   # Allowed file types, including those specific to benefits intake

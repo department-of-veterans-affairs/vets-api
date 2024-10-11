@@ -91,6 +91,8 @@ properties:
               - fiduciary
               - other
               - multiple
+              - vha
+              - voc_rehub
           status:
             type: object
             properties:
@@ -157,6 +159,8 @@ properties:
                   - hlr_decision
                   - hlr_closed
                   - statutory_opt_in
+                  - motion
+                  - pre_docketed
           type:
             type: string
             enum:

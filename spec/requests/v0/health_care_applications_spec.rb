@@ -462,7 +462,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         end
       end
 
-      context 'with hca_use_facilities_API enabled' do
+      context 'with an arbitrary medical facility ID' do
         let(:current_user) { create(:user) }
         let(:params) do
           test_veteran['vaMedicalFacility'] = '000'
@@ -480,8 +480,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
         before do
           sign_in_as(current_user)
-          Flipper.disable(:hca_use_facilities_API)
-          Flipper.enable(:hca_use_facilities_API, current_user)
         end
 
         it 'does not error on vaMedicalFacility validation' do
@@ -489,28 +487,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
           expect(JSON.parse(response.body)['errors']).to be_blank
           expect(JSON.parse(response.body)['data']['attributes']).to eq(body)
-        end
-      end
-
-      context 'with hca_use_facilities_API disabled' do
-        let(:current_user) { create(:user) }
-        let(:params) do
-          test_veteran['vaMedicalFacility'] = '000'
-          {
-            form: test_veteran.to_json
-          }
-        end
-
-        before do
-          sign_in_as(current_user)
-          Flipper.disable(:hca_use_facilities_API)
-        end
-
-        it 'errors on vaMedicalFacility validation' do
-          subject
-
-          expect(JSON.parse(response.body)['errors']).not_to be_blank
-          expect(JSON.parse(response.body)['errors'].first['title']).to include('"000" did not match')
         end
       end
     end

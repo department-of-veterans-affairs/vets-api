@@ -28,6 +28,6 @@ class FormProfiles::VA21p530v2 < FormProfile
 
   def convert_to_iso2(country_code)
     code = IsoCountryCodes.find(country_code)
-    code.alpha2
+    code.alpha3
   end
 end

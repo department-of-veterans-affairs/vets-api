@@ -90,7 +90,7 @@ module SimpleFormsApi
         confirmation_number, expiration_date = intent_service.submit
         form.track_user_identity(confirmation_number)
 
-        if Flipper.enabled?(:simple_forms_email_confirmations)
+        if confirmation_number && Flipper.enabled?(:simple_forms_email_confirmations)
           send_confirmation_email(parsed_form_data, get_form_id, confirmation_number)
         end
 

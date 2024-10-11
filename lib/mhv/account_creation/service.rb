@@ -54,9 +54,9 @@ module MHV
 
       def normalize_response_body(response_body)
         {
-          user_profile_id: response_body['mhv_userprofileid'],
+          user_profile_id: response_body['mhv_userProfileId'],
           premium: response_body['isPremium'],
-          champ_va: response_body['isChampVA'],
+          champ_va: response_body['isChampVABeneficiary'],
           patient: response_body['isPatient'],
           sm_account_created: response_body['isSMAccountCreated'],
           message: response_body['message']

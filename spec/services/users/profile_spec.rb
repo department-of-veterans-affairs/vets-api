@@ -170,6 +170,10 @@ RSpec.describe Users::Profile do
         end
       end
 
+      it 'includes initial_sign_in' do
+        expect(profile[:initial_sign_in]).to eq(user.initial_sign_in)
+      end
+
       it 'includes email' do
         expect(profile[:email]).to eq(user.email)
       end

@@ -48,7 +48,7 @@ RSpec.shared_context 'shared reporting defaults' do
                                    vbms_error_message: 'File could not be retrieved from AWS',
                                    cid: '0oa9uf05lgXYk6ZXn297'
                                  ))
-    errored_poa_submissions.push(FactoryBot.create(:power_of_attorney_without_doc, cid: '0oa9uf05lgXYk6ZXn297'))
+    errored_poa_submissions.push(FactoryBot.create(:power_of_attorney, cid: '0oa9uf05lgXYk6ZXn297'))
   end
   let(:evidence_waiver_submissions) do
     evidence_waiver_submissions = []

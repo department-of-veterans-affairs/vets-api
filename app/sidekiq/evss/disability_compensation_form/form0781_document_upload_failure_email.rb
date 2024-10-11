@@ -80,7 +80,7 @@ module EVSS
             }
           )
 
-          StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
+          log_mailer_dispatch(form526_submission_id)
         end
       rescue => e
         retryable_error_handler(e)
@@ -93,6 +93,18 @@ module EVSS
         # which is included near the top of this job's inheritance tree in EVSS::DisabilityCompensationForm::JobStatus
         super(error)
         raise error
+      end
+
+      def log_mailer_dispatch(form526_submission_id)
+        Rails.logger.info(
+          'Form0781DocumentUploadFailureEmail notification dispatched',
+          {
+            form526_submission_id:,
+            timestamp: Time.now.utc
+          }
+        )
+
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
       end
 
       def mailer_template_id

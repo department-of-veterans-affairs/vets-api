@@ -1,15 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA264555
-    include Virtus.model(nullify_blank: true)
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
-
+  class VBA264555 < BaseForm
     def as_payload
       {
         remarks: data['remarks'],

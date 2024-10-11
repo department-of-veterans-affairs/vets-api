@@ -87,20 +87,13 @@ module Pensions
       )
     end
 
-    ##
-    # send this pension claim to the Lighthouse Benefit Intake API
-    #
-    # @see https://developer.va.gov/explore/api/benefits-intake/docs
-    # @see Lighthouse::PensionBenefitIntakeJob
-    #
-    # @param current_user [User] the current user submitting the form
-    #
-    def upload_to_lighthouse(current_user = nil)
+    # Run after a claim is saved, this processes any files and workflows that are present
+    # and sends them to our internal partners for processing.
+    # Only removed Sidekiq call from super
+    def process_attachments!
       refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
       files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
       files.find_each { |f| f.update(saved_claim_id: id) }
-
-      Pensions::PensionBenefitIntakeJob.perform_async(id, current_user&.user_account_uuid)
     end
   end
 end

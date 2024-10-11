@@ -3,14 +3,8 @@
 require 'json'
 
 module SimpleFormsApi
-  class VBA4010007
-    include Virtus.model(nullify_blank: true)
+  class VBA4010007 < BaseForm
     STATS_KEY = 'api.simple_forms_api.40_10007'
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def not_veteran?(form_data)
       relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')

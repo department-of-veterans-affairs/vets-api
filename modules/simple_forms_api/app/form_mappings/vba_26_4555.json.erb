@@ -20,6 +20,6 @@
 
   "F[0].Page_1[0].Date02[0]": "<%= form.data.dig('previous_sah_application', 'previous_sah_application_date') %>",
   "F[0].Page_1[0].Date03[0]": "<%= form.data.dig('previous_hi_application', 'previous_hi_application_date') %>",
-  "F[0].Page_1[0].Date05[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m/%d/%Y') %>",
+  "F[0].Page_1[0].Date05[0]": "<%= form&.signature_date&.strftime('%m/%d/%Y') %>",
   "F[0].Page_1[0].Signature[0]": "<%= form.data['statement_of_truth_signature'] %>"
 }

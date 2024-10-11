@@ -51,7 +51,7 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
 
     describe '#process_attachments!' do
       it 'sets the attachments saved_claim_id' do
-        expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
+        expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async).with(claim.id)
         claim.process_attachments!
         expect(claim.persistent_attachments.size).to eq(2)
       end

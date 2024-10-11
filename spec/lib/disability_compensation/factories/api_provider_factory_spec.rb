@@ -247,6 +247,8 @@ RSpec.describe ApiProviderFactory do
 
   context 'upload supplemental document' do
     let(:submission) { create(:form526_submission) }
+    # BDD Document Type
+    let(:va_document_type) { 'L023' }
 
     def provider(api_provider = nil)
       ApiProviderFactory.call(
@@ -254,10 +256,11 @@ RSpec.describe ApiProviderFactory do
         provider: api_provider,
         options: {
           form526_submission: submission,
-          file_body: ''
+          document_type: va_document_type,
+          statsd_metric_prefix: 'my_stats_metric_prefix'
         },
         current_user:,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT
+        feature_toggle: nil
       )
     end
 
@@ -267,14 +270,6 @@ RSpec.describe ApiProviderFactory do
 
     it 'provides a Lighthouse upload_supplemental_document provider' do
       expect(provider(:lighthouse).class).to equal(LighthouseSupplementalDocumentUploadProvider)
-    end
-
-    it 'provides upload_supplemental_document provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT)
-      expect(provider.class).to equal(LighthouseSupplementalDocumentUploadProvider)
-
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT)
-      expect(provider.class).to equal(EVSSSupplementalDocumentUploadProvider)
     end
 
     it 'throw error if provider unknown' do

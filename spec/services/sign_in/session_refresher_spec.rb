@@ -247,6 +247,7 @@ RSpec.describe SignIn::SessionRefresher do
                   expect(container.access_token.parent_refresh_token_hash).to eq(expected_parent_refresh_token_hash)
                   expect(container.access_token.refresh_token_hash).to eq(expected_refresh_token_hash)
                   expect(container.access_token.last_regeneration_time).to eq(expected_last_regeneration_time)
+                  expect(container.access_token.device_secret_hash).to eq(session.hashed_device_secret)
                 end
               end
             end

@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../rails_helper'
+require 'bgs/power_of_attorney_verifier'
 
 RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
   include SchemaMatchers

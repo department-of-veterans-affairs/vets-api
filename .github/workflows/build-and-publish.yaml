@@ -33,16 +33,6 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2.0.1
         with:
           mask-password: true
-      - name: Build Postman Image
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
-        with:
-          context: ./postman
-          file: ./postman/Dockerfile
-          push: true
-          tags: |
-            ${{ steps.ecr-login.outputs.registry }}/dsva/vets-api-postman:${{ steps.version.outputs.version }}
       - name: Build vets-api Docker Image
         uses: docker/build-push-action@v6
         env:
