@@ -14,7 +14,7 @@ RSpec.describe 'Mobile::V0::Translations', type: :request do
       sis_user
     end
 
-    context 'when no timestamp is provided', :skip_json_api_validation do
+    context 'when no current_version is provided', :skip_json_api_validation do
       it 'returns file' do
         get '/mobile/v0/translations/download', headers: sis_headers
 
@@ -28,7 +28,7 @@ RSpec.describe 'Mobile::V0::Translations', type: :request do
       end
     end
 
-    context 'when timestamp is before when the translation file was last changed', :skip_json_api_validation do
+    context 'when current_version is before when the translation file was last changed', :skip_json_api_validation do
       it 'returns file' do
         get '/mobile/v0/translations/download', headers: sis_headers,
                                                 params: { current_version: file_last_changed - 10 }
@@ -43,12 +43,20 @@ RSpec.describe 'Mobile::V0::Translations', type: :request do
       end
     end
 
-    context 'when timestamp is equal to or after when the translation file was last changed' do
+    context 'when current_version is equal to or after when the translation file was last changed' do
       it 'returns no content' do
         get '/mobile/v0/translations/download', headers: sis_headers, params: { current_version: file_last_changed }
 
         expect(response).to have_http_status(:no_content)
         expect(response.body).to be_empty
+      end
+    end
+
+    context 'when current_version is not a valid integer' do
+      it 'returns no content' do
+        get '/mobile/v0/translations/download', headers: sis_headers, params: { current_version: 'NaN' }
+
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end
