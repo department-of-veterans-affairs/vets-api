@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../file_utilities'
+
 module SimpleFormsApi
   module FormRemediation
     module Jobs

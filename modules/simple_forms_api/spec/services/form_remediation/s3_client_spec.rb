@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
   let(:form_type) { '20-10207' }
@@ -29,24 +30,35 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
   end
   let(:uploader) { instance_double(SimpleFormsApi::FormRemediation::Uploader) }
   let(:carrier_wave_file) { instance_double(CarrierWave::Storage::Fog::File) }
+  let(:s3_file) { instance_double(Aws::S3::Object) }
+  let(:manifest_entry) do
+    [
+      submission.created_at,
+      form_type,
+      benefits_intake_uuid,
+      metadata['fileNumber'],
+      metadata['veteranFirstName'],
+      metadata['veteranLastName']
+    ]
+  end
+  let(:config) { SimpleFormsApi::FormRemediation::Configuration::VffConfig.new }
 
   before do
     allow(FileUtils).to receive(:mkdir_p).and_return(true)
     allow(File).to receive(:directory?).and_return(true)
     allow(SimpleFormsApi::FormRemediation::SubmissionArchive).to(receive(:new).and_return(submission_archive_instance))
     allow(submission_archive_instance).to receive(:build!).and_return(
-      ["#{temp_file_path}/", submission, submission_file_path]
+      ["#{temp_file_path}/", manifest_entry]
     )
-    allow(SimpleFormsApi::FormRemediation::Uploader).to(
-      receive_messages(new: uploader, get_s3_link: '/s3_url/stuff.pdf')
-    )
+    allow(SimpleFormsApi::FormRemediation::Uploader).to receive_messages(new: uploader)
+    allow(uploader).to receive_messages(get_s3_link: '/s3_url/stuff.pdf', get_s3_file: s3_file)
     allow(uploader).to receive_messages(store!: carrier_wave_file)
     allow(Rails.logger).to receive(:info).and_call_original
     allow(Rails.logger).to receive(:error).and_call_original
   end
 
   describe '#initialize' do
-    subject(:new) { described_class.new(id: benefits_intake_uuid) }
+    subject(:new) { described_class.new(id: benefits_intake_uuid, config:) }
 
     context 'when initialized with a valid benefits_intake_uuid' do
       it 'successfully completes initialization' do
@@ -58,7 +70,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
   describe '#upload' do
     subject(:upload) { instance.upload }
 
-    let(:instance) { described_class.new(id: benefits_intake_uuid) }
+    let(:instance) { described_class.new(id: benefits_intake_uuid, config:) }
 
     context 'when no errors occur' do
       it 'logs a notification upon starting' do
