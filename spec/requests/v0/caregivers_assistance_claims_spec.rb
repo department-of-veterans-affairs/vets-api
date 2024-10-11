@@ -20,10 +20,6 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       post('/v0/caregivers_assistance_claims/download_pdf', params: body, headers:)
     end
 
-    before do
-      allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(false)
-    end
-
     let(:endpoint) { '/v0/caregivers_assistance_claims/download_pdf' }
     let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
     let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
@@ -36,32 +32,38 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       FileUtils.rm_f(response_pdf)
     end
 
-    it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
-      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-        form: form_data
-      ).and_return(
-        claim
-      )
+    context 'caregiver1010 flipper off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(false)
+      end
 
-      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
+      it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
+        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+          form: form_data
+        ).and_return(
+          claim
+        )
 
-      subject
+        expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
+        expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
 
-      expect(response).to have_http_status(:ok)
+        subject
 
-      # download response conent (the pdf) to disk
-      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
+        expect(response).to have_http_status(:ok)
 
-      # compare it with the pdf fixture
-      expect(
-        pdfs_fields_match?(response_pdf, expected_pdf)
-      ).to eq(true)
+        # download response conent (the pdf) to disk
+        File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
 
-      # ensure that the tmp file was deleted
-      expect(
-        File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-      ).to eq(false)
+        # compare it with the pdf fixture
+        expect(
+          pdfs_fields_match?(response_pdf, expected_pdf)
+        ).to eq(true)
+
+        # ensure that the tmp file was deleted
+        expect(
+          File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
+        ).to eq(false)
+      end
     end
 
     context 'caregiver1010 flipper on' do
