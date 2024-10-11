@@ -22,11 +22,12 @@ module Mobile
       private
 
       def file
-        @file ||= Rails.root.join('modules', 'mobile', 'app', 'assets', 'translations', 'en', 'common.json')
+        Rails.root.join('modules', 'mobile', 'app', 'assets', 'translations', 'en', 'common.json')
       end
 
       def file_last_changed
         @file_last_changed ||= begin
+          # can't interpolate file path into system call because it violates a security rule
           timestamp = `git log -1 --format='%ct' -- modules/mobile/app/assets/translations/en/common.json`
           Integer(timestamp)
         end
