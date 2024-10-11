@@ -37,6 +37,7 @@ RSpec.describe RepresentationManagement::Form2122aData, type: :model do
     it { expect(subject).not_to allow_value('1234A').for(:representative_zip_code) }
     it { expect(subject).not_to allow_value('12345').for(:representative_zip_code_suffix) }
     it { expect(subject).to allow_value('1234').for(:representative_zip_code_suffix) }
+    it { expect(subject).to allow_value('').for(:representative_zip_code_suffix) }
     it { expect(subject).to validate_length_of(:representative_zip_code_suffix).is_equal_to(4) }
     it { expect(subject).to validate_presence_of(:representative_phone) }
     it { expect(subject).to validate_length_of(:representative_phone).is_equal_to(10) }
