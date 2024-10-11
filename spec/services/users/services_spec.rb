@@ -10,14 +10,13 @@ RSpec.describe Users::Services do
 
     VCR.configure do |config|
       config.register_request_matcher :wildcard_path do |request1, request2|
-        # Remove the user id and icn after `/isValidSMUser/` to handle any user id and icn
+        # Removes the user id and icn after `/isValidSMUser/` to handle any user id and icn
         path1 = request1.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
         path2 = request2.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
         path1 == path2
       end
     end
 
-    # rewrite so that the cassette wraps the test
     context 'with initialized user' do
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_non_premium_user',
                        match_requests_on: %i[method wildcard_path]) do

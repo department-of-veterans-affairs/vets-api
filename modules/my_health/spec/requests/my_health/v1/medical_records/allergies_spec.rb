@@ -20,7 +20,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
     sign_in_as(current_user)
   end
 
-  # is the call being made to eligibility for users other than premium and if not, why?
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
