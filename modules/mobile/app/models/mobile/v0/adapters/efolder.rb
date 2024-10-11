@@ -4,7 +4,7 @@ module Mobile
   module V0
     module Adapters
       class Efolder
-        def parse(documents)
+        def self.parse(documents)
           documents.map do |document|
             Mobile::V0::Efolder.new(
               id: document['document_id'],

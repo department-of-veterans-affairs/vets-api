@@ -16,7 +16,7 @@ module Mobile
       end
 
       def efolder_adapter
-        Mobile::V0::Adapters::Efolder.new
+        Mobile::V0::Adapters::Efolder
       end
     end
   end
