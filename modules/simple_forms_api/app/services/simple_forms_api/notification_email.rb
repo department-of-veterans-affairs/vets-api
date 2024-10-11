@@ -154,11 +154,7 @@ module SimpleFormsApi
       when 'vba_21p_0847', 'vba_21_0972'
         form_data['preparer_email']
       when 'vba_21_0966'
-        if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
-          form_data['surviving_dependent_email']
-        else
-          form_data['veteran_email']
-        end
+        form21_0966_email_address
       when 'vba_21_4142'
         form_data.dig('veteran', 'email')
       when 'vba_21_10210'
@@ -179,11 +175,7 @@ module SimpleFormsApi
       when 'vba_21p_0847'
         form_data.dig('preparer_name', 'first')
       when 'vba_21_0966'
-        if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
-          form_data('surviving_dependent_full_name', 'first')
-        else
-          form_data.dig('veteran_full_name', 'first')
-        end
+        form21_0966_first_name
       when 'vba_21_0972'
         form_data.dig('preparer_full_name', 'first')
       when 'vba_21_4142'
@@ -311,6 +303,22 @@ module SimpleFormsApi
 
       else
         [nil, nil]
+      end
+    end
+
+    def form21_0966_first_name
+      if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
+        form_data('surviving_dependent_full_name', 'first')
+      else
+        form_data.dig('veteran_full_name', 'first')
+      end
+    end
+
+    def form21_0966_email_address
+      if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
+        form_data['surviving_dependent_email']
+      else
+        form_data['veteran_email']
       end
     end
 
