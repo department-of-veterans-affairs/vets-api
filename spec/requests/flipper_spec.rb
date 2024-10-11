@@ -256,6 +256,38 @@ RSpec.describe 'flipper', type: :request do
           end.to raise_error(Common::Exceptions::Forbidden)
         end
       end
+
+      it 'cannot add actors and returns 403' do
+        bypass_flipper_authenticity_token do
+          expect do
+            post '/flipper/features/this_is_only_a_test/actors'
+          end.to raise_error(Common::Exceptions::Forbidden)
+        end
+      end
+
+      it 'cannot add groups and returns 403' do
+        bypass_flipper_authenticity_token do
+          expect do
+            post '/flipper/features/this_is_only_a_test/groups'
+          end.to raise_error(Common::Exceptions::Forbidden)
+        end
+      end
+
+      it 'cannot adjust percentage_of_actors and returns 403' do
+        bypass_flipper_authenticity_token do
+          expect do
+            post '/flipper/features/this_is_only_a_test/percentage_of_actors'
+          end.to raise_error(Common::Exceptions::Forbidden)
+        end
+      end
+
+      it 'cannot adjust percentage_of_time and returns 403' do
+        bypass_flipper_authenticity_token do
+          expect do
+            post '/flipper/features/this_is_only_a_test/percentage_of_time'
+          end.to raise_error(Common::Exceptions::Forbidden)
+        end
+      end
     end
 
     context 'Authenticated User' do
@@ -271,6 +303,38 @@ RSpec.describe 'flipper', type: :request do
             end.to raise_error(Common::Exceptions::Forbidden)
           end
         end
+
+        it 'cannot add actors and returns 403' do
+          bypass_flipper_authenticity_token do
+            expect do
+              post '/flipper/features/this_is_only_a_test/actors'
+            end.to raise_error(Common::Exceptions::Forbidden)
+          end
+        end
+
+        it 'cannot add groups and returns 403' do
+          bypass_flipper_authenticity_token do
+            expect do
+              post '/flipper/features/this_is_only_a_test/groups'
+            end.to raise_error(Common::Exceptions::Forbidden)
+          end
+        end
+
+        it 'cannot adjust percentage_of_actors and returns 403' do
+          bypass_flipper_authenticity_token do
+            expect do
+              post '/flipper/features/this_is_only_a_test/percentage_of_actors'
+            end.to raise_error(Common::Exceptions::Forbidden)
+          end
+        end
+
+        it 'cannot adjust percentage_of_time and returns 403' do
+          bypass_flipper_authenticity_token do
+            expect do
+              post '/flipper/features/this_is_only_a_test/percentage_of_time'
+            end.to raise_error(Common::Exceptions::Forbidden)
+          end
+        end
       end
 
       context 'Authorized User' do
@@ -282,8 +346,48 @@ RSpec.describe 'flipper', type: :request do
           bypass_flipper_authenticity_token do
             expect(Flipper.enabled?(:this_is_only_a_test)).to be true
             post '/flipper/features/this_is_only_a_test/boolean', params: nil
-            assert_response :found
+            follow_redirect!
+            assert_response :success
             expect(Flipper.enabled?(:this_is_only_a_test)).to be false
+          end
+        end
+
+        it 'can add actors' do
+          allow(user).to receive(:organization_member?).with(Settings.flipper.github_organization).and_return(true)
+          allow(user).to receive(:team_member?).with(Settings.flipper.github_team).and_return(true)
+          Flipper.disable(:this_is_only_a_test)
+          test_user = create(:user)
+
+          bypass_flipper_authenticity_token do
+            expect(Flipper.enabled?(:this_is_only_a_test)).to be false
+            post '/flipper/features/this_is_only_a_test/actors',
+                 params: { operation: 'enable', value: test_user.flipper_id }
+            follow_redirect!
+            assert_response :success
+            expect(Flipper.enabled?(:this_is_only_a_test, test_user)).to be true
+          end
+        end
+
+        it 'can adjust percentage_of_actors' do
+          allow(user).to receive(:organization_member?).with(Settings.flipper.github_organization).and_return(true)
+          allow(user).to receive(:team_member?).with(Settings.flipper.github_team).and_return(true)
+          Flipper.disable(:this_is_only_a_test)
+          test_user1 = create(:user_account)
+          test_user2 = create(:user_account)
+
+          bypass_flipper_authenticity_token do
+            expect(Flipper.enabled?(:this_is_only_a_test)).to be false
+            post '/flipper/features/this_is_only_a_test/percentage_of_actors', params: { value: 100 }
+            follow_redirect!
+            assert_response :success
+            expect(Flipper.enabled?(:this_is_only_a_test, test_user1)).to be true
+            expect(Flipper.enabled?(:this_is_only_a_test, test_user2)).to be true
+
+            post '/flipper/features/this_is_only_a_test/percentage_of_actors', params: { value: 0 }
+            follow_redirect!
+            assert_response :success
+            expect(Flipper.enabled?(:this_is_only_a_test, test_user1)).to be false
+            expect(Flipper.enabled?(:this_is_only_a_test, test_user2)).to be false
           end
         end
       end

@@ -4,7 +4,7 @@ module Flipper
   class RouteAuthorization
     def self.matches?(request)
       # Confirm that requests to toggle (POST to /boolean) are authorized
-      url_pattern = %r{\A/flipper/features/[^/]+/boolean\z}
+      url_pattern = %r{\A/flipper/features/[^/]+/(boolean|actors|groups|percentage_of_actors|percentage_of_time)\z}
       if request.method == 'POST' && request.path.match?(url_pattern)
         return true if authorized?(request.session[:flipper_user])
 
