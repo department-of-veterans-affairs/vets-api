@@ -81,12 +81,12 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
       before do
         allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, error_message)
         allow(Rails.logger).to receive(:error)
-        allow(PersonalInformationLog).to receive(:create!)
+        allow(PersonalInformationLog).to receive(:create)
       end
 
       it 'logs the error, creates a PersonalInformationLog, and raises the error' do
         expect(Rails.logger).to receive(:error).with("Failed to generate PDF: #{error_message}")
-        expect(PersonalInformationLog).to receive(:create!).with(
+        expect(PersonalInformationLog).to receive(:create).with(
           data: { form: claim.parsed_form, file_name: claim.guid },
           error_class: '1010CGPdfGenerationError'
         )
