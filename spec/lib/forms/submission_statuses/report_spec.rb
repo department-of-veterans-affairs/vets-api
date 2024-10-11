@@ -8,7 +8,7 @@ describe Forms::SubmissionStatuses::Report do
   subject { described_class.new(user_account:, allowed_forms:) }
 
   let(:user_account) { create(:user_account) }
-  let(:allowed_forms) { %w[20-10207 21-0845 21-0966 21-0972 21-10210 21-4142 21-4142a 21P-0847] }
+  let(:allowed_forms) { %w[20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847] }
 
   context 'when user has no submissions' do
     before do
@@ -25,7 +25,7 @@ describe Forms::SubmissionStatuses::Report do
   context 'when user has submissions' do
     before do
       create(:form_submission, :with_form214142, user_account_id: user_account.id)
-      create(:form_submission, :with_form210966, user_account_id: user_account.id)
+      create(:form_submission, :with_form210845, user_account_id: user_account.id)
       create(:form_submission, :with_form_blocked, user_account_id: user_account.id)
     end
 
