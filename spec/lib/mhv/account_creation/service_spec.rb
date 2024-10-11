@@ -165,6 +165,7 @@ describe MHV::AccountCreation::Service do
           {
             body: { errorCode: 812, message: 'Required ICN field is missing or invalid in the JWT' }.as_json,
             error_message: 'the server responded with status 400',
+            status: 400,
             icn:
           }
         end
@@ -179,9 +180,12 @@ describe MHV::AccountCreation::Service do
           {
             body: { errorCode: 805, message: 'Deactivated Account found in MHV for ICN' }.as_json,
             error_message: 'the server responded with status 400',
+            status: 400,
             icn:
           }
         end
+
+        it_behaves_like 'client error handling'
       end
 
       context 'when the STS token is invalid' do
@@ -191,6 +195,7 @@ describe MHV::AccountCreation::Service do
           {
             body: { errorCode: 808, message: 'Application authentication failed' }.as_json,
             error_message: 'the server responded with status 403',
+            status: 403,
             icn:
           }
         end
@@ -205,6 +210,7 @@ describe MHV::AccountCreation::Service do
         {
           body: 'Internal Server Error',
           error_message: "unexpected token at 'Internal Server Error'",
+          status: 500,
           icn:
         }
       end
