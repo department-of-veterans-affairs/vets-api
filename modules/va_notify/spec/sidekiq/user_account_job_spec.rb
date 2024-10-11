@@ -32,6 +32,8 @@ RSpec.describe VANotify::UserAccountJob, type: :worker do
         }
       )
 
+      expect(StatsD).to receive(:increment).with('api.vanotify.user_account_job.success')
+
       described_class.new.perform(user_account.id, template_id)
     end
 

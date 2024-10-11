@@ -62,7 +62,7 @@ gem 'connect_vbms', git: 'https://github.com/adhocteam/connect_vbms', tag: 'v2.1
 gem 'csv'
 gem 'date_validator'
 gem 'ddtrace'
-gem 'dogstatsd-ruby', '5.6.1'
+gem 'dogstatsd-ruby', '5.6.2'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
@@ -179,7 +179,7 @@ group :development do
 end
 
 group :test do
-  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.0.0.vsp'
+  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.1.0.vsp'
   gem 'mock_redis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'

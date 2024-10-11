@@ -98,9 +98,9 @@ module SimpleFormsApi
     def enqueue_email(at, template_id, data)
       # async job and we have a UserAccount
       if user_account
-        mpi_profile = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
-        first_name = mpi_profile.first_name
-        data[:personalization]['first_name'] = first_name
+        data[:personalization]['first_name'] = get_first_name
+        return if data[:personalization]['first_name'].blank?
+
         VANotify::UserAccountJob.perform_at(
           at,
           user_account.id,
@@ -109,7 +109,7 @@ module SimpleFormsApi
         )
       # async job and we don't have a UserAccount but form data should include email
       else
-        return if data[:email].blank?
+        return if data[:email].blank? || data[:personalization]['first_name'].blank?
 
         VANotify::EmailJob.perform_at(
           at,
@@ -123,6 +123,8 @@ module SimpleFormsApi
     def send_email_now(template_id, data)
       # sync job and we have a User
       if user
+        return if data[:personalization]['first_name'].blank?
+
         VANotify::EmailJob.perform_async(
           user.va_profile_email,
           template_id,
@@ -130,13 +132,33 @@ module SimpleFormsApi
         )
       # sync job and form data should include email
       else
-        return if data[:email].blank?
+        return if data[:email].blank? || data[:personalization]['first_name'].blank?
 
         VANotify::EmailJob.perform_async(
           data[:email],
           template_id,
           data[:personalization]
         )
+      end
+    end
+
+    def get_first_name
+      if user_account
+        mpi_response = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
+        if mpi_response
+          error = mpi_response.error
+          Rails.logger.error('MPI response error', { error: }) if error
+
+          first_name = mpi_response.profile&.given_names&.first
+          Rails.logger.error('MPI profile missing first_name') unless first_name
+
+          first_name
+        end
+      elsif user
+        first_name = user.first_name
+        Rails.logger.error('First name not found in user profile') unless first_name
+
+        first_name
       end
     end
 
@@ -162,7 +184,7 @@ module SimpleFormsApi
 
         {
           email: @user&.va_profile_email,
-          personalization: default_personalization(@user.first_name)
+          personalization: default_personalization(get_first_name)
             .merge(form21_0966_personalization)
         }
       when 'vba_21_0972'
@@ -226,7 +248,7 @@ module SimpleFormsApi
     def form20_10206_contact_info
       # email address not required and omitted
       if @form_data['email_address'].blank? && @user
-        [@user&.va_profile_email, @form_data.dig('full_name', 'first')]
+        [@user.va_profile_email, @form_data.dig('full_name', 'first')]
 
       # email address not required and optionally entered
       else
@@ -261,7 +283,7 @@ module SimpleFormsApi
     def form21_0845_contact_info
       # (vet && signed in)
       if @form_data['authorizer_type'] == 'veteran' && @user
-        [@user&.va_profile_email, @form_data.dig('veteran_full_name', 'first')]
+        [@user.va_profile_email, @form_data.dig('veteran_full_name', 'first')]
 
       # (non-vet && signed in) || (non-vet && anon)
       elsif @form_data['authorizer_type'] == 'nonVeteran'

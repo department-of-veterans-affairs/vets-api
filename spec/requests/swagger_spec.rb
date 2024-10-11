@@ -47,6 +47,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
     before do
       Flipper.enable(:va_burial_v2)
+      create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id)
     end
 
     describe 'backend statuses' do
@@ -1962,6 +1963,10 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:user) { build(:user, middle_name: 'Lee') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
+      before do
+        create(:user_verification, idme_uuid: user.idme_uuid)
+      end
+
       it 'supports getting user with some external errors', :skip_mvi do
         expect(subject).to validate(:get, '/v0/user', 296, headers)
       end
@@ -3747,7 +3752,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       before do
         Flipper.enable(:my_va_form_submission_statuses)
         create(:form_submission, :with_form214142, user_account_id: user.user_account_uuid)
-        create(:form_submission, :with_form210966, user_account_id: user.user_account_uuid)
+        create(:form_submission, :with_form210845, user_account_id: user.user_account_uuid)
         create(:form_submission, :with_form_blocked, user_account_id: user.user_account_uuid)
       end
 
@@ -3798,6 +3803,7 @@ RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :de
 
     context 'GI Bill Status' do
       it 'supports getting Gi Bill Status' do
+        Flipper.enable(:sob_updated_design)
         Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
         expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 401)
         VCR.use_cassette('lighthouse/benefits_education/200_response') do
@@ -3807,6 +3813,7 @@ RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :de
       end
 
       it 'supports Gi Bill Status 503 condition' do
+        Flipper.disable(:sob_updated_design)
         Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 00:15:06'))
         expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 503, headers)
         Timecop.return
