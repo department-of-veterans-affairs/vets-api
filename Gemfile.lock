@@ -511,7 +511,7 @@ GEM
       google-apis-core (>= 0.15.0, < 2.a)
       google-apis-discovery_v1 (~> 0.18)
       thor (>= 0.20, < 2.a)
-    google-cloud-env (2.1.1)
+    google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
     google-protobuf (4.28.2)
       bigdecimal
@@ -521,7 +521,7 @@ GEM
       ffi (~> 1)
       ffi-compiler (~> 1)
       rake (>= 13)
-    googleauth (1.11.0)
+    googleauth (1.11.1)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
       jwt (>= 1.4, < 3.0)
