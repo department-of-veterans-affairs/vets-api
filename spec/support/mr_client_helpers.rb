@@ -13,5 +13,14 @@ module MedicalRecords
                                             expires_at: Time.current + (60 * 60),
                                             token: TOKEN })
     end
+
+    VCR.configure do |config|
+      config.register_request_matcher :wildcard_path do |request1, request2|
+        # Removes the user id and icn after `/isValidSMUser/` to handle any user id and icn
+        path1 = request1.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+        path2 = request2.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+        path1 == path2
+      end
+    end
   end
 end
