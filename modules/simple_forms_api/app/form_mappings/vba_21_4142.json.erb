@@ -95,9 +95,9 @@
   "F[0].#subform[14].VeteranLastName[0]": "<%= form.data.dig('veteran', 'full_name', 'last') %>",
 
   <%# 2. Social Security Number %>
-  "F[0].#subform[1].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](0..2) %>",
-  "F[0].#subform[1].VeteransSocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](3..4) %>",
-  "F[0].#subform[1].VeteransSocialSecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](5..8) %>",
+  "F[0].#subform[14].SSN1[0]": "<%= form.data.dig('veteran', 'ssn')&.[](0..2) %>",
+  "F[0].#subform[14].SSN2[0]": "<%= form.data.dig('veteran', 'ssn')&.[](3..4) %>",
+  "F[0].#subform[14].SSN3[0]": "<%= form.data.dig('veteran', 'ssn')&.[](5..8) %>",
 
   <%# 3. VA File Number %>
   "F[0].#subform[14].VAFileNumber[0]": "<%= form.data.dig('veteran', 'va_file_number') %>",
@@ -165,11 +165,12 @@
 
   <%# 10D. Provider/Facility Street Address %>
   "F[0].#subform[14].Provider_Facility_Street_Address_NumberAndStreet[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'street') %>",
-  "F[0].#subform[14].Provider_Facility_Address_City[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
-  "F[0].#subform[14].Provider_Facility_Address_StateOrProvince[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
+  "F[0].#subform[14].MailingAddress_ApartmentOrUnitNumber[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
+  "F[0].#subform[14].Provider_Facility_Address_City[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'city') %>",
+  "F[0].#subform[14].Provider_Facility_Address_StateOrProvince[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'state') %>",
   "F[0].#subform[14].Provider_Facility_Address_Country[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'country') %>",
-  "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'state') %>",
-  "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'city') %>",
+  "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
+  "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
 
   <%# Page 3 %>
 
@@ -194,11 +195,12 @@
 
   <%# 11D. Provider/Facility Street Address %>
   "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'street') %>",
-  "F[0].#subform[15].Provider_Facility_Address_City[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
-  "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
+  "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
+  "F[0].#subform[15].Provider_Facility_Address_City[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'city') %>",
+  "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'state') %>",
   "F[0].#subform[15].Provider_Facility_Address_Country[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'country') %>",
-  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'state') %>",
-  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'city') %>",
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
 
   <%# 12A. Provider or Facility Name %>
   "F[0].#subform[15].Provider_Or_Facility_Name[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_name') %>",
@@ -216,11 +218,12 @@
 
   <%# 12D. Provider/Facility Street Address %>
   "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'street') %>",
-  "F[0].#subform[15].Provider_Facility_Address_City[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
-  "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
+  "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
+  "F[0].#subform[15].Provider_Facility_Address_City[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'city') %>",
+  "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'state') %>",
   "F[0].#subform[15].Provider_Facility_Address_Country[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'country') %>",
-  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'state') %>",
-  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'city') %>",
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
 
   <%# 13A. Provider or Facility Name %>
   "F[0].#subform[15].Provider_Or_Facility_Name[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_name') %>",
@@ -238,9 +241,10 @@
 
   <%# 13D. Provider/Facility Street Address %>
   "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'street') %>",
-  "F[0].#subform[15].Provider_Facility_Address_City[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
-  "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
+  "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
+  "F[0].#subform[15].Provider_Facility_Address_City[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'city') %>",
+  "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'state') %>",
   "F[0].#subform[15].Provider_Facility_Address_Country[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'country') %>",
-  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'state') %>",
-  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'city') %>"
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>"
 }
