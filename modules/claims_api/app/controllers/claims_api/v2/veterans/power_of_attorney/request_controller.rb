@@ -18,8 +18,8 @@ module ClaimsApi
                                                              detail: 'poaCodes is required and cannot be empty')
           end
 
-          service = ManageRepresentativeService.new(external_uid: 'power-of-attorney-request',
-                                                    external_key: 'power-of-attorney-request')
+          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
+                                                    external_key: 'power_of_attorney_request_key')
 
           res = service.read_poa_request(poa_codes:)
 
