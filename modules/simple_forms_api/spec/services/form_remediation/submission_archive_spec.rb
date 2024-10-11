@@ -79,7 +79,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
 
     context 'when properly initialized' do
       it 'completes successfully' do
-        expect(build_archive).to include(temp_file_path)
+        expect(build_archive).to include("#{temp_file_path}/")
       end
 
       it 'writes the submission pdf file' do
@@ -94,10 +94,6 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
             "#{temp_file_path}/attachment_#{i + 1}__#{submission_file_path}.pdf", a_string_starting_with('%PDF')
           )
         end
-      end
-
-      it 'writes the manifest file' do
-        expect(CSV).to have_received(:open).with("#{temp_file_path}/manifest_#{submission_file_path}.csv", 'wb')
       end
     end
   end

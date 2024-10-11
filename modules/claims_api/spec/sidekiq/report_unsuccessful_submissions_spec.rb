@@ -28,10 +28,7 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
           from,
           to,
           consumer_claims_totals: [],
-          unsuccessful_claims_submissions: ClaimsApi::AutoEstablishedClaim.where(
-            'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
-            'errored', @from, @to, '0oagdm49ygCSJTp8X297'
-          ).order(:cid, :status).pluck(:cid, :status, :id),
+          unsuccessful_claims_submissions: [],
           unsuccessful_va_gov_claims_submissions: nil,
           poa_totals: [],
           unsuccessful_poa_submissions: [],

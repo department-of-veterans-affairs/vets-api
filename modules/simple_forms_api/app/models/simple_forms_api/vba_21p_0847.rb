@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA21p0847
-    include Virtus.model(nullify_blank: true)
+  class VBA21p0847 < BaseForm
     STATS_KEY = 'api.simple_forms_api.21p_0847'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def words_to_remove
       veteran_ssn + veteran_date_of_birth + deceased_claimant_date_of_death + preparer_ssn + preparer_address
