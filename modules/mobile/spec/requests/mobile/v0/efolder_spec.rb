@@ -6,10 +6,10 @@ require 'support/stub_efolder_documents'
 RSpec.describe 'Mobile::V0::Efolder', type: :request do
   include JsonSchemaMatchers
 
-  describe 'GET /v0/efolder' do
+  describe 'GET /v0/efolder/documents' do
     let!(:user) { sis_user }
 
-    context 'with an authorized user' do
+    context 'with working upstream service' do
       stub_efolder_documents(:index)
 
       let!(:efolder_response) do
@@ -20,9 +20,26 @@ RSpec.describe 'Mobile::V0::Efolder', type: :request do
       end
 
       it 'and a result that matches our schema is successfully returned with the 200 status' do
-        get '/mobile/v0/efolder', headers: sis_headers
+        get '/mobile/v0/efolder/documents', headers: sis_headers
         expect(response).to have_http_status(:ok)
         expect(response.parsed_body).to eq(efolder_response)
+      end
+    end
+
+    context 'with an error from upstream' do
+      before do
+        efolder_service = double
+        expect(Efolder::Service).to receive(:new).and_return(efolder_service)
+        expect(efolder_service).to receive(:list_documents).and_raise(Common::Exceptions::BackendServiceException)
+      end
+
+      it 'returns expected error' do
+        get '/mobile/v0/efolder/documents', headers: sis_headers
+
+        expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Operation failed',
+                                                            'detail' => 'Operation failed',
+                                                            'code' => 'VA900', 'status' => '400' }] })
       end
     end
   end
