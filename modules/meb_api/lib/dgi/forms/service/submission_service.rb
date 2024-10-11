@@ -15,7 +15,7 @@ module MebApi
           STATSD_KEY_PREFIX = 'api.dgi.submission'
 
           def submit_claim(params, response_data)
-            form_type = params.has_key?('@type') ? params['@type'] : 'ToeSubmission'
+            form_type = params.key?('@type') ? params['@type'] : 'ToeSubmission'
             unmasked_params = update_dd_params(params, response_data)
             with_monitoring do
               headers = request_headers
@@ -30,9 +30,9 @@ module MebApi
 
           def end_point(form_type)
             if form_type == 'ToeSubmission'
-              "claimType/toe/claimsubmission".dup
+              'claimType/toe/claimsubmission'.dup
             else
-              "claimType/#{form_type}/claimsubmission".dup
+              "claimType/#{form_type.capitalize}/claimsubmission".dup
             end
           end
 

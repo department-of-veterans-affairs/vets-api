@@ -115,7 +115,7 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
         end
       end
 
-      context 'Feature toe_light_house_dgi_direct_deposit=true' do
+      context 'Feature CH35 toe_light_house_dgi_direct_deposit=true' do
         before do
           Flipper.enable(:toe_light_house_dgi_direct_deposit)
           claimant_params[:form]['@type'] = 'Chapter35'
