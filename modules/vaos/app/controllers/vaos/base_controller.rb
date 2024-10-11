@@ -5,7 +5,7 @@ require 'common/exceptions'
 module VAOS
   class BaseController < ::ApplicationController
     include AppointmentAuthorization
-    alias_method :authorize, :authorize_appointment!
+    before_action :authorize
 
     service_tag 'mhv-appointments'
   end

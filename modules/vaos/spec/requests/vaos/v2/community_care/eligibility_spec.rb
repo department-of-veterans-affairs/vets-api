@@ -5,7 +5,6 @@ RSpec.describe 'VAOS::V2::CommunityCare::Eligibility', type: :request do
   include SchemaMatchers
 
   before do
-    allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')

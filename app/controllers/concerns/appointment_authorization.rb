@@ -3,15 +3,15 @@
 module AppointmentAuthorization
   extend ActiveSupport::Concern
 
-  included do
-    before_action { authorize_appointment! }
-  end
-
   protected
 
-  def authorize_appointment!
+  def authorize
     raise_access_denied unless current_user.authorize(:vaos, :access?)
     raise_access_denied_no_icn if current_user.icn.blank?
+  end
+
+  def authorize_with_facilities
+    authorize
     raise_access_denied_no_facilities unless current_user.authorize(:vaos, :facilities_access?)
   end
 
