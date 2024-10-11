@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require 'csv'
-require 'fileutils'
 require 'simple_forms_api/form_remediation/configuration/base'
+require_relative 'file_utilities'
 
 # Built in accordance with the following documentation:
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
@@ -16,6 +15,7 @@ module SimpleFormsApi
         @temp_directory_path = config.temp_directory_path
         @include_manifest = config.include_manifest
         @include_metadata = config.include_metadata
+        @manifest_entry = nil
 
         assign_defaults(options)
         hydrate_submission_data unless submission_already_hydrated?
@@ -31,7 +31,9 @@ module SimpleFormsApi
 
         return "#{submission_file_path}.pdf" if archive_type == :submission
 
-        zip_directory!(config.parent_dir, temp_directory_path)
+        zip_directory!(config.parent_dir, temp_directory_path, submission_file_path)
+
+        [temp_directory_path, manifest_entry]
       rescue => e
         config.handle_error("Failed building submission: #{id}", e)
       end
@@ -39,7 +41,7 @@ module SimpleFormsApi
       private
 
       attr_reader :archive_type, :attachments, :config, :file_path, :form_number, :id, :include_manifest,
-                  :include_metadata, :metadata, :submission, :temp_directory_path
+                  :include_metadata, :manifest_entry, :metadata, :submission, :temp_directory_path
 
       def assign_defaults(options)
         # The file paths of any hydrated attachments which were originally included in the submission
@@ -80,7 +82,7 @@ module SimpleFormsApi
         [
           -> { write_pdf },
           -> { write_attachments if attachments&.any? },
-          -> { write_manifest if include_manifest },
+          -> { build_manifest_csv_entry if include_manifest },
           -> { write_metadata if include_metadata }
         ].each do |task|
           safely_execute_task(task)
@@ -111,23 +113,15 @@ module SimpleFormsApi
         create_file("attachment_#{attachment_number}__#{submission_file_path}.pdf", File.read(file_path), 'attachment')
       end
 
-      def write_manifest
-        file_name = "manifest_#{submission_file_path}.csv"
-        manifest_path = File.join(temp_directory_path, file_name)
-
-        CSV.open(manifest_path, 'wb') do |csv|
-          csv << %w[SubmissionDateTime FormType VAGovID VeteranID FirstName LastName]
-          csv << [
-            submission.created_at,
-            form_number,
-            id,
-            metadata['fileNumber'],
-            metadata['veteranFirstName'],
-            metadata['veteranLastName']
-          ]
-        end
-      rescue => e
-        config.handle_error("Failed writing manifest for submission: #{id}", e)
+      def build_manifest_csv_entry
+        @manifest_entry = [
+          submission.created_at,
+          form_number,
+          id,
+          metadata['fileNumber'],
+          metadata['veteranFirstName'],
+          metadata['veteranLastName']
+        ]
       end
 
       def create_file(file_name, payload, file_description, dir_path = config.temp_directory_path)

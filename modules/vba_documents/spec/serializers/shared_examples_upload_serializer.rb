@@ -7,8 +7,16 @@ RSpec.shared_examples 'VBADocuments::UploadSerializer' do
     expect(data['id']).to eq upload_submission.guid.to_s
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq 'document_upload'
+  end
+
   it 'includes :guid' do
     expect(attributes['guid']).to eq upload_submission.guid
+  end
+
+  it 'includes :status' do
+    expect(attributes['status']).to eq upload_submission.status
   end
 
   it 'includes :code' do
@@ -47,10 +55,6 @@ RSpec.shared_examples 'VBADocuments::UploadSerializer' do
     expect_time_eq(attributes['updated_at'], upload_submission.updated_at)
   end
 
-  it 'includes :uploaded_pdf' do
-    expect(attributes['uploaded_pdf']).to eq upload_submission.uploaded_pdf
-  end
-
   context 'when render_location is true' do
     before do
       allow(upload_submission).to receive(:get_location).and_return('http://another.fakesite.com/rewrittenpath')
@@ -81,5 +85,9 @@ RSpec.shared_examples 'VBADocuments::UploadSerializer' do
       expect { serialize(upload_submission, { serializer_class: described_class, params: { render_location: true } }) }
         .to raise_error(Common::Exceptions::InternalServerError, 'Internal server error')
     end
+  end
+
+  it 'includes :uploaded_pdf' do
+    expect(attributes['uploaded_pdf']).to eq upload_submission.uploaded_pdf
   end
 end
