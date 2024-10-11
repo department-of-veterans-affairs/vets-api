@@ -30,7 +30,7 @@ module ClaimsApi
                    namespaces: { 'data' => '/data' })
     end
 
-    def update_poa_request(representative:, proc_id:)
+    def update_poa_request(representative:, proc_id:, secondary_status:)
       first_name = representative.try(:first_name) || representative[:first_name]
       last_name = representative.try(:last_name) || representative[:last_name]
 
@@ -40,7 +40,7 @@ module ClaimsApi
           xml.VSOUserLastName last_name
           xml.dateRequestActioned Time.current.iso8601
           xml.procId proc_id
-          xml.secondaryStatus 'obsolete'
+          xml.secondaryStatus secondary_status || 'obsolete'
         end
       end
 
