@@ -62,9 +62,9 @@
   <%# Page 2 %>
 
   <%# HEADER: Social Security Number %>
-  "F[0].#subform[1].SSN1[0]": "<%= form.data.dig('veteran', 'ssn')&.[](0..2) %>",
-  "F[0].#subform[1].SSN2[0]": "<%= form.data.dig('veteran', 'ssn')&.[](3..4) %>",
-  "F[0].#subform[1].SSN3[0]": "<%= form.data.dig('veteran', 'ssn')&.[](5..8) %>",
+  "F[0].#subform[1].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](0..2) %>",
+  "F[0].#subform[1].VeteransSocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](3..4) %>",
+  "F[0].#subform[1].VeteransSocialSecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](5..8) %>",
 
   <%# Section 5: Authorization and Consent to Release Information to VA and Signature %>
 
