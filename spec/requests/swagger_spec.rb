@@ -47,6 +47,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
     before do
       Flipper.enable(:va_burial_v2)
+      create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id)
     end
 
     describe 'backend statuses' do
@@ -1961,6 +1962,10 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     context '/v0/user endpoint with some external service errors' do
       let(:user) { build(:user, middle_name: 'Lee') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+
+      before do
+        create(:user_verification, idme_uuid: user.idme_uuid)
+      end
 
       it 'supports getting user with some external errors', :skip_mvi do
         expect(subject).to validate(:get, '/v0/user', 296, headers)

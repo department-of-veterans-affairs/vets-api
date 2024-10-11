@@ -8,7 +8,8 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
   let(:fixtures_path) { 'modules/simple_forms_api/spec/fixtures' }
   let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_20_10207_with_supporting_documents.json').read }
   let(:file_path) { Rails.root.join(fixtures_path, 'pdfs', 'vba_20_10207-completed.pdf').to_s }
-  let(:submission) { create(:form_submission, :pending, form_type:, form_data:) }
+  let(:created_at) { 3.years.ago }
+  let(:submission) { create(:form_submission, :pending, form_type:, form_data:, created_at:) }
   let(:benefits_intake_uuid) { submission.benefits_intake_uuid }
   let(:submission_instance) { described_class.new(id: benefits_intake_uuid) }
   let(:filler) { instance_double(SimpleFormsApi::PdfFiller) }
@@ -25,6 +26,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
     }
   end
   let(:vba_20_10207_instance) { instance_double(SimpleFormsApi::VBA2010207, metadata:) }
+  let(:signature_date) { submission.created_at.in_time_zone('America/Chicago') }
 
   before do
     allow(FormSubmission).to receive(:find_by).with(benefits_intake_uuid:).and_return(submission)
@@ -32,7 +34,9 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
     allow(SimpleFormsApi::PdfFiller).to receive(:new).and_return(filler)
     allow(filler).to receive(:generate).with(timestamp: submission.created_at).and_return(file_path)
     allow(SimpleFormsApi::VBA2010207).to receive(:new).and_return(vba_20_10207_instance)
-    allow(vba_20_10207_instance).to receive_messages(get_attachments: attachments, zip_code_is_us_based: true)
+    allow(vba_20_10207_instance).to(
+      receive_messages(get_attachments: attachments, zip_code_is_us_based: true, 'signature_date=' => true)
+    )
   end
 
   describe '#initialize' do
@@ -117,6 +121,11 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
 
       it 'generates valid metadata' do
         expect(hydrated.metadata).to eq(metadata)
+      end
+
+      it 'sets the signature date properly' do
+        hydrated
+        expect(vba_20_10207_instance).to have_received(:signature_date=).with(signature_date)
       end
 
       context 'when the form is 20-10207' do

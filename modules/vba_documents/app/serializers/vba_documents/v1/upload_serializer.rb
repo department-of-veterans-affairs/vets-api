@@ -3,7 +3,7 @@
 module VBADocuments
   module V1
     class UploadSerializer < VBADocuments::UploadSerializer
-      attribute :status
+      set_type :document_upload
     end
   end
 end
