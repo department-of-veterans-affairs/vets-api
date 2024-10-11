@@ -29,7 +29,11 @@ module MebApi
           private
 
           def end_point(form_type)
-            "claimType/#{form_type}/claimsubmission".dup
+            if form_type == 'ToeSubmission' || form_type == 'toe'
+              "claimType/toe/claimsubmission".dup
+            else
+              "claimType/#{form_type}/claimsubmission".dup
+            end
           end
 
           def request_headers
