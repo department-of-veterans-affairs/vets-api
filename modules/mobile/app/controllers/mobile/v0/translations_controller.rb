@@ -6,7 +6,7 @@ module Mobile
       skip_before_action :authenticate
 
       def download
-        if params[:current_version].nil? || (Integer(params[:current_version]) < file_last_changed)
+        if needs_translations?
           response.headers['Content-Version'] = file_last_changed
           send_file(
             file,
@@ -31,6 +31,21 @@ module Mobile
           timestamp = `git log -1 --format='%ct' -- modules/mobile/app/assets/translations/en/common.json`
           Integer(timestamp)
         end
+      end
+
+      def needs_translations?
+        params[:current_version].nil? || (current_version < file_last_changed)
+      end
+
+      def current_version
+        return nil if params[:current_version].nil?
+
+        Integer(params[:current_version])
+      rescue ArgumentError
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: "#{params[:current_version]} is not an integer",
+          source: self.class.to_s
+        )
       end
     end
   end

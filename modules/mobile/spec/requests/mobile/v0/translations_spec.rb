@@ -53,10 +53,19 @@ RSpec.describe 'Mobile::V0::Translations', type: :request do
     end
 
     context 'when current_version is not a valid integer' do
-      it 'returns no content' do
+      it 'returns unprocessable entity' do
         get '/mobile/v0/translations/download', headers: sis_headers, params: { current_version: 'NaN' }
 
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body).to eq({
+                                             'errors' => [{
+                                               'title' => 'Unprocessable Entity',
+                                               'detail' => 'NaN is not an integer',
+                                               'code' => '422',
+                                               'source' => 'Mobile::V0::TranslationsController',
+                                               'status' => '422'
+                                             }]
+                                           })
       end
     end
   end
