@@ -11,10 +11,11 @@ module ClaimsApi
     end
 
     def errored_claims
-      ClaimsApi::AutoEstablishedClaim.where(
-        'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
-        'errored', @from, @to, '0oagdm49ygCSJTp8X297'
-      ).order(:cid, :status)
+      ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to, status: 'errored').where(
+        "cid <> '0oagdm49ygCSJTp8X297'"
+      ).order(
+        :cid, :status
+      )
     end
 
     def unsuccessful_va_gov_claims_submissions
@@ -46,7 +47,8 @@ module ClaimsApi
     end
 
     def claims_totals
-      @claims_consumers.map do |cid|
+      @claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:cid).uniq
+      @claims_consumers&.map do |cid|
         counts = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to, cid:).group(:status).count
         totals = counts.sum { |_k, v| v }.to_f
 
@@ -66,7 +68,8 @@ module ClaimsApi
     end
 
     def poa_totals
-      @poa_consumers.map do |cid|
+      @poa_consumers = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).pluck(:cid).uniq
+      @poa_consumers&.map do |cid|
         counts = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to, cid:).group(:status).count
         totals = counts.sum { |_k, v| v }
 
@@ -94,7 +97,8 @@ module ClaimsApi
     end
 
     def itf_totals
-      @itf_consumers.map do |cid|
+      @itf_consumers = ClaimsApi::IntentToFile.where(created_at: @from..@to).pluck(:cid).uniq
+      @itf_consumers&.map do |cid|
         counts = ClaimsApi::IntentToFile.where(created_at: @from..@to, cid:).group(:status).count
         totals = counts.sum { |_k, v| v }
 
@@ -109,7 +113,8 @@ module ClaimsApi
     end
 
     def ews_totals
-      @ews_consumers.map do |cid|
+      @ews_consumers = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).pluck(:cid).uniq
+      @ews_consumers&.map do |cid|
         counts = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to, cid:).group(:status).count
         totals = counts.sum { |_k, v| v }
 
