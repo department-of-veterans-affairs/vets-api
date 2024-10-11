@@ -1735,7 +1735,7 @@ paths:
       security:
         - Bearer: []
       summary: /v0/disability-rating
-  /v0/efolder/documents:
+  /v0/efolder:
     get:
       description: Returns the user's list of documents in efolder
       parameters:
@@ -1767,7 +1767,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: []
-      summary: /v0/efolder/documents
+      summary: /v0/efolder
   /v0/enrollment-status:
     get:
       description: Returns the user's VA enrollment status.
