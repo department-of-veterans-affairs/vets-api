@@ -3,7 +3,7 @@
 require_relative '../../../support/helpers/rails_helper'
 
 RSpec.describe 'Mobile::V0::Translations', type: :request do
-  describe 'GET /mobile/v0/translations' do
+  describe 'GET /mobile/v0/translations/download' do
     let(:file_last_changed) do
       file = Rails.root.join('modules', 'mobile', 'app', 'assets', 'translations', 'en', 'common.json')
       timestamp = `git log -1 --format='%ci' #{file}`
