@@ -60,6 +60,12 @@ module ClaimsApi
         errored_submission_message = ''.dup
         if submission_type == 'Intent to File'
           errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n\n"
+        elsif submission_type == 'Va Gov Disability Compensation'
+          errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n\n```"
+          errored_submissions.each do |submission_id|
+            errored_submission_message << "#{link_value(submission_id)}#{submission_id}> \n"
+          end
+          errored_submission_message << "```  \n\n"
         else
           errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n\n```"
           errored_submissions.each do |submission_id|
@@ -68,6 +74,12 @@ module ClaimsApi
           errored_submission_message << "```  \n\n"
         end
         errored_submission_message
+      end
+
+      def link_value(id)
+        "<https://vagov.ddog-gov.com/logs?query='#{id}'&agg_m=count&agg_m_source=base&agg_t=count&cols=" \
+          'host%2Cservice&fromUser=true&messageDisplay=inline&refresh_mode=sliding&storage=hot&stream_sort=' \
+          "desc&viz=stream&from_ts=#{(Time.now.to_i - (3 * 24 * 60 * 60)).to_i}&to_ts=#{Time.now.to_i}&live=true|"
       end
     end
   end
