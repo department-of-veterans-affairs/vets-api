@@ -7,7 +7,7 @@ module Mobile
 
       def download
         if needs_translations?
-          response.headers['Content-Version'] = file_last_changed
+          response.headers['Content-Version'] = file_md5
           send_file(
             file,
             type: 'application/json',
@@ -25,27 +25,12 @@ module Mobile
         Rails.root.join('modules', 'mobile', 'app', 'assets', 'translations', 'en', 'common.json')
       end
 
-      def file_last_changed
-        @file_last_changed ||= begin
-          # can't interpolate file path into system call because it violates a security rule
-          timestamp = `git log -1 --format='%ct' -- modules/mobile/app/assets/translations/en/common.json`
-          Integer(timestamp)
-        end
+      def file_md5
+        @file_md5 ||= Digest::MD5.file(file).hexdigest
       end
 
       def needs_translations?
-        params[:current_version].nil? || (current_version < file_last_changed)
-      end
-
-      def current_version
-        return nil if params[:current_version].nil?
-
-        Integer(params[:current_version])
-      rescue ArgumentError
-        raise Common::Exceptions::UnprocessableEntity.new(
-          detail: "#{params[:current_version]} is not an integer",
-          source: self.class.to_s
-        )
+        params[:current_version] != file_md5
       end
     end
   end
