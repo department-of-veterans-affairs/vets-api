@@ -27,8 +27,8 @@ module Mobile
 
       def file_last_changed
         @file_last_changed ||= begin
-          timestamp = `git log -1 --format='%ct' -- #{file}`
-          timestamp.to_i
+          timestamp = `git log -1 --format='%ct' -- modules/mobile/app/assets/translations/en/common.json`
+          Integer(timestamp)
         end
       end
     end
