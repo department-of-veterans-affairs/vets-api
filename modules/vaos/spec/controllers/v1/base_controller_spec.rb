@@ -20,6 +20,7 @@ RSpec.describe VAOS::V1::BaseController, type: :controller do
   end
 
   before do
+    allow(controller).to receive(:authorize_appointment!).and_return(true)
     controller.instance_variable_set(:@current_user, user)
 
     routes.draw do
