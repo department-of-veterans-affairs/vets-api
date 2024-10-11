@@ -27,13 +27,11 @@ module Form1010cg
         return
       end
 
-      # Increment on the 2nd run (initial run + 1 retry)
-      StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried") if (params['retry_count']).zero?
+      # Add 1 to retry_count to match retry_monitoring logic
+      retry_count = Integer(params['retry_count']) + 1
 
-      # Increment on the 11th run (intial run + 10 retries)
-      if params['retry_count'] == 10
-        StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries", tags: ["params:#{params}"])
-      end
+      StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried") if retry_count == 1
+      StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries", tags: ["params:#{params}"]) if retry_count == 10
     end
 
     def perform(claim_id)

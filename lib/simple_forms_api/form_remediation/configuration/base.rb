@@ -57,16 +57,6 @@ module SimpleFormsApi
           raise NotImplementedError, 'Class must implement s3_settings method'
         end
 
-        # The base S3 resource used for all S3 manipulations
-        def s3_resource
-          @s3_resource ||= uploader.new_s3_resource
-        end
-
-        # The bucket where payloads will be uploaded on S3
-        def target_bucket
-          @target_bucket ||= uploader.s3_bucket
-        end
-
         # Utility method, override to add your own team's preferred logging approach
         def log_info(message, **details)
           Rails.logger.info(message, details)
