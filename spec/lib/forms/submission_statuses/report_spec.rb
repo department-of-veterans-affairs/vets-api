@@ -80,7 +80,7 @@ describe Forms::SubmissionStatuses::Report do
         submission_status = result.submission_statuses.first
         expect(submission_status.id).to eq('6d353dee-a0e0-40e3-a25c-9b652247a0d9')
         expect(submission_status.detail).to eq('detail')
-        expect(submission_status.form_type).to eq('21-0966')
+        expect(submission_status.form_type).to eq('21-0845')
         expect(submission_status.message).to eq('message')
         expect(submission_status.status).to eq('received')
       end
