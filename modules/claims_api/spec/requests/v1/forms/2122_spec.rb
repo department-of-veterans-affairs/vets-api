@@ -447,7 +447,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     end
 
     describe '#status' do
-      let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
+      let(:power_of_attorney) { create(:power_of_attorney, :submitted, auth_headers: headers) }
 
       it 'return the status of a POA based on GUID' do
         mock_acg(scopes) do |auth_header|
@@ -461,7 +461,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     end
 
     describe '#upload' do
-      let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+      let(:power_of_attorney) { create(:power_of_attorney) }
       let(:binary_params) do
         { attachment: Rack::Test::UploadedFile.new(Rails.root.join(
           *'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')

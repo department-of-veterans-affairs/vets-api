@@ -32,7 +32,7 @@ module SimpleFormsApi
         FileUtils.mkdir_p(dir_path)
       end
 
-      def build_local_file_dir!(s3_key, dir_path, s3_dir_path)
+      def create_local_file_path(s3_key, dir_path, s3_dir_path)
         local_path = Pathname.new(s3_key).relative_path_from(Pathname.new(s3_dir_path))
         final_path = Pathname.new(dir_path).join(local_path)
 
@@ -52,6 +52,20 @@ module SimpleFormsApi
 
       def unique_file_path(form_number, id)
         [Time.zone.today.strftime('%-m.%d.%y'), 'form', form_number, 'vagov', id].join('_')
+      end
+
+      def dated_directory_name(form_number)
+        "#{Time.zone.today.strftime('%-m.%d.%y')}-Form#{form_number}"
+      end
+
+      def write_manifest(row, new_manifest, path)
+        id = row[2]
+        CSV.open(path, 'ab') do |csv|
+          csv << %w[SubmissionDateTime FormType VAGovID VeteranID FirstName LastName] if new_manifest
+          csv << row
+        end
+      rescue => e
+        handle_error("Failed writing manifest for submission: #{id}", e)
       end
 
       private
