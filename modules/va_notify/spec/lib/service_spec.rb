@@ -110,7 +110,6 @@ describe VaNotify::Service do
       allow(StatsD).to receive(:increment)
 
       VCR.use_cassette('va_notify/bad_request') do
-        allow(StatsD).to receive(:increment)
         expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::BackendServiceException)
           expect(e.status_code).to eq(400)
