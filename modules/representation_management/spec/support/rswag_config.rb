@@ -134,8 +134,8 @@ class RepresentationManagement::RswagConfig
           example: 'organization',
           description: 'Type of Power of Attorney representation',
           enum: %w[organization representative]
-        }.merge(power_of_attorney_detailed_attributes)
-      },
+        }
+      }.merge(power_of_attorney_detailed_attributes),
       required: %w[type name address_line1 city state_code zip_code]
     }
   end
