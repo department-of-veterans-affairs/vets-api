@@ -50,7 +50,6 @@ module Pensions
     # @return [UUID] benefits intake upload uuid
     #
     def perform(saved_claim_id, user_account_uuid = nil)
-      Sidekiq::Testing.inline!
       batch = Sidekiq::Batch.new
       batch.description = 'PensionBenefitIntakeJob and email confirmation on success'
       # This will implicitly hit 'on_sucess' callback when 'perform_main_task' is successful
