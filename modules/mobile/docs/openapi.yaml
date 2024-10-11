@@ -3744,6 +3744,56 @@ paths:
       security:
         - Bearer: []
       summary: /v0/push/send
+  /v0/translations/download:
+    get:
+      description: Downloads translations file.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: |
+            When this endpoint responds with a 200, it includes a Content-Version header. That value is an epoch time integer that the frontend will store and send as the current_version parameter. When this value is less than the translation file's last modified time, it responds with a 200 status and the newest version of the translations file. If the timestamp is equal to the translation file's last modified time, it responds with 204 and no content.
+          in: query
+          name: current_version
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                format: binary
+                type: string
+          headers:
+            Content-Disposition:
+              description: |
+                This header will have the value of "attachment", and a "filename" parameter containing the original filename of the attached content.
+              schema:
+                type: string
+            Content-Type:
+              description: Describes the file format.
+              schema:
+                type: string
+                enum: [ application/json ]
+            Content-Version:
+              description: Epoch time integer of the last modified time of the file being downloaded.
+              schema:
+                type: integer
+          description: OK
+        '204':
+          description: No Content.
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      summary: /v0/translations/download
   /v0/user:
     get:
       description: |
