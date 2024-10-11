@@ -27,14 +27,14 @@ module ClaimsApi
       veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'],
                                           auth_headers['va_eauth_lastName'])
       ptcpnt_vet_id = auth_headers['va_eauth_pid']
+      participant_id = find_ptcpnt_vet_id(auth_headers, ptcpnt_vet_id)
       birls_file_number = nil
+      claim_id = nil
       form_name = get_form_name(action:, doc_type:)
       file_name = build_file_name(veteran_name:, identifier: nil, suffix: form_name)
-      participant_id = find_ptcpnt_vet_id(auth_headers, ptcpnt_vet_id)
       system_name = 'Lighthouse'
-      identifier = poa.id
 
-      generate_upload_body(identifier:, system_name:, doc_type:, pdf_path:, file_name:, birls_file_number:,
+      generate_upload_body(claim_id:, system_name:, doc_type:, pdf_path:, file_name:, birls_file_number:,
                            participant_id:, tracked_item_ids: nil)
     end
 
