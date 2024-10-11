@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/form_remediation/configuration/vff_config'
+require_relative '../../app/services/simple_forms_api/form_remediation/jobs/archive_batch_processing_job'
+
 # Invoke this as follows:
 #  Passing just UUIDs (will use default type):
 #    bundle exec rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456]
