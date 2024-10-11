@@ -118,7 +118,8 @@ describe VaNotify::Service do
         end
       end
 
-      expect(StatsD).to have_received(:increment).with('api.vanotify.send_email.fail', { tags: ["error:CommonClientErrorsClientError", "status:400"] })
+      expect(StatsD).to have_received(:increment).with('api.vanotify.send_email.fail',
+                                                       { tags: ['error:CommonClientErrorsClientError', 'status:400'] })
     end
 
     it 'raises a 403 exception' do
