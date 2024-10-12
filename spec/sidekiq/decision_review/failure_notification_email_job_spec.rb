@@ -317,11 +317,6 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
         before do
           SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', metadata: '{"status":"error"}')
           create(:appeal_submission, type_of_appeal: 'SC', submitted_appeal_uuid: guid1)
-
-          # allow(service).to receive(:find_profile_by_identifier).with(identifier: anything, identifier_type: anything)
-          #                                                       .and_return(nil)
-          # allow(VAProfile::ContactInformation::Service).to receive(:get_person).with(anything)
-          #                                                                      .and_return(nil)
         end
 
         it 'handles the error and increments the statsd metric' do
