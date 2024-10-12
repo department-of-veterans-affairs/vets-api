@@ -4,6 +4,8 @@ require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
+  include SimpleFormsApi::FormRemediation::FileUtilities
+
   let(:form_type) { '20-10207' }
   let(:fixtures_path) { 'modules/simple_forms_api/spec/fixtures' }
   let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_20_10207_with_supporting_documents.json').read }
@@ -33,6 +35,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
   end
   let(:config) { SimpleFormsApi::FormRemediation::Configuration::VffConfig.new }
   let(:submission_archive_instance) { described_class.new(id: benefits_intake_uuid, config:) }
+  let(:temp_file_path) { Rails.root.join('tmp', 'random-letters-n-numbers-archive').to_s }
 
   before do
     allow(FormSubmission).to receive(:find_by).and_return(submission)
@@ -44,7 +47,11 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
     allow(File).to receive_messages(write: true, directory?: true)
     allow(CSV).to receive(:open).and_return(true)
     allow(FileUtils).to receive(:mkdir_p).and_return(true)
-    allow(submission_archive_instance).to receive(:zip_directory!) { |_, dir, _| dir }
+    allow(submission_archive_instance).to receive(:zip_directory!) do |parent_dir, temp_dir, filename|
+      s3_dir = build_path(:dir, parent_dir, 'remediation')
+      s3_file_path = build_path(:file, s3_dir, filename, ext: '.zip')
+      build_local_path_from_s3(s3_dir, s3_file_path, temp_dir)
+    end
   end
 
   describe '#initialize' do
@@ -78,7 +85,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
       it 'raises an exception' do
         expect do
           described_class.new(id: benefits_intake_uuid, config: nil)
-        end.to raise_exception(NoMethodError, "undefined method 'handle_error' for nil")
+        end.to raise_exception(NoMethodError, "undefined method `handle_error' for nil")
       end
     end
   end
@@ -86,13 +93,26 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
   describe '#build!' do
     subject(:build_archive) { submission_archive_instance.build! }
 
-    let(:temp_file_path) { Rails.root.join('tmp', 'random-letters-n-numbers-archive').to_s }
+    let(:zip_file_path) { "#{temp_file_path}/#{submission_file_path}.zip" }
 
     before { build_archive }
 
     context 'when properly initialized' do
-      it 'completes successfully' do
-        expect(build_archive[0]).to include(submission_file_path)
+      it 'builds the zip path correctly' do
+        expect(build_archive[0]).to include(zip_file_path)
+      end
+
+      it 'builds the manifest entry correctly' do
+        expect(build_archive[1]).to eq(
+          [
+            submission.created_at,
+            form_type,
+            benefits_intake_uuid,
+            metadata['fileNumber'],
+            metadata['veteranFirstName'],
+            metadata['veteranLastName']
+          ]
+        )
       end
 
       it 'writes the submission pdf file' do
@@ -110,7 +130,11 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
       end
 
       it 'zips the directory' do
-        expect(submission_archive_instance).to have_received(:zip_directory!)
+        expect(submission_archive_instance).to have_received(:zip_directory!).with(
+          config.parent_dir,
+          a_string_including('/tmp/random-letters-n-numbers-archive/'),
+          a_string_including(submission_file_path)
+        )
       end
     end
   end

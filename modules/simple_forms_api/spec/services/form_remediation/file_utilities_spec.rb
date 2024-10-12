@@ -88,9 +88,10 @@ RSpec.describe SimpleFormsApi::FormRemediation::FileUtilities do
     subject(:build_local_path_from_s3) { dummy_class.build_local_path_from_s3(s3_dir, s3_key, temp_dir) }
 
     let(:local_file_path) { "#{temp_dir}#{unique_filename}.zip" }
+    let(:pathname) { Pathname.new(local_file_path) }
 
     it 'builds the local path from the S3 path' do
-      expect(FileUtils).to receive(:mkdir_p).with(File.dirname(local_file_path))
+      expect(FileUtils).to receive(:mkdir_p).with(pathname.dirname)
       expect(build_local_path_from_s3).to eq(local_file_path)
     end
   end
