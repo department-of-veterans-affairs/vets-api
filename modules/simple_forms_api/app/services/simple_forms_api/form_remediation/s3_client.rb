@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api/form_remediation/configuration/base'
 require_relative 'file_utilities'
 
 # Built in accordance with the following documentation:
@@ -16,17 +15,17 @@ module SimpleFormsApi
         end
       end
 
-      def initialize(config: Configuration::Base.new, type: :remediation, **options)
+      def initialize(config:, type: :remediation, **options)
         @upload_type = type
         @config = config
         @parent_dir = config.parent_dir
         @presign_s3_url = config.presign_s3_url
-        @temp_directory_path = config.temp_directory_path
 
         @file_path = options[:file_path]
         @id = options[:id]
 
         @archive_path, @manifest_row = build_archive!(config:, type:, **options)
+        @temp_directory_path = File.dirname(@archive_path)
       rescue => e
         config.handle_error("#{self.class.name} initialization failed", e)
       end
@@ -34,11 +33,13 @@ module SimpleFormsApi
       def upload
         config.log_info("Uploading #{upload_type}: #{id} to S3 bucket")
 
-        upload_to_s3
+        upload_to_s3(archive_path)
         s3_update_manifest if config.include_manifest
         cleanup(s3_upload_file_path)
 
-        presign_s3_url ? s3_generate_presigned_url(s3_get_presigned_path) : id
+        return s3_generate_presigned_url(s3_get_presigned_path) if config.presign_s3_url
+
+        id
       rescue => e
         config.handle_error("Failed #{upload_type} upload: #{id}", e)
       end
@@ -52,7 +53,7 @@ module SimpleFormsApi
         config.submission_archive_class.new(**).build!
       end
 
-      def upload_to_s3(local_path = local_file_path)
+      def upload_to_s3(local_path)
         return if File.directory?(local_path)
 
         File.open(local_path) do |file_obj|
@@ -64,10 +65,13 @@ module SimpleFormsApi
       def s3_update_manifest
         form_number = manifest_row[1]
         s3_path = build_path(:file, s3_directory_path, "manifest_#{dated_directory_name(form_number)}", ext: '.csv')
+        s3_path = s3_path.sub(%r{^/}, '')
         Dir.mktmpdir do |dir|
           local_path = File.join(dir, s3_path)
+          FileUtils.mkdir_p(File.dirname(local_path))
           existing_manifest = s3_uploader.get_s3_file(s3_path, local_path)
-          write_manifest(manifest_row, existing_manifest&.nil?, local_path)
+          CSV.open(local_path, 'w') if existing_manifest.blank?
+          write_manifest(manifest_row, existing_manifest.blank?, local_path)
           upload_to_s3(local_path)
         end
       rescue => e

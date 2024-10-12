@@ -14,7 +14,7 @@ module SimpleFormsApi
 
         Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
           Dir.chdir(temp_dir) do
-            Dir['**', '*'].each do |file|
+            Dir['**', '*'].uniq.each do |file|
               next if File.directory?(file)
 
               zipfile.add(file, File.join(temp_dir, file)) if File.file?(file)
@@ -36,18 +36,23 @@ module SimpleFormsApi
       end
 
       def build_local_path_from_s3(s3_dir, s3_key, local_dir)
+        s3_dir = s3_dir.sub(%r{^/}, '') if s3_dir.start_with?('/')
+        s3_key = s3_key.sub(%r{^/}, '') if s3_key.start_with?('/')
+
         local_file_path = Pathname.new(s3_key).relative_path_from(Pathname.new(s3_dir))
         final_path = Pathname.new(local_dir).join(local_file_path)
 
-        FileUtils.mkdir_p(final_path.dirname)
+        create_temp_directory!(final_path.dirname)
         final_path.to_s
+      rescue => e
+        config.handle_error("Error building local path from S3: #{e.message}", e)
       end
 
       def build_path(path_type, base_dir, *, ext: '.pdf')
         file_ext = path_type == :file ? ext : ''
         path = Pathname.new(base_dir.to_s).join(*)
         path = path.to_s + file_ext unless file_ext.empty?
-        path
+        path.to_s
       end
 
       def write_file(dir_path, file_name, payload)

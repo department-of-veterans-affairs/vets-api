@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api/form_remediation/configuration/base'
 require_relative 'file_utilities'
 
 # Built in accordance with the following documentation:
@@ -10,7 +9,7 @@ module SimpleFormsApi
     class SubmissionArchive
       include FileUtilities
 
-      def initialize(config: Configuration::Base.new, **options)
+      def initialize(config:, **options)
         @config = config
         @temp_directory_path = config.temp_directory_path
         @include_manifest = config.include_manifest
@@ -31,9 +30,9 @@ module SimpleFormsApi
 
         return "#{submission_file_path}.pdf" if archive_type == :submission
 
-        zip_directory!(config.parent_dir, temp_directory_path, submission_file_path)
+        zip_path = zip_directory!(config.parent_dir, temp_directory_path, submission_file_path)
 
-        [temp_directory_path, manifest_entry]
+        [zip_path, manifest_entry]
       rescue => e
         config.handle_error("Failed building submission: #{id}", e)
       end
@@ -65,7 +64,7 @@ module SimpleFormsApi
       def hydrate_submission_data
         raise "No #{config.id_type} was provided" unless id
 
-        built_submission = config.remediation_data_class.new(id:).hydrate!
+        built_submission = config.remediation_data_class.new(id:, config:).hydrate!
         # The local path where the submission PDF is stored
         @file_path = built_submission.file_path
         # The FormSubmission object representing the original data payload submitted
@@ -124,8 +123,8 @@ module SimpleFormsApi
         ]
       end
 
-      def create_file(file_name, payload, file_description, dir_path = config.temp_directory_path)
-        write_file(dir_path, file_name, payload)
+      def create_file(file_name, payload, file_description)
+        write_file(temp_directory_path, file_name, payload)
       rescue => e
         config.handle_error("Failed writing #{file_description} file #{file_name} for submission: #{id}", e)
       end

@@ -16,7 +16,7 @@ module SimpleFormsApi
         %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
       end
 
-      def initialize(directory:, config: Configuration::Base.new)
+      def initialize(directory:, config:)
         raise 'The S3 directory is missing.' if directory.blank?
         raise 'The configuration is missing.' unless config
 

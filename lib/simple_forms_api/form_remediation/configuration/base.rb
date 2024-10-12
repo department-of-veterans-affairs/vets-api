@@ -10,7 +10,7 @@ module SimpleFormsApi
           @id_type = :benefits_intake_uuid  # The field to query the FormSubmission by
           @include_manifest = true          # Include a CSV file containing manifest data
           @include_metadata = false         # Include a JSON file containing form submission metadata
-          @parent_dir = '/'                 # The base directory in the S3 bucket where the archive will be stored
+          @parent_dir = ''                  # The base directory in the S3 bucket where the archive will be stored
           @presign_s3_url = true            # Once archived to S3, the service should generate & return a presigned_url
         end
 
@@ -49,7 +49,7 @@ module SimpleFormsApi
         # hydrated and stored. This directory will automatically
         # be deleted once the archive process completes
         def temp_directory_path
-          @temp_directory_path ||= Rails.root.join("tmp/#{SecureRandom.hex}-archive/").to_s
+          Rails.root.join("tmp/#{SecureRandom.hex}-archive/").to_s
         end
 
         # Used in the SimpleFormsApi::FormRemediation::Uploader S3 uploader

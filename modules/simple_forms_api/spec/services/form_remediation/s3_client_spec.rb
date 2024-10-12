@@ -86,7 +86,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
       end
 
       context 'when a different parent_dir is provided' do
-        let(:instance) { described_class.new(id: benefits_intake_uuid) }
+        let(:instance) { described_class.new(id: benefits_intake_uuid, config:) }
 
         it 'returns the s3 directory' do
           expect(upload).to eq('/s3_url/stuff.pdf')
@@ -99,7 +99,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
         allow(File).to receive(:directory?).and_return(false)
       end
 
-      let(:instance) { described_class.new(benefits_intake_uuid:) }
+      let(:instance) { described_class.new(id: benefits_intake_uuid, config:) }
 
       it 'raises the error' do
         expect { upload }.to raise_exception(Errno::ENOENT)

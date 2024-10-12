@@ -31,7 +31,8 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
       SimpleFormsApi::FormRemediation::SubmissionRemediationData, submission:, file_path:, attachments:, metadata:
     )
   end
-  let(:submission_archive_instance) { described_class.new(id: benefits_intake_uuid) }
+  let(:config) { SimpleFormsApi::FormRemediation::Configuration::VffConfig.new }
+  let(:submission_archive_instance) { described_class.new(id: benefits_intake_uuid, config:) }
 
   before do
     allow(FormSubmission).to receive(:find_by).and_return(submission)
@@ -43,7 +44,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
     allow(File).to receive_messages(write: true, directory?: true)
     allow(CSV).to receive(:open).and_return(true)
     allow(FileUtils).to receive(:mkdir_p).and_return(true)
-    allow(submission_archive_instance).to receive(:zip_directory!) { |_, dir| dir }
+    allow(submission_archive_instance).to receive(:zip_directory!) { |_, dir, _| dir }
   end
 
   describe '#initialize' do
@@ -56,16 +57,28 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
     end
 
     context 'when initialized with valid hydrated submission data' do
-      let(:submission_archive_instance) { described_class.new(submission:, file_path:, attachments:, metadata:) }
+      let(:submission_archive_instance) do
+        described_class.new(config:, submission:, file_path:, attachments:, metadata:)
+      end
 
       it 'successfully completes initialization' do
         expect { new }.not_to raise_exception
       end
     end
 
-    context 'when no valid parameters are passed' do
+    context 'when no id is passed' do
       it 'raises an exception' do
-        expect { described_class.new(id: nil) }.to raise_exception('No benefits_intake_uuid was provided')
+        expect do
+          described_class.new(id: nil, config:)
+        end.to raise_exception(RuntimeError, 'No benefits_intake_uuid was provided')
+      end
+    end
+
+    context 'when no config is passed' do
+      it 'raises an exception' do
+        expect do
+          described_class.new(id: benefits_intake_uuid, config: nil)
+        end.to raise_exception(NoMethodError, "undefined method 'handle_error' for nil")
       end
     end
   end
@@ -79,7 +92,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
 
     context 'when properly initialized' do
       it 'completes successfully' do
-        expect(build_archive).to include("#{temp_file_path}/")
+        expect(build_archive[0]).to include(submission_file_path)
       end
 
       it 'writes the submission pdf file' do
@@ -94,6 +107,10 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
             "#{temp_file_path}/attachment_#{i + 1}__#{submission_file_path}.pdf", a_string_starting_with('%PDF')
           )
         end
+      end
+
+      it 'zips the directory' do
+        expect(submission_archive_instance).to have_received(:zip_directory!)
       end
     end
   end

@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api/form_remediation/configuration/base'
-
 module SimpleFormsApi
   module FormRemediation
     class SubmissionRemediationData
       attr_reader :file_path, :submission, :attachments, :metadata
 
-      def initialize(id:, config: Configuration::Base.new)
+      def initialize(id:, config:)
         @config = config
 
         validate_input(id)

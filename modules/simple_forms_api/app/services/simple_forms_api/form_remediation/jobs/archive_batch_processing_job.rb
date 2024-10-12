@@ -78,7 +78,7 @@ module SimpleFormsApi
         end
 
         def archive_submission(id)
-          config.s3_client.new(id:, parent_dir:, type:).upload
+          config.s3_client.new(config:, id:, type:).upload
         end
       end
     end
