@@ -54,7 +54,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::FileUtilities do
 
       it 'handles the error' do
         expect(dummy_class).to receive(:handle_error).with(
-          "Failed to zip temp directory: #{temp_dir} to location: #{temp_dir}#{unique_filename}.zip",
+          "Failed to zip directory: #{temp_dir} to #{temp_dir}#{unique_filename}.zip",
           instance_of(StandardError)
         )
         begin
@@ -121,14 +121,14 @@ RSpec.describe SimpleFormsApi::FormRemediation::FileUtilities do
     end
   end
 
-  describe '#unique_file_path' do
-    subject(:unique_file_path) { dummy_class.unique_file_path(form_number, id) }
+  describe '#unique_file_name' do
+    subject(:unique_file_name) { dummy_class.unique_file_name(form_number, id) }
 
     let(:form_number) { '20-10207' }
     let(:id) { 'unique-form-id' }
 
     it 'builds a unique file path' do
-      expect(unique_file_path).to eq("#{Time.zone.today.strftime('%-m.%d.%y')}_form_20-10207_vagov_#{id}")
+      expect(unique_file_name).to eq("#{Time.zone.today.strftime('%-m.%d.%y')}_form_20-10207_vagov_#{id}")
     end
   end
 
@@ -157,7 +157,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::FileUtilities do
     it 'handles errors during manifest writing' do
       allow(CSV).to receive(:open).and_raise(StandardError.new('write error'))
       expect(dummy_class).to(
-        receive(:handle_error).with('Failed writing manifest for submission: 123', instance_of(StandardError))
+        receive(:handle_error).with('Failed writing manifest for submission', instance_of(StandardError))
       )
       begin
         write_manifest

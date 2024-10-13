@@ -74,10 +74,16 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
     let(:instance) { described_class.new(id: benefits_intake_uuid, config:) }
 
     context 'when no errors occur' do
-      it 'logs a notification upon starting' do
+      it 'logs notifications' do
         upload
         expect(Rails.logger).to have_received(:info).with(
-          "Uploading remediation: #{benefits_intake_uuid} to S3 bucket", {}
+          { message: "Uploading remediation: #{benefits_intake_uuid} to S3 bucket" }
+        )
+        expect(Rails.logger).to have_received(:info).with(
+          { message: "Initialized S3Client for remediation with ID: #{benefits_intake_uuid}" }
+        )
+        expect(Rails.logger).to have_received(:info).with(
+          { message: "Cleaning up path: #{temp_file_path}/" }
         )
       end
 

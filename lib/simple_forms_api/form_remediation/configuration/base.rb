@@ -59,12 +59,12 @@ module SimpleFormsApi
 
         # Utility method, override to add your own team's preferred logging approach
         def log_info(message, **details)
-          Rails.logger.info(message, details)
+          Rails.logger.info({ message: }.merge(details))
         end
 
         # Utility method, override to add your own team's preferred logging approach
         def log_error(message, error, **details)
-          Rails.logger.error(message, details.merge(error: error.message, backtrace: error.backtrace.first(5)))
+          Rails.logger.error({ message:, error: error.message, backtrace: error.backtrace.first(5) }.merge(details))
         end
 
         # Utility method, override to add your own team's preferred logging approach
