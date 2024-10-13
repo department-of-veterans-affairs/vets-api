@@ -25,14 +25,16 @@ module SimpleFormsApi
       end
 
       def build!
-        create_temp_directory!(temp_directory_path)
+        create_directory!(temp_directory_path)
         process_submission_files
 
-        return "#{submission_file_name}.pdf" if archive_type == :submission
+        path = if archive_type == :submission
+                 "#{submission_file_name}.pdf"
+               else
+                 zip_directory!(config.parent_dir, temp_directory_path, submission_file_name)
+               end
 
-        zip_path = zip_directory!(config.parent_dir, temp_directory_path, submission_file_name)
-
-        [zip_path, manifest_entry]
+        [path, manifest_entry]
       rescue => e
         config.handle_error("Failed building submission: #{id}", e)
       end

@@ -22,7 +22,7 @@ module SimpleFormsApi
           begin
             load_progress
             presigned_urls = upload(type:)
-            cleanup(PROGRESS_FILE_PATH)
+            cleanup!(PROGRESS_FILE_PATH)
             presigned_urls
           rescue => e
             @config.handle_error("#{self.class.name} execution failed", e)

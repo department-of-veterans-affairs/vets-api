@@ -41,12 +41,14 @@ module SimpleFormsApi
         end
       end
 
-      def cleanup(path)
+      def cleanup!(path)
         log_info("Cleaning up path: #{path}")
         FileUtils.rm_rf(path)
       end
 
-      def create_temp_directory!(dir_path)
+      def create_directory!(dir_path)
+        return if File.directory?(dir_path)
+
         FileUtils.mkdir_p(dir_path)
       end
 
@@ -55,7 +57,7 @@ module SimpleFormsApi
         local_file_path = Pathname.new(s3_key).relative_path_from(Pathname.new(s3_dir))
         final_path = Pathname.new(local_dir).join(local_file_path)
 
-        create_temp_directory!(final_path.dirname)
+        create_directory!(final_path.dirname)
         final_path.to_s
       rescue => e
         handle_error('Error building local path from S3', e)

@@ -32,7 +32,7 @@ module SimpleFormsApi
 
         upload_to_s3(archive_path)
         update_manifest if config.include_manifest
-        cleanup(archive_path)
+        cleanup!(archive_path)
 
         return generate_presigned_url if presign_required?
 
@@ -73,32 +73,31 @@ module SimpleFormsApi
       end
 
       def update_manifest
-        form_number = manifest_row[1]
-        local_path = fetch_or_create_manifest(form_number)
-        write_and_upload_manifest(local_path)
+        temp_dir = Rails.root.join("tmp/#{SecureRandom.hex}-manifest/").to_s
+        create_directory!(temp_dir)
+        begin
+          form_number = manifest_row[1]
+          s3_path = build_s3_manifest_path(form_number)
+          local_path = download_manifest(temp_dir, s3_path)
+          write_and_upload_manifest(local_path)
+        ensure
+          cleanup!(temp_dir)
+        end
       rescue => e
         config.handle_error('Failed to update manifest', e)
       end
 
-      def fetch_or_create_manifest(form_number)
-        s3_path = build_s3_manifest_path(form_number)
-        local_path = create_local_path(s3_path)
-        existing_manifest = s3_uploader.get_s3_file(s3_path, local_path)
-        CSV.open(local_path, 'w') if existing_manifest.blank?
+      def download_manifest(dir, s3_path)
+        local_path = File.join(dir, s3_path)
+        create_directory!(File.dirname(local_path))
+        s3_uploader.get_s3_file(s3_path, local_path)
+        CSV.open(local_path, 'w') unless File.exist?(local_path)
         local_path
       end
 
       def build_s3_manifest_path(form_number)
         path = build_path(:file, s3_directory_path, "manifest_#{dated_directory_name(form_number)}", ext: '.csv')
         path.sub(%r{^/}, '')
-      end
-
-      def create_local_path(s3_path)
-        Dir.mktmpdir do |dir|
-          local_path = File.join(dir, s3_path)
-          FileUtils.mkdir_p(File.dirname(local_path))
-          local_path
-        end
       end
 
       def write_and_upload_manifest(local_path)

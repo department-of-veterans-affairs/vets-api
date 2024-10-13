@@ -66,21 +66,21 @@ RSpec.describe SimpleFormsApi::FormRemediation::FileUtilities do
     end
   end
 
-  describe '#cleanup' do
-    subject(:cleanup) { dummy_class.cleanup('/tmp/to_cleanup') }
+  describe '#cleanup!' do
+    subject(:cleanup!) { dummy_class.cleanup!('/tmp/to_cleanup') }
 
     it 'removes the directory' do
       expect(FileUtils).to receive(:rm_rf).with('/tmp/to_cleanup')
-      cleanup
+      cleanup!
     end
   end
 
-  describe '#create_temp_directory!' do
-    subject(:create_temp_directory!) { dummy_class.create_temp_directory!('/tmp/new_dir') }
+  describe '#create_directory!' do
+    subject(:create_directory!) { dummy_class.create_directory!('/tmp/new_dir') }
 
     it 'creates the directory' do
       expect(FileUtils).to receive(:mkdir_p).with('/tmp/new_dir')
-      create_temp_directory!
+      create_directory!
     end
   end
 
