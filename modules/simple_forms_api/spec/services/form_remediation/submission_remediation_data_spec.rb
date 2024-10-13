@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
   let(:form_type) { '20-10207' }
