@@ -87,21 +87,20 @@ module SimpleFormsApi
         config.handle_error('Failed to update manifest', e)
       end
 
-      def download_manifest(dir, s3_path)
-        local_path = File.join(dir, s3_path)
-        create_directory!(File.dirname(local_path))
-        s3_uploader.get_s3_file(s3_path, local_path)
-        CSV.open(local_path, 'w') unless File.exist?(local_path)
-        local_path
-      end
-
       def build_s3_manifest_path(form_number)
         path = build_path(:file, s3_directory_path, "manifest_#{dated_directory_name(form_number)}", ext: '.csv')
         path.sub(%r{^/}, '')
       end
 
+      def download_manifest(dir, s3_path)
+        local_path = File.join(dir, s3_path)
+        create_directory!(File.dirname(local_path))
+        s3_uploader.get_s3_file(s3_path, local_path)
+        local_path
+      end
+
       def write_and_upload_manifest(local_path)
-        write_manifest(manifest_row, !File.exist?(local_path), local_path)
+        write_manifest(manifest_row, local_path)
         upload_to_s3(local_path)
       end
 

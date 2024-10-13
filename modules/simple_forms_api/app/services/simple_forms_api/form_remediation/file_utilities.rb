@@ -86,7 +86,8 @@ module SimpleFormsApi
         "#{Time.zone.today.strftime('%-m.%d.%y')}-Form#{form_number}"
       end
 
-      def write_manifest(row, new_manifest, path)
+      def write_manifest(row, path)
+        new_manifest = !File.exist?(path)
         CSV.open(path, 'ab') do |csv|
           csv << %w[SubmissionDateTime FormType VAGovID VeteranID FirstName LastName] if new_manifest
           csv << row
