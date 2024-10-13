@@ -142,7 +142,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::FileUtilities do
   end
 
   describe '#write_manifest' do
-    subject(:write_manifest) { dummy_class.write_manifest(row, new_manifest, path) }
+    subject(:write_manifest) { dummy_class.write_manifest(row, path) }
 
     let(:row) { %w[2024-10-08 form 123 veteran_id John Doe] }
     let(:path) { '/tmp/manifest.csv' }
