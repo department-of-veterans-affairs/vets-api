@@ -25,10 +25,9 @@ RSpec.describe SimpleFormsApi::FormRemediation::FileUtilities do
 
     context 'when the temp directory exists' do
       before do
-        allow(File).to receive(:directory?).with(temp_dir).and_return(true)
+        allow(File).to receive_messages(directory?: true, file?: true)
         allow(Dir).to receive(:chdir).and_yield
         allow(Dir).to receive(:[]).with('**', '*').and_return(['file1.txt', 'file2.txt'])
-        allow(File).to receive(:file?).and_return(true)
       end
 
       it 'zips the directory and returns the zip file path' do
@@ -39,7 +38,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::FileUtilities do
 
     context 'when the temp directory does not exist' do
       it 'raises an error' do
-        allow(File).to receive(:directory?).with(temp_dir).and_return(false)
+        allow(File).to receive(:directory?).and_return(false)
         expect { zip_directory! }.to raise_error("Directory not found: #{temp_dir}")
       end
     end
@@ -48,7 +47,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::FileUtilities do
       let(:error_message) { 'zip error' }
 
       before do
-        allow(File).to receive(:directory?).with(temp_dir).and_return(true)
+        allow(File).to receive(:directory?).and_return(true)
         allow(Zip::File).to receive(:open).and_raise(StandardError.new(error_message))
       end
 
