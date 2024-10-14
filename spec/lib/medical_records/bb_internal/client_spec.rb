@@ -6,8 +6,8 @@ require 'stringio'
 
 describe BBInternal::Client do
   before(:all) do
-    VCR.use_cassette 'mr_client/bb_internal/session', record: :new_episodes do
-      VCR.use_cassette 'mr_client/bb_internal/get_patient', record: :new_episodes do
+    VCR.use_cassette 'mr_client/bb_internal/session' do
+      VCR.use_cassette 'mr_client/bb_internal/get_patient' do
         @client ||= begin
           client = BBInternal::Client.new(session: { user_id: '15176497' })
           client.authenticate

@@ -549,6 +549,7 @@ mhv:
     mock: true
     host: https://apigw-intb.aws.myhealth.va.gov
     access_key: some-access-key
+    create_after_login: false
     sts:
       service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
       issuer: http://localhost:3000
@@ -676,6 +677,12 @@ claims_api:
     use_mocks: false
   poa_v2:
     disable_jobs: false
+  vanotify:
+    representative_template_id: ~
+    service_organization_template_id: ~
+    services:
+      lighthouse:
+        api_key: ~
 
 connected_apps_api:
   connected_apps:

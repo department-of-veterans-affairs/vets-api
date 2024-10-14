@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
-  let(:auto_form) { build(:auto_established_claim, auth_headers: { some: 'data' }) }
-  let(:pending_record) { create(:auto_established_claim) }
+  let(:auto_form) { create(:auto_established_claim_va_gov, auth_headers: { some: 'data' }) }.freeze
+  let(:pending_record) { create(:auto_established_claim, :special_issues, :flashes) }.freeze
 
   describe 'encrypted attributes' do
     it 'does the thing' do
@@ -23,22 +23,17 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
   end
 
   it 'writes flashes and special issues to the DB on create' do
-    pending_record.status = 'submitted'
-    expected_claims = ClaimsApi::AutoEstablishedClaim.all
-    expect(expected_claims.first.id).to eq(pending_record.id)
-    expect(expected_claims.first.special_issues).to eq(pending_record.special_issues)
-    expect(expected_claims.first.flashes).to eq(%w[Hardship Homeless])
-    expect(expected_claims.first.special_issues.first['special_issues']).to eq(['FDC', 'PTSD/2'])
+    pending_claim = ClaimsApi::AutoEstablishedClaim.find(pending_record.id)
+    va_gov_claim = ClaimsApi::AutoEstablishedClaim.find(auto_form.id)
+
+    expect(pending_claim.form_data['disabilities'][0]['specialIssues']).to eq(['Fully Developed Claim', 'PTSD/2'])
+    expect(pending_claim.flashes).to eq(%w[Hardship Homeless])
+    expect(va_gov_claim.form_data['disabilities'][0]['specialIssues']).to eq([])
   end
 
   describe "persisting 'cid' (OKTA client_id)" do
     it "stores 'cid' in the DB upon creation" do
-      auto_form.cid = 'ABC123'
-      auto_form.save!
-
-      claim = ClaimsApi::AutoEstablishedClaim.first
-
-      expect(claim.cid).to eq('ABC123')
+      expect(auto_form.cid).to eq('0oagdm49ygCSJTp8X297')
     end
   end
 
@@ -741,7 +736,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
   describe "'remove_encrypted_fields' callback" do
     context "when 'status' is 'established'" do
-      let(:auto_form) { create(:auto_established_claim, :status_established, auth_headers: { some: 'data' }) }
+      let(:auto_form) { create(:auto_established_claim, :established, auth_headers: { some: 'data' }) }
 
       context 'and the record is updated' do
         it "erases the 'form_data' attribute" do
@@ -765,7 +760,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         end
 
         it "does not erase the 'file_data' attribute" do
-          auto_form = build(:auto_established_claim, :status_established, auth_headers: { some: 'data' })
+          auto_form = build(:auto_established_claim, :established, auth_headers: { some: 'data' })
           file = Rack::Test::UploadedFile.new(
             ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
           )
