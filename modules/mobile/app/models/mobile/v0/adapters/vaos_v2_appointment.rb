@@ -4,6 +4,15 @@ module Mobile
   module V0
     module Adapters
       class VAOSV2Appointment
+        APPOINTMENT_TYPES = {
+          va: 'VA',
+          cc: 'COMMUNITY_CARE',
+          va_video_connect_home: 'VA_VIDEO_CONNECT_HOME',
+          va_video_connect_gfe: 'VA_VIDEO_CONNECT_GFE',
+          va_video_connect_atlas: 'VA_VIDEO_CONNECT_ATLAS',
+          va_video_connect_onsite: 'VA_VIDEO_CONNECT_ONSITE'
+        }.freeze
+
         STATUSES = {
           booked: 'BOOKED',
           fulfilled: 'BOOKED',
@@ -26,16 +35,6 @@ module Mobile
 
         PHONE_KIND = 'phone'
         COVID_SERVICE = 'covid'
-        VIDEO_CONNECT_AT_VA = %w[
-          STORE_FORWARD
-          CLINIC_BASED
-        ].freeze
-
-        # ADHOC is a staging value used in place of MOBILE_ANY
-        VIDEO_CODE = %w[
-          MOBILE_ANY
-          ADHOC
-        ].freeze
 
         # Only a subset of types of service that requires human readable conversion
         SERVICE_TYPES = {
@@ -68,6 +67,17 @@ module Mobile
           'QUESTIONMEDS' => 'Medication concern',
           'OTHER_REASON' => 'My reason isn’t listed'
         }.freeze
+
+        # ADHOC is a staging value used in place of MOBILE_ANY
+        VIDEO_CODE = %w[
+          MOBILE_ANY
+          ADHOC
+        ].freeze
+
+        VIDEO_CONNECT_AT_VA = %w[
+          STORE_FORWARD
+          CLINIC_BASED
+        ].freeze
 
         attr_reader :appointment
 
@@ -258,13 +268,13 @@ module Mobile
           end
         end
 
+        # rubocop:disable Metrics/MethodLength
         def appointment_type
-          case appointment[:kind]
-          when 'phone', 'clinic'
-            APPOINTMENT_TYPES[:va]
-          when 'cc'
+          case appointment[:type]
+          when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:cc_appointment]
             APPOINTMENT_TYPES[:cc]
-          when 'telehealth'
+          when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:va]
+            return appointment[:type] unless appointment[:kind] == 'telehealth'
             return APPOINTMENT_TYPES[:va_video_connect_atlas] if appointment.dig(:telehealth, :atlas)
 
             vvs_kind = appointment.dig(:telehealth, :vvs_kind)
@@ -279,8 +289,11 @@ module Mobile
             else
               APPOINTMENT_TYPES[:va]
             end
+          else
+            appointment[:type]
           end
         end
+        # rubocop:enable Metrics/MethodLength
 
         def location
           @location ||= begin

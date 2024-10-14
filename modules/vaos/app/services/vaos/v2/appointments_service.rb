@@ -23,13 +23,7 @@ module VAOS
         va: 'VA',
         cc_appointment: 'COMMUNITY_CARE_APPOINTMENT',
         cc_request: 'COMMUNITY_CARE_REQUEST',
-        request: 'REQUEST',
-        va_video_connect_home: 'VA_VIDEO_CONNECT_HOME',
-        va_video_connect_gfe: 'VA_VIDEO_CONNECT_GFE',
-        va_video_connect_atlas: 'VA_VIDEO_CONNECT_ATLAS',
-        va_video_connect_onsite: 'VA_VIDEO_CONNECT_ONSITE',
-        claim_exam: 'CLAIM_EXAM',
-        phone_appointment: 'PHONE_APPOINTMENT',
+        request: 'REQUEST'
       }.freeze
 
       # Output format for preferred dates
@@ -105,14 +99,14 @@ module VAOS
         params.compact_blank!
         with_monitoring do
           response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-            Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
+                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
                        perform(:post, appointments_base_path_vpg, params, headers)
                      else
                        perform(:post, appointments_base_path_vaos, params, headers)
                      end
 
           if request_object_body[:kind] == 'clinic' &&
-            booked?(request_object_body) # a direct scheduled appointment
+             booked?(request_object_body) # a direct scheduled appointment
             modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
           end
 
@@ -133,7 +127,7 @@ module VAOS
       def update_appointment(appt_id, status)
         with_monitoring do
           if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
-            Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+             Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
@@ -195,7 +189,8 @@ module VAOS
 
       private
 
-      def parse_possible_token_related_errors(e) # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength
+      def parse_possible_token_related_errors(e)
         prefix = 'VAOS::V2::AppointmentService#get_appointments'
         sanitized_icn = VAOS::Anonymizers.anonymize_icns(user.icn)
         sanitized_message = VAOS::Anonymizers.anonymize_icns(e.message)
@@ -220,6 +215,7 @@ module VAOS
           { message:, status:, icn: sanitized_icn, context: }
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
       # 1. Reason code fields
@@ -678,34 +674,17 @@ module VAOS
       end
 
       def set_type(appointment)
-        # Mobile merges phone and clinic under va, web specifically calls it phone
-        # Web has a claim example
         type = APPOINTMENT_TYPES[:request] if appointment[:kind] != 'cc' && appointment[:request_periods].present?
 
         type ||= case appointment[:kind]
-                 when 'phone', 'clinic'
-                   APPOINTMENT_TYPES[:va]
                  when 'cc'
                    if appointment[:start]
                      APPOINTMENT_TYPES[:cc_appointment]
                    else
                      APPOINTMENT_TYPES[:cc_request]
                    end
-                 when 'telehealth'
-                   return APPOINTMENT_TYPES[:va_video_connect_atlas] if appointment.dig(:telehealth, :atlas)
-
-                   vvs_kind = appointment.dig(:telehealth, :vvs_kind)
-                   if VIDEO_CODE.include?(vvs_kind)
-                     if appointment.dig(:extension, :patient_has_mobile_gfe)
-                       APPOINTMENT_TYPES[:va_video_connect_gfe]
-                     else
-                       APPOINTMENT_TYPES[:va_video_connect_home]
-                     end
-                   elsif VIDEO_CONNECT_AT_VA.include?(vvs_kind)
-                     APPOINTMENT_TYPES[:va_video_connect_onsite]
-                   else
-                     APPOINTMENT_TYPES[:va]
-                   end
+                 else
+                   APPOINTMENT_TYPES[:va]
                  end
 
         appointment[:type] = type
