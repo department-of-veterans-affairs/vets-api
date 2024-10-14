@@ -17,6 +17,11 @@ module TravelPay
     end
 
     def get_claims_by_date_range(veis_token, btsss_token, params = {})
+      unless params['start_date'] && params['end_date']
+        raise ArgumentError,
+              message: "Both start and end dates are required, got #{params['start_date']}-#{params['end_date']}."
+      end
+
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, params)
       raw_claims = faraday_response.body['data'].deep_dup
 
