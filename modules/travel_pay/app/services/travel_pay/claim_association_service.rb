@@ -33,7 +33,7 @@ module TravelPay
 
       # map over the appointments list and the raw_claims and match dates
       (params['appointments']).map do |appt|
-        raw_claims.each do |cl|
+        raw_claims['data'].each do |cl|
           # if it's an exact date-time match
           if DateTime.parse(cl['appointmentDateTime']) == DateTime.parse(appt['startDate'])
             # Add the claim object to the appt. hash
