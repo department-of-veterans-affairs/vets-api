@@ -54,7 +54,7 @@ RSpec.describe Form1010cg::SubmissionJob do
         end
       end
 
-      context 'retry_count is not 0 or 10' do
+      context 'retry_count is not 0 or 9' do
         let(:params) { { 'retry_count' => 5 } }
 
         it 'does not increment applications_retried statsd' do
@@ -68,8 +68,8 @@ RSpec.describe Form1010cg::SubmissionJob do
         end
       end
 
-      context 'retry_count is 10' do
-        let(:params) { { 'retry_count' => 10 } }
+      context 'retry_count is 9' do
+        let(:params) { { 'retry_count' => 9 } }
 
         it 'increments failed_ten_retries statsd' do
           expect do
