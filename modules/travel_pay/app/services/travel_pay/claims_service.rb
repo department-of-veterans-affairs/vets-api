@@ -16,6 +16,18 @@ module TravelPay
       }
     end
 
+    def get_claims_by_date_range(veis_token, btsss_token, params = {})
+      faraday_response = client.get_claims_by_date(veis_token, btsss_token, params)
+      raw_claims = faraday_response.body['data'].deep_dup
+
+      {
+        data: raw_claims.map do |sc|
+          sc['claimStatus'] = sc['claimStatus'].underscore.titleize
+          sc
+        end
+      }
+    end
+
     def get_claim_by_id(veis_token, btsss_token, claim_id)
       # ensure claim ID is the right format, allowing any version
       uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i

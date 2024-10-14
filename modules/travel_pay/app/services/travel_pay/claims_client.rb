@@ -38,7 +38,7 @@ module TravelPay
     # }
     # @return [TravelPay::Claim]
     #
-    def get_claim_by_date(veis_token, btsss_token, params = {})
+    def get_claims_by_date(veis_token, btsss_token, params = {})
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
