@@ -29,7 +29,7 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   rescue => e
     Rails.logger.error("Failed to generate PDF: #{e.message}")
     PersonalInformationLog.create(data: { form: parsed_form, file_name: name },
-                                   error_class: '1010CGPdfGenerationError')
+                                  error_class: '1010CGPdfGenerationError')
     raise
   end
 
