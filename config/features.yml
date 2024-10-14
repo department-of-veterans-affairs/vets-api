@@ -938,22 +938,6 @@ features:
     actor_type: user
     description: Enables/disables filter feature for medications list
     enable_in_development: true
-  mhv_to_logingov_account_transition:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer experience (Identity)
-    enable_in_development: false
-  mhv_to_logingov_account_transition_modal:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer modal experience (Identity)
-    enable_in_development: false
-  mhv_to_logingov_account_transition_banner:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer banner experience (Identity)
-    enable_in_development: false
-  mhv_to_logingov_account_transition_urgent:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
-    enable_in_development: false
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -1561,9 +1545,12 @@ features:
   disability_compensation_lighthouse_generate_pdf:
     actor_type: user
     description: If enabled uses the lighthouse Benefits Claims service to generate a 526 pdf
-  disability_compensation_lighthouse_upload_supplemental_document:
+  disability_compensation_use_api_provider_for_bdd_instructions:
     actor_type: user
-    description: If enabled uses the Lighthouse Benefits Documents API to submit Form 526 documents
+    description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading BDD instructions
+  disability_compensation_upload_bdd_instructions_to_lighthouse:
+    actor_type: user
+    description: If enabled uploads BDD instructions to Lighthouse Benefits Documents API instead of EVSS
   disablity_benefits_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for disability benefits applications
