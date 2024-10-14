@@ -63,7 +63,7 @@ module SimpleFormsApi
 
       def s3_update_manifest
         form_number = manifest_row[1]
-        s3_path = build_path(s3_directory_path, "manifest_#{dated_directory_name(form_number)}.csv")
+        s3_path = build_path(:file, s3_directory_path, "manifest_#{dated_directory_name(form_number)}", ext: '.csv')
         Dir.mktmpdir do |dir|
           local_path = File.join(dir, s3_path)
           existing_manifest = s3_uploader.get_s3_file(s3_path, local_path)
@@ -83,11 +83,12 @@ module SimpleFormsApi
       end
 
       def s3_upload_file_path
-        @s3_upload_file_path ||= build_path(:file, s3_directory_path, "#{archive_path}.ext")
+        ext = upload_type == :submission ? '.pdf' : '.zip'
+        @s3_upload_file_path ||= build_path(:file, s3_directory_path, archive_path, ext:)
       end
 
       def s3_get_presigned_path
-        build_path(:file, s3_directory_path, local_file_path.split('/').last)
+        build_path(:file, s3_directory_path, local_file_path.split('/').last, ext: '')
       end
 
       def s3_generate_presigned_url(s3_path)
@@ -95,7 +96,7 @@ module SimpleFormsApi
       end
 
       def local_file_path
-        @local_file_path ||= create_local_file_path(s3_upload_file_path, temp_directory_path, s3_directory_path)
+        @local_file_path ||= build_local_path_from_s3(s3_directory_path, s3_upload_file_path, temp_directory_path)
       end
     end
   end
