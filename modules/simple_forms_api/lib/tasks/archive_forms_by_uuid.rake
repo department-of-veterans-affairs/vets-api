@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/form_remediation/configuration/vff_config'
+require_relative '../../app/services/simple_forms_api/form_remediation/jobs/archive_batch_processing_job'
+
 # Invoke this as follows:
 #  Passing just UUIDs (will use default type):
 #    bundle exec rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456]
@@ -20,16 +23,12 @@ namespace :simple_forms_api do
 
       # Call the service object synchronously and get the presigned URLs
       config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
-      job = SimpleFormsApi::FormRemediation::ArchiveBatchProcessingJob.new
-      presigned_urls = job.perform(ids: benefits_intake_uuids, config:, type: type.to_sym)
-
-      Rails.logger.info('ArchiveBatchProcessingJob completed successfully.')
-
-      # ArgoCD makes it impossible to download any files so
-      # the URLs must be printed to the console.
-      handle_presigned_urls(presigned_urls)
+      job = SimpleFormsApi::FormRemediation::Jobs::ArchiveBatchProcessingJob.new
+      job.perform(ids: benefits_intake_uuids, config:, type: type.to_sym)
 
       Rails.logger.info('Task successfully completed.')
+    rescue Common::Exceptions::ParameterMissing => e
+      raise e
     rescue => e
       Rails.logger.error("Error occurred while archiving submissions: #{e.message}")
       puts 'An error occurred. Check logs for more details.'
@@ -39,20 +38,6 @@ namespace :simple_forms_api do
   private
 
   def validate_input!(benefits_intake_uuids)
-    raise 'Error: No benefits_intake_uuids provided.' if benefits_intake_uuids.blank?
-  end
-
-  # This redundancy ensures we have a way to retrieve the URLs
-  # easily if ArgoCD crashes or times out.
-  def handle_presigned_urls(presigned_urls)
-    if presigned_urls.present?
-      Rails.logger.info("Generated presigned URLs: #{presigned_urls.join(', ')}")
-      puts 'Presigned URLs:'
-      presigned_urls.each { |url| puts url }
-    else
-      Rails.logger.warn('No URLs were generated.')
-      puts 'No URLs were generated.'
-      raise 'Presigned URLs were not generated' unless presigned_urls
-    end
+    raise Common::Exceptions::ParameterMissing, 'benefits_intake_uuids' unless benefits_intake_uuids&.any?
   end
 end

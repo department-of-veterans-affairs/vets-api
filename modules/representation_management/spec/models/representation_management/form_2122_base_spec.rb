@@ -37,6 +37,7 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
     it { expect(subject).not_to allow_value('1234A').for(:veteran_zip_code) }
     it { expect(subject).not_to allow_value('12345').for(:veteran_zip_code_suffix) }
     it { expect(subject).to allow_value('1234').for(:veteran_zip_code_suffix) }
+    it { expect(subject).to allow_value('').for(:veteran_zip_code_suffix) }
     it { expect(subject).to validate_length_of(:veteran_zip_code_suffix).is_equal_to(4) }
     it { expect(subject).to allow_value('1234567890').for(:veteran_phone) }
     it { expect(subject).not_to allow_value('123456789A').for(:veteran_phone) }
@@ -64,6 +65,7 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
     it { expect(subject_with_claimant).not_to allow_value('1234A').for(:claimant_zip_code) }
     it { expect(subject_with_claimant).not_to allow_value('12345').for(:claimant_zip_code_suffix) }
     it { expect(subject_with_claimant).to allow_value('1234').for(:claimant_zip_code_suffix) }
+    it { expect(subject_with_claimant).to allow_value('').for(:claimant_zip_code_suffix) }
     it { expect(subject_with_claimant).to validate_length_of(:claimant_zip_code_suffix).is_equal_to(4) }
     it { expect(subject_with_claimant).to allow_value('1234567890').for(:claimant_phone) }
     it { expect(subject_with_claimant).not_to allow_value('123456789A').for(:claimant_phone) }
