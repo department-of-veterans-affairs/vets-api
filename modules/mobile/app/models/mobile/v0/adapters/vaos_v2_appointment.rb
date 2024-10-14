@@ -35,6 +35,16 @@ module Mobile
 
         PHONE_KIND = 'phone'
         COVID_SERVICE = 'covid'
+        VIDEO_CONNECT_AT_VA = %w[
+          STORE_FORWARD
+          CLINIC_BASED
+        ].freeze
+
+        # ADHOC is a staging value used in place of MOBILE_ANY
+        VIDEO_CODE = %w[
+          MOBILE_ANY
+          ADHOC
+        ].freeze
 
         # Only a subset of types of service that requires human readable conversion
         SERVICE_TYPES = {
@@ -67,17 +77,6 @@ module Mobile
           'QUESTIONMEDS' => 'Medication concern',
           'OTHER_REASON' => 'My reason isn’t listed'
         }.freeze
-
-        # ADHOC is a staging value used in place of MOBILE_ANY
-        VIDEO_CODE = %w[
-          MOBILE_ANY
-          ADHOC
-        ].freeze
-
-        VIDEO_CONNECT_AT_VA = %w[
-          STORE_FORWARD
-          CLINIC_BASED
-        ].freeze
 
         attr_reader :appointment
 
