@@ -1,7 +1,7 @@
 # Flipper
 
 ## Description
-Flipper is gem used for managing unreleased features in vets-api by placing features behind "feature toggles" that can be enabled/disabled via the Flipper UI in each environment.
+Flipper is a gem used for managing unreleased features in vets-api by placing features behind "feature toggles" that can be enabled/disabled via the Flipper UI in each environment.
 
 [Flipper Documentation](https://www.flippercloud.io/docs/introduction)
 [Flipper UI Documentation](https://www.flippercloud.io/docs/ui)
@@ -11,7 +11,7 @@ Please see the [Feature Toggles Guide](https://depo-platform-documentation.scrol
 
 ## Local Development on Vets API Flipper Implementation
 
-By default, developers will be authorized when developing locally. If you're a Platform Engineer working on the Flipper implementation, and need mimic production authentication/authorization, read the following
+By default, engineers will be authorized when developing locally. If you're a Platform Engineer working on the Flipper implementation, and need to mimic production authentication/authorization, read the following.
 
 ### Requirements
 
@@ -34,4 +34,4 @@ curl -H "Authorization: token <personal_access_token>" https://api.github.com/or
 
 `github_oauth_key`/`github_oauth_secret` - These reference the Client ID and Client Secret for the associated Github OAuth App. There are separate apps for each app using github authentication (Flipper, Sidekiq, Coverband, etc) AND for each environment INCLUDING a Test App for use with localhost, `va.gov-flipper-oauth-local-test`. The credentials are stored in the parameter store under `/dsva-vagov/vets-api/local-dev/flipper/github-oauth-key` and `/github-oauth-secret`, respectively. 
 
-`github_api_key` - This is the API key used across all oauth apps. You can retrieve this from the Parameter store, located at `/dsva-vagov/vets-api/common/sidekiq/github-api-key`
+`github_api_key` - This is the API key used across all OAuth apps. You can retrieve this from the Parameter store, located at `/dsva-vagov/vets-api/common/sidekiq/github-api-key`
