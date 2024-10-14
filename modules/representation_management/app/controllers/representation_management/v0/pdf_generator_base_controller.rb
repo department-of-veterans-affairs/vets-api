@@ -49,6 +49,8 @@ module RepresentationManagement
 
       def flatten_claimant_params(claimant_params)
         claimant = claimant_params[:claimant]
+        return {} if claimant.nil?
+
         address = claimant[:address]
         country_code = normalize_country_code_to_alpha2(address[:country])
         {
