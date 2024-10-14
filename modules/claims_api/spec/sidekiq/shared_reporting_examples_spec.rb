@@ -13,8 +13,7 @@ RSpec.shared_examples 'shared reporting behavior' do
       unsuccessful_poa_submissions = job.unsuccessful_poa_submissions
 
       expect(poa_totals[0]['VA TurboClaim'][:totals]).to eq(6)
-      # TODO: address in subsequent ticket
-      # expect(unsuccessful_poa_submissions.count).to eq(2)
+      expect(unsuccessful_poa_submissions[1][:created_at]).to be > 1.day.ago
       expect(unsuccessful_poa_submissions[0][:cid]).to eq('0oa9uf05lgXYk6ZXn297')
     end
   end
@@ -31,8 +30,7 @@ RSpec.shared_examples 'shared reporting behavior' do
       unsuccessful_evidence_waiver_submissions = job.unsuccessful_evidence_waiver_submissions
 
       expect(ews_totals[0]['VA TurboClaim'][:totals]).to eq(6)
-      # TODO: address in subsequent ticket
-      # expect(unsuccessful_evidence_waiver_submissions.count).to eq(2)
+      expect(unsuccessful_evidence_waiver_submissions[1][:created_at]).to be > 1.day.ago
       expect(unsuccessful_evidence_waiver_submissions[0][:cid]).to eq('0oa9uf05lgXYk6ZXn297')
     end
   end
@@ -62,10 +60,10 @@ RSpec.shared_examples 'shared reporting behavior' do
 
   it 'includes 526EZ claims from VaGov' do
     with_settings(Settings.claims_api, report_enabled: true) do
-      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
-      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
-      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
-      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
+      FactoryBot.create(:auto_established_claim_va_gov, :errored)
+      FactoryBot.create(:auto_established_claim_va_gov, :errored)
+      FactoryBot.create(:auto_established_claim_va_gov, :errored)
+      FactoryBot.create(:auto_established_claim_va_gov, :errored)
 
       job = described_class.new
       job.perform

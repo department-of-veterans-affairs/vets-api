@@ -46,6 +46,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
   before do
     allow(FileUtils).to receive(:mkdir_p).and_return(true)
     allow(File).to receive(:directory?).and_return(true)
+    allow(CSV).to receive(:open).and_return(true)
     allow(SimpleFormsApi::FormRemediation::SubmissionArchive).to(receive(:new).and_return(submission_archive_instance))
     allow(submission_archive_instance).to receive(:build!).and_return(
       ["#{temp_file_path}/", manifest_entry]
