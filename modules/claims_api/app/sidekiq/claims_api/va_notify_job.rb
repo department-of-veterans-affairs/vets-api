@@ -11,7 +11,6 @@ module ClaimsApi
           detail: "Could not find Power of Attorney with id: #{poa_id}"
         )
       end
-
       if organization_filing?(poa.form_data)
         org = find_org(poa, '2122')
         send_organization_notification(poa, org)
@@ -20,11 +19,7 @@ module ClaimsApi
         send_representative_notification(poa, rep)
       end
     rescue => e
-      ClaimsApi::Logger.log(
-        'poa_update_notify_job',
-        detail: "Failed to notify with error: #{get_error_message(e)}"
-      )
-      raise e
+      handle_failure(poa_id, e)
     end
 
     # 2122a
@@ -38,6 +33,19 @@ module ClaimsApi
     end
 
     private
+
+    def handle_failure(poa_id, error)
+      notify_on_failure!(
+        'ClaimsApi::VANotifyJob',
+        "VA Notify email notification failed to send for #{poa_id}"
+      )
+
+      ClaimsApi::Logger.log(
+        'poa_update_notify_job',
+        detail: "Failed to notify with error: #{get_error_message(error)}"
+      )
+      raise e
+    end
 
     def individual_accepted_email_contents(poa, rep)
       {
