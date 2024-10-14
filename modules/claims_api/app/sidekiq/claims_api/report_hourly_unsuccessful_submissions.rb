@@ -16,7 +16,7 @@ module ClaimsApi
         'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
         'errored', @search_from, @search_to, '0oagdm49ygCSJTp8X297'
       ).pluck(:id).uniq
-      @va_gov_errored_claims = va_gov_errored_claims.map { |grp| grp[1][0] }.pluck(:id)
+      @va_gov_errored_claims = va_gov_errored_claims&.map { |grp| grp[1][0] }&.pluck(:id)
       @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @search_from..@search_to,
                                                       status: 'errored').pluck(:id).uniq
       @errored_itf = ClaimsApi::IntentToFile.where(created_at: @search_from..@search_to,
@@ -28,7 +28,7 @@ module ClaimsApi
       if errored_submissions_exist?
         notify(
           @errored_claims,
-          @va_gov_errored_claims,
+          @va_gov_errored_claims || [],
           @errored_poa,
           @errored_itf,
           @errored_ews,
@@ -59,7 +59,7 @@ module ClaimsApi
 
     def errored_submissions_exist?
       [@errored_claims, @va_gov_errored_claims, @errored_poa, @errored_itf, @errored_ews].any? do |var|
-        var.count.positive?
+        var.count.positive? if var.present?
       end
     end
 
@@ -69,7 +69,7 @@ module ClaimsApi
 
     def va_gov_errored_claims
       errored_claims = get_unique_errors
-      errored_claims.group_by(&:transaction_id)
+      errored_claims&.group_by(&:transaction_id)
     end
 
     def get_unique_errors
@@ -78,30 +78,15 @@ module ClaimsApi
       two_days = ClaimsApi::AutoEstablishedClaim.where(created_at: 48.hours.ago..@search_to,
                                                        status: 'errored', cid: '0oagdm49ygCSJTp8X297')
 
-      unique = two_days.uniq { |claim| claim[:transaction_id] }
-      errored_claims = unique.select { |claim| claim[:created_at] >= @search_from }
+      unique = two_days.uniq { |claim| claim[:transaction_id] } if two_days.present?
+      errored_claims = unique.select { |claim| claim[:created_at] >= @search_from } if unique.present?
       # Elapsd time: 0.01658499985933304 seconds
-      
+
       ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       elapsed = ending - starting
       ClaimsApi::Logger.log('hourly_slack_alert_elapsed_time', detail: "Elapsd time: #{elapsed} seconds")
-      
+
       errored_claims
     end
   end
 end
-
-# last_modified = ClaimsApi::AutoEstablishedClaim.order(:updated_at).last
-# last_modified_str = last_modified.updated_at.utc.to_s
-# cache_key = "all_errors/#{last_modified_str}"
-
-# errored_claims = []
-# @alert_groups ||= ClaimsApi::AutoEstablishedClaim.where(created_at: 48.hour.ago..Time.zone.now,
-# status: 'errored', cid: '0oagdm49ygCSJTp8X297')
-
-# all_errors = Rails.cache.fetch(cache_key) do
-#   @alert_groups
-# end
-# unique = all_errors.uniq { |claim| claim[:transaction_id] }
-# errored_claims = unique.select { |claim| claim[:created_at] >= @search_from }
-# Elapsd time: 0.0341619998216629 seconds
