@@ -14,7 +14,7 @@ module Flipper
         raise "Template does not exist: #{path}" unless path.exist?
 
         # rubocop:disable Security/Eval
-        eval(Erubi::Engine.new(path.read, escape: true).src, binding)
+        eval(Erubi::Engine.new(path.read, escape: true).src)
         # rubocop:enable Security/Eval
       end
 
