@@ -35,6 +35,10 @@ module EVSS
         FORM_ID_0781A => { docType: 'L229' }
       }.freeze
 
+      #AJ TODO - use the hash above?
+      FORM_0781_DOCUMENT_TYPE = 'L228'
+      FORM_0781A__DOCUMENT_TYPE = 'L229'
+
       STATSD_KEY_PREFIX = 'worker.evss.submit_form0781'
 
       # Sidekiq has built in exponential back-off functionality for retries
@@ -100,6 +104,21 @@ module EVSS
           }
         )
         raise e
+      end
+
+      def self.api_upload_provider(submission)
+        user = User.find(submission.user_uuid)
+
+        ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
+          options: {
+            form526_submission: submission,
+            document_type: FORM_0781_DOCUMENT_TYPE,
+            statsd_metric_prefix: STATSD_KEY_PREFIX
+          },
+          current_user: user,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS
+        )
       end
 
       # This method generates the PDF documents but does NOT send them anywhere.
@@ -219,16 +238,16 @@ module EVSS
       end
 
       def perform_client_upload(file_body, document_data)
-        client.upload(file_body, document_data)
+        if Flipper.enabled?(:disability_compensation_use_api_provider_for_0781)
+          provider = self.class.api_upload_provider(submission)
+
+          upload_document = provider.generate_upload_document(document_data.file_name)
+          provider.submit_upload_document(upload_document, file_body)
+        else
+          EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
+        end
       end
 
-      def client
-        @client ||= if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-                      # TODO: create client from lighthouse document service
-                    else
-                      EVSS::DocumentsService.new(submission.auth_headers)
-                    end
-      end
     end
   end
 end
