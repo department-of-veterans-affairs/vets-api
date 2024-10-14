@@ -3,7 +3,7 @@
 module SimpleFormsApi
   class NotificationEmail
     attr_reader :form_number, :confirmation_number, :date_submitted, :lighthouse_updated_at, :notification_type, :user,
-                :user_account
+                :user_account, :form_data
 
     TEMPLATE_IDS = {
       'vba_21_0845' => {
@@ -74,6 +74,7 @@ module SimpleFormsApi
 
     def send(at: nil)
       return unless SUPPORTED_FORMS.include?(form_number)
+      return unless flipper?
 
       data = form_specific_data || empty_form_specific_data
       return if data[:personalization]['first_name'].blank?
@@ -93,6 +94,10 @@ module SimpleFormsApi
     def check_missing_keys(config)
       missing_keys = %i[form_data form_number confirmation_number date_submitted].select { |key| config[key].nil? }
       raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
+    end
+
+    def flipper?
+      Flipper.enabled?(:"form#{form_number.gsub('vba_', '')}_confirmation_email")
     end
 
     def enqueue_email(at, template_id, data)
@@ -142,6 +147,78 @@ module SimpleFormsApi
       end
     end
 
+    def get_email_address_from_form_data
+      case @form_number
+      when 'vba_21_0845'
+        form21_0845_contact_info[0]
+      when 'vba_21p_0847', 'vba_21_0972'
+        form_data['preparer_email']
+      when 'vba_21_0966'
+        form21_0966_email_address
+      when 'vba_21_4142'
+        form_data.dig('veteran', 'email')
+      when 'vba_21_10210'
+        form21_10210_contact_info[0]
+      when 'vba_20_10206'
+        form20_10206_contact_info[0]
+      when 'vba_20_10207'
+        form20_10207_contact_info[0]
+      when 'vba_40_0247'
+        form_data['applicant_email']
+      end
+    end
+
+    def get_first_name_from_form_data
+      case @form_number
+      when 'vba_21_0845'
+        form21_0845_contact_info[1]
+      when 'vba_21p_0847'
+        form_data.dig('preparer_name', 'first')
+      when 'vba_21_0966'
+        form21_0966_first_name
+      when 'vba_21_0972'
+        form_data.dig('preparer_full_name', 'first')
+      when 'vba_21_4142'
+        form_data.dig('veteran', 'full_name', 'first')
+      when 'vba_21_10210'
+        form21_10210_contact_info[1]
+      when 'vba_20_10206'
+        form20_10206_contact_info[1]
+      when 'vba_20_10207'
+        form20_10207_contact_info[1]
+      when 'vba_40_0247'
+        form_data.dig('applicant_full_name', 'first')
+      end
+    end
+
+    def get_first_name_from_user_account
+      mpi_response = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
+      if mpi_response
+        error = mpi_response.error
+        Rails.logger.error('MPI response error', { error: }) if error
+
+        first_name = mpi_response.profile&.given_names&.first
+        Rails.logger.error('MPI profile missing first_name') unless first_name
+
+        first_name
+      end
+    end
+
+    def get_first_name_from_user
+      first_name = user.first_name
+      Rails.logger.error('First name not found in user profile') unless first_name
+
+      first_name
+    end
+
+    def get_personalization(first_name)
+      if @form_number == 'vba_21_0966'
+        default_personalization(first_name).merge(form21_0966_personalization)
+      else
+        default_personalization(first_name)
+      end
+    end
+
     def get_first_name
       if user_account
         mpi_response = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
@@ -167,61 +244,43 @@ module SimpleFormsApi
     def form_specific_data
       case @form_number
       when 'vba_21_0845'
-        return unless Flipper.enabled?(:form21_0845_confirmation_email)
-
         email, first_name = form21_0845_contact_info
 
         { email:, personalization: default_personalization(first_name) }
       when 'vba_21p_0847'
-        return unless Flipper.enabled?(:form21p_0847_confirmation_email)
-
         {
           email: @form_data['preparer_email'],
           personalization: default_personalization(@form_data.dig('preparer_name', 'first'))
         }
       when 'vba_21_0966'
-        return unless Flipper.enabled?(:form21_0966_confirmation_email)
-
         {
           email: @user&.va_profile_email,
           personalization: default_personalization(get_first_name)
             .merge(form21_0966_personalization)
         }
       when 'vba_21_0972'
-        return unless Flipper.enabled?(:form21_0972_confirmation_email)
-
         {
           email: @form_data['preparer_email'],
           personalization: default_personalization(@form_data.dig('preparer_full_name', 'first'))
         }
       when 'vba_21_4142'
-        return unless Flipper.enabled?(:form21_4142_confirmation_email)
-
         {
           email: @form_data.dig('veteran', 'email'),
           personalization: default_personalization(@form_data.dig('veteran', 'full_name', 'first'))
         }
       when 'vba_21_10210'
-        return unless Flipper.enabled?(:form21_10210_confirmation_email)
-
         email, first_name = form21_10210_contact_info
 
         { email:, personalization: default_personalization(first_name) }
       when 'vba_20_10206'
-        return unless Flipper.enabled?(:form20_10206_confirmation_email)
-
         email, first_name = form20_10206_contact_info
 
         { email:, personalization: default_personalization(first_name) }
       when 'vba_20_10207'
-        return unless Flipper.enabled?(:form20_10207_confirmation_email)
-
         email, first_name = form20_10207_contact_info
 
         { email:, personalization: default_personalization(first_name) }
       when 'vba_40_0247'
-        return unless Flipper.enabled?(:form40_0247_confirmation_email)
-
         {
           email: @form_data['applicant_email'],
           personalization: default_personalization(@form_data.dig('applicant_full_name', 'first'))
@@ -318,6 +377,22 @@ module SimpleFormsApi
 
       else
         [nil, nil]
+      end
+    end
+
+    def form21_0966_first_name
+      if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
+        form_data('surviving_dependent_full_name', 'first')
+      else
+        form_data.dig('veteran_full_name', 'first')
+      end
+    end
+
+    def form21_0966_email_address
+      if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
+        form_data['surviving_dependent_email']
+      else
+        form_data['veteran_email']
       end
     end
 

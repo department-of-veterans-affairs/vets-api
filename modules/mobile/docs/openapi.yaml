@@ -3750,7 +3750,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
         - description: |
-            When this endpoint responds with a 200, it includes a Content-Version header. That value is an epoch time integer that the frontend will store and send as the current_version parameter. When this value is less than the translation file's last modified time, it responds with a 200 status and the newest version of the translations file. If the timestamp is equal to the translation file's last modified time, it responds with 204 and no content.
+            When this endpoint responds with a 200, it includes a Content-Version header. The frontend is expected to store that value and include it as the `current_version` query param. When the `current_version` is omited or does not match the server's current version, the server responds with a 200 status, the newest version of the translations file, and the header including the newest version id. If the `current_version` matches the server's current version, the server responds with 204 and no content.
           in: query
           name: current_version
           required: false
@@ -3775,9 +3775,9 @@ paths:
                 type: string
                 enum: [ application/json ]
             Content-Version:
-              description: Epoch time integer of the last modified time of the file being downloaded.
+              description: Current version of the file being downloaded.
               schema:
-                type: integer
+                type: string
           description: OK
         '204':
           description: No Content.
