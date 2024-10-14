@@ -2113,13 +2113,13 @@
                                       "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                       "minLength": 1,
                                       "maxLength": 30,
-                                      "example": "Portland"
+                                      "example": "Schenectady"
                                     },
                                     "state": {
                                       "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR",
+                                      "example": "NY",
                                       "nullable": true
                                     },
                                     "country": {
@@ -2223,13 +2223,13 @@
                                   "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                   "minLength": 0,
                                   "maxLength": 30,
-                                  "example": "Portland"
+                                  "example": "Schenectady"
                                 },
                                 "state": {
                                   "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^[a-z,A-Z]{2}$",
-                                  "example": "OR",
+                                  "example": "NY",
                                   "nullable": true
                                 },
                                 "country": {
@@ -3497,13 +3497,13 @@
                                     "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                     "minLength": 1,
                                     "maxLength": 30,
-                                    "example": "Portland"
+                                    "example": "Schenectady"
                                   },
                                   "state": {
                                     "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR",
+                                    "example": "NY",
                                     "nullable": true
                                   },
                                   "country": {
@@ -3607,13 +3607,13 @@
                                 "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                 "minLength": 0,
                                 "maxLength": 30,
-                                "example": "Portland"
+                                "example": "Schenectady"
                               },
                               "state": {
                                 "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR",
+                                "example": "NY",
                                 "nullable": true
                               },
                               "country": {
@@ -4573,10 +4573,10 @@
                           "addressLine1": "123 Main Street",
                           "addressLine2": "Unit 1",
                           "addressLine3": "Room 2",
-                          "city": "Portland",
-                          "state": "OR",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "41726",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "1234"
                         },
                         "emailAddress": {
@@ -4590,10 +4590,10 @@
                         "addressLine1": "456 Main Street",
                         "addressLine2": "Unit 3",
                         "addressLine3": "Room 4",
-                        "city": "Atlanta",
-                        "state": "GA",
+                        "city": "Schenectady",
+                        "state": "NY",
                         "country": "USA",
-                        "zipFirstFive": "42220",
+                        "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
                           "beginDate": "2025-06-04",
@@ -4818,10 +4818,10 @@
                             "addressLine1": "1234 Couch Street",
                             "addressLine2": "Unit 4",
                             "addressLine3": "Room 1",
-                            "city": "Portland",
-                            "state": "OR",
+                            "city": "Schenectady",
+                            "state": "NY",
                             "country": "USA",
-                            "zipFirstFive": "41726",
+                            "zipFirstFive": "12345",
                             "zipLastFour": "1234"
                           },
                           "emailAddress": {
@@ -4835,10 +4835,10 @@
                           "addressLine1": "10 Peach St",
                           "addressLine2": "Unit 4",
                           "addressLine3": "Room 1",
-                          "city": "Atlanta",
-                          "state": "GA",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "42220",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "9897",
                           "dates": {
                             "beginDate": "2023-06-04",
@@ -4966,8 +4966,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -4984,10 +4983,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -5077,7 +5072,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "74d7a3b6-8164-49c2-9dfb-fdb3fa019477",
+                        "id": "04fb02bc-0b7a-4594-a6d3-e426ac64f5d7",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5093,10 +5088,10 @@
                               "addressLine1": "1234 Couch Street",
                               "addressLine2": "Unit 4",
                               "addressLine3": "Room 1",
-                              "city": "Portland",
-                              "state": "OR",
+                              "city": "Schenectady",
+                              "state": "NY",
                               "country": "USA",
-                              "zipFirstFive": "41726",
+                              "zipFirstFive": "12345",
                               "zipLastFour": "1234"
                             },
                             "emailAddress": {
@@ -5110,10 +5105,10 @@
                             "addressLine1": "10 Peach St",
                             "addressLine2": "Unit 4",
                             "addressLine3": "Room 1",
-                            "city": "Atlanta",
-                            "state": "GA",
+                            "city": "Schenectady",
+                            "state": "NY",
                             "country": "USA",
-                            "zipFirstFive": "42220",
+                            "zipFirstFive": "12345",
                             "zipLastFour": "9897",
                             "dates": {
                               "beginDate": "2023-06-04",
@@ -5262,7 +5257,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-09-21"
+                              "anticipatedSeparationDate": "2024-10-11"
                             },
                             "confinements": [
                               {
@@ -5308,7 +5303,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "3356c8ae-350b-4a23-aea1-9bb00de306e1",
+                        "id": "7451466b-22d8-4c01-a449-7eed8dcef91b",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5324,10 +5319,10 @@
                               "addressLine1": "1234 Couch Street",
                               "addressLine2": "Unit 4",
                               "addressLine3": "Room 1",
-                              "city": "Portland",
-                              "state": "OR",
+                              "city": "Schenectady",
+                              "state": "NY",
                               "country": "USA",
-                              "zipFirstFive": "41726",
+                              "zipFirstFive": "12345",
                               "zipLastFour": "1234"
                             },
                             "emailAddress": {
@@ -5341,10 +5336,10 @@
                             "addressLine1": "10 Peach St",
                             "addressLine2": "Unit 4",
                             "addressLine3": "Room 1",
-                            "city": "Atlanta",
-                            "state": "GA",
+                            "city": "Schenectady",
+                            "state": "NY",
                             "country": "USA",
-                            "zipFirstFive": "42220",
+                            "zipFirstFive": "12345",
                             "zipLastFour": "9897",
                             "dates": {
                               "beginDate": "2023-06-04",
@@ -5656,13 +5651,13 @@
                                       "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                       "minLength": 1,
                                       "maxLength": 30,
-                                      "example": "Portland"
+                                      "example": "Schenectady"
                                     },
                                     "state": {
                                       "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR",
+                                      "example": "NY",
                                       "nullable": true
                                     },
                                     "country": {
@@ -5766,13 +5761,13 @@
                                   "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                   "minLength": 0,
                                   "maxLength": 30,
-                                  "example": "Portland"
+                                  "example": "Schenectady"
                                 },
                                 "state": {
                                   "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^[a-z,A-Z]{2}$",
-                                  "example": "OR",
+                                  "example": "NY",
                                   "nullable": true
                                 },
                                 "country": {
@@ -7040,13 +7035,13 @@
                                     "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                     "minLength": 1,
                                     "maxLength": 30,
-                                    "example": "Portland"
+                                    "example": "Schenectady"
                                   },
                                   "state": {
                                     "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR",
+                                    "example": "NY",
                                     "nullable": true
                                   },
                                   "country": {
@@ -7150,13 +7145,13 @@
                                 "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                 "minLength": 0,
                                 "maxLength": 30,
-                                "example": "Portland"
+                                "example": "Schenectady"
                               },
                               "state": {
                                 "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR",
+                                "example": "NY",
                                 "nullable": true
                               },
                               "country": {
@@ -8116,10 +8111,10 @@
                           "addressLine1": "123 Main Street",
                           "addressLine2": "Unit 1",
                           "addressLine3": "Room 2",
-                          "city": "Portland",
-                          "state": "OR",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "41726",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "1234"
                         },
                         "emailAddress": {
@@ -8133,10 +8128,10 @@
                         "addressLine1": "456 Main Street",
                         "addressLine2": "Unit 3",
                         "addressLine3": "Room 4",
-                        "city": "Atlanta",
-                        "state": "GA",
+                        "city": "Schenectady",
+                        "state": "NY",
                         "country": "USA",
-                        "zipFirstFive": "42220",
+                        "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
                           "beginDate": "2025-06-04",
@@ -8361,10 +8356,10 @@
                             "addressLine1": "1234 Couch Street",
                             "addressLine2": "Unit 4",
                             "addressLine3": "Room 1",
-                            "city": "Portland",
-                            "state": "OR",
+                            "city": "Schenectady",
+                            "state": "NY",
                             "country": "USA",
-                            "zipFirstFive": "41726",
+                            "zipFirstFive": "12345",
                             "zipLastFour": "1234"
                           },
                           "emailAddress": {
@@ -8378,10 +8373,10 @@
                           "addressLine1": "10 Peach St",
                           "addressLine2": "Unit 4",
                           "addressLine3": "Room 1",
-                          "city": "Atlanta",
-                          "state": "GA",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "42220",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "9897",
                           "dates": {
                             "beginDate": "2023-06-04",
@@ -8509,8 +8504,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -8527,10 +8521,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -8593,10 +8583,10 @@
                             "addressLine1": "1234 Couch Street",
                             "addressLine2": "Unit 4",
                             "addressLine3": "Room 1",
-                            "city": "Portland",
-                            "state": "OR",
+                            "city": "Schenectady",
+                            "state": "NY",
                             "country": "USA",
-                            "zipFirstFive": "41726",
+                            "zipFirstFive": "12345",
                             "zipLastFour": "1234"
                           },
                           "emailAddress": {
@@ -8610,10 +8600,10 @@
                           "addressLine1": "10 Peach St",
                           "addressLine2": "Unit 4",
                           "addressLine3": "Room 1",
-                          "city": "Atlanta",
-                          "state": "GA",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "42220",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "9897",
                           "dates": {
                             "beginDate": "2023-06-04",
@@ -9201,13 +9191,13 @@
                                     "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                     "minLength": 1,
                                     "maxLength": 30,
-                                    "example": "Portland"
+                                    "example": "Schenectady"
                                   },
                                   "state": {
                                     "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR",
+                                    "example": "NY",
                                     "nullable": true
                                   },
                                   "country": {
@@ -9311,13 +9301,13 @@
                                 "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                 "minLength": 0,
                                 "maxLength": 30,
-                                "example": "Portland"
+                                "example": "Schenectady"
                               },
                               "state": {
                                 "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR",
+                                "example": "NY",
                                 "nullable": true
                               },
                               "country": {
@@ -10277,10 +10267,10 @@
                           "addressLine1": "123 Main Street",
                           "addressLine2": "Unit 1",
                           "addressLine3": "Room 2",
-                          "city": "Portland",
-                          "state": "OR",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "41726",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "1234"
                         },
                         "emailAddress": {
@@ -10294,10 +10284,10 @@
                         "addressLine1": "456 Main Street",
                         "addressLine2": "Unit 3",
                         "addressLine3": "Room 4",
-                        "city": "Atlanta",
-                        "state": "GA",
+                        "city": "Schenectady",
+                        "state": "NY",
                         "country": "USA",
-                        "zipFirstFive": "42220",
+                        "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
                           "beginDate": "2025-06-04",
@@ -10526,7 +10516,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e788a384-ee89-4e9e-9055-b81fa61b166d",
+                    "id": "d884c174-2a35-4f18-8c5f-f3725226230e",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10541,10 +10531,10 @@
                           "addressLine1": "1234 Couch Street",
                           "addressLine2": "Unit 4",
                           "addressLine3": "Room 1",
-                          "city": "Portland",
-                          "state": "OR",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "41726",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "1234"
                         },
                         "emailAddress": {
@@ -10558,10 +10548,10 @@
                         "addressLine1": "10 Peach St",
                         "addressLine2": "Unit 4",
                         "addressLine3": "Room 1",
-                        "city": "Atlanta",
-                        "state": "GA",
+                        "city": "Schenectady",
+                        "state": "NY",
                         "country": "USA",
-                        "zipFirstFive": "42220",
+                        "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
                           "beginDate": "2023-06-04",
@@ -11702,13 +11692,13 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "example": "Portland",
+                                    "example": "Schenectady",
                                     "maxLength": 1000
                                   },
                                   "state": {
                                     "description": "State for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "example": "OR",
+                                    "example": "NY",
                                     "maxLength": 1000,
                                     "nullable": true
                                   },
@@ -11805,13 +11795,13 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "example": "Portland",
+                                "example": "Schenectady",
                                 "maxLength": 1000
                               },
                               "state": {
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
-                                "example": "OR",
+                                "example": "NY",
                                 "maxLength": 1000,
                                 "nullable": true
                               },
@@ -12344,13 +12334,13 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "example": "Portland",
+                                      "example": "Schenectady",
                                       "nullable": true
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
                                       "type": "string",
-                                      "example": "OR",
+                                      "example": "NY",
                                       "nullable": true
                                     }
                                   }
@@ -12751,10 +12741,10 @@
                           "addressLine1": "123 Main Street",
                           "addressLine2": "Unit 1",
                           "addressLine3": "Room 2",
-                          "city": "Portland",
-                          "state": "OR",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "41726",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "1234"
                         },
                         "emailAddress": {
@@ -12768,10 +12758,10 @@
                         "addressLine1": "456 Main Street",
                         "addressLine2": "Unit 3",
                         "addressLine3": "Room 4",
-                        "city": "Atlanta",
-                        "state": "GA",
+                        "city": "Schenectady",
+                        "state": "NY",
                         "country": "USA",
-                        "zipFirstFive": "42220",
+                        "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
                           "beginDate": "2025-06-04",
@@ -13269,127 +13259,176 @@
         ],
         "responses": {
           "200": {
-            "description": "claim response",
+            "description": "errored claim response",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "id": "555555555",
-                    "type": "claim",
-                    "attributes": {
-                      "claimTypeCode": "400PREDSCHRG",
-                      "claimDate": "2017-05-02",
-                      "claimPhaseDates": {
-                        "phaseChangeDate": "2017-10-18",
-                        "currentPhaseBack": false,
-                        "latestPhaseType": "COMPLETE",
-                        "previousPhases": {
-                          "phase7CompleteDate": "2017-10-18"
-                        }
-                      },
-                      "claimType": "Compensation",
-                      "closeDate": "2017-10-18",
-                      "contentions": [
-                        {
-                          "name": "abnormal heart (New)"
-                        },
-                        {
-                          "name": "abscess kidney (New)"
-                        },
-                        {
-                          "name": "encephalitis lethargica residuals (New)"
-                        },
-                        {
-                          "name": "dracunculiasis (New)"
-                        },
-                        {
-                          "name": "gingivitis (New)"
-                        },
-                        {
-                          "name": "abnormal weight loss (New)"
-                        },
-                        {
-                          "name": "groin condition (New)"
-                        },
-                        {
-                          "name": "metritis (New)"
-                        }
-                      ],
-                      "decisionLetterSent": false,
-                      "developmentLetterSent": false,
-                      "documentsNeeded": false,
-                      "endProductCode": "404",
-                      "evidenceWaiverSubmitted5103": false,
-                      "errors": [
+                "examples": {
+                  "returns a 200 response for established claim": {
+                    "value": {
+                      "data": {
+                        "id": "555555555",
+                        "type": "claim",
+                        "attributes": {
+                          "claimTypeCode": "400PREDSCHRG",
+                          "claimDate": "2017-05-02",
+                          "claimPhaseDates": {
+                            "phaseChangeDate": "2017-10-18",
+                            "currentPhaseBack": false,
+                            "latestPhaseType": "COMPLETE",
+                            "previousPhases": {
+                              "phase7CompleteDate": "2017-10-18"
+                            }
+                          },
+                          "claimType": "Compensation",
+                          "closeDate": "2017-10-18",
+                          "contentions": [
+                            {
+                              "name": "abnormal heart (New)"
+                            },
+                            {
+                              "name": "abscess kidney (New)"
+                            },
+                            {
+                              "name": "encephalitis lethargica residuals (New)"
+                            },
+                            {
+                              "name": "dracunculiasis (New)"
+                            },
+                            {
+                              "name": "gingivitis (New)"
+                            },
+                            {
+                              "name": "abnormal weight loss (New)"
+                            },
+                            {
+                              "name": "groin condition (New)"
+                            },
+                            {
+                              "name": "metritis (New)"
+                            }
+                          ],
+                          "decisionLetterSent": false,
+                          "developmentLetterSent": false,
+                          "documentsNeeded": false,
+                          "endProductCode": "404",
+                          "evidenceWaiverSubmitted5103": false,
+                          "errors": [
 
-                      ],
-                      "jurisdiction": "National Work Queue",
-                      "lighthouseId": null,
-                      "maxEstClaimDate": null,
-                      "minEstClaimDate": null,
-                      "status": "CANCELED",
-                      "submitterApplicationCode": "EBN",
-                      "submitterRoleCode": "VET",
-                      "supportingDocuments": [
-                        {
-                          "documentId": "{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}",
-                          "documentTypeLabel": "Medical",
-                          "originalFileName": null,
-                          "trackedItemId": null,
-                          "uploadDate": null
+                          ],
+                          "jurisdiction": "National Work Queue",
+                          "lighthouseId": null,
+                          "maxEstClaimDate": null,
+                          "minEstClaimDate": null,
+                          "status": "CANCELED",
+                          "submitterApplicationCode": "EBN",
+                          "submitterRoleCode": "VET",
+                          "supportingDocuments": [
+                            {
+                              "documentId": "{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}",
+                              "documentTypeLabel": "Medical",
+                              "originalFileName": null,
+                              "trackedItemId": null,
+                              "uploadDate": null
+                            }
+                          ],
+                          "tempJurisdiction": null,
+                          "trackedItems": [
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "21-4142a",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293440,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Employment info needed",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293443,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Accidental injury - 21-4176 needed",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293444,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Buddy mentioned - No complete address",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293446,
+                              "uploadsAllowed": false
+                            }
+                          ]
                         }
-                      ],
-                      "tempJurisdiction": null,
-                      "trackedItems": [
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "21-4142a",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293440,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Employment info needed",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293443,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Accidental injury - 21-4176 needed",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293444,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Buddy mentioned - No complete address",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293446,
-                          "uploadsAllowed": false
+                      }
+                    }
+                  },
+                  "returns a 200 response for errored claim": {
+                    "value": {
+                      "data": {
+                        "id": null,
+                        "type": "claim",
+                        "attributes": {
+                          "claimTypeCode": null,
+                          "claimDate": null,
+                          "claimPhaseDates": null,
+                          "claimType": null,
+                          "closeDate": null,
+                          "contentions": null,
+                          "decisionLetterSent": null,
+                          "developmentLetterSent": null,
+                          "documentsNeeded": null,
+                          "endProductCode": null,
+                          "evidenceWaiverSubmitted5103": null,
+                          "errors": [
+                            {
+                              "detail": "ERROR must match d{7}",
+                              "source": "form526/serviceInformation/reservesNationalGuardService/unitPhone/phoneNumber/Pattern"
+                            },
+                            {
+                              "detail": "ERROR must match d{7}",
+                              "source": "form526/veteran/homelessness/pointOfContact/primaryPhone/phoneNumber/Pattern"
+                            }
+                          ],
+                          "jurisdiction": null,
+                          "lighthouseId": "d5536c5c-0465-4038-a368-1a9d9daf65c9",
+                          "maxEstClaimDate": null,
+                          "minEstClaimDate": null,
+                          "status": "ERRORED",
+                          "submitterApplicationCode": null,
+                          "submitterRoleCode": null,
+                          "supportingDocuments": [
+
+                          ],
+                          "tempJurisdiction": null,
+                          "trackedItems": [
+
+                          ]
                         }
-                      ]
+                      }
                     }
                   }
                 },
@@ -13773,7 +13812,46 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "benefit_claim_details_dto": {
+                    "attention_needed": "No",
+                    "base_end_prdct_type_cd": "400",
+                    "benefit_claim_id": "555555555",
+                    "bnft_claim_lc_status": {
+                      "phase_chngd_dt": "2017-10-18T08:23:35.000+00:00",
+                      "phase_type": "COMPLETE",
+                      "phase_type_change_ind": "78"
+                    },
+                    "bnft_claim_type_cd": "400PREDSCHRG",
+                    "claim_complete_dt": "2017-10-18T08:23:35.000+00:00",
+                    "claim_dt": "2017-05-02",
+                    "claim_status": "CAN",
+                    "claim_status_type": "Compensation",
+                    "contentions": "abnormal heart (New), abscess kidney (New), encephalitis lethargica residuals (New), dracunculiasis (New), gingivitis (New), abnormal weight loss (New), groin condition (New), metritis (New)",
+                    "decision_notification_sent": "No",
+                    "development_letter_sent": "No",
+                    "end_prdct_type_cd": "404",
+                    "errors": [
+
+                    ],
+                    "poa": "RANDOM E PERSON",
+                    "program_type": "CPL",
+                    "ptcpnt_clmant_id": "111111111",
+                    "ptcpnt_vet_id": "111111111",
+                    "regional_office_jrsdctn": "National Work Queue",
+                    "submtr_applcn_type_cd": "EBN",
+                    "submtr_role_type_cd": "VET",
+                    "temp_regional_office_jrsdctn": null,
+                    "wsyswwn": {
+                      "address_line1": "National Work Queue",
+                      "address_line2": "810 Vermont Avenue NW",
+                      "address_line3": null,
+                      "city": "Washington",
+                      "state": "DC",
+                      "zip": "20420"
+                    }
+                  },
+                  "@xmlns:ns0": "http://claimstatus.services.ebenefits.vba.va.gov/"
                 }
               }
             }
@@ -14186,8 +14264,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-09-19",
-                      "expirationDate": "2025-09-19",
+                      "creationDate": "2024-10-09",
+                      "expirationDate": "2025-10-09",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14984,7 +15062,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:132:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:162:in `representative'"
                       }
                     }
                   ]
@@ -15083,7 +15161,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c97b8c40-558a-4d35-af92-57362329173a",
+                    "id": "381df74a-b05c-456d-8fe6-aab246fda7f7",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15776,7 +15854,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8d551fa6-0088-4910-bbd7-08492f1f1dfc",
+                    "id": "17df2ef1-3760-4bf3-82a9-4d804f7530bc",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16302,11 +16380,6 @@
                                 "pattern": ".@.",
                                 "maxLength": 61,
                                 "example": "veteran_representative@example.com"
-                              },
-                              "appointmentDate": {
-                                "description": "Date of appointment with Veteran.",
-                                "type": "string",
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                               }
                             }
                           },
@@ -17610,11 +17683,6 @@
                                 "pattern": ".@.",
                                 "maxLength": 61,
                                 "example": "veteran_representative@example.com"
-                              },
-                              "appointmentDate": {
-                                "description": "Date of appointment with Veteran.",
-                                "type": "string",
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                               }
                             }
                           },
@@ -17727,10 +17795,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "17c1d357-0b69-4ce1-a7e2-deb13931a6c6",
+                    "id": "79a76ea1-feb7-4499-9fd9-b607ec137024",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-09-19",
+                      "dateRequestAccepted": "2024-10-09",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

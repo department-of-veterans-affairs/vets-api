@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'flipper/admin_user_constraint'
+require 'flipper/route_authorization_constraint'
 
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
@@ -99,7 +99,9 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
+      resource :mhv_user_account, only: [:show], controller: 'user/mhv_user_accounts'
     end
+
     resource :veteran_onboarding, only: %i[show update]
 
     resource :education_benefits_claims, only: %i[create show] do
@@ -121,8 +123,12 @@ Rails.application.routes.draw do
     resource :hca_attachments, only: :create
     resource :form1010_ezr_attachments, only: :create
 
-    resources :caregivers_assistance_claims, only: :create
-    post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
+    resources :caregivers_assistance_claims, only: :create do
+      collection do
+        get(:facilities)
+        post(:download_pdf)
+      end
+    end
 
     namespace :form1010cg do
       resources :attachments, only: :create
@@ -168,8 +174,6 @@ Rails.application.routes.draw do
     resource :rated_disabilities_discrepancies, only: %i[show]
 
     namespace :virtual_agent do
-      get 'claim', to: 'virtual_agent_claim#index'
-      get 'claim/:id', to: 'virtual_agent_claim#show'
       get 'claims', to: 'virtual_agent_claim_status#index'
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
@@ -481,8 +485,9 @@ Rails.application.routes.draw do
     mount MockedAuthentication::Engine, at: '/mocked_authentication'
   end
 
-  get '/flipper/features/logout', to: 'flipper#logout'
-  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint
+  get '/flipper/logout', to: 'flipper#logout'
+  get '/flipper/login', to: 'flipper#login'
+  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::RouteAuthorizationConstraint
 
   unless Rails.env.test?
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new

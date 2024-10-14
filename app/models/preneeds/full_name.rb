@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-
 module Preneeds
   # Models a full name for persons included in a {Preneeds::BurialForm} form
   #
@@ -16,7 +14,7 @@ module Preneeds
   # @!attribute suffix
   #   @return [String] name suffix
   #
-  class FullName < Preneeds::VirtusBase
+  class FullName < Preneeds::Base
     attribute :first, String
     attribute :last, String
     attribute :maiden, String

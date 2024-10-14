@@ -1,82 +1,144 @@
 {
+  <%# Page 1 %>
+
+  <%# Section 1: Veteran's Identification Information %>
+
+  <%# 1. Veteran's Name %>
   "vba210304[0].#subform[0].Veterans_First_Name[0]": "<%= form.data.dig('veteran_full_name', 'first') %>",
   "vba210304[0].#subform[0].Middle_Initial1[0]": "<%= form.data.dig('veteran_full_name', 'middle') %>",
   "vba210304[0].#subform[0].Last_Name[0]": "<%= form.data.dig('veteran_full_name', 'last') %>",
-  "vba210304[0].#subform[0].SocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data['veteran_ssn']&.[](0..2) %>",
-  "vba210304[0].#subform[0].SocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data['veteran_ssn']&.[](3..4) %>",
-  "vba210304[0].#subform[0].SocialSecurityNumber_LastFourNumbers[0]": "<%= form.data['veteran_ssn']&.[](5..8) %>",
+
+  <%# 2. Social Security Number %>
+  "vba210304[0].#subform[0].SSN1[0]": "<%= form.data['veteran_ssn']&.[](0..2) %>",
+  "vba210304[0].#subform[0].SSN2[0]": "<%= form.data['veteran_ssn']&.[](3..4) %>",
+  "vba210304[0].#subform[0].SSN3[0]": "<%= form.data['veteran_ssn']&.[](5..8) %>",
+
+  <%# 3. VA File Number %>
   "vba210304[0].#subform[0].VA_File_Number_If_Applicable[0]": "<%= form.data['veteran_va_file_number'] %>",
+
+  <%# 4. Date of Birth %>
+  "vba210304[0].#subform[0].Month[1]": "<%= form.data['veteran_date_of_birth']&.[](5..6) %>",
+  "vba210304[0].#subform[0].Day[1]": "<%= form.data['veteran_date_of_birth']&.[](8..9) %>",
+  "vba210304[0].#subform[0].Year[1]": "<%= form.data['veteran_date_of_birth']&.[](0..3) %>",
+
+  <%# 5. VA Insurance File Number %>
   "vba210304[0].#subform[0].VA_INSURANCE_FILE_NUMBER[0]": "<%= form.data['veteran_va_insurance_file_number'] %>",
-  "vba210304[0].#subform[0].DOByear[0]": "<%= form.data['veteran_date_of_birth']&.[](0..3) %>",
-  "vba210304[0].#subform[0].DOBmonth[0]": "<%= form.data['veteran_date_of_birth']&.[](5..6) %>",
-  "vba210304[0].#subform[0].DOBday[0]": "<%= form.data['veteran_date_of_birth']&.[](8..9) %>",
-  "vba210304[0].#subform[0].CurrentMailingAddress_Country[0]": "<%= form.data.dig('veteran_mailing_address', 'country') %>",
+
+  <%# 6. Current Mailing Address %>
   "vba210304[0].#subform[0].CurrentMailingAddress_NumberAndStreet[0]": "<%= form.data.dig('veteran_mailing_address', 'street') %>",
   "vba210304[0].#subform[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]": "<%= form.data.dig('veteran_mailing_address', 'street2')&.gsub(/\D/, '') %>",
   "vba210304[0].#subform[0].CurrentMailingAddress_City[0]": "<%= form.data.dig('veteran_mailing_address', 'city') %>",
   "vba210304[0].#subform[0].CurrentMailingAddress_StateOrProvince[0]": "<%= form.data.dig('veteran_mailing_address', 'state') %>",
+  "vba210304[0].#subform[0].CurrentMailingAddress_Country[0]": "<%= form.data.dig('veteran_mailing_address', 'country') %>",
   "vba210304[0].#subform[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= form.data.dig('veteran_mailing_address', 'postal_code')&.[](0..4) %>",
   "vba210304[0].#subform[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.data.dig('veteran_mailing_address', 'postal_code')&.[](5..8) %>",
-  "vba210304[0].#subform[0].TelephoneNumber_FirstThreeNumbers[0]": "<%= form.data['veteran_phone']&.gsub('-', '')&.[](0..2) %>",
-  "vba210304[0].#subform[0].TelephoneNumber_SecondThreeNumbers[0]": "<%= form.data['veteran_phone']&.gsub('-', '')&.[](3..5) %>",
-  "vba210304[0].#subform[0].TelephoneNumber_LastFourNumbers[0]": "<%= form.data['veteran_phone']&.gsub('-', '')&.[](6..9) %>",
-  "vba210304[0].#subform[0].EMAIL_ADDRESS[0]": "<%= form.data['veteran_email']&.[](0..19) %>",
-  "vba210304[0].#subform[0].EMAIL_ADDRESS[1]": "<%= form.data['veteran_email']&.[](20..39) %>",
-  "vba210304[0].#subform[0].CheckBox1[0]": "<%= (form.data['claimant_type'] == 'veteran' && form.data['claim_ownership'] == 'self') ? 1 : 0 %>",
+
+  <%# 7. Telephone Number %>
+  "vba210304[0].#subform[0].AreaCode[0]": "<%= form.data['veteran_phone']&.gsub('-', '')&.[](0..2) %>",
+  "vba210304[0].#subform[0].FirstThreeNumbers[0]": "<%= form.data['veteran_phone']&.gsub('-', '')&.[](3..5) %>",
+  "vba210304[0].#subform[0].LastFourNumbers[0]": "<%= form.data['veteran_phone']&.gsub('-', '')&.[](6..9) %>",
   "vba210304[0].#subform[0].International_Phone_Number[0]": "<%= %>",
 
-  "vba210304[0].#subform[0].Claimants_First_Name[0]": "<%= form.data.dig('claimant_full_name', 'first') %>",
+  <%# 8. E-Mail Address %>
+  "vba210304[0].#subform[0].CheckBox1[0]": "<%= (form.data['claimant_type'] == 'veteran' && form.data['claim_ownership'] == 'self') ? 1 : 0 %>",
+  "vba210304[0].#subform[0].EMAIL_ADDRESS[0]": "<%= form.data['veteran_email']&.[](0..19) %>",
+  "vba210304[0].#subform[0].EMAIL_ADDRESS[1]": "<%= form.data['veteran_email']&.[](20..39) %>",
+
+  <%# Section 2: Claimant's Identification Information %>
+
+  <%# 9. Claimant's Name %>
+  "vba210304[0].#subform[0].Veterans_First_Name[1]": "<%= form.data.dig('claimant_full_name', 'first') %>",
   "vba210304[0].#subform[0].Middle_Initial1[1]": "<%= form.data.dig('claimant_full_name', 'middle') %>",
   "vba210304[0].#subform[0].Last_Name[1]": "<%= form.data.dig('claimant_full_name', 'last') %>",
-  "vba210304[0].#subform[0].Claimants_SocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data['claimant_ssn']&.[](0..2) %>",
-  "vba210304[0].#subform[0].Claimants_SocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data['claimant_ssn']&.[](3..4) %>",
-  "vba210304[0].#subform[0].Claimants_SocialSecurityNumber_LastFourNumbers[0]": "<%= form.data['claimant_ssn']&.[](5..8) %>",
+
+  <%# 10. Social Security Number %>
+  "vba210304[0].#subform[0].FirstThreeNumbers[1]": "<%= form.data['claimant_ssn']&.[](0..2) %>",
+  "vba210304[0].#subform[0].SecondTwoNumbers[1]": "<%= form.data['claimant_ssn']&.[](3..4) %>",
+  "vba210304[0].#subform[0].LastFourNumbers[1]": "<%= form.data['claimant_ssn']&.[](5..8) %>",
+
+  <%# 11. VA File Number %>
   "vba210304[0].#subform[0].VA_File_Number_If_Applicable[1]": "<%= form.data['claimant_va_file_number'] %>",
+
+  <%# 12. Date of Birth %>
+  "vba210304[0].#subform[0].Year[3]": "<%= form.data['claimant_date_of_birth']&.[](0..3) %>",
+  "vba210304[0].#subform[0].Month[3]": "<%= form.data['claimant_date_of_birth']&.[](5..6) %>",
+  "vba210304[0].#subform[0].Day[3]": "<%= form.data['claimant_date_of_birth']&.[](8..9) %>",
+
+  <%# 13. VA Insurance File Number %>
   "vba210304[0].#subform[0].VA_INSURANCE_FILE_NUMBER[1]": "<%= form.data['claimant_va_insurance_file_number'] %>",
-  "vba210304[0].#subform[0].DOByear[1]": "<%= form.data['claimant_date_of_birth']&.[](0..3) %>",
-  "vba210304[0].#subform[0].DOBmonth[1]": "<%= form.data['claimant_date_of_birth']&.[](5..6) %>",
-  "vba210304[0].#subform[0].DOBday[1]": "<%= form.data['claimant_date_of_birth']&.[](8..9) %>",
-  "vba210304[0].#subform[0].CurrentMailingAddress_Country[1]": "<%= form.data.dig('claimant_mailing_address', 'country') %>",
+
+  <%# 14. Current Mailing Address %>
   "vba210304[0].#subform[0].CurrentMailingAddress_NumberAndStreet[1]": "<%= form.data.dig('claimant_mailing_address', 'street') %>",
   "vba210304[0].#subform[0].CurrentMailingAddress_ApartmentOrUnitNumber[1]": "<%= form.data.dig('claimant_mailing_address', 'street2')&.gsub(/\D/, '') %>",
   "vba210304[0].#subform[0].CurrentMailingAddress_City[1]": "<%= form.data.dig('claimant_mailing_address', 'city') %>",
   "vba210304[0].#subform[0].CurrentMailingAddress_StateOrProvince[1]": "<%= form.data.dig('claimant_mailing_address', 'state') %>",
+  "vba210304[0].#subform[0].CurrentMailingAddress_Country[1]": "<%= form.data.dig('claimant_mailing_address', 'country') %>",
   "vba210304[0].#subform[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": "<%= form.data.dig('claimant_mailing_address', 'postal_code')&.[](0..4) %>",
   "vba210304[0].#subform[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": "<%= form.data.dig('claimant_mailing_address', 'postal_code')&.[](5..8) %>",
-  "vba210304[0].#subform[0].TelephoneNumber_FirstThreeNumbers[1]": "<%= form.data['claimant_phone']&.gsub('-', '')&.[](0..2) %>",
-  "vba210304[0].#subform[0].TelephoneNumber_SecondThreeNumbers[1]": "<%= form.data['claimant_phone']&.gsub('-', '')&.[](3..5) %>",
-  "vba210304[0].#subform[0].TelephoneNumber_LastFourNumbers[1]": "<%= form.data['claimant_phone']&.gsub('-', '')&.[](6..9) %>",
-  "vba210304[0].#subform[0].EMAIL_ADDRESS[3]": "<%= form.data['claimant_email']&.[](0..19) %>",
-  "vba210304[0].#subform[0].EMAIL_ADDRESS[2]": "<%= form.data['claimant_email']&.[](20..39) %>",
-  "vba210304[0].#subform[0].I_AGREE_TO_RECEIVE_ELECTRONIC_CORRESPONDENCE_FROM_VA_IN_REGARDS_TO_MY_CLAIM[0]": "<%= (form.data['claimant_type'] == 'non-veteran' && form.data['claim_ownership'] == 'self') ? 1 : 0 %>",
+
+  <%# 15. Telephone Number %>
+  "vba210304[0].#subform[0].AreaCode[1]": "<%= form.data['claimant_phone']&.gsub('-', '')&.[](0..2) %>",
+  "vba210304[0].#subform[0].FirstThreeNumbers[2]": "<%= form.data['claimant_phone']&.gsub('-', '')&.[](3..5) %>",
+  "vba210304[0].#subform[0].LastFourNumbers[2]": "<%= form.data['claimant_phone']&.gsub('-', '')&.[](6..9) %>",
   "vba210304[0].#subform[0].International_Phone_Number[1]": "<%= %>",
 
+  <%# 16. E-Mail Address %>
+  "vba210304[0].#subform[0].CheckBox1[1]": "<%= (form.data['claimant_type'] == 'non-veteran' && form.data['claim_ownership'] == 'self') ? 1 : 0 %>",
+  "vba210304[0].#subform[0].EMAIL_ADDRESS[2]": "<%= form.data['claimant_email']&.[](0..19) %>",
+  "vba210304[0].#subform[0].EMAIL_ADDRESS[3]": "<%= form.data['claimant_email']&.[](20..39) %>",
 
-  "vba210304[0].#subform[1].SocialSecurityNumber_FirstThreeNumbers[1]": "<%= form.data['veteran_ssn']&.[](0..2) %>",
-  "vba210304[0].#subform[1].SocialSecurityNumber_SecondTwoNumbers[1]": "<%= form.data['veteran_ssn']&.[](3..4) %>",
-  "vba210304[0].#subform[1].SocialSecurityNumber_LastFourNumbers[1]": "<%= form.data['veteran_ssn']&.[](5..8) %>",
-  "vba210304[0].#subform[2].SocialSecurityNumber_FirstThreeNumbers[2]": "<%= form.data['veteran_ssn']&.[](0..2) %>",
-  "vba210304[0].#subform[2].SocialSecurityNumber_SecondTwoNumbers[2]": "<%= form.data['veteran_ssn']&.[](3..4) %>",
-  "vba210304[0].#subform[2].SocialSecurityNumber_LastFourNumbers[2]": "<%= form.data['veteran_ssn']&.[](5..8) %>",
-  "vba210304[0].#subform[1].STATEMENT[0]": "<%= form.data['statement']&.[](0..5554) %>",
-  "vba210304[0].#subform[2].STATEMENT[1]": "<%= form.data['statement']&.[](5555..) %>",
+  <%# Page 2 %>
 
+  <%# HEADER: Social Security Number %>
+  "vba210304[0].#subform[1].SSN1[1]": "<%= form.data['veteran_ssn']&.[](0..2) %>",
+  "vba210304[0].#subform[1].SSN2[1]": "<%= form.data['veteran_ssn']&.[](3..4) %>",
+  "vba210304[0].#subform[1].SSN3[1]": "<%= form.data['veteran_ssn']&.[](5..8) %>",
+
+  <%# Section 3: Statement %>
+
+  <%# 17. Statement %>
+  "vba210304[0].#subform[1].TextField1[0]": "<%= form.data['statement']&.[](0..5554) %>",
+
+  <%# Page 3 %>
+
+  <%# HEADER: Social Security Number %>
+  "vba210304[0].#subform[2].SSN1[2]": "<%= form.data['veteran_ssn']&.[](0..2) %>",
+  "vba210304[0].#subform[2].SSN2[2]": "<%= form.data['veteran_ssn']&.[](3..4) %>",
+  "vba210304[0].#subform[2].SSN3[2]": "<%= form.data['veteran_ssn']&.[](5..8) %>",
+
+  <%# Section 3: Statement (Continued) %>
+
+  <%# 17. Statement %>
+  "vba210304[0].#subform[2].TextField1[1]": "<%= form.data['statement']&.[](5555..) %>",
+
+  <%# Section 4: Witness Contact Information %>
+
+  <%# 18. Witness Name %>
   "vba210304[0].#subform[2].WITNESS_FIRST_NAME[0]": "<%= form.data.dig('witness_full_name', 'first') %>",
   "vba210304[0].#subform[2].Middle_Initial1[2]": "<%= form.data.dig('witness_full_name', 'middle') %>",
   "vba210304[0].#subform[2].Last_Name[2]": "<%= form.data.dig('witness_full_name', 'last') %>",
-  "vba210304[0].#subform[2].TelephoneNumber_FirstThreeNumbers[2]": "<%= form.data['witness_phone']&.gsub('-', '')&.[](0..2) %>",
-  "vba210304[0].#subform[2].TelephoneNumber_SecondThreeNumbers[2]": "<%= form.data['witness_phone']&.gsub('-', '')&.[](3..5) %>",
-  "vba210304[0].#subform[2].TelephoneNumber_LastFourNumbers[2]": "<%= form.data['witness_phone']&.gsub('-', '')&.[](6..9) %>",
-  "vba210304[0].#subform[2].EMAIL_ADDRESS[4]": "<%= form.data['witness_email']&.[](0..19) %>",
-  "vba210304[0].#subform[2].EMAIL_ADDRESS[5]": "<%= form.data['witness_email']&.[](20..39) %>",
-  "vba210304[0].#subform[2].International_Phone_Number[2]": "<%= %>",
+
+  <%# 19. Relationship to Veteran/Claimant %>
   "vba210304[0].#subform[2].SERVED_WITH_CLAIMANT[0]": "<%= form.data.dig('witness_relationship_to_claimant', 'served_with') ? 1 : 0 %>",
   "vba210304[0].#subform[2].FAMILY_OR_FRIEND_OF_CLAIMANT[0]": "<%= form.data.dig('witness_relationship_to_claimant', 'family_or_friend') ? 1 : 0 %>",
   "vba210304[0].#subform[2].COWORKER_OR_SUPERVISOR_OF_CLAIMANT[0]": "<%= form.data.dig('witness_relationship_to_claimant', 'coworker_or_supervisor') ? 1 : 0 %>",
   "vba210304[0].#subform[2].OTHER_Specify[1]": "<%= form.data['witness_other_relationship_to_claimant'] ? 1 : 0 %>",
   "vba210304[0].#subform[2].OTHER_Specify[0]": "<%= form.data['witness_other_relationship_to_claimant'] %>",
 
-  "vba210304[0].#subform[2].Date_Signed_Year[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
-  "vba210304[0].#subform[2].Date_Signed_Month[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m') %>",
-  "vba210304[0].#subform[2].Date_Signed_Day[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>"
+  <%# 20. Telephone Number %>
+  "vba210304[0].#subform[2].AreaCode[2]": "<%= form.data['witness_phone']&.gsub('-', '')&.[](0..2) %>",
+  "vba210304[0].#subform[2].FirstThreeNumbers[3]": "<%= form.data['witness_phone']&.gsub('-', '')&.[](3..5) %>",
+  "vba210304[0].#subform[2].LastFourNumbers[3]": "<%= form.data['witness_phone']&.gsub('-', '')&.[](6..9) %>",
+  "vba210304[0].#subform[2].International_Phone_Number[2]": "<%= %>",
+
+  <%# 21. E-Mail Address %>
+  "vba210304[0].#subform[2].EMAIL_ADDRESS[4]": "<%= form.data['witness_email']&.[](0..19) %>",
+  "vba210304[0].#subform[2].EMAIL_ADDRESS[5]": "<%= form.data['witness_email']&.[](20..39) %>",
+
+  <%# Section 5: Certification of Statement and Signature %>
+
+  <%# 22B. Date Signed %>
+  "vba210304[0].#subform[2].Year[5]": "<%= form.signature_date.strftime('%Y') %>",
+  "vba210304[0].#subform[2].Month[5]": "<%= form.signature_date.strftime('%m') %>",
+  "vba210304[0].#subform[2].Day[5]": "<%= form.signature_date.strftime('%d') %>"
 }

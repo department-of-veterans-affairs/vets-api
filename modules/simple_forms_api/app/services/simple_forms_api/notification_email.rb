@@ -2,26 +2,59 @@
 
 module SimpleFormsApi
   class NotificationEmail
-    attr_reader :form_number, :confirmation_number, :date_submitted, :lighthouse_updated_at, :notification_type, :user
+    attr_reader :form_number, :confirmation_number, :date_submitted, :lighthouse_updated_at, :notification_type, :user,
+                :user_account, :form_data
 
     TEMPLATE_IDS = {
-      'vba_21_0845' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email },
-      'vba_21p_0847' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21p_0847_confirmation_email },
-      'vba_21_0966' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0966_confirmation_email },
-      'vba_21_0972' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email },
-      'vba_21_4142' => { confirmation: Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email },
+      'vba_21_0845' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form21_0845_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form21_0845_received_email
+      },
+      'vba_21p_0847' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form21p_0847_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form21p_0847_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form21p_0847_received_email
+      },
+      'vba_21_0966' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form21_0966_confirmation_email,
+        error: nil,
+        received: nil
+      },
+      'vba_21_0972' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form21_0972_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form21_0972_received_email
+      },
+      'vba_21_4142' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form21_4142_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form21_4142_received_email
+      },
       'vba_21_10210' => {
         confirmation: Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email,
         error: Settings.vanotify.services.va_gov.template_id.form21_10210_error_email,
         received: Settings.vanotify.services.va_gov.template_id.form21_10210_received_email
       },
-      'vba_20_10206' => { confirmation: Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email },
-      'vba_20_10207' => { confirmation: Settings.vanotify.services.va_gov.template_id.form20_10207_confirmation_email },
-      'vba_40_0247' => { confirmation: Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email }
+      'vba_20_10206' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form20_10206_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form20_10206_received_email
+      },
+      'vba_20_10207' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form20_10207_confirmation_email,
+        error: Settings.vanotify.services.va_gov.template_id.form20_10207_error_email,
+        received: Settings.vanotify.services.va_gov.template_id.form20_10207_received_email
+      },
+      'vba_40_0247' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email,
+        error: nil,
+        received: nil
+      }
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
-    def initialize(config, notification_type: :confirmation, user: nil)
+    def initialize(config, notification_type: :confirmation, user: nil, user_account: nil)
       check_missing_keys(config)
 
       @form_data = config[:form_data]
@@ -36,30 +69,23 @@ module SimpleFormsApi
       @lighthouse_updated_at = config[:lighthouse_updated_at]
       @notification_type = notification_type
       @user = user
+      @user_account = user_account
     end
 
     def send(at: nil)
       return unless SUPPORTED_FORMS.include?(form_number)
+      return unless flipper?
 
       data = form_specific_data || empty_form_specific_data
-
-      return if data[:email].blank? || data[:personalization]['first_name'].blank?
+      return if data[:personalization]['first_name'].blank?
 
       template_id = TEMPLATE_IDS[form_number][notification_type]
+      return unless template_id
 
       if at
-        VANotify::EmailJob.perform_at(
-          at,
-          data[:email],
-          template_id,
-          data[:personalization]
-        )
+        enqueue_email(at, template_id, data)
       else
-        VANotify::EmailJob.perform_async(
-          data[:email],
-          template_id,
-          data[:personalization]
-        )
+        send_email_now(template_id, data)
       end
     end
 
@@ -70,66 +96,191 @@ module SimpleFormsApi
       raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
     end
 
+    def flipper?
+      Flipper.enabled?(:"form#{form_number.gsub('vba_', '')}_confirmation_email")
+    end
+
+    def enqueue_email(at, template_id, data)
+      # async job and we have a UserAccount
+      if user_account
+        data[:personalization]['first_name'] = get_first_name
+        return if data[:personalization]['first_name'].blank?
+
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user_account.id,
+          template_id,
+          data[:personalization]
+        )
+      # async job and we don't have a UserAccount but form data should include email
+      else
+        return if data[:email].blank? || data[:personalization]['first_name'].blank?
+
+        VANotify::EmailJob.perform_at(
+          at,
+          data[:email],
+          template_id,
+          data[:personalization]
+        )
+      end
+    end
+
+    def send_email_now(template_id, data)
+      # sync job and we have a User
+      if user
+        return if data[:personalization]['first_name'].blank?
+
+        VANotify::EmailJob.perform_async(
+          user.va_profile_email,
+          template_id,
+          data[:personalization]
+        )
+      # sync job and form data should include email
+      else
+        return if data[:email].blank? || data[:personalization]['first_name'].blank?
+
+        VANotify::EmailJob.perform_async(
+          data[:email],
+          template_id,
+          data[:personalization]
+        )
+      end
+    end
+
+    def get_email_address_from_form_data
+      case @form_number
+      when 'vba_21_0845'
+        form21_0845_contact_info[0]
+      when 'vba_21p_0847', 'vba_21_0972'
+        form_data['preparer_email']
+      when 'vba_21_0966'
+        form21_0966_email_address
+      when 'vba_21_4142'
+        form_data.dig('veteran', 'email')
+      when 'vba_21_10210'
+        form21_10210_contact_info[0]
+      when 'vba_20_10206'
+        form20_10206_contact_info[0]
+      when 'vba_20_10207'
+        form20_10207_contact_info[0]
+      when 'vba_40_0247'
+        form_data['applicant_email']
+      end
+    end
+
+    def get_first_name_from_form_data
+      case @form_number
+      when 'vba_21_0845'
+        form21_0845_contact_info[1]
+      when 'vba_21p_0847'
+        form_data.dig('preparer_name', 'first')
+      when 'vba_21_0966'
+        form21_0966_first_name
+      when 'vba_21_0972'
+        form_data.dig('preparer_full_name', 'first')
+      when 'vba_21_4142'
+        form_data.dig('veteran', 'full_name', 'first')
+      when 'vba_21_10210'
+        form21_10210_contact_info[1]
+      when 'vba_20_10206'
+        form20_10206_contact_info[1]
+      when 'vba_20_10207'
+        form20_10207_contact_info[1]
+      when 'vba_40_0247'
+        form_data.dig('applicant_full_name', 'first')
+      end
+    end
+
+    def get_first_name_from_user_account
+      mpi_response = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
+      if mpi_response
+        error = mpi_response.error
+        Rails.logger.error('MPI response error', { error: }) if error
+
+        first_name = mpi_response.profile&.given_names&.first
+        Rails.logger.error('MPI profile missing first_name') unless first_name
+
+        first_name
+      end
+    end
+
+    def get_first_name_from_user
+      first_name = user.first_name
+      Rails.logger.error('First name not found in user profile') unless first_name
+
+      first_name
+    end
+
+    def get_personalization(first_name)
+      if @form_number == 'vba_21_0966'
+        default_personalization(first_name).merge(form21_0966_personalization)
+      else
+        default_personalization(first_name)
+      end
+    end
+
+    def get_first_name
+      if user_account
+        mpi_response = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
+        if mpi_response
+          error = mpi_response.error
+          Rails.logger.error('MPI response error', { error: }) if error
+
+          first_name = mpi_response.profile&.given_names&.first
+          Rails.logger.error('MPI profile missing first_name') unless first_name
+
+          first_name
+        end
+      elsif user
+        first_name = user.first_name
+        Rails.logger.error('First name not found in user profile') unless first_name
+
+        first_name
+      end
+    end
+
     # rubocop:disable Metrics/MethodLength
     # email and personalization hash
     def form_specific_data
       case @form_number
       when 'vba_21_0845'
-        return unless Flipper.enabled?(:form21_0845_confirmation_email)
-
         email, first_name = form21_0845_contact_info
 
         { email:, personalization: default_personalization(first_name) }
       when 'vba_21p_0847'
-        return unless Flipper.enabled?(:form21p_0847_confirmation_email)
-
         {
           email: @form_data['preparer_email'],
           personalization: default_personalization(@form_data.dig('preparer_name', 'first'))
         }
       when 'vba_21_0966'
-        return unless Flipper.enabled?(:form21_0966_confirmation_email)
-
         {
-          email: @user.va_profile_email,
-          personalization: default_personalization(@user.first_name)
+          email: @user&.va_profile_email,
+          personalization: default_personalization(get_first_name)
             .merge(form21_0966_personalization)
         }
       when 'vba_21_0972'
-        return unless Flipper.enabled?(:form21_0972_confirmation_email)
-
         {
           email: @form_data['preparer_email'],
           personalization: default_personalization(@form_data.dig('preparer_full_name', 'first'))
         }
       when 'vba_21_4142'
-        return unless Flipper.enabled?(:form21_4142_confirmation_email)
-
         {
           email: @form_data.dig('veteran', 'email'),
           personalization: default_personalization(@form_data.dig('veteran', 'full_name', 'first'))
         }
       when 'vba_21_10210'
-        return unless Flipper.enabled?(:form21_10210_confirmation_email)
-
         email, first_name = form21_10210_contact_info
 
         { email:, personalization: default_personalization(first_name) }
       when 'vba_20_10206'
-        return unless Flipper.enabled?(:form20_10206_confirmation_email)
-
         email, first_name = form20_10206_contact_info
 
         { email:, personalization: default_personalization(first_name) }
       when 'vba_20_10207'
-        return unless Flipper.enabled?(:form20_10207_confirmation_email)
-
         email, first_name = form20_10207_contact_info
 
         { email:, personalization: default_personalization(first_name) }
       when 'vba_40_0247'
-        return unless Flipper.enabled?(:form40_0247_confirmation_email)
-
         {
           email: @form_data['applicant_email'],
           personalization: default_personalization(@form_data.dig('applicant_full_name', 'first'))
@@ -170,7 +321,7 @@ module SimpleFormsApi
 
       return unless preparer_types.include?(@form_data['preparer_type'])
 
-      email_and_first_name = [@user.va_profile_email]
+      email_and_first_name = [@user&.va_profile_email]
       # veteran
       email_and_first_name << if @form_data['preparer_type'] == 'veteran'
                                 @form_data['veteran_full_name']['first']
@@ -208,12 +359,14 @@ module SimpleFormsApi
       # user's own claim
       # user is a veteran
       if @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'veteran'
-        [@form_data['veteran_email'], @form_data.dig('veteran_full_name', 'first')]
+        email = user&.va_profile_email || @form_data['veteran_email']
+        [email, @form_data.dig('veteran_full_name', 'first')]
 
       # user's own claim
       # user is not a veteran
       elsif @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'non-veteran'
-        [@form_data['claimant_email'], @form_data.dig('claimant_full_name', 'first')]
+        email = user&.va_profile_email || @form_data['claimant_email']
+        [email, @form_data.dig('claimant_full_name', 'first')]
 
       # someone else's claim
       # claimant (aka someone else) is a veteran
@@ -224,6 +377,22 @@ module SimpleFormsApi
 
       else
         [nil, nil]
+      end
+    end
+
+    def form21_0966_first_name
+      if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
+        form_data('surviving_dependent_full_name', 'first')
+      else
+        form_data.dig('veteran_full_name', 'first')
+      end
+    end
+
+    def form21_0966_email_address
+      if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
+        form_data['surviving_dependent_email']
+      else
+        form_data['veteran_email']
       end
     end
 

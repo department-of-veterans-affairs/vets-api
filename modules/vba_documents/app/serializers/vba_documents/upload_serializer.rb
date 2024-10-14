@@ -11,25 +11,23 @@ module VBADocuments
     set_type :document_upload
     set_id :guid
 
-    attributes :guid, :code, :updated_at
+    attributes :guid, :status, :code
 
     attribute :detail do |object|
       detail = object.detail.to_s
       detail.length > MAX_DETAIL_DISPLAY_LENGTH ? "#{detail[0..MAX_DETAIL_DISPLAY_LENGTH - 1]}..." : detail
     end
 
-    attribute :uploaded_pdf do |object|
-      scrub_unnecessary_keys(object.uploaded_pdf) if object.uploaded_pdf
-    end
-
-    attribute :status do |object|
-      object.status == 'vbms' ? 'success' : object.status
-    end
-
     attribute :location do |object, params|
       object.get_location if params[:render_location]
     rescue => e
       raise Common::Exceptions::InternalServerError, e
+    end
+
+    attribute :updated_at
+
+    attribute :uploaded_pdf do |object|
+      scrub_unnecessary_keys(object.uploaded_pdf) if object.uploaded_pdf
     end
 
     def self.scrub_unnecessary_keys(pdf_hash)

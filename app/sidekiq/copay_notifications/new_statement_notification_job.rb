@@ -29,7 +29,8 @@ module CopayNotifications
     end
 
     sidekiq_retries_exhausted do |_msg, ex|
-      StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failure") # remove when we get more data into the retries_exhausted below
+      StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted")
       Rails.logger.error <<~LOG
         NewStatementNotificationJob retries exhausted:
         Exception: #{ex.class} - #{ex.message}

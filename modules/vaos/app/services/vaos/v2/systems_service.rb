@@ -9,21 +9,7 @@ module VAOS
                                page_size: nil,
                                page_number: nil)
         with_monitoring do
-          page_size = 0 if page_size.nil? # 0 is the default for the VAOS service which means return all clinics
-          url = "/vaos/v1/locations/#{location_id}/clinics"
-          url_params = {
-            'patientIcn' => get_icn(clinical_service),
-            'clinicIds' => get_clinic_ids(clinic_ids),
-            'clinicalService' => clinical_service,
-            'pageSize' => page_size,
-            'pageNumber' => page_number
-          }.compact
-
-          #  'clinicalService' is used when retrieving clinics for appointment scheduling,
-          #  triggering stop code filtering to avoid displaying unavailable clinics.
-          url_params.merge!('enableStopCodeFilter' => true) if url_params['clinicalService'].present?
-
-          response = perform(:get, url, url_params, headers)
+          response = get_clinics(location_id:, clinical_service:, clinic_ids:, page_size:, page_number:)
           response.body[:data].map { |clinic| OpenStruct.new(clinic) }
         end
       end
@@ -42,6 +28,28 @@ module VAOS
       end
 
       private
+
+      def get_clinics(location_id:, clinical_service:, clinic_ids:, page_size:, page_number:)
+        page_size = 0 if page_size.nil? # 0 is the default for the VAOS service which means return all clinics
+        url = if Flipper.enabled?(:va_online_scheduling_use_vpg, user)
+                "/vpg/v1/locations/#{location_id}/clinics"
+              else
+                "/vaos/v1/locations/#{location_id}/clinics"
+              end
+
+        url_params = {
+          'patientIcn' => get_icn(clinical_service),
+          'clinicIds' => get_clinic_ids(clinic_ids),
+          'clinicalService' => clinical_service,
+          'pageSize' => page_size,
+          'pageNumber' => page_number
+        }.compact
+
+        #  'clinicalService' is used when retrieving clinics for appointment scheduling,
+        #  triggering stop code filtering to avoid displaying unavailable clinics.
+        url_params.merge!('enableStopCodeFilter' => true) if url_params['clinicalService'].present?
+        perform(:get, url, url_params, headers)
+      end
 
       # Patient icn is only valid if the clinical service is of type primary care.
       def get_icn(clinical_service)

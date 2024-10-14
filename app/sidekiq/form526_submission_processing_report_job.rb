@@ -58,12 +58,6 @@ class Form526SubmissionProcessingReportJob
     @sub_arel ||= Form526Submission.arel_table
   end
 
-  def backup_submissions
-    @backup_submissions ||= timeboxed_submissions
-                            .joins(:form526_job_statuses)
-                            .where(form526_job_statuses: { job_class: 'BackupSubmission', status: 'success' })
-  end
-
   def timeboxed_submissions
     @timeboxed_submissions ||= Form526Submission
                                .where(sub_arel_created_at.gt(start_date))
