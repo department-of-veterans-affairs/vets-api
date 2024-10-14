@@ -22,7 +22,9 @@ module TravelPay
       #       associatedTravelPayClaim => claimId (string)
 
       # Get claims for the specified date range
-      raw_claims = service.get_claims_by_date_range(*tokens, params)
+      raw_claims = service.get_claims_by_date_range(*tokens,
+                                                    { 'start_date' => params['start_date'],
+                                                      'end_date' => params['end_date'] })
 
       # If no claims for the selected range, just return the original appointments
       return params['appointments'] unless raw_claims.count?
