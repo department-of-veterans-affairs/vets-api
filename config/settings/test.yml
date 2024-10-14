@@ -288,6 +288,7 @@ check_in:
     claims_base_path: EC/ClaimIngestSvc
     subscription_key: fake_subscription_key
     client_number: fake_cli_number
+    client_number_oh: fake_oh_cli_number
     redis_token_expiry: 3540 # 59 minutes
     service_name: BTSSS-API
   authentication:

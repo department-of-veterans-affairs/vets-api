@@ -18,6 +18,7 @@ RSpec.describe 'CheckIn::V0::TravelClaims', type: :request do
 
   describe 'POST `create`' do
     let(:post_params) { { travel_claims: { uuid: id, appointment_date: '2022-10-22' } } }
+    let(:post_params_for_oh) { { travel_claims: { uuid: id, appointment_date: '2022-10-22', facility_type: 'oh' } } }
 
     context 'when travel reimbursement feature flag is disabled' do
       before do
@@ -69,6 +70,38 @@ RSpec.describe 'CheckIn::V0::TravelClaims', type: :request do
       it 'enqueues the submission job and returns 202' do
         expect do
           post '/check_in/v0/travel_claims', params: post_params
+        end.to change(CheckIn::TravelClaimSubmissionWorker.jobs, :size).by(1)
+        expect(response).to have_http_status(:accepted)
+        expect(response.body).to be_blank
+      end
+    end
+
+    context 'when session is authorized and travel claim submitted oh facility type' do
+      let(:session_params) do
+        {
+          params: {
+            session: {
+              uuid: id,
+              dob: '1950-01-27',
+              last_name: 'Johnson'
+            }
+          }
+        }
+      end
+
+      before do
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', **session_params
+        end
+
+        VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+          get "/check_in/v2/patient_check_ins/#{id}"
+        end
+      end
+
+      it 'enqueues the submission job and returns 202' do
+        expect do
+          post '/check_in/v0/travel_claims', params: post_params_for_oh
         end.to change(CheckIn::TravelClaimSubmissionWorker.jobs, :size).by(1)
         expect(response).to have_http_status(:accepted)
         expect(response.body).to be_blank
