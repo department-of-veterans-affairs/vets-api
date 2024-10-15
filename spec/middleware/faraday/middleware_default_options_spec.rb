@@ -6,7 +6,7 @@ describe Faraday::Middleware do
   before do
     @stubs = Faraday::Adapter::Test::Stubs.new
     @stubs.get('/imminent-failure') do
-      [200, {}, '']
+      [500, {}, '']
     end
   end
 
