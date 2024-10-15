@@ -732,7 +732,7 @@ config/initializers/combine_pdf_log_patch.rb @department-of-veterans-affairs/bac
 config/initializers/config.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/cookie_rotation.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/core_extensions.rb @department-of-veterans-affairs/backend-review-group
-config/initializers/covid_vaccine_facilities.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/long-covid
+config/initializers/covid_vaccine_facilities.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/datadog.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/date_formats.rb @department-of-veterans-affairs/octo-identity
 config/initializers/faraday_middleware.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group

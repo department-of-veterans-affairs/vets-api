@@ -17,7 +17,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
   end
 
   let(:supporting_document) do
-    claim = create(:auto_established_claim_with_supporting_documents, :status_established)
+    claim = create(:auto_established_claim_with_supporting_documents, :established)
     supporting_document = claim.supporting_documents[0]
     supporting_document.set_file_data!(
       Rack::Test::UploadedFile.new(
