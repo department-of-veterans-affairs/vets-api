@@ -42,12 +42,7 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
         end
       end
 
-      context 'when user has an icn and vaos access and facility ids' do
-        before do
-          allow(user).to receive(:vha_facility_ids).and_return([2])
-          allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
-        end
-
+      context 'when user has an icn and vaos access' do
         it 'is true' do
           expect(user_services.service_auth_map[:appointments]).to be_truthy
         end
