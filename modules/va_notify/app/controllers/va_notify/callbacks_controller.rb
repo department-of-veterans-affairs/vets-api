@@ -9,7 +9,7 @@ module VANotify
     before_action :authenticate_callback
 
     def create
-      Rails.logger.debug "Notification received: #{params.inspect}"
+      Rails.logger.debug { "Notification received: #{params.inspect}" }
       render json: { message: 'success' }, status: :ok
     end
 
