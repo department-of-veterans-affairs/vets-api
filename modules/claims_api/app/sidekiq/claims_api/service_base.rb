@@ -40,9 +40,9 @@ module ClaimsApi
 
     protected
 
-    def notify_on_failure!(job_name, notification_message)
+    def notify_on_failure(job_name, notification_message)
       slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                             channel: '#vaapi-alerts-testing',
+                                             channel: '#api-benefits-claims-alerts',
                                              username: "Failed #{job_name}")
       slack_client.notify(notification_message)
     end

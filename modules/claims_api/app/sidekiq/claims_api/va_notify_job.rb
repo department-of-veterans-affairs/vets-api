@@ -35,7 +35,7 @@ module ClaimsApi
     private
 
     def handle_failure(poa_id, error)
-      notify_on_failure!(
+      notify_on_failure(
         'ClaimsApi::VANotifyJob',
         "VA Notify email notification failed to send for #{poa_id}"
       )
