@@ -6,7 +6,7 @@ module AppointmentAuthorization
   protected
 
   def authorize
-    raise_access_denied unless current_user.authorize(:vaos, :access?)
+    raise_access_denied unless current_user.loa3?
     raise_access_denied_no_icn if current_user.icn.blank?
   end
 

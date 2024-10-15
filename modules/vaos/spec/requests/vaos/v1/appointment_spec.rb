@@ -77,16 +77,6 @@ RSpec.describe 'VAOS::V1::Appointment', type: :request do
     end
 
     describe 'POST /vaos/v1/Appointment' do
-      context 'with flipper disabled' do
-        it 'returns HTTP status 403, forbidden' do
-          Flipper.disable('va_online_scheduling')
-          post '/vaos/v1/Appointment'
-          expect(response).to have_http_status(:forbidden)
-          expect(JSON.parse(response.body)['issue'].first.dig('details', 'text'))
-            .to eq('You do not have access to online scheduling')
-        end
-      end
-
       context 'with valid appointment' do
         let(:request_body) { File.read('spec/fixtures/fhir/dstu2/appointment_create.yml') }
 
@@ -127,16 +117,6 @@ RSpec.describe 'VAOS::V1::Appointment', type: :request do
 
     describe 'PUT /vaos/v1/Appointment/id' do
       let(:request_body) { File.read('spec/fixtures/fhir/dstu2/appointment_update.yml') }
-
-      context 'with flipper disabled' do
-        it 'returns HTTP status 403, forbidden' do
-          Flipper.disable('va_online_scheduling')
-          put '/vaos/v1/Appointment/12345'
-          expect(response).to have_http_status(:forbidden)
-          expect(JSON.parse(response.body)['issue'].first.dig('details', 'text'))
-            .to eq('You do not have access to online scheduling')
-        end
-      end
 
       context 'with valid Appointment update' do
         let(:expected_body) do
