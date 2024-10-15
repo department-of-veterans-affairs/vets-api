@@ -17,6 +17,7 @@ RSpec.describe V0::UsersController, type: :controller do
 
     before do
       sign_in_as(user)
+      create(:user_verification, idme_uuid: user.idme_uuid)
       create(:in_progress_form, user_uuid: user.uuid, form_id: 'edu-1990')
     end
 

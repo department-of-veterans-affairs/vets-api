@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../file_utilities'
+
 module SimpleFormsApi
   module FormRemediation
     module Jobs
@@ -20,7 +22,7 @@ module SimpleFormsApi
           begin
             load_progress
             presigned_urls = upload(type:)
-            cleanup(PROGRESS_FILE_PATH)
+            cleanup!(PROGRESS_FILE_PATH)
             presigned_urls
           rescue => e
             @config.handle_error("#{self.class.name} execution failed", e)
@@ -76,7 +78,7 @@ module SimpleFormsApi
         end
 
         def archive_submission(id)
-          config.s3_client.new(id:, parent_dir:, type:).upload
+          config.s3_client.new(config:, id:, type:).upload
         end
       end
     end
