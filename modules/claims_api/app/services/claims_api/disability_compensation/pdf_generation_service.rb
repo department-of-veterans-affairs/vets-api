@@ -46,7 +46,7 @@ module ClaimsApi
 
         log_job_progress(auto_claim.id, '526EZ PDF generator job finished', auto_claim.transaction_id)
 
-        auto_claim.id
+        auto_claim.status
       end
 
       def generate_mapped_claim(auto_claim, middle_initial)

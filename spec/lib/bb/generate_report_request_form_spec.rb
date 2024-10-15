@@ -12,7 +12,7 @@ describe BB::GenerateReportRequestForm do
   end
 
   let(:bb_client) do
-    VCR.use_cassette 'bb_client/session', record: :new_episodes do
+    VCR.use_cassette 'bb_client/session' do
       client = BB::Client.new(session: { user_id: '12210827' })
       client.authenticate
       client

@@ -878,6 +878,24 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             expect(VANotify::EmailJob).not_to have_received(:perform_async)
           end
         end
+
+        context 'no new intent to file added' do
+          before do
+            allow_any_instance_of(SimpleFormsApi::IntentToFile).to receive(:submit).and_return([nil, Time.zone.now])
+            allow_any_instance_of(SimpleFormsApi::IntentToFile)
+              .to receive(:existing_intents)
+              .and_return({ 'compensation' => {}, 'pension' => {}, 'survivor' => {} })
+          end
+
+          it 'does not send a confirmation email' do
+            data['preparer_identification'] = 'VETERAN'
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:ok)
+            expect(VANotify::EmailJob).not_to have_received(:perform_async)
+          end
+        end
       end
     end
   end
