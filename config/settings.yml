@@ -1552,9 +1552,6 @@ check_in:
     claims_url: https://dev.integration.d365.va.gov
     claims_url_v2: ~
     claims_base_path: ~
-    subscription_key: fake_subscription_key
-    client_number: fake_cli_number
-    client_number_oh: fake_oh_cli_number
     redis_token_expiry: 3540 # 59 minutes
     service_name: BTSSS-API
   authentication:
