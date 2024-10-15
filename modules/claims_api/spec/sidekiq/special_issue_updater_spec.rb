@@ -16,7 +16,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
     }
   end
   let(:contention_id) { { claim_id: '123', code: '200', name: 'contention-name-here' } }
-  let(:claim_record) { create(:auto_established_claim) }
+  let(:claim_record) { create(:auto_established_claim, :special_issues) }
   let(:special_issues) { claim_record.special_issues }
 
   it 'submits successfully' do
