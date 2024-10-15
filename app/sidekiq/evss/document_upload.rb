@@ -12,6 +12,7 @@ class EVSS::DocumentUpload
   OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
 
   NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
+  MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
 
   attr_accessor :auth_headers, :user_uuid, :document_hash
 
@@ -39,17 +40,24 @@ class EVSS::DocumentUpload
     # 1) Auth headers needed to authenticate with EVSS
     # 2) The uuid of the record in the UserAccount table
     # 3) Document metadata
-    # icn = UserAccount.find(msg['args'][1]).icn
-    icn = '1013703884V470925'
+
+    next unless Flipper.enabled?('cst_send_evidence_failure_emails')
+
+    icn = UserAccount.find(msg['args'][1]).icn
     first_name = msg['args'].first['va_eauth_firstName'].titleize
     filename = obscured_filename(msg['args'][2]['file_name'])
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
 
     notify_client.send_email(
       recipient_identifier: { id_value: icn, id_type: 'ICN' },
-      template_id: mailer_template_id,
+      template_id: MAILER_TEMPLATE_ID,
       personalisation: { first_name:, filename:, date_submitted: }
     )
+
+    ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email sent')
+  rescue => e
+    ::Rails.logger.error('EVSS::DocumentUpload exhaustion handler email error',
+                         { message: e.message })
   end
 
   def perform(auth_headers, user_uuid, document_hash)
@@ -79,13 +87,11 @@ class EVSS::DocumentUpload
   end
 
   def self.format_issue_instant_for_mailers(issue_instant)
-    # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-    timestamp = Time.at(issue_instant)
-    timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-  end
+    # We want to return all times in EDT
+    timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
 
-  def self.mailer_template_id
-    NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
+    # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
+    timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 
   def self.notify_client
