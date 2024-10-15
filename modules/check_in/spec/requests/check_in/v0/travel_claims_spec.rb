@@ -18,7 +18,6 @@ RSpec.describe 'CheckIn::V0::TravelClaims', type: :request do
 
   describe 'POST `create`' do
     let(:post_params) { { travel_claims: { uuid: id, appointment_date: '2022-10-22' } } }
-    let(:post_params_for_oh) { { travel_claims: { uuid: id, appointment_date: '2022-10-22', facility_type: 'oh' } } }
 
     context 'when travel reimbursement feature flag is disabled' do
       before do
