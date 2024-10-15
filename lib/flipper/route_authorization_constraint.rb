@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module Flipper
-  class AdminUserConstraint
+  class RouteAuthorizationConstraint
     def self.matches?(request)
       # Confirm that requests to toggle (POST to /boolean) are authorized
-      url_pattern = %r{\A/flipper/features/[^/]+/boolean\z}
+      url_pattern = %r{\A/flipper/features/[^/]+/(boolean|actors|groups|percentage_of_actors|percentage_of_time)\z}
       if request.method == 'POST' && request.path.match?(url_pattern)
         return true if authorized?(request.session[:flipper_user])
 
@@ -21,8 +21,10 @@ module Flipper
         return true
       end
 
-      # allow GET requests (minus the callback, which needs to pass through to finish auth flow)
-      return true if (request.method == 'GET' && request.path.exclude?('/callback')) || Rails.env.development?
+      # allow GET requests (minus the oauth/callback requests, which need to pass through to finish oauth workflow)
+      return true if (
+        request.method == 'GET' && request.path.exclude?('/callback') && request.params.exclude?('redirect')
+      ) || Settings.flipper.github_oauth_key.blank?
 
       authenticate(request)
       true
@@ -35,7 +37,7 @@ module Flipper
     end
 
     def self.authorized?(user)
-      return true if Rails.env.development?
+      return true if Settings.flipper.github_oauth_key.blank?
 
       org_name = Settings.flipper.github_organization
       team_id = Settings.flipper.github_team
