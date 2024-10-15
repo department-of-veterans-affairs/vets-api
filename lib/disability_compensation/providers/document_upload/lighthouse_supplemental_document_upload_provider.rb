@@ -37,7 +37,8 @@ class LighthouseSupplementalDocumentUploadProvider
 
     LighthouseDocument.new(
       claim_id: @form526_submission.submitted_claim_id,
-      participant_id: user.participant_id,
+      # Participant ID is persisted on the submission record
+      participant_id: @form526_submission.auth_headers['va_eauth_pid'],
       document_type: @va_document_type,
       file_name:
     )
