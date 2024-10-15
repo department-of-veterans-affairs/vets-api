@@ -120,8 +120,8 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
                                                                               template_id: 'fake_hlr_template_id' })
 
             expect(Rails.logger).to have_received(:info)
-              .with('DecisionReview::FailureNotificationEmailJob form email sent',
-                    { submission_uuid: guid1, form_type: 'SC' })
+              .with('DecisionReview::FailureNotificationEmailJob form email queued',
+                    { submitted_appeal_uuid: guid1, form_type: 'SC' })
             expect(StatsD).to have_received(:increment)
               .with('worker.decision_review.failure_notification_email.form.email_queued', tags: ['form_type:SC'])
           end
@@ -301,8 +301,11 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
               .with(identifier: user_uuid2, identifier_type: 'idme').once
 
             expect(Rails.logger).to have_received(:info)
-              .with('DecisionReview::FailureNotificationEmailJob evidence email sent',
-                    { submission_uuid: guid1, form_type: 'NOD' })
+              .with('DecisionReview::FailureNotificationEmailJob evidence email queued',
+                    { lighthouse_upload_id: upload_guid1, submitted_appeal_uuid: guid1, form_type: 'NOD' })
+            expect(Rails.logger).to have_received(:info)
+              .with('DecisionReview::FailureNotificationEmailJob evidence email queued',
+                    { lighthouse_upload_id: upload_guid5, submitted_appeal_uuid: guid3, form_type: 'NOD' })
             expect(StatsD).to have_received(:increment)
               .with('worker.decision_review.failure_notification_email.evidence.email_queued', tags: ['form_type:NOD'])
               .exactly(2).times
@@ -323,7 +326,8 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
           expect { subject.new.perform }.not_to raise_exception
 
           expect(Rails.logger).to have_received(:error)
-            .with('DecisionReview::FailureNotificationEmailJob form error', { submission_uuid: guid1, message: })
+            .with('DecisionReview::FailureNotificationEmailJob form error',
+                  { submitted_appeal_uuid: guid1, form_type: 'SC', message: })
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.failure_notification_email.form.error', tags: ['form_type:SC'])
         end
@@ -370,7 +374,7 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
 
           expect(Rails.logger).to have_received(:error)
             .with('DecisionReview::FailureNotificationEmailJob evidence error',
-                  { lighthouse_upload_id:, submission_uuid: guid1, message: })
+                  { lighthouse_upload_id:, submitted_appeal_uuid: guid1, form_type: 'SC', message: })
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.failure_notification_email.evidence.error', tags: ['form_type:SC'])
         end

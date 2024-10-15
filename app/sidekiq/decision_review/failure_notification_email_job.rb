@@ -27,27 +27,8 @@ module DecisionReview
     def perform
       return unless enabled? && (submissions.present? || submission_uploads.present?)
 
-      StatsD.increment("#{STATSD_KEY_PREFIX}.form.processing_records", submissions.size)
-
-      submissions.each do |submission|
-        handle_form_email(submission)
-      rescue => e
-        Rails.logger.error('DecisionReview::FailureNotificationEmailJob form error',
-                           { submission_uuid: submission.submitted_appeal_uuid, message: e.message })
-        StatsD.increment("#{STATSD_KEY_PREFIX}.form.error", tags: ["form_type:#{submission.type_of_appeal}"])
-      end
-
-      StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.processing_records", submission_uploads.size)
-
-      submission_uploads.each do |upload|
-        handle_upload_email(upload)
-      rescue => e
-        submission = upload.appeal_submission
-        Rails.logger.error('DecisionReview::FailureNotificationEmailJob evidence error',
-                           { lighthouse_upload_id: upload.lighthouse_upload_id,
-                             submission_uuid: submission.submitted_appeal_uuid, message: e.message })
-        StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.error", tags: ["form_type:#{submission.type_of_appeal}"])
-      end
+      send_form_emails
+      send_evidence_emails
 
       nil
     end
@@ -58,101 +39,98 @@ module DecisionReview
       @service ||= ::VaNotify::Service.new(Settings.vanotify.services.benefits_decision_review.api_key)
     end
 
+    # Fetches SavedClaim records for DecisionReview that have an error status for the form or any evidence attachments
     def errored_saved_claims
-      @errored_saved_claims ||= ::SavedClaim.where(type: SAVED_CLAIM_MODEL_TYPES).where(delete_date: nil)
+      @errored_saved_claims ||= ::SavedClaim.where(type: SAVED_CLAIM_MODEL_TYPES)
+                                            .where(delete_date: nil)
                                             .where('metadata LIKE ?', '%error%')
                                             .order(id: :asc)
     end
 
     def submissions
-      guids = errored_saved_claims.select { |sc| JSON.parse(sc.metadata)['status'] == ERROR_STATUS }.pluck(:guid)
-
-      @submissions ||= ::AppealSubmission.where(submitted_appeal_uuid: guids)
-                                         .where(failure_notification_sent_at: nil)
-                                         .order(id: :asc)
+      @submissions ||= begin
+        guids = errored_saved_claims.select { |sc| JSON.parse(sc.metadata)['status'] == ERROR_STATUS }.pluck(:guid)
+        ::AppealSubmission.where(submitted_appeal_uuid: guids).failure_not_sent
+      end
     end
 
     def submission_uploads
-      guids = errored_saved_claims.map { |sc| JSON.parse(sc.metadata)['uploads'] }
-                                  .flatten
-                                  .select { |upload| upload&.fetch('status') == ERROR_STATUS }
-                                  .pluck('id')
+      @submission_uploads ||= begin
+        uploads = errored_saved_claims.map { |sc| JSON.parse(sc.metadata)['uploads'] }
+        ids = uploads.flatten.select { |upload| upload&.fetch('status') == ERROR_STATUS }.pluck('id')
 
-      @submission_uploads ||= ::AppealSubmissionUpload.where(lighthouse_upload_id: guids)
-                                                      .where(failure_notification_sent_at: nil)
-                                                      .order(id: :asc)
+        ::AppealSubmissionUpload.where(lighthouse_upload_id: ids).failure_not_sent
+      end
     end
 
-    def handle_form_email(submission)
-      email_address, personalisation = get_email_and_personalisation(submission.user_uuid)
-      personalisation[:date_submitted] = submission.created_at.strftime('%B %d, %Y')
+    def send_email_with_vanotify(submission, filename, created_at)
+      email_address = submission.current_email
+      personalisation = {
+        first_name: submission.get_mpi_profile.given_names[0],
+        filename:,
+        date_submitted: created_at.strftime('%B %d, %Y')
+      }
 
       vanotify_service.send_email({ email_address:, template_id: TEMPLATE_IDS[submission.type_of_appeal],
                                     personalisation: })
+    end
 
-      submission.update(failure_notification_sent_at: DateTime.now)
+    def send_form_emails
+      StatsD.increment("#{STATSD_KEY_PREFIX}.form.processing_records", submissions.size)
 
-      Rails.logger.info('DecisionReview::FailureNotificationEmailJob form email sent',
-                        { submission_uuid: submission.submitted_appeal_uuid, form_type: submission.type_of_appeal })
+      submissions.each do |submission|
+        send_email_with_vanotify(submission, nil, submission.created_at)
+        submission.update(failure_notification_sent_at: DateTime.now)
+
+        record_form_email_send_successful(submission)
+      rescue => e
+        record_form_email_send_failure(submission, e)
+      end
+    end
+
+    def send_evidence_emails
+      StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.processing_records", submission_uploads.size)
+
+      submission_uploads.each do |upload|
+        send_email_with_vanotify(upload.appeal_submission, upload.masked_attachment_filename, upload.created_at)
+        upload.update(failure_notification_sent_at: DateTime.now)
+
+        record_evidence_email_send_successful(upload)
+      rescue => e
+        record_evidence_email_send_failure(upload, e)
+      end
+    end
+
+    def record_form_email_send_successful(submission)
+      metadata = { submitted_appeal_uuid: submission.submitted_appeal_uuid, form_type: submission.type_of_appeal }
+      Rails.logger.info('DecisionReview::FailureNotificationEmailJob form email queued', metadata)
       StatsD.increment("#{STATSD_KEY_PREFIX}.form.email_queued", tags: ["form_type:#{submission.type_of_appeal}"])
     end
 
-    def handle_upload_email(upload)
+    def record_form_email_send_failure(submission, e)
+      metadata = { submitted_appeal_uuid: submission.submitted_appeal_uuid, form_type: submission.type_of_appeal,
+                   message: e.message }
+      Rails.logger.error('DecisionReview::FailureNotificationEmailJob form error', metadata)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.form.error", tags: ["form_type:#{submission.type_of_appeal}"])
+    end
+
+    def record_evidence_email_send_successful(upload)
       submission = upload.appeal_submission
-
-      email_address, personalisation = get_email_and_personalisation(submission.user_uuid, upload)
-      personalisation[:date_submitted] = upload.created_at.strftime('%B %d, %Y')
-
-      vanotify_service.send_email({ email_address:,
-                                    template_id: TEMPLATE_IDS[upload.appeal_submission.type_of_appeal],
-                                    personalisation: })
-      upload.update(failure_notification_sent_at: DateTime.now)
-
-      Rails.logger.info('DecisionReview::FailureNotificationEmailJob evidence email sent',
-                        { submission_uuid: submission.submitted_appeal_uuid, form_type: submission.type_of_appeal })
+      metadata = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
+                   lighthouse_upload_id: upload.lighthouse_upload_id,
+                   form_type: submission.type_of_appeal }
+      Rails.logger.info('DecisionReview::FailureNotificationEmailJob evidence email queued', metadata)
       StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.email_queued", tags: ["form_type:#{submission.type_of_appeal}"])
     end
 
-    def get_email_and_personalisation(user_uuid, upload = nil)
-      raise 'Missing user uuid' if user_uuid.nil?
-
-      mpi_profile = get_mpi_profile(user_uuid)
-      raise 'Failed to fetch MPI profile' if mpi_profile.nil?
-
-      personalisation = {
-        first_name: mpi_profile.given_names[0],
-        filename: get_filename(upload)
-      }
-
-      [current_email(mpi_profile), personalisation]
-    end
-
-    def get_mpi_profile(user_uuid)
-      service = ::MPI::Service.new
-      idme_profile = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile
-      logingov_profile = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'logingov')&.profile
-      idme_profile || logingov_profile
-    end
-
-    def current_email(mpi_profile)
-      va_profile = ::VAProfile::ContactInformation::Service.get_person(mpi_profile.vet360_id.to_s)&.person
-      raise 'Failed to fetch VA profile' if va_profile.nil?
-
-      current_emails = va_profile.emails.select { |email| email.effective_end_date.nil? }
-      email = current_emails.first&.email_address
-      raise 'Failed to retrieve email' if email.nil?
-
-      email
-    end
-
-    def get_filename(upload)
-      return nil if upload.nil?
-
-      guid = upload.decision_review_evidence_attachment_guid
-      form_attachment = FormAttachment.find_by(guid:)
-      raise "FormAttachment guid='#{guid}' not found" if form_attachment.nil?
-
-      JSON.parse(form_attachment.file_data)['filename'].gsub(/(?<=.{3})[^_-](?=.{6})/, '*')
+    def record_evidence_email_send_failure(upload, e)
+      submission = upload.appeal_submission
+      metadata = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
+                   lighthouse_upload_id: upload.lighthouse_upload_id,
+                   form_type: submission.type_of_appeal,
+                   message: e.message }
+      Rails.logger.error('DecisionReview::FailureNotificationEmailJob evidence error', metadata)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.error", tags: ["form_type:#{submission.type_of_appeal}"])
     end
 
     def enabled?
