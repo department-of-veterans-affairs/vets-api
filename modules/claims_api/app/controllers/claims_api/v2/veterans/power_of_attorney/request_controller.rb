@@ -40,10 +40,10 @@ module ClaimsApi
 
           decision = form_attributes['decision']
 
-          unless decision && %w[accepting declining].include?(normalize(decision))
+          unless decision && %w[accepted declined].include?(normalize(decision))
             raise ::Common::Exceptions::ParameterMissing.new(
               'decision',
-              detail: 'decision is required and must be either "accepting" or "declining"'
+              detail: 'decision is required and must be either "accepted" or "declined"'
             )
           end
 
@@ -51,6 +51,10 @@ module ClaimsApi
                                                     external_key: 'power_of_attorney_request_key')
 
           res = service.update_poa_request(proc_id:, decision:)
+
+          raise ::Common::Exceptions::Lighthouse::BadGateway unless res
+
+          render json: res, status: :ok
         end
 
         def request_representative
