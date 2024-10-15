@@ -50,7 +50,7 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
 
     allow(VAProfile::ContactInformation::Service).to receive(:get_person)
     allow(VAProfile::ContactInformation::Service).to receive(:get_person)
-      .with(mpi_profile.vet360_id)
+      .with(mpi_profile&.vet360_id)
       .and_return(person_response)
     allow(VAProfile::ContactInformation::Service).to receive(:get_person)
       .with(mpi_profile2.vet360_id)
@@ -310,7 +310,7 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
         end
       end
 
-      context 'when the user cannot be retrieved' do
+      context 'when an error occurs during form processing' do
         let(:email_address) { nil }
         let(:message) { 'Failed to retrieve email' }
 
@@ -326,6 +326,53 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
             .with('DecisionReview::FailureNotificationEmailJob form error', { submission_uuid: guid1, message: })
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.failure_notification_email.form.error', tags: ['form_type:SC'])
+        end
+      end
+
+      context 'when an error occurs during evidence processing' do
+        let(:mpi_profile) { nil }
+
+        let(:lighthouse_upload_id) { SecureRandom.uuid }
+        let(:metadata) do
+          {
+            'status' => 'success',
+            'updatedAt' => '2023-01-02T00:00:00.000Z',
+            'createdAt' => '2023-01-02T00:00:00.000Z',
+            'uploads' => [
+              {
+                'status' => 'error',
+                'detail' => 'Unable to associate with veteran',
+                'createDate' => '2023-01-03T00:00:00.000Z',
+                'updateDate' => '2023-01-03T00:00:00.000Z',
+                'id' => lighthouse_upload_id
+              }
+            ]
+          }
+        end
+        let(:filename) { 'evidence.pdf' }
+
+        let(:message) { 'Failed to fetch MPI profile' }
+
+        before do
+          SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', metadata: metadata.to_json)
+          appeal_submission = create(:appeal_submission, type_of_appeal: 'SC', submitted_appeal_uuid: guid1)
+
+          upload = create(:appeal_submission_upload, lighthouse_upload_id:, appeal_submission:)
+
+          with_settings(Settings.decision_review.pdf_validation, enabled: false) do
+            create(:decision_review_evidence_attachment, guid: upload.decision_review_evidence_attachment_guid,
+                                                         file_data: { filename: }.to_json)
+          end
+        end
+
+        it 'handles the error and increments the statsd metric' do
+          expect { subject.new.perform }.not_to raise_exception
+
+          expect(Rails.logger).to have_received(:error)
+            .with('DecisionReview::FailureNotificationEmailJob evidence error',
+                  { lighthouse_upload_id:, submission_uuid: guid1, message: })
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.failure_notification_email.evidence.error', tags: ['form_type:SC'])
         end
       end
 

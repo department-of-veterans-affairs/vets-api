@@ -46,7 +46,7 @@ module DecisionReview
         Rails.logger.error('DecisionReview::FailureNotificationEmailJob evidence error',
                            { lighthouse_upload_id: upload.lighthouse_upload_id,
                              submission_uuid: submission.submitted_appeal_uuid, message: e.message })
-        StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.error", tags: ["form_type:#{usubmission.type_of_appeal}"])
+        StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.error", tags: ["form_type:#{submission.type_of_appeal}"])
       end
 
       nil
@@ -139,14 +139,16 @@ module DecisionReview
       raise 'Failed to fetch VA profile' if va_profile.nil?
 
       current_emails = va_profile.emails.select { |email| email.effective_end_date.nil? }
-      current_emails.first&.email_address || raise('Failed to retrieve email')
+      email = current_emails.first&.email_address
+      raise 'Failed to retrieve email' if email.nil?
+
+      email
     end
 
     def get_filename(upload)
       return nil if upload.nil?
 
       guid = upload.decision_review_evidence_attachment_guid
-
       form_attachment = FormAttachment.find_by(guid:)
       raise "FormAttachment guid='#{guid}' not found" if form_attachment.nil?
 
