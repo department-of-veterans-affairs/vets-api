@@ -272,6 +272,8 @@ module Mobile
           case appointment[:type]
           when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:cc_appointment]
             APPOINTMENT_TYPES[:cc]
+          when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:cc_request]
+            APPOINTMENT_TYPES[:cc]
           when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:va]
             return appointment[:type] unless appointment[:kind] == 'telehealth'
             return APPOINTMENT_TYPES[:va_video_connect_atlas] if appointment.dig(:telehealth, :atlas)

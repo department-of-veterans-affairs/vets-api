@@ -687,6 +687,7 @@ module VAOS
                    APPOINTMENT_TYPES[:va]
                  end
 
+        binding.pry
         appointment[:type] = type
       end
 
