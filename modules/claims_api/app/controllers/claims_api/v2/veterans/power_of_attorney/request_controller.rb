@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'bgs_service/manage_representative_service'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
 
@@ -8,6 +9,26 @@ module ClaimsApi
     module Veterans
       class PowerOfAttorney::RequestController < ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController
         FORM_NUMBER = 'POA_REQUEST'
+
+        def index
+          poa_codes = form_attributes['poaCodes']
+
+          unless poa_codes.is_a?(Array) && poa_codes.size.positive?
+            raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
+                                                             detail: 'poaCodes is required and cannot be empty')
+          end
+
+          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
+                                                    external_key: 'power_of_attorney_request_key')
+
+          res = service.read_poa_request(poa_codes:)
+
+          poa_list = res[:poa_request_respond_return_vo_list]
+
+          raise ::Common::Exceptions::Lighthouse::BadGateway unless poa_list
+
+          render json: poa_list, status: :ok
+        end
 
         def request_representative
           # validate target veteran exists
