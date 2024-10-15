@@ -30,7 +30,7 @@ module ClaimsApi
                    namespaces: { 'data' => '/data' })
     end
 
-    def update_poa_request(proc_id:, representative: {}, secondary_status: 'obsolete')
+    def update_poa_request(proc_id:, representative: {}, secondary_status: 'obsolete', declined_reason: nil)
       first_name = representative[:first_name].presence || 'vets-api'
       last_name = representative[:last_name].presence || 'vets-api'
 
@@ -41,6 +41,7 @@ module ClaimsApi
           xml.dateRequestActioned Time.current.iso8601
           xml.procId proc_id
           xml.secondaryStatus secondary_status
+          xml.declinedReason declined_reason if declined_reason
         end
       end
 

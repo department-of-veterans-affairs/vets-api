@@ -50,7 +50,7 @@ module ClaimsApi
           service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
                                                     external_key: 'power_of_attorney_request_key')
 
-          res = service.update_poa_request(proc_id:, decision:)
+          res = service.update_poa_request(proc_id:, decision:, declined_reason: form_attributes['declinedReason'])
 
           raise ::Common::Exceptions::Lighthouse::BadGateway unless res
 
