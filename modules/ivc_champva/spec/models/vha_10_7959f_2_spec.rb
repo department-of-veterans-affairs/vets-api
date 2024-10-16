@@ -16,9 +16,9 @@ RSpec.describe IvcChampva::VHA107959f2 do
         'full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
         'va_claim_number' => '123456789',
         'ssn' => '123456789',
-        'mailing_address' => { 'country' => 'USA', 'postal_code' => '12345' }
-        'physical_address' => { 'country' => 'USA', 'postal_code' => '12345' }
-        'send_payment' => 'Veteran',
+        'mailing_address' => { 'country' => 'USA', 'postal_code' => '12345' },
+        'physical_address' => { 'country' => 'USA', 'postal_code' => '12345' },
+        'send_payment' => 'Veteran'
       },
       'form_number' => '10-7959F-2',
       'veteran_supporting_documents' => [
