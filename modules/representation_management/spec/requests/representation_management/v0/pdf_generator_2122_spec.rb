@@ -57,7 +57,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             }
           },
           representative: {
-            organization_name: organization.id
+            organization_name: organization.poa
           }
         }
       }

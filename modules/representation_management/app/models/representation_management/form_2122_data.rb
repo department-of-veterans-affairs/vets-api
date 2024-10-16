@@ -2,8 +2,13 @@
 
 module RepresentationManagement
   class Form2122Data < RepresentationManagement::Form2122Base
-    attr_accessor :organization_name
+    def organization_name
+      org = Veteran::Service::Organization.find_by(poa: @organization_name)
+      @organization_name = org&.name
+    end
 
-    validates :organization_name, presence: true
+    attr_writer :organization_name
+
+    validates :organization_name, presence: true # This will actually be an id of an organization
   end
 end
