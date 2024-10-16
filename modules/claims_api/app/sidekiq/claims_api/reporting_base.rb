@@ -28,7 +28,6 @@ module ClaimsApi
     def errored_va_gov_claims
       ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to,
                                             status: 'errored', cid: '0oagdm49ygCSJTp8X297')
-                                     .group(:id)
                                      .order(:transaction_id)
     end
 
@@ -143,12 +142,15 @@ module ClaimsApi
 
     def map_transaction_ids(array)
       transaction_mapping = {}
+      key_sequence = [*'A'..'Z',*'a'..'z',*'0'..'99']
+      key_index = 0
 
       # Map each unique transaction_id to a new key
       array&.each do |item|
         transaction_id = item[:transaction_id]
-        if !transaction_mapping.key?(transaction_id) && transaction_id.present?
-          transaction_mapping[transaction_id] = transaction_id[-5..transaction_id.length]
+        unless transaction_mapping.key?(transaction_id)
+          transaction_mapping[transaction_id] = key_sequence[key_index]
+          key_index += 1
         end
       end
 

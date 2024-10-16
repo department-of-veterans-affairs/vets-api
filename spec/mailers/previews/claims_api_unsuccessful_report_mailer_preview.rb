@@ -81,8 +81,8 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
 
     FactoryBot.create(:auto_established_claim_v2, :errored)
     FactoryBot.create(:auto_established_claim_v2, :pending)
-    FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues, :pending)
-    FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues, :pending)
+    FactoryBot.create(:auto_established_claim, :pending)
+    FactoryBot.create(:auto_established_claim, :pending)
     FactoryBot.create(:auto_established_claim_with_supporting_documents, :pending)
     FactoryBot.create(:auto_established_claim, :pending)
   end

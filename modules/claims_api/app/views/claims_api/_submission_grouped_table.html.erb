@@ -7,11 +7,9 @@
   </thead>
   <tbody>
     <% claims&.each_with_index do |grps, idx| %>
-      <% grps[1]&.each do |arr| %>
           <tr>
-            <td><%= grps[0] %></td><td><%= arr[:id] %></td>
+            <td><%= grps[0] %></td><td><%= grps[1].pluck(:id) %></td>
           </tr>
-      <% end %>
     <% end %>
   </tbody>
 </table>
