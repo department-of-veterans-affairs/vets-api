@@ -7,6 +7,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
 
   before do
     Sidekiq::Job.clear_all
+    allow(Flipper).to receive(:enabled?).with(:claims_api_bd_refactor).and_return false
     allow(Flipper).to receive(:enabled?).with(:claims_claim_uploader_use_bd).and_return false
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
   end
@@ -17,7 +18,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
   end
 
   let(:supporting_document) do
-    claim = create(:auto_established_claim_with_supporting_documents, :status_established)
+    claim = create(:auto_established_claim_with_supporting_documents, :established)
     supporting_document = claim.supporting_documents[0]
     supporting_document.set_file_data!(
       Rack::Test::UploadedFile.new(

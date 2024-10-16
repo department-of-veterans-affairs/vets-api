@@ -406,23 +406,15 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     let(:base64_encoded_file) { Base64.strict_encode64(File.read(file_path)) }
     let(:file) { "data:image/png;base64,#{base64_encoded_file}" }
     let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
-    let(:option_keys) do
-      %w[inquiryabout inquirysource inquirytype levelofauthentication suffix veteranrelationship
-         dependentrelationship responsetype]
-    end
     let(:cache_data_service) { instance_double(Crm::CacheData) }
 
     before do
       allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
-
-      option_keys.each do |option|
-        allow(cache_data_service).to receive(:call).with(
-          endpoint: 'optionset',
-          cache_key: option,
-          payload: { name: "iris_#{option}" }
-        ).and_return(optionset_cached_data.call(option))
-        # optionset_cached_data is in include_context 'shared data'
-      end
+      allow(cache_data_service).to receive(:call).with(
+        endpoint: 'optionset',
+        cache_key: 'optionset'
+      ).and_return(optionset_cached_data)
+      # optionset_cached_data is in include_context 'shared data'
     end
 
     context 'POST #create' do

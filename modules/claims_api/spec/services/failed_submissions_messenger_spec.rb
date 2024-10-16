@@ -17,11 +17,11 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
   let(:link_text) do
     "<https://vagov.ddog-gov.com/logs?query='64738'&agg_m=" \
       'count&agg_m_source=base&agg_t=count&cols=host%2Cservice&fromUser=true&messageDisplay=inline&' \
-      'refresh_mode=sliding&storage=hot&stream_sort=desc&viz=stream&from_ts=1640803707&to_ts=' \
-      "1641062907&live=true|64738> \n<https://vagov.ddog-gov.com/logs?query='378249'&agg_m=count&" \
+      'refresh_mode=sliding&storage=hot&stream_sort=desc&viz=stream&from_ts=1640803707000&to_ts=' \
+      "1641062907000&live=true|64738> \n<https://vagov.ddog-gov.com/logs?query='378249'&agg_m=count&" \
       'agg_m_source=base&agg_t=count&cols=host%2Cservice&fromUser=true&messageDisplay=inline&' \
-      'refresh_mode=sliding&storage=hot&stream_sort=desc&viz=stream&from_ts=1640803707&to_ts=' \
-      "1641062907&live=true|378249> \n"
+      'refresh_mode=sliding&storage=hot&stream_sort=desc&viz=stream&from_ts=1640803707000&to_ts=' \
+      "1641062907000&live=true|378249> \n"
   end
 
   describe '#build_notification_message' do
@@ -33,11 +33,11 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
                          "Compensation Errors* \nTotal: 2 \n\n```123456 \n789101112 \n```  \n\n*Va Gov Disability " \
                          "Compensation Errors* \nTotal: 2 \n\n```<https://vagov.ddog-gov.com/logs?query='64738'&" \
                          'agg_m=count&agg_m_source=base&agg_t=count&cols=host%2Cservice&fromUser=true&messageDisplay=' \
-                         'inline&refresh_mode=sliding&storage=hot&stream_sort=desc&viz=stream&from_ts=1640803707&' \
-                         "to_ts=1641062907&live=true|64738> \n<https://vagov.ddog-gov.com/logs?query='378249'&agg_m=" \
-                         'count&agg_m_source=base&agg_t=count&cols=host%2Cservice&fromUser=true&messageDisplay=' \
-                         'inline&refresh_mode=sliding&storage=hot&stream_sort=desc&viz=stream&from_ts=1640803707&' \
-                         "to_ts=1641062907&live=true|378249> \n```  \n\n*Power of " \
+                         'inline&refresh_mode=sliding&storage=hot&stream_sort=desc&viz=stream&from_ts=1640803707000&' \
+                         "to_ts=1641062907000&live=true|64738> \n<https://vagov.ddog-gov.com/logs?query='378249'" \
+                         '&agg_m=count&agg_m_source=base&agg_t=count&cols=host%2Cservice&fromUser=true' \
+                         '&messageDisplay=inline&refresh_mode=sliding&storage=hot&stream_sort=desc&viz=stream' \
+                         "&from_ts=1640803707000&to_ts=1641062907000&live=true|378249> \n```  \n\n*Power of " \
                          "Attorney Errors* \nTotal: 2 \n\n```1314151617 \n181920212223 \n```  \n\n*Intent to " \
                          "File Errors* \nTotal: 1 \n\n*Evidence Waiver Errors* \nTotal: 2 " \
                          "\n\n```32333435 \n36373839 \n```  \n\n"

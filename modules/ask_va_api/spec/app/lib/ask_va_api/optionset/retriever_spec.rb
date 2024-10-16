@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-
+require AskVAApi::Engine.root.join('spec', 'support', 'shared_contexts.rb')
 module AskVAApi
   module Optionset
     RSpec.describe Retriever do
+      include_context 'shared data'
+
       let(:entity_class) { Entity }
       let(:name) { 'branchofservice' }
       let(:cache_data_service) { instance_double(Crm::CacheData) }
@@ -24,8 +26,7 @@ module AskVAApi
           before do
             allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
             allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
-            allow(cache_data_service).to receive(:call).and_return({ Data: [{ Id: 722_310_000,
-                                                                              Name: 'Air Force' }] })
+            allow(cache_data_service).to receive(:call).and_return(optionset_cached_data)
           end
 
           it 'calls on Crm::CacheData' do
@@ -51,7 +52,7 @@ module AskVAApi
           before do
             allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
             allow_any_instance_of(Crm::Service).to receive(:call)
-              .with(endpoint: 'optionset', payload: { name: 'iris_branchofservic' }).and_return(failure)
+              .with(endpoint: 'optionset', payload: {}).and_return(failure)
           end
 
           it 'raise the error' do

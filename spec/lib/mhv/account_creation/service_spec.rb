@@ -25,49 +25,80 @@ describe MHV::AccountCreation::Service do
 
     context 'when making a request' do
       let(:expected_tou_datetime) { tou_occurred_at.iso8601 }
+      let(:expected_log_message) { "#{log_prefix} create_account request" }
+      let(:expected_log_payload) { { icn: } }
 
       it 'sends vaTermsOfUseDateTime in the correct format' do
-        VCR.use_cassette('mhv/account_creation/account_creation_service_200_response') do
+        VCR.use_cassette('mhv/account_creation/account_creation_service_200_created') do
           subject
           expect(a_request(:post, "#{account_creation_base_url}/#{account_creation_path}")
           .with(body: /"vaTermsOfUseDateTime":"#{expected_tou_datetime}"/)).to have_been_made
         end
       end
+
+      it 'logs the create account request' do
+        VCR.use_cassette('mhv/account_creation/account_creation_service_200_created') do
+          subject
+          expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+        end
+      end
     end
 
     context 'when the response is successful' do
+      let(:successful_response_cassette) { 'mhv/account_creation/account_creation_service_200_found' }
       let(:expected_log_message) { "#{log_prefix} create_account success" }
       let(:expected_log_payload) { { icn:, account: expected_response_body, from_cache: expected_from_cache_log } }
+      let(:user_profile_id) { '12345678' }
+      let(:premium) { true }
+      let(:champ_va) { true }
+      let(:patient) { true }
+      let(:sm_account_created) { true }
+      let(:message) { 'Existing MHV Account Found for ICN' }
       let(:expected_response_body) do
-        {
-          user_profile_id: '12345678',
-          premium: true,
-          champ_va: true,
-          patient: true,
-          sm_account_created: true,
-          message: 'Existing MHV Account Found for ICN'
-        }
+        { user_profile_id:, premium:, champ_va:, patient:, sm_account_created:, message: }
       end
 
       shared_examples 'a successful external request' do
         it 'makes a request to the account creation service' do
-          VCR.use_cassette('mhv/account_creation/account_creation_service_200_response') do
+          VCR.use_cassette(successful_response_cassette) do
             subject
             expect(a_request(:post, "#{account_creation_base_url}/#{account_creation_path}")).to have_been_made
           end
         end
 
-        it 'logs the create account request' do
-          VCR.use_cassette('mhv/account_creation/account_creation_service_200_response') do
+        it 'logs the create account success' do
+          VCR.use_cassette(successful_response_cassette) do
             subject
             expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
           end
         end
 
         it 'returns the expected response' do
-          VCR.use_cassette('mhv/account_creation/account_creation_service_200_response') do
+          VCR.use_cassette(successful_response_cassette) do
             expect(subject).to eq(expected_response_body)
           end
+        end
+      end
+
+      context 'when the MHV account does not exist' do
+        let(:expected_from_cache_log) { false }
+
+        context 'when the user is not a VA patient' do
+          let(:successful_response_cassette) { 'mhv/account_creation/account_creation_service_200_created_no_sm' }
+          let(:champ_va) { false }
+          let(:patient) { false }
+          let(:sm_account_created) { false }
+          let(:message) { 'MHV Account Created but SM Account not created' }
+
+          it_behaves_like 'a successful external request'
+        end
+
+        context 'when the user is a VA patient' do
+          let(:successful_response_cassette) { 'mhv/account_creation/account_creation_service_200_created' }
+          let(:champ_va) { false }
+          let(:message) { 'MHV Account Created' }
+
+          it_behaves_like 'a successful external request'
         end
       end
 
@@ -114,7 +145,7 @@ describe MHV::AccountCreation::Service do
           end
 
           it 'calls Rails.cache.fetch with force: true' do
-            VCR.use_cassette('mhv/account_creation/account_creation_service_200_response') do
+            VCR.use_cassette('mhv/account_creation/account_creation_service_200_created') do
               subject
               expect(Rails.cache).to have_received(:fetch)
                 .with(expected_cache_key, force: true, expires_in: expected_expires_in)
@@ -127,20 +158,58 @@ describe MHV::AccountCreation::Service do
     end
 
     context 'when the response is a client error' do
-      let(:expected_log_message) { "#{log_prefix} create_account client_error" }
-      let(:expected_log_payload) do
-        {
-          body: { errorCode: 812, message: 'Required ICN field is missing or invalid in the JWT' }.as_json,
-          error_message: 'the server responded with status 400',
-          icn:
-        }
+      shared_examples 'client error handling' do
+        it 'logs and re-raises the client error' do
+          VCR.use_cassette(client_error_cassette) do
+            expect { subject }.to raise_error(Common::Client::Errors::ClientError)
+            expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
+          end
+        end
       end
 
-      it 'logs and re-raises the client error' do
-        VCR.use_cassette('mhv/account_creation/account_creation_service_400_response') do
-          expect { subject }.to raise_error(Common::Client::Errors::ClientError)
-          expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
+      context 'when the ICN is missing or does not match the STS token value' do
+        let(:client_error_cassette) { 'mhv/account_creation/account_creation_service_400_invalid_icn' }
+        let(:expected_log_message) { "#{log_prefix} create_account client_error" }
+        let(:expected_log_payload) do
+          {
+            body: { errorCode: 812, message: 'Required ICN field is missing or invalid in the JWT' }.as_json,
+            error_message: 'the server responded with status 400',
+            status: 400,
+            icn:
+          }
         end
+
+        it_behaves_like 'client error handling'
+      end
+
+      context 'when the MHV account exists and has been deactivated' do
+        let(:client_error_cassette) { 'mhv/account_creation/account_creation_service_400_deactivated_account' }
+        let(:expected_log_message) { "#{log_prefix} create_account client_error" }
+        let(:expected_log_payload) do
+          {
+            body: { errorCode: 805, message: 'Deactivated Account found in MHV for ICN' }.as_json,
+            error_message: 'the server responded with status 400',
+            status: 400,
+            icn:
+          }
+        end
+
+        it_behaves_like 'client error handling'
+      end
+
+      context 'when the STS token is invalid' do
+        let(:client_error_cassette) { 'mhv/account_creation/account_creation_service_403_invalid_sts' }
+        let(:expected_log_message) { "#{log_prefix} create_account client_error" }
+        let(:expected_log_payload) do
+          {
+            body: { errorCode: 808, message: 'Application authentication failed' }.as_json,
+            error_message: 'the server responded with status 403',
+            status: 403,
+            icn:
+          }
+        end
+
+        it_behaves_like 'client error handling'
       end
     end
 
@@ -150,6 +219,7 @@ describe MHV::AccountCreation::Service do
         {
           body: 'Internal Server Error',
           error_message: "unexpected token at 'Internal Server Error'",
+          status: 500,
           icn:
         }
       end

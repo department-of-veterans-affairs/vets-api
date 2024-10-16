@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api/form_remediation/configuration/base'
-
 module SimpleFormsApi
   module FormRemediation
     class SubmissionRemediationData
       attr_reader :file_path, :submission, :attachments, :metadata
 
-      def initialize(id:, config: Configuration::Base.new)
+      def initialize(id:, config:)
         @config = config
 
         validate_input(id)
@@ -45,11 +43,11 @@ module SimpleFormsApi
 
       def validate_submission
         raise 'Submission was not found or invalid' unless submission&.send(config.id_type)
-        raise "#{self.class} cannot be built: Only VFF forms are supported" unless vff_form?
+        raise "#{self.class} cannot be built: Only VFF forms are supported" unless valid_form?
       end
 
       def fetch_submission_form_number
-        vff_forms_map.fetch(submission.form_type)
+        valid_forms_map.fetch(submission.form_type)
       end
 
       def build_form(form_number)
@@ -103,12 +101,12 @@ module SimpleFormsApi
         config.handle_error('Error parsing form data', e)
       end
 
-      def vff_forms_map
+      def valid_forms_map
         SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP
       end
 
-      def vff_form?
-        vff_forms_map.key?(submission.form_type)
+      def valid_form?
+        valid_forms_map.key?(submission.form_type)
       end
     end
   end

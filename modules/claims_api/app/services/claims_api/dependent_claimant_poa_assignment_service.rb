@@ -36,9 +36,7 @@ module ClaimsApi
     end
 
     def log(level: :info, **rest)
-      ClaimsApi::Logger.log('dependent_claimant_poa_assignment_service',
-                            level:, dependent_participant_id: @dependent_participant_id,
-                            poa_code: @poa_code, veteran_participant_id: @veteran_participant_id, **rest)
+      ClaimsApi::Logger.log('dependent_claimant_poa_assignment_service', level:, poa_code: @poa_code, **rest)
     end
 
     def assign_poa_to_dependent_via_manage_ptcpnt_rlnshp?

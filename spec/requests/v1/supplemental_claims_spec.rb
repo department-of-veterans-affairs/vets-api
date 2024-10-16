@@ -134,28 +134,26 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
            headers:
     end
 
-    before do
-      Flipper.disable :decision_review_sc_use_lighthouse_api_for_form4142
-    end
-
     it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do
       VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
-        VCR.use_cassette('central_mail/submit_4142') do
-          previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
-          expect { subject }.to change(DecisionReview::Form4142Submit.jobs, :size).by(1)
-          expect(response).to be_successful
-          parsed_response = JSON.parse(response.body)
-          id = parsed_response['data']['id']
-          expect(previous_appeal_submission_ids).not_to include id
-          appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
-          expect(appeal_submission.type_of_appeal).to eq('SC')
-          expect { DecisionReview::Form4142Submit.drain }.to change(DecisionReview::Form4142Submit.jobs, :size).by(-1)
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+            previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
+            expect { subject }.to change(DecisionReview::Form4142Submit.jobs, :size).by(1)
+            expect(response).to be_successful
+            parsed_response = JSON.parse(response.body)
+            id = parsed_response['data']['id']
+            expect(previous_appeal_submission_ids).not_to include id
+            appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
+            expect(appeal_submission.type_of_appeal).to eq('SC')
+            expect { DecisionReview::Form4142Submit.drain }.to change(DecisionReview::Form4142Submit.jobs, :size).by(-1)
 
-          # SavedClaim should be created with request data and list of uploaded forms
-          request_body = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json)
-          saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
-          expect(saved_claim.form).to eq(request_body.to_json)
-          expect(saved_claim.uploaded_forms).to contain_exactly '21-4142'
+            # SavedClaim should be created with request data and list of uploaded forms
+            request_body = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json)
+            saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
+            expect(saved_claim.form).to eq(request_body.to_json)
+            expect(saved_claim.uploaded_forms).to contain_exactly '21-4142'
+          end
         end
       end
     end
@@ -179,14 +177,16 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
 
     it 'creates a supplemental claim and queues evidence jobs when additionalDocuments info is provided' do
       VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-UPLOADS-200_V1') do
-        VCR.use_cassette('central_mail/submit_4142') do
-          VCR.use_cassette('decision_review/SC-GET-UPLOAD-URL-200_V1') do
-            expect { subject }.to change(DecisionReview::SubmitUpload.jobs, :size).by(2)
-            expect(response).to be_successful
-            parsed_response = JSON.parse(response.body)
-            id = parsed_response['data']['id']
-            appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
-            expect(appeal_submission.type_of_appeal).to eq('SC')
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+            VCR.use_cassette('decision_review/SC-GET-UPLOAD-URL-200_V1') do
+              expect { subject }.to change(DecisionReview::SubmitUpload.jobs, :size).by(2)
+              expect(response).to be_successful
+              parsed_response = JSON.parse(response.body)
+              id = parsed_response['data']['id']
+              appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
+              expect(appeal_submission.type_of_appeal).to eq('SC')
+            end
           end
         end
       end

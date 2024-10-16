@@ -68,6 +68,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      }
                    }
                  )
+                 .deep_merge(
+                   {
+                     'appointmentDate' => power_of_attorney.created_at
+                   }
+                 )
           final_data = data.deep_merge(
             {
               'text_signatures' => {
@@ -190,6 +195,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      }
                    }
                  )
+                 .deep_merge(
+                   {
+                     'appointmentDate' => power_of_attorney.created_at
+                   }
+                 )
           final_data = data.deep_merge(
             {
               'text_signatures' => {
@@ -271,6 +281,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
                      'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
                    }
+                 }
+               )
+               .deep_merge(
+                 {
+                   'appointmentDate' => power_of_attorney.created_at
                  }
                )
         final_data = data.deep_merge(
@@ -391,6 +406,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
                      'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
                    }
+                 }
+               )
+               .deep_merge(
+                 {
+                   'appointmentDate' => power_of_attorney.created_at
                  }
                )
         final_data = data.deep_merge(

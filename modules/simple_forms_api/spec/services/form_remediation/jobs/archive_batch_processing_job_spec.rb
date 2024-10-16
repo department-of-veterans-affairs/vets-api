@@ -36,7 +36,7 @@ module SimpleFormsApi
           context 'with valid parameters' do
             it 'processes all submissions and generates presigned URLs' do
               perform
-              expect(Rails.logger).to have_received(:info).exactly(4).times
+              expect(Rails.logger).to have_received(:info).exactly(5).times
               expect(File).to have_received(:write).exactly(4).times
             end
           end

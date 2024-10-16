@@ -60,7 +60,7 @@ module DecisionReviewV1
       end
 
       ##
-      # Creates a new 4142(a) PDF, and sends to central mail
+      # Creates a new 4142(a) PDF, and sends to Lighthouse
       #
       # @param appeal_submission_id
       # @param rejiggered_payload
@@ -249,24 +249,18 @@ module DecisionReviewV1
 
       def submit_form4142(form_data:)
         processor = DecisionReviewV1::Processor::Form4142Processor.new(form_data:)
+        service = BenefitsIntake::Service.new
+        service.request_upload
 
-        if Flipper.enabled? :decision_review_sc_use_lighthouse_api_for_form4142
-          service = BenefitsIntake::Service.new
-          service.request_upload
+        payload = {
+          metadata: processor.request_body['metadata'],
+          document: processor.request_body['document'],
+          upload_url: service.location
+        }
 
-          payload = {
-            metadata: processor.request_body['metadata'],
-            document: processor.request_body['document'],
-            upload_url: service.location
-          }
+        response = service.perform_upload(**payload)
 
-          response = service.perform_upload(**payload)
-
-          [response, service.uuid]
-        else
-          response = CentralMail::Service.new.upload(processor.request_body)
-          [response, nil]
-        end
+        [response, service.uuid]
       end
     end
     # rubocop:enable Metrics/ModuleLength

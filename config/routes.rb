@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'flipper/admin_user_constraint'
+require 'flipper/route_authorization_constraint'
 
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
@@ -485,8 +485,9 @@ Rails.application.routes.draw do
     mount MockedAuthentication::Engine, at: '/mocked_authentication'
   end
 
-  get '/flipper/features/logout', to: 'flipper#logout'
-  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint
+  get '/flipper/logout', to: 'flipper#logout'
+  get '/flipper/login', to: 'flipper#login'
+  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::RouteAuthorizationConstraint
 
   unless Rails.env.test?
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new

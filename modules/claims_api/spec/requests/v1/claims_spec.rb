@@ -106,6 +106,7 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
         it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
           mock_acg(scopes) do |auth_header|
             create(:auto_established_claim,
+                   status: 'pending',
                    source: 'abraham lincoln',
                    auth_headers: { some: 'data' },
                    evss_id: 600_118_851,
@@ -125,6 +126,7 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
            run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
           mock_acg(scopes) do |auth_header|
             create(:auto_established_claim,
+                   status: 'pending',
                    source: 'abraham lincoln',
                    auth_headers: { some: 'data' },
                    evss_id: 600_118_851,
@@ -145,6 +147,7 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
         it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
           mock_acg(scopes) do |auth_header|
             create(:auto_established_claim,
+                   status: 'pending',
                    source: 'abraham lincoln',
                    auth_headers: { some: 'data' },
                    evss_id: 600_118_851,
@@ -166,6 +169,7 @@ RSpec.describe 'ClaimsApi::V1::Claims', type: :request do
       it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         mock_acg(scopes) do |auth_header|
           create(:auto_established_claim,
+                 status: 'pending',
                  source: 'oddball',
                  auth_headers: { some: 'data' },
                  evss_id: 600_118_851,

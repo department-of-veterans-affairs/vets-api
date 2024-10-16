@@ -2947,7 +2947,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     end
 
     context 'when a claim is already established' do
-      let(:auto_claim) { create(:auto_established_claim, :status_established) }
+      let(:auto_claim) { create(:auto_established_claim, :established) }
 
       it 'returns a 404 error because only pending claims are allowed' do
         mock_acg(scopes) do |auth_header|

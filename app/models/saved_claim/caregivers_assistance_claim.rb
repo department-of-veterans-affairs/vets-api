@@ -24,7 +24,13 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   def to_pdf(filename = nil, **)
     # We never save the claim, so we don't have an id to provide for the filename.
     # Instead we'll create a filename with this format "10-10cg_{uuid}"
-    PdfFill::Filler.fill_form(self, filename || guid, **)
+    name = filename || guid
+    PdfFill::Filler.fill_form(self, name, **)
+  rescue => e
+    Rails.logger.error("Failed to generate PDF: #{e.message}")
+    PersonalInformationLog.create(data: { form: parsed_form, file_name: name },
+                                  error_class: '1010CGPdfGenerationError')
+    raise
   end
 
   # SavedClaims require regional_office to be defined, CaregiversAssistanceClaim has no purpose for it.

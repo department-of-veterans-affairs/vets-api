@@ -8,6 +8,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
   end
 
   describe 'state machine' do
+    before { allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send) }
+
     let(:config) do
       {
         form_data: anything,

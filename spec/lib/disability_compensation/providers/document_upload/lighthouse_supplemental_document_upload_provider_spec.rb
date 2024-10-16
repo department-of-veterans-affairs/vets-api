@@ -7,7 +7,6 @@ require 'support/disability_compensation_form/shared_examples/supplemental_docum
 
 RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   let(:submission) { create(:form526_submission, :with_submitted_claim_id) }
-  let(:submission_user) { User.find(submission.user_uuid) }
   let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
   let(:file_name) { Faker::File.file_name }
 
@@ -25,7 +24,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   let(:lighthouse_document) do
     LighthouseDocument.new(
       claim_id: submission.submitted_claim_id,
-      participant_id: submission_user.participant_id,
+      participant_id: submission.auth_headers['va_eauth_pid'],
       document_type: va_document_type,
       file_name:
     )
@@ -62,7 +61,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
       expect(upload_document).to have_attributes(
         {
           claim_id: submission.submitted_claim_id,
-          participant_id: submission_user.participant_id,
+          participant_id: submission.auth_headers['va_eauth_pid'],
           document_type: va_document_type,
           file_name:
         }

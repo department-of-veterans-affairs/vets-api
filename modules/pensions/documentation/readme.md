@@ -1,5 +1,7 @@
 # Pensions Documentation
 
+Pension & Burial Program (PBP)
+
 ## ADR
 
 The pensions team uses [ADR Tools](https://github.com/npryce/adr-tools/tree/master) to document important engineering related decisions for the vets-api repo. The goal is to capture the technical decisions our group makes so that anyone new to our team or following behind will be able to understand the reasons for the decisions.
@@ -38,11 +40,6 @@ The current folder structure generally follows the default directory structure t
 
 - The config folder is where most of the configuration files for the main rails app, plugins, etc. are housed
 
-##### Modules Folder
-
-- The modules folder has been a source of confusion for teams within vets-api. Oddly, the code for the [Lighthouse API's](https://developer.va.gov/explore) exists within the modules folder, making it a part of the overall monorepo of vets-api. It has been discussed that at some point the Lighthouse code will be moved out of vets-api.
-- The original advice we received was that no one should touch the modules folder because the code was owned by the Lighthouse team. That no longer seems to be the case.
-
 ##### Spec Folder
 
 - Contains the tests for vets-api
@@ -61,16 +58,14 @@ The new folder structure will look like:
 
 ## Team
 
-August 2023 - August 2024 Team
-
-| Name         | Email Address             |
-| ------------ | ------------------------- |
-| Matt Knight  | matt.knight@coforma.io    |
-| Wayne Weibel | wayne.weibel@adhocteam.us |
-| Tai Wilkin   | tai.wilkin@coforma.io     |
-| Todd Rizzolo | todd.rizzolo@adhocteam.us |
+| Name            | Email Address                |
+| ------------    | -------------------------    |
+| Matt Knight     | matt.knight@coforma.io       |
+| Wayne Weibel    | wayne.weibel@adhocteam.us    |
+| Tai Wilkin      | tai.wilkin@coforma.io        |
+| Todd Rizzolo    | todd.rizzolo@adhocteam.us    |
+| Daniel Lim      | daniel.lim@adhocteam.us      |
 | Bryan Alexander | bryan.alexander@adhocteam.us |
-| Daniel Lim   | daniel.lim@adhocteam.us   |
 
 ## Troubleshooting
 

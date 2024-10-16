@@ -65,7 +65,7 @@ module MebApi
           end
         end
 
-        response = submission_service.submit_claim(params, response_data, 'toe')
+        response = submission_service.submit_claim(params, response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 

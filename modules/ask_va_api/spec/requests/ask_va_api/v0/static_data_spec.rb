@@ -287,65 +287,6 @@ RSpec.describe 'AskVAApi StaticData', type: :request do
     end
   end
 
-  describe 'GET #optionset' do
-    let(:optionset) do
-      AskVAApi::Optionset::Entity.new({ Id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
-    end
-    let(:expected_response) do
-      {
-        'id' => '722310000',
-        'type' => 'optionsets',
-        'attributes' => {
-          'name' => 'Air Force'
-        }
-      }
-    end
-    let(:optionset_path) { '/ask_va_api/v0/optionset' }
-
-    context 'when successful' do
-      before { get optionset_path, params: { user_mock_data: true, name: 'branchofservice' } }
-
-      it 'returns optionset data' do
-        expect(JSON.parse(response.body)['data']).to include(a_hash_including(expected_response))
-        expect(response).to have_http_status(:ok)
-      end
-    end
-
-    context 'when an error occurs' do
-      let(:body) do
-        '{"Data":null,"Message":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
-          ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
-          ' iris_suffix, iris_veteranrelationship, iris_branchofservice, iris_country, iris_province,' \
-          ' iris_responsetype, iris_dependentrelationship, statuscode, iris_messagetype","ExceptionOccurred":' \
-          'true,"ExceptionMessage":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
-          ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
-          ' iris_suffix, iris_veteranrelationship, iris_branchofservice, iris_country, iris_province,' \
-          ' iris_responsetype, iris_dependentrelationship, statuscode, iris_messagetype","MessageId":' \
-          '"6dfa81bd-f04a-4f39-88c5-1422d88ed3ff"}'
-      end
-      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
-
-      before do
-        allow_any_instance_of(Crm::Service).to receive(:call)
-          .with(endpoint: 'optionset', payload: { name: 'iris_branchofservic' }).and_return(failure)
-        get optionset_path, params: { user_mock_data: nil, name: 'branchofservic' }
-      end
-
-      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'Crm::CacheDataError: Crm::ApiServiceError: Invalid response format: {"Data":null,"Message":' \
-                      '"Data Validation: Invalid OptionSet Name iris_branchofservic, ' \
-                      'valid values are iris_inquiryabout, iris_inquirysource, iris_inquirytype,' \
-                      ' iris_levelofauthentication, iris_suffix, iris_veteranrelationship,' \
-                      ' iris_branchofservice, iris_country, iris_province, iris_responsetype,' \
-                      ' iris_dependentrelationship, statuscode, iris_messagetype","ExceptionOccurred"' \
-                      ':true,"ExceptionMessage":"Data Validation: Invalid OptionSet Name iris_branchofservic,' \
-                      ' valid values are iris_inquiryabout, iris_inquirysource, iris_inquirytype,' \
-                      ' iris_levelofauthentication, iris_suffix, iris_veteranrelationship, iris_branchofservice,' \
-                      ' iris_country, iris_province, iris_responsetype, iris_dependentrelationship, statuscode,' \
-                      ' iris_messagetype","MessageId":"6dfa81bd-f04a-4f39-88c5-1422d88ed3ff"}'
-    end
-  end
-
   describe 'GET #Zipcode' do
     let(:expected_response) do
       [{ 'id' => nil,

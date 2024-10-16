@@ -16,9 +16,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
   end
 
   describe '#to_pdf' do
-    let(:claim) do
-      build(:caregivers_assistance_claim)
-    end
+    let(:claim) { build(:caregivers_assistance_claim) }
 
     it 'renders unicode chars correctly' do
       unicode = 'name’'
@@ -33,56 +31,67 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
     end
 
     it 'calls PdfFill::Filler#fill_form' do
-      if RUBY_VERSION =~ /2.7/
-        expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid, {}).once.and_return(:expected_file_paths)
-      else
-        expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid).once.and_return(:expected_file_paths)
-      end
+      expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid).once.and_return(:expected_file_paths)
       expect(claim.to_pdf).to eq(:expected_file_paths)
     end
 
-    it 'passes arguments to PdfFill::Filler#fill_form' do
-      if RUBY_VERSION =~ /2.7/
-        expect(PdfFill::Filler).to receive(
-          :fill_form
-        ).with(
-          claim,
-          'my_other_filename',
-          {}
-        ).once.and_return(:expected_file_paths)
-      else
+    context 'passes arguments to PdfFill::Filler#fill_form' do
+      it 'converts to pdf with the file name alone' do
         expect(PdfFill::Filler).to receive(
           :fill_form
         ).with(
           claim,
           'my_other_filename'
         ).once.and_return(:expected_file_paths)
+
+        # Calling with only filename
+        claim.to_pdf('my_other_filename')
       end
 
-      # Calling with only filename
-      claim.to_pdf('my_other_filename')
+      it 'converts to pdf with the options alone' do
+        expect(PdfFill::Filler).to receive(
+          :fill_form
+        ).with(
+          claim,
+          claim.guid,
+          save: true
+        ).once.and_return(:expected_file_paths)
 
-      expect(PdfFill::Filler).to receive(
-        :fill_form
-      ).with(
-        claim,
-        claim.guid,
-        save: true
-      ).once.and_return(:expected_file_paths)
+        # Calling with only options
+        claim.to_pdf(save: true)
+      end
 
-      # Calling with only options
-      claim.to_pdf(save: true)
+      it 'converts to pdf with the filename and options' do
+        expect(PdfFill::Filler).to receive(
+          :fill_form
+        ).with(
+          claim,
+          'my_other_filename',
+          save: false
+        ).once.and_return(:expected_file_paths)
 
-      expect(PdfFill::Filler).to receive(
-        :fill_form
-      ).with(
-        claim,
-        'my_other_filename',
-        save: false
-      ).once.and_return(:expected_file_paths)
+        # Calling with filename and options
+        claim.to_pdf('my_other_filename', save: false)
+      end
+    end
 
-      # Calling with filename and options
-      claim.to_pdf('my_other_filename', save: false)
+    context 'errors' do
+      let(:error_message) { 'fill form error' }
+
+      before do
+        allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, error_message)
+        allow(Rails.logger).to receive(:error)
+        allow(PersonalInformationLog).to receive(:create)
+      end
+
+      it 'logs the error, creates a PersonalInformationLog, and raises the error' do
+        expect(Rails.logger).to receive(:error).with("Failed to generate PDF: #{error_message}")
+        expect(PersonalInformationLog).to receive(:create).with(
+          data: { form: claim.parsed_form, file_name: claim.guid },
+          error_class: '1010CGPdfGenerationError'
+        )
+        expect { claim.to_pdf }.to raise_error(StandardError, error_message)
+      end
     end
   end
 

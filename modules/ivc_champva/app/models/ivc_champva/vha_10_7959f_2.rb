@@ -18,15 +18,14 @@ module IvcChampva
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('veteran_full_name', 'first'),
-        'veteranMiddleName' => @data.dig('veteran_full_name', 'middle'),
-        'veteranLastName' => @data.dig('veteran_full_name', 'last'),
-        'fileNumber' => @data.dig('veteran_social_security_number',
-                                  'va_file_number').presence || @data.dig('veteran_social_security_number', 'ssn'),
-        'ssn_or_tin' => @data.dig('veteran_social_security_number', 'ssn'),
-        'zipCode' => @data.dig('veteran_address', 'postal_code') || '00000',
-        'country' => @data.dig('veteran_address', 'country') || 'USA',
+        'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
+        'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
+        'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
+        'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn'),
+        'zipCode' => @data.dig('veteran', 'mailing_address', 'postal_code') || '00000',
+        'country' => @data.dig('veteran', 'mailing_address', 'country') || 'USA',
         'source' => 'VA Platform Digital Forms',
+        'ssn_or_tin' => @data.dig('veteran', 'ssn'),
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
         'uuid' => @uuid,

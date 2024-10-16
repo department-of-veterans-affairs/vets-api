@@ -4,28 +4,28 @@ RSpec.shared_context 'shared reporting defaults' do
   let(:upload_claims) do
     upload_claims = []
     upload_claims.push(FactoryBot.create(:auto_established_claim,
-                                         :status_errored,
+                                         :errored,
                                          cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: nil))
     upload_claims.push(FactoryBot.create(:auto_established_claim,
-                                         :status_errored,
+                                         :errored,
                                          cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: 'random string'))
     evss_response_array = [{ 'key' => 'key-here', 'severity' => 'FATAL', 'text' => 'message-here' }]
     upload_claims.push(FactoryBot.create(:auto_established_claim,
-                                         :status_errored,
+                                         :errored,
                                          cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: evss_response_array))
     upload_claims.push(FactoryBot.create(:auto_established_claim,
-                                         :status_errored,
+                                         :errored,
                                          cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: evss_response_array.to_json))
-    upload_claims.push(FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues,
-                                         :status_errored,
+    upload_claims.push(FactoryBot.create(:auto_established_claim,
+                                         :errored,
                                          cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: evss_response_array.to_json))
-    upload_claims.push(FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues,
-                                         :status_errored,
+    upload_claims.push(FactoryBot.create(:auto_established_claim,
+                                         :errored,
                                          cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: evss_response_array.to_json))
   end
