@@ -25,12 +25,21 @@ describe MHV::AccountCreation::Service do
 
     context 'when making a request' do
       let(:expected_tou_datetime) { tou_occurred_at.iso8601 }
+      let(:expected_log_message) { "#{log_prefix} create_account request" }
+      let(:expected_log_payload) { { icn: } }
 
       it 'sends vaTermsOfUseDateTime in the correct format' do
         VCR.use_cassette('mhv/account_creation/account_creation_service_200_created') do
           subject
           expect(a_request(:post, "#{account_creation_base_url}/#{account_creation_path}")
           .with(body: /"vaTermsOfUseDateTime":"#{expected_tou_datetime}"/)).to have_been_made
+        end
+      end
+
+      it 'logs the create account request' do
+        VCR.use_cassette('mhv/account_creation/account_creation_service_200_created') do
+          subject
+          expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
         end
       end
     end
@@ -57,7 +66,7 @@ describe MHV::AccountCreation::Service do
           end
         end
 
-        it 'logs the create account request' do
+        it 'logs the create account success' do
           VCR.use_cassette(successful_response_cassette) do
             subject
             expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
