@@ -8,7 +8,7 @@ module ClaimsApi
     def perform
       return unless allow_processing?
 
-      @search_to = Time.zone.now
+      @search_to = 1.minute.ago
       @search_from = @search_to - 60.minutes
       @reporting_to = @search_to.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
       @reporting_from = @search_from.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
@@ -58,8 +58,8 @@ module ClaimsApi
     private
 
     def errored_submissions_exist?
-      [@errored_claims, @va_gov_errored_claims, @errored_poa, @errored_itf, @errored_ews].any? do |var|
-        var.count.positive? if var.present?
+      [@errored_claims, @va_gov_errored_claims, @errored_poa, @errored_itf, @errored_ews].any? do |collection|
+        collection&.count&.positive?
       end
     end
 
@@ -75,10 +75,10 @@ module ClaimsApi
     def get_unique_errors
       starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
-      two_days = ClaimsApi::AutoEstablishedClaim.where(created_at: 48.hours.ago..@search_to,
-                                                       status: 'errored', cid: '0oagdm49ygCSJTp8X297')
+      one_day = ClaimsApi::AutoEstablishedClaim.where(created_at: 24.hours.ago..@search_to,
+                                                      status: 'errored', cid: '0oagdm49ygCSJTp8X297')
 
-      unique = two_days.uniq { |claim| claim[:transaction_id] } if two_days.present?
+      unique = one_day.uniq { |claim| claim[:transaction_id] } if one_day.present?
       errored_claims = unique.select { |claim| claim[:created_at] >= @search_from } if unique.present?
       # Elapsd time: 0.01658499985933304 seconds
 
