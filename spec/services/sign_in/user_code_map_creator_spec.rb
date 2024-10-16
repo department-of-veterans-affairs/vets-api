@@ -145,25 +145,54 @@ RSpec.describe SignIn::UserCodeMapCreator do
       expect(code_container.device_sso).to eq(device_sso)
     end
 
-    context 'when create mhv user account is enabled' do
-      before do
-        allow(Settings.mhv.account_creation).to receive(:create_after_login).and_return(true)
+    context 'creating an MHV account' do
+      shared_examples 'and when mhv account_creation create_after_login is disabled' do
+        before do
+          allow(Settings.mhv.account_creation).to receive(:create_after_login).and_return(false)
+        end
+
+        it 'does not enqueue a job to create an MHV account' do
+          expect(MHV::AccountCreatorJob).not_to receive(:perform_async)
+          subject
+        end
       end
 
-      it 'enqueues a job to create an MHV account' do
-        expect(MHV::AccountCreatorJob).to receive(:perform_async).with(user_verification.id)
-        subject
-      end
-    end
+      context 'with mhv_account_creation_api flag enabled' do
+        before do
+          Flipper.enable :mhv_account_creation_api
+        end
 
-    context 'when create mhv user account is disabled' do
-      before do
-        allow(Settings.mhv.account_creation).to receive(:create_after_login).and_return(false)
+        context 'and when mhv account_creation create_after_login is enabled' do
+          before do
+            allow(Settings.mhv.account_creation).to receive(:create_after_login).and_return(true)
+          end
+
+          it 'enqueues a job to create an MHV account' do
+            expect(MHV::AccountCreatorJob).to receive(:perform_async).with(user_verification.id)
+            subject
+          end
+        end
+
+        it_behaves_like 'and when mhv account_creation create_after_login is disabled'
       end
 
-      it 'does not enqueue a job to create an MHV account' do
-        expect(MHV::AccountCreatorJob).not_to receive(:perform_async)
-        subject
+      context 'with mhv_account_creation_api flag is disabled' do
+        before do
+          Flipper.disable :mhv_account_creation_api
+        end
+
+        context 'and when mhv account_creation create_after_login is enabled' do
+          before do
+            allow(Settings.mhv.account_creation).to receive(:create_after_login).and_return(false)
+          end
+
+          it 'does not enqueue a job to create an MHV account' do
+            expect(MHV::AccountCreatorJob).not_to receive(:perform_async)
+            subject
+          end
+        end
+
+        it_behaves_like 'and when mhv account_creation create_after_login is disabled'
       end
     end
   end
