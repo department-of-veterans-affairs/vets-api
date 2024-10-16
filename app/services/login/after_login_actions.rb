@@ -21,9 +21,7 @@ module Login
       update_account_login_stats(login_type)
       id_mismatch_validations
 
-      if Flipper.enabled?(:mhv_account_creation_api, @current_user)
-        create_mhv_account
-      end
+      create_mhv_account if Flipper.enabled?(:mhv_account_creation_api, @current_user)
 
       if Settings.test_user_dashboard.env == 'staging'
         TestUserDashboard::UpdateUser.new(current_user).call(Time.current)
