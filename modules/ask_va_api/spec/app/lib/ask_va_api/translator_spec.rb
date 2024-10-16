@@ -33,8 +33,6 @@ RSpec.describe AskVAApi::Translator do
 
     it 'translates all the option keys from name to id' do
       expect(result[:InquiryAbout]).to eq(translated_payload[:InquiryAbout])
-      # expect(result[:InquirySource]).to eq(translated_payload[:InquirySource])
-      # expect(result[:InquiryType]).to eq(translated_payload[:InquiryType])
       expect(result[:LevelOfAuthentication]).to eq(translated_payload[:LevelOfAuthentication])
       expect(result[:Suffix]).to eq(translated_payload[:Suffix])
       expect(result[:VeteranRelationship]).to eq(translated_payload[:VeteranRelationship])
