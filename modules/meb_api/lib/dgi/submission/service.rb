@@ -28,7 +28,7 @@ module MebApi
 
         def end_point(form_type)
           if form_type
-            "claimType/#{form_type}/claimsubmission"
+            "claimType/#{form_type.capitalize}/claimsubmission"
           else
             'claimType/Chapter33/claimsubmission'
           end
