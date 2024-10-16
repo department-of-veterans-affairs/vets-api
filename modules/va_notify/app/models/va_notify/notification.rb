@@ -2,6 +2,6 @@
 
 module VANotify
   class Notification < ApplicationRecord
-    self.table_name = 'va_notify_notification'
+    self.table_name = 'va_notify_notifications'
   end
 end
