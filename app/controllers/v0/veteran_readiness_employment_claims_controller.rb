@@ -10,7 +10,7 @@ module V0
       claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form])
 
       if claim.save
-        VRE::Submit1900Job.perform_async(claim.id, current_user.uuid)
+        VRE::Submit1900Job.perform_async(claim.id, encrypted_user(claim, current_user))
         Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
@@ -32,6 +32,20 @@ module V0
 
     def short_name
       'veteran_readiness_employment_claim'
+    end
+
+    def encrypted_user(claim, user)
+      user_struct = OpenStruct.new(
+        participant_id: user.participant_id,
+        pid: user.participant_id,
+        edipi: user.edipi,
+        vet360ID: user.vet360_id,
+        dob: user.birth_date,
+        ssn: user.ssn,
+        loa3:  user.loa3?,
+        uuid:  user.uuid,
+      )
+      KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json)
     end
   end
 end
