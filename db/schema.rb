@@ -165,6 +165,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_16_225437) do
     t.string "lighthouse_upload_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "failure_notification_sent_at"
+    t.index ["appeal_submission_id"], name: "index_appeal_submission_uploads_on_appeal_submission_id"
   end
 
   create_table "appeal_submissions", force: :cascade do |t|
@@ -177,6 +179,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_16_225437) do
     t.text "upload_metadata_ciphertext"
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
+    t.datetime "failure_notification_sent_at"
+    t.index ["submitted_appeal_uuid"], name: "index_appeal_submissions_on_submitted_appeal_uuid"
     t.index ["user_account_id"], name: "index_appeal_submissions_on_user_account_id"
   end
 
@@ -1316,6 +1320,23 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_16_225437) do
     t.index ["user_account_id", "form_id"], name: "index_in_progress_reminders_sent_user_account_form_id", unique: true
   end
 
+  create_table "va_notify_notifications", force: :cascade do |t|
+    t.uuid "notification_id", null: false
+    t.text "reference"
+    t.text "to"
+    t.text "status"
+    t.datetime "completed_at"
+    t.datetime "sent_at"
+    t.text "notification_type"
+    t.text "status_reason"
+    t.text "provider"
+    t.text "source_location"
+    t.text "callback"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "metadata"
+  end
+
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
     t.integer "month", null: false
     t.integer "year", null: false
@@ -1341,7 +1362,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_16_225437) do
     t.index ["created_at"], name: "index_vba_documents_upload_submissions_on_created_at"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
-    t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at", where: "(s3_deleted IS NOT TRUE)"
+    t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at_false", where: "(s3_deleted IS FALSE)"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
 
@@ -1534,12 +1555,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_16_225437) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.date "cert_issue_date"
-    t.date "del_date"
-    t.date "date_last_certified"
     t.integer "bdn_clone_id"
     t.integer "bdn_clone_line"
     t.boolean "bdn_clone_active"
+    t.date "cert_issue_date"
+    t.date "del_date"
+    t.date "date_last_certified"
     t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
     t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
     t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
