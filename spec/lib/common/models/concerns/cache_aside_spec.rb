@@ -49,7 +49,7 @@ describe Common::CacheAside do
 
       before do
         Flipper.enable(:va_v3_contact_information_service)
-        allow(VAProfile::Models::V2::Person).to receive(:build_from).and_return(person)
+        allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
       end
 
       describe '#do_cached_with', :initiate_vaprofile, :skip_vet360 do

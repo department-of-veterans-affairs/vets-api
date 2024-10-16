@@ -2,7 +2,7 @@
 
 require 'va_profile/v2/contact_information/person_response'
 require 'va_profile/v2/contact_information/service'
-require 'va_profile/models/v2/address'
+require 'va_profile/models/v3/address'
 require 'va_profile/models/telephone'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
@@ -53,7 +53,7 @@ module VAProfileRedis
       def residential_address
         return unless @user.loa3?
 
-        dig_out('addresses', 'address_pou', VAProfile::Models::V2::Address::RESIDENCE)
+        dig_out('addresses', 'address_pou', VAProfile::Models::V3::Address::RESIDENCE)
       end
 
       # Returns the user's mailing address. In VA Profile, a user can only have one
@@ -64,7 +64,7 @@ module VAProfileRedis
       def mailing_address
         return unless @user.loa3?
 
-        dig_out('addresses', 'address_pou', VAProfile::Models::V2::Address::CORRESPONDENCE)
+        dig_out('addresses', 'address_pou', VAProfile::Models::V3::Address::CORRESPONDENCE)
       end
 
       # Returns the user's home phone. In VA Profile, a user can only have one
