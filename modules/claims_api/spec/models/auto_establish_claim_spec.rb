@@ -503,6 +503,33 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
       expect(payload['form526']['treatments'][0]['center']['name']).to eq(' ')
     end
+
+    context 'handles empty spaces and dashes in the unitPhone numbers values' do
+      let(:temp_form_data) do
+        pending_record.form_data.tap do |data|
+          data['serviceInformation']['reservesNationalGuardService']['unitPhone'] = {
+            'areaCode' => '  555  ',
+            'phoneNumber' => '555-5555  '
+          }
+        end
+      end
+      let(:payload) { JSON.parse(pending_record.to_internal) }
+      let(:reserves) { payload['form526']['serviceInformation']['reservesNationalGuardService'] }
+
+      before do
+        pending_record.form_data = temp_form_data
+      end
+
+      it 'removes any extra spaces and dashes from the phoneNumber' do
+        phone_number = reserves['unitPhone']['phoneNumber']
+        expect(phone_number).to eq('5555555')
+      end
+
+      it 'removes any extra spaces from the areaCode' do
+        phone_number = reserves['unitPhone']['areaCode']
+        expect(phone_number).to eq('555')
+      end
+    end
   end
 
   describe 'evss_id_by_token' do

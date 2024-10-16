@@ -9,11 +9,15 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
 
   before do
     Flipper.enable(:va_burial_v2)
+
     allow(Burials::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
                                        track_create_error: nil, track_create_success: nil,
-                                       track_create_validation_error: nil)
+                                       track_create_validation_error: nil, track_process_attachment_error: nil)
   end
+
+  # @see spec/support/controller_spec_helper.rb
+  it_behaves_like 'a controller that deletes an InProgressForm', 'burial_claim', 'burial_claim_v2', '21P-530V2'
 
   describe 'with a user' do
     let(:form) { build(:burial_claim_v2) }
@@ -25,22 +29,6 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       post(:create, params: { param_name => { form: form.form } })
     end
 
-    it 'deletes the "in progress form"', run_at: 'Thu, 29 Aug 2019 17:45:03 GMT' do
-      allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
-
-      VCR.use_cassette(
-        'mvi/find_candidate/find_profile_with_attributes',
-        VCR::MATCH_EVERYTHING
-      ) do
-        create(:in_progress_form, user_uuid: user.uuid, form_id:)
-        expect(monitor).to receive(:track_create_attempt).once
-        expect(monitor).to receive(:track_create_success).once
-        expect(controller).to receive(:clear_saved_form).with(form_id).and_call_original
-        sign_in_as(user)
-        expect { send_create }.to change(InProgressForm, :count).by(-1)
-      end
-    end
-
     it 'logs validation errors' do
       allow(SavedClaim::Burial).to receive(:new).and_return(form)
       allow(form).to receive_messages(save: false, errors: 'mock error')
@@ -48,7 +36,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_validation_error).once
       expect(monitor).to receive(:track_create_error).once
-      expect(form).not_to receive(:submit_to_structured_data_services!)
+      expect(form).not_to receive(:process_attachments!)
 
       response = send_create
       expect(response.status).to eq(500)
@@ -87,6 +75,27 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       get(:show, params: { id: '12345' })
 
       expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
+  describe '#process_and_upload_to_lighthouse' do
+    let(:claim) { build(:pensions_module_pension_claim) }
+    let(:in_progress_form) { build(:in_progress_form) }
+
+    it 'returns a success' do
+      expect(claim).to receive(:process_attachments!)
+
+      subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+    end
+
+    it 'raises an error' do
+      allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'mock error')
+      expect(monitor).to receive(:track_process_attachment_error).once
+      expect(Pensions::PensionBenefitIntakeJob).not_to receive(:perform_async)
+
+      expect do
+        subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+      end.to raise_error(StandardError, 'mock error')
     end
   end
 
