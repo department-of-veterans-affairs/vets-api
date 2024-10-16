@@ -2,13 +2,11 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8120/va-gov-claim-classifier
+    uri: http://localhost:8120/contention-classification/va-gov-claim-classifier
     body:
       encoding: UTF-8
-      string: '{"claim_id":366,"form526_submission_id":366,"contentions":[{"contention_text":"Asthma,
-        bronchial","contention_type":"INCREASE","diagnostic_code":6602},{"contention_text":"plantar
-        fasciitis","contention_type":"NEW"},{"contention_text":"additional free text
-        entry","contention_type":"NEW","diagnostic_code":9999}]}'
+      string: '{"claim_id":190,"form526_submission_id":179,"contentions":[{"contention_text":"Asthma,
+        bronchial","contention_type":"INCREASE","diagnostic_code":5235}]}'
     headers:
       Accept:
       - application/json
@@ -22,19 +20,23 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 500
-      message: ''
+      code: 200
+      message: OK
     headers:
+      Date:
+      - Thu, 30 May 2024 18:34:17 GMT
+      Server:
+      - uvicorn
+      Content-Length:
+      - '492'
       Content-Type:
       - application/json
-      Transfer-Encoding:
-      - chunked
-      Date:
-      - Thu, 11 May 2023 23:33:43 GMT
+      X-Process-Time:
+      - '0.004929065704345703'
     body:
       encoding: UTF-8
-      string: '{"statusCode":500,"responseBody":{"error":true}}'
-  recorded_at: Mon, 22 May 2023 23:33:43 GMT
+      string: '{"contentions":[{"classification_code":9012,"classification_name":"Respiratory","diagnostic_code":5235,"contention_type":"INCREASE"}],"claim_id":190,"form526_submission_id":179,"is_fully_classified":true,"num_processed_contentions":1,"num_classified_contentions":1}'
+  recorded_at: Thu, 30 May 2024 18:34:18 GMT
 - request:
     method: post
     uri: https://viccs-api-test.ibm-intelligent-automation.com/pca/api/test/token
@@ -52,15 +54,15 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 500
-      message: OK
+      code: 401
+      message: Unauthorized
     headers:
       Date:
-      - Thu, 11 May 2023 23:33:43 GMT
+      - Thu, 30 May 2024 18:34:18 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '93'
+      - '75'
       Connection:
       - keep-alive
       Cache-Control:
@@ -74,13 +76,14 @@ http_interactions:
       Referrer-Policy:
       - no-referrer
       Apigw-Requestid:
-      - EyA1xjuYPHMEPZg=
+      - YmP6ujKWvHMEJbQ=
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
       X-Content-Type-Options:
       - nosniff
     body:
       encoding: UTF-8
-      string: '{"statusCode":500,"responseBody":{"error":true}}'
-  recorded_at: Mon, 22 May 2023 23:33:43 GMT
-recorded_with: VCR 6.1.0
+      string: '{"error":"unauthorized_client","error_description":"Invalid client
+        <DMC_TOKEN>"}'
+  recorded_at: Thu, 30 May 2024 18:34:18 GMT
+recorded_with: VCR 6.2.0
