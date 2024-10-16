@@ -58,22 +58,26 @@ RSpec.shared_examples 'shared reporting behavior' do
     end
   end
 
-  it 'includes 526EZ claims from VaGov', skip: 'pending changes in API-41029' do
+  it 'includes 526EZ claims from VaGov' do
     with_settings(Settings.claims_api, report_enabled: true) do
-      FactoryBot.create(:auto_established_claim_va_gov, :errored)
-      FactoryBot.create(:auto_established_claim_va_gov, :errored)
-      FactoryBot.create(:auto_established_claim_va_gov, :errored)
-      FactoryBot.create(:auto_established_claim_va_gov, :errored)
+      claim_one = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                              transaction_id: '467384632186')
+      claim_two = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                              transaction_id: '467384632187')
+      FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                  transaction_id: '467384632187')
 
       job = described_class.new
       job.perform
       va_gov_groups = job.unsuccessful_va_gov_claims_submissions
 
       first_group = va_gov_groups[0][0]
-      first_transaction_id = va_gov_groups[0][1][0][:transaction_id]
+      first_transaction_id = claim_one[:transaction_id]
+      expect(first_group[:transaction_id]).to eq(first_transaction_id)
 
       second_group = va_gov_groups[1][0]
-      second_transaction_id = va_gov_groups[1][1][0][:transaction_id]
+      second_transaction_id = claim_two[:transaction_id]
+      expect(second_group[:transaction_id]).to eq(second_transaction_id)
     end
   end
 end
