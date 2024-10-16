@@ -16,6 +16,7 @@ module RepresentationManagement
           { consent_limits: [],
             conditions_of_appointment: [],
             claimant: claimant_params_permitted,
+            representative: representative_params_permitted,
             veteran: veteran_params_permitted }
         ]
       end
@@ -24,6 +25,17 @@ module RepresentationManagement
         [
           :date_of_birth,
           :relationship,
+          :phone,
+          :email,
+          { name: name_params_permitted,
+            address: address_params_permitted }
+        ]
+      end
+
+      def representative_params_permitted
+        [
+          :organization_name,
+          :type,
           :phone,
           :email,
           { name: name_params_permitted,
