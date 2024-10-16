@@ -85,9 +85,9 @@ class SavedClaim < ApplicationRecord
 
     # This is a check to ensure that the schema has been loaded properly
     if schema.blank?
-      Rails.logger.error('No schema found for ' + self.class::FORM)
+      Rails.logger.error("No schema found for #{self.class::FORM}")
     else
-      Rails.logger.info(self.class::FORM + ' has been loaded')
+      Rails.logger.info("#{self.class::FORM} has been loaded")
     end
 
     schema_errors = JSON::Validator.fully_validate_schema(schema, { errors_as_objects: true })
