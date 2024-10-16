@@ -108,7 +108,7 @@ describe 'Appeals Status', openapi_spec:, type: :request do
         schema '$ref' => '#/components/schemas/errorModel'
 
         it_behaves_like 'rswag example',
-                        desc: "Not Found",
+                        desc: 'Not Found',
                         extract_desc: true,
                         cassette: %w[caseflow/not_found_404_response mpi/find_candidate/valid],
                         scopes: %w[veteran/AppealsStatus.read]
