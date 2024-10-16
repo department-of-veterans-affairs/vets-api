@@ -44,6 +44,7 @@ module V0
         ssn: user.ssn,
         loa3:  user.loa3?,
         uuid:  user.uuid,
+        va_profile_email: user&.va_profile_email
       )
       KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json)
     end
