@@ -166,6 +166,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_16_172752) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "failure_notification_sent_at"
+    t.index ["appeal_submission_id"], name: "index_appeal_submission_uploads_on_appeal_submission_id"
   end
 
   create_table "appeal_submissions", force: :cascade do |t|
