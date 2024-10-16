@@ -17,7 +17,7 @@ class AppealSubmissionUpload < ApplicationRecord
 
   def masked_attachment_filename
     filename = JSON.parse(decision_review_evidence_attachment&.file_data || '{}')['filename']
-    raise 'Filename for not found' if filename.nil?
+    raise 'Filename for AppealSubmissionUpload not found' if filename.nil?
 
     filename.gsub(MASK_REGEX, 'X')
   end
