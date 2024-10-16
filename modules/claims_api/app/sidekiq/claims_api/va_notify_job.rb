@@ -44,7 +44,7 @@ module ClaimsApi
         'poa_update_notify_job',
         detail: "Failed to notify with error: #{get_error_message(error)}"
       )
-      raise e
+      raise error
     end
 
     def individual_accepted_email_contents(poa, rep)
