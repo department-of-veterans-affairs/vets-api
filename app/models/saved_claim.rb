@@ -108,7 +108,7 @@ class SavedClaim < ApplicationRecord
   def to_pdf(file_name = nil)
     PdfFill::Filler.fill_form(self, file_name)
   end
-  
+
   # This is a check to ensure that the schema has been loaded properly
   # It is primarily for debugging purposes since only logging is being done.
   def schema_loaded_check
