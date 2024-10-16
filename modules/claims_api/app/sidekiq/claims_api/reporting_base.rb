@@ -142,7 +142,7 @@ module ClaimsApi
 
     def map_transaction_ids(array)
       transaction_mapping = {}
-      key_sequence = [*'A'..'Z',*'a'..'z',*'0'..'99']
+      key_sequence = [*'A'..'Z', *'a'..'z', *'0'..'99']
       key_index = 0
 
       # Map each unique transaction_id to a new key
