@@ -76,16 +76,13 @@ module SimpleFormsApi
       return unless SUPPORTED_FORMS.include?(form_number)
       return unless flipper?
 
-      data = form_specific_data || empty_form_specific_data
-      return if data[:personalization]['first_name'].blank?
-
       template_id = TEMPLATE_IDS[form_number][notification_type]
       return unless template_id
 
       if at
-        enqueue_email(at, template_id, data)
+        enqueue_email(at, template_id)
       else
-        send_email_now(template_id, data)
+        send_email_now(template_id)
       end
     end
 
@@ -100,49 +97,52 @@ module SimpleFormsApi
       Flipper.enabled?(:"form#{form_number.gsub('vba_', '')}_confirmation_email")
     end
 
-    def enqueue_email(at, template_id, data)
+    def enqueue_email(at, template_id)
+      email_from_form_data = get_email_address_from_form_data
+      first_name_from_form_data = get_first_name_from_form_data
+
+      # async job and form data includes email
+      if email_from_form_data && first_name_from_form_data
+        VANotify::EmailJob.perform_at(
+          at,
+          email_from_form_data,
+          template_id,
+          get_personalization(first_name_from_form_data)
+        )
       # async job and we have a UserAccount
-      if user_account
-        data[:personalization]['first_name'] = get_first_name
-        return if data[:personalization]['first_name'].blank?
+      elsif user_account
+        first_name_from_user_account = get_first_name_from_user_account
+        return unless first_name_from_user_account
 
         VANotify::UserAccountJob.perform_at(
           at,
           user_account.id,
           template_id,
-          data[:personalization]
-        )
-      # async job and we don't have a UserAccount but form data should include email
-      else
-        return if data[:email].blank? || data[:personalization]['first_name'].blank?
-
-        VANotify::EmailJob.perform_at(
-          at,
-          data[:email],
-          template_id,
-          data[:personalization]
+          get_personalization(first_name_from_user_account)
         )
       end
     end
 
-    def send_email_now(template_id, data)
+    def send_email_now(template_id)
+      email_from_form_data = get_email_address_from_form_data
+      first_name_from_form_data = get_first_name_from_form_data
+
+      # sync job and form data includes email
+      if email_from_form_data && first_name_from_form_data
+        VANotify::EmailJob.perform_async(
+          email_from_form_data,
+          template_id,
+          get_personalization(first_name_from_form_data)
+        )
       # sync job and we have a User
-      if user
-        return if data[:personalization]['first_name'].blank?
+      elsif user
+        first_name = get_first_name_from_form_data || get_first_name_from_user
+        return unless first_name
 
         VANotify::EmailJob.perform_async(
           user.va_profile_email,
           template_id,
-          data[:personalization]
-        )
-      # sync job and form data should include email
-      else
-        return if data[:email].blank? || data[:personalization]['first_name'].blank?
-
-        VANotify::EmailJob.perform_async(
-          data[:email],
-          template_id,
-          data[:personalization]
+          get_personalization(first_name)
         )
       end
     end
@@ -219,80 +219,6 @@ module SimpleFormsApi
       end
     end
 
-    def get_first_name
-      if user_account
-        mpi_response = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
-        if mpi_response
-          error = mpi_response.error
-          Rails.logger.error('MPI response error', { error: }) if error
-
-          first_name = mpi_response.profile&.given_names&.first
-          Rails.logger.error('MPI profile missing first_name') unless first_name
-
-          first_name
-        end
-      elsif user
-        first_name = user.first_name
-        Rails.logger.error('First name not found in user profile') unless first_name
-
-        first_name
-      end
-    end
-
-    # rubocop:disable Metrics/MethodLength
-    # email and personalization hash
-    def form_specific_data
-      case @form_number
-      when 'vba_21_0845'
-        email, first_name = form21_0845_contact_info
-
-        { email:, personalization: default_personalization(first_name) }
-      when 'vba_21p_0847'
-        {
-          email: @form_data['preparer_email'],
-          personalization: default_personalization(@form_data.dig('preparer_name', 'first'))
-        }
-      when 'vba_21_0966'
-        {
-          email: @user&.va_profile_email,
-          personalization: default_personalization(get_first_name)
-            .merge(form21_0966_personalization)
-        }
-      when 'vba_21_0972'
-        {
-          email: @form_data['preparer_email'],
-          personalization: default_personalization(@form_data.dig('preparer_full_name', 'first'))
-        }
-      when 'vba_21_4142'
-        {
-          email: @form_data.dig('veteran', 'email'),
-          personalization: default_personalization(@form_data.dig('veteran', 'full_name', 'first'))
-        }
-      when 'vba_21_10210'
-        email, first_name = form21_10210_contact_info
-
-        { email:, personalization: default_personalization(first_name) }
-      when 'vba_20_10206'
-        email, first_name = form20_10206_contact_info
-
-        { email:, personalization: default_personalization(first_name) }
-      when 'vba_20_10207'
-        email, first_name = form20_10207_contact_info
-
-        { email:, personalization: default_personalization(first_name) }
-      when 'vba_40_0247'
-        {
-          email: @form_data['applicant_email'],
-          personalization: default_personalization(@form_data.dig('applicant_full_name', 'first'))
-        }
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
-
-    def empty_form_specific_data
-      { email: '', personalization: {} }
-    end
-
     # personalization hash shared by all simple form confirmation emails
     def default_personalization(first_name)
       {
@@ -341,8 +267,8 @@ module SimpleFormsApi
     # email and first name for form 21-0845
     def form21_0845_contact_info
       # (vet && signed in)
-      if @form_data['authorizer_type'] == 'veteran' && @user
-        [@user.va_profile_email, @form_data.dig('veteran_full_name', 'first')]
+      if @form_data['authorizer_type'] == 'veteran'
+        [@form_data['authorizer_email'] || @user&.va_profile_email, @form_data.dig('veteran_full_name', 'first')]
 
       # (non-vet && signed in) || (non-vet && anon)
       elsif @form_data['authorizer_type'] == 'nonVeteran'
@@ -359,13 +285,13 @@ module SimpleFormsApi
       # user's own claim
       # user is a veteran
       if @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'veteran'
-        email = user&.va_profile_email || @form_data['veteran_email']
+        email = @form_data['veteran_email'] || user&.va_profile_email
         [email, @form_data.dig('veteran_full_name', 'first')]
 
       # user's own claim
       # user is not a veteran
       elsif @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'non-veteran'
-        email = user&.va_profile_email || @form_data['claimant_email']
+        email = @form_data['claimant_email'] || user&.va_profile_email
         [email, @form_data.dig('claimant_full_name', 'first')]
 
       # someone else's claim
