@@ -25,7 +25,6 @@ module ClaimsApi
 
         if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
           doc_type = form_number == '2122' ? 'L190' : 'L075'
-          # benefits_doc_api.upload(claim: power_of_attorney, pdf_path: output_path, doc_type:)
           benefits_doc_upload(poa: power_of_attorney, pdf_path: output_path, doc_type:, action:)
         else
           upload_to_vbms(power_of_attorney, output_path)
