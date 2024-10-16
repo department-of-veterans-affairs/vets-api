@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
-ActiveRecord::Schema[7.1].define(version: 2024_10_10_144821) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_14_205528) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1323,6 +1322,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_10_144821) do
     t.text "callback"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "metadata"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
