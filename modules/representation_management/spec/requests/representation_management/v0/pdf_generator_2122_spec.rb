@@ -95,7 +95,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
     context 'when triggering validation errors' do
       context 'when submitting without the organization name for a single validation error' do
         before do
-          params[:pdf_generator2122][:organization_name] = nil
+          params[:pdf_generator2122][:representative][:organization_name] = nil
           post(base_path, params:)
         end
 
