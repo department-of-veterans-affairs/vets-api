@@ -16,7 +16,7 @@ module MHV
         end
       rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError => e
         Rails.logger.error("#{config.logging_prefix} create_account #{e.class.name.demodulize.underscore}",
-                           { error_message: e.message, body: e.body, icn: })
+                           { error_message: e.message, body: e.body, status: e.status, icn: })
         raise
       end
 

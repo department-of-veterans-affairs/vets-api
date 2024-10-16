@@ -48,6 +48,10 @@ class User < Common::RedisStore
     @account_id ||= account&.id
   end
 
+  def initial_sign_in
+    user_account.created_at
+  end
+
   def credential_lock
     return @credential_lock unless @credential_lock.nil?
 
