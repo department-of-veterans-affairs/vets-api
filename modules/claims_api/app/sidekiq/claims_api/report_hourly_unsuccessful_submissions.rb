@@ -16,7 +16,7 @@ module ClaimsApi
         'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
         'errored', @search_from, @search_to, '0oagdm49ygCSJTp8X297'
       ).pluck(:id).uniq
-      @va_gov_errored_claims = va_gov_errored_claims&.map { |grp| grp[1][0] }&.pluck(:id)
+      @va_gov_errored_claims ||= va_gov_errored_claims
       @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @search_from..@search_to,
                                                       status: 'errored').pluck(:id).uniq
       @errored_itf = ClaimsApi::IntentToFile.where(created_at: @search_from..@search_to,
@@ -68,10 +68,17 @@ module ClaimsApi
     end
 
     def va_gov_errored_claims
-      errored_claims = get_unique_errors
-      errored_claims&.group_by(&:transaction_id)
+      errored_claims = get_unique_errors || []
+      @va_gov_errored_claims = [] if @va_gov_errored_claims.blank?
+      @va_gov_errored_claims << errored_claims
+      if @va_gov_errored_claims.flatten.blank?
+        {}
+      else
+        @va_gov_errored_claims.flatten&.group_by(&:transaction_id)
+        @va_gov_errored_claims&.map { |grp| grp[1][0] }&.pluck(:id)
+      end
     end
-
+    
     def get_unique_errors
       starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
