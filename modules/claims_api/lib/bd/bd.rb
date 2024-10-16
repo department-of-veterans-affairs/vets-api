@@ -77,13 +77,13 @@ module ClaimsApi
       request_id = res.dig(:data, :requestId)
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "Successfully uploaded #{doc_type_name} doc to BD,
-                                                   #{doc_type_name}_id: #{claim_id}",
+                                                   #{doc_type_name}_id: #{identifier}",
                             request_id:)
       res
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/upload failure for
-                                                    #{doc_type_name}_id: #{claim_id},
+                                                    #{doc_type_name}_id: #{identifier},
                                                     #{e.message}")
       raise e
     end
