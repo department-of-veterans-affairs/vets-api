@@ -84,7 +84,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
       let(:expected_lighthouse_document) do
         LighthouseDocument.new(
           claim_id: submission.submitted_claim_id,
-          participant_id: user.participant_id,
+          participant_id: submission.auth_headers['va_eauth_pid'],
           document_type: 'L023',
           file_name: 'BDD_Instructions.pdf'
         )
