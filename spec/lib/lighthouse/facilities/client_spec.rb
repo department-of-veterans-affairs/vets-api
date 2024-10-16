@@ -6,8 +6,7 @@ require 'lighthouse/facilities/client'
 vcr_options = {
   cassette_name: '/lighthouse/facilities',
   match_requests_on: %i[path query],
-  allow_playback_repeats: true,
-  record: :new_episodes
+  allow_playback_repeats: true
 }
 
 RSpec.describe Lighthouse::Facilities::Client, team: :facilities, vcr: vcr_options do
@@ -21,7 +20,7 @@ RSpec.describe Lighthouse::Facilities::Client, team: :facilities, vcr: vcr_optio
 
   let(:vha_358_attributes) do
     {
-      id: 'vha_358',
+      id: 'vha_358AB',
       type: 'va_facilities',
       name: 'Manila VA Clinic',
       facility_type: 'va_health_facility',
@@ -86,7 +85,8 @@ RSpec.describe Lighthouse::Facilities::Client, team: :facilities, vcr: vcr_optio
       operating_status: { 'code' => 'NORMAL' },
       operational_hours_special_instructions: nil,
       facility_type_prefix: 'vha',
-      unique_id: '358'
+      unique_id: '358AB',
+      parent: { 'id' => 'vha_358' }
     }
   end
 

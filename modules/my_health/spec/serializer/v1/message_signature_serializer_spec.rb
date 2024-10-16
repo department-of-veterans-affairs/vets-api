@@ -2,40 +2,36 @@
 
 require 'rails_helper'
 
-class Signature
-  attr_accessor :id, :signature_name, :include_signature, :signature_title
+describe MyHealth::V1::MessageSignatureSerializer, type: :serializer do
+  subject { serialize(signature, serializer_class: described_class) }
 
-  def initialize(signature_name:, include_signature:, signature_title:)
-    @id = nil
-    @signature_name = signature_name
-    @include_signature = include_signature
-    @signature_title = signature_title
-  end
-
-  def read_attribute_for_serialization(attr)
-    send(attr)
-  end
-end
-
-describe MyHealth::V1::MessageSignatureSerializer do
   let(:signature) do
-    Signature.new(signature_name: 'Test Name', include_signature: false, signature_title: 'Test')
+    {
+      data: {
+        signature_name: 'test-api Name',
+        include_signature: true,
+        signature_title: 'test-api title'
+      },
+      errors: {},
+      metadata: {}
+    }
   end
+  let(:data) { JSON.parse(subject)['data'] }
+  let(:attributes) { data['attributes'] }
 
-  let(:rendered_hash) do
-    ActiveModelSerializers::SerializableResource.new(signature, { serializer: described_class }).as_json
+  it 'includes :id' do
+    expect(data['id']).to be_blank
   end
-  let(:rendered_attributes) { rendered_hash[:data][:attributes] }
 
   it 'includes :signature_name' do
-    expect(rendered_attributes[:signature_name]).to eq signature.signature_name
+    expect(attributes['signature_name']).to eq signature[:data][:signature_name]
   end
 
   it 'includes :signature_title' do
-    expect(rendered_attributes[:signature_title]).to eq signature.signature_title
+    expect(attributes['signature_title']).to eq signature[:data][:signature_title]
   end
 
   it 'includes :include_signature' do
-    expect(rendered_attributes[:include_signature]).to eq signature.include_signature
+    expect(attributes['include_signature']).to eq signature[:data][:include_signature]
   end
 end

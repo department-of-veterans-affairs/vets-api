@@ -13,8 +13,23 @@ describe OnsiteNotificationSerializer, type: :serializer do
     expect(data['id']).to eq notification.id.to_s
   end
 
-  it 'includes all input attributes' do
-    expected_attributes = notification.attributes.keys - ['id']
-    expect(attributes.keys).to eq expected_attributes
+  it 'includes :template_id' do
+    expect(attributes['template_id']).to eq notification.template_id
+  end
+
+  it 'includes :va_profile_id' do
+    expect(attributes['va_profile_id']).to eq notification.va_profile_id
+  end
+
+  it 'includes :dismissed' do
+    expect(attributes['dismissed']).to eq notification.dismissed
+  end
+
+  it 'includes :created_at' do
+    expect_time_eq(attributes['created_at'], notification.created_at)
+  end
+
+  it 'includes :updated_at' do
+    expect_time_eq(attributes['updated_at'], notification.updated_at)
   end
 end

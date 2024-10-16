@@ -298,7 +298,7 @@ RSpec.describe Vye::UserInfo, type: :model do
       let!(:award) do
         cur_award_ind = Vye::Award.cur_award_inds[:future]
         award_begin_date = Date.parse('2024-07-01')
-        award_end_date = Date.parse('2024-07-18')
+        award_end_date = Date.parse('2024-07-01')
         FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
       end
 
@@ -315,6 +315,22 @@ RSpec.describe Vye::UserInfo, type: :model do
 
         expect(pending_verifications.length).to eq(1)
         expect(pending_verifications.first.trace).to eq('case9')
+      end
+    end
+
+    describe '#td_number' do
+      let(:mpi_profile) { double('MpiProfile') }
+      let!(:user_info) do
+        create(:vye_user_info_td_number)
+      end
+
+      before do
+        allow(user_info).to receive(:mpi_profile).and_return(mpi_profile)
+        allow(mpi_profile).to receive(:ssn).and_return('123456789')
+      end
+
+      it 'moves the last two digits of the ssn to the front' do
+        expect(user_info.td_number).to eq('891234567')
       end
     end
   end

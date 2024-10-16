@@ -15,6 +15,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
 
   before do
     Sidekiq::Job.clear_all
+    Flipper.disable(:lighthouse_claims_api_poa_use_bd)
   end
 
   describe 'generating and uploading the signed pdf' do
@@ -65,6 +66,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                        'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
                        'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
                      }
+                   }
+                 )
+                 .deep_merge(
+                   {
+                     'appointmentDate' => power_of_attorney.created_at
                    }
                  )
           final_data = data.deep_merge(
@@ -189,6 +195,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      }
                    }
                  )
+                 .deep_merge(
+                   {
+                     'appointmentDate' => power_of_attorney.created_at
+                   }
+                 )
           final_data = data.deep_merge(
             {
               'text_signatures' => {
@@ -270,6 +281,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
                      'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
                    }
+                 }
+               )
+               .deep_merge(
+                 {
+                   'appointmentDate' => power_of_attorney.created_at
                  }
                )
         final_data = data.deep_merge(
@@ -392,6 +408,11 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                    }
                  }
                )
+               .deep_merge(
+                 {
+                   'appointmentDate' => power_of_attorney.created_at
+                 }
+               )
         final_data = data.deep_merge(
           {
             'text_signatures' => {
@@ -425,6 +446,26 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
 
           subject.new.perform(power_of_attorney.id, '2122', rep.id)
         end
+      end
+    end
+
+    context 'when the benefits documents upload feature flag is enabled' do
+      let(:output_path) { 'some.pdf' }
+
+      before do
+        Flipper.enable(:lighthouse_claims_api_poa_use_bd)
+        pdf_constructor_double = instance_double(ClaimsApi::V2::PoaPdfConstructor::Organization)
+        allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:pdf_constructor)
+          .and_return(pdf_constructor_double)
+        allow(pdf_constructor_double).to receive(:construct).and_return(output_path)
+        allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:data).and_return({})
+      end
+
+      it 'calls the Benefits Documents uploader instead of VBMS' do
+        expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
+        expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
+
+        subject.new.perform(power_of_attorney.id, '2122', rep.id)
       end
     end
   end

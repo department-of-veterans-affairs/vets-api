@@ -25,7 +25,7 @@ WORKDIR /app
 
 RUN apt-get update --fix-missing
 RUN apt-get install -y poppler-utils build-essential libpq-dev git curl wget ca-certificates-java file \
-  imagemagick pdftk \
+  imagemagick pdftk tesseract-ocr \
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-class PaymentHistorySerializer < ActiveModel::Serializer
-  type :payment_history
+class PaymentHistorySerializer
+  include JSONAPI::Serializer
+
+  set_id { '' }
+  set_type :payment_history
 
   attribute :payments
   attribute :return_payments
-
-  def id
-    nil
-  end
 end

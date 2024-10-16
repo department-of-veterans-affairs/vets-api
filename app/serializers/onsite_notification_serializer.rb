@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-class OnsiteNotificationSerializer < ActiveModel::Serializer
-  def attributes(...)
-    object.attributes.symbolize_keys
-  end
+class OnsiteNotificationSerializer
+  include JSONAPI::Serializer
+
+  attributes :template_id, :va_profile_id, :dismissed, :created_at, :updated_at
 end

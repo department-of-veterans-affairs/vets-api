@@ -37,7 +37,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     it 'submits the saved claim successfully' do
-      allow(job).to receive(:process_document).and_return(pdf_path)
+      allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
 
       expect(FormSubmission).to receive(:create)
       expect(FormSubmissionAttempt).to receive(:create)
@@ -84,6 +84,43 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     # perform
   end
 
+  describe '#form_submission_pending_or_success' do
+    before do
+      job.instance_variable_set(:@claim, claim)
+      allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+    end
+
+    context 'with no form submissions' do
+      it 'returns false' do
+        expect(job.send(:form_submission_pending_or_success)).to eq(false).or be_nil
+      end
+    end
+
+    context 'with pending form submission attempt' do
+      let(:claim) { create(:pensions_module_pension_claim, :pending) }
+
+      it 'return true' do
+        expect(job.send(:form_submission_pending_or_success)).to eq(true)
+      end
+    end
+
+    context 'with success form submission attempt' do
+      let(:claim) { create(:pensions_module_pension_claim, :success) }
+
+      it 'return true' do
+        expect(job.send(:form_submission_pending_or_success)).to eq(true)
+      end
+    end
+
+    context 'with failure form submission attempt' do
+      let(:claim) { create(:pensions_module_pension_claim, :failure) }
+
+      it 'return false' do
+        expect(job.send(:form_submission_pending_or_success)).to eq(false)
+      end
+    end
+  end
+
   describe '#process_document' do
     let(:service) { double('service') }
     let(:pdf_path) { 'random/path/to/pdf' }
@@ -94,10 +131,10 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
     it 'returns a datestamp pdf path' do
       run_count = 0
-      allow_any_instance_of(CentralMail::DatestampPdf).to receive(:run) {
-                                                            run_count += 1
-                                                            pdf_path
-                                                          }
+      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) {
+                                                             run_count += 1
+                                                             pdf_path
+                                                           }
       allow(service).to receive(:valid_document?).and_return(pdf_path)
       new_path = job.send(:process_document, 'test/path')
 
@@ -116,12 +153,26 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       allow(monitor).to receive(:track_file_cleanup_error)
     end
 
-    it 'returns expected hash' do
+    it 'errors and logs but does not reraise' do
       expect(monitor).to receive(:track_file_cleanup_error)
-      expect { job.send(:cleanup_file_paths) }.to raise_error(
-        Pensions::PensionBenefitIntakeJob::PensionBenefitIntakeError,
-        anything
-      )
+      job.send(:cleanup_file_paths)
+    end
+  end
+
+  describe '#send_confirmation_email' do
+    let(:monitor_error) { create(:monitor_error) }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+      allow(claim).to receive(:send_confirmation_email).and_raise(monitor_error)
+
+      job.instance_variable_set(:@pension_monitor, monitor)
+      allow(monitor).to receive(:track_send_confirmation_email_failure)
+    end
+
+    it 'errors and logs but does not reraise' do
+      expect(monitor).to receive(:track_send_confirmation_email_failure)
+      job.send(:send_confirmation_email)
     end
   end
 

@@ -37,7 +37,7 @@ describe ApplicationController, type: :controller do
             source: '/directDeposit/routingNumber', title: 'Unprocessable entity', status: '422' }
         ]
 
-      raise ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError, errors_array
+      raise ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError, errors_array
     end
 
     def raise_invalid_token
@@ -51,6 +51,10 @@ describe ApplicationController, type: :controller do
     def raise_timeout
       raise ClaimsApi::Common::Exceptions::Lighthouse::Timeout
     end
+
+    def raise_bad_gateway
+      raise ClaimsApi::Common::Exceptions::Lighthouse::BadGateway
+    end
   end
 
   before do
@@ -62,6 +66,7 @@ describe ApplicationController, type: :controller do
       get 'raise_invalid_token' => 'anonymous#raise_invalid_token'
       get 'raise_expired_token_signature' => 'anonymous#raise_expired_token_signature'
       get 'raise_timeout' => 'anonymous#raise_timeout'
+      get 'raise_bad_gateway' => 'anonymous#raise_bad_gateway'
     end
   end
 
@@ -166,6 +171,23 @@ describe ApplicationController, type: :controller do
       expect(parsed_body['errors'][0]['title']).to eq('Upstream timeout')
       expect(parsed_body['errors'][0]['detail']).to eq('An upstream service timed out.')
       expect(parsed_body['errors'][0]['status']).to eq('504')
+      expect(parsed_body['errors'][0]['status']).to be_a(String)
+    end
+  end
+
+  it 'catches an external timeout and returns bad gateway' do
+    mock_ccg(scopes) do |auth_header|
+      request.headers.merge!(auth_header)
+
+      get :raise_bad_gateway
+
+      expect(response).to have_http_status(:bad_gateway)
+      parsed_body = JSON.parse(response.body)
+      expect(parsed_body['errors'][0]['title']).to eq('Bad gateway')
+      expect(parsed_body['errors'][0]['detail']).to eq(
+        'The server received an invalid or null response from an upstream server.'
+      )
+      expect(parsed_body['errors'][0]['status']).to eq('502')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
     end
   end

@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'mhv/account_creation/service'
 
 RSpec.describe User, type: :model do
-  subject { described_class.new(build(:user)) }
+  subject { described_class.new(build(:user, loa:)) }
 
+  let(:loa) { loa_one }
   let(:loa_one) { { current: LOA::ONE, highest: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE, highest: LOA::THREE } }
   let(:user) { build(:user, :loa3) }
@@ -229,23 +231,38 @@ RSpec.describe User, type: :model do
     end
 
     describe 'invalidate_mpi_cache' do
+      let(:cache_exists) { true }
+
       before { allow_any_instance_of(MPIData).to receive(:cached?).and_return(cache_exists) }
 
-      context 'when mpi object exists with cached mpi response' do
-        let(:cache_exists) { true }
-
-        it 'clears the user mpi cache' do
-          expect_any_instance_of(MPIData).to receive(:destroy)
-          subject.invalidate_mpi_cache
-        end
-      end
-
-      context 'when mpi object does not exist with cached mpi response' do
-        let(:cache_exists) { false }
+      context 'when user is not loa3' do
+        let(:loa) { loa_one }
 
         it 'does not attempt to clear the user mpi cache' do
           expect_any_instance_of(MPIData).not_to receive(:destroy)
           subject.invalidate_mpi_cache
+        end
+      end
+
+      context 'when user is loa3' do
+        let(:loa) { loa_three }
+
+        context 'and mpi object exists with cached mpi response' do
+          let(:cache_exists) { true }
+
+          it 'clears the user mpi cache' do
+            expect_any_instance_of(MPIData).to receive(:destroy)
+            subject.invalidate_mpi_cache
+          end
+        end
+
+        context 'and mpi object does not exist with cached mpi response' do
+          let(:cache_exists) { false }
+
+          it 'does not attempt to clear the user mpi cache' do
+            expect_any_instance_of(MPIData).not_to receive(:destroy)
+            subject.invalidate_mpi_cache
+          end
         end
       end
     end
@@ -1236,6 +1253,104 @@ RSpec.describe User, type: :model do
         Flipper.disable(:veteran_onboarding_beta_flow)
         Flipper.disable(:veteran_onboarding_show_to_newly_onboarded)
         expect(user.show_onboarding_flow_on_login).to be_falsey
+      end
+    end
+  end
+
+  describe '#mhv_user_account' do
+    let(:user) { build(:user, :loa3, vha_facility_ids:) }
+    let(:vha_facility_ids) { %w[450MH] }
+    let(:icn) { user.icn }
+
+    let!(:user_verification) do
+      create(:idme_user_verification, idme_uuid: user.idme_uuid, user_credential_email:, user_account:)
+    end
+    let(:user_credential_email) { create(:user_credential_email) }
+    let(:user_account) { create(:user_account, icn:) }
+    let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:, response: terms_of_use_response) }
+    let(:terms_of_use_response) { 'accepted' }
+
+    let(:mhv_client) { MHV::AccountCreation::Service.new }
+    let(:mhv_response) do
+      {
+        user_profile_id: '12345678',
+        premium: true,
+        champ_va: true,
+        patient: true,
+        sm_account_created: true,
+        message: 'some-message'
+      }
+    end
+
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
+    context 'when the user is a va_patient' do
+      before do
+        allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
+        allow(mhv_client).to receive(:create_account).and_return(mhv_response)
+      end
+
+      context 'when the user has all required attributes' do
+        it 'returns a MHVUserAccount with the expected attributes' do
+          mhv_user_account = user.mhv_user_account
+
+          expect(mhv_user_account).to be_a(MHVUserAccount)
+          expect(mhv_user_account.attributes).to eq(mhv_response.with_indifferent_access)
+        end
+      end
+
+      context 'when there is an error creating the account' do
+        shared_examples 'mhv_user_account error' do
+          let(:expected_log_message) { '[User] mhv_user_account error' }
+          let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
+
+          it 'logs and re-raises the error' do
+            expect { user.mhv_user_account }.to raise_error(MHV::UserAccount::Errors::UserAccountError)
+            expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+          end
+        end
+
+        context 'when the user does not have a terms_of_use_agreement' do
+          let(:terms_of_use_agreement) { nil }
+          let(:expected_error_message) { 'Current terms of use agreement must be present' }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+
+        context 'when the user has not accepted the terms of use' do
+          let(:terms_of_use_response) { 'declined' }
+          let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+
+        context 'when the user does not have a user_credential_email' do
+          let(:user_credential_email) { nil }
+          let(:expected_error_message) { 'Email must be present' }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+
+        context 'when the user does not have an icn' do
+          let(:icn) { nil }
+          let(:expected_error_message) { 'ICN must be present' }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+      end
+    end
+
+    context 'when the user is not a va_patient' do
+      let(:vha_facility_ids) { [] }
+      let(:expected_log_message) { '[User] mhv_user_account error' }
+      let(:expected_log_payload) { { error_message: expected_error_message, icn: user.icn } }
+      let(:expected_error_message) { 'User has no va_treatment_facility_ids' }
+
+      it 'logs an error and returns nil' do
+        expect(user.mhv_user_account).to be_nil
+        expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
       end
     end
   end

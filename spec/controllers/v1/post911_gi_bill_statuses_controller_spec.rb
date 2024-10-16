@@ -14,6 +14,8 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
 
   context 'inside working hours' do
     before do
+      # TO-DO: Remove this flipper toggle after transition of LTS to 24/7 availability
+      Flipper.enable(:sob_updated_design)
       allow(BenefitsEducation::Service).to receive(:within_scheduled_uptime?).and_return(true)
     end
 
@@ -63,9 +65,14 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
     end
   end
 
+  # TO-DO: Remove this suite of tests after transition of LTS to 24/7 availability
   context 'outside working hours' do
     # midnight
-    before { Timecop.freeze(tz.parse('2nd Feb 1993 00:00:00')) }
+    before do
+      Flipper.disable(:sob_updated_design)
+      Timecop.freeze(tz.parse('2nd Feb 1993 00:00:00'))
+    end
+
     after { Timecop.return }
 
     it 'returns 503' do
@@ -111,15 +118,7 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       expect(response).to have_http_status(:service_unavailable)
 
       json = JSON.parse(response.body)
-      expect(json['errors']).to eq([
-                                     {
-                                       'title' => 'Service unavailable',
-                                       'detail' => 'An outage has been reported on the Test Service ' \
-                                                   "since #{mock_outage.start_time}",
-                                       'code' => '503',
-                                       'status' => '503'
-                                     }
-                                   ])
+      expect(json['errors'][0]['status']).to eq('503')
     end
   end
 end

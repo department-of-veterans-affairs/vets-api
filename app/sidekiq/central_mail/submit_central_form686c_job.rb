@@ -2,8 +2,9 @@
 
 require 'central_mail/service'
 require 'benefits_intake_service/service'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 require 'pdf_info'
+require 'simple_forms_api_submission/metadata_validator'
 
 module CentralMail
   class SubmitCentralForm686cJob
@@ -15,8 +16,6 @@ module CentralMail
     FORM_ID_674 = '21-674'
     STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
     RETRY = 14
-
-    sidekiq_options retry: false
 
     attr_reader :claim, :form_path, :attachment_paths
 
@@ -141,31 +140,20 @@ module CentralMail
       )
     end
 
-    # rubocop:disable Metrics/MethodLength
     def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
-      stamped_path2 = CentralMail::DatestampPdf.new(stamped_path1).run(
+      stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
+      stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
         y: 770,
         text_only: true
       )
       if form_id.present?
-        CentralMail::DatestampPdf.new(stamped_path2).run(
-          text: 'Application Submitted on va.gov',
-          x: form_id == '686C-674' ? 400 : 300,
-          y: form_id == '686C-674' ? 675 : 775,
-          text_only: true, # passing as text only because we override how the date is stamped in this instance
-          timestamp:,
-          page_number: form_id == '686C-674' ? 6 : 0,
-          template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
-          multistamp: true
-        )
+        stamped_pdf_with_form(form_id, stamped_path2, timestamp)
       else
         stamped_path2
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def get_hash_and_pages(file_path)
       {
@@ -179,20 +167,24 @@ module CentralMail
       form_pdf_metadata = get_hash_and_pages(form_path)
       address = form['veteran_contact_information']['veteran_address']
       receive_date = claim.created_at.in_time_zone('Central Time (US & Canada)')
+      is_usa = address['country_name'] == 'USA'
       metadata = {
         'veteranFirstName' => form['veteran_information']['full_name']['first'],
         'veteranLastName' => form['veteran_information']['full_name']['last'],
         'fileNumber' => form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => claim.guid,
-        'zipCode' => address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
+        'zipCode' => is_usa ? address['zip_code'] : FOREIGN_POSTALCODE,
         'source' => 'va.gov',
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => attachment_paths.size,
         'docType' => claim.form_id,
         'numberPages' => form_pdf_metadata[:pages]
       }
-      metadata.merge(generate_attachment_metadata(attachment_paths))
+
+      validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: is_usa)
+
+      validated_metadata.merge(generate_attachment_metadata(attachment_paths))
     end
 
     def generate_metadata_lh
@@ -204,7 +196,9 @@ module CentralMail
         file_number: form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
         zip: address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
         doc_type: claim.form_id,
-        claim_date: claim.created_at
+        claim_date: claim.created_at,
+        source: 'va.gov backup dependent claim submission',
+        business_line: 'CMP'
       }
     end
 
@@ -232,6 +226,19 @@ module CentralMail
     end
 
     private
+
+    def stamped_pdf_with_form(form_id, path, timestamp)
+      PDFUtilities::DatestampPdf.new(path).run(
+        text: 'Application Submitted on va.gov',
+        x: form_id == '686C-674' ? 400 : 300,
+        y: form_id == '686C-674' ? 675 : 775,
+        text_only: true, # passing as text only because we override how the date is stamped in this instance
+        timestamp:,
+        page_number: form_id == '686C-674' ? 6 : 0,
+        template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+        multistamp: true
+      )
+    end
 
     def log_cmp_response(response)
       log_message_to_sentry("vre-central-mail-response: #{response}", :info, {}, { team: 'vfs-ebenefits' })

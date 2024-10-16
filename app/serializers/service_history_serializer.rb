@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
-class ServiceHistorySerializer < ActiveModel::Serializer
-  attributes :service_history
+class ServiceHistorySerializer
+  include JSONAPI::Serializer
 
-  def id
-    nil
+  set_id { '' }
+
+  attributes :service_history do |object|
+    object[:episodes]
   end
 
-  def service_history
-    object
+  attributes :vet_status_eligibility do |object|
+    object[:vet_status_eligibility]
   end
 end

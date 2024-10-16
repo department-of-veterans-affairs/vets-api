@@ -34,6 +34,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/salesforce/configuration.rb'
     add_filter 'lib/va_profile/address_validation/configuration.rb'
     add_filter 'lib/search/response.rb'
+    add_filter 'lib/search_gsa/response.rb'
     add_filter 'lib/va_profile/exceptions/builder.rb'
     add_filter 'lib/va_profile/response.rb'
     add_filter 'modules/appeals_api/app/swagger'
@@ -44,6 +45,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/claims_api/app/swagger/*'
     add_filter 'modules/health_quest/lib/health_quest.rb'
     add_filter 'modules/health_quest/lib/health_quest/engine.rb'
+    add_filter 'modules/pensions/app/swagger'
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
 
@@ -68,6 +70,7 @@ unless ENV['NOCOVERAGE']
     add_group 'MebApi', 'modules/meb_api/'
     add_group 'Mobile', 'modules/mobile/'
     add_group 'MyHealth', 'modules/my_health/'
+    add_group 'Pensions', 'modules/pensions/'
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
     add_group 'Services', 'app/services'
@@ -81,7 +84,6 @@ unless ENV['NOCOVERAGE']
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
-    add_group 'Pensions', 'modules/pensions/'
     # End Modules
 
     if ENV['CI']

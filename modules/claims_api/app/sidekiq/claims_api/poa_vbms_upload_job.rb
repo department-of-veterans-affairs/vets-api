@@ -2,6 +2,7 @@
 
 require 'claims_api/vbms_uploader'
 require 'claims_api/poa_vbms_sidekiq'
+require 'bd/bd'
 
 module ClaimsApi
   class PoaVBMSUploadJob < ClaimsApi::ServiceBase
@@ -11,12 +12,20 @@ module ClaimsApi
     # If successfully uploaded, it queues a job to update the POA code in BGS, as well.
     #
     # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-    def perform(power_of_attorney_id)
+    def perform(power_of_attorney_id, action = 'post') # rubocop:disable Metrics/MethodLength
       power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       uploader = ClaimsApi::PowerOfAttorneyUploader.new(power_of_attorney_id)
       uploader.retrieve_from_store!(power_of_attorney.file_data['filename'])
       file_path = fetch_file_path(uploader)
-      upload_to_vbms(power_of_attorney, file_path)
+      auth_headers = power_of_attorney.auth_headers
+
+      if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
+        benefits_doc_api.upload(claim: power_of_attorney, pdf_path: file_path, action:, doc_type: 'L075',
+                                pctpnt_vet_id: auth_headers['participant_id'])
+      else
+        upload_to_vbms(power_of_attorney, file_path)
+      end
+
       ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
     rescue VBMS::Unknown
       rescue_vbms_error(power_of_attorney)
@@ -25,6 +34,9 @@ module ClaimsApi
       raise
     rescue VBMS::FilenumberDoesNotExist
       rescue_vbms_file_number_not_found(power_of_attorney)
+      raise
+    rescue => e
+      rescue_generic_errors(power_of_attorney, e)
       raise
     end
 
@@ -45,6 +57,12 @@ module ClaimsApi
       file.flush
       file.close
       stream.close if close_stream
+    end
+
+    private
+
+    def benefits_doc_api
+      ClaimsApi::BD.new
     end
   end
 end

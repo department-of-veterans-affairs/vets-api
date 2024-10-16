@@ -57,7 +57,7 @@ module FacilitiesApi
     end
 
     def mobile_api
-      FacilitiesApi::V1::MobileCovid::Client.new
+      FacilitiesApi::V2::MobileCovid::Client.new
     end
 
     def mobile_api_get_by_id(id)

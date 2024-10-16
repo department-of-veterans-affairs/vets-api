@@ -10,8 +10,8 @@ module AskVAApi
 
         attr_reader :icn, :service, :inquiry_number
 
-        def initialize(user_mock_data:, entity_class:, inquiry_number:, icn: nil)
-          super(user_mock_data:, entity_class:)
+        def initialize(inquiry_number:, icn: nil, **args)
+          super(**args)
           @icn = icn
           @inquiry_number = inquiry_number
           @service = Crm::Service.new(icn:)
@@ -22,17 +22,7 @@ module AskVAApi
         def fetch_data
           payload = { InquiryNumber: inquiry_number }
           response = service.call(endpoint: ENDPOINT, payload:)
-          handle_response_data(response)
-        end
-
-        def handle_response_data(response)
-          case response
-          when Hash
-            response[:Data]
-          else
-            error = JSON.parse(response.body, symbolize_names: true)
-            raise(StatusRetrieverError, error[:Message])
-          end
+          handle_response_data(response:, error_class: StatusRetrieverError)
         end
       end
     end

@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 class Vye::UserProfile < ApplicationRecord
+  STATSD_PREFIX = name.gsub('::', '.').underscore
+  STATSD_NAMES =
+    {
+      icn_hit: "#{STATSD_PREFIX}.icn_hit",
+      icn_miss: "#{STATSD_PREFIX}.icn_miss",
+      ssn_hit: "#{STATSD_PREFIX}.ssn_hit",
+      ssn_miss: "#{STATSD_PREFIX}.ssn_miss",
+      icn_and_ssn_miss: "#{STATSD_PREFIX}.icn_and_ssn_miss",
+      active_user_info_hit: "#{STATSD_PREFIX}.active_user_info_hit",
+      active_user_info_miss: "#{STATSD_PREFIX}.active_user_info_miss"
+    }.freeze
+
   include Vye::DigestProtected
 
   has_many :user_infos, dependent: :restrict_with_exception
@@ -39,12 +51,64 @@ class Vye::UserProfile < ApplicationRecord
     }
   )
 
-  def self.find_and_update_icn(user:)
-    return if user.blank?
-
-    with_assos.find_by(icn: user.icn) || with_assos.find_from_digested_ssn(user.ssn)&.tap do |result|
-      result.update!(icn: user.icn)
+  def confirm_active_user_info_present?
+    if active_user_info.blank?
+      Rails.logger.error "#{self.class.name}: There is no active_user_info for id##{id}."
+      StatsD.increment(STATSD_NAMES[:active_user_info_miss])
+      false
+    else
+      StatsD.increment(STATSD_NAMES[:active_user_info_hit])
+      true
     end
+  end
+
+  def self.find_and_update_icn(user:)
+    if user.blank?
+      Rails.logger.error "#{name}: There is no user in session."
+      return
+    end
+
+    unless user.loa3?
+      Rails.logger.error "#{name}: The user(#{user&.user_account&.id}) in session is not LOA3."
+      return
+    end
+
+    if user.ssn.blank?
+      Rails.logger.error "#{name}: The user(#{user&.user_account&.id}) in session does not have an SSN."
+      return
+    end
+
+    if user.icn.blank?
+      Rails.logger.error "#{name}: The user(#{user&.user_account&.id}) in session does not have an ICN."
+      return
+    end
+
+    user_profile = with_assos.find_by(icn: user.icn)
+    if user_profile
+      StatsD.increment(STATSD_NAMES[:icn_hit])
+
+      return unless user_profile.confirm_active_user_info_present?
+
+      return user_profile
+    else
+      StatsD.increment(STATSD_NAMES[:icn_miss])
+    end
+
+    user_profile = with_assos.find_from_digested_ssn(user.ssn)
+    if user_profile
+      user_profile.update!(icn: user.icn)
+      StatsD.increment(STATSD_NAMES[:ssn_hit])
+
+      return unless user_profile.confirm_active_user_info_present?
+
+      return user_profile
+    else
+      StatsD.increment(STATSD_NAMES[:ssn_miss])
+    end
+
+    Rails.logger.warn "#{name}: The user(#{user&.user_account&.id}) in session could not find by ICN or SSN."
+
+    nil
   end
 
   def check_for_match

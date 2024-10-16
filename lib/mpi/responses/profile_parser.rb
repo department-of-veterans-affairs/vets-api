@@ -32,13 +32,17 @@ module MPI
       SSN_XPATH = 'asOtherIDs'
       NAME_XPATH = 'name'
       NAME_LEGAL_INDICATOR = 'L'
+      NAME_PREFERRED_INDICATOR = 'ASGN'
       ADDRESS_XPATH = 'addr'
       DECEASED_XPATH = 'deceasedTime/@value'
       PHONE = 'telecom'
       PERSON_TYPE = 'PERSON_TYPE'
-      PERSON_TYPE_SEPERATOR = '~'
+      RELATIONSHIP_PERSON_TYPE = 'RoleCode'
+      PERSON_TYPE_SEPARATOR = '~'
       PERSON_TYPE_VALUE_XPATH = 'value/@code'
       PERSON_TYPE_CODE_XPATH = 'code/@code'
+      RELATIONSHIP_PERSON_TYPE_VALUE_XPATH = 'code/@code'
+      RELATIONSHIP_PERSON_TYPE_CODE_XPATH = 'code/@codeSystemName'
       ADMIN_OBSERVATION_XPATH = '*/administrativeObservation'
 
       ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
@@ -96,7 +100,7 @@ module MPI
       private
 
       def build_mpi_profile(patient)
-        profile_identity_hash = create_mpi_profile_identity(patient, PATIENT_PERSON_PREFIX)
+        profile_identity_hash = create_mpi_profile_identity(patient)
         profile_ids_hash = create_mpi_profile_ids(patient)
         misc_hash = {
           search_token: locate_element(@original_body, 'id').attributes[:extension],
@@ -105,6 +109,7 @@ module MPI
           transaction_id: @transaction_id
         }
         mpi_attribute_validations(profile_identity_hash, profile_ids_hash)
+        log_mpi_relationships(misc_hash[:relationships]) if misc_hash[:relationships].present?
 
         MPI::Models::MviProfile.new(profile_identity_hash.merge(profile_ids_hash).merge(misc_hash))
       end
@@ -114,11 +119,8 @@ module MPI
       end
 
       def build_relationship_mpi_profile(relationship)
-        relationship_identity_hash = create_mpi_profile_identity(relationship,
-                                                                 RELATIONSHIP_PREFIX,
-                                                                 optional_params: true)
+        relationship_identity_hash = create_mpi_profile_relationship_identity(relationship)
         relationship_ids_hash = create_mpi_profile_ids(locate_element(relationship, RELATIONSHIP_PREFIX))
-
         MPI::Models::MviProfileRelationship.new(relationship_identity_hash.merge(relationship_ids_hash))
       end
 
@@ -127,10 +129,21 @@ module MPI
         code == ID_THEFT_INDICATOR
       end
 
-      def create_mpi_profile_identity(person, person_prefix, optional_params: false)
-        person_component = locate_element(person, person_prefix)
+      def create_mpi_profile_relationship_identity(relationship)
+        person_component = locate_element(relationship, RELATIONSHIP_PREFIX)
+        person_types = parse_relationship_person_type(relationship)
+        name = parse_relationship_name(locate_elements(person_component, NAME_XPATH))
+        {
+          given_names: name[:given],
+          family_name: name[:family],
+          person_types:
+        }
+      end
+
+      def create_mpi_profile_identity(person)
+        person_component = locate_element(person, PATIENT_PERSON_PREFIX)
         person_types = parse_person_type(person)
-        name = parse_name(locate_elements(person_component, NAME_XPATH), optional_params)
+        name = parse_name(locate_elements(person_component, NAME_XPATH))
         {
           given_names: name[:given],
           family_name: name[:family],
@@ -138,9 +151,9 @@ module MPI
           gender: locate_element(person_component, GENDER_XPATH),
           birth_date: locate_element(person_component, DOB_XPATH),
           deceased_date: locate_element(person_component, DECEASED_XPATH),
-          ssn: parse_ssn(locate_element(person_component, SSN_XPATH), optional_params),
+          ssn: parse_ssn(locate_element(person_component, SSN_XPATH)),
           address: parse_address(person_component),
-          home_phone: parse_phone(person, person_prefix),
+          home_phone: parse_phone(person, PATIENT_PERSON_PREFIX),
           person_types:
         }
       end
@@ -178,6 +191,7 @@ module MPI
           edipis: sanitize_id_array(parsed_mvi_ids[:edipis]),
           participant_ids: sanitize_id_array(parsed_mvi_ids[:vba_corp_ids]),
           mhv_iens: sanitize_id_array(parsed_mvi_ids[:mhv_iens]),
+          sec_ids: parsed_mvi_ids[:sec_ids],
           vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
           vha_facility_hash: parsed_mvi_ids[:vha_facility_hash],
           birls_ids: sanitize_id_array(parsed_mvi_ids[:birls_ids]),
@@ -194,6 +208,11 @@ module MPI
       def mpi_attribute_validations(identity_hash, ids_hash)
         log_inactive_mhv_ids(ids_hash[:mhv_ids].to_a, ids_hash[:active_mhv_ids].to_a)
         validate_dob(identity_hash[:birth_date], ids_hash[:icn])
+      end
+
+      def log_mpi_relationships(relationships)
+        Rails.logger.info('[MPI][Responses][ProfileParser] Relationships detected',
+                          { person_types: relationships.map(&:person_types) })
       end
 
       def log_inactive_mhv_ids(mhv_ids, active_mhv_ids)
@@ -219,9 +238,18 @@ module MPI
         Rails.logger.warn 'MPI::Response.parse_dob failed', { dob:, icn: }
       end
 
-      def parse_name(name, optional_params)
-        name_element = parse_legal_name(name)
-        return { given: nil, family: nil } if optional_params && name_element.blank?
+      def parse_relationship_name(name)
+        name_element = parse_name_node(name, indicator: NAME_PREFERRED_INDICATOR) ||
+                       parse_name_node(name, indicator: NAME_LEGAL_INDICATOR)
+        return { given: nil, family: nil } if name_element.blank?
+
+        given = [*name_element.locate('given')].map { |el| el.nodes.first.capitalize }
+        family = name_element.locate('family').first.nodes.first.capitalize
+        { given:, family: }
+      end
+
+      def parse_name(name)
+        name_element = parse_name_node(name, indicator: NAME_LEGAL_INDICATOR)
 
         given = [*name_element.locate('given')].map { |el| el.nodes.first.capitalize }
         family = name_element.locate('family').first.nodes.first.capitalize
@@ -232,14 +260,12 @@ module MPI
         { given: nil, family: nil }
       end
 
-      def parse_legal_name(name_array)
-        name_array.find { |name_element| name_element if name_element.attributes[:use] == NAME_LEGAL_INDICATOR }
+      def parse_name_node(name_array, indicator: NAME_LEGAL_INDICATOR)
+        name_array.find { |name_element| name_element if name_element.attributes[:use] == indicator }
       end
 
       # other_ids can be hash or array of hashes
-      def parse_ssn(other_ids, optional_params)
-        return nil if optional_params && other_ids.blank?
-
+      def parse_ssn(other_ids)
         other_ids = [other_ids] unless other_ids.is_a? Array
         ssn_element = select_ssn_element(other_ids)
         return nil unless ssn_element
@@ -273,11 +299,18 @@ module MPI
         end
       end
 
+      def parse_relationship_person_type(element)
+        if element.locate(RELATIONSHIP_PERSON_TYPE_CODE_XPATH).first == RELATIONSHIP_PERSON_TYPE
+          person_type_string = element.locate(RELATIONSHIP_PERSON_TYPE_VALUE_XPATH).first
+          person_type_string&.split(PERSON_TYPE_SEPARATOR) || []
+        end
+      end
+
       def parse_person_type(person)
         person.locate(ADMIN_OBSERVATION_XPATH).each do |element|
           if element.locate(PERSON_TYPE_CODE_XPATH).first == PERSON_TYPE
             person_type_string = element.locate(PERSON_TYPE_VALUE_XPATH).first
-            return person_type_string&.split(PERSON_TYPE_SEPERATOR) || []
+            return person_type_string&.split(PERSON_TYPE_SEPARATOR) || []
           end
         end
       end

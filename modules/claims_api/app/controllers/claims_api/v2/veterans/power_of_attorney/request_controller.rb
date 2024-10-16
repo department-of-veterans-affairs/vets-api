@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'bgs_service/manage_representative_service'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
 
@@ -9,17 +10,41 @@ module ClaimsApi
       class PowerOfAttorney::RequestController < ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController
         FORM_NUMBER = 'POA_REQUEST'
 
+        def index
+          poa_codes = form_attributes['poaCodes']
+
+          unless poa_codes.is_a?(Array) && poa_codes.size.positive?
+            raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
+                                                             detail: 'poaCodes is required and cannot be empty')
+          end
+
+          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
+                                                    external_key: 'power_of_attorney_request_key')
+
+          res = service.read_poa_request(poa_codes:)
+
+          poa_list = res[:poa_request_respond_return_vo_list]
+
+          raise ::Common::Exceptions::Lighthouse::BadGateway unless poa_list
+
+          render json: poa_list, status: :ok
+        end
+
         def request_representative
+          # validate target veteran exists
           target_veteran
-          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile)
+
+          poa_code = form_attributes.dig('poa', 'poaCode')
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile:)
+
           validate_json_schema(FORM_NUMBER)
           validate_accredited_representative(form_attributes.dig('poa', 'registrationNumber'),
-                                             form_attributes.dig('poa', 'poaCode'))
-          validate_accredited_organization(form_attributes.dig('poa', 'poaCode'))
+                                             poa_code)
+          validate_accredited_organization(poa_code)
 
           # if we get here, the only errors not raised are form value validation errors
           if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
 

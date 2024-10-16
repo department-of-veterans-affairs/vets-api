@@ -43,7 +43,6 @@ class TransactionalEmailAnalyticsJob
       StemApplicantConfirmationMailer,
       SchoolCertifyingOfficialsMailer,
       DirectDepositMailer,
-      HCASubmissionFailureMailer,
       StemApplicantScoMailer,
       StemApplicantDenialMailer
     ]

@@ -14,6 +14,7 @@ require 'saml/user'
 require 'stats_d_metric'
 require 'search/service'
 require 'search_click_tracking/service'
+require 'search_gsa/service'
 require 'search_typeahead/service'
 require 'va_profile/exceptions/parser'
 require 'va_profile/service'
@@ -74,17 +75,6 @@ Rails.application.reloader.to_prepare do
 
   ActiveSupport::Notifications.subscribe(
     'lighthouse.facilities.request.faraday'
-  ) do |_, start_time, end_time, _, payload|
-    payload_statuses = ["http_status:#{payload.status}"]
-    StatsD.increment('facilities.lighthouse.response.failures', tags: payload_statuses) unless payload.success?
-    StatsD.increment('facilities.lighthouse.response.total', tags: payload_statuses)
-
-    duration = end_time - start_time
-    StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
-  end
-
-  ActiveSupport::Notifications.subscribe(
-    'lighthouse.facilities.v1.request.faraday'
   ) do |_, start_time, end_time, _, payload|
     payload_statuses = ["http_status:#{payload.status}"]
     StatsD.increment('facilities.lighthouse.response.failures', tags: payload_statuses) unless payload.success?

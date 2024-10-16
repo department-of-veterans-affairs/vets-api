@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pdf_fill/forms/va21p527ez'
 require 'pdf_fill/forms/va21p530'
 require 'pdf_fill/forms/va21p530v2'
 require 'pdf_fill/forms/va214142'
@@ -8,7 +7,7 @@ require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va218940'
 require 'pdf_fill/forms/va1010cg'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 require 'simple_forms_api_submission/metadata_validator'
 
 module EVSS
@@ -40,7 +39,7 @@ module EVSS
       end
 
       # Invokes Filler ancillary form method to generate PDF document
-      # Then calls method CentralMail::DatestampPdf to stamp the document.
+      # Then calls method PDFUtilities::DatestampPdf to stamp the document.
       # Its called twice, once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page
       # and second time to stamp with text "FDC Reviewed - Vets.gov Submission" at the top of each page
       #
@@ -50,9 +49,9 @@ module EVSS
         pdf = PdfFill::Filler.fill_ancillary_form(
           form4142, @submission.submitted_claim_id, FORM_ID
         )
-        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
-                                                              timestamp: submission_date)
-        CentralMail::DatestampPdf.new(stamped_path).run(
+        stamped_path = PDFUtilities::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
+                                                               timestamp: submission_date)
+        PDFUtilities::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,

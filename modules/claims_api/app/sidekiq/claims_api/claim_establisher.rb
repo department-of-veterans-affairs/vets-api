@@ -9,7 +9,7 @@ module ClaimsApi
     def perform(auto_claim_id) # rubocop:disable Metrics/MethodLength
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
-      orig_form_data = auto_claim.form_data
+      orig_form_data = preserve_original_form_data(auto_claim.form_data)
       form_data = auto_claim.to_internal
       auth_headers = auto_claim.auth_headers
 
@@ -44,12 +44,12 @@ module ClaimsApi
       queue_special_issues_updater(auto_claim.special_issues, auto_claim)
     rescue ::Common::Exceptions::BackendServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = get_error_message(e)
+      auto_claim.evss_response = get_errors(e)
       auto_claim.form_data = orig_form_data
       auto_claim.save
     rescue => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = get_error_message(e)
+      auto_claim.evss_response = get_errors(e)
       auto_claim.form_data = orig_form_data
       auto_claim.save
       raise e
@@ -103,6 +103,10 @@ module ClaimsApi
       else
         EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       end
+    end
+
+    def get_errors(error)
+      error&.errors if error.methods.include?(:errors)
     end
   end
 end

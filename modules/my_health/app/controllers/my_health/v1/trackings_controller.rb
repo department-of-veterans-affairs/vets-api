@@ -13,10 +13,10 @@ module MyHealth
         resource = client.get_tracking_history_rx(params[:prescription_id])
         resource = resource.sort(params[:sort])
         resource = resource.paginate(**pagination_params)
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: TrackingSerializer,
-               meta: resource.metadata
+
+        links = pagination_links(resource)
+        options = { meta: resource.metadata, links: }
+        render json: TrackingSerializer.new(resource.data, options)
       end
     end
   end

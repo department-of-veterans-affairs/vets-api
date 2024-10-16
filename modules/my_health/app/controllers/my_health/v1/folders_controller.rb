@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
-require_relative '../../concerns/my_health/json_api_pagination_links'
-
 module MyHealth
   module V1
     class FoldersController < SMController
-      include MyHealth::JsonApiPaginationLinks
-
       def index
         resource = client.get_folders(@current_user.uuid, use_cache?, requires_oh_messages)
         links = pagination_links(resource)
@@ -49,11 +45,8 @@ module MyHealth
         message_search = MessageSearch.new(search_params)
         resource = client.post_search_folder(params[:id], params[:page], params[:per_page], message_search,
                                              requires_oh_messages)
-
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: MessagesSerializer,
-               meta: resource.metadata
+        options = { meta: resource.metadata }
+        render json: MessagesSerializer.new(resource.data, options)
       end
 
       private

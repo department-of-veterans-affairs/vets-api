@@ -1219,6 +1219,15 @@ paths:
       summary: /v1/messaging/allrecipients
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - name: requires_oh
+          in: query
+          description: Includes Oracle Health recipients if set to "1"
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
   /v1/messaging/threads/{id}/move:
     patch:
       description: Moves all received messages in a secure message thread to a specified folder. Sent messages, draft messages, and deleted messages will not be moved.
@@ -1253,6 +1262,36 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
       summary: /v1/messaging/threads/{id}/move
+  /v1/messaging/preferences/recipients:
+    post:
+      description: Update recipients `preferredTeam` value
+      operationId: update_triage_team_preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureMessagingUpdateTriageTeamRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              type: string
+              example: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/recipients
   /v1/prescriptions:
     get:
       description: List medications.
@@ -2589,6 +2628,23 @@ components:
             associatedBlockedTriageGroups:
               type: integer
               example: 1
+    SecureMessagingUpdateTriageTeamRequest:
+      type: object
+      properties:
+        updated_triage_teams:
+          type: array
+          items:
+            type: object
+            required:
+              - triage_team_id
+              - preferred_team
+            properties:
+              triage_team_id:
+                type: string
+                description: The ID of the triage team
+              preferred_team:
+                type: boolean
+                description: Indicates if the team is preferred (displayed in contact list if `true`)
     PrescriptionTrackingItem:
       type: object
       properties:

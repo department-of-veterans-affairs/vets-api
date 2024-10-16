@@ -75,7 +75,7 @@ class FormProfiles::VA0873 < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/category-topic-1'
+      returnUrl: '/your-personal-information'
     }
   end
 end

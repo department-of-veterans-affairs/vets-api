@@ -34,5 +34,11 @@ module AskVAApi
     def filter_data(data)
       raise NotImplementedError, 'Subclasses must implement the filter_data method'
     end
+
+    def handle_response_data(response:, error_class:)
+      return response[:Data] if response.is_a?(Hash)
+
+      raise(error_class, response.body)
+    end
   end
 end

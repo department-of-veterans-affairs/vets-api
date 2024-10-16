@@ -1,0 +1,58 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/preferences/patientpreferredtriagegroups"
+    body:
+      encoding: UTF-8
+      string: '[{"triageTeamId":"1013155","preferredTeam":"true"}]'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 23 Jul 2024 13:36:55 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '7'
+      X-Amzn-Requestid:
+      - 2553d3ae-9bfc-401a-a96d-485c716c2266
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Amzn-Remapped-Content-Length:
+      - '7'
+      X-Frame-Options:
+      - DENY
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - bXi-qFELPHMFXng=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Tue, 23 Jul 2024 13:36:55 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: Success
+  recorded_at: Tue, 23 Jul 2024 13:36:55 GMT
+recorded_with: VCR 6.2.0

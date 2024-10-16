@@ -2,7 +2,9 @@
 
 module MyHealth
   module V1
-    class MessagingPreferenceSerializer < ActiveModel::Serializer
+    class MessagingPreferenceSerializer
+      include JSONAPI::Serializer
+
       attributes :email_address, :frequency
     end
   end

@@ -460,14 +460,33 @@ module SM
     #
     # @return [Common::Collection[AllTriageTeams]]
     #
-    def get_all_triage_teams(user_uuid, use_cache)
+    def get_all_triage_teams(user_uuid, use_cache, requires_oh = nil)
       cache_key = "#{user_uuid}-all-triage-teams"
       get_cached_or_fetch_data(use_cache, cache_key, AllTriageTeams) do
-        json = perform(:get, 'alltriageteams', nil, token_headers).body
+        path = 'alltriageteams'
+        if requires_oh == '1'
+          separator = path.include?('?') ? '&' : '?'
+          path += "#{separator}requiresOHTriageGroup=#{requires_oh}"
+        end
+        json = perform(:get, path, nil, token_headers).body
         data = Common::Collection.new(AllTriageTeams, **json)
         AllTriageTeams.set_cached(cache_key, data)
         data
       end
+    end
+    # @!endgroup
+
+    ##
+    # Update preferredTeam value for a patient's list of triage teams
+    #
+    # @param updated_triage_teams_list [Array] an array of objects
+    # with triage_team_id and preferred_team values
+    # @return [Fixnum] the response status code
+    #
+    def update_triage_team_preferences(updated_triage_teams_list)
+      custom_headers = token_headers.merge('Content-Type' => 'application/json')
+      response = perform(:post, 'preferences/patientpreferredtriagegroups', updated_triage_teams_list, custom_headers)
+      response&.status
     end
     # @!endgroup
 

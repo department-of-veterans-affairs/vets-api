@@ -9,12 +9,16 @@ RSpec.describe TriageTeamSerializer, type: :serializer do
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
-  it 'includes id' do
+  it 'includes :id' do
     expect(data['id'].to_i).to eq(triage_team.triage_team_id)
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq('triage_teams')
+  end
+
   it 'includes triage_team_id' do
-    expect(attributes['triage_team_id'].to_i).to eq(triage_team.triage_team_id)
+    expect(attributes['triage_team_id']).to eq(triage_team.triage_team_id)
   end
 
   it "includes the team's name" do

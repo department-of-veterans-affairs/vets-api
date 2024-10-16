@@ -2,10 +2,10 @@
 
 module MyHealth
   module V1
-    class MessagesSerializer < ActiveModel::Serializer
-      attribute :id
+    class MessagesSerializer
+      include JSONAPI::Serializer
 
-      attribute(:message_id) { object.id }
+      attribute :message_id, &:id
       attribute :category
       attribute :subject
       attribute :body
@@ -19,7 +19,9 @@ module MyHealth
       attribute :triage_group_name
       attribute :proxy_sender_name
 
-      link(:self) { MyHealth::UrlHelper.new.v1_message_url(object.id) }
+      link :self do |object|
+        MyHealth::UrlHelper.new.v1_message_url(object.id)
+      end
     end
   end
 end

@@ -43,11 +43,10 @@ module V0
         handle_errors!(response.episodes)
         report_results(response.episodes)
 
-        json = JSON.parse(response.episodes.to_json, symbolize_names: true)
+        service_history_json = JSON.parse(response.to_json, symbolize_names: true)
+        options = { is_collection: false }
 
-        render status: response.status,
-               json:,
-               serializer: ServiceHistorySerializer
+        render json: ServiceHistorySerializer.new(service_history_json, options), status: response.status
       end
 
       def check_authorization

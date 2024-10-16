@@ -3,6 +3,10 @@
 module MyHealth
   module V1
     class PrescriptionDetailsSerializer < PrescriptionSerializer
+      include JSONAPI::Serializer
+
+      set_id :prescription_id
+
       attribute :cmop_ndc_number
       attribute :in_cerner_transition
       attribute :not_refillable_display_message
@@ -25,8 +29,18 @@ module MyHealth
       attribute :indication_for_use
       attribute :indication_for_use_flag
       attribute :category
-      attribute :tracking_list
-      attribute :rx_rf_records
+      attribute :tracking_list do |object|
+        next [] unless object.tracking_list
+
+        tracking_list = object.tracking_list
+        tracking_list.dig(0, 1) || []
+      end
+      attribute :rx_rf_records do |object|
+        next [] unless object.rx_rf_records
+
+        records = object.rx_rf_records
+        records.dig(0, 1) || []
+      end
       attribute :tracking
       attribute :orderable_item
       attribute :sorted_dispensed_date
@@ -34,16 +48,6 @@ module MyHealth
       attribute :color
       attribute :back_imprint
       attribute :front_imprint
-
-      def rx_rf_records
-        records = object&.rx_rf_records
-        records&.dig(0, 1) || []
-      end
-
-      def tracking_list
-        tracking_list = object&.tracking_list
-        tracking_list&.dig(0, 1) || []
-      end
     end
   end
 end
