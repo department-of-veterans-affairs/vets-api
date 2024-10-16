@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_14_205528) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_16_170022) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -166,6 +166,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_14_205528) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "failure_notification_sent_at"
+    t.index ["appeal_submission_id"], name: "index_appeal_submission_uploads_on_appeal_submission_id"
   end
 
   create_table "appeal_submissions", force: :cascade do |t|
@@ -1543,12 +1544,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_14_205528) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "user_profile_id"
-    t.date "cert_issue_date"
-    t.date "del_date"
-    t.date "date_last_certified"
     t.integer "bdn_clone_id"
     t.integer "bdn_clone_line"
     t.boolean "bdn_clone_active"
+    t.date "cert_issue_date"
+    t.date "del_date"
+    t.date "date_last_certified"
     t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
     t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
     t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
