@@ -83,11 +83,8 @@ class SavedClaim < ApplicationRecord
 
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
 
-    if schema.blank?
-      Rails.logger.error("No schema found for #{self.class::FORM}")
-    else
-      Rails.logger.info("#{self.class::FORM} has been loaded")
-    end
+    # This is a check to ensure that the schema has been loaded properly
+    schema_loaded_check
 
     schema_errors = JSON::Validator.fully_validate_schema(schema, { errors_as_objects: true })
     clear_cache = false
@@ -110,6 +107,16 @@ class SavedClaim < ApplicationRecord
 
   def to_pdf(file_name = nil)
     PdfFill::Filler.fill_form(self, file_name)
+  end
+  
+  # This is a check to ensure that the schema has been loaded properly
+  # It is primarily for debugging purposes since only logging is being done.
+  def schema_loaded_check
+    if schema.blank?
+      Rails.logger.error("No schema found for #{self.class::FORM}")
+    else
+      Rails.logger.info("#{self.class::FORM} has been loaded")
+    end
   end
 
   def update_form(key, value)
