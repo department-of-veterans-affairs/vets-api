@@ -35,7 +35,7 @@ module ClaimsApi
 
           unless proc_id
             raise ::Common::Exceptions::ParameterMissing.new('procId',
-                                                             detail: 'procId is required in the URL')
+                                                             detail: 'procId is required')
           end
 
           decision = form_attributes['decision']
