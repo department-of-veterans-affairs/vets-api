@@ -42,7 +42,7 @@ module Flipper
       org_name = Settings.flipper.github_organization
       team_id = Settings.flipper.github_team
 
-      user&.organization_member?(org_name) && user&.team_member?(team_id)
+      user&.organization_member?(org_name) && user.team_member?(team_id)
     end
   end
 end

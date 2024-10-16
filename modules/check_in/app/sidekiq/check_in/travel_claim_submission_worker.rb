@@ -29,7 +29,9 @@ module CheckIn
       uuid, appointment_date, facility_type = opts.values_at(:uuid, :appointment_date, :facility_type)
       check_in_session = CheckIn::V2::Session.build(data: { uuid: })
 
-      claims_resp = TravelClaim::Service.build(check_in: check_in_session, params: { appointment_date: }).submit_claim
+      claims_resp = TravelClaim::Service.build(check_in: check_in_session,
+                                               params: { appointment_date:, facility_type: })
+                                        .submit_claim
 
       if should_handle_timeout(claims_resp)
         TravelClaimStatusCheckWorker.perform_in(5.minutes, uuid, appointment_date)
