@@ -74,10 +74,17 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
     FactoryBot.create(:auto_established_claim_v2, :errored)
     FactoryBot.create(:auto_established_claim, :errored)
 
-    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now, transaction_id: '467384632187')
-    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now, transaction_id: '467384632187')
-    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now, transaction_id: '46738463218436')
-    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now, transaction_id: '467384632185')
+    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                transaction_id: '467384632184')
+    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                transaction_id: '467384632185')
+    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                transaction_id: '467384632186')
+    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                transaction_id: '467384632187')
+    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                transaction_id: '467384632187')
+    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
 
     FactoryBot.create(:auto_established_claim_v2, :errored)
     FactoryBot.create(:auto_established_claim_v2, :pending)

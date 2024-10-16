@@ -22,13 +22,12 @@ module ClaimsApi
       arr = errored_va_gov_claims.pluck(:transaction_id, :id).map do |transaction_id, id|
         { transaction_id:, id: }
       end
-      map_transaction_ids(arr) if arr.count > 1
+      map_transaction_ids(arr) if arr.count.positive?
     end
 
     def errored_va_gov_claims
       ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to,
                                             status: 'errored', cid: '0oagdm49ygCSJTp8X297')
-                                     .order(:transaction_id)
     end
 
     def with_special_issues(cid: nil)
@@ -142,12 +141,12 @@ module ClaimsApi
 
     def map_transaction_ids(array)
       transaction_mapping = {}
-      key_sequence = [*'A'..'Z', *'a'..'z', *'0'..'99']
+      key_sequence = (0..transaction_mapping.size + 3).to_a
       key_index = 0
 
       # Map each unique transaction_id to a new key
-      array&.each do |item|
-        transaction_id = item[:transaction_id]
+      array&.each do |array_transaction_id_and_id|
+        transaction_id = array_transaction_id_and_id[:transaction_id]
         unless transaction_mapping.key?(transaction_id)
           transaction_mapping[transaction_id] = key_sequence[key_index]
           key_index += 1
@@ -155,7 +154,7 @@ module ClaimsApi
       end
 
       # Group the array by the new keys
-      array.group_by { |item| transaction_mapping[item[:transaction_id]] }.sort
+      array.group_by { |item| transaction_mapping[item[:transaction_id]] }
     end
   end
 end
