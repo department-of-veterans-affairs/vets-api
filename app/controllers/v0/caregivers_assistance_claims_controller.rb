@@ -51,13 +51,15 @@ module V0
       client_file_name = file_name_for_pdf(@claim.veteran_data)
       file_contents    = File.read(source_file_path)
 
-      # rubocop:disable Lint/NonAtomicFileOperation
-      File.delete(source_file_path) if File.exist?(source_file_path)
-      # rubocop:enable Lint/NonAtomicFileOperation
+      File.delete(source_file_path) if !Flipper.enabled?(:caregiver1010) && File.exist?(source_file_path)
 
       auditor.record(:pdf_download)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
+    ensure
+      if Flipper.enabled?(:caregiver1010) && (source_file_path && File.exist?(source_file_path))
+        File.delete(source_file_path)
+      end
     end
 
     def facilities

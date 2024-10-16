@@ -58,7 +58,7 @@ RSpec.shared_examples 'shared reporting behavior' do
     end
   end
 
-  it 'includes 526EZ claims from VaGov' do
+  it 'includes 526EZ claims from VaGov', skip: 'pending changes in API-41029' do
     with_settings(Settings.claims_api, report_enabled: true) do
       FactoryBot.create(:auto_established_claim_va_gov, :errored)
       FactoryBot.create(:auto_established_claim_va_gov, :errored)

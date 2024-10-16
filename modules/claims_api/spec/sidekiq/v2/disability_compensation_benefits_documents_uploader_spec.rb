@@ -11,6 +11,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     Sidekiq::Job.clear_all
     stub_claims_api_auth_token
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+    allow(Flipper).to receive(:enabled?).with(:claims_api_bd_refactor).and_return true
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -68,7 +69,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     end
 
     it 'submits successfully with BD' do
-      expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return true
+      expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document).and_return true
 
       service.perform(claim.id)
 
