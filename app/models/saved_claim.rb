@@ -83,7 +83,6 @@ class SavedClaim < ApplicationRecord
 
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
 
-    # This is a check to ensure that the schema has been loaded properly
     if schema.blank?
       Rails.logger.error("No schema found for #{self.class::FORM}")
     else
