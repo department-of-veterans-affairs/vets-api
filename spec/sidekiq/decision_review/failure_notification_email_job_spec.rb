@@ -205,8 +205,8 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
         let(:filename3) { 'error_pdf_notification_emailed_already.pdf' }
         let(:filename4) { 'success_file.pdf' }
         let(:filename5) { 'error_veteran_not_found.pdf' }
-        let(:masked_filename1) { 'err**_*****_****es.pdf' }
-        let(:masked_filename5) { 'err**_*******_***_***nd.pdf' }
+        let(:masked_filename1) { 'errXX_XXXXX_XXXXes.pdf' }
+        let(:masked_filename5) { 'errXX_XXXXXXX_XXX_XXXnd.pdf' }
 
         let(:created_at) { DateTime.new(2023, 4, 2) }
         let(:personalisation) do

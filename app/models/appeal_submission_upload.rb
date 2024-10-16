@@ -19,6 +19,6 @@ class AppealSubmissionUpload < ApplicationRecord
     filename = JSON.parse(decision_review_evidence_attachment&.file_data || '{}')['filename']
     raise 'Filename for not found' if filename.nil?
 
-    filename.gsub(MASK_REGEX, '*')
+    filename.gsub(MASK_REGEX, 'X')
   end
 end
