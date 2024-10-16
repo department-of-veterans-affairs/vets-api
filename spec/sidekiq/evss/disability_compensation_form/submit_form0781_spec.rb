@@ -82,19 +82,22 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
   end
 
   describe 'When an ApiProvider is used for uploads' do
+    let(:submission) do
+      Form526Submission.create(user_uuid: user.uuid,
+                               auth_headers_json: auth_headers.to_json,
+                               saved_claim_id: saved_claim.id,
+                               form_json: form0781,
+                               submitted_claim_id: evss_claim_id)
+    end
+    let(:perform_upload) do
+      subject.perform_async(submission.id)
+      described_class.drain
+    end
+
     before do
       Flipper.enable(:disability_compensation_use_api_provider_for_0781)
       # StatsD metrics are incremented in several callbacks we're not testing here so we need to allow them
       allow(StatsD).to receive(:increment)
-    end
-
-    let(:submission) do
-      create(:form526_submission, form_json: form0781)
-    end
-
-    let(:perform_upload) do
-      subject.perform_async(submission.id)
-      described_class.drain
     end
 
     context 'when the disability_compensation_upload_0781_to_lighthouse flipper is enabled' do
@@ -104,29 +107,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         'worker.evss.submit_form0781.lighthouse_supplemental_document_upload_provider'
       end
 
-      let(:expected_0781_lighthouse_document) do
-        LighthouseDocument.new(
-          claim_id: submission.submitted_claim_id,
-          participant_id: user.participant_id,
-          document_type: 'L228',
-          file_name: 'example_generated_filename.pdf'
-        )
-      end
-
-      let(:expected_0781a_lighthouse_document) do
-        LighthouseDocument.new(
-          claim_id: submission.submitted_claim_id,
-          participant_id: user.participant_id,
-          document_type: 'L229',
-          file_name: 'example_generated_filename.pdf'
-        )
-      end
-
       before do
         Flipper.enable(:disability_compensation_lighthouse_upload_0781)
 
         allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-        .and_return(faraday_response)
+          .and_return(faraday_response)
 
         allow(faraday_response).to receive(:body).and_return(
           {
@@ -139,8 +124,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       it 'uploads the 7081 documents to Lighthouse' do
-        #the example submission includes 0781 and 0781a
-        expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call).exactly(2).times
+        # the example submission includes 0781 and 0781a, calling the service twice
+        expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+          .with(
+            an_instance_of(String), # file_body arg
+            an_instance_of(LighthouseDocument) # document_type is either 0781 or 0781a
+          ).twice
 
         perform_upload
       end
@@ -160,8 +149,80 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         perform_upload
       end
 
+      it 'creates a pending Lighthouse526DocumentUpload record for the submission so we can poll Lighthouse later' do
+        upload_attributes = {
+          aasm_state: 'pending',
+          form526_submission_id: submission.id,
+          lighthouse_document_request_id: lighthouse_request_id
+        }
+
+        expect(Lighthouse526DocumentUpload.where(**upload_attributes).count).to eq(0)
+
+        perform_upload
+        expect(Lighthouse526DocumentUpload.where(**upload_attributes).where(document_type: 'Form 0781').count).to eq(1)
+        expect(Lighthouse526DocumentUpload.where(**upload_attributes).where(document_type: 'Form 0781a').count).to eq(1)
+      end
+
+      context 'when Lighthouse returns an error response' do
+        let(:error_response_body) do
+          # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
+          {
+            'errors' => [
+              {
+                'detail' => 'Something broke',
+                'status' => 400,
+                'title' => 'Bad Request',
+                'instance' => Faker::Internet.uuid
+              }
+            ]
+          }
+        end
+
+        before do
+          allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+            .and_return(faraday_response)
+
+          allow(faraday_response).to receive(:body).and_return(error_response_body)
+        end
+
+        it 'logs the Lighthouse error response' do
+          expect(Rails.logger).to receive(:error).with(
+            'LighthouseSupplementalDocumentUploadProvider upload failed',
+            {
+              class: 'LighthouseSupplementalDocumentUploadProvider',
+              submission_id: submission.submitted_claim_id,
+              user_uuid: submission.user_uuid,
+              va_document_type_code: 'L228',
+              primary_form: 'Form526',
+              lighthouse_error_response: error_response_body
+            }
+          )
+
+          expect(Rails.logger).to receive(:error).with(
+            'LighthouseSupplementalDocumentUploadProvider upload failed',
+            {
+              class: 'LighthouseSupplementalDocumentUploadProvider',
+              submission_id: submission.submitted_claim_id,
+              user_uuid: submission.user_uuid,
+              va_document_type_code: 'L229',
+              primary_form: 'Form526',
+              lighthouse_error_response: error_response_body
+            }
+          )
+
+          perform_upload
+        end
+
+        it 'increments the correct status failure metric' do
+          expect(StatsD).to receive(:increment).with(
+            "#{expected_statsd_metrics_prefix}.upload_failure"
+          ).twice
+
+          perform_upload
+        end
+      end
     end
-  end  
+  end
 
   context 'catastrophic failure state' do
     describe 'when all retries are exhausted' do
