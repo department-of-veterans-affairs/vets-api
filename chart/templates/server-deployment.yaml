@@ -120,7 +120,7 @@ spec:
                   key: {{ $secret.name }}
           {{- end }}
           {{- end }}
-          {{- range $key, $path := .Values.parameters }}
+          {{- range $key, $path := $root.Values.parameters }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
