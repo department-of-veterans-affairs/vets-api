@@ -43,7 +43,7 @@ module Mobile
 
       def validate_home_sort!
         home_address = @current_user.vet360_contact_info&.residential_address
-        unless home_address&.latitude && home_address&.longitude
+        unless home_address&.latitude && home_address.longitude
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: 'User has no home latitude and longitude', source: self.class.to_s
           )
