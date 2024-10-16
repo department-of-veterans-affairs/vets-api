@@ -107,6 +107,21 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
       end
     end
+
+    context 'when procId is present but invalid' do
+      let(:proc_id) { '1' }
+      let(:decision) { 'accepted' }
+
+      it 'raises an error' do
+        mock_ccg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_not_found') do
+            decide_request_with(proc_id:, decision:, auth_header:)
+
+            expect(response).to have_http_status(:internal_server_error)
+          end
+        end
+      end
+    end
   end
 
   def index_request_with(poa_codes:, auth_header:)
