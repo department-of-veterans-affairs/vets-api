@@ -81,7 +81,7 @@ class FormSubmissionAttempt < ApplicationRecord
   private
 
   def should_send_simple_forms_email
-    form_number && Flipper.enabled?(:simple_forms_email_notifications)
+    simple_forms_form_number && Flipper.enabled?(:simple_forms_email_notifications)
   end
 
   def simple_forms_enqueue_result_email(notification_type)
@@ -89,7 +89,7 @@ class FormSubmissionAttempt < ApplicationRecord
     form_data = JSON.parse(raw_form_data)
     config = {
       form_data:,
-      form_number:,
+      form_number: simple_forms_form_number,
       confirmation_number: form_submission.benefits_intake_uuid,
       date_submitted: created_at.strftime('%B %d, %Y'),
       lighthouse_updated_at: lighthouse_updated_at&.strftime('%B %d, %Y')
@@ -114,11 +114,12 @@ class FormSubmissionAttempt < ApplicationRecord
     end
   end
 
-  def form_number
-    @form_number ||= if SimpleFormsApi::NotificationEmail::TEMPLATE_IDS.keys.include? form_submission.form_type
-                       form_submission.form_type
-                     else
-                       SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type]
-                     end
+  def simple_forms_form_number
+    @simple_forms_form_number ||=
+      if SimpleFormsApi::NotificationEmail::TEMPLATE_IDS.keys.include? form_submission.form_type
+        form_submission.form_type
+      else
+        SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type]
+      end
   end
 end
