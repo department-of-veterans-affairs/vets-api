@@ -35,10 +35,6 @@ module EVSS
         FORM_ID_0781A => { docType: 'L229' }
       }.freeze
 
-      #AJ TODO - use the hash above?
-      FORM_0781_DOCUMENT_TYPE = 'L228'
-      FORM_0781A__DOCUMENT_TYPE = 'L229'
-
       STATSD_KEY_PREFIX = 'worker.evss.submit_form0781'
 
       # Sidekiq has built in exponential back-off functionality for retries
@@ -106,18 +102,18 @@ module EVSS
         raise e
       end
 
-      def self.api_upload_provider(submission)
+      def self.api_upload_provider(submission, form_id)
         user = User.find(submission.user_uuid)
 
         ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
           options: {
             form526_submission: submission,
-            document_type: FORM_0781_DOCUMENT_TYPE,
+            document_type: FORMS_METADATA[form_id][:docType],
             statsd_metric_prefix: STATSD_KEY_PREFIX
           },
           current_user: user,
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781
         )
       end
 
@@ -215,6 +211,7 @@ module EVSS
       end
 
       def create_document_data(evss_claim_id, upload_data)
+        #AJ todo - should this be a LH doc?
         EVSSClaimDocument.new(
           evss_claim_id:,
           file_name: upload_data[:file_name],
@@ -231,16 +228,15 @@ module EVSS
 
         # thin wrapper to isolate upload for logging
         file_body = File.open(pdf_path).read
-        perform_client_upload(file_body, document_data)
+        perform_client_upload(file_body, document_data, form_id)
       ensure
         # Delete the temporary PDF file
         File.delete(pdf_path) if pdf_path.present?
       end
 
-      def perform_client_upload(file_body, document_data)
+      def perform_client_upload(file_body, document_data, form_id)
         if Flipper.enabled?(:disability_compensation_use_api_provider_for_0781)
-          provider = self.class.api_upload_provider(submission)
-
+          provider = self.class.api_upload_provider(submission, form_id)
           upload_document = provider.generate_upload_document(document_data.file_name)
           provider.submit_upload_document(upload_document, file_body)
         else
