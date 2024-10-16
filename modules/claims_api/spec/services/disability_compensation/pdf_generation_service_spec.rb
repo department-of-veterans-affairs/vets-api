@@ -23,7 +23,7 @@ describe ClaimsApi::DisabilityCompensation::PdfGenerationService do
     temp['data']['attributes']
   end
   let(:claim) do
-    claim = create(:auto_established_claim, form_data:)
+    claim = create(:auto_established_claim, :pending, form_data:)
     claim.auth_headers = auth_headers
     claim.transaction_id = '00000000-0000-0000-000000000000'
     claim.save
