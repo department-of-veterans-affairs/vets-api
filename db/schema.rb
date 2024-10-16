@@ -180,6 +180,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_16_172752) do
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
     t.datetime "failure_notification_sent_at"
+    t.index ["submitted_appeal_uuid"], name: "index_appeal_submissions_on_submitted_appeal_uuid"
     t.index ["user_account_id"], name: "index_appeal_submissions_on_user_account_id"
   end
 
