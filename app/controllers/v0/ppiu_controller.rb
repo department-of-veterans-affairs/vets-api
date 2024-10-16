@@ -15,7 +15,7 @@ module V0
       if Flipper.enabled?(:profile_ppiu_reject_requests, @current_user)
         message = 'EVSS PPIU endpoint is being deprecated. Please contact the ' \
                   'Authenticated Experience team with any questions or use the ' \
-                  "'/v0/profile/direct_deposits/disability_compensations' endpoint instead."
+                  "'/v0/profile/direct_deposits' endpoint instead."
 
         raise Common::Exceptions::Forbidden, detail: message
       end
@@ -23,16 +23,14 @@ module V0
 
     def index
       response = service.get_payment_information
-      render json: response,
-             serializer: PPIUSerializer
+      render json: PPIUSerializer.new(response)
     end
 
     def update
       response = service.update_payment_information(pay_info)
       Rails.logger.warn('PPIUController#update request completed', sso_logging_info)
       send_confirmation_email
-      render json: response,
-             serializer: PPIUSerializer
+      render json: PPIUSerializer.new(response)
     end
 
     private

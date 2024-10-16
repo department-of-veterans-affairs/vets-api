@@ -20,10 +20,10 @@ module MyHealth
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: PrescriptionDetailsSerializer,
-               meta: resource.metadata
+
+        options = { meta: resource.metadata }
+        options[:links] = pagination_links(resource) if is_using_pagination
+        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
 
       def show
@@ -31,9 +31,8 @@ module MyHealth
         resource = client.get_rx_details(id)
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
-        render json: resource,
-               serializer: PrescriptionDetailsSerializer,
-               meta: resource.metadata
+        options = { meta: resource.metadata }
+        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource, options)
       end
 
       def refill
@@ -58,10 +57,9 @@ module MyHealth
       def list_refillable_prescriptions
         resource = collection_resource
         resource.data = filter_data_by_refill_and_renew(resource.data)
-        render json: resource.data,
-               serializer: CollectionSerializer,
-               each_serializer: PrescriptionDetailsSerializer,
-               meta: resource.metadata
+
+        options = { meta: resource.metadata }
+        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
 
       def get_prescription_image

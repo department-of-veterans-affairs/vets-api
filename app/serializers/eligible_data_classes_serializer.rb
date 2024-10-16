@@ -2,15 +2,13 @@
 
 require 'digest'
 
-class EligibleDataClassesSerializer < ActiveModel::Serializer
-  type 'eligible_data_classes'
-  attribute :data_classes
+class EligibleDataClassesSerializer
+  include JSONAPI::Serializer
 
-  def data_classes
+  set_id { '' }
+  set_type 'eligible_data_classes'
+
+  attribute :data_classes do |object|
     object.map(&:name)
-  end
-
-  def id
-    nil
   end
 end

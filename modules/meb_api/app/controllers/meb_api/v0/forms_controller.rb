@@ -3,6 +3,7 @@
 require 'dgi/forms/service/sponsor_service'
 require 'dgi/forms/service/claimant_service'
 require 'dgi/forms/service/submission_service'
+require 'dgi/forms/service/letter_service'
 
 module MebApi
   module V0
@@ -12,10 +13,10 @@ module MebApi
       def claim_letter
         claimant_response = claimant_service.get_claimant_info('toe')
         claimant_id = claimant_response['claimant']['claimant_id']
-        claim_status_response = claim_status_service.get_claim_status('toe', claimant_id)
-        claim_letter_response = letter_service.get_claim_letter('toe', claimant_id)
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, 'toe')
+        claim_letter_response = letter_service.get_claim_letter(claimant_id, 'toe')
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
-        response = claimant_response.status == 201 ? claim_letter_response : claimant_response
+        response = claimant_response.status == 200 ? claim_letter_response : claimant_response
 
         date = Time.now.getlocal
         timestamp = date.strftime('%m/%d/%Y %I:%M:%S %p')
@@ -64,7 +65,7 @@ module MebApi
           end
         end
 
-        response = submission_service.submit_claim(params, response_data, 'toe')
+        response = submission_service.submit_claim(params, response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 
@@ -75,6 +76,16 @@ module MebApi
         }
       end
 
+      def send_confirmation_email
+        return head :no_content unless Flipper.enabled?(:form1990emeb_confirmation_email)
+
+        status = params[:claim_status]
+        email = params[:email] || @current_user.email
+        first_name = params[:first_name]&.upcase || @current_user.first_name&.upcase
+
+        MebApi::V0::Submit1990emebFormConfirmation.perform_async(status, email, first_name)
+      end
+
       private
 
       def claimant_service
@@ -82,7 +93,7 @@ module MebApi
       end
 
       def letter_service
-        MebApi::DGI::Forms::Letter::Service.new(@current_user)
+        MebApi::DGI::Forms::Letters::Service.new(@current_user)
       end
 
       def sponsor_service
@@ -91,10 +102,6 @@ module MebApi
 
       def submission_service
         MebApi::DGI::Forms::Submission::Service.new(@current_user)
-      end
-
-      def payment_service
-        BGS::Service.new(@current_user)
       end
     end
   end

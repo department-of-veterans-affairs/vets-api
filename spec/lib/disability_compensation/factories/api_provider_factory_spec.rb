@@ -244,4 +244,38 @@ RSpec.describe ApiProviderFactory do
       end.to raise_error NotImplementedError
     end
   end
+
+  context 'upload supplemental document' do
+    let(:submission) { create(:form526_submission) }
+    # BDD Document Type
+    let(:va_document_type) { 'L023' }
+
+    def provider(api_provider = nil)
+      ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
+        provider: api_provider,
+        options: {
+          form526_submission: submission,
+          document_type: va_document_type,
+          statsd_metric_prefix: 'my_stats_metric_prefix'
+        },
+        current_user:,
+        feature_toggle: nil
+      )
+    end
+
+    it 'provides an EVSS upload_supplemental_document provider' do
+      expect(provider(:evss).class).to equal(EVSSSupplementalDocumentUploadProvider)
+    end
+
+    it 'provides a Lighthouse upload_supplemental_document provider' do
+      expect(provider(:lighthouse).class).to equal(LighthouseSupplementalDocumentUploadProvider)
+    end
+
+    it 'throw error if provider unknown' do
+      expect do
+        provider(:random)
+      end.to raise_error NotImplementedError
+    end
+  end
 end

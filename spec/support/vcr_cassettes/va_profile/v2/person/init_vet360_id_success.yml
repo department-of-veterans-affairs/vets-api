@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"sourceDate":"2024-09-16T16:09:37Z"}}'
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1191485107", dtSInfo;desc="0"
+      - dtRpid;desc="1357047332", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 60213328-650b-452d-8031-26c96d5c0de4
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Mon, 16 Sep 2024 16:09:37 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"442277a2-58bc-4778-88a7-3683662a3d00","status":"RECEIVED"}'
+  recorded_at: Mon, 16 Sep 2024 16:09:37 GMT
+recorded_with: VCR 6.3.1

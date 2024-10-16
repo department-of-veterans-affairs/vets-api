@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Content-Type:
+      - application/json
+      Cufsystemname:
+      - VETSGOV
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-709653735", dtSInfo;desc="0"
+      - dtRpid;desc="860133312", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - d98d80cb-8e9e-4daa-abd9-9b3bcd050aa9
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Fri, 06 Sep 2024 17:51:52 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","text":"The tx
+        for id/criteria d47b3d96-9ddd-42be-ac57-8e564aa38029 could not be found. Please
+        correct your request and try again!","severity":"ERROR"}],"status":"COMPLETED_FAILURE"}'
+  recorded_at: Fri, 06 Sep 2024 17:51:52 GMT
+recorded_with: VCR 6.3.1

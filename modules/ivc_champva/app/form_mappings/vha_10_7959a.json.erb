@@ -1,43 +1,44 @@
 {
-  "form1[0].#subform[0].MiddleInit-ptnt[0]":                                  "<%= form.data.dig('applicant_name', 'middle') %>",
+  "form1[0].#subform[0].MiddleInit-ptnt[0]":                                  "<%= form.data.dig('applicant_name', 'middle')&.first %>",
   "form1[0].#subform[0].FirstNme-ptnt[0]":                                    "<%= form.data.dig('applicant_name', 'first') %>",
   "form1[0].#subform[0].LastNme-ptnt[0]":                                     "<%= form.data.dig('applicant_name', 'last') %>",
   "form1[0].#subform[0].SSN-ptnt[0]":                                         "<%= form.data.dig('applicant_member_number') %>",
   "form1[0]":                                                                 "<%= form.data.dig('form1') %>",
-  "form1[0].#subform[0].ZIPCode-ptnt[0]":                                     "<%= form.data.dig('applicant_address', 'zip_code') %>",
+  "form1[0].#subform[0].ZIPCode-ptnt[0]":                                     "<%= form.data.dig('applicant_address', 'postal_code') %>",
   "form1[0].#subform[0].State-ptnt[0]":                                       "<%= form.data.dig('applicant_address', 'state') %>",
   "form1[0].#subform[0].City-ptnt[0]":                                        "<%= form.data.dig('applicant_address', 'city') %>",
-  "form1[0].#subform[0].StreetAddrss-ptnt[0]":                                "<%= form.data.dig('applicant_address', 'street') %>",
+  "form1[0].#subform[0].StreetAddrss-ptnt[0]":                                "<%= form.data.dig('applicant_address', 'street_combined') %>",
   "form1[0].#subform[0].Phone-ptnt[0]":                                       "<%= form.data.dig('applicant_phone') %>",
   "form1[0].#subform[0].Date-Ptnt[0]":                                        "<%= form.data.dig('applicant_dob') %>",
-  "form1[0].#subform[0].CheckIfNew[0]":                                       "<%= form.data.dig('applicant_new_address') ? 1 : 0 %>",
+  "form1[0].#subform[0].CheckIfNew[0]":                                       "<%= form.data.dig('applicant_new_address') == 'no' ? 0 : 1 %>",
   "form1[0].#subform[0].LastNme-spnsr[0]":                                    "<%= form.data.dig('sponsor_name', 'last') %>",
   "form1[0].#subform[0].FirstNme-spnsr[0]":                                   "<%= form.data.dig('sponsor_name', 'first') %>",
-  "form1[0].#subform[0].MiddleInit-spnsr[0]":                                 "<%= form.data.dig('sponsor_name', 'middle') %>",
-  "form1[0].#subform[0].NameOHI-1[0]":                                        "<%= form.data['policies'][0]&.dig('name') %>",
-  "form1[0].#subform[0].Phone-OHI-1[0]":                                      "<%= form.data['policies'][0]&.dig('provider_phone') %>",
-  "form1[0].#subform[0].OHIPolicyNmbr-1[0]":                                  "<%= form.data['policies'][0]&.dig('policy_num') %>",
-  "form1[0].#subform[0].NameOHI-2[0]":                                        "<%= form.data['policies'][1]&.dig('name') %>",
-  "form1[0].#subform[0].OHIPolicyNmbr-2[0]":                                  "<%= form.data['policies'][1]&.dig('policy_num') %>",
-  "form1[0].#subform[0].Phone-OHI-2[0]":                                      "<%= form.data['policies'][1]&.dig('provider_phone') %>",
-  "form1[0].#subform[0].#area[2].WorkRelatedTreat[0]":                        "<%= form.data.dig('claim_is_work_related') ? 1 : 0 %>",
-  "form1[0].#subform[0].#area[0].OutsdWrkAccdnt[0]":                          "<%= form.data.dig('claim_is_auto_related') ? 1 : 0 %>",
-  "form1[0].#subform[0].PtntCverage[0]":                                      "<%= form.data.dig('has_ohi') ? 1 : 0 %>",
-  "form1[0].#subform[0].#area[1].RadioButtonList[0]":                         "<%= form.data.dig('type') === 'group' ? 1 : 
-                                                                                   form.data.dig('type') === 'non_group' ? 2 :
-                                                                                   form.data.dig('type') === 'medicare' ? 3 :
-                                                                                   form.data.dig('type') === 'other' ? 4 : 0 %>",
-  "form1[0].#subform[0].#area[1].SpecifyOtherPrimaryHealthInsurance[0]":      "<%= form.data.dig('other_type') %>",
-  "form1[0].#subform[0].SignatureMiddleInitial[0]":                           "<%= form.data.dig('certifier_name', 'middle') %>",
+  "form1[0].#subform[0].MiddleInit-spnsr[0]":                                 "<%= form.data.dig('sponsor_name', 'middle')&.first %>",
+  "form1[0].#subform[0].NameOHI-1[0]":                                        "<%= form.data.dig('policies', 0, 'name') %>",
+  "form1[0].#subform[0].Phone-OHI-1[0]":                                      "<%= form.data.dig('policies', 0, 'provider_phone') %>",
+  "form1[0].#subform[0].OHIPolicyNmbr-1[0]":                                  "<%= form.data.dig('policies', 0, 'policy_num') %>",
+  "form1[0].#subform[0].NameOHI-2[0]":                                        "<%= form.data.dig('policies', 1, 'name') %>",
+  "form1[0].#subform[0].OHIPolicyNmbr-2[0]":                                  "<%= form.data.dig('policies', 1, 'policy_num') %>",
+  "form1[0].#subform[0].Phone-OHI-2[0]":                                      "<%= form.data.dig('policies', 1, 'provider_phone') %>",
+  "form1[0].#subform[0].#area[2].WorkRelatedTreat[0]":                        "<%= ['true', true].include?(form.data.dig('claims', 0, 'claim_is_work_related')) ? 0 : 1 %>",
+  "form1[0].#subform[0].#area[0].OutsdWrkAccdnt[0]":                          "<%= ['true', true].include?(form.data.dig('claims', 0, 'claim_is_auto_related')) ? 0 : 1 %>",
+  "form1[0].#subform[0].PtntCverage[0]":                                      "<%= ['true', true].include?(form.data.dig('has_ohi')) ? 0 : 1 %>",
+  "form1[0].#subform[0].#area[1].RadioButtonList[0]":                         "<%= form.data.dig('policies', 0, 'type') === 'group' ? 1 :
+                                                                                   form.data.dig('policies', 0, 'type') === 'non_group' ? 2 :
+                                                                                   form.data.dig('policies', 0, 'type') === 'medicare' ? 3 :
+                                                                                   form.data.dig('policies', 0, 'type') === 'other' ? 4 : 0 %>",
+  "form1[0].#subform[0].#area[1].SpecifyOtherPrimaryHealthInsurance[0]":      "<%= form.data.dig('policies', 0, 'other_type') %>",
+  "form1[0].#subform[0].SignatureMiddleInitial[0]":                           "<%= form.data.dig('certifier_name', 'middle')&.first %>",
   "form1[0].#subform[0].SignatureFirstName[0]":                               "<%= form.data.dig('certifier_name', 'first') %>",
   "form1[0].#subform[0].SignatureLastName[0]":                                "<%= form.data.dig('certifier_name', 'last') %>",
-  "form1[0].#subform[0].relationshipToApplicant[0]":                          "<%= form.data.dig('certifier_relationship') != 'other' ? 
-                                                                                   form.data.dig('certifier_relationship') : 
+  "form1[0].#subform[0].relationshipToApplicant[0]":                          "<%= form.data.dig('certifier_relationship') != 'other' ?
+                                                                                   form.data.dig('certifier_relationship') :
                                                                                    form.data.dig('certifier_other_relationship') %>",
   "form1[0].#subform[0].SignatureTelephoneNumber[0]":                         "<%= form.data.dig('certifier_phone') %>",
-  "form1[0].#subform[0].SignatureZipCode[0]":                                 "<%= form.data.dig('certifier_address', 'zip_code') %>",
+  "form1[0].#subform[0].SignatureZipCode[0]":                                 "<%= form.data.dig('certifier_address', 'postal_code') %>",
   "form1[0].#subform[0].SignatureState[0]":                                   "<%= form.data.dig('certifier_address', 'state') %>",
   "form1[0].#subform[0].SignatureCity[0]":                                    "<%= form.data.dig('certifier_address', 'city') %>",
-  "form1[0].#subform[0].SignatureStreetAddress[0]":                           "<%= form.data.dig('certifier_address', 'street') %>",
-  "form1[0].#subform[0].SignatureDateOfBirth2[0]":                            "<%= form.data.dig('certificationDate', 'street') %>"
+  "form1[0].#subform[0].SignatureStreetAddress[0]":                           "<%= form.data.dig('certifier_address', 'street_combined') %>",
+  "form1[0].#subform[0].SignatureDateOfBirth2[0]":                            "<%= form.data['certification_date'] %>",
+  "form1[0].#subform[0].SignatureField1[0]":                                  "<%= form.data['statementOfTruthSignature'] %>"
 }

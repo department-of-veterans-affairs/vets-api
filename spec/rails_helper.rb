@@ -16,6 +16,7 @@ require 'support/stub_va_profile'
 require 'support/mpi/stub_mpi'
 require 'support/stub_evss_pciu'
 require 'support/va_profile/stub_vet360'
+require 'support/va_profile/stub_vaprofile_user'
 require 'support/factory_bot'
 require 'support/serializer_spec_helper'
 require 'support/validation_helpers'
@@ -181,6 +182,7 @@ RSpec.configure do |config|
     stub_mpi unless example.metadata[:skip_mvi]
     stub_va_profile unless example.metadata[:skip_va_profile]
     stub_vet360 unless example.metadata[:skip_vet360]
+    stub_vaprofile_user if example.metadata[:initiate_vaprofile] && example.metadata[:skip_vet360]
 
     Sidekiq::Job.clear_all
   end
@@ -188,7 +190,7 @@ RSpec.configure do |config|
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
   config.after(:all) do
-    FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', "uploads#{ENV['TEST_ENV_NUMBER']}")]) if Rails.env.test?
+    FileUtils.rm_rf(Rails.root.glob("spec/support/uploads#{ENV['TEST_ENV_NUMBER']}")) if Rails.env.test?
   end
 end
 

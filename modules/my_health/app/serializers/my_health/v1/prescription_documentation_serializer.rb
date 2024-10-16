@@ -4,15 +4,13 @@ require 'digest'
 
 module MyHealth
   module V1
-    class PrescriptionDocumentationSerializer < ActiveModel::Serializer
-      attributes :html
+    class PrescriptionDocumentationSerializer
+      include JSONAPI::Serializer
 
-      def html
+      set_id { '' }
+
+      attributes :html do |object|
         object.html[:html]
-      end
-
-      def id
-        nil
       end
     end
   end

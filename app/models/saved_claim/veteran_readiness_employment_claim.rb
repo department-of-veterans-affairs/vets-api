@@ -115,6 +115,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                                                })
   end
 
+  # Common method for VRE form submission:
+  # * Adds information from user to payload
+  # * Submits to VBMS if participant ID is there, to Lighthouse if not.
+  # * Sends email if user is present
+  # * Sends to RES or VRE service based on flipper status
+  # @param user [User] user account of submitting user
+  # @return [Hash] Response payload of service that was used (RES or VRE)
   def send_to_vre(user)
     add_claimant_info(user)
 
@@ -125,13 +132,23 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       send_to_lighthouse!(user)
     end
 
+    email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
+    Rails.logger.info('VRE claim sending email:', { email: email_addr, user_uuid: user.uuid })
+    VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
+                                           @sent_to_lighthouse).deliver_later
+
     if Flipper.enabled?(:veteran_readiness_employment_to_res)
       send_to_res(user)
     else
-      send_vre_email_form(user)
+      send_vre_form(user)
     end
   end
 
+  # Submit claim into VBMS service, uploading document directly to VBMS,
+  # adds document ID from VBMS to form info, and sends confirmation email to user
+  # Submits to Lighthouse on failure
+  # @param user [User] user account of submitting user
+  # @return None
   def upload_to_vbms(user:, doc_type: '1167')
     form_path = PdfFill::Filler.fill_form(self, nil, { created_at: })
 
@@ -161,6 +178,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     PdfFill::Filler.fill_form(self, file_name, { created_at: })
   end
 
+  # Submit claim into lighthouse service, adds veteran info to top level of form,
+  # and sends confirmation email to user
+  # @param user [User] user account of submitting user
+  # @return None
   def send_to_lighthouse!(user)
     form_copy = parsed_form.clone
 
@@ -175,44 +196,34 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     send_lighthouse_confirmation_email(user)
   rescue => e
-    Rails.logger.error('Error uploading VRE claim to central mail.', { user_uuid: user.uuid, e: })
+    Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
   end
 
+  # Send claim via RES service
+  # @param user [User] user account of submitting user
+  # @return [Hash] Response payload of RES service
   def send_to_res(user)
-    email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
-
     Rails.logger.info('VRE claim sending to RES service',
                       {
-                        email: email_addr,
                         user_uuid: user.uuid,
                         was_sent: @sent_to_lighthouse,
                         user_present: user.present?
                       })
-
-    if user.present?
-      VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
-                                             @sent_to_lighthouse).deliver_later
-    end
 
     service = RES::Ch31Form.new(user:, claim: self)
     service.submit
   end
 
-  def send_vre_email_form(user)
-    email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
-
+  # Send claim via VRE service, does not submit if office location is not permitted
+  # @param user [User] user account of submitting user
+  # @return [Hash] Response payload of VRE service
+  def send_vre_form(user)
     Rails.logger.info('VRE claim sending to VRE service',
                       {
-                        email: email_addr,
                         user_uuid: user.uuid,
                         was_sent: @sent_to_lighthouse,
                         user_present: user.present?
                       })
-
-    if user.present?
-      VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
-                                             @sent_to_lighthouse).deliver_later
-    end
 
     # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
     # send the data to them. We always send a pdf to VBMS

@@ -13,6 +13,10 @@ describe PPIUSerializer, type: :serializer do
     expect(data['id']).to be_blank
   end
 
+  it 'includes :type' do
+    expect(data['type']).to eq 'evss_ppiu_payment_information_responses'
+  end
+
   it 'includes :responses' do
     expect(attributes['responses'].size).to eq payment_information_response.responses.size
   end

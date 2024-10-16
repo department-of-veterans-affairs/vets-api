@@ -16,11 +16,11 @@ module ClaimsApi
       # it queues a job to update the POA code in BGS, as well.
       #
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-      def perform(power_of_attorney_id, form_number = nil)
+      def perform(power_of_attorney_id, form_number = nil) # rubocop:disable Metrics/MethodLength
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
         rep_or_org = form_number == '2122A' ? 'representative' : 'serviceOrganization'
         poa_code = power_of_attorney.form_data&.dig(rep_or_org, 'poaCode')
-        doc_type = form_number == '2122A' ? 'L075' : 'L190'
+        doc_type = form_number == '2122' ? 'L190' : 'L075'
 
         output_path = pdf_constructor(poa_code).construct(data(power_of_attorney), id: power_of_attorney.id)
 
@@ -38,6 +38,10 @@ module ClaimsApi
       rescue ClaimsApi::StampSignatureError => e
         signature_errors = (power_of_attorney.signature_errors || []).push(e.detail)
         power_of_attorney.update(status: ClaimsApi::PowerOfAttorney::ERRORED, signature_errors:)
+        ClaimsApi::Logger.log('poa', poa_id: power_of_attorney_id, detail: 'Prawn Signature Error')
+      rescue => e
+        rescue_generic_errors(power_of_attorney, e)
+        raise
       end
 
       private

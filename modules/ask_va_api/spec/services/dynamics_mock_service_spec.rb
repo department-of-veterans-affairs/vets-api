@@ -36,26 +36,23 @@ RSpec.describe DynamicsMockService do
 
     context 'when the file contains valid JSON content' do
       let(:expected_result) do
-        { Data: {
-          Icn: I18n.t('ask_va_api.test_users.test_user_228_icn'),
-          Id: '1',
-          InquiryNumber: 'A-1',
-          InquiryStatus: 'In Progress',
-          SubmitterQuestion: 'What is my status?',
-          LastUpdate: '12/20/23',
-          InquiryHasAttachments: true,
-          InquiryHasBeenSplit: true,
-          VeteranRelationship: 'self',
-          SchoolFacilityCode: '0123',
-          InquiryTopic: 'Status of a pending claim',
-          InquiryLevelOfAuthentication: 'Personal',
-          AttachmentNames: [
-            {
-              Id: '1',
-              Name: 'testfile.txt'
-            }
-          ]
-        } }
+        { Data: { Icn: I18n.t('ask_va_api.test_users.test_user_119_icn'),
+                  Id: '1',
+                  CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
+                  CreatedOn: '8/5/2024 4:51:52 PM',
+                  InquiryNumber: 'A-1',
+                  InquiryStatus: 'Replied',
+                  SubmitterQuestion: 'What is my status?',
+                  LastUpdate: '8/5/2024 4:51:52 PM',
+                  QueueId: '987654',
+                  QueueName: 'Debt Management Center',
+                  InquiryHasAttachments: true,
+                  InquiryHasBeenSplit: true,
+                  VeteranRelationship: 'self',
+                  SchoolFacilityCode: '0123',
+                  InquiryTopic: 'Status of a pending claim',
+                  InquiryLevelOfAuthentication: 'Personal',
+                  AttachmentNames: [{ Id: '1', Name: 'testfile.txt' }] } }
       end
 
       context 'with id payload' do
@@ -69,7 +66,7 @@ RSpec.describe DynamicsMockService do
       context 'with icn payload' do
         let(:test_users) { I18n.t('ask_va_api.test_users') }
         let(:icn) do
-          test_users['test_user_228_icn']
+          test_users['test_user_119_icn']
         end
 
         it 'filters data based on icn and excludes attachments' do

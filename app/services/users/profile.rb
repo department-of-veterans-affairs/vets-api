@@ -87,7 +87,8 @@ module Users
         sec_id: user.sec_id,
         logingov_uuid: user.logingov_uuid,
         idme_uuid: user.idme_uuid,
-        id_theft_flag: user.id_theft_flag
+        id_theft_flag: user.id_theft_flag,
+        initial_sign_in: user.initial_sign_in
       }
     end
     # rubocop:enable Metrics/MethodLength
@@ -96,7 +97,6 @@ module Users
       if Flipper.enabled?(:profile_user_claims, user)
         {
           appeals: AppealsPolicy.new(user).access?,
-          ch33_bank_accounts: Ch33DdPolicy.new(user).access?,
           coe: CoePolicy.new(user).access?,
           communication_preferences: Vet360Policy.new(user).access? &&
             CommunicationPreferencesPolicy.new(user).access?,

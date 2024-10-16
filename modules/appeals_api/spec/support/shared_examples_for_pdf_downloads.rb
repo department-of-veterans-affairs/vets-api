@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # rubocop:disable RSpec/VariableName, Layout/LineLength
-shared_examples 'watermarked pdf download endpoint' do |opts|
+shared_examples 'watermarked pdf download endpoint' do |opts, described_class:|
   let(:created_at) { Time.current }
   let(:status) { 'pending' }
   let!(:appeal) { create(opts[:factory], created_at:, status:) }

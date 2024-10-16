@@ -88,6 +88,9 @@ jobs:
             yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
             yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
             yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_GIT_COMMIT_SHA").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_GIT_COMMIT_SHA").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_GIT_COMMIT_SHA").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
           done
           git diff
 

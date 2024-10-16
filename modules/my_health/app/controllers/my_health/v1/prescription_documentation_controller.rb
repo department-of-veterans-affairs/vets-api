@@ -7,8 +7,8 @@ module MyHealth
         if Flipper.enabled?(:mhv_medications_display_documentation_content, @current_user)
           begin
             documentation = client.get_rx_documentation(params[:ndc])
-            render json: PrescriptionDocumentation.new({ html: documentation[:data] }),
-                   serializer: PrescriptionDocumentationSerializer
+            prescription_documentation = PrescriptionDocumentation.new({ html: documentation[:data] })
+            render json: PrescriptionDocumentationSerializer.new(prescription_documentation)
           rescue => e
             render json: { error: "Unable to fetch documentation: #{e}" }, status: :service_unavailable
           end

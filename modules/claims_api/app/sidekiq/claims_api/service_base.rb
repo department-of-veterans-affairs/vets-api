@@ -34,7 +34,20 @@ module ClaimsApi
       end
     end
 
+    def retry_limits_for_notification
+      [11]
+    end
+
     protected
+
+    def set_state_for_submission(submission, state)
+      submission.status = state
+      submission.save!
+    end
+
+    def preserve_original_form_data(form_data)
+      form_data.deep_dup.freeze
+    end
 
     def set_errored_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::ERRORED)
@@ -61,18 +74,29 @@ module ClaimsApi
 
     def set_evss_response(auto_claim, error)
       auto_claim.evss_response ||= []
+      errors_to_add = []
 
-      if error&.original_body.present?
-        error&.original_body&.each { |e| auto_claim.evss_response << e }
+      if error_responds_to_original_body?(error)
+        if error&.original_body.present?
+          errors_to_add.concat(error.original_body)
+        else
+          # This is a default catch all
+          # Since the error could theoretically respond_to the
+          # original_body method but still not have it
+          errors_to_add << error
+        end
       elsif error&.errors.present?
-        error&.errors&.each { |e| auto_claim.evss_response << e }
+        errors_to_add.concat(error.errors)
       end
+
+      # Add all collected errors to the auto_claim evss_response
+      auto_claim.evss_response.concat(errors_to_add)
 
       auto_claim.save!
     end
 
     def get_error_message(error)
-      if error.respond_to? :original_body
+      if error_responds_to_original_body?(error)
         error.original_body
       elsif error.respond_to? :message
         error.message
@@ -117,7 +141,7 @@ module ClaimsApi
     def will_retry?(auto_claim, error)
       msg = if auto_claim.evss_response.present?
               auto_claim.evss_response&.dig(0, 'key')
-            elsif error.respond_to? :original_body
+            elsif error_responds_to_original_body?(error)
               get_error_key(error.original_body)
             else
               ''
@@ -147,10 +171,14 @@ module ClaimsApi
       ClaimsApi::AutoEstablishedClaim::ERRORED
     end
 
-    def log_job_progress(claim_id, detail)
-      ClaimsApi::Logger.log(self.class::LOG_TAG,
-                            claim_id:,
-                            detail:)
+    def log_job_progress(claim_id, detail, transaction_id = nil)
+      log_data = { claim_id:, detail:, transaction_id: }
+      log_data.compact!
+      ClaimsApi::Logger.log(self.class::LOG_TAG, **log_data)
+    end
+
+    def error_responds_to_original_body?(error)
+      error.respond_to? :original_body
     end
 
     def extract_poa_code(poa_form_data)
@@ -159,6 +187,25 @@ module ClaimsApi
       elsif poa_form_data.key?('representative') # V2 2122a
         poa_form_data['representative']['poaCode']
       end
+    end
+
+    def evss_mapper_service(auto_claim)
+      ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim)
+    end
+
+    def veteran_file_number(auto_claim)
+      auto_claim.auth_headers['va_eauth_birlsfilenumber']
+    end
+
+    def evss_service
+      ClaimsApi::EVSSService::Base.new
+    end
+
+    def rescue_generic_errors(power_of_attorney, e)
+      power_of_attorney.status = ClaimsApi::PowerOfAttorney::ERRORED
+      power_of_attorney.vbms_error_message = e&.message || e&.original_body
+      power_of_attorney.save
+      ClaimsApi::Logger.log('ServiceBase', message: "In generic rescue, the error is: #{e}")
     end
   end
 end

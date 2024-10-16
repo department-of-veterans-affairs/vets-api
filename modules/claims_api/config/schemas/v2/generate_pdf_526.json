@@ -58,8 +58,6 @@
           "required": [
             "addressLine1",
             "city",
-            "state",
-            "zipFirstFive",
             "country"
           ],
           "properties": {
@@ -86,15 +84,15 @@
             "city": {
               "description": "City for the Veteran's current mailing address.",
               "type": "string",
-              "example": "Portland",
+              "example": "Schenectady",
               "maxLength": 1000
             },
             "state": {
               "description": "State for the Veteran's current mailing address.",
-              "type": "string",
-              "example": "OR",
+              "type": ["string", "null"],
+              "example": "NY",
               "maxLength": 1000,
-              "minLength": 0
+              "nullable": true
             },
             "country": {
               "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -104,9 +102,10 @@
             },
             "zipFirstFive": {
               "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
-              "type": "string",
+              "type": ["string", "null"],
               "example": "12345",
-              "maxLength": 500
+              "maxLength": 500,
+              "nullable": true
             },
             "zipLastFour": {
               "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
@@ -114,6 +113,12 @@
               "example": "6789",
               "nullable": true,
               "maxLength": 500
+            },
+            "internationalPostalCode": {
+              "description": "International postal code for the Veteran's current mailing address.",
+              "type": ["string", "null"],
+              "maxLength": 1000,
+              "nullable": true
             }
           }
         },
@@ -179,26 +184,29 @@
         "city": {
           "description": "City for the Veteran's new address.",
           "type": "string",
-          "example": "Portland",
+          "example": "Schenectady",
           "maxLength": 1000
         },
         "state": {
           "description": "State for the Veteran's new address.",
-          "type": "string",
-          "example": "OR",
-          "maxLength": 1000
+          "type": ["string", "null"],
+          "example": "NY",
+          "maxLength": 1000,
+          "nullable": true
         },
         "country": {
           "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
-          "type": "string",
+          "type": ["string", "null"],
           "example": "USA",
-          "maxLength": 1000
+          "maxLength": 1000,
+          "nullable": true
         },
         "zipFirstFive": {
           "description": "Zip code (First 5 digits) for the Veteran's new address.",
-          "type": "string",
+          "type": ["string", "null"],
           "example": "12345",
-          "maxLength": 500
+          "maxLength": 500,
+          "nullable": true
         },
         "zipLastFour": {
           "description": "Zip code (Last 4 digits) for the Veteran's new address.",
@@ -206,6 +214,12 @@
           "nullable": true,
           "example": "6789",
           "maxLength": 500
+        },
+        "internationalPostalCode": {
+          "description": "International postal code for the Veteran's new address.",
+          "type": ["string", "null"],
+          "maxLength": 1000,
+          "nullable": true
         },
         "dates": {
           "type": "object",
@@ -232,6 +246,11 @@
       "nullable": true,
       "additionalProperties": false,
       "properties": {
+        "isCurrentlyHomeless": {
+          "type": ["boolean", "null"],
+          "nullable": true,
+          "description": "Is the Veteran currently homeless?"
+        },
         "currentlyHomeless": {
           "type": ["object", "null"],
           "nullable": true,
@@ -260,6 +279,11 @@
               "example": "other living situation"
             }
           }
+        },
+        "isAtRiskOfBecomingHomeless": {
+          "type": ["boolean", "null"],
+          "nullable": true,
+          "description": "Is the Veteran currently at risk of becoming homeless?"
         },
         "riskOfBecomingHomeless": {
           "type": ["object", "null"],
@@ -648,7 +672,7 @@
             "nullable": true
           },
           "treatedDisabilityNames": {
-            "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+            "description": "Name(s) of disabilities treated in this time frame.",
             "type": ["array", "null"],
             "nullable": true,
             "maxItems": 101,
@@ -674,13 +698,13 @@
               "city": {
                 "description": "City of treatment facility.",
                 "type": ["string", "null"],
-                "example": "Portland",
+                "example": "Schenectady",
                 "nullable": true
               },
               "state": {
                 "description": "State of treatment facility.",
                 "type": ["string", "null"],
-                "example": "OR",
+                "example": "NY",
                 "nullable": true
               }
             }
@@ -736,13 +760,13 @@
                 "example": "2018-06-06"
               },
               "activeDutyEndDate": {
-                "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                "description": "Date completed active duty.",
                 "type": "string",
                 "pattern": "^(?:\\d{4})-(?:\\d{2})-(?:\\d{2})$",
                 "example": "2018-06-06"
               },
               "separationLocationCode": {
-                "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                 "type": ["string", "null"],
                 "nullable": true,
                 "example": "98283"
@@ -993,7 +1017,7 @@
         "accountNumber": {
           "description": "Account number for the direct deposit.",
           "type": ["string", "null"],
-          "maxLength": 14,
+          "maxLength": 1000,
           "nullable": true,
           "example": "123123123123"
         },

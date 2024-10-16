@@ -30,5 +30,9 @@ FactoryBot.define do
       poa_code { Faker::Alphanumeric.alphanumeric(number: 3).upcase }
       individual_type { 'claims_agent' }
     end
+
+    trait :with_location do
+      location { 'POINT(-73.77623285 42.65140884)' }
+    end
   end
 end

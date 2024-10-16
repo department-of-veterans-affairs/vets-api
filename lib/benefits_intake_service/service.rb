@@ -7,6 +7,8 @@ require 'common/exceptions/forbidden'
 require 'common/exceptions/schema_validation_errors'
 require 'benefits_intake_service/configuration'
 require 'benefits_intake_service/utilities/convert_to_pdf'
+require 'lighthouse/benefits_intake/metadata'
+require 'pdf_utilities/pdf_validator'
 
 module BenefitsIntakeService
   ##
@@ -22,7 +24,16 @@ module BenefitsIntakeService
 
     attr_reader :uuid, :location
 
+    class InvalidDocumentError < StandardError; end
+
     REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
+    PDF_VALIDATOR_OPTIONS = {
+      size_limit_in_bytes: 100_000_000, # 100 MB
+      check_page_dimensions: true,
+      check_encryption: true,
+      width_limit_in_inches: 78,
+      height_limit_in_inches: 101
+    }.freeze
 
     # Validate a file satisfies Benefits Intake specifications. File must be a PDF.
     # @param [String] doc_path
@@ -31,6 +42,27 @@ module BenefitsIntakeService
       headers = { 'Content-Type': 'application/pdf' }
       request_body = File.read(doc_path, mode: 'rb')
       perform :post, 'uploads/validate_document', request_body, headers
+    end
+
+    ##
+    # Validate a file satisfies BenefitsIntake specifications.
+    # ** File must be a PDF.
+    #
+    # @raise [InvalidDocumentError] if document is not a valid pdf
+    # @see PDF_VALIDATOR_OPTIONS
+    #
+    # @param [String] document: path to file
+    #
+    # @returns [String] path to file
+    #
+    def valid_document?(document:)
+      result = PDFUtilities::PDFValidator::Validator.new(document, PDF_VALIDATOR_OPTIONS).validate
+      raise InvalidDocumentError, "Invalid Document: #{result.errors}" unless result.valid_pdf?
+
+      response = validate_document(doc_path: document)
+      raise InvalidDocumentError, "Invalid Document: #{response}" unless response.success?
+
+      document
     end
 
     # TODO: Remove param and clean up Form526BackupSubmissionProcess::Processor to use instance vars
@@ -89,20 +121,21 @@ module BenefitsIntakeService
     end
 
     def generate_metadata(metadata)
-      {
+      metadata_to_convert = {
         veteranFirstName: metadata[:veteran_first_name],
         veteranLastName: metadata[:veteran_last_name],
         fileNumber: metadata[:file_number],
         zipCode: metadata[:zip],
-        source: 'va.gov backup submission',
+        source: metadata[:source] || 'va.gov submission',
         docType: metadata[:doc_type],
-        businessLine: 'CMP',
+        businessLine: metadata[:business_line] || 'CMP',
         claimDate: metadata[:claim_date]
       }
+      BenefitsIntake::Metadata.validate(metadata_to_convert.stringify_keys)
     end
 
     def generate_tmp_metadata_file(metadata)
-      Common::FileHelpers.generate_temp_file(metadata.to_s, "#{SecureRandom.hex}.benefits_intake.metadata.json")
+      Common::FileHelpers.generate_clamav_temp_file(metadata.to_s, "#{SecureRandom.hex}.benefits_intake.metadata.json")
     end
 
     # Instantiates a new location and uuid via lighthouse

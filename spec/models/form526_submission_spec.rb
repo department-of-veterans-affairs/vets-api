@@ -27,6 +27,10 @@ RSpec.describe Form526Submission do
   let(:submit_endpoint) { nil }
   let(:backup_submitted_claim_status) { nil }
 
+  before do
+    Flipper.disable(:disability_compensation_production_tester)
+  end
+
   describe 'associations' do
     it { is_expected.to have_many(:form526_submission_remediations) }
   end
@@ -107,19 +111,57 @@ RSpec.describe Form526Submission do
 
   describe 'scopes' do
     let!(:in_process) { create(:form526_submission) }
-    let!(:expired) { create(:form526_submission, :created_more_than_2_weeks_ago) }
+    let!(:expired) { create(:form526_submission, :created_more_than_3_weeks_ago) }
     let!(:happy_path_success) { create(:form526_submission, :with_submitted_claim_id) }
+    let!(:happy_lighthouse_path_success) do
+      create(:form526_submission, :with_submitted_claim_id, submit_endpoint: 'claims_api')
+    end
     let!(:pending_backup) { create(:form526_submission, :backup_path) }
     let!(:accepted_backup) { create(:form526_submission, :backup_path, :backup_accepted) }
     let!(:rejected_backup) { create(:form526_submission, :backup_path, :backup_rejected) }
     let!(:remediated) { create(:form526_submission, :remediated) }
-    let!(:remediated_and_expired) { create(:form526_submission, :remediated, :created_more_than_2_weeks_ago) }
+    let!(:remediated_and_expired) { create(:form526_submission, :remediated, :created_more_than_3_weeks_ago) }
     let!(:remediated_and_rejected) { create(:form526_submission, :remediated, :backup_path, :backup_rejected) }
-    let!(:no_longer_remediated) { create(:form526_submission, :no_longer_remediated) }
+    let!(:new_no_longer_remediated) { create(:form526_submission, :no_longer_remediated) }
+    let!(:old_no_longer_remediated) do
+      Timecop.freeze(3.months.ago) do
+        create(:form526_submission, :no_longer_remediated)
+      end
+    end
     let!(:paranoid_success) { create(:form526_submission, :backup_path, :paranoid_success) }
     let!(:success_by_age) do
       Timecop.freeze((1.year + 1.day).ago) do
         create(:form526_submission, :backup_path, :paranoid_success)
+      end
+    end
+    let!(:failed_primary) { create(:form526_submission, :with_failed_primary_job) }
+    let!(:exhausted_primary) { create(:form526_submission, :with_exhausted_primary_job) }
+    let!(:failed_backup) { create(:form526_submission, :with_failed_backup_job) }
+    let!(:exhausted_backup) { create(:form526_submission, :with_exhausted_backup_job) }
+
+    before do
+      happy_lighthouse_path_success.form526_job_statuses << Form526JobStatus.new(
+        job_class: 'PollForm526Pdf',
+        status: Form526JobStatus::STATUS[:success],
+        job_id: 1
+      )
+    end
+
+    describe 'with_exhausted_primary_jobs' do
+      it 'returns submissions associated to failed or exhausted primary jobs' do
+        expect(Form526Submission.with_exhausted_primary_jobs).to contain_exactly(
+          failed_primary,
+          exhausted_primary
+        )
+      end
+    end
+
+    describe 'with_exhausted_backup_jobs' do
+      it 'returns submissions associated to failed or exhausted backup jobs' do
+        expect(Form526Submission.with_exhausted_backup_jobs).to contain_exactly(
+          failed_backup,
+          exhausted_backup
+        )
       end
     end
 
@@ -131,17 +173,17 @@ RSpec.describe Form526Submission do
       end
     end
 
-    describe 'success_by_age_type' do
+    describe 'success_by_age' do
       it 'returns records more than a year old with paranoid_success backup status' do
-        expect(Form526Submission.success_by_age_type).to contain_exactly(
+        expect(Form526Submission.success_by_age).to contain_exactly(
           success_by_age
         )
       end
     end
 
-    describe 'pending_backup_submissions' do
+    describe 'pending_backup' do
       it 'returns records submitted to the backup path but lacking a decisive state' do
-        expect(Form526Submission.pending_backup_submissions).to contain_exactly(
+        expect(Form526Submission.pending_backup).to contain_exactly(
           pending_backup
         )
       end
@@ -151,23 +193,76 @@ RSpec.describe Form526Submission do
       it 'only returns submissions that are still in process' do
         expect(Form526Submission.in_process).to contain_exactly(
           in_process,
-          pending_backup
+          new_no_longer_remediated,
+          exhausted_primary,
+          failed_primary
+        )
+      end
+    end
+
+    describe 'incomplete_type' do
+      it 'only returns submissions that are still in process' do
+        expect(Form526Submission.incomplete_type).to contain_exactly(
+          in_process,
+          pending_backup,
+          new_no_longer_remediated,
+          exhausted_primary,
+          failed_primary
         )
       end
     end
 
     describe 'accepted_to_primary_path' do
       it 'returns submissions with a submitted_claim_id' do
+        expect(Form526Submission.accepted_to_evss_primary_path).to contain_exactly(
+          happy_path_success
+        )
+      end
+
+      it 'returns Lighthouse submissions with a found PDF with a submitted_claim_id' do
+        expect(Form526Submission.accepted_to_lighthouse_primary_path).to contain_exactly(happy_lighthouse_path_success)
+      end
+
+      it 'returns both an EVSS submission and a Lighthouse submission with a found PDF and a submitted_claim_id' do
+        expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
+          happy_path_success, happy_lighthouse_path_success
+        )
+      end
+
+      it 'does not return the LH submission when the PDF is not found' do
+        happy_lighthouse_path_success.form526_job_statuses.last.update(status: Form526JobStatus::STATUS[:pdf_not_found])
+
+        expect(Form526Submission.accepted_to_lighthouse_primary_path).to be_empty
+      end
+
+      it 'returns the EVSS submission when the Lighthouse submission is not found' do
+        happy_lighthouse_path_success.update(submitted_claim_id: nil)
         expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
           happy_path_success
         )
+      end
+
+      it 'returns the Lighthouse submission when the EVSS submission has no submitted claim id' do
+        happy_path_success.update(submitted_claim_id: nil)
+        expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
+          happy_lighthouse_path_success
+        )
+      end
+
+      it 'returns neither submission when neither EVSS nor Lighthouse submissions have submitted claim ids' do
+        happy_path_success.update(submitted_claim_id: nil)
+        happy_lighthouse_path_success.update(submitted_claim_id: nil)
+
+        expect(Form526Submission.accepted_to_primary_path).to be_empty
       end
     end
 
     describe 'accepted_to_backup_path' do
       it 'returns submissions with a backup_submitted_claim_id that have been explicitly accepted' do
         expect(Form526Submission.accepted_to_backup_path).to contain_exactly(
-          accepted_backup
+          accepted_backup,
+          paranoid_success,
+          success_by_age
         )
       end
     end
@@ -198,6 +293,7 @@ RSpec.describe Form526Submission do
           remediated_and_expired,
           remediated_and_rejected,
           happy_path_success,
+          happy_lighthouse_path_success,
           accepted_backup,
           paranoid_success,
           success_by_age
@@ -209,8 +305,21 @@ RSpec.describe Form526Submission do
       it 'returns anything not explicitly successful or still in process' do
         expect(Form526Submission.failure_type).to contain_exactly(
           rejected_backup,
-          no_longer_remediated,
-          expired
+          expired,
+          old_no_longer_remediated,
+          failed_backup,
+          exhausted_backup
+        )
+      end
+
+      it 'handles the edge case where a submission succeeds during query building' do
+        expired.update!(submitted_claim_id: 'abc123')
+
+        expect(Form526Submission.failure_type).to contain_exactly(
+          rejected_backup,
+          old_no_longer_remediated,
+          failed_backup,
+          exhausted_backup
         )
       end
     end
@@ -961,6 +1070,10 @@ RSpec.describe Form526Submission do
 
         it 'queues polling job' do
           expect do
+            form = subject.saved_claim.parsed_form
+            form['startedFormVersion'] = '2022'
+            subject.update(submitted_claim_id: 1)
+            subject.saved_claim.update(form: form.to_json)
             subject.perform_ancillary_jobs(first_name)
           end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
         end
@@ -1345,44 +1458,6 @@ RSpec.describe Form526Submission do
     end
   end
 
-  describe '#eligible_for_ep_merge?' do
-    subject { Form526Submission.create(form_json: File.read(path)).eligible_for_ep_merge? }
-
-    before { Flipper.disable(:disability_526_ep_merge_multi_contention) }
-
-    context 'when there are multiple contentions' do
-      let(:path) { 'spec/support/disability_compensation_form/submissions/only_526_mixed_action_disabilities.json' }
-
-      context 'when multi-contention claims are not eligible' do
-        it { is_expected.to be_falsey }
-      end
-
-      context 'when multi-contention claims are eligible' do
-        before { Flipper.enable(:disability_526_ep_merge_multi_contention) }
-
-        it { is_expected.to be_truthy }
-      end
-    end
-
-    context 'when there is a single new contention' do
-      let(:path) { 'spec/support/disability_compensation_form/submissions/only_526_new_disability.json' }
-
-      context 'when new claims are eligible' do
-        before { Flipper.enable(:disability_526_ep_merge_new_claims) }
-        after { Flipper.disable(:disability_526_ep_merge_new_claims) }
-
-        it { is_expected.to be_truthy }
-      end
-
-      context 'when new claims are not eligible' do
-        before { Flipper.disable(:disability_526_ep_merge_new_claims) }
-        after { Flipper.enable(:disability_526_ep_merge_new_claims) }
-
-        it { is_expected.to be_falsey }
-      end
-    end
-  end
-
   describe '#remediated?' do
     context 'when there are no form526_submission_remediations' do
       it 'returns false' do
@@ -1475,8 +1550,8 @@ RSpec.describe Form526Submission do
         end
       end
 
-      context 'and the record was created more than 3 days ago' do
-        subject { create(:form526_submission, :created_more_than_2_weeks_ago) }
+      context 'and the record was created more than 3 weeks ago' do
+        subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
 
         it 'returns false' do
           expect(subject).not_to be_in_process
@@ -1517,7 +1592,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'when the submission is neither a success type nor in process' do
-      subject { create(:form526_submission, :created_more_than_2_weeks_ago) }
+      subject { create(:form526_submission, :created_more_than_3_weeks_ago) }
 
       it 'returns true' do
         expect(subject).to be_failure_type

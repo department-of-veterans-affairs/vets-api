@@ -6,7 +6,12 @@ module AskVAApi
   module V0
     class StaticDataController < ApplicationController
       skip_before_action :authenticate
-      around_action :handle_exceptions, except: %i[index]
+      around_action :handle_exceptions, except: %i[test_endpoint]
+
+      def test_endpoint
+        data = Crm::Service.new(icn: nil).call(endpoint: params[:endpoint], payload: params[:payload] || {})
+        render json: data.to_json, status: :ok
+      end
 
       def announcements
         get_resource('announcements', user_mock_data: params[:user_mock_data])
@@ -16,6 +21,11 @@ module AskVAApi
       def branch_of_service
         get_resource('branch_of_service', user_mock_data: params[:user_mock_data])
         render_result(@branch_of_service)
+      end
+
+      def contents
+        get_resource('contents', user_mock_data: params[:user_mock_data], type: params[:type])
+        render_result(@contents)
       end
 
       def categories
@@ -69,7 +79,7 @@ module AskVAApi
       end
 
       def mock_service
-        DynamicsMockService.new(icn: nil, logger: nil) if params[:mock]
+        DynamicsMockService.new(icn: nil, logger: nil) if params[:user_mock_data]
       end
 
       def render_result(resource)

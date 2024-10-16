@@ -4,7 +4,7 @@ require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'pensions/tag_sentry'
 require 'pensions/monitor'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 
 module Pensions
   ##
@@ -15,7 +15,9 @@ module Pensions
     include Sidekiq::Job
     include SentryLogging
 
+    ##
     # generic job processing error
+    #
     class PensionBenefitIntakeError < StandardError; end
 
     # tracking id for datadog metrics
@@ -26,6 +28,8 @@ module Pensions
 
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
+
+    # retry exhaustion
     sidekiq_retries_exhausted do |msg|
       pension_monitor = Pensions::Monitor.new
       begin
@@ -48,6 +52,8 @@ module Pensions
     def perform(saved_claim_id, user_account_uuid = nil)
       init(saved_claim_id, user_account_uuid)
 
+      return if form_submission_pending_or_success
+
       # generate and validate claim pdf documents
       @form_path = process_document(@claim.to_pdf)
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
@@ -55,8 +61,9 @@ module Pensions
 
       upload_document
 
-      @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
+
+      send_confirmation_email
 
       @intake_service.uuid
     rescue => e
@@ -92,6 +99,18 @@ module Pensions
     end
 
     ##
+    # Check FormSubmissionAttempts for record with 'pending' or 'success'
+    #
+    # @return true if FormSubmissionAttempt has 'pending' or 'success'
+    # @return false if unable to find a FormSubmission or FormSubmissionAttempt not 'pending' or 'success'
+    #
+    def form_submission_pending_or_success
+      @claim&.form_submissions&.any? do |form_submission|
+        form_submission.non_failure_attempt.present?
+      end || false
+    end
+
+    ##
     # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
     #
     # @param file_path [String] pdf file path
@@ -99,8 +118,8 @@ module Pensions
     # @return [String] path to stamped PDF
     #
     def process_document(file_path)
-      document = CentralMail::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
-      document = CentralMail::DatestampPdf.new(document).run(
+      document = PDFUtilities::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
+      document = PDFUtilities::DatestampPdf.new(document).run(
         text: 'FDC Reviewed - VA.gov Submission',
         x: 429,
         y: 770,
@@ -180,16 +199,23 @@ module Pensions
     end
 
     ##
-    # Delete temporary stamped PDF files for this job instance.
+    # Being VANotify job to send email to veteran
     #
-    # @raise [PensionBenefitIntakeError] if unable to delete file
+    def send_confirmation_email
+      @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
+    rescue => e
+      @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
+    end
+
+    ##
+    # Delete temporary stamped PDF files for this job instance
+    # catches any error, logs but does NOT re-raise - prevent job retry
     #
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
       @pension_monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
-      raise PensionBenefitIntakeError, e.message
     end
   end
 end

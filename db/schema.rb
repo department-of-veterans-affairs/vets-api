@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_14_205528) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
+  enable_extension "fuzzystrmatch"
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
@@ -130,15 +131,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
   end
 
-  create_table "accredited_representative_portal_pilot_representatives", force: :cascade do |t|
-    t.string "ogc_registration_number", null: false
-    t.string "email", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_pilot_representatives_on_email", unique: true
-    t.index ["ogc_registration_number"], name: "index_pilot_representatives_on_ogc_number", unique: true
-  end
-
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -173,6 +165,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.string "lighthouse_upload_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "failure_notification_sent_at"
   end
 
   create_table "appeal_submissions", force: :cascade do |t|
@@ -185,6 +178,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.text "upload_metadata_ciphertext"
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
+    t.datetime "failure_notification_sent_at"
     t.index ["user_account_id"], name: "index_appeal_submissions_on_user_account_id"
   end
 
@@ -681,6 +675,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.boolean "ignored_as_duplicate", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "remediation_type", default: 0
     t.index ["form526_submission_id"], name: "index_form526_submission_remediations_on_form526_submission_id"
   end
 
@@ -742,6 +737,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "benefits_intake_uuid"
+    t.datetime "lighthouse_updated_at"
+    t.text "error_message_ciphertext"
+    t.jsonb "response_ciphertext"
     t.index ["form_submission_id"], name: "index_form_submission_attempts_on_form_submission_id"
   end
 
@@ -836,13 +835,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
     t.index ["user_account_id"], name: "index_in_progress_forms_on_user_account_id"
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
-  end
-
-  create_table "inherited_proof_verified_user_accounts", force: :cascade do |t|
-    t.uuid "user_account_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
   end
 
   create_table "intent_to_file_queue_exhaustions", force: :cascade do |t|
@@ -1041,6 +1033,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.datetime "itf_datetime"
     t.datetime "form_start_date"
     t.datetime "delete_date"
+    t.text "metadata"
+    t.datetime "metadata_updated_at"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
@@ -1122,6 +1116,44 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.datetime "updated"
     t.string "created_by"
     t.string "updated_by"
+  end
+
+  create_table "std_institution_facilities", force: :cascade do |t|
+    t.date "activation_date"
+    t.date "deactivation_date"
+    t.string "name"
+    t.string "station_number"
+    t.string "vista_name"
+    t.integer "agency_id"
+    t.integer "street_country_id"
+    t.string "street_address_line1"
+    t.string "street_address_line2"
+    t.string "street_address_line3"
+    t.string "street_city"
+    t.integer "street_state_id"
+    t.integer "street_county_id"
+    t.string "street_postal_code"
+    t.integer "mailing_country_id"
+    t.string "mailing_address_line1"
+    t.string "mailing_address_line2"
+    t.string "mailing_address_line3"
+    t.string "mailing_city"
+    t.integer "mailing_state_id"
+    t.integer "mailing_county_id"
+    t.string "mailing_postal_code"
+    t.integer "facility_type_id"
+    t.integer "mfn_zeg_recipient"
+    t.integer "parent_id"
+    t.integer "realigned_from_id"
+    t.integer "realigned_to_id"
+    t.integer "visn_id"
+    t.integer "version"
+    t.datetime "created"
+    t.datetime "updated"
+    t.string "created_by"
+    t.string "updated_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "std_states", force: :cascade do |t|
@@ -1274,6 +1306,23 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_account_id", "form_id"], name: "index_in_progress_reminders_sent_user_account_form_id", unique: true
+  end
+
+  create_table "va_notify_notifications", force: :cascade do |t|
+    t.uuid "notification_id", null: false
+    t.text "reference"
+    t.text "to"
+    t.text "status"
+    t.datetime "completed_at"
+    t.datetime "sent_at"
+    t.text "notification_type"
+    t.text "status_reason"
+    t.text "provider"
+    t.text "source_location"
+    t.text "callback"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "metadata"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
@@ -1601,7 +1650,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_183559) do
   add_foreign_key "form_submissions", "user_accounts"
   add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
-  add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
   add_foreign_key "lighthouse526_document_uploads", "form526_submissions"
   add_foreign_key "lighthouse526_document_uploads", "form_attachments"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"

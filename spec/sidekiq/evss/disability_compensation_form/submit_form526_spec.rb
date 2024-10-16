@@ -7,6 +7,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
 
   before do
     Sidekiq::Job.clear_all
+    Flipper.disable(:disability_compensation_fail_submission)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }

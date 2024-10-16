@@ -69,6 +69,10 @@ module Common
         self.class.configuration
       end
 
+      def service_name
+        config.service_name
+      end
+
       def connection
         @connection ||= lambda do
           connection = config.connection
@@ -85,7 +89,7 @@ module Common
 
             raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
           else
-            warn("Breakers is not implemented for service: #{config.service_name}")
+            warn("Breakers is not implemented for service: #{service_name}")
           end
 
           connection
@@ -99,6 +103,7 @@ module Common
       end
 
       def request(method, path, params = {}, headers = {}, options = {}) # rubocop:disable Metrics/MethodLength
+        Datadog::Tracing.active_span&.set_tag('common_client_service', service_name)
         sanitize_headers!(method, path, params, headers)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) do |request|
@@ -111,7 +116,7 @@ module Common
           e.key, e.response_values, e.original_status, e.original_body
         )
       rescue Timeout::Error, Faraday::TimeoutError => e
-        Sentry.set_extras(service_name: config.service_name, url: path)
+        Sentry.set_extras(service_name:, url: path)
         raise Common::Exceptions::GatewayTimeout, e.class.name
       rescue Faraday::ClientError, Faraday::ServerError, Faraday::Error => e
         error_class = case e

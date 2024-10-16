@@ -117,6 +117,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       end
 
       it 'sends a confirmation email' do
+        allow(Settings).to receive(:vsp_environment).and_return('production')
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user_data)

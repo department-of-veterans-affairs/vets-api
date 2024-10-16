@@ -3,7 +3,6 @@
 require 'rx/client'
 
 class RxController < ApplicationController
-  include ActionController::Serialization
   include MHVControllerConcerns
   include JsonApiPaginationLinks
   service_tag 'legacy-mhv'
@@ -11,7 +10,7 @@ class RxController < ApplicationController
   protected
 
   def client
-    @client ||= Rx::Client.new(session: { user_id: current_user.mhv_correlation_id })
+    @client ||= Rx::Client.new(session: { user_id: current_user.mhv_correlation_id }, upstream_request: request)
   end
 
   def authorize

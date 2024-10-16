@@ -83,15 +83,16 @@
             "city": {
               "description": "City for the Veteran's current mailing address.",
               "type": "string",
-              "pattern": "^$|^([-a-zA-Z'.' ])+$",
-              "maxLength": 1000,
-              "example": "Portland"
+              "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+              "minLength": 1,
+              "maxLength": 30,
+              "example": "Schenectady"
             },
             "state": {
               "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
               "type": ["string", "null"],
               "pattern": "^[a-z,A-Z]{2}$",
-              "example": "OR",
+              "example": "NY",
               "nullable": true
             },
             "country": {
@@ -115,10 +116,11 @@
               "nullable": true
             },
             "internationalPostalCode": {
-              "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+              "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
               "type": ["string", "null"],
-              "maxLength": 100,
-              "nullable": true
+              "maxLength": 16,
+              "nullable": true,
+              "pattern": "^[a-zA-Z0-9]*$"
             }
           }
         },
@@ -151,7 +153,7 @@
       }
     },
     "changeOfAddress": {
-      "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+      "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
       "type": ["object", "null"],
       "nullable": true,
       "additionalProperties": false,
@@ -188,15 +190,16 @@
         "city": {
           "description": "City for the Veteran's new address.",
           "type": "string",
-          "pattern": "^$|^([-a-zA-Z'.' ])+$",
-          "maxLength": 1000,
-          "example": "Portland"
+          "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
+          "minLength": 0,
+          "maxLength": 30,
+          "example": "Schenectady"
         },
         "state": {
           "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
           "type": ["string", "null"],
           "pattern": "^$|^[a-z,A-Z]{2}$",
-          "example": "OR",
+          "example": "NY",
           "nullable": true
         },
         "country": {
@@ -220,10 +223,11 @@
           "example": "6789"
         },
         "internationalPostalCode": {
-          "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+          "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
           "type": ["string", "null"],
-          "maxLength": 100,
-          "nullable": true
+          "maxLength": 16,
+          "nullable": true,
+          "pattern": "^[a-zA-Z0-9]*$"
         },
         "dates": {
           "type": "object",
@@ -231,7 +235,8 @@
             "beginDate": {
               "description": "Begin date for the Veteran's new address.",
               "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
-              "type": "string",
+              "type": ["string", "null"],
+              "nullable": true,
               "example": "2018-06-04"
             },
             "endDate": {
@@ -254,11 +259,6 @@
           "type": ["boolean", "null"],
           "nullable": true,
           "description": "Is the Veteran currently homeless?"
-        },
-        "isAtRiskOfBecomingHomeless": {
-          "type": ["boolean", "null"],
-          "nullable": true,
-          "description": "Is the Veteran currently at risk of becoming homeless?"
         },
         "currentlyHomeless": {
           "type": ["object", "null"],
@@ -288,6 +288,11 @@
               "example": "other living situation"
             }
           }
+        },
+        "isAtRiskOfBecomingHomeless": {
+          "type": ["boolean", "null"],
+          "nullable": true,
+          "description": "Is the Veteran currently at risk of becoming homeless?"
         },
         "riskOfBecomingHomeless": {
           "type": ["object", "null"],
@@ -400,7 +405,7 @@
             "otherLocationsServed": {
               "type": ["string", "null"],
               "nullable": true,
-              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+              "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
               "maxLength": 5000,
               "description": "Other location(s) where Veteran served."
             },
@@ -455,7 +460,7 @@
             "specifyOtherExposures": {
               "type": ["string", "null"],
               "nullable": true,
-              "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+              "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
               "maxLength": 5000,
               "description": "Exposure to asbestos."
             },
@@ -501,7 +506,7 @@
               "exposureLocation": {
                 "type": ["string", "null"],
                 "nullable": true,
-                "pattern": "^([-a-zA-Z0-9'.,&# ])+$",
+                "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                 "maxLength": 1000,
                 "description": "Location where the exposure happened."
               },
@@ -543,7 +548,7 @@
           "name": {
             "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
             "type": "string",
-            "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+            "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,#\\[\\] ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
             "example": "PTSD (post traumatic stress disorder)",
             "maxLength": 255
           },
@@ -620,7 +625,7 @@
                 "name": {
                   "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                   "type": "string",
-                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
                   "example": "PTSD (post traumatic stress disorder)",
                   "maxLength": 255
                 },
@@ -680,7 +685,7 @@
             "nullable": true
           },
           "treatedDisabilityNames": {
-            "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
+            "description": "Name(s) of disabilities treated in this time frame.",
             "type": ["array", "null"],
             "nullable": true,
             "maxItems": 101,
@@ -700,16 +705,19 @@
                 "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                 "type": ["string", "null"],
                 "nullable": true,
-                "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                "pattern": "([a-zA-Z0-9\"\/&()\\'-'.,# ]([a-zA-Z0-9()\\'-'.,# ])?)+$",
                 "example": "Private Facility 2",
+                "minLength": 1,
                 "maxLength": 100
               },
               "city": {
                 "description": "City of treatment facility.",
                 "type": ["string", "null"],
-                "pattern": "^$|^([-a-zA-Z0-9'.' ])+$",
+                "pattern": "([a-zA-Z0-9\\-'.# ]([a-zA-Z0-9\\-'.# ])?)+$",
                 "example": "Portland",
-                "nullable": true
+                "nullable": true,
+                "minLength": 0,
+                "maxLength": 30
               },
               "state": {
                 "description": "State of treatment facility.",
@@ -771,13 +779,13 @@
                 "example": "2018-06-06"
               },
               "activeDutyEndDate": {
-                "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
+                "description": "Date completed active duty.",
                 "type": "string",
                 "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                 "example": "2018-06-06"
               },
               "separationLocationCode": {
-                "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                "description": "Location code for the facility the Veteran plans to separate from. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                 "type": ["string", "null"],
                 "nullable": true,
                 "example": "98283"
@@ -864,6 +872,7 @@
           }
         },
         "federalActivation": {
+          "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
           "type": ["object", "null"],
           "nullable": true,
           "additionalProperties": false,

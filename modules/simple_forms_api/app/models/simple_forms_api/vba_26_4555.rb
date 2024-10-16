@@ -1,15 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA264555
-    include Virtus.model(nullify_blank: true)
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
-
+  class VBA264555 < BaseForm
     def as_payload
       {
         remarks: data['remarks'],
@@ -57,7 +49,7 @@ module SimpleFormsApi
       end.compact
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(_timestamp)
       []
     end
 
@@ -122,8 +114,8 @@ module SimpleFormsApi
           last: full_name['last']&.[](0..29),
           suffix: full_name['suffix']
         },
-        homePhone: data.dig('veteran', 'home_phone'),
-        mobilePhone: data.dig('veteran', 'mobile_phone'),
+        homePhone: data.dig('veteran', 'home_phone')&.tr('-', ''),
+        mobilePhone: data.dig('veteran', 'mobile_phone')&.tr('-', ''),
         email: data.dig('veteran', 'email'),
         dateOfBirth: data.dig('veteran', 'date_of_birth')
       }
