@@ -11,7 +11,7 @@ module CentralMail
   class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job
     POLLING_FLIPPER_KEY = :disability_526_form4142_polling_records
 
-    FORM4142_FORMSUBMISSION_TYPE = "#{Form526Submission::FORM_526}_#{Form526Submission::FORM_4142}"
+    FORM4142_FORMSUBMISSION_TYPE = "#{Form526Submission::FORM_526}_#{Form526Submission::FORM_4142}".freeze
     extend Logging::ThirdPartyTransaction::MethodWrapper
 
     # this is required to make instance variables available to logs via
@@ -152,7 +152,7 @@ module CentralMail
       payload = payload_hash(lighthouse_service.location)
       lighthouse_service.upload_doc(**payload)
 
-      log_info = { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id}
+      log_info = { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id }
 
       if Flipper.enabled?(POLLING_FLIPPER_KEY)
         form526_submission = Form526Submission.find(@submission_id)

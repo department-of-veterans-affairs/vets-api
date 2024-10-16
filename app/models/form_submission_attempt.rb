@@ -25,17 +25,17 @@ class FormSubmissionAttempt < ApplicationRecord
 
     event :fail do
       after do
-        Rails.logger.info({
-                            message: 'Preparing to send Form Submission Attempt error email',
-                            form_submission_id:,
-                            benefits_intake_uuid: form_submission&.benefits_intake_uuid,
-                            form_type: form_submission&.form_type
-                          })
-        is_form526_form4142 = form_type == CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE
+        log_info = { form_submission_id:,
+                     benefits_intake_uuid: form_submission&.benefits_intake_uuid,
+                     form_type: form_submission&.form_type }
+        Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
+        is_form526_form4142 = form_submission.form_type == CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE
         if Flipper.enabled?(:simple_forms_email_notifications) && !is_form526_form4142
-          enqueue_result_email(:error) 
+          enqueue_result_email(:error)
         elsif Flipper.enabled?(:form526_send_4142_failure_notification) && is_form526_form4142
-          EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(Form526Submission.find_by(saved_claim_id:).id)
+          Rails.logger.info('Sending Form526:Form4142 failure email', log_info)
+          jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(Form526Submission.find_by(saved_claim_id:).id)
+          Rails.logger.info('Sent Form526:Form4142 failure email', log_info.merge({ jid: }))
         end
       end
 
