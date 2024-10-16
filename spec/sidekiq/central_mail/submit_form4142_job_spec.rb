@@ -204,7 +204,8 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           end.to change(subject.jobs, :size).by(1)
         end
 
-        it 'Creates a form 4142 submission polling record' do
+        it 'Creates a form 4142 submission polling record, when enabled' do
+          Flipper.enable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
           expect do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
               VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
@@ -212,11 +213,12 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
                 described_class.drain
               end
             end
-          end.to change(Form4142StatusPollingRecord, :count).by(1)
-          record = Form4142StatusPollingRecord.last
-          expect(record.submission_id).to eq(submission.id)
-          expect(record.status).to eq('pending')
-          expect(record.submission_class).to eq('Form526Submission')
+          end.to change(FormSubmission, :count).by(1)
+          .and change(FormSubmissionAttempt, :count).by(1)
+          fs_record = FormSubmission.last      
+          fs_attempt_record = FormSubmissionAttempt.last
+          expect(Form526Submission.find_by(saved_claim_id: fs_record.saved_claim_id).id).to eq(submission.id)
+          expect(fs_attempt_record.state).to eq('pending')
         end
 
         it 'submits successfully' do

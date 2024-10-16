@@ -152,23 +152,21 @@ module CentralMail
       payload = payload_hash(lighthouse_service.location)
       lighthouse_service.upload_doc(**payload)
 
+      log_info = { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id}
+
       if Flipper.enabled?(POLLING_FLIPPER_KEY)
         form526_submission = Form526Submission.find(@submission_id)
         form_submission    = FormSubmission.create(
           form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
           benefits_intake_uuid: lighthouse_service.uuid,
-          form_data: {}, # maybe?
+          form_data: '{}', # we have this already in the Form526Submission.form['form526']['form526']['form4142'], dont know we need to duplicate here?
           user_account: form526_submission.user_account,
           saved_claim: form526_submission.saved_claim
         )
         FormSubmissionAttempt.create(form_submission:)
+        log_info[:form_submission_id] = form_submission.id
       end
-
-      Rails.logger.info(
-        'Successful Form4142 Submission to Lighthouse',
-        { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id,
-          polling_record_id: polling_record.id }
-      )
+      Rails.logger.info('Successful Form4142 Submission to Lighthouse', log_info)
     end
 
     def generate_metadata
