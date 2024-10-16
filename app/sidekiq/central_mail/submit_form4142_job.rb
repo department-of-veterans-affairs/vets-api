@@ -11,6 +11,7 @@ module CentralMail
   class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job
     POLLING_FLIPPER_KEY = :disability_526_form4142_polling_records
 
+    FORM4142_FORMSUBMISSION_TYPE = "#{Form526Submission::FORM_526}_#{Form526Submission::FORM_4142}"
     extend Logging::ThirdPartyTransaction::MethodWrapper
 
     # this is required to make instance variables available to logs via
@@ -152,12 +153,15 @@ module CentralMail
       lighthouse_service.upload_doc(**payload)
 
       if Flipper.enabled?(POLLING_FLIPPER_KEY)
-        polling_record = Form4142StatusPollingRecord.new(
-          submission_id:,
-          submission_class: Form526Submission.class_name,
-          benefits_intake_uuid: lighthouse_service.uuid
+        form526_submission = Form526Submission.find(@submission_id)
+        form_submission    = FormSubmission.create(
+          form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
+          benefits_intake_uuid: lighthouse_service.uuid,
+          form_data: {}, # maybe?
+          user_account: form526_submission.user_account,
+          saved_claim: form526_submission.saved_claim
         )
-        polling_record.save!
+        FormSubmissionAttempt.create(form_submission:)
       end
 
       Rails.logger.info(

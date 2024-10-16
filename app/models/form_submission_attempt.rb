@@ -31,7 +31,12 @@ class FormSubmissionAttempt < ApplicationRecord
                             benefits_intake_uuid: form_submission&.benefits_intake_uuid,
                             form_type: form_submission&.form_type
                           })
-        enqueue_result_email(:error) if Flipper.enabled?(:simple_forms_email_notifications)
+        is_form526_form4142 = form_type == CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE
+        if Flipper.enabled?(:simple_forms_email_notifications) && !is_form526_form4142
+          enqueue_result_email(:error) 
+        elsif Flipper.enabled?(:form526_send_4142_failure_notification) && is_form526_form4142
+          EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(Form526Submission.find_by(saved_claim_id:).id)
+        end
       end
 
       transitions from: :pending, to: :failure
