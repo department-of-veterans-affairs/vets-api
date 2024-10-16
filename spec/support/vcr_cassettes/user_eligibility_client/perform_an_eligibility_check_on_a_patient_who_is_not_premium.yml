@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       X-Api-Key:
-      - "<MHV_MR_X_API_KEY>"
+      - "<MHV_X_API_KEY>"
       Apptoken:
       - "<APP_TOKEN>"
       Accept-Encoding:

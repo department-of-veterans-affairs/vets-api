@@ -27,7 +27,7 @@ module UserEligibility
     #
     def x_headers
       base_request_headers.merge({
-                                   'x-api-key': Settings.mhv.medical_records.x_api_key,
+                                   'x-api-key': Settings.mhv.medical_records.mhv_x_api_key,
                                    appToken: Settings.mhv.rx.app_token
                                  })
     end
