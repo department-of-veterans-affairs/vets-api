@@ -67,7 +67,7 @@ module ClaimsApi
       raise e
     end
 
-    def upload_document(claim_id:, doc_type_name:, body:)
+    def upload_document(identifier:, doc_type_name:, body:)
       @multipart = true
       res = client.post('documents', body)&.body
 

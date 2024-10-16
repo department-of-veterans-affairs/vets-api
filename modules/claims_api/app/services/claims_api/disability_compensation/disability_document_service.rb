@@ -29,13 +29,14 @@ module ClaimsApi
                                             auth_headers['va_eauth_lastName'])
         birls_file_number = auth_headers['va_eauth_birlsfilenumber']
         claim_id = claim.evss_id
+        participant_id = nil
         form_name = doc_type == 'L122' ? '526EZ' : 'supporting'
         file_name = generate_file_name(veteran_name:, claim_id:, form_name:, original_filename:)
         system_name = 'VA.gov'
         tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
 
         generate_upload_body(claim_id:, system_name:, doc_type:, pdf_path:, file_name:, birls_file_number:,
-                             participant_id: nil, tracked_item_ids:)
+                             participant_id:, tracked_item_ids:)
       end
 
       def generate_file_name(veteran_name:, claim_id:, form_name:, original_filename:)
