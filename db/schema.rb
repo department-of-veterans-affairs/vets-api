@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_25_160219) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_16_161743) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -165,6 +165,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_25_160219) do
     t.string "lighthouse_upload_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "failure_notification_sent_at"
   end
 
   create_table "appeal_submissions", force: :cascade do |t|
@@ -177,6 +178,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_25_160219) do
     t.text "upload_metadata_ciphertext"
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
+    t.datetime "failure_notification_sent_at"
     t.index ["user_account_id"], name: "index_appeal_submissions_on_user_account_id"
   end
 
@@ -589,6 +591,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_25_160219) do
     t.string "tracked_item_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "job_class"
     t.index ["user_account_id"], name: "index_evidence_submissions_on_user_account_id"
   end
 
@@ -688,6 +691,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_25_160219) do
     t.boolean "ignored_as_duplicate", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "remediation_type", default: 0
     t.index ["form526_submission_id"], name: "index_form526_submission_remediations_on_form526_submission_id"
   end
 
@@ -1318,6 +1322,23 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_25_160219) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_account_id", "form_id"], name: "index_in_progress_reminders_sent_user_account_form_id", unique: true
+  end
+
+  create_table "va_notify_notifications", force: :cascade do |t|
+    t.uuid "notification_id", null: false
+    t.text "reference"
+    t.text "to"
+    t.text "status"
+    t.datetime "completed_at"
+    t.datetime "sent_at"
+    t.text "notification_type"
+    t.text "status_reason"
+    t.text "provider"
+    t.text "source_location"
+    t.text "callback"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "metadata"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
