@@ -207,23 +207,12 @@ RSpec.describe Login::AfterLoginActions do
       end
     end
 
-    context 'when creating an MHV account' do
+    context 'creating an MHV account' do
       let(:user) { create(:user, idme_uuid:) }
       let!(:user_verification) { create(:idme_user_verification, idme_uuid:) }
       let(:idme_uuid) { 'some-idme-uuid' }
 
-      context 'when mhv account_creation create_after_login is enabled' do
-        before do
-          allow(Settings.mhv.account_creation).to receive(:create_after_login).and_return(true)
-        end
-
-        it 'enqueues an MHV::AccountCreatorJob' do
-          expect(MHV::AccountCreatorJob).to receive(:perform_async).with(user.user_verification.id)
-          described_class.new(user).perform
-        end
-      end
-
-      context 'when mhv account_creation create_after_login is disabled' do
+      shared_examples 'and when mhv account_creation create_after_login is disabled' do
         before do
           allow(Settings.mhv.account_creation).to receive(:create_after_login).and_return(false)
         end
@@ -232,6 +221,44 @@ RSpec.describe Login::AfterLoginActions do
           expect(MHV::AccountCreatorJob).not_to receive(:perform_async)
           described_class.new(user).perform
         end
+      end
+
+      context 'with mhv_account_creation_api flag enabled' do
+        before do
+          Flipper.enable :mhv_account_creation_api
+        end
+
+        context 'and when mhv account_creation create_after_login is enabled' do
+          before do
+            allow(Settings.mhv.account_creation).to receive(:create_after_login).and_return(true)
+          end
+
+          it 'enqueues an MHV::AccountCreatorJob' do
+            expect(MHV::AccountCreatorJob).to receive(:perform_async).with(user.user_verification.id)
+            described_class.new(user).perform
+          end
+        end
+
+        it_behaves_like 'and when mhv account_creation create_after_login is disabled'
+      end
+
+      context 'with mhv_account_creation_api flag is disabled' do
+        before do
+          Flipper.disable :mhv_account_creation_api
+        end
+
+        context 'and when mhv account_creation create_after_login is enabled' do
+          before do
+            allow(Settings.mhv.account_creation).to receive(:create_after_login).and_return(true)
+          end
+
+          it 'does not enqueue an MHV::AccountCreatorJob' do
+            expect(MHV::AccountCreatorJob).not_to receive(:perform_async)
+            described_class.new(user).perform
+          end
+        end
+
+        it_behaves_like 'and when mhv account_creation create_after_login is disabled'
       end
     end
   end
