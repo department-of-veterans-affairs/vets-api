@@ -58,12 +58,7 @@ module SimpleFormsApi
       check_missing_keys(config)
 
       @form_data = config[:form_data]
-      incoming_form_number = config[:form_number]
-      @form_number = if TEMPLATE_IDS.keys.include?(incoming_form_number)
-                       incoming_form_number
-                     else
-                       SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[incoming_form_number]
-                     end
+      @form_number = config[:form_number]
       @confirmation_number = config[:confirmation_number]
       @date_submitted = config[:date_submitted]
       @lighthouse_updated_at = config[:lighthouse_updated_at]
