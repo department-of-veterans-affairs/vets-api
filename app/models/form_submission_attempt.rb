@@ -33,8 +33,9 @@ class FormSubmissionAttempt < ApplicationRecord
         if Flipper.enabled?(:simple_forms_email_notifications) && !is_form526_form4142
           enqueue_result_email(:error)
         elsif Flipper.enabled?(:form526_send_4142_failure_notification) && is_form526_form4142
-          Rails.logger.info('Sending Form526:Form4142 failure email', log_info)
-          jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(Form526Submission.find_by(saved_claim_id:).id)
+          form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
+          Rails.logger.info('Sending Form526:Form4142 failure email', log_info.merge({ form526_submission_id: }))
+          jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(form526_submission_id)
           Rails.logger.info('Sent Form526:Form4142 failure email', log_info.merge({ jid: }))
         end
       end
