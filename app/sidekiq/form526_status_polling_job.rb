@@ -7,6 +7,8 @@ class Form526StatusPollingJob
   sidekiq_options retry: false
 
   STATS_KEY = 'api.benefits_intake.submission_status'
+  # tagging for 'zero silent failure' initative
+  # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/274bea7fb835e51626259ac16b32c33ab0b2088a/platform/practices/zero-silent-failures/logging-silent-failures.md#capture-silent-failures-state
   MAX_BATCH_SIZE = 1000
   attr_reader :max_batch_size
 
@@ -53,6 +55,7 @@ class Form526StatusPollingJob
     if %w[error expired].include? status
       log_result('failure')
       form_submission.rejected!
+      notify_veteran(form_submission.id)
     elsif status == 'vbms'
       log_result('true_success')
       form_submission.accepted!
@@ -71,5 +74,12 @@ class Form526StatusPollingJob
   def log_result(result)
     StatsD.increment("#{STATS_KEY}.526.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
+  end
+
+  def notify_veteran(submission_id)
+    if Flipper.enabled?(:send_backup_submission_polling_failure_email_notice)
+      Form526SubmissionFailureEmailJob
+        .perform_async(form526_submission_id: submission_id)
+    end
   end
 end

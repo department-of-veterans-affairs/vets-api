@@ -149,7 +149,6 @@ RSpec.describe Form526StatusPollingJob, type: :job do
         end
 
         it 'enqueues a failure notification email job' do
-          tags = described_class::DD_ZSF_TAGS
           pending_claim_ids = Form526Submission.pending_backup.pluck(:backup_submitted_claim_id)
 
           response = double
@@ -160,14 +159,14 @@ RSpec.describe Form526StatusPollingJob, type: :job do
             .and_return(response)
 
           expect(Form526SubmissionFailureEmailJob)
-            .not_to receive(:perform_async).with({ form526_submission_id: backup_submission_a.id, tags: })
+            .not_to receive(:perform_async).with({ form526_submission_id: backup_submission_a.id })
           expect(Form526SubmissionFailureEmailJob)
-            .not_to receive(:perform_async).with({ form526_submission_id: backup_submission_b.id, tags: })
+            .not_to receive(:perform_async).with({ form526_submission_id: backup_submission_b.id })
 
           expect(Form526SubmissionFailureEmailJob)
-            .to receive(:perform_async).once.ordered.with({ form526_submission_id: backup_submission_c.id, tags: })
+            .to receive(:perform_async).once.ordered.with({ form526_submission_id: backup_submission_c.id })
           expect(Form526SubmissionFailureEmailJob)
-            .to receive(:perform_async).once.ordered.with({ form526_submission_id: backup_submission_d.id, tags: })
+            .to receive(:perform_async).once.ordered.with({ form526_submission_id: backup_submission_d.id })
 
           Form526StatusPollingJob.new.perform
         end

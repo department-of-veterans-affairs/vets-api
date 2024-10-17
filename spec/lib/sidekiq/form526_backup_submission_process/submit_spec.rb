@@ -62,10 +62,9 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
       it 'remediates the submission via an email notification' do
         args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
-        tags = described_class::DD_ZSF_TAGS
         subject.within_sidekiq_retries_exhausted_block(args) do
           expect(Form526SubmissionFailureEmailJob)
-            .to receive(:perform_async).with(form526_submission_id: form526_submission.id, tags:)
+            .to receive(:perform_async).with(form526_submission_id: form526_submission.id)
         end
       end
     end
