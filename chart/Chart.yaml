@@ -101,7 +101,8 @@ type: application
 # 0.13.5  - Fix bulkhead env var field value not supported
 # 0.14.0  - Update HPA to only account for available replicas
 # 0.14.1  - Allow scaleUp/scaleDown to fallback to default
-version: 0.14.1
+# 0.15.0  - Inject normalized parameter store approach
+version: 0.15.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
