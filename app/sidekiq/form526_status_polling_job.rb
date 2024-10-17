@@ -7,8 +7,6 @@ class Form526StatusPollingJob
   sidekiq_options retry: false
 
   STATS_KEY = 'api.benefits_intake.submission_status'
-  # tagging for 'zero silent failure' initative
-  # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/274bea7fb835e51626259ac16b32c33ab0b2088a/platform/practices/zero-silent-failures/logging-silent-failures.md#capture-silent-failures-state
   MAX_BATCH_SIZE = 1000
   attr_reader :max_batch_size
 
