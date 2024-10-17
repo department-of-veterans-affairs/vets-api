@@ -4,16 +4,18 @@ module MyHealth
   module V1
     module MedicalRecords
       class ImagingController < MrController
+        REPORT_HEADERS = %w[Content-Type Content-Disposition].freeze
+
         def index
           resource = bb_client.list_imaging_studies
           render json: resource.to_json
         end
 
-        # def request_study
-        #   study_id = params[:id].try(:to_s)
-        #   resource = bb_client.list_images(current_user.icn, study_id)
-        #   render json: resource.to_json
-        # end
+        def request
+          study_id = params[:id].try(:to_s)
+          resource = bb_client.request_study(current_user.icn, study_id)
+          render json: resource.to_json
+        end
 
         def images
           study_id = params[:id].try(:to_s)
@@ -21,15 +23,14 @@ module MyHealth
           render json: resource.to_json
         end
 
-        def dicom
-          header_callback = lambda do |headers|
-            headers.each do |k, v|
-              request[k] = v if REPORT_HEADERS.include? k
-            end
-          end
+        def image
+          study_id = params[:id].to_s
+          series_id = params[:series_id].to_s
+          image_id = params[:image_id].to_s
+          response.headers['Content-Type'] = 'image/jpeg'
           begin
             chunk_stream = Enumerator.new do |stream|
-              bb_client.dicom(header_callback, stream)
+              bb_client.get_image(study_id, series_id, image_id, header_callback, stream)
             end
             chunk_stream.each { |c| response.stream.write c }
           ensure
@@ -37,11 +38,16 @@ module MyHealth
           end
         end
 
-        def img
-          response.headers['Content-Type'] = 'image/jpeg'
+        def dicom
+          study_id = params[:id].try(:to_s)
+          header_callback = lambda do |headers|
+            headers.each do |k, v|
+              request[k] = v if REPORT_HEADERS.include? k
+            end
+          end
           begin
             chunk_stream = Enumerator.new do |stream|
-              bb_client.get_image(nil, stream)
+              bb_client.get_dicom(study_id, header_callback, stream)
             end
             chunk_stream.each { |c| response.stream.write c }
           ensure
