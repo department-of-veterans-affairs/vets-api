@@ -1,9 +1,9 @@
 common:
-   - michael.hobson@adhocteam.us
-   - michel.mcdonald@adhocteam.us
-   - kristen.brown@adhocteam.us
-   - matt.kelly@adhocteam.us
-   - gia.antoniades@adhocteam.us
+  - gia.antoniades@adhocteam.us
+  - kristen.brown@adhocteam.us
+  - matt.kelly@adhocteam.us
+  - michael.hobson@adhocteam.us
+  - michel.mcdonald@adhocteam.us
 development:
 staging:
 sandbox:
