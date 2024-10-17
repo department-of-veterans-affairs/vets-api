@@ -21,6 +21,10 @@ class Form526SubmissionRemediation < ApplicationRecord
     end
   end
 
+  def ignored_as_duplicate?
+    remediation_type == 'ignored_as_duplicate'
+  end
+
   private
 
   def initialize_lifecycle
@@ -32,7 +36,7 @@ class Form526SubmissionRemediation < ApplicationRecord
   end
 
   def ensure_success_if_ignored_as_duplicate
-    errors.add(:success, 'must be true if ignored as duplicate') if ignored_as_duplicate && !success
+    errors.add(:success, 'must be true if ignored as duplicate') if ignored_as_duplicate? && !success
   end
 
   def log_to_datadog(context)
