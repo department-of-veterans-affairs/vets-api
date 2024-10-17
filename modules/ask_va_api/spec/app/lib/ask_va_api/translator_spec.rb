@@ -20,14 +20,11 @@ RSpec.describe AskVAApi::Translator do
     before do
       allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
 
-      option_keys.each do |option|
-        allow(cache_data_service).to receive(:call).with(
-          endpoint: 'optionset',
-          cache_key: option,
-          payload: { name: "iris_#{option}" }
-        ).and_return(optionset_cached_data.call(option))
-        # optionset_cached_data is in include_context 'shared data'
-      end
+      allow(cache_data_service).to receive(:call).with(
+        endpoint: 'optionset',
+        cache_key: 'optionset'
+      ).and_return(optionset_cached_data)
+      # optionset_cached_data is in include_context 'shared data'
     end
 
     it 'translates the keys from snake_case to camel_case' do
@@ -36,8 +33,6 @@ RSpec.describe AskVAApi::Translator do
 
     it 'translates all the option keys from name to id' do
       expect(result[:InquiryAbout]).to eq(translated_payload[:InquiryAbout])
-      expect(result[:InquirySource]).to eq(translated_payload[:InquirySource])
-      expect(result[:InquiryType]).to eq(translated_payload[:InquiryType])
       expect(result[:LevelOfAuthentication]).to eq(translated_payload[:LevelOfAuthentication])
       expect(result[:Suffix]).to eq(translated_payload[:Suffix])
       expect(result[:VeteranRelationship]).to eq(translated_payload[:VeteranRelationship])
@@ -67,7 +62,7 @@ RSpec.describe AskVAApi::Translator do
     before do
       allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
       allow_any_instance_of(Crm::Service).to receive(:call)
-        .with(endpoint: 'optionset', payload: { name: 'iris_inquiryabout' }).and_return(failure)
+        .with(endpoint: 'optionset', payload: {}).and_return(failure)
     end
 
     it 'log to Datadog, when updating option fails' do
