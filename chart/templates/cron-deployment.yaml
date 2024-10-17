@@ -43,7 +43,7 @@ spec:
                 - name: {{ $key }}
                   valueFrom:
                     secretKeyRef:
-                      name: common_environment_vars
+                      name: common-environment-vars
                       key: {{ $key }}
               {{- end }}
           restartPolicy: OnFailure
