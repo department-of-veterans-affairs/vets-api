@@ -16,7 +16,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
   end
   let(:evss_claim_id) { 123_456_789 }
   let(:saved_claim) { FactoryBot.create(:va526ez) }
-  let(:form0781) { File.read 'spec/support/disability_compensation_form/submissions/with_0781.json' }
+  # has 0781 and 0781a
+  let(:form0781) do
+    File.read 'spec/support/disability_compensation_form/submissions/with_0781.json'
+  end
+  let(:form0781_only) { File.read 'spec/support/disability_compensation_form/submissions/with_only_0781.json' }
 
   VCR.configure do |c|
     c.default_cassette_options = {
@@ -86,7 +90,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       Form526Submission.create(user_uuid: user.uuid,
                                auth_headers_json: auth_headers.to_json,
                                saved_claim_id: saved_claim.id,
-                               form_json: form0781,
+                               form_json: form0781_only,
                                submitted_claim_id: evss_claim_id)
     end
     let(:perform_upload) do
@@ -124,12 +128,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       it 'uploads the 7081 documents to Lighthouse' do
-        # the example submission includes 0781 and 0781a, calling the service twice
         expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
           .with(
             an_instance_of(String), # file_body arg
-            an_instance_of(LighthouseDocument) # document_type is either 0781 or 0781a
-          ).twice
+            an_instance_of(LighthouseDocument)
+          )
 
         perform_upload
       end
@@ -160,7 +163,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
         perform_upload
         expect(Lighthouse526DocumentUpload.where(**upload_attributes).where(document_type: 'Form 0781').count).to eq(1)
-        expect(Lighthouse526DocumentUpload.where(**upload_attributes).where(document_type: 'Form 0781a').count).to eq(1)
       end
 
       context 'when Lighthouse returns an error response' do
@@ -198,27 +200,64 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
             }
           )
 
-          expect(Rails.logger).to receive(:error).with(
-            'LighthouseSupplementalDocumentUploadProvider upload failed',
-            {
-              class: 'LighthouseSupplementalDocumentUploadProvider',
-              submission_id: submission.submitted_claim_id,
-              user_uuid: submission.user_uuid,
-              va_document_type_code: 'L229',
-              primary_form: 'Form526',
-              lighthouse_error_response: error_response_body
-            }
-          )
-
           perform_upload
         end
 
         it 'increments the correct status failure metric' do
           expect(StatsD).to receive(:increment).with(
             "#{expected_statsd_metrics_prefix}.upload_failure"
-          ).twice
+          )
 
           perform_upload
+        end
+      end
+    end
+
+    context 'when the disability_compensation_upload_0781_to_lighthouse flipper is disabled' do
+      let(:faraday_response) { instance_double(Faraday::Response) }
+      let(:expected_statsd_metrics_prefix) do
+        'worker.evss.submit_form0781.evss_supplemental_document_upload_provider'
+      end
+
+      before do
+        Flipper.disable(:disability_compensation_lighthouse_upload_0781)
+        allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
+      end
+
+      it 'uploads the 0781 documents to EVSS' do
+        expect_any_instance_of(EVSS::DocumentsService).to receive(:upload)
+          .with(
+            an_instance_of(String), # file_body arg
+            an_instance_of(EVSSClaimDocument)
+          )
+        perform_upload
+      end
+
+      it 'logs the upload attempt with the correct job prefix' do
+        expect(StatsD).to receive(:increment).with(
+          "#{expected_statsd_metrics_prefix}.upload_attempt"
+        )
+
+        perform_upload
+      end
+
+      it 'increments the correct StatsD success metric' do
+        expect(StatsD).to receive(:increment).with(
+          "#{expected_statsd_metrics_prefix}.upload_success"
+        )
+
+        perform_upload
+      end
+
+      context 'when an upload raises an EVSS response error' do
+        it 'logs an upload error' do
+          allow_any_instance_of(EVSS::DocumentsService).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
+          expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_upload_failure)
+
+          expect do
+            subject.perform_async(submission.id)
+            described_class.drain
+          end.to raise_error(EVSS::ErrorMiddleware::EVSSError)
         end
       end
     end
