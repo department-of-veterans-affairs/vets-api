@@ -15,6 +15,8 @@ class AppealSubmission < ApplicationRecord
 
   has_many :appeal_submission_uploads, dependent: :destroy
 
+  scope :failure_not_sent, -> { where(failure_notification_sent_at: nil).order(id: :asc) }
+
   def self.submit_nod(request_body_hash:, current_user:, decision_review_service: nil)
     ActiveRecord::Base.transaction do
       raise 'Must pass in a version of the DecisionReview Service' if decision_review_service.nil?
@@ -51,5 +53,27 @@ class AppealSubmission < ApplicationRecord
                                            appeal_submission_id: id)
       DecisionReview::SubmitUpload.perform_async(asu.id)
     end
+  end
+
+  def current_email
+    va_profile = ::VAProfile::ContactInformation::Service.get_person(mpi_profile.vet360_id.to_s)&.person
+    raise 'Failed to fetch VA profile' if va_profile.nil?
+
+    current_emails = va_profile.emails.select { |email| email.effective_end_date.nil? }
+    current_emails.first&.email_address || raise('Failed to retrieve email')
+  end
+
+  def mpi_profile
+    mpi_profile = get_mpi_profile(user_uuid)
+
+    service = ::MPI::Service.new
+
+    idme = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')
+    logingov = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'logingov')
+
+    response = idme_profile || logingov_profile
+    raise 'Failed to fetch MPI profile' if response.nil?
+
+    response&.profile
   end
 end

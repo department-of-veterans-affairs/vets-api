@@ -9,4 +9,13 @@ class AppealSubmissionUpload < ApplicationRecord
           foreign_key: 'guid',
           class_name: 'DecisionReviewEvidenceAttachment',
           inverse_of: :appeal_submission_upload, dependent: :nullify
+
+  scope :failure_not_sent, -> { where(failure_notification_sent_at: nil).order(id: :asc) }
+
+  def attachment_filename
+    form_attachment = FormAttachment.find_by(guid: decision_review_evidence_attachment_guid)
+    raise "FormAttachment guid='#{guid}' not found" if form_attachment.nil?
+
+    JSON.parse(form_attachment.file_data)['filename'].gsub(/(?<=.{3})[^_-](?=.{6})/, '*')
+  end
 end
