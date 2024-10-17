@@ -203,16 +203,14 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       context 'request with attached documents' do
         let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
-        let(:attachment) { double }
         let(:lighthouse_service) { double }
         let(:confirmation_number) { 'some_confirmation_number' }
 
         before do
           sign_in
-          allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-          allow(PersistentAttachment).to(
-            receive(:where).with(guid: [a_string_matching(/a-random-uuid/)]).and_return([attachment])
-          )
+          allow(PersistentAttachment).to receive(:where) do |args|
+            args[:guid].map { instance_double(PersistentAttachment, to_pdf: pdf_path) }
+          end
         end
 
         shared_examples 'submits successfully' do |form_doc|
