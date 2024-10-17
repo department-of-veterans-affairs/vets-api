@@ -29,14 +29,18 @@ class FormSubmissionAttempt < ApplicationRecord
                      benefits_intake_uuid: form_submission&.benefits_intake_uuid,
                      form_type: form_submission&.form_type }
         if should_send_simple_forms_email
-          Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)            
+          Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
           simple_forms_enqueue_result_email(:error)
-        else should_send_form526_form4142_email          
+        else
+          # Do not love hard coding this in here like this.
+          # Hoping to refactor this at somepoint to better support various emailing on arbitrary or inherited classes
+          should_send_form526_form4142_email
           form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
-          Rails.logger.info('Sending Form526:Form4142 failure email', log_info.merge({ form526_submission_id: }))
-          jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(form526_submission_id)
-          Rails.logger.info('Sent Form526:Form4142 failure email', log_info.merge({ jid: }))
-        end                                   
+          Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
+                            log_info.merge({ form526_submission_id: }))
+          jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async form526_submission_id
+          Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify completed', log_info.merge({ jid: }))
+        end
       end
 
       transitions from: :pending, to: :failure
@@ -89,7 +93,9 @@ class FormSubmissionAttempt < ApplicationRecord
 
   def should_send_form526_form4142_email
     email_klass = CentralMail::SubmitForm4142Job
-    form_submission.form_type == email_klass::FORM4142_FORMSUBMISSION_TYPE && Flipper.enabled?(email_klass::POLLED_FAILURE_EMAIL)
+    email_klass_form_type = email_klass::FORM4142_FORMSUBMISSION_TYPE
+    email_klass_polled_failure_email_enabled = Flipper.enabled?(email_klass::POLLED_FAILURE_EMAIL)
+    form_submission.form_type == email_klass_form_type && email_klass_polled_failure_email_enabled
   end
 
   def simple_forms_enqueue_result_email(notification_type)

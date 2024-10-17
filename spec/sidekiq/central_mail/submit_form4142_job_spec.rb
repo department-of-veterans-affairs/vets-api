@@ -230,8 +230,8 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
                 described_class.drain
               end
             end
-          end.to change(FormSubmission, :count).by(0)
-                                               .and change(FormSubmissionAttempt, :count).by(0)
+          end.not.to change(FormSubmission, :count)
+            .and.not_to change(FormSubmissionAttempt, :count)
         end
 
         it 'submits successfully' do

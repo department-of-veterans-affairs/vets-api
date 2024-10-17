@@ -13,7 +13,6 @@ module CentralMail
     POLLING_FLIPPER_KEY = :disability_526_form4142_polling_records
     POLLED_FAILURE_EMAIL = :disability_526_form4142_polling_record_failure_email
 
-
     FORM4142_FORMSUBMISSION_TYPE = "#{Form526Submission::FORM_526}_#{Form526Submission::FORM_4142}".freeze
     extend Logging::ThirdPartyTransaction::MethodWrapper
 
@@ -162,7 +161,7 @@ module CentralMail
         form_submission    = FormSubmission.create(
           form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
           benefits_intake_uuid: lighthouse_service.uuid,
-          form_data: '{}', # we have this already in the Form526Submission.form['form526']['form526']['form4142'], dont know we need to duplicate here?
+          form_data: '{}', # we have this already in the Form526Submission.form['form526']['form526']['form4142']
           user_account: form526_submission.user_account,
           saved_claim: form526_submission.saved_claim
         )
