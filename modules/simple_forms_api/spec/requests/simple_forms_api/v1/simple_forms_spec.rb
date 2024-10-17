@@ -31,13 +31,20 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   ]
   authenticated_forms = forms - unauthenticated_forms
 
+  let(:presigned_s3_url) { 'https://s3.com/presigned-goodness' }
+  let(:mock_s3_client) { instance_double(SimpleFormsApi::FormRemediation::S3Client) }
+
+  before do
+    allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:new).and_return(mock_s3_client)
+    allow(mock_s3_client).to receive(:upload).and_return(presigned_s3_url)
+    allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+  end
+
   describe '#submit' do
     context 'going to Lighthouse Benefits Intake API' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
       let(:random_string) { 'some-unique-simple-forms-file-seed' }
-      let(:presigned_s3_url) { 'https://s3.com/presigned-goodness' }
-      let(:mock_archiver) { instance_double(SimpleFormsApi::S3::SubmissionArchiver, upload: presigned_s3_url) }
 
       before do
         VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
@@ -46,7 +53,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
           original_method.call(args[0], random_string)
         end
-        allow(SimpleFormsApi::S3::SubmissionArchiver).to receive(:new).with(anything).and_return(mock_archiver)
         Flipper.disable(:simple_forms_email_confirmations)
       end
 
@@ -118,7 +124,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             end.to change(InProgressForm, :count).by(-1)
           end
 
-          it 'sends the PDF to the SubmissionArchiver' do
+          it 'sends the PDF to the S3 bucket' do
             location_url = 'https://sandbox-api.va.gov/services_user_content/vba_documents/id-path-doesnt-matter'
             benefits_intake_uuid = SecureRandom.uuid
             allow_any_instance_of(BenefitsIntake::Service).to(
@@ -127,8 +133,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
             post '/simple_forms_api/v1/simple_forms', params: data
 
-            expect(mock_archiver).to have_received(:upload)
-            expect(JSON.parse(response.body)['pdf_url']).to eq(presigned_s3_url)
+            expect(mock_s3_client).to have_received(:upload)
+            expect(JSON.parse(response.body)['presigned_s3_url']).to eq(presigned_s3_url)
           end
         end
       end
