@@ -22,6 +22,12 @@ module Sidekiq
 
       sidekiq_options retry: 14
       STATSD_KEY_PREFIX = 'worker.evss.form526_backup_submission_process'
+      # tagging for 'zero silent failure' initative
+      # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/274bea7fb835e51626259ac16b32c33ab0b2088a/platform/practices/zero-silent-failures/logging-silent-failures.md#capture-silent-failures-state
+      DD_ZSF_TAGS = [
+        'service:Form526BackupSubmissionProcess',
+        'function:form526_backup_submission_to_lighthouse'
+      ].freeze
 
       sidekiq_retries_exhausted do |msg, _ex|
         job_id = msg['jid']
@@ -52,6 +58,11 @@ module Sidekiq
           'Form 526 Backup Submission Retries exhausted',
           { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
         )
+
+        if Flipper.enabled?(:send_backup_submission_exhaustion_email_notice)
+          ::Form526SubmissionFailureEmailJob
+            .perform_async(form526_submission_id: form526_submission_id, tags: DD_ZSF_TAGS)
+        end
       rescue => e
         ::Rails.logger.error(
           'Failure in Form526BackupSubmission#sidekiq_retries_exhausted',
