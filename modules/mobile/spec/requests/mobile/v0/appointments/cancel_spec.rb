@@ -14,15 +14,6 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
   end
 
   describe 'authorization' do
-    context 'when feature flag is off' do
-      before { Flipper.disable('va_online_scheduling') }
-
-      it 'returns forbidden' do
-        put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-
     context 'when user does not have access' do
       let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
 
@@ -32,20 +23,18 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
       end
     end
 
-    context 'when feature flag is on and user has access' do
-      context 'using VAOS' do
-        before do
-          Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
-          Flipper.disable(:va_online_scheduling_use_vpg)
-        end
+    context 'using VAOS' do
+      before do
+        Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+        Flipper.disable(:va_online_scheduling_use_vpg)
+      end
 
-        it 'returns no content' do
-          VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_200', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
-              put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
+      it 'returns no content' do
+        VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+            put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
 
-              expect(response).to have_http_status(:no_content)
-            end
+            expect(response).to have_http_status(:no_content)
           end
         end
       end
