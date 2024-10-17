@@ -16,10 +16,9 @@ RSpec.describe VirtualRegionalOffice::Client do
           contention_text: 'Asthma',
           contention_type: 'NEW'
         }
-    ],
+      ],
       claim_id: 4567,
-      form526_submission_id: 789
-    }
+      form526_submission_id: 789 }
   end
   let(:max_ratings_params) do
     {
@@ -37,8 +36,8 @@ RSpec.describe VirtualRegionalOffice::Client do
             'virtual regional office response', status: 200,
                                                 body: {
                                                   contentions: [
-                                                    {classification_code: '99999', classification_name: 'namey'},
-                                                    {classification_code: '9012', classification_name: 'Respiratory'}
+                                                    { classification_code: '99999', classification_name: 'namey' },
+                                                    { classification_code: '9012', classification_name: 'Respiratory' }
                                                   ]
                                                 }.as_json
           )
