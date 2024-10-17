@@ -1735,3 +1735,6 @@ features:
   show_yellow_ribbon_table:
     actor_type: user
     description: Used to show yellow ribbon table in Comparison Tool
+  banner_use_alternative_banners:
+    actor_type: user
+    description: Used to toggle use of alternative banners.
