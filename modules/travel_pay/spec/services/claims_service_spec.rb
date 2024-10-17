@@ -62,8 +62,8 @@ describe TravelPay::ClaimsService do
         .to receive(:get_claims)
         .and_return(claims_response)
 
-      session = object_double(TravelPay::Session.new(123, user), get_tokens: tokens)
-      @service = TravelPay::ClaimsService.new(session)
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @service = TravelPay::ClaimsService.new(auth_manager)
     end
 
     it 'returns sorted and parsed claims' do
@@ -149,8 +149,8 @@ describe TravelPay::ClaimsService do
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
     before do
-      session = object_double(TravelPay::Session.new(123, user), get_tokens: tokens)
-      @service = TravelPay::ClaimsService.new(session)
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @service = TravelPay::ClaimsService.new(auth_manager)
     end
 
     it 'returns a claim ID when passed a valid btsss appt id' do

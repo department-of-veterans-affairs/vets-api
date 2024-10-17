@@ -85,8 +85,8 @@ describe TravelPay::AppointmentsService do
         .with(tokens[:veis_token], tokens[:btsss_token], { 'excludeWithClaims' => true })
         .and_return(appointments_response)
 
-      session = object_double(TravelPay::Session.new(123, user), get_tokens: tokens)
-      @service = TravelPay::AppointmentsService.new(session)
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @service = TravelPay::AppointmentsService.new(auth_manager)
     end
 
     context 'find by appt date-time' do

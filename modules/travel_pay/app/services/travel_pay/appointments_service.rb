@@ -2,8 +2,8 @@
 
 module TravelPay
   class AppointmentsService
-    def initialize(travel_pay_session)
-      @session = travel_pay_session
+    def initialize(auth_manager)
+      @auth_manager = auth_manager
     end
 
     ##
@@ -28,7 +28,7 @@ module TravelPay
     #
     #
     def get_appointment_by_date_time(params = {})
-      @session.get_tokens => { veis_token:, btsss_token: }
+      @auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_all_appointments(veis_token, btsss_token, { 'excludeWithClaims' => true })
       raw_appointments = faraday_response.body['data'].deep_dup
       appointment = find_by_date_time(params['appt_datetime'], raw_appointments)

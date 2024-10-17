@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe TravelPay::AuthenticatedSession do
+describe TravelPay::AuthManager do
   context 'get_tokens' do
     let(:user) { build(:user) }
     let(:tokens) do
@@ -24,7 +24,7 @@ describe TravelPay::AuthenticatedSession do
       )
     end
 
-    context 'get_tokens' do
+    context 'authorize' do
       it 'returns a hash with a veis_token and a btsss_token and stores it in the cache' do
         client_number = 123
 
@@ -36,8 +36,8 @@ describe TravelPay::AuthenticatedSession do
           .with(tokens[:veis_token], user)
           .and_return(tokens[:btsss_token])
 
-        service = TravelPay::AuthenticatedSession.new(client_number, user)
-        response = service.get_tokens
+        service = TravelPay::AuthManager.new(client_number, user)
+        response = service.authorize
         expect(response).to eq(tokens)
         # Verify that the tokens were stored
         expect($redis.ttl("travel-pay-store:#{user.account_uuid}")).to eq(3300)

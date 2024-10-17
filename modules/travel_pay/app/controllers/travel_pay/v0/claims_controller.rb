@@ -37,8 +37,8 @@ module TravelPay
       private
 
       def claims_service
-        session = TravelPay::AuthenticatedSession.new(Settings.travel_pay.client_number, @current_user)
-        @claims_service ||= TravelPay::ClaimsService.new(session)
+        auth_manager = TravelPay::AuthManager.new(Settings.travel_pay.client_number, @current_user)
+        @claims_service ||= TravelPay::ClaimsService.new(auth_manager)
       end
     end
   end
