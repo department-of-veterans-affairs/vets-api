@@ -4,6 +4,8 @@ module VANotify
   class CallbacksController < VANotify::ApplicationController
     include ActionController::HttpAuthentication::Token::ControllerMethods
 
+    service_tag 'va-notify'
+
     skip_before_action :verify_authenticity_token, :authenticate, only: [:create]
 
     before_action :authenticate_callback
