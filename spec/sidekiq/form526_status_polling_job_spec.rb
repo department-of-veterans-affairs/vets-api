@@ -140,11 +140,9 @@ RSpec.describe Form526StatusPollingJob, type: :job do
       end
 
       context 'when a failure type response is returned from the API' do
-        before do
+        around do |spec|
           Flipper.enable(:send_backup_submission_polling_failure_email_notice)
-        end
-
-        after do
+          spec.run
           Flipper.disable(:send_backup_submission_polling_failure_email_notice)
         end
 
