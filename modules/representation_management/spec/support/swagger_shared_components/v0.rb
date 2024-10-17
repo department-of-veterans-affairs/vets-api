@@ -16,6 +16,7 @@ module SwaggerSharedComponents
         consent_address_change: '',
         consent_limits: [],
         claimant:,
+        representative:,
         veteran:
       }
     end
@@ -28,6 +29,12 @@ module SwaggerSharedComponents
         email: 'claimant@example.com',
         name:,
         address:
+      }
+    end
+
+    def self.representative
+      {
+        organization_name: 'My Organization'
       }
     end
 
@@ -54,16 +61,16 @@ module SwaggerSharedComponents
           type: :object,
           properties: appointment_conditions_parameter.merge(
             claimant: claimant_parameter,
+            representative: representative_parameter,
             veteran: veteran_parameter
           ),
-          required: %w[organization_name record_consent veteran]
+          required: %w[record_consent veteran]
         }
       }
     end
 
     def self.appointment_conditions_parameter
       {
-        organization_name: { type: :string, example: 'Veterans Organization' },
         record_consent: { type: :boolean, example: true },
         consent_address_change: { type: :boolean, example: false },
         consent_limits: {
@@ -89,6 +96,15 @@ module SwaggerSharedComponents
           relationship: { type: :string, example: 'Spouse' },
           phone: { type: :string, example: '1234567890' },
           email: { type: :string, example: 'veteran@example.com' }
+        }
+      }
+    end
+
+    def self.representative_parameter
+      {
+        type: :object,
+        properties: {
+          organization_name: { type: :string, example: 'Veterans Organization' }
         }
       }
     end

@@ -4,7 +4,7 @@ module RepresentationManagement
   class Form2122Data < RepresentationManagement::Form2122Base
     def organization_name
       org = Veteran::Service::Organization.find_by(poa: @organization_name)
-      @organization_name = org&.name
+      @organization_name = org&.name || @organization_name
     end
 
     attr_writer :organization_name
