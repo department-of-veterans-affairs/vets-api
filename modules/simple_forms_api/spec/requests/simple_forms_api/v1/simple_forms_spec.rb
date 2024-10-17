@@ -63,65 +63,38 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         Flipper.enable(:simple_forms_email_confirmations)
       end
 
-      unauthenticated_forms.each do |form|
-        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
-        data = JSON.parse(fixture_path.read)
+      shared_examples 'form submission' do |form, is_authenticated|
+        let(:fixture_path) { Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form) }
+        let(:data) { JSON.parse(fixture_path.read) }
 
-        it 'makes the request' do
-          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-          post '/simple_forms_api/v1/simple_forms', params: data
-
-          expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'saves a FormSubmissionAttempt' do
-          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-          expect do
-            post '/simple_forms_api/v1/simple_forms', params: data
-          end.to change(FormSubmissionAttempt, :count).by(1)
-        end
-      end
-
-      authenticated_forms.each do |form|
-        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
-        data = JSON.parse(fixture_path.read)
-
-        context 'authenticated user' do
-          before do
-            user = create(:user)
-            sign_in_as(user)
-            create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
+        context "for #{form}" do
+          if is_authenticated
+            before do
+              user = create(:user)
+              sign_in_as(user)
+              create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
+            end
           end
 
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
-          data = JSON.parse(fixture_path.read)
-
-          it 'makes the request' do
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
+          it 'validates metadata and responds with status OK' do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
             expect(response).to have_http_status(:ok)
           end
 
-          it 'saves a FormSubmissionAttempt' do
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
+          it 'creates a FormSubmissionAttempt record' do
             expect do
               post '/simple_forms_api/v1/simple_forms', params: data
             end.to change(FormSubmissionAttempt, :count).by(1)
           end
 
-          it 'clears the InProgressForm' do
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-            expect do
-              post '/simple_forms_api/v1/simple_forms', params: data
-            end.to change(InProgressForm, :count).by(-1)
+          if is_authenticated
+            it 'clears the InProgressForm' do
+              expect do
+                post '/simple_forms_api/v1/simple_forms', params: data
+              end.to change(InProgressForm, :count).by(-1)
+            end
           end
 
           it 'sends the PDF to the S3 bucket' do
@@ -136,6 +109,18 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             expect(mock_s3_client).to have_received(:upload)
             expect(JSON.parse(response.body)['presigned_s3_url']).to eq(presigned_s3_url)
           end
+        end
+      end
+
+      describe 'unauthenticated forms' do
+        unauthenticated_forms.each do |form|
+          include_examples 'form submission', form, false
+        end
+      end
+
+      describe 'authenticated forms' do
+        authenticated_forms.each do |form|
+          include_examples 'form submission', form, true
         end
       end
 
@@ -287,7 +272,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                                          'vba_21_4142.json')
           data = JSON.parse(fixture_path.read)
 
-          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
           expect_any_instance_of(SimpleFormsApi::PdfFiller).to receive(:generate).with(3)
 
           post '/simple_forms_api/v1/simple_forms', params: data
