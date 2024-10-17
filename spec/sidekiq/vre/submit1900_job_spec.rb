@@ -4,13 +4,28 @@ require 'rails_helper'
 
 describe VRE::Submit1900Job do
   describe '#perform' do
-    subject { described_class.new.perform(claim.id, user.uuid) }
+    subject { described_class.new.perform(claim.id, encrypted_user) }
 
-    let(:user) { create(:evss_user) }
+    let(:user_struct) do
+      OpenStruct.new(
+        edipi: '1007697216',
+        birls_id: '796043735',
+        participant_id: '600061742',
+        pid: '600061742',
+        birth_date: '1986-05-06T00:00:00+00:00'.to_date,
+        ssn: '796043735',
+        vet360_id: '1781151',
+        loa3: true,
+        icn: '1013032368V065534',
+        uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+        va_profile_email: 'test@test.com'
+      )
+    end
+    let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
+    let(:user) { OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) }
     let(:claim) { create(:veteran_readiness_employment_claim) }
 
     before do
-      allow(User).to receive(:find).and_return(user)
       allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
     end
 
