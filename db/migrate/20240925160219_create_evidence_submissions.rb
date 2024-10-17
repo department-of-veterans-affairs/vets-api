@@ -2,6 +2,7 @@ class CreateEvidenceSubmissions < ActiveRecord::Migration[7.1]
   def change
     create_table :evidence_submissions do |t|
       t.string :job_id
+      t.string :job_class
       t.string :claim_id
       t.references :user_account, null: false, foreign_key: true, type: :uuid
       t.json :template_metadata_ciphertext
