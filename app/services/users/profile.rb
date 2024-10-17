@@ -55,6 +55,7 @@ module Users
       scaffold.services = services
       scaffold.session = session_data
       scaffold.onboarding = onboarding
+      scaffold.demographics = demographics
     end
 
     def account
@@ -219,6 +220,13 @@ module Users
     def onboarding
       {
         show: user.show_onboarding_flow_on_login
+      }
+    end
+
+    def demographics
+      demographics = user.demographics
+      {
+        preferred_name: demographics.preferred_name
       }
     end
   end
