@@ -4,8 +4,8 @@ module TravelPay
   class ClaimAssociationService
     ## @params
     # appointments: [VAOS::Appointment]
-    # start_date: string
-    # end_date: string
+    # start_date: string ('2024-01-01T12:45:34.465Z')
+    # end_date: string ('2024-01-01T12:45:34.465Z')
     #
     # @returns
     # appointments: [VAOS::Appointment + associatedTravelPayClaim (string)]
@@ -18,7 +18,7 @@ module TravelPay
       # Will return a new array:
       #
       # VAOS::Appointment
-      #   + if date/facility match (indicating a related claim has already been filed for that date)
+      #   + if date-time & facility match
       #       associatedTravelPayClaim => claimId (string)
 
       # Get claims for the specified date range
@@ -32,7 +32,9 @@ module TravelPay
       # map over the appointments list and the raw_claims and match dates
       (params['appointments']).map do |appt|
         raw_claims['data'].each do |cl|
-          if Date.parse(cl['appointmentDateTime']) == Date.parse(appt['startDate']) &&
+          # Match the exact date-time of the appointment
+          if DateTime.parse(cl['appointmentDateTime']) == DateTime.parse(appt['startDate']) &&
+             # match the facility
              cl['facilityName'] == appt['facilityName']
             # Add the new attribute "associatedTravelPayClaim" => claim ID to the appt hash
             appt[:associatedTravelPayClaim] = cl[:id]

@@ -29,8 +29,8 @@ module TravelPay
     # API responds with travel pay claims including status for the specified date-range
     #
     # @params {
-    # startDate: string (date-time) (Required)
-    # endDate: string (date-time) (Required)
+    # startDate: string ('2024-01-01T12:45:34.465Z') (Required)
+    # endDate: string ('2024-01-01T12:45:34.465Z') (Required)
     # pageNumber: int
     # pageSize: int
     # sortField: string
@@ -43,16 +43,10 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
 
-      url_params = {
-        'startDate' => params['start_date'],
-        'endDate' => params['end_date'],
-        'pageNumber' => params['page_number'] || nil,
-        'pageSize' => params['page_size'] || nil,
-        'sortField' => params['sort_field'] || nil,
-        'sortDirection' => params['sort_direction'] || nil
-      }.compact
+      url_params = params.transform_keys { |k| k.to_s.camelize(:lower) }
 
       connection(server_url: btsss_url)
+        # URL subject to change once v1.2 is available (proposed endpoint: '/search')
         .get("/api/v1.1/claims/search-by-appointment-date?#{url_params.to_query}") do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['BTSSS-Access-Token'] = btsss_token
