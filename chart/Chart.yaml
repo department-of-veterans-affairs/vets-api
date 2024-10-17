@@ -102,6 +102,7 @@ type: application
 # 0.14.0  - Update HPA to only account for available replicas
 # 0.14.1  - Allow scaleUp/scaleDown to fallback to default
 # 0.15.0  - Inject normalized parameter store approach
+# 0.15.1  - Debug version for testing common external secret
 version: 0.15.1
 
 # This is the version number of the application being deployed. This version number should be
