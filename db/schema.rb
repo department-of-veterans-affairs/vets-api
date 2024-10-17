@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_16_225437) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_17_154903) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -326,14 +326,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_16_225437) do
     t.index ["state"], name: "index_central_mail_submissions_on_state"
   end
 
-  create_table "claim_va_notification", force: :cascade do |t|
+  create_table "claim_va_notifications", force: :cascade do |t|
     t.string "form_type"
     t.bigint "saved_claim_id", null: false
     t.boolean "email_sent"
     t.integer "email_template_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["saved_claim_id"], name: "index_claim_va_notification_on_saved_claim_id"
+    t.index ["saved_claim_id"], name: "index_claim_va_notifications_on_saved_claim_id"
   end
 
   create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1649,7 +1649,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_16_225437) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
   add_foreign_key "async_transactions", "user_accounts"
-  add_foreign_key "claim_va_notification", "saved_claims"
+  add_foreign_key "claim_va_notifications", "saved_claims"
   add_foreign_key "claims_api_claim_submissions", "claims_api_auto_established_claims", column: "claim_id"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
