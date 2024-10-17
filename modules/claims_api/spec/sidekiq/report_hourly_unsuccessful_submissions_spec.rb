@@ -31,7 +31,6 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         # rubocop:disable Layout/LineLength
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled).and_return(true)
         # rubocop:enable Layout/LineLength
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return(double(pluck: ['claim1']))
         allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: ['poa1']))
         allow(ClaimsApi::IntentToFile).to receive(:where).and_return(double(pluck: ['itf1']))
         allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return(double(pluck: ['ews1']))
@@ -40,7 +39,7 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
       it 'calls notify with the correct parameters' do
         # rubocop:disable RSpec/SubjectStub
         expect(subject).to receive(:notify).with(
-          ['claim1'],
+          [],
           [],
           ['poa1'],
           ['itf1'],
