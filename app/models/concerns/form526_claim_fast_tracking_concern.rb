@@ -106,16 +106,6 @@ module Form526ClaimFastTrackingConcern
     disabilities.select { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
   end
 
-  def increase_only?
-    disabilities.all? { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
-  end
-
-  def increase_or_new?
-    disabilities.all? do |disability|
-      disability['disabilityActionType']&.upcase == 'INCREASE' || disability['disabilityActionType']&.upcase == 'NEW'
-    end
-  end
-
   def diagnostic_codes
     disabilities.pluck('diagnosticCode')
   end
@@ -155,15 +145,6 @@ module Form526ClaimFastTrackingConcern
     end
   rescue => e
     Rails.logger.error("EP400 Merge eligibility failed #{e.message}.", backtrace: e.backtrace)
-  end
-
-  def get_claim_type
-    claim_type = disabilities.pick('disabilityActionType').upcase
-    if claim_type == 'INCREASE'
-      'claim_for_increase'
-    else
-      'new'
-    end
   end
 
   def update_form_with_classification_codes(classified_contentions)
@@ -221,15 +202,6 @@ module Form526ClaimFastTrackingConcern
     end
     update_form_with_classification_codes(classifier_response['contentions'])
     classifier_response['is_fully_classified']
-  end
-
-  def update_form_with_classification_code(classification_code)
-    form[Form526Submission::FORM_526]['form526']['disabilities'].each do |disability|
-      disability['classificationCode'] = classification_code
-    end
-
-    update!(form_json: form.to_json)
-    invalidate_form_hash
   end
 
   def log_max_cfi_metrics_on_submit

@@ -3,7 +3,6 @@
 require 'rails_helper'
 require 'disability_compensation/factories/api_provider_factory'
 
-ASTHMA_CLASSIFICATION_CODE = 6602
 # pulled from vets-api/spec/support/disability_compensation_form/submissions/only_526.json
 ONLY_526_JSON_CLASSIFICATION_CODE = 'string'
 
