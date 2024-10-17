@@ -129,7 +129,7 @@ module SimpleFormsApi
           'Simple forms api - sent to benefits intake',
           { form_number: params[:form_number], status:, uuid: confirmation_number }
         )
-        presigned_s3_url = upload_pdf_to_s3(confirmation_number, file_path, metadata, submission)
+        presigned_s3_url = upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           send_confirmation_email(parsed_form_data, form_id, confirmation_number)
@@ -215,9 +215,9 @@ module SimpleFormsApi
         lighthouse_service.perform_upload(**upload_params)
       end
 
-      def upload_pdf_to_s3(id, file_path, metadata, submission)
+      def upload_pdf_to_s3(id, file_path, metadata, submission, form)
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
-        attachments = get_form_id == 'vba_20_10207' ? form.fetch_attachment_guids : []
+        attachments = get_form_id == 'vba_20_10207' ? form.attachment_guids : []
         s3_client = config.s3_client.new(
           config:, type: :submission, id:, submission:, attachments:, file_path:, metadata:
         )
