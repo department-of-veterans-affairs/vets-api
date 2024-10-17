@@ -2,7 +2,19 @@
 
 require 'benefits_intake_service/service'
 
-class Form526StatusPollingJob < BenefitsIntakeStatusPollingJob
+class Form526StatusPollingJob
+  include Sidekiq::Job
+  sidekiq_options retry: false
+
+  STATS_KEY = 'api.benefits_intake.submission_status'
+  MAX_BATCH_SIZE = 1000
+  attr_reader :max_batch_size
+
+  def initialize(max_batch_size: MAX_BATCH_SIZE)
+    @max_batch_size = max_batch_size
+    @total_handled = 0
+  end
+
   def perform
     Rails.logger.info('Beginning Form 526 Intake Status polling')
     submissions.in_batches(of: max_batch_size) do |batch|
@@ -18,6 +30,10 @@ class Form526StatusPollingJob < BenefitsIntakeStatusPollingJob
   end
 
   private
+
+  def api_to_poll
+    @api_to_poll ||= BenefitsIntakeService::Service.new
+  end
 
   def submissions
     @submissions ||= Form526Submission.pending_backup
@@ -53,7 +69,7 @@ class Form526StatusPollingJob < BenefitsIntakeStatusPollingJob
   end
 
   def log_result(result)
-    StatsD.increment("#{STATS_KEY}.submission_status.526.#{result}")
-    StatsD.increment("#{STATS_KEY}.submission_status.all_forms.#{result}")
+    StatsD.increment("#{STATS_KEY}.526.#{result}")
+    StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
   end
 end
