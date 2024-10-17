@@ -218,7 +218,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           fs_record = FormSubmission.last
           fs_attempt_record = FormSubmissionAttempt.last
           expect(Form526Submission.find_by(saved_claim_id: fs_record.saved_claim_id).id).to eq(submission.id)
-          expect(fs_attempt_record.state).to eq('pending')
+          expect(fs_attempt_record.pending?).to be(true)
         end
 
         it 'Does not creates a form 4142 submission polling record, when disabled' do
