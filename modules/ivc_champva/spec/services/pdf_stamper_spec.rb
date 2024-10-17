@@ -21,7 +21,7 @@ describe IvcChampva::PdfStamper do
         stamp_signature
       end
 
-      let(:test_payload) { 'vha_10_7959c' }
+      let(:test_payload) { 'vha_10_7959f_2' }
       let(:stamps) { [] }
 
       it 'does not call :stamp' do
