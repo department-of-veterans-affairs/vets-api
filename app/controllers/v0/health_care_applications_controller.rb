@@ -82,6 +82,11 @@ module V0
     def active_facilities(lighthouse_facilities)
       active_ids = StdInstitutionFacility.active.pluck(:station_number).compact
 
+      if active_ids.empty?
+        HCA::StdInstitutionImportJob.new.perform
+        active_ids = StdInstitutionFacility.active.pluck(:station_number).compact
+      end
+
       lighthouse_facilities.select { |facility| active_ids.include?(facility.unique_id) }
     end
 
