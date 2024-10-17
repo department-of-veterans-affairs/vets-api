@@ -43,7 +43,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
 
     before do
       VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                          match_requests_on: %i[method wildcard_path])
+                          match_requests_on: %i[method uri_ignoring_path_parameters])
     end
 
     after do

@@ -62,4 +62,12 @@ VCR.configure do |c|
       i.send(env).headers.update('Authorization' => 'Bearer <TOKEN>')
     end
   end
+
+  config.register_request_matcher :uri_ignoring_path_parameters do |request1, request2|
+    # Matches, ignoring the user id and icn after `/isValidSMUser/` to handle any user id and icn
+    # E.g. <HOST>mhvapi/v1/usermgmt/usereligibility/isValidSMUser/10000000/1000000000V000000
+    path1 = request1.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+    path2 = request2.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+    path1 == path2
+  end
 end

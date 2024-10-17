@@ -5,18 +5,9 @@ require 'medical_records/client'
 require 'stringio'
 
 describe MedicalRecords::Client do
-  VCR.configure do |config|
-    config.register_request_matcher :wildcard_path do |request1, request2|
-      # Removes the user id and icn after `/isValidSMUser/` to handle any user id and icn
-      path1 = request1.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
-      path2 = request2.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
-      path1 == path2
-    end
-  end
-
   before(:all) do
     VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                     match_requests_on: %i[method wildcard_path]) do
+                     match_requests_on: %i[method uri_ignoring_path_parameters]) do
       VCR.use_cassette 'mr_client/session' do
         VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
           @client ||= begin

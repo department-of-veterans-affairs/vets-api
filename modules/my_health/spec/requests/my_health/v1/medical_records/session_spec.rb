@@ -20,7 +20,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Session', type: :request do
     allow(PHRMgr::Client).to receive(:new).and_return(PHRMgr::Client.new(12_345))
     sign_in_as(current_user)
     VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                        match_requests_on: %i[method wildcard_path])
+                        match_requests_on: %i[method uri_ignoring_path_parameters])
   end
 
   after do

@@ -8,18 +8,9 @@ RSpec.describe Users::Services do
 
     let(:user) { build :user, :loa3 }
 
-    VCR.configure do |config|
-      config.register_request_matcher :wildcard_path do |request1, request2|
-        # Removes the user id and icn after `/isValidSMUser/` to handle any user id and icn
-        path1 = request1.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
-        path2 = request2.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
-        path1 == path2
-      end
-    end
-
     context 'with initialized user' do
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_non_premium_user',
-                       match_requests_on: %i[method wildcard_path]) do
+                       match_requests_on: %i[method uri_ignoring_path_parameters]) do
         it 'returns an array of services authorized to the initialized user',
            :aggregate_failures do
           expect(subject.class).to eq Array
@@ -47,7 +38,7 @@ RSpec.describe Users::Services do
       let(:user) { build :user }
 
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_non_premium_user',
-                       match_requests_on: %i[method wildcard_path]) do
+                       match_requests_on: %i[method uri_ignoring_path_parameters]) do
         it 'returns only the services that are authorized to this loa1 user' do
           expect(subject).to match_array(
             %w[
@@ -70,7 +61,7 @@ RSpec.describe Users::Services do
         Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
         VCR.insert_cassette('sm_client/session')
         VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                            match_requests_on: %i[method wildcard_path])
+                            match_requests_on: %i[method uri_ignoring_path_parameters])
       end
 
       after do

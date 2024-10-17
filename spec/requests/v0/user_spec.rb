@@ -7,15 +7,6 @@ RSpec.describe 'V0::User', type: :request do
   include SchemaMatchers
   include SM::ClientHelpers
 
-  VCR.configure do |config|
-    config.register_request_matcher :wildcard_path do |request1, request2|
-      # Removes the user id and icn after `/isValidSMUser/` to handle any user id and icn
-      path1 = request1.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
-      path2 = request2.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
-      path1 == path2
-    end
-  end
-
   context 'GET /v0/user - when an LOA 3 user is logged in' do
     let(:mhv_user) { build(:user, :mhv) }
     let(:v0_user_request_headers) { {} }
@@ -29,7 +20,7 @@ RSpec.describe 'V0::User', type: :request do
       sign_in_as(mhv_user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                       match_requests_on: %i[method wildcard_path]) do
+                       match_requests_on: %i[method uri_ignoring_path_parameters]) do
         VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
           get v0_user_url, params: nil, headers: v0_user_request_headers
         end
