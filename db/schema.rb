@@ -578,6 +578,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_25_160219) do
 
   create_table "evidence_submissions", force: :cascade do |t|
     t.string "job_id"
+    t.string "job_class"
     t.string "claim_id"
     t.uuid "user_account_id", null: false
     t.json "template_metadata_ciphertext"
