@@ -33,6 +33,13 @@ spec:
                   key: {{ $secret.name }}
           {{- end }}
           {{- end }}
+          {{- range $key, $path := .Values.parameters }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: common_environment_vars
+                  key: {{ $key }}
+          {{- end }}
 
       restartPolicy: Never
       securityContext:
