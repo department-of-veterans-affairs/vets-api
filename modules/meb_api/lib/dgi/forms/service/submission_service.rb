@@ -14,7 +14,8 @@ module MebApi
           configuration MebApi::DGI::Submission::Configuration
           STATSD_KEY_PREFIX = 'api.dgi.submission'
 
-          def submit_claim(params, response_data, form_type = 'toe')
+          def submit_claim(params, response_data)
+            form_type = params.key?('@type') ? params['@type'] : 'ToeSubmission'
             unmasked_params = update_dd_params(params, response_data)
             with_monitoring do
               headers = request_headers
@@ -28,7 +29,11 @@ module MebApi
           private
 
           def end_point(form_type)
-            "claimType/#{form_type}/claimsubmission".dup
+            if form_type == 'ToeSubmission'
+              'claimType/toe/claimsubmission'.dup
+            else
+              "claimType/#{form_type.capitalize}/claimsubmission".dup
+            end
           end
 
           def request_headers
@@ -48,7 +53,7 @@ module MebApi
           end
 
           def update_dd_params(params, dd_params)
-            check_masking = params.dig(:form, :direct_deposit, :direct_deposit_account_number).include?('*')
+            check_masking = params.dig(:form, :direct_deposit, :direct_deposit_account_number)&.include?('*')
             if check_masking && !Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user)
               params[:form][:direct_deposit][:direct_deposit_account_number] = dd_params[:dposit_acnt_nbr]&.dup
               params[:form][:direct_deposit][:direct_deposit_routing_number] = dd_params[:routng_trnsit_nbr]&.dup

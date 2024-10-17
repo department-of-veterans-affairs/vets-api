@@ -28,6 +28,8 @@ RSpec.describe VANotify::EmailJob, type: :worker do
         }
       )
 
+      expect(StatsD).to receive(:increment).with('api.vanotify.email_job.success')
+
       described_class.new.perform(email, template_id)
     end
 

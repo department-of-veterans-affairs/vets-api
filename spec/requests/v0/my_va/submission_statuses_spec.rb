@@ -33,7 +33,7 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', type: :request do
     context 'when user has submissions' do
       before do
         create(:form_submission, :with_form214142, user_account_id: user.user_account_uuid)
-        create(:form_submission, :with_form210966, user_account_id: user.user_account_uuid)
+        create(:form_submission, :with_form210845, user_account_id: user.user_account_uuid)
         create(:form_submission, :with_form_blocked, user_account_id: user.user_account_uuid)
       end
 
