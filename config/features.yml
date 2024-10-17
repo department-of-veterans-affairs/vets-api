@@ -1333,10 +1333,6 @@ features:
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
-  va_online_scheduling_enable_OH_reads:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing appointment read requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
