@@ -366,8 +366,8 @@ RSpec.describe SignIn::AttributeValidator do
         let(:address) { nil }
         let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
         let(:email) { 'some-email' }
-        let(:identifier) { mhv_correlation_id }
-        let(:identifier_type) { MPI::Constants::MHV_UUID }
+        let(:identifier) { idme_uuid }
+        let(:identifier_type) { MPI::Constants::IDME_UUID }
 
         context 'and credential is missing mhv icn' do
           let(:mhv_icn) { nil }
