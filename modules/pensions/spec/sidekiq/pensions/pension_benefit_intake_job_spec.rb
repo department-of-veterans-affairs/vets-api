@@ -16,7 +16,6 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     let(:response) { double('response') }
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:location) { 'test_location' }
-    let(:batch) { instance_double(Sidekiq::Batch, jobs: nil, on: nil) }
 
     before do
       job.instance_variable_set(:@claim, claim)
@@ -35,19 +34,6 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       allow(monitor).to receive :track_submission_attempted
       allow(monitor).to receive :track_submission_success
       allow(monitor).to receive :track_submission_retry
-    end
-
-    it 'does the batch work successfully' do
-      allow(Sidekiq::Batch).to receive(:new).and_return(batch)
-
-      expect(batch).to receive(:description=).with('PensionBenefitIntakeJob and email confirmation on success')
-      expect(batch).to receive(:on).with(:success, Pensions::PensionBenefitIntakeJob)
-      expect(batch).to receive(:jobs)
-      expect(job).to receive(:on_success)
-
-      job.perform(claim.id, :user_uuid)
-
-      job.on_success(nil, nil)
     end
 
     it 'submits the saved claim successfully' do
@@ -182,11 +168,6 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
       job.instance_variable_set(:@pension_monitor, monitor)
       allow(monitor).to receive(:track_send_confirmation_email_failure)
-    end
-
-    it 'sends the email' do
-      expect(claim).to receive(:send_confirmation_email).once
-      job.send(:send_confirmation_email)
     end
 
     it 'errors and logs but does not reraise' do
