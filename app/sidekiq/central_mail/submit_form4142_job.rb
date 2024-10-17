@@ -9,7 +9,10 @@ require 'logging/third_party_transaction'
 # TODO: Update Namespace once we are 100% done with CentralMail here
 module CentralMail
   class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job
+    INITIAL_FAILURE_EMAIL = :form526_send_4142_failure_notification
     POLLING_FLIPPER_KEY = :disability_526_form4142_polling_records
+    POLLED_FAILURE_EMAIL = :disability_526_form4142_polling_record_failure_email
+
 
     FORM4142_FORMSUBMISSION_TYPE = "#{Form526Submission::FORM_526}_#{Form526Submission::FORM_4142}".freeze
     extend Logging::ThirdPartyTransaction::MethodWrapper

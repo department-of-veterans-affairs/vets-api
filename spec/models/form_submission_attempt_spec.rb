@@ -36,24 +36,41 @@ RSpec.describe FormSubmissionAttempt, type: :model do
           .to transition_from(:pending).to(:failure).on_event(:fail)
       end
 
-      it 'sends an error email when it is a SimpleFormsApi supported form' do
-        notification_email = double
-        allow(notification_email).to receive(:send)
-        allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
-          config,
-          notification_type:,
-          user_account: anything
-        ).and_return(notification_email)
-        form_submission_attempt = create(:form_submission_attempt)
+      context 'is a simple form' do
+        let(:form_submission) { build(:form_submission, form_type: '21-4142') }
 
-        form_submission_attempt.fail!
+        it 'sends an error email' do
+          notification_email = double
+          allow(notification_email).to receive(:send)
+          allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
+            config,
+            notification_type:,
+            user_account: anything
+          ).and_return(notification_email)
+          form_submission_attempt = create(:form_submission_attempt, form_submission:)
 
-        expect(notification_email).to have_received(:send)
+          form_submission_attempt.fail!
+
+          expect(notification_email).to have_received(:send)
+        end
       end
 
-      it 'sends an error email when it is not a SimpleFormsApi form and flippers are on' do
-        Flipper.enable(:form526_send_4142_failure_notification)
+      context 'is not a simple form' do
+        let(:form_submission) { build(:form_submission, form_type: 'some-other-form') }
+
+        it 'does not send an error email' do
+          allow(SimpleFormsApi::NotificationEmail).to receive(:new)
+          form_submission_attempt = create(:form_submission_attempt, form_submission:)
+
+          form_submission_attempt.fail!
+
+          expect(SimpleFormsApi::NotificationEmail).not_to have_received(:new)
+        end
+      end
+
+      it 'sends an 4142 error email when it is not a SimpleFormsApi form and flippers are on' do
         Flipper.enable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
+        Flipper.enable(CentralMail::SubmitForm4142Job::POLLED_FAILURE_EMAIL)
 
         email_klass = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail
         form_submission_attempt = FormSubmissionAttempt.create(form_submission: form526_form4142_form_submission)

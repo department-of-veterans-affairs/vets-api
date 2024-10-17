@@ -28,16 +28,15 @@ class FormSubmissionAttempt < ApplicationRecord
         log_info = { form_submission_id:,
                      benefits_intake_uuid: form_submission&.benefits_intake_uuid,
                      form_type: form_submission&.form_type }
-        Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
-        is_form526_form4142 = form_submission.form_type == CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE
-        if Flipper.enabled?(:simple_forms_email_notifications) && !is_form526_form4142
-          enqueue_result_email(:error)
-        elsif Flipper.enabled?(:form526_send_4142_failure_notification) && is_form526_form4142
+        if should_send_simple_forms_email
+          Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)            
+          simple_forms_enqueue_result_email(:error)
+        else should_send_form526_form4142_email          
           form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
           Rails.logger.info('Sending Form526:Form4142 failure email', log_info.merge({ form526_submission_id: }))
           jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(form526_submission_id)
           Rails.logger.info('Sent Form526:Form4142 failure email', log_info.merge({ jid: }))
-        end
+        end                                   
       end
 
       transitions from: :pending, to: :failure
@@ -49,7 +48,7 @@ class FormSubmissionAttempt < ApplicationRecord
 
     event :vbms do
       after do
-        enqueue_result_email(:received) if Flipper.enabled?(:simple_forms_email_notifications)
+        simple_forms_enqueue_result_email(:received) if should_send_simple_forms_email
       end
 
       transitions from: :pending, to: :vbms
@@ -84,12 +83,21 @@ class FormSubmissionAttempt < ApplicationRecord
 
   private
 
-  def enqueue_result_email(notification_type)
+  def should_send_simple_forms_email
+    simple_forms_form_number && Flipper.enabled?(:simple_forms_email_notifications)
+  end
+
+  def should_send_form526_form4142_email
+    email_klass = CentralMail::SubmitForm4142Job
+    form_submission.form_type == email_klass::FORM4142_FORMSUBMISSION_TYPE && Flipper.enabled?(email_klass::POLLED_FAILURE_EMAIL)
+  end
+
+  def simple_forms_enqueue_result_email(notification_type)
     raw_form_data = form_submission.form_data || '{}'
     form_data = JSON.parse(raw_form_data)
     config = {
       form_data:,
-      form_number: form_submission.form_type,
+      form_number: simple_forms_form_number,
       confirmation_number: form_submission.benefits_intake_uuid,
       date_submitted: created_at.strftime('%B %d, %Y'),
       lighthouse_updated_at: lighthouse_updated_at&.strftime('%B %d, %Y')
@@ -112,5 +120,14 @@ class FormSubmissionAttempt < ApplicationRecord
         hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0
       )
     end
+  end
+
+  def simple_forms_form_number
+    @simple_forms_form_number ||=
+      if SimpleFormsApi::NotificationEmail::TEMPLATE_IDS.keys.include? form_submission.form_type
+        form_submission.form_type
+      else
+        SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type]
+      end
   end
 end
