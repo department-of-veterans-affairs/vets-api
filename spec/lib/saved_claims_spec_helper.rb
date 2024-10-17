@@ -25,6 +25,14 @@ shared_examples_for 'saved_claim' do
     end
   end
 
+  describe 'Check for schema being loaded' do
+    it 'does check' do
+      saved_claim = SavedClaim::Pension.new
+      expect(Rails.logger).to receive(:info).with('21P-527EZ has been loaded')
+      saved_claim.schema_loaded_check
+    end
+  end
+
   context 'a record' do
     it 'inherits init callsbacks from saved_claim' do
       expect(subject.form_id).to eq(described_class::FORM)
