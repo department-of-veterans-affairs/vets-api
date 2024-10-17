@@ -462,8 +462,31 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
       end
 
       it 'calls the Benefits Documents uploader instead of VBMS' do
+        Flipper.disable(:claims_api_bd_refactor)
         expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
         expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
+        subject.new.perform(power_of_attorney.id, '2122', rep.id, action: 'post')
+      end
+    end
+
+    context 'when the BD upload and BD refactor feature flags are enabled' do
+      let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
+
+      before do
+        Flipper.enable(:lighthouse_claims_api_poa_use_bd)
+        Flipper.enable(:claims_api_bd_refactor)
+        pdf_constructor_double = instance_double(ClaimsApi::V2::PoaPdfConstructor::Organization)
+        allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:pdf_constructor)
+          .and_return(pdf_constructor_double)
+        allow(pdf_constructor_double).to receive(:construct).and_return(pdf_path)
+        allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:data).and_return({})
+        allow_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload)
+          .with(poa: power_of_attorney, pdf_path:, doc_type: 'L190', action: 'post').and_call_original
+      end
+
+      it 'calls the Benefits Documents upload_document instead of upload' do
+        expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
+        expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
         subject.new.perform(power_of_attorney.id, '2122', rep.id, action: 'post')
       end
     end
