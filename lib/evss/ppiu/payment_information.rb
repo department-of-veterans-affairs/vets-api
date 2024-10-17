@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require 'evss/ppiu/control_information'
 require 'evss/ppiu/payment_account'
 require 'evss/ppiu/payment_address'
@@ -19,9 +19,7 @@ module EVSS
     # @!attribute payment_type
     #   @return [String] The payment type
     #
-    class PaymentInformation
-      include Virtus.model
-
+    class PaymentInformation < Vets::Model
       attribute :control_information, EVSS::PPIU::ControlInformation
       attribute :payment_account, EVSS::PPIU::PaymentAccount
       attribute :payment_address, EVSS::PPIU::PaymentAddress
