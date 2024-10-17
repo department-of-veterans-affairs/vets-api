@@ -1,41 +1,53 @@
 # frozen_string_literal: true
 
-require_relative '../v2/base_address'
+require_relative 'base_address'
 require 'common/hash_helpers'
 
 module VAProfile
   module Models
     module V3
       # Model for addresses sent and received from the VA profile address validation API
-      # AddressValidationV3 is used for ProfileServiceV3 and ContactInformationV2
-      class ValidationAddress < V2::BaseAddress
+      # AddressValidationV is used for ProfileServiceV3 and ContactInformationV2
+      class ValidationAddress < V3::BaseAddress
         # Convert a ValidationAddress into a hash that can be sent to the address validation
         # API
         # @return [Hash] hash that is formatted for POSTing to address validation API
         def address_validation_req
           Common::HashHelpers.deep_remove_blanks(
-            requestAddress: attributes.slice(
-              :address_line1,
-              :address_line2,
-              :address_line3,
-              :city,
-              :international_postal_code
-            ).deep_transform_keys { |k| k.to_s.camelize(:lower) }.merge(
-              requestCountry: {
-                countryCode: @country_code_iso3
-              },
+            address: attributes.slice(
+              addressLine1: @address_line1,
+              addressLine2: @address_line2,
+              addressLine3: @address_line3,
               addressPOU: @address_pou,
-              stateProvince: {
-                code: @state_code,
-                name: @province
-              },
+              cityName: @city,
               zipCode5: @zip_code,
-              zipCode4: @zip_code_suffix
+              zipCode4: @zip_code_suffix,
+              intPostalCode: @international_postal_code,
+              state: {
+                stateCode: @state_code,
+                stateName: @state_name,
+
+              },
+              province: {
+                provinceName: @province,
+                provinceCode: @province_code,
+              },
+              country: {
+                countryCodeISO2: @country_code_iso2,
+                countryCodeISO3: @country_code_iso3,
+                countryName: @country_name,
+                countryCodeFIPS: @country_code_fips,
+              },
+              county: {
+                countyCode: @county_code,
+                countyName: @county_name,
+              },
+              addressPOU: @address_pou
             )
           )
         end
 
-        # @return [VAProfile::Models::ValidationAddress] validation address model created from
+        # @return [VAProfile::Models::V3::ValidationAddress] validation address model created from
         #   address validation API response
         def self.build_from_address_suggestion(address_suggestion_hash)
           address_hash = address_suggestion_hash['address']
@@ -45,9 +57,9 @@ module VAProfile
             address_line2: address_hash['address_line2'],
             address_line3: address_hash['address_line3'],
             address_type:,
-            city: address_hash['city'],
-            country_name: address_hash['country']['name'],
-            country_code_iso3: address_hash['country']['iso3_code']
+            city: address_hash['city_name'],
+            country_name: address_hash['country']['country_name'],
+            country_code_iso3: address_hash['country']['country_code_iso3']
           }.merge(regional_attributes(address_type, address_hash))
 
           new(attributes)
@@ -56,14 +68,14 @@ module VAProfile
         def self.regional_attributes(address_type, address_hash)
           if address_type == INTERNATIONAL
             {
-              province: address_hash['state_province']['name'],
-              international_postal_code: address_hash['international_postal_code']
+              province: address_hash['province']['province_name'],
+              int_postal_code: address_hash['int_postal_code']
             }
           else
             {
-              state_code: address_hash['state_province']['code'],
-              county_code: address_hash.dig('county', 'county_fips_code'),
-              county_name: address_hash.dig('county', 'name'),
+              state_code: address_hash['state']['state_code'],
+              county_code: address_hash['county']['county_code'],
+              county_name: address_hash['county']['country_name'],
               zip_code: address_hash['zip_code5'], zip_code_suffix: address_hash['zip_code4']
             }
           end
@@ -72,3 +84,4 @@ module VAProfile
     end
   end
 end
+

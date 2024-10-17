@@ -5,7 +5,7 @@ require_relative 'base_address'
 module VAProfile
   module Models
     module V3
-      class Address < V2::BaseAddress
+      class Address < V3::BaseAddress
         attribute :bad_address, Boolean
 
         validates(:source_date, presence: true)
