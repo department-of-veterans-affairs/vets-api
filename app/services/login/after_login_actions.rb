@@ -20,8 +20,7 @@ module Login
       Login::UserAcceptableVerifiedCredentialUpdater.new(user_account: @current_user.user_account).perform
       update_account_login_stats(login_type)
       id_mismatch_validations
-
-      create_mhv_account if Flipper.enabled?(:mhv_account_creation_api, @current_user)
+      create_mhv_account
 
       if Settings.test_user_dashboard.env == 'staging'
         TestUserDashboard::UpdateUser.new(current_user).call(Time.current)
@@ -59,7 +58,7 @@ module Login
     def create_mhv_account
       return unless Settings.mhv.account_creation.create_after_login
 
-      MHV::AccountCreatorJob.perform_async(current_user.user_verification.id)
+      MHV::AccountCreatorJob.perform_async(current_user.user_verification.id) if Flipper.enabled?(:mhv_account_creation_api, @current_user)
     end
   end
 end

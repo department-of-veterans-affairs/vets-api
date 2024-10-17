@@ -33,7 +33,7 @@ module SignIn
       create_user_acceptable_verified_credential
       create_terms_code_container if needs_accepted_terms_of_use?
       create_code_container
-      create_mhv_account if Flipper.enabled?(:mhv_account_creation_api, @current_user)
+      create_mhv_account
       user_code_map
     end
 
@@ -65,7 +65,7 @@ module SignIn
     def create_mhv_account
       return unless Settings.mhv.account_creation.create_after_login
 
-      MHV::AccountCreatorJob.perform_async(user_verification.id)
+      MHV::AccountCreatorJob.perform_async(user_verification.id) if Flipper.enabled?(:mhv_account_creation_api, @current_user)
     end
 
     def device_sso
