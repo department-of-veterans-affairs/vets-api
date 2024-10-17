@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_16_172752) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_16_183742) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1050,6 +1050,20 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_16_172752) do
     t.string "error_details"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "secondary_appeal_forms", force: :cascade do |t|
+    t.string "form_id"
+    t.text "encrypted_kms_key"
+    t.text "form_ciphertext"
+    t.uuid "guid"
+    t.string "status"
+    t.datetime "status_updated_at"
+    t.bigint "appeal_submission_id"
+    t.datetime "delete_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["appeal_submission_id"], name: "index_secondary_appeal_forms_on_appeal_submission_id"
   end
 
   create_table "service_account_configs", force: :cascade do |t|
