@@ -5,10 +5,10 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/pdf_generator2122' }
+    let(:organization) { create(:organization) }
     let(:params) do
       {
         pdf_generator2122: {
-          organization_name: 'My Organization',
           record_consent: '',
           consent_address_change: '',
           consent_limits: [],
@@ -55,6 +55,9 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
               zip_code: '98765',
               zip_code_suffix: '4321'
             }
+          },
+          representative: {
+            organization_name: organization.poa
           }
         }
       }
@@ -74,10 +77,25 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
       end
     end
 
+    context 'When submitting a valid request without a claimant' do
+      before do
+        params[:pdf_generator2122].delete(:claimant)
+        post(base_path, params:)
+      end
+
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'responds with a PDF' do
+        expect(response.content_type).to eq('application/pdf')
+      end
+    end
+
     context 'when triggering validation errors' do
       context 'when submitting without the organization name for a single validation error' do
         before do
-          params[:pdf_generator2122][:organization_name] = nil
+          params[:pdf_generator2122][:representative][:organization_name] = nil
           post(base_path, params:)
         end
 
