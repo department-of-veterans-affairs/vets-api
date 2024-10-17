@@ -252,7 +252,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
                                             'power_of_attorney', 'upload.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
-          let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+          let(:power_of_attorney) { create(:power_of_attorney) }
           let(:attachment) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
@@ -292,7 +292,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
                                             'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
-          let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+          let(:power_of_attorney) { create(:power_of_attorney) }
           let(:attachment) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
@@ -371,7 +371,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
                                             'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
-          let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+          let(:power_of_attorney) { create(:power_of_attorney) }
           let(:attachment) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
@@ -408,7 +408,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
                                             'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
-          let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+          let(:power_of_attorney) { create(:power_of_attorney) }
           let(:attachment) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
@@ -446,7 +446,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                             'default.json').read)
           let(:scopes) { %w[claim.read claim.write] }
-          let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+          let(:power_of_attorney) { create(:power_of_attorney) }
           let(:attachment) { nil }
           let(:id) { power_of_attorney.id }
 

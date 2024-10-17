@@ -25,7 +25,15 @@ class FormSubmissionAttempt < ApplicationRecord
 
     event :fail do
       after do
-        enqueue_result_email(:error) if Flipper.enabled?(:simple_forms_email_notifications)
+        if should_send_simple_forms_email
+          Rails.logger.info({
+                              message: 'Preparing to send Form Submission Attempt error email',
+                              form_submission_id:,
+                              benefits_intake_uuid: form_submission.benefits_intake_uuid,
+                              form_type: form_submission.form_type
+                            })
+          simple_forms_enqueue_result_email(:error)
+        end
       end
 
       transitions from: :pending, to: :failure
@@ -37,7 +45,7 @@ class FormSubmissionAttempt < ApplicationRecord
 
     event :vbms do
       after do
-        enqueue_result_email(:received) if Flipper.enabled?(:simple_forms_email_notifications)
+        simple_forms_enqueue_result_email(:received) if should_send_simple_forms_email
       end
 
       transitions from: :pending, to: :vbms
@@ -72,10 +80,16 @@ class FormSubmissionAttempt < ApplicationRecord
 
   private
 
-  def enqueue_result_email(notification_type)
+  def should_send_simple_forms_email
+    simple_forms_form_number && Flipper.enabled?(:simple_forms_email_notifications)
+  end
+
+  def simple_forms_enqueue_result_email(notification_type)
+    raw_form_data = form_submission.form_data || '{}'
+    form_data = JSON.parse(raw_form_data)
     config = {
-      form_data: JSON.parse(form_submission.form_data),
-      form_number: form_submission.form_type,
+      form_data:,
+      form_number: simple_forms_form_number,
       confirmation_number: form_submission.benefits_intake_uuid,
       date_submitted: created_at.strftime('%B %d, %Y'),
       lighthouse_updated_at: lighthouse_updated_at&.strftime('%B %d, %Y')
@@ -89,7 +103,7 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def time_to_send
-    now = Time.zone.now
+    now = Time.now.in_time_zone('Eastern Time (US & Canada)')
     if now.hour < HOUR_TO_SEND_NOTIFICATIONS
       now.change(hour: HOUR_TO_SEND_NOTIFICATIONS,
                  min: 0)
@@ -98,5 +112,14 @@ class FormSubmissionAttempt < ApplicationRecord
         hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0
       )
     end
+  end
+
+  def simple_forms_form_number
+    @simple_forms_form_number ||=
+      if SimpleFormsApi::NotificationEmail::TEMPLATE_IDS.keys.include? form_submission.form_type
+        form_submission.form_type
+      else
+        SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type]
+      end
   end
 end

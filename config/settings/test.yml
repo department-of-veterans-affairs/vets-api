@@ -158,6 +158,10 @@ vanotify:
         claim_submission_duplicate_text: oh_fake_duplicate_template_id
         claim_submission_timeout_text: oh_fake_timeout_template_id
         claim_submission_error_text: oh_fake_error_template_id
+    benefits_management_tools:
+      api_key: fake_secret
+      template_id:
+        evidence_submission_failure_email: fake_template_id
 
 res:
   base_url: https://fake_url.com
@@ -414,7 +418,14 @@ claims_api:
         client_id: fakekeyvaluehere
         secret_key: path/to/fake/key.pem
         aud_claim_url: https://fakeurlhere/fake/path/here
-
+  vanotify:
+    client_url: https://fakeurl/with/path/here
+    representative_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
+    service_organization_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
+    services:
+      lighthouse:
+        api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
+        
 ask_va:
   crm_api:
     auth_url: https://login.microsoftonline.us

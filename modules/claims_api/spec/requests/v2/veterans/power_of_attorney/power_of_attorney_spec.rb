@@ -121,7 +121,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
     describe 'status' do
       it 'returns the status of a POA' do
         mock_ccg(scopes) do |auth_header|
-          poa = create(:power_of_attorney, auth_headers: auth_header)
+          poa = create(:power_of_attorney, :submitted, auth_headers: auth_header)
 
           get "#{get_poa_path}/#{poa.id}", params: nil, headers: auth_header
           json = JSON.parse(response.body)

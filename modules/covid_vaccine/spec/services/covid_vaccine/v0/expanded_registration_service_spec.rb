@@ -24,8 +24,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
   let(:mpi_facility_not_found) { create(:find_profile_response, profile: mpi_profile_no_facility) }
 
   vcr_options = { cassette_name: 'covid_vaccine/registration_facilities',
-                  match_requests_on: %i[path query],
-                  record: :new_episodes }
+                  match_requests_on: %i[path query] }
 
   describe '#register', vcr: vcr_options do
     context 'unauthenticated' do

@@ -16,11 +16,15 @@ module Form1010cg
     end
 
     def retry_limits_for_notification
-      [10]
+      [1, 10]
     end
 
     def notify(params)
-      StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries", tags: ["params:#{params}"])
+      # Add 1 to retry_count to match retry_monitoring logic
+      retry_count = Integer(params['retry_count']) + 1
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried") if retry_count == 1
+      StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries", tags: ["params:#{params}"]) if retry_count == 10
     end
 
     def perform(claim_id)
@@ -39,20 +43,7 @@ module Form1010cg
       log_exception_to_sentry(e)
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
 
-      increment_applications_retried(claim_id)
-
       raise
-    end
-
-    private
-
-    def increment_applications_retried(claim_id)
-      redis_key = "Form1010cg::SubmissionJob:#{claim_id}"
-      return if $redis.get(redis_key).present?
-
-      StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried")
-
-      $redis.set(redis_key, 't')
     end
   end
 end

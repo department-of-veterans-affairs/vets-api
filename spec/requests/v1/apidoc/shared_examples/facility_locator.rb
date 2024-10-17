@@ -5,8 +5,7 @@ require 'rails_helper'
 RSpec.shared_examples 'V1 Facility Locator' do
   vcr_options = {
     match_requests_on: %i[path query],
-    allow_playback_repeats: true,
-    record: :new_episodes
+    allow_playback_repeats: true
   }
 
   describe 'facilities/va', team: :facilities, vcr: vcr_options.merge(cassette_name: '/lighthouse/facilities') do

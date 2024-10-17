@@ -24,5 +24,6 @@
   },
   "living_situation": {
     "is_in_care_facility": false
-  }
+  },
+  "statement_of_truth_signature": "Veteran Surname"
 }
