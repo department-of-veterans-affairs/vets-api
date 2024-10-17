@@ -80,14 +80,18 @@ module V0
     private
 
     def active_facilities(lighthouse_facilities)
-      active_ids = StdInstitutionFacility.active.pluck(:station_number).compact
+      active_ids = cached_ves_facility_ids
 
       if active_ids.empty?
         HCA::StdInstitutionImportJob.new.perform
-        active_ids = StdInstitutionFacility.active.pluck(:station_number).compact
+        active_ids = cached_ves_facility_ids
       end
 
       lighthouse_facilities.select { |facility| active_ids.include?(facility.unique_id) }
+    end
+
+    def cached_ves_facility_ids
+      StdInstitutionFacility.active.pluck(:station_number).compact
     end
 
     def health_care_application
