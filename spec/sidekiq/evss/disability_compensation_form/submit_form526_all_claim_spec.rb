@@ -114,7 +114,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
           expect(Form526JobStatus.last.status).to eq 'success'
         end
-        
+
         it 'updates Form526Submission form with id' do
           expect(described_class).to be < EVSS::DisabilityCompensationForm::SubmitForm526
           subject.perform_async(submission.id)
@@ -159,7 +159,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
                 described_class.drain
               end
-              expect(Rails.logger).not_to have_received(:info).with('EP Merge total open EPs', id: submission.id, count: 1)
+              expect(Rails.logger).not_to have_received(:info).with(
+                'EP Merge total open EPs', id: submission.id, count: 1
+              )
               expect(Rails.logger).not_to have_received(:info).with(
                 'EP Merge open EP eligibility',
                 { id: submission.id, feature_enabled: true, open_claim_review: false,
@@ -197,7 +199,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                 VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
                   described_class.drain
                 end
-                expect(Rails.logger).not_to have_received(:info).with('EP Merge total open EPs', id: submission.id, count: 1)
+                expect(Rails.logger).not_to have_received(:info).with(
+                  'EP Merge total open EPs', id: submission.id, count: 1
+                )
                 expect(Rails.logger).not_to have_received(:info).with(
                   'EP Merge open EP eligibility',
                   { id: submission.id, feature_enabled: true, open_claim_review: false,
