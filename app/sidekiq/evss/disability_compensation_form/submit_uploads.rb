@@ -64,6 +64,21 @@ module EVSS
         raise e
       end
 
+      def self.api_upload_provider(submission, document_type)
+        user = User.find(submission.user_uuid)
+
+        ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
+          options: {
+            form526_submission: submission,
+            document_type: document,
+            statsd_metric_prefix: STATSD_KEY_PREFIX
+          },
+          current_user: user,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS
+        )
+      end
+
       # Recursively submits a file in a new instance of this job for each upload in the uploads list
       #
       # @param submission_id [Integer] The {Form526Submission} id
@@ -83,12 +98,21 @@ module EVSS
           document_data = create_document_data(upload_data, sea.converted_filename)
           raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
-          if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-            # TODO: create client from lighthouse document service
+          # if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+          #   # TODO: create client from lighthouse document service
+          # else
+          #   client = EVSS::DocumentsService.new(submission.auth_headers)
+          # end
+          # client.upload(file_body, document_data)
+
+          if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
+            provider = self.class.api_upload_provider(submission)
+            # file name used twice turn into var
+            upload_document = provider.generate_upload_document(sea.converted_filename)
+            provider.submit_upload_document(upload_document, file_body)
           else
-            client = EVSS::DocumentsService.new(submission.auth_headers)
+            EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
           end
-          client.upload(file_body, document_data)
         end
       rescue => e
         # Can't send a job manually to the dead set.
