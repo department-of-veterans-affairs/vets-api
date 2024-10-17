@@ -17,6 +17,12 @@ MyHealth::Engine.routes.draw do
       resources :session, only: %i[create], controller: 'mr_session', defaults: { format: :json } do
         get :status, on: :collection
       end
+      resources :imaging, only: %i[index], defaults: { format: :json } do
+        # get :request, on: :member
+        get :images, on: :member
+        get :img, on: :collection
+        get :dicom, on: :collection
+      end
       resources :radiology, only: %i[index], defaults: { format: :json }
     end
 

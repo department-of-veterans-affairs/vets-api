@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
+require 'common/client/concerns/streaming_client'
 require 'medical_records/bb_internal/client_session'
 require 'medical_records/bb_internal/configuration'
 
@@ -11,12 +12,41 @@ module BBInternal
   #
   class Client < Common::Client::Base
     include Common::Client::Concerns::MHVSessionBasedClient
+    include Common::Client::Concerns::StreamingClient
 
     configuration BBInternal::Configuration
     client_session BBInternal::ClientSession
 
     def list_radiology
       response = perform(:get, "bluebutton/radiology/phrList/#{session.patient_id}", nil, token_headers)
+      response.body
+    end
+
+    def dicom(header_callback, yielder)
+      uri = URI.join(config.base_path, 'bluebutton/studyjob/zip/stream/11383893/studyidUrn/453-2485299')
+      streaming_get(uri, token_headers, header_callback, yielder)
+    end
+
+    def get_image(study_id, series, image, header_callback, yielder)
+      uri = URI.join(config.base_path,
+                     "bluebutton/external/studyjob/image/studyidUrn/#{study_id}/series/#{series}/image/#{image}")
+      streaming_get(uri, token_headers, header_callback, yielder)
+    end
+
+    def list_imaging_studies
+      response = perform(:get, "bluebutton/study/#{session.patient_id}", nil, token_headers)
+      response.body
+    end
+
+    def request_study(icn, study_id)
+      response = perform(:get, "bluebutton/studyjob/#{session.patient_id}/icn/#{icn}/studyid/#{study_id}", nil,
+                         token_headers)
+      response.body
+    end
+
+    def list_images(study_id)
+      response = perform(:get, "bluebutton/studyjob/zip/preview/list/#{session.patient_id}/studyidUrn/#{study_id}", nil,
+                         token_headers)
       response.body
     end
 
