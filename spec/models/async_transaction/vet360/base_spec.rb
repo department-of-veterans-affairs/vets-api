@@ -20,6 +20,8 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     let(:service) { VAProfile::ContactInformation::Service.new(user) }
 
     before do
+      Flipper.disable(:va_v3_contact_information_service)
+      Flipper.disable(:remove_pciu)
       # vet360_id appears in the API request URI so we need it to match the cassette
       allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
         create(:find_profile_response, profile: build(:mpi_profile, vet360_id: '1'))
@@ -83,6 +85,8 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
 
   describe '.start' do
     before do
+      Flipper.disable(:va_v3_contact_information_service)
+      Flipper.disable(:remove_pciu)
       allow(user).to receive_messages(vet360_id: '1', icn: '1234')
     end
 
@@ -130,6 +134,8 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     let(:service) { VAProfile::ContactInformation::Service.new(user) }
 
     before do
+      Flipper.disable(:va_v3_contact_information_service)
+      Flipper.disable(:remove_pciu)
       # vet360_id appears in the API request URI so we need it to match the cassette
       allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
         create(:find_profile_response, profile: build(:mpi_profile, vet360_id: '1'))
@@ -161,8 +167,9 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     end
   end
 
-  describe '.refresh_transaction_status() v2', :initiate_vaprofile, :skip_vet360 do
+  describe '.refresh_transaction_status() v2', :skip_vet360 do
     Flipper.enable(:va_v3_contact_information_service)
+    Flipper.enable(:remove_pciu)
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:address_transaction,
@@ -243,6 +250,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
   describe '.start v2' do
     before do
       Flipper.enable(:va_v3_contact_information_service)
+      Flipper.enable(:remove_pciu)
       allow(user).to receive_messages(vet360_id: '1781151', icn: '1234')
     end
 
@@ -282,7 +290,6 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
   end
 
   describe '.refresh_transaction_statuses() v2' do
-    Flipper.enable(:va_v3_contact_information_service)
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:address_transaction,
@@ -293,6 +300,8 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     let(:service) { VAProfile::V2::ContactInformation::Service.new(user) }
 
     before do
+      Flipper.enable(:va_v3_contact_information_service)
+      Flipper.enable(:remove_pciu)
       # vet360_id appears in the API request URI so we need it to match the cassette
       allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
         create(:find_profile_response, profile: build(:mpi_profile, vet360_id: '1'))
