@@ -6,7 +6,8 @@ module VANotify
 
     service_tag 'va-notify'
 
-    skip_before_action :verify_authenticity_token, :authenticate, only: [:create]
+    skip_before_action :verify_authenticity_token, only: [:create]
+    skip_before_action :authenticate, only: [:create]
 
     before_action :authenticate_callback
 
