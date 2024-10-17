@@ -12,7 +12,7 @@ describe VRE::Submit1900Job do
         birls_id: '796043735',
         participant_id: '600061742',
         pid: '600061742',
-        dob: '1986-05-06T00:00:00+00:00'.to_date,
+        birth_date: '1986-05-06T00:00:00+00:00'.to_date,
         ssn: '796043735',
         vet360_id: '1781151',
         loa3: true,
