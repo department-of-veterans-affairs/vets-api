@@ -240,16 +240,15 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
 
         context 'on successful query for recent sorted clinics' do
           # Test in RI
-          xit 'returns the recent sorted clinics' do
+          it 'returns the recent sorted clinics' do
             VCR.use_cassette('vaos/v2/systems/get_recent_sorted_clinics_200',
                              match_requests_on: %i[method path query]) do
               Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
                 get '/vaos/v2/locations/recent_sorted_clinics', headers: inflection_header
-                # binding.pry
                 expect(response).to have_http_status(:ok)
-                clinic_info = JSON.parse(response.body)['data']['attributes']
-                expect(clinic_info[0]['stationId']).to eq('983')
-                expect(clinic_info[0]['id']).to eq('1038')
+                clinic_info = JSON.parse(response.body)['data']
+                expect(clinic_info[0]['attributes']['stationId']).to eq('983')
+                expect(clinic_info[0]['attributes']['id']).to eq('1038')
               end
             end
           end

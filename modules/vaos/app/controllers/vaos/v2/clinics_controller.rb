@@ -61,12 +61,12 @@ module VAOS
               log_no_clinic_details_found(station_id, clinic_id)
               sorted_clinics.push('No clinic details found')
             else
-              sorted_clinics.push(VAOS::V2::ClinicsSerializer.new(clinic))
+              sorted_clinics.push(clinic)
             end
           end
         end
 
-        render json: { sorted_clinics: sorted_clinics }
+        render json: VAOS::V2::ClinicsSerializer.new(sorted_clinics)
       end
 
       private
