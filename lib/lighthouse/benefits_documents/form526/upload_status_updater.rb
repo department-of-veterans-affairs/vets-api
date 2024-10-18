@@ -92,7 +92,6 @@ module BenefitsDocuments
       # Lighthouse returns date times as UNIX timestamps in milliseconds
       def start_time
         unix_start_time = @lighthouse526_document_status.dig('time', 'startTime')
-        # COnfimr this uytc is correct
         Time.at(unix_start_time / 1000).utc.to_datetime
       end
 
