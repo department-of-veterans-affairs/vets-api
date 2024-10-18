@@ -926,6 +926,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_18_163939) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "notification_id"
+    t.string "status"
   end
 
   create_table "oauth_sessions", force: :cascade do |t|
