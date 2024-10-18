@@ -999,6 +999,7 @@ lib/virtual_regional_office @department-of-veterans-affairs/va-api-engineers @de
 lib/vre @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/res @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/webhooks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/zero_silent_failures @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/accredited_representatives @department-of-veterans-affairs/accredited-representation-management
 modules/appeals_api @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/apps_api @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/lighthouse-pivot

@@ -223,8 +223,8 @@ module Pensions
       log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
 
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
-      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!', user_account_uuid:,
-                                                                                            **additional_context)
+      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
+                         user_uuid: user_account_uuid, **additional_context)
     end
 
     ##
