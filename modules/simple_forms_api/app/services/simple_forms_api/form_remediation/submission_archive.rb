@@ -6,16 +6,23 @@ require_relative 'file_utilities'
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
 module SimpleFormsApi
   module FormRemediation
+    class NoConfigurationError < StandardError; end
+
     class SubmissionArchive
       include FileUtilities
 
       def initialize(config:, **options)
+        raise NoConfigurationError, 'No configuration was provided' unless config
+
         @config = config
         @temp_directory_path = config.temp_directory_path
         @pdf_already_exists = options[:file_path] && File.exist?(options[:file_path])
 
         initialize_data(options)
         hydrate_submission_data unless data_hydrated?
+      rescue NoConfigurationError => e
+        Rails.logger.error(e)
+        raise e
       rescue => e
         config.handle_error("#{self.class.name} initialization failed", e)
       end
