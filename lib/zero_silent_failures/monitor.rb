@@ -1,44 +1,64 @@
 # frozen_string_literal: true
 
+# ZeroSilentFailures namespace
 module ZeroSilentFailures
-  class Monitor
-    attr_accessor :function, :file
 
-    def initialize(service, user_account_uuid = nil)
-      @service = service
-      @user_account_uuid = user_account_uuid ?: current_user.user_account_uuid
+  # global monitoring functions for ZSF - statsd and logging
+  class Monitor
+
+    # Proxy class to allow a custom `caller_location` to be used
+    class CallLocation
+      attr_accessor :base_label, :path, :lineno
+
+      # create proxy caller_location
+      def initialize(function, file, line = nil)
+        @base_label = function
+        @path = file
+        @lineno = line
+      end
     end
 
-    def log_silent_failure(additional_context)
-      statsd = 'silent_failure'
+    # create ZSF monitor instance
+    def initialize(service)
+      @service = service
+    end
+
+    def log_silent_failure(additional_context, user_account_uuid = nil, call_location: nil)
+      function, file, line = parse_caller(call_location)
+
+      metric = 'silent_failure'
       message = 'Silent failure!'
 
-      StatsD.increment(statsd, tags: [service:, function:])
-      Rails.error(message, {
-        statsd:,
+      StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
+      Rails.logger.error(message, {
+        statsd: metric,
         service:,
         function:,
         file:,
+        line:,
         user_account_uuid:,
         additional_context:
       })
     end
 
-    def log_silent_failure_avoided(additional_context, email_confirmed: false)
-      statsd = 'silent_failure_avoided'
+    def log_silent_failure_avoided(additional_context, user_account_uuid = nil, call_location: nil, email_confirmed: false)
+      function, file, line = parse_caller(call_location)
+
+      metric = 'silent_failure_avoided'
       message = 'Silent failure avoided'
 
       unless email_confirmed
-        statsd = "#{statsd}_no_confirmation"
+        metric = "#{statsd}_no_confirmation"
         message = "#{message} (no confirmation)"
       end
 
-      StatsD.increment(statsd, tags: [service:, function:])
-      Rails.error(message, {
-        statsd:,
+      StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
+      Rails.logger.error(message, {
+        statsd: metric,
         service:,
         function:,
         file:,
+        line:,
         user_account_uuid:,
         additional_context:
       })
@@ -48,16 +68,16 @@ module ZeroSilentFailures
 
     attr_reader :service, :user_account_uuid
 
-    def set_caller
-      if !(function && file)
-        failure_at = caller(2,1)
-
-      end
-    end
-
-    def clear_caller
-      function = nil
-      file = nil
+    # parse information from the `caller`
+    #
+    # @see https://alextaylor.ca/read/caller-tricks/
+    # @see https://stackoverflow.com/a/37565500/1812854
+    # @see https://ruby-doc.org/core-2.2.3/Thread/Backtrace/Location.html
+    #
+    # @param call_location [CallLocation | Thread::Backtrace::Location] location to be logged as failure point
+    def parse_caller(call_location)
+      call_location ||= caller_locations.second
+      [call_location.base_label, call_location.path, call_location.lineno]
     end
 
   end
