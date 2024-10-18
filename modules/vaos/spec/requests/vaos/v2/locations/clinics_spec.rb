@@ -228,8 +228,6 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
       end
     end
 
-    # TODO: rspec
-    # rubocop:disable RSpec/PendingWithoutReason
     describe 'GET recent sorted clinics' do
       let(:user) { build(:user, :vaos) }
 
@@ -239,7 +237,6 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
         end
 
         context 'on successful query for recent sorted clinics' do
-          # Test in RI
           it 'returns the recent sorted clinics' do
             VCR.use_cassette('vaos/v2/systems/get_recent_sorted_clinics_200',
                              match_requests_on: %i[method path query]) do
@@ -254,31 +251,29 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
           end
         end
 
-        context 'on unsuccessful query for latest appointment within look back limit' do
-          # Test in RI
-          xit 'returns a 404 http status' do
+        context 'on unsuccessful query for appointment within look back limit' do
+          it 'returns a 404 http status' do
             expect_any_instance_of(VAOS::V2::AppointmentsService)
-              .to receive(:get_most_recent_visited_clinic_appointment)
+              .to receive(:get_recent_sorted_clinic_appointments)
               .and_return(nil)
-            get '/vaos/v2/locations/last_visited_clinic', headers: inflection_header
+            get '/vaos/v2/locations/recent_sorted_clinics', headers: inflection_header
             expect(response).to have_http_status(:not_found)
           end
         end
 
         context 'on unsuccessful query for clinic information' do
-          # Test in RI
-          xit 'returns a 400 http status' do
-            expect_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_with_cache).and_return(nil)
-            VCR.use_cassette('vaos/v2/systems/get_last_visited_clinic_200', match_requests_on: %i[method path query]) do
+          it 'does not populate the sorted clinics list' do
+            allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_with_cache).and_return(nil)
+            VCR.use_cassette('vaos/v2/systems/get_recent_sorted_clinics_200',
+                             match_requests_on: %i[method path query]) do
               Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
-                get '/vaos/v2/locations/last_visited_clinic', headers: inflection_header
-                expect(response).to have_http_status(:not_found)
+                get '/vaos/v2/locations/recent_sorted_clinics', headers: inflection_header
+                expect(JSON.parse(response.body)['data']).to eq([])
               end
             end
           end
         end
       end
     end
-    # rubocop:enable RSpec/PendingWithoutReason
   end
 end
