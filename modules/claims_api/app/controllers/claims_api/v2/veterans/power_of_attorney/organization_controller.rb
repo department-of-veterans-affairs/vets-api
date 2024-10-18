@@ -16,7 +16,6 @@ module ClaimsApi
           validate_veteran_name(false)
           poa_code = get_poa_code(FORM_NUMBER)
           validate_org_poa_code!(poa_code)
-          assign_poa_to_dependent_claimant!(poa_code:)
 
           submit_power_of_attorney(poa_code, FORM_NUMBER)
         end
