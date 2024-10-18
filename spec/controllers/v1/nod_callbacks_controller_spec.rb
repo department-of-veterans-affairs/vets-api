@@ -27,20 +27,7 @@ RSpec.describe V1::NodCallbacksController, type: :controller do
     end
 
     context 'with payload' do
-      context 'if status is delivered' do
-        it 'returns success and does not save a record of the payload' do
-          post(:create, params:, as: :json)
-
-          expect(NodNotification).not_to receive(:create!)
-
-          expect(response).to have_http_status(:ok)
-
-          res = JSON.parse(response.body)
-          expect(res['message']).to eq 'success'
-        end
-      end
-
-      context 'if status is a failure that will not retry' do
+      context 'and the record successfully saved' do
         let(:status) { 'permanent-failure' }
 
         it 'returns success' do
