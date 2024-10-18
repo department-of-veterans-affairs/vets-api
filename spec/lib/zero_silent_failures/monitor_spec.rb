@@ -10,15 +10,17 @@ RSpec.describe ZeroSilentFailures::Monitor do
   let(:tags) { ["service:#{service}", "function:#{call_location.base_label}"] }
   let(:user_account_uuid) { '123-test-uuid' }
   let(:additional_context) { { test: 'foobar' } }
-  let(:payload) do {
-     statsd: 'OVERRIDE',
-     service:,
-     function: call_location.base_label,
-     file: call_location.path,
-     line: call_location.lineno,
-     user_account_uuid: ,
-     additional_context:
-  } end
+  let(:payload) do
+    {
+      statsd: 'OVERRIDE',
+      service:,
+      function: call_location.base_label,
+      file: call_location.path,
+      line: call_location.lineno,
+      user_account_uuid:,
+      additional_context:
+    }
+  end
 
   describe '::CallLocation' do
     it 'responds to and returns expected values' do
