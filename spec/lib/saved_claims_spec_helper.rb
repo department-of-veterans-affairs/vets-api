@@ -28,7 +28,7 @@ shared_examples_for 'saved_claim' do
   describe 'Check for schema being loaded' do
     it 'does check' do
       saved_claim = SavedClaim::Pension.new
-      saved_claim.schema_loaded_check
+      saved_claim.schema_loaded_check('21P-527EZ')
       expect(Rails.logger).to receive(:info).with('21P-527EZ has been loaded')
     end
   end
