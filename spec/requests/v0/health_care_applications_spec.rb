@@ -209,7 +209,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
   end
 
   describe 'GET facilities' do
-    it 'responds with facilities data' do
+    it 'responds with facilities data for supported facilities' do
       StdInstitutionFacility.create(station_number: '042')
 
       VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
@@ -255,12 +255,30 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                                               'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp' })
     end
 
-    it 'filters out facilities not yet supported downstream' do
-      VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
-        get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
+    context 'with hca_retrieve_facilities_without_repopulating disabled' do
+      it 'populates VES facilities cache if it returns no results' do
+        allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(false)
+        expect(StdInstitutionFacility.count).to eq(0)
+        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+          get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
+        end
+        expect(StdInstitutionFacility.all.any?).to eq(true)
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body[0]).to be_nil
       end
-      expect(response).to have_http_status(:ok)
-      expect(response.parsed_body[0]).to be_nil
+    end
+
+    context 'with hca_retrieve_facilities_without_repopulating enabled' do
+      it 'returns no results when the cache is empty without populating it' do
+        allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(true)
+        expect(StdInstitutionFacility.count).to eq(0)
+        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+          get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
+        end
+        expect(StdInstitutionFacility.count).to eq(0)
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body[0]).to be_nil
+      end
     end
   end
 
