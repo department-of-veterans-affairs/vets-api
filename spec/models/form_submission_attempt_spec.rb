@@ -22,6 +22,12 @@ RSpec.describe FormSubmissionAttempt, type: :model do
 
     context 'transitioning to a failure state' do
       let(:notification_type) { :error }
+      let(:vanotify_client) { instance_double(VaNotify::Service) }
+      let!(:form526_submission) { create(:form526_submission) }
+      let!(:form526_form4142_form_submission) do
+        create(:form_submission, saved_claim_id: form526_submission.saved_claim.id,
+                                 form_type: CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE)
+      end
 
       it 'transitions to a failure state' do
         form_submission_attempt = create(:form_submission_attempt)
@@ -59,6 +65,30 @@ RSpec.describe FormSubmissionAttempt, type: :model do
           form_submission_attempt.fail!
 
           expect(SimpleFormsApi::NotificationEmail).not_to have_received(:new)
+        end
+      end
+
+      it 'sends an 4142 error email when it is not a SimpleFormsApi form and flippers are on' do
+        Flipper.enable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
+        Flipper.enable(CentralMail::SubmitForm4142Job::POLLED_FAILURE_EMAIL)
+
+        email_klass = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail
+        form_submission_attempt = FormSubmissionAttempt.create(form_submission: form526_form4142_form_submission)
+
+        mocked_notification_service = instance_double(VaNotify::Service)
+        allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
+        allow(mocked_notification_service).to receive(:send_email).and_return(true)
+
+        with_settings(Settings.vanotify.services.benefits_disability, { api_key: 'test_service_api_key' }) do
+          expect do
+            form_submission_attempt.fail!
+            email_klass.drain
+          end.to trigger_statsd_increment("#{email_klass::STATSD_METRIC_PREFIX}.success")
+            .and change(Form526JobStatus, :count).by(1)
+
+          job_tracking = Form526JobStatus.last
+          expect(job_tracking.form526_submission_id).to eq(form526_submission.id)
+          expect(job_tracking.job_class).to eq(email_klass.class_name)
         end
       end
     end

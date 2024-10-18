@@ -417,6 +417,14 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
+  disability_526_form4142_polling_records:
+    actor_type: user
+    description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
+    enable_in_development: true
+  disability_526_form4142_polling_record_failure_email:
+    actor_type: user
+    description: enables failure email when explicit failure is detected downstream
+    enable_in_development: true
   disability_526_classifier_new_claims:
     actor_type: user
     description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
