@@ -6,12 +6,12 @@ module Burials
   ##
   # Monitor functions for Rails logging and StatsD
   #
-  class Monitor
+  class Monitor < ::ZeroSilentFailures::Monitor
     # statsd key for api
     CLAIM_STATS_KEY = 'api.burial_claim'
 
     # statsd key for sidekiq
-    SUBMISSION_STATS_KEY = 'worker.lighthouse.pension_benefit_intake_job'
+    SUBMISSION_STATS_KEY = 'worker.lighthouse.submit_benefits_intake_claim'
 
     def initialize
       super('burial-application')
@@ -135,7 +135,7 @@ module Burials
     # @see Lighthouse::SubmitBenefitsIntakeClaim
     #
     # @param msg [Hash] sidekiq exhaustion response
-    # @param claim [Pension::SavedClaim]
+    # @param claim [SavedClaim::Burial]
     #
     def track_submission_exhaustion(msg, claim = nil)
       user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
@@ -145,11 +145,11 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         message: msg
       }
-      log_silent_failure(additional_context, user_account_uuid, caller_locations.first)
+      log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
 
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
-      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!', user_account_uuid:,
-                                                                                            **additional_context)
+      Rails.logger.error('Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!',
+                         user_uuid: user_account_uuid, **additional_context)
     end
   end
 end
