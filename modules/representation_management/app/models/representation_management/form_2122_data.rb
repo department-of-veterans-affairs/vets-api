@@ -5,7 +5,7 @@ module RepresentationManagement
     attr_accessor :organization_id
 
     validates :organization_id, presence: true
-    validate :organization_name_resolves
+    validate :organization_name_resolves?
 
     def organization_name
       @organization_name ||= find_organization_name

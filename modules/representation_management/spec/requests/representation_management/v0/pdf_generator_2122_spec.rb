@@ -93,9 +93,9 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
     end
 
     context 'when triggering validation errors' do
-      context 'when submitting without the organization name for a single validation error' do
+      context 'when submitting without the veteran first name for a single validation error' do
         before do
-          params[:pdf_generator2122][:representative][:organization_id] = nil
+          params[:pdf_generator2122][:veteran][:name][:first] = nil
           post(base_path, params:)
         end
 
@@ -104,7 +104,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
         end
 
         it 'responds with the expected body' do
-          expect(response.body).to eq({ errors: ['Organization name Organization not found'] }.to_json)
+          expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
         end
       end
 
