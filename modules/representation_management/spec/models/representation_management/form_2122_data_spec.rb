@@ -44,7 +44,7 @@ RSpec.describe RepresentationManagement::Form2122Data, type: :model do
           allow(AccreditedOrganization).to receive(:find_by).with(id: organization_name).and_return(nil)
           allow(Veteran::Service::Organization).to receive(:find_by).with(poa: organization_name).and_return(nil)
 
-          expect(form_2122_data.organization_name).to eq('Organization not found')
+          expect(form_2122_data.organization_name).to eq(nil)
         end
       end
     end
