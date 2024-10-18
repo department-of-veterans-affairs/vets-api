@@ -48,16 +48,33 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
       expect(response.body).to eq([target_facility].to_json)
     end
 
-    it 'invokes VES import job if query results are empty' do
-      params = { state: 'AK' }
+    context 'with hca_retrieve_facilities_without_repopulating disabled' do
+      it 'invokes VES import job if query results are empty' do
+        allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(false)
 
-      expect(StdInstitutionFacility.all).to eq([])
+        params = { state: 'AK' }
 
-      import_job = instance_double(HCA::StdInstitutionImportJob)
-      expect(HCA::StdInstitutionImportJob).to receive(:new).and_return(import_job)
-      expect(import_job).to receive(:perform)
+        expect(StdInstitutionFacility.all).to eq([])
 
-      get(:facilities, params:)
+        import_job = instance_double(HCA::StdInstitutionImportJob)
+        expect(HCA::StdInstitutionImportJob).to receive(:new).and_return(import_job)
+        expect(import_job).to receive(:perform)
+
+        get(:facilities, params:)
+      end
+    end
+
+    context 'with hca_retrieve_facilities_without_repopulating enabled' do
+      it 'does not invoke VES import job even if query results are empty' do
+        allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(true)
+        params = { state: 'AK' }
+
+        expect(StdInstitutionFacility.all).to eq([])
+
+        expect(HCA::StdInstitutionImportJob).not_to receive(:new)
+
+        get(:facilities, params:)
+      end
     end
   end
 end
