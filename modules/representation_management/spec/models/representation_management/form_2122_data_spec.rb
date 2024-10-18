@@ -30,4 +30,10 @@ RSpec.describe RepresentationManagement::Form2122Data, type: :model do
       end
     end
   end
+
+  describe 'validations' do
+    subject { described_class.new }
+
+    it { expect(subject).to validate_presence_of(:organization_id) }
+  end
 end
