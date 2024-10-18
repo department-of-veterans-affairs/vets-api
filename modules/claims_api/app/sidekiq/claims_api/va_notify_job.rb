@@ -2,7 +2,7 @@
 
 module ClaimsApi
   class VANotifyJob < ClaimsApi::ServiceBase
-    LOG_TAG = '526_v2_Docker_Container_service'
+    LOG_TAG = 'va_notify_job'
 
     def perform(poa_id, rep)
       return if skip_notification_email?
