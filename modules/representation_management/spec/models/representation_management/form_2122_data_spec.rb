@@ -17,7 +17,10 @@ RSpec.describe RepresentationManagement::Form2122Data, type: :model do
       context 'when organization is found in AccreditedOrganization' do
         it 'returns the name from AccreditedOrganization' do
           accredited_org = double('AccreditedOrganization', name: 'Accredited Org Name')
-          allow(AccreditedOrganization).to receive(:find_by).with(id: organization_name).and_return(accredited_org)
+          allow(AccreditedOrganization)
+            .to receive(:find_by)
+            .with(id: organization_name)
+            .and_return(accredited_org)
 
           expect(form_2122_data.organization_name).to eq('Accredited Org Name')
         end
@@ -27,7 +30,10 @@ RSpec.describe RepresentationManagement::Form2122Data, type: :model do
         it 'returns the name from Veteran::Service::Organization' do
           allow(AccreditedOrganization).to receive(:find_by).with(id: organization_name).and_return(nil)
           veteran_org = double('Veteran::Service::Organization', name: 'Veteran Org Name')
-          allow(Veteran::Service::Organization).to receive(:find_by).with(poa: organization_name).and_return(veteran_org)
+          allow(Veteran::Service::Organization)
+            .to receive(:find_by)
+            .with(poa: organization_name)
+            .and_return(veteran_org)
 
           expect(form_2122_data.organization_name).to eq('Veteran Org Name')
         end
