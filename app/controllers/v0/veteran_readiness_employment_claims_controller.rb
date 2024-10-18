@@ -42,7 +42,7 @@ module V0
         vet360_id: current_user.vet360_id,
         birth_date: current_user.birth_date,
         ssn: current_user.ssn,
-        loa3: current_user.loa3?,
+        loa3?: current_user.loa3?,
         uuid: current_user.uuid,
         icn: current_user.icn,
         va_profile_email: current_user.va_profile_email || current_user.va_profile_v2_email

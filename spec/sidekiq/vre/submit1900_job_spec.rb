@@ -15,7 +15,7 @@ describe VRE::Submit1900Job do
         birth_date: '1986-05-06T00:00:00+00:00'.to_date,
         ssn: '796043735',
         vet360_id: '1781151',
-        loa3: true,
+        loa3?: true,
         icn: '1013032368V065534',
         uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
         va_profile_email: 'test@test.com'
