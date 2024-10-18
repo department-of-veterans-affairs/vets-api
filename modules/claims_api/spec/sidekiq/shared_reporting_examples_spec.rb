@@ -70,14 +70,13 @@ RSpec.shared_examples 'shared reporting behavior' do
       job = described_class.new
       job.perform
       va_gov_groups = job.unsuccessful_va_gov_claims_submissions
-
-      first_group = va_gov_groups[0][0]
+      first_group = va_gov_groups[1]
       first_transaction_id = claim_one[:transaction_id]
-      expect(first_group[:transaction_id]).to eq(first_transaction_id)
+      expect(first_group[0][:transaction_id]).to eq(first_transaction_id)
 
-      second_group = va_gov_groups[1][0]
+      second_group = va_gov_groups[2]
       second_transaction_id = claim_two[:transaction_id]
-      expect(second_group[:transaction_id]).to eq(second_transaction_id)
+      expect(second_group[0][:transaction_id]).to eq(second_transaction_id)
     end
   end
 end

@@ -140,12 +140,12 @@ module ClaimsApi
     end
 
     def map_transaction_ids(array)
-      transaction_mapping = {}
-      key_sequence = (0..transaction_mapping.size + 3).to_a
       key_index = 0
+      transaction_mapping = {}
+      key_sequence = (1..array.size + 3).to_a
 
       # Map each unique transaction_id to a new key
-      array&.each do |array_transaction_id_and_id|
+      array.each do |array_transaction_id_and_id|
         transaction_id = array_transaction_id_and_id[:transaction_id]
         unless transaction_mapping.key?(transaction_id)
           transaction_mapping[transaction_id] = key_sequence[key_index]
