@@ -99,6 +99,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               before do
                 allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
                   .to receive(:user_profile).and_return(user_profile)
+                allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
+                  .to receive(:current_poa).and_return('123')
                 allow_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
                   .to receive(:validate_poa_code_exists!).and_return(nil)
                 allow_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
@@ -111,17 +113,16 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 end
 
                 context 'and the request includes a claimant' do
-                  it 'calls assign_poa_to_dependent!' do
+                  it 'enqueues the PoaAssignDependentClaimantJob' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
                         json = JSON.parse(request_body)
                         json['data']['attributes']['claimant'] = claimant_data
                         request_body = json.to_json
 
-                        expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-                          .to receive(:assign_poa_to_dependent!)
-
-                        post appoint_organization_path, params: request_body, headers: auth_header
+                        expect do
+                          post appoint_organization_path, params: request_body, headers: auth_header
+                        end.to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size).by(1)
                       end
                     end
                   end
@@ -133,17 +134,16 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
                 end
 
-                it 'does not call assign_poa_to_dependent!' do
+                it 'does not enqueue the PoaAssignDependentClaimantJob' do
                   VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     mock_ccg(scopes) do |auth_header|
                       json = JSON.parse(request_body)
                       json['data']['attributes']['claimant'] = claimant_data
                       request_body = json.to_json
 
-                      expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-                        .not_to receive(:assign_poa_to_dependent!)
-
-                      post appoint_organization_path, params: request_body, headers: auth_header
+                      expect do
+                        post appoint_organization_path, params: request_body, headers: auth_header
+                      end.not_to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size)
                     end
                   end
                 end
