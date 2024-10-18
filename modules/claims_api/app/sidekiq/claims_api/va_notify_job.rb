@@ -2,6 +2,8 @@
 
 module ClaimsApi
   class VANotifyJob < ClaimsApi::ServiceBase
+    LOG_TAG = '526_v2_Docker_Container_service'
+
     def perform(poa_id, rep)
       return if skip_notification_email?
 
@@ -37,15 +39,15 @@ module ClaimsApi
     private
 
     def handle_failure(poa_id, error)
-      notify_on_failure(
-        'ClaimsApi::VANotifyJob',
-        "VA Notify email notification failed to send for #{poa_id}"
-      )
+      job_name = 'ClaimsApi::VANotifyJob'
+      msg = "VA Notify email notification failed to send for #{poa_id} with error #{error}"
+      slack_alert_on_failure(job_name, msg)
 
       ClaimsApi::Logger.log(
-        'poa_update_notify_job',
-        detail: "Failed to notify with error: #{get_error_message(error)}"
+        self.class::LOG_TAG,
+        detail: msg
       )
+      # retry job
       raise error
     end
 
@@ -184,7 +186,7 @@ module ClaimsApi
     end
 
     def schedule_follow_up_check(notification_id)
-      ClaimsApi::VANotifyFollowUpJob.perform_in(60.minutes, notification_id)
+      ClaimsApi::VANotifyFollowUpJob.perform_async(notification_id)
     end
 
     def skip_notification_email?

@@ -3,6 +3,7 @@
 require 'sidekiq'
 require 'claims_api/claim_logger'
 require 'sidekiq/monitored_worker'
+require 'sidekiq/job'
 require 'sentry_logging'
 
 module ClaimsApi
@@ -40,9 +41,16 @@ module ClaimsApi
 
     protected
 
+    def slack_alert_on_failure(job_name, msg)
+      notify_on_failure(
+        job_name,
+        msg
+      )
+    end
+
     def notify_on_failure(job_name, notification_message)
       slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                             channel: '#api-benefits-claims-alerts',
+                                             channel: '#vaapi-alerts-testing',
                                              username: "Failed #{job_name}")
       slack_client.notify(notification_message)
     end
