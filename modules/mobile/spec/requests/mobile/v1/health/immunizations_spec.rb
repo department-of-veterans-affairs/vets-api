@@ -8,6 +8,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
 
   let!(:user) { sis_user(icn: '9000682') }
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
+  let(:default_params) { { page: { size: 100 } } }
 
   before do
     Timecop.freeze(Time.zone.parse('2021-10-20T15:59:16Z'))
@@ -22,7 +23,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
     context 'when the expected fields have data' do
       before do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 11 } }
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
         end
       end
 
@@ -34,7 +35,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
       context 'for items that do not have locations' do
         it 'has a blank relationship' do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 12, number: 1 } }
+            get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
           end
           expect(response.parsed_body['data'][0]['relationships']).to eq(
             {
@@ -88,7 +89,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
     context 'when the note is null or an empty array' do
       before do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations_blank_note', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 12, number: 1 } }
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
         end
       end
 
@@ -116,7 +117,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
       before do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations_token_too_many_error',
                          match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 12, number: 1 } }
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
         end
       end
 
@@ -135,7 +136,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
       context 'when an immunization group name is COVID-19 and there is a manufacturer provided' do
         it 'uses the vaccine manufacturer in the response' do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 14, number: 1 } }
+            get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
           end
           covid_with_manufacturer_immunization = response.parsed_body['data'].select do |i|
             i['id'] == 'I2-R5T5WZ3D6UNCTRUASZ6N6IIVXM000000'
@@ -159,7 +160,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
       context 'when an immunization group name is COVID-19 and there is no manufacturer provided' do
         it 'sets manufacturer to nil' do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 14, number: 1 } }
+            get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
           end
 
           covid_no_manufacturer_immunization = response.parsed_body['data'].select do |i|
@@ -183,7 +184,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
         it 'increments statsd' do
           expect do
             VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-              get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 14, number: 1 } }
+              get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
             end
           end.to trigger_statsd_increment('mobile.immunizations.covid_manufacturer_missing', times: 1)
         end
@@ -268,7 +269,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
     describe 'record order' do
       it 'orders records by descending date' do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 15, number: 1 } }
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
         end
 
         dates = response.parsed_body['data'].collect { |i| i['attributes']['date'] }
@@ -352,7 +353,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
         it 'returns missing date items at end of list' do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations_date_missing',
                            match_requests_on: %i[method uri]) do
-            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 4 } }
+            get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
           end
           assert_schema_conform(200)
           ordered_dates = response.parsed_body['data'].map { |i| i['attributes']['date'] }
