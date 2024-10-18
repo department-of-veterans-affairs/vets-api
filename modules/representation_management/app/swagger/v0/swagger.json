@@ -224,10 +224,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "organization_name": {
-                    "type": "string",
-                    "example": "Veterans Organization"
-                  },
                   "record_consent": {
                     "type": "boolean",
                     "example": true
@@ -331,6 +327,15 @@
                       }
                     }
                   },
+                  "representative": {
+                    "type": "object",
+                    "properties": {
+                      "organization_id": {
+                        "type": "string",
+                        "example": "Veterans Organization"
+                      }
+                    }
+                  },
                   "veteran": {
                     "type": "object",
                     "properties": {
@@ -431,7 +436,6 @@
                   }
                 },
                 "required": [
-                  "organization_name",
                   "record_consent",
                   "veteran"
                 ]
