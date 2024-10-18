@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 shared_examples_for 'saved_claim_with_confirmation_number' do
+  subject { described_class.new }
+
   it_behaves_like 'saved_claim'
 
   it 'responds to #confirmation_number' do
@@ -26,10 +28,10 @@ shared_examples_for 'saved_claim' do
   end
 
   describe 'Check for schema being loaded' do
-    it 'does check' do
-      saved_claim = SavedClaim::Pension.new
+    it 'logs the message' do
+      saved_claim = SavedClaim::ApplicationRecord.new
       saved_claim.schema_loaded_check('21P-527EZ')
-      expect(Rails.logger).to receive(:info).with('21P-527EZ has been loaded')
+      expect(Rails.logger).to receive(:info).with("#{subject} has been loaded")
     end
   end
 
