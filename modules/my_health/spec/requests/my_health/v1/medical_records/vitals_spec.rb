@@ -43,7 +43,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vitals', type: :request do
 
     before do
       VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                          match_requests_on: %i[method uri_ignoring_path_parameters])
+                          match_requests_on: %i[method sm_user_ignoring_path_param])
     end
 
     after do

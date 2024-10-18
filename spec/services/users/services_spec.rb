@@ -10,7 +10,7 @@ RSpec.describe Users::Services do
 
     context 'with initialized user' do
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_non_premium_user',
-                       match_requests_on: %i[method uri_ignoring_path_parameters]) do
+                       match_requests_on: %i[method sm_user_ignoring_path_param]) do
         it 'returns an array of services authorized to the initialized user',
            :aggregate_failures do
           expect(subject.class).to eq Array
@@ -38,7 +38,7 @@ RSpec.describe Users::Services do
       let(:user) { build :user }
 
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_non_premium_user',
-                       match_requests_on: %i[method uri_ignoring_path_parameters]) do
+                       match_requests_on: %i[method sm_user_ignoring_path_param]) do
         it 'returns only the services that are authorized to this loa1 user' do
           expect(subject).to match_array(
             %w[
@@ -61,7 +61,7 @@ RSpec.describe Users::Services do
         Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
         VCR.insert_cassette('sm_client/session')
         VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                            match_requests_on: %i[method uri_ignoring_path_parameters])
+                            match_requests_on: %i[method sm_user_ignoring_path_param])
       end
 
       after do

@@ -7,7 +7,7 @@ require 'stringio'
 describe MedicalRecords::Client do
   before(:all) do
     VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                     match_requests_on: %i[method uri_ignoring_path_parameters]) do
+                     match_requests_on: %i[method sm_user_ignoring_path_param]) do
       VCR.use_cassette 'mr_client/session' do
         VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
           @client ||= begin
