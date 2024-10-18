@@ -94,7 +94,6 @@ module Swagger
               property :show,
                        type: :boolean,
                        description: 'Whether the client should display Veteran Onboarding information'
-
             end
             property :prefills_available do
               key :type, :array
