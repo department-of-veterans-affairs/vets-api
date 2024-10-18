@@ -377,10 +377,7 @@ RSpec.describe Form526Submission do
       def expect_no_max_cfi_logged(diagnostic_code)
         expect(StatsD).not_to have_received(:increment).with('api.max_cfi.submit',
                                                              tags: ["diagnostic_code:#{diagnostic_code}",
-                                                                    'claimed:true'])
-        expect(StatsD).not_to have_received(:increment).with('api.max_cfi.submit',
-                                                             tags: ["diagnostic_code:#{diagnostic_code}",
-                                                                    'claimed:false'])
+                                                                    anything])
       end
 
       context 'the submission is for tinnitus' do
