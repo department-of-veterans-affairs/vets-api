@@ -33,7 +33,7 @@ class FormSubmissionAttempt < ApplicationRecord
           simple_forms_enqueue_result_email(:error)
         elsif should_send_form526_form4142_email
           # Do not love hard coding this in here like this.
-          # Hoping to refactor this at somepoint to better support various emailing on arbitrary or inherited classes          
+          # Hoping to refactor this at somepoint to better support various emailing on arbitrary or inherited classes
           form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
           Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
                             log_info.merge({ form526_submission_id: }))
