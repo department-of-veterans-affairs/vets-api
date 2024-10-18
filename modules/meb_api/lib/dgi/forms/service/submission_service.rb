@@ -49,10 +49,17 @@ module MebApi
 
           def format_params(params)
             camelized_keys = camelize_keys_for_java_service(params.except(:form_id))
-            modified_keys = camelized_keys['toeClaimant']&.merge(
-              personCriteria: { ssn: @user.ssn }.stringify_keys)
+            if params["@type"] == "ToeSubmission"
+              modified_keys = camelized_keys['toeClaimant']&.merge(
+                personCriteria: { ssn: @user.ssn }.stringify_keys)
 
-            camelized_keys['toeClaimant'] = modified_keys
+              camelized_keys['toeClaimant'] = modified_keys
+            else 
+              modified_keys = camelized_keys['claimant']&.merge(
+                personCriteria: { ssn: @user.ssn }.stringify_keys)
+
+              camelized_keys['claimant'] = modified_keys
+            end
             camelized_keys
           end
 
