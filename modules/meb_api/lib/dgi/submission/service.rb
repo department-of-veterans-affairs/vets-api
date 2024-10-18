@@ -31,12 +31,12 @@ module MebApi
         end
 
         def dgi_url(form_type)
-          if form_type == "Chapter1606Submission"
-            "Chapter1606"
-          elsif form_type == "Chapter30Submission"
-            "Chapter30"
+          if form_type == 'Chapter1606Submission'
+            'Chapter1606'
+          elsif form_type == 'Chapter30Submission'
+            'Chapter30'
           else
-            "Chapter33"
+            'Chapter33'
           end
         end
 

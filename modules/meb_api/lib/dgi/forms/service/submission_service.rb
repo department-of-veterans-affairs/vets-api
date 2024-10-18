@@ -33,10 +33,10 @@ module MebApi
 
 
         def dgi_url(form_type)
-          if form_type == "Chapter35Submission"
-            "Chapter35"
+          if form_type == 'Chapter35Submission'
+            'Chapter35'
           else
-            "toe"
+            'toe'
           end
         end
 
