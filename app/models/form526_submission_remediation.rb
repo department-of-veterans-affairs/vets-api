@@ -21,10 +21,6 @@ class Form526SubmissionRemediation < ApplicationRecord
     end
   end
 
-  def ignored_as_duplicate?
-    remediation_type == 'ignored_as_duplicate'
-  end
-
   private
 
   def initialize_lifecycle

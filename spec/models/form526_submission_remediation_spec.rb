@@ -54,13 +54,6 @@ RSpec.describe Form526SubmissionRemediation, type: :model do
   end
 
   describe 'instance methods' do
-    describe 'ignored_as_duplicate?' do
-      it 'checks if a records remediation_type is ignored_as_duplicate' do
-        subject.update(remediation_type: described_class.remediation_types[:ignored_as_duplicate])
-        expect(subject.ignored_as_duplicate?).to be true
-      end
-    end
-
     describe '#mark_as_unsuccessful' do
       let(:timestamped_context) { "#{Time.current.strftime('%Y-%m-%d %H:%M:%S')} -- #{remediate_context}" }
 
