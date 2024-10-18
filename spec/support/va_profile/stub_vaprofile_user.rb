@@ -2,7 +2,7 @@
 
 require 'va_profile/v2/contact_information/service'
 require 'va_profile/v2/contact_information/person_response'
-require 'va_profile/models/v2/address'
+require 'va_profile/models/v3/address'
 require 'va_profile/models/telephone'
 
 # rubocop:disable Metrics/MethodLength
@@ -14,7 +14,7 @@ def stub_vaprofile_user(person = nil)
     :person_v2,
     addresses: [
       build(:va_profile_address_v2, id: 577_127),
-      build(:va_profile_address_v2, address_pou: VAProfile::Models::V2::Address::CORRESPONDENCE, id: 124)
+      build(:va_profile_address_v2, address_pou: VAProfile::Models::V3::Address::CORRESPONDENCE, id: 124)
     ],
     emails: [
       build(:email, :contact_info_v2, id: 318_927)

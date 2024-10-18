@@ -24,7 +24,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::V2::Person)
+          expect(response.person).to be_a(VAProfile::Models::V3::Person)
         end
       end
 
@@ -50,7 +50,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/v2/contact_information/person_without_data', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::V2::Person)
+          expect(response.person).to be_a(VAProfile::Models::V3::Person)
         end
       end
     end

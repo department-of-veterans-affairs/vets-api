@@ -13,6 +13,7 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { true }
 
     before do
+      Flipper.disable(:va_v3_contact_information_service)
       create_flagged_records(flag_type)
       allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
     end
@@ -69,6 +70,46 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
         record.reload
         expect(record.flagged_value_updated_at).to be_nil
       end
+    end
+  end
+
+  context 'when address_exists is true for V3/AddressValidation' do
+    let(:address_exists) { true }
+
+    before do
+      Flipper.enable(:va_v3_contact_information_service)
+      create_flagged_records(flag_type)
+      allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::V3::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
+    end
+
+    after do
+      Flipper.disable(:va_v3_contact_information_service)
+    end
+
+    it "updates the #{flag_type} and the associated flagged records" do
+      flagged_records =
+        RepresentationManagement::FlaggedVeteranRepresentativeContactData
+        .where(representative_id: id, flag_type:)
+
+      flagged_records.each do |record|
+        expect(record.flagged_value_updated_at).to be_nil
+      end
+
+      subject.perform(json_data)
+      representative.reload
+
+      expect(representative.send(attribute)).to eq(valid_value)
+
+      flagged_records.each do |record|
+        record.reload
+        expect(record.flagged_value_updated_at).not_to be_nil
+      end
+    end
+
+    it 'does not call validate_address or VAProfile::V3::AddressValidation::Service.new' do
+      subject.perform(json_data)
+
+      expect(VAProfile::V3::AddressValidation::Service).not_to have_received(:new)
     end
   end
 end
@@ -181,7 +222,7 @@ RSpec.describe Representatives::Update do
     end
 
     before do
-      allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response)
+      allow_any_instance_of(VAProfile::V3::AddressValidation::Service).to receive(:candidate).and_return(api_response)
     end
 
     context 'when JSON parsing fails' do
