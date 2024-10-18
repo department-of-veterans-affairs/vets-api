@@ -1366,6 +1366,10 @@ vanotify:
         claim_submission_error_text: fake_template_id
     benefits_decision_review:
       api_key: fake_secret
+      template_id:
+        higher_level_review_form_error_email: fake_hlr_template_id
+        notice_of_disagreement_form_error_email: fake_nod_template_id
+        supplemental_claim_form_error_email: fake_sc_template_id
     benefits_disability:
       api_key: fake_secret
       template_id:

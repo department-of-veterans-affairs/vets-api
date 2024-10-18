@@ -397,6 +397,10 @@ features:
     actor_type: user
     description: Enable job to delete SavedClaim records when the record has a delete_date and the date is in the past
     enable_in_development: true
+  decision_review_failure_notification_email_job_enabled:
+    actor_type: user
+    description: Enable job to send form and evidence failure notification emails
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
