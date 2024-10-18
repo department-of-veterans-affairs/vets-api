@@ -3,7 +3,6 @@
 require 'sidekiq'
 require 'claims_api/claim_logger'
 require 'sidekiq/monitored_worker'
-require 'sidekiq/job'
 require 'sentry_logging'
 
 module ClaimsApi
