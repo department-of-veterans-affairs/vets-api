@@ -117,7 +117,7 @@ class SavedClaim < ApplicationRecord
   #
   #  @return nil
   #
-  def schema_loaded_check(schema: nil)
+  def schema_loaded_check(schema)
     if schema.blank?
       Rails.logger.error("No schema found for #{self.class::FORM}")
     else
