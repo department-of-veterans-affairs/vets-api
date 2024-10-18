@@ -5,7 +5,16 @@ require 'rails_helper'
 RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
   subject { described_class }
 
-  let!(:form526_submission) { create(:form526_submission) }
+  # [wipn8923] remove?
+  # let(:form_addendum) do
+  #   {
+  #     'form4142' => { foo: 'bar' },
+  #     'form0781' => { foo: 'bar' },
+  #     'form0781a' => { foo: 'bar' },
+  #     'form8940' => { foo: 'bar' },
+  #   }
+  # end
+  let!(:form526_submission) { create(:form526_submission, :with_uploads_and_ancillary_forms) }
   let(:email_service) { double('VaNotify::Service') }
 
   before do
@@ -19,11 +28,18 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
   describe '#perform' do
     let(:expected_params) do
       {
-        email_address: 'test@email.com',
+        email_address: 'test@example.com',
         template_id: 'form526_submission_failure_notification_template_id',
         personalisation: {
           first_name: form526_submission.get_first_name,
-          date_submitted: form526_submission.format_creation_time_for_mailers
+          date_submitted: form526_submission.format_creation_time_for_mailers,
+          files_submitted: ["extXas.pdf", "extXas.pdf", "extXas.pdf"],
+          forms_submitted: [
+            "VA Form 21-4142",
+            "VA Form 21-0781",
+            "VA Form 21-0781a",
+            "VA Form 21-8940"
+          ]
         }
       }
     end

@@ -13,6 +13,12 @@ class Form526SubmissionFailureEmailJob
     'service:disability-application',
     'function:526_backup_submission_to_lighthouse'
   ].freeze
+  FORM_DESCRIPTIONS = {
+    "form4142" => 'VA Form 21-4142',
+    "form0781" => 'VA Form 21-0781',
+    "form0781a" => 'VA Form 21-0781a',
+    "form8940" => 'VA Form 21-8940'
+  }
 
   sidekiq_options retry: 14
 
@@ -69,14 +75,34 @@ class Form526SubmissionFailureEmailJob
     template_id = Settings.vanotify.services.benefits_disability.template_id
                           .form526_submission_failure_notification_template_id
 
+    personalisation = {
+      first_name: submission.get_first_name,
+      date_submitted: submission.format_creation_time_for_mailers,
+      forms_submitted: forms_submitted(submission.form),
+      files_submitted: files_submitted(submission.form['form526_uploads'])
+    }
+
     email_client.send_email(
       email_address: submission.veteran_email_address,
       template_id:,
-      personalisation: {
-        first_name: submission.get_first_name,
-        date_submitted: submission.format_creation_time_for_mailers
-      }
+      personalisation:
     )
+  end
+
+  def forms_submitted(form)
+    [].tap do |forms|
+      forms << FORM_DESCRIPTIONS['form4142'] if form['form4142'].present?
+      forms << FORM_DESCRIPTIONS['form0781'] if form['form0781'].present?
+      forms << FORM_DESCRIPTIONS['form0781a'] if form.dig('form0781', 'form0781a').present?
+      forms << FORM_DESCRIPTIONS['form8940'] if form['form8940'].present?
+    end
+  end
+
+  def files_submitted(uploads)
+    return [] if uploads.nil?
+    guids = uploads.map { |data| data&.dig('confirmationCode') }.compact
+    files = SupportingEvidenceAttachment.where(guid: guids)
+    files.map(&:obscured_filename)
   end
 
   def track_remedial_action(submission)
