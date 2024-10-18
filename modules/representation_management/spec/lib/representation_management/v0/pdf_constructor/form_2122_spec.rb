@@ -4,6 +4,7 @@ require 'rails_helper'
 require_relative '../../../../support/pdf_matcher'
 
 describe RepresentationManagement::V0::PdfConstructor::Form2122 do
+  let(:accredited_organization) { create(:accredited_organization, id: 'Best VSO', name: 'Best VSO') }
   let(:data) do
     {
       veteran_first_name: 'John',
@@ -37,19 +38,11 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
       claimant_zip_code_suffix: '6789',
       claimant_phone: '5555555555',
       claimant_email: 'claimant@example.com',
-      organization_id: 'Best VSO',
+      organization_id: accredited_organization.id,
       record_consent: true,
       consent_limits: %w[DRUG_ABUSE HIV SICKLE_CELL],
       consent_address_change: true
     }
-  end
-
-  before do
-    # Mock the AccreditedOrganization lookup
-    allow(AccreditedOrganization)
-      .to receive(:find_by)
-      .with(id: 'Best VSO')
-      .and_return(double('AccreditedOrganization', name: 'Best VSO'))
   end
 
   it 'constructs the pdf with conditions present' do
