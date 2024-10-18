@@ -19,7 +19,6 @@ module MebApi
             with_monitoring do
               headers = request_headers
               options = { timeout: 60 }
-              debugger
               response = perform(:post, end_point(params['@type']), format_params(unmasked_params['form']), headers, options)
 
               MebApi::DGI::Forms::Submission::Response.new(response.status, response)
