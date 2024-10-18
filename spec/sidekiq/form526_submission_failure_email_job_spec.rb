@@ -28,7 +28,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       }
     end
 
-    it 'dispatches a failure notification email with an obscured filename' do
+    it 'dispatches a failure notification email with the expected params' do
       expect(email_service).to receive(:send_email).with(expected_params)
 
       subject.perform_async(form526_submission.id)
