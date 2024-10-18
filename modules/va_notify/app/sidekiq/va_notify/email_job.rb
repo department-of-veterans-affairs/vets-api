@@ -17,8 +17,13 @@ module VANotify
       StatsD.increment("sidekiq.jobs.#{job_class.underscore}.retries_exhausted")
     end
 
-    def perform(email, template_id, personalisation = nil, api_key = Settings.vanotify.services.va_gov.api_key)
-      notify_client = VaNotify::Service.new(api_key)
+    def perform(email, template_id, personalisation = nil, api_key = Settings.vanotify.services.va_gov.api_key,
+                callback_options = nil)
+      notify_client = if callback_options
+                        VaNotify::Service.new(api_key, callback_options)
+                      else
+                        VaNotify::Service.new(api_key)
+                      end
 
       notify_client.send_email(
         {

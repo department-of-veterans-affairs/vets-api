@@ -13,18 +13,25 @@ module VaNotify
 
     configuration VaNotify::Configuration
 
-    attr_reader :notify_client
+    attr_reader :notify_client, :callback_options
 
-    def initialize(api_key)
+    def initialize(api_key, callback_options = nil)
       overwrite_client_networking
       @notify_client ||= Notifications::Client.new(api_key, client_url)
+      @callback_options = callback_options
     rescue => e
       handle_error(e)
     end
 
     def send_email(args)
+      caller = caller_locations(1, 1)[0].label
       with_monitoring do
-        notify_client.send_email(args)
+        response = notify_client.send_email(args)
+        if callback_options
+          VANotify::Notification.new(notification_id: response[:uuid], source_location: caller, callback: callback_options[:callback], metadata: callback_options[:metadata])
+        else
+          VANotify::Notification.new(notification_id: response[:uuid], source_location: caller)
+        end
       end
     rescue => e
       handle_error(e)

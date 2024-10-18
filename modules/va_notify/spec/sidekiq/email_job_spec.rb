@@ -72,6 +72,27 @@ RSpec.describe VANotify::EmailJob, type: :worker do
         end
       end
     end
+
+    context 'with optional callback support' do
+      it 'receives a valid Hash' do
+        client = double
+        api_key = Settings.vanotify.services.va_gov.api_key
+        callback_options = {}
+
+        expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
+
+        expect(client).to receive(:send_email).with(
+          {
+            email_address: email,
+            template_id:,
+            personalisation: {}
+          }
+        )
+        personalization = {}
+
+        described_class.new.perform(email, template_id, personalization, api_key, callback_options)
+      end
+    end
   end
 
   describe 'when job has failed' do
