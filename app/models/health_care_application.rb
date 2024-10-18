@@ -259,9 +259,15 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def log_async_submission_failure
+    log_zero_silent_failures
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
     log_submission_failure_details
+  end
+
+  def log_zero_silent_failures
+    tags = ['service:healthcare-application', 'function: 10-10EZ async form submission']
+    StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
   end
 
   def log_submission_failure_details
