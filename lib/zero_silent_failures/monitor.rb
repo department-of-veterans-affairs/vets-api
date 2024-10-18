@@ -47,7 +47,7 @@ module ZeroSilentFailures
       message = 'Silent failure avoided'
 
       unless email_confirmed
-        metric = "#{statsd}_no_confirmation"
+        metric = "#{metric}_no_confirmation"
         message = "#{message} (no confirmation)"
       end
 
@@ -65,7 +65,7 @@ module ZeroSilentFailures
 
     private
 
-    attr_reader :service, :user_account_uuid
+    attr_reader :service
 
     # parse information from the `caller`
     #
