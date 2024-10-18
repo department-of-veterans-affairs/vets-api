@@ -29,12 +29,15 @@ module MebApi
 
       def claim_status
         claimant_response = claimant_service.get_claimant_info('toe')
-        claimant_id = claimant_response['claimant']['claimant_id']
+
+        return render_claimant_error(claimant_response) unless valid_claimant_response?(claimant_response)
+
+        claimant_id = claimant_response['claimant']&.dig('claimant_id')
+
+        return render_claimant_id_error if claimant_id.blank?
 
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, 'toe')
-
-        response = claimant_response.status == 200 ? claim_status_response : claimant_response
-        serializer = claimant_response.status == 200 ? ClaimStatusSerializer : ClaimantSerializer
+        response, serializer = determine_response_and_serializer(claim_status_response, claimant_response)
 
         render json: serializer.new(response)
       end
@@ -65,7 +68,7 @@ module MebApi
           end
         end
 
-        response = submission_service.submit_claim(params, response_data, 'toe')
+        response = submission_service.submit_claim(params, response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 
@@ -87,6 +90,40 @@ module MebApi
       end
 
       private
+
+      def valid_claimant_response?(response)
+        [200, 201, 204].include?(response.status)
+      end
+
+      def render_claimant_error(response)
+        render json: {
+          errors: [{
+            title: 'Claimant information error',
+            detail: 'Unable to retrieve claimant information',
+            code: response.status.to_s,
+            status: response.status.to_s
+          }]
+        }, status: response.status
+      end
+
+      def render_claimant_id_error
+        render json: {
+          errors: [{
+            title: 'Claimant not found',
+            detail: 'Claimant ID is missing',
+            code: '404',
+            status: '404'
+          }]
+        }, status: :not_found
+      end
+
+      def determine_response_and_serializer(claim_status_response, claimant_response)
+        if claim_status_response.status == 200
+          [claim_status_response, ClaimStatusSerializer]
+        else
+          [claimant_response, ClaimantSerializer]
+        end
+      end
 
       def claimant_service
         MebApi::DGI::Forms::Claimant::Service.new(@current_user)

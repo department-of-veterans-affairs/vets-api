@@ -67,10 +67,15 @@ RSpec.describe SignIn::AttributeValidator do
       let(:add_person_response) { 'some-add-person-response' }
       let(:find_profile_response) { 'some-find-profile-response' }
       let(:update_profile_response) { 'some-update-profile-response' }
+      let(:identifier) { idme_uuid }
+      let(:identifier_type) { MPI::Constants::IDME_UUID }
 
       before do
         allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)
-        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile_response)
+        allow_any_instance_of(MPI::Service)
+          .to receive(:find_profile_by_identifier)
+          .with(identifier:, identifier_type:)
+          .and_return(find_profile_response)
         allow_any_instance_of(MPI::Service).to receive(:update_profile).and_return(update_profile_response)
         allow(Rails.logger).to receive(:info)
       end
@@ -361,6 +366,8 @@ RSpec.describe SignIn::AttributeValidator do
         let(:address) { nil }
         let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
         let(:email) { 'some-email' }
+        let(:identifier) { idme_uuid }
+        let(:identifier_type) { MPI::Constants::IDME_UUID }
 
         context 'and credential is missing mhv icn' do
           let(:mhv_icn) { nil }
@@ -485,6 +492,8 @@ RSpec.describe SignIn::AttributeValidator do
         let(:country) { 'USA' }
         let(:birth_date) { '1930-01-01' }
         let(:email) { 'some-email' }
+        let(:identifier) { logingov_uuid }
+        let(:identifier_type) { MPI::Constants::LOGINGOV_UUID }
 
         context 'and credential is missing email' do
           let(:email) { nil }
@@ -606,6 +615,8 @@ RSpec.describe SignIn::AttributeValidator do
         let(:ssn) { '444444758' }
         let(:birth_date) { '1930-01-01' }
         let(:email) { 'some-email' }
+        let(:identifier) { idme_uuid }
+        let(:identifier_type) { MPI::Constants::IDME_UUID }
 
         context 'and credential is missing email' do
           let(:email) { nil }
@@ -662,6 +673,8 @@ RSpec.describe SignIn::AttributeValidator do
         let(:country) { 'USA' }
         let(:birth_date) { '1930-01-01' }
         let(:email) { 'some-email' }
+        let(:identifier) { idme_uuid }
+        let(:identifier_type) { MPI::Constants::IDME_UUID }
 
         context 'and credential is missing email' do
           let(:email) { nil }

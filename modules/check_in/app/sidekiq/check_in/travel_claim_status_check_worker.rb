@@ -34,7 +34,7 @@ module CheckIn
 
       claim_status_resp = TravelClaim::Service.build(
         check_in: check_in_session,
-        params: { appointment_date: }
+        params: { appointment_date:, facility_type: }
       ).claim_status
 
       handle_response(claim_status_resp:, facility_type:, uuid:)
