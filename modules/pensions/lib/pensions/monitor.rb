@@ -213,17 +213,18 @@ module Pensions
     # @param claim [Pension::SavedClaim]
     #
     def track_submission_exhaustion(msg, claim = nil)
-      user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1],
+      user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
       additional_context = {
         form_id: claim&.form_id,
         claim_id: msg['args'].first,
         confirmation_number: claim&.confirmation_number,
         message: msg
       }
-      log_silent_failure(additional_context, user_account_uuid)
+      log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
 
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
-      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!', user_account_uuid:, **additional_context)
+      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!', user_account_uuid:,
+                                                                                            **additional_context)
     end
 
     ##

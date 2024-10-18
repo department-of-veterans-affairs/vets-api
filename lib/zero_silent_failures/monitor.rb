@@ -2,16 +2,14 @@
 
 # ZeroSilentFailures namespace
 module ZeroSilentFailures
-
   # global monitoring functions for ZSF - statsd and logging
   class Monitor
-
     # Proxy class to allow a custom `caller_location` to be used
     class CallLocation
       attr_accessor :base_label, :path, :lineno
 
       # create proxy caller_location
-      def initialize(function, file, line = nil)
+      def initialize(function = nil, file = nil, line = nil)
         @base_label = function
         @path = file
         @lineno = line
@@ -31,17 +29,18 @@ module ZeroSilentFailures
 
       StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
       Rails.logger.error(message, {
-        statsd: metric,
-        service:,
-        function:,
-        file:,
-        line:,
-        user_account_uuid:,
-        additional_context:
-      })
+                           statsd: metric,
+                           service:,
+                           function:,
+                           file:,
+                           line:,
+                           user_account_uuid:,
+                           additional_context:
+                         })
     end
 
-    def log_silent_failure_avoided(additional_context, user_account_uuid = nil, call_location: nil, email_confirmed: false)
+    def log_silent_failure_avoided(additional_context, user_account_uuid = nil, call_location: nil,
+                                   email_confirmed: false)
       function, file, line = parse_caller(call_location)
 
       metric = 'silent_failure_avoided'
@@ -54,14 +53,14 @@ module ZeroSilentFailures
 
       StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
       Rails.logger.error(message, {
-        statsd: metric,
-        service:,
-        function:,
-        file:,
-        line:,
-        user_account_uuid:,
-        additional_context:
-      })
+                           statsd: metric,
+                           service:,
+                           function:,
+                           file:,
+                           line:,
+                           user_account_uuid:,
+                           additional_context:
+                         })
     end
 
     private
@@ -76,9 +75,8 @@ module ZeroSilentFailures
     #
     # @param call_location [CallLocation | Thread::Backtrace::Location] location to be logged as failure point
     def parse_caller(call_location)
-      call_location ||= caller_locations.second
+      call_location ||= caller_locations.second # default to location calling 'log_silent_failure...'
       [call_location.base_label, call_location.path, call_location.lineno]
     end
-
   end
 end
