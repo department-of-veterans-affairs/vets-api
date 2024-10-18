@@ -929,6 +929,30 @@
               }
             }
           },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Not Found": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Resource not found",
+                          "detail": "A matching Veteran was not found in our systems",
+                          "code": "404",
+                          "status": "404"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Invalid 'icn' parameter",
             "content": {
