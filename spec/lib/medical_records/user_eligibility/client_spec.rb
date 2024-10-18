@@ -10,7 +10,7 @@ describe UserEligibility::Client do
     let(:client) { UserEligibility::Client.new(user_id, icn) }
 
     before do
-      Flipper.enable(:mhv_medical_records_new_eligibility_check)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(true)
     end
 
     context 'when user ID and ICN are valid' do
@@ -62,7 +62,7 @@ describe UserEligibility::Client do
 
     context 'when new eligibility check feature flag is disabled' do
       before do
-        Flipper.disable(:mhv_medical_records_new_eligibility_check)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
       end
 
       it 'does not perform an eligibility check on the user' do
