@@ -75,6 +75,8 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     end
 
     describe 'updating the form submission status' do
+      before { allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send) }
+
       it 'updates the status with vbms from the bulk status report endpoint' do
         pending_form_submissions = create_list(:form_submission, 1, :pending)
         batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)

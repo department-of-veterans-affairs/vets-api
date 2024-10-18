@@ -549,6 +549,7 @@ mhv:
     mock: true
     host: https://apigw-intb.aws.myhealth.va.gov
     access_key: some-access-key
+    create_after_login: false
     sts:
       service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
       issuer: http://localhost:3000
@@ -1365,12 +1366,20 @@ vanotify:
         claim_submission_error_text: fake_template_id
     benefits_decision_review:
       api_key: fake_secret
+      template_id:
+        higher_level_review_form_error_email: fake_hlr_template_id
+        notice_of_disagreement_form_error_email: fake_nod_template_id
+        supplemental_claim_form_error_email: fake_sc_template_id
     benefits_disability:
       api_key: fake_secret
       template_id:
         form526_document_upload_failure_notification_template_id: form526_document_upload_failure_notification_template_id
         form4142_upload_failure_notification_template_id: form4142_upload_failure_notification_template_id
         form0781_upload_failure_notification_template_id: form0781_upload_failure_notification_template_id
+    benefits_management_tools:
+      api_key: fake_secret
+      template_id:
+        evidence_submission_failure_email: fake_template_id
     ivc_champva:
       api_key: fake_secret
       template_id:
