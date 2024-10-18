@@ -14,11 +14,11 @@ class Form526SubmissionFailureEmailJob
     'function:526_backup_submission_to_lighthouse'
   ].freeze
   FORM_DESCRIPTIONS = {
-    "form4142" => 'VA Form 21-4142',
-    "form0781" => 'VA Form 21-0781',
-    "form0781a" => 'VA Form 21-0781a',
-    "form8940" => 'VA Form 21-8940'
-  }
+    'form4142' => 'VA Form 21-4142',
+    'form0781' => 'VA Form 21-0781',
+    'form0781a' => 'VA Form 21-0781a',
+    'form8940' => 'VA Form 21-8940'
+  }.freeze
 
   sidekiq_options retry: 14
 
@@ -100,6 +100,7 @@ class Form526SubmissionFailureEmailJob
 
   def files_submitted(uploads)
     return [] if uploads.nil?
+
     guids = uploads.map { |data| data&.dig('confirmationCode') }.compact
     files = SupportingEvidenceAttachment.where(guid: guids)
     files.map(&:obscured_filename)
