@@ -2,7 +2,7 @@
 
 module ClaimsApi
   class VANotifyJob < ClaimsApi::ServiceBase
-    def perform(poa_id, rep) # rubocop:disable Metrics/MethodLength
+    def perform(poa_id, rep)
       return if skip_notification_email?
 
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
@@ -21,12 +21,8 @@ module ClaimsApi
       end
       schedule_follow_up_check(res.id) if res.present?
     rescue => e
-      ClaimsApi::Logger.log(
-        'poa_update_notify_job',
-        detail: "Failed to notify with error: #{get_error_message(e)}"
-      )
-      raise e
-    end # rubocop:enable Metrics/MethodLength
+      handle_failure(poa_id, e)
+    end
 
     # 2122a
     def send_representative_notification(poa, rep)
@@ -39,6 +35,19 @@ module ClaimsApi
     end
 
     private
+
+    def handle_failure(poa_id, error)
+      notify_on_failure(
+        'ClaimsApi::VANotifyJob',
+        "VA Notify email notification failed to send for #{poa_id}"
+      )
+
+      ClaimsApi::Logger.log(
+        'poa_update_notify_job',
+        detail: "Failed to notify with error: #{get_error_message(error)}"
+      )
+      raise error
+    end
 
     def individual_accepted_email_contents(poa, rep)
       {
