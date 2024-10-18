@@ -15,12 +15,12 @@ module MebApi
           STATSD_KEY_PREFIX = 'api.dgi.submission'
 
           def submit_claim(params, response_data)
-            form_type = params.key?('@type') ? params['@type'] : 'ToeSubmission'
             unmasked_params = update_dd_params(params, response_data)
             with_monitoring do
               headers = request_headers
               options = { timeout: 60 }
-              response = perform(:post, end_point(form_type), format_params(unmasked_params['form']), headers, options)
+              debugger
+              response = perform(:post, end_point(params['@type']), format_params(unmasked_params['form']), headers, options)
 
               MebApi::DGI::Forms::Submission::Response.new(response.status, response)
             end
@@ -29,12 +29,17 @@ module MebApi
           private
 
           def end_point(form_type)
-            if form_type == 'ToeSubmission'
-              'claimType/toe/claimsubmission'.dup
-            else
-              "claimType/#{form_type.capitalize}/claimsubmission".dup
-            end
+            "claimType/#{dgi_url(form_type)}/claimsubmission".dup
           end
+
+
+        def dgi_url(form_type)
+          if form_type == "Chapter35Submission"
+            "Chapter35"
+          else
+            "toe"
+          end
+        end
 
           def request_headers
             {
