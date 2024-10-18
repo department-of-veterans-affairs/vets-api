@@ -363,12 +363,18 @@ RSpec.describe Form526Submission do
         allow(Rails.logger).to receive(:info)
       end
 
-      def expect_max_cfi_logged(disability_claimed, diagnostic_code, total_increase_conditions)
+      def expect_submit_log(num_max_rated, num_max_rated_cfi, total_cfi)
         expect(Rails.logger).to have_received(:info).with(
           'Max CFI form526 submission',
-          { id: subject.id, disability_claimed:, diagnostic_code:, total_increase_conditions:,
+          { id: subject.id,
+            num_max_rated:,
+            num_max_rated_cfi:,
+            total_cfi:,
             cfi_checkbox_was_selected: false }
         )
+      end
+
+      def expect_max_cfi_logged(disability_claimed, diagnostic_code)
         expect(StatsD).to have_received(:increment).with('api.max_cfi.submit',
                                                          tags: ["diagnostic_code:#{diagnostic_code}",
                                                                 "claimed:#{disability_claimed}"])
@@ -401,7 +407,8 @@ RSpec.describe Form526Submission do
             subject.start
             expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
                                                              tags: ['claimed:true', 'has_max_rated:true'])
-            expect_max_cfi_logged(true, 6260, 1)
+            expect_max_cfi_logged(true, 6260)
+            expect_submit_log(1, 1, 1)
           end
         end
 
@@ -432,6 +439,7 @@ RSpec.describe Form526Submission do
           expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
                                                            tags: ['claimed:false', 'has_max_rated:false'])
           expect_no_max_cfi_logged(7101)
+          expect_submit_log(0, 0, 1)
         end
       end
 
@@ -461,6 +469,7 @@ RSpec.describe Form526Submission do
                                                              tags: ['claimed:false', 'has_max_rated:false'])
             expect_no_max_cfi_logged(6260)
             expect_no_max_cfi_logged(7101)
+            expect_submit_log(0, 0, 1)
           end
         end
 
@@ -471,7 +480,8 @@ RSpec.describe Form526Submission do
             subject.start
             expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
                                                              tags: ['claimed:true', 'has_max_rated:true'])
-            expect_max_cfi_logged(true, 7101, 1)
+            expect_max_cfi_logged(true, 7101)
+            expect_submit_log(1, 1, 1)
             expect_no_max_cfi_logged(6260)
           end
         end
@@ -484,8 +494,9 @@ RSpec.describe Form526Submission do
             subject.start
             expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
                                                              tags: ['claimed:true', 'has_max_rated:true'])
-            expect_max_cfi_logged(true, 7101, 1)
-            expect_max_cfi_logged(false, 6260, 1)
+            expect_max_cfi_logged(true, 7101)
+            expect_max_cfi_logged(false, 6260)
+            expect_submit_log(2, 1, 1)
           end
         end
       end
@@ -516,6 +527,7 @@ RSpec.describe Form526Submission do
                                                              tags: ['claimed:false', 'has_max_rated:false'])
             expect_no_max_cfi_logged(6260)
             expect_no_max_cfi_logged(7101)
+            expect_submit_log(0, 0, 2)
           end
         end
 
@@ -527,8 +539,9 @@ RSpec.describe Form526Submission do
             subject.start
             expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
                                                              tags: ['claimed:true', 'has_max_rated:true'])
-            expect_max_cfi_logged(true, 6260, 2)
-            expect_max_cfi_logged(true, 7101, 2)
+            expect_max_cfi_logged(true, 6260)
+            expect_max_cfi_logged(true, 7101)
+            expect_submit_log(2, 2, 2)
           end
         end
 
@@ -539,8 +552,9 @@ RSpec.describe Form526Submission do
             subject.start
             expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
                                                              tags: ['claimed:true', 'has_max_rated:true'])
-            expect_max_cfi_logged(true, 6260, 2)
+            expect_max_cfi_logged(true, 6260)
             expect_no_max_cfi_logged(7101)
+            expect_submit_log(1, 1, 2)
           end
         end
 
@@ -551,8 +565,9 @@ RSpec.describe Form526Submission do
             subject.start
             expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
                                                              tags: ['claimed:true', 'has_max_rated:true'])
-            expect_max_cfi_logged(true, 7101, 2)
+            expect_max_cfi_logged(true, 7101)
             expect_no_max_cfi_logged(6260)
+            expect_submit_log(1, 1, 2)
           end
         end
       end
