@@ -280,21 +280,21 @@ module Form526ClaimFastTrackingConcern
   end
 
   def log_max_cfi_metrics_on_submit
-    user = User.find(user_uuid)
-    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
-    ClaimFastTracking::DiagnosticCodesForMetrics::DC.each do |diagnostic_code|
-      next unless max_rated_diagnostic_codes_from_ipf.include?(diagnostic_code)
-
+    any_claimed = false
+    max_rated_diagnostic_codes_from_ipf.each do |diagnostic_code|
       disability_claimed = diagnostic_codes.include?(diagnostic_code)
+      any_claimed ||= disability_claimed
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.submit",
+                       tags: ["diagnostic_code:#{diagnostic_code}", "claimed:#{disability_claimed}"])
 
-      if disability_claimed
-        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
-      end
       Rails.logger.info('Max CFI form526 submission',
-                        id:, max_cfi_enabled:, disability_claimed:, diagnostic_code:,
+                        id:, disability_claimed:, diagnostic_code:,
                         cfi_checkbox_was_selected: cfi_checkbox_was_selected?,
                         total_increase_conditions: increase_disabilities.count)
     end
+    StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.on_submit",
+                     tags: ["claimed:#{any_claimed}",
+                            "has_max_rated:#{max_rated_diagnostic_codes_from_ipf.any?}"])
   rescue => e
     # Log the exception but but do not fail, otherwise form will not be submitted
     log_exception_to_sentry(e)
