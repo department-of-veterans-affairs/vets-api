@@ -34,7 +34,7 @@ module SwaggerSharedComponents
 
     def self.representative
       {
-        organization_name: 'My Organization'
+        organization_name: 'Veterans Organization'
       }
     end
 

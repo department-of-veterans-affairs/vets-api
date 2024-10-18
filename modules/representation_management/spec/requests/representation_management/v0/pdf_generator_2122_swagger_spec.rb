@@ -8,6 +8,14 @@ RSpec.describe 'PDF Generator 21-22', openapi_spec: 'modules/representation_mana
                                       type: :request do
   path '/representation_management/v0/pdf_generator2122' do
     post('Generate a PDF for form 21-22') do
+      before do
+        # Mock the AccreditedOrganization lookup
+        allow(AccreditedOrganization)
+          .to receive(:find_by)
+          .with(id: 'Veterans Organization')
+          .and_return(double('AccreditedOrganization', name: 'Veterans Organization'))
+      end
+
       tags 'PDF Generation'
       consumes 'application/json'
       produces 'application/pdf'
@@ -25,7 +33,7 @@ RSpec.describe 'PDF Generator 21-22', openapi_spec: 'modules/representation_mana
       response '422', 'unprocessable entity response' do
         let(:pdf_generator2122) do
           params = SwaggerSharedComponents::V0.body_examples[:pdf_generator2122]
-          params[:representative].delete(:organization_name)
+          params[:veteran][:name].delete(:first)
           params
         end
         schema '$ref' => '#/components/schemas/Errors'

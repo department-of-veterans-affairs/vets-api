@@ -44,6 +44,14 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
     }
   end
 
+  before do
+    # Mock the AccreditedOrganization lookup
+    allow(AccreditedOrganization)
+      .to receive(:find_by)
+      .with(id: 'Best VSO')
+      .and_return(double('AccreditedOrganization', name: 'Best VSO'))
+  end
+
   it 'constructs the pdf with conditions present' do
     form = RepresentationManagement::Form2122Data.new(data)
     Tempfile.create do |tempfile|

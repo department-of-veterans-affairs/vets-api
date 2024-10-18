@@ -104,7 +104,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
         end
 
         it 'responds with the expected body' do
-          expect(response.body).to eq({ errors: ["Organization name can't be blank"] }.to_json)
+          expect(response.body).to eq({ errors: ['Organization name Organization not found'] }.to_json)
         end
       end
 
