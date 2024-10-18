@@ -11,7 +11,9 @@ class LighthouseSupplementalDocumentUploadProvider
   # Maps VA's internal Document Types to the correct document_type attribute for a Lighthouse526DocumentUpload polling
   # record. We need this to create a valid polling record
   POLLING_DOCUMENT_TYPES = {
-    'L023' => Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE
+    'L023' => Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE,
+    'L228' => Lighthouse526DocumentUpload::FORM_0781_DOCUMENT_TYPE,
+    'L229' => Lighthouse526DocumentUpload::FORM_0781A_DOCUMENT_TYPE,
   }.freeze
 
   # @param form526_submission [Form526Submission]
