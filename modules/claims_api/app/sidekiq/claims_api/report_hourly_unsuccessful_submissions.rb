@@ -16,7 +16,7 @@ module ClaimsApi
         'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
         'errored', @search_from, @search_to, '0oagdm49ygCSJTp8X297'
       ).pluck(:id).uniq
-      @va_gov_errored_claims ||= va_gov_errored_claims
+      @va_gov_errored_claims = va_gov_errored_claims
       @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @search_from..@search_to,
                                                       status: 'errored').pluck(:id).uniq
       @errored_itf = ClaimsApi::IntentToFile.where(created_at: @search_from..@search_to,
@@ -24,7 +24,6 @@ module ClaimsApi
       @errored_ews = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @search_from..@search_to,
                                                                status: 'errored').pluck(:id).uniq
       @environment = Rails.env
-
       if errored_submissions_exist?
         notify(
           @errored_claims,
@@ -68,32 +67,32 @@ module ClaimsApi
     end
 
     def va_gov_errored_claims
-      errored_claims = get_unique_errors || []
-      @va_gov_errored_claims = [] if @va_gov_errored_claims.blank?
-      @va_gov_errored_claims << errored_claims
-      if @va_gov_errored_claims.flatten.blank?
-        {}
-      else
-        @va_gov_errored_claims.flatten&.group_by(&:transaction_id)
-        @va_gov_errored_claims&.map { |grp| grp[1][0] }&.pluck(:id)
-      end
+      errored_claims = get_unique_errors
+      errored_claims.map { |record| record[0] } # rubocop:disable Rails/Pluck
     end
-    
+
     def get_unique_errors
-      starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      begin
+        last_day = ClaimsApi::AutoEstablishedClaim
+                   .where(created_at: 24.hours.ago..1.hour.ago,
+                          status: 'errored', cid: '0oagdm49ygCSJTp8X297')
 
-      one_day = ClaimsApi::AutoEstablishedClaim.where(created_at: 24.hours.ago..@search_to,
-                                                      status: 'errored', cid: '0oagdm49ygCSJTp8X297')
+        last_hour = ClaimsApi::AutoEstablishedClaim
+                    .where(created_at: 1.hour.ago..Time.zone.now,
+                           status: 'errored', cid: '0oagdm49ygCSJTp8X297')
 
-      unique = one_day.uniq { |claim| claim[:transaction_id] } if one_day.present?
-      errored_claims = unique.select { |claim| claim[:created_at] >= @search_from } if unique.present?
-      # Elapsd time: 0.01658499985933304 seconds
+        day_trans_ids = last_day.pluck(:transaction_id)
 
-      ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      elapsed = ending - starting
-      ClaimsApi::Logger.log('hourly_slack_alert_elapsed_time', detail: "Elapsd time: #{elapsed} seconds")
+        errored_claims = last_hour.find_all do |claim|
+          day_trans_ids.exclude?(claim[:transaction_id])
+        end
+      rescue ActiveRecord::Exception => e
+        ClaimsApi::Logger "SQL error in #{e}"
+        ActiveRecord::Base.connection.execute 'ROLLBACK'
 
-      errored_claims
+        raise e
+      end
+      errored_claims&.pluck(:id, :transaction_id)
     end
   end
 end

@@ -52,9 +52,41 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
 
         subject.perform
       end
+
+      it 'does not repeat an alert based on transaction id' do
+        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
+                                                            .and_return(true)
+
+        FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                    transaction_id: 'transaction_1',
+                                                                    id: '1')
+        FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
+                                                                    transaction_id: 'transaction_1',
+                                                                    id: '2')
+        claim_three = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                                  transaction_id: 'transaction_2',
+                                                                                  id: '3')
+        claim_four = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                                 transaction_id: 'transaction_3',
+                                                                                 id: '4')
+        # rubocop:disable RSpec/SubjectStub
+        expect(subject).to receive(:notify).with(
+          [],
+          [claim_three.id, claim_four.id],
+          ['poa1'],
+          ['itf1'],
+          ['ews1'],
+          kind_of(String),
+          kind_of(String),
+          kind_of(String)
+        )
+        # rubocop:enable RSpec/SubjectStub
+
+        subject.perform
+      end
     end
 
-    context 'when flipper it not enabled' do
+    context 'when flipper is not enabled' do
       before do
         # rubocop:disable Layout/LineLength
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled).and_return(false)
