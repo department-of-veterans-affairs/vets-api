@@ -34,7 +34,7 @@ module VAOS
         url = if Flipper.enabled?(:va_online_scheduling_use_vpg, user)
                 "/vpg/v1/locations/#{location_id}/clinics"
               else
-                "/vaos/v1/locations/#{location_id}/clinics"
+                "/#{base_vaos_route}/locations/#{location_id}/clinics"
               end
 
         url_params = {
@@ -65,7 +65,7 @@ module VAOS
       end
 
       def get_slots_vaos(location_id:, clinic_id:, start_dt:, end_dt:)
-        url_path = "/vaos/v1/locations/#{location_id}/clinics/#{clinic_id}/slots"
+        url_path = "/#{base_vaos_route}/locations/#{location_id}/clinics/#{clinic_id}/slots"
         url_params = {
           'start' => start_dt,
           'end' => end_dt
