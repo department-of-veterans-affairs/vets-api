@@ -550,7 +550,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         }
         Form526JobStatus.upsert(values, unique_by: :job_id)
         expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to(
-          receive(:increment_success).with(false).once
+          receive(:increment_success).with(false, 'evss').once
         )
         described_class.drain
         job_status = Form526JobStatus.where(job_id: values[:job_id]).first
