@@ -22939,6 +22939,7 @@
       },
       "ImmunizationsV1": {
         "type": "object",
+        "additionalAttributes": false,
         "required": [
           "data",
           "meta"
@@ -22947,18 +22948,19 @@
           "data": {
             "type": "array",
             "items": {
-              "type": "object",
               "$ref": "#/components/schemas/ImmunizationRecord"
             }
           },
           "meta": {
             "type": "object",
+            "additionalAttributes": false,
             "required": [
               "pagination"
             ],
             "properties": {
               "pagination": {
                 "type": "object",
+                "additionalAttributes": false,
                 "required": [
                   "currentPage",
                   "perPage",
@@ -22967,19 +22969,19 @@
                 ],
                 "properties": {
                   "currentPage": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 1
                   },
                   "perPage": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 10
                   },
                   "totalPages": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 2
                   },
                   "totalEntries": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 15
                   }
                 }
