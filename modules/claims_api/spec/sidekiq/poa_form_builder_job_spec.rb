@@ -181,7 +181,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
 
     it 'calls the benefits document API upload instead of VBMS' do
       Flipper.enable(:lighthouse_claims_api_poa_use_bd)
-      Flipper.disable(:claims_api_bd_refactor)
+      Flipper.disable(:claims_api_poa_uploads_bd_refactor)
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
 
@@ -190,7 +190,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
 
     it 'calls the benefits document API upload_document instead of upload' do
       Flipper.enable(:lighthouse_claims_api_poa_use_bd)
-      Flipper.enable(:claims_api_bd_refactor)
+      Flipper.enable(:claims_api_poa_uploads_bd_refactor)
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
       expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)

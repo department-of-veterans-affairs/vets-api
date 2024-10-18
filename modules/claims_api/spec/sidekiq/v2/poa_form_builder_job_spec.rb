@@ -462,7 +462,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
       end
 
       it 'calls the Benefits Documents uploader instead of VBMS' do
-        Flipper.disable(:claims_api_bd_refactor)
+        Flipper.disable(:claims_api_poa_uploads_bd_refactor)
         expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
         expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
         subject.new.perform(power_of_attorney.id, '2122', rep.id, action: 'post')
@@ -474,7 +474,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
 
       before do
         Flipper.enable(:lighthouse_claims_api_poa_use_bd)
-        Flipper.enable(:claims_api_bd_refactor)
+        Flipper.enable(:claims_api_poa_uploads_bd_refactor)
         pdf_constructor_double = instance_double(ClaimsApi::V2::PoaPdfConstructor::Organization)
         allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:pdf_constructor)
           .and_return(pdf_constructor_double)
