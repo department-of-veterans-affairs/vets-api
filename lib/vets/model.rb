@@ -8,11 +8,15 @@ class TrueClass; include Bool; end
 class FalseClass; include Bool; end
 
 module Vets
-  class Model
-    extend ActiveModel::Naming
+  module Model
+    extend ActiveSupport::Concern
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
     include Vets::Attributes
+
+    included do
+      extend ActiveModel::Naming
+    end
 
     def initialize(params = {})
       # Remove attributes that aren't defined in the class aka unknown
