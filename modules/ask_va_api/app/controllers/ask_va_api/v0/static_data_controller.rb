@@ -24,18 +24,17 @@ module AskVAApi
       end
 
       def contents
-        get_resource('contents', user_mock_data: params[:user_mock_data], type: params[:type])
+        get_resource('contents',
+                     user_mock_data: params[:user_mock_data],
+                     type: params[:type],
+                     parent_id: params[:parent_id])
+
         render_result(@contents)
       end
 
       def categories
         get_resource('categories', user_mock_data: params[:user_mock_data])
         render_result(@categories)
-      end
-
-      def optionset
-        get_resource('optionset', user_mock_data: params[:user_mock_data], name: params[:name])
-        render_result(@optionset)
       end
 
       def states
