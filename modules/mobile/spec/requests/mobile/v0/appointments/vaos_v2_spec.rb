@@ -32,15 +32,6 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       let(:params) { { startDate: start_date, endDate: end_date, include: ['pending'] } }
 
       describe 'authorization' do
-        context 'when feature flag is off' do
-          before { Flipper.disable('va_online_scheduling') }
-
-          it 'returns forbidden' do
-            get('/mobile/v0/appointments', headers: sis_headers, params:)
-            expect(response).to have_http_status(:forbidden)
-          end
-        end
-
         context 'when user does not have access' do
           let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
 
@@ -50,7 +41,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           end
         end
 
-        context 'when feature flag is on and user has access' do
+        context 'when user has access' do
           it 'returns ok' do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
@@ -380,15 +371,6 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       let(:params) { { startDate: start_date, endDate: end_date, include: ['pending'] } }
 
       describe 'authorization' do
-        context 'when feature flag is off' do
-          before { Flipper.disable('va_online_scheduling') }
-
-          it 'returns forbidden' do
-            get('/mobile/v0/appointments', headers: sis_headers, params:)
-            expect(response).to have_http_status(:forbidden)
-          end
-        end
-
         context 'when user does not have access' do
           let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
 
@@ -398,7 +380,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           end
         end
 
-        context 'when feature flag is on and user has access' do
+        context 'user has access' do
           it 'returns ok' do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
