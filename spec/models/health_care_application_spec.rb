@@ -11,7 +11,6 @@ RSpec.describe HealthCareApplication, type: :model do
     short_form
   end
   let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
-  let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
 
   describe 'LOCKBOX' do
     it 'can encrypt strings over 4kb' do
@@ -189,9 +188,15 @@ RSpec.describe HealthCareApplication, type: :model do
     end
 
     context 'with a loa1 user' do
-      it 'returns partial ee data' do
+      it 'returns partial ee data when enrollment_status is present' do
         expect(described_class.parsed_ee_data(ee_data, false)).to eq(
-          parsed_status: login_required
+          parsed_status: HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED
+        )
+      end
+
+      it 'returns none of the above ee data when enrollment_status is not set' do
+        expect(described_class.parsed_ee_data({}, false)).to eq(
+          parsed_status: HCA::EnrollmentEligibility::Constants::NONE_OF_THE_ABOVE
         )
       end
     end
