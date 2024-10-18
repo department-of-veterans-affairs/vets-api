@@ -41,6 +41,15 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Conditions', type: :request do
   context 'Premium User' do
     let(:mhv_account_type) { 'Premium' }
 
+    before do
+      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
+                          match_requests_on: %i[method sm_user_ignoring_path_param])
+    end
+
+    after do
+      VCR.eject_cassette
+    end
+
     context 'not a va patient' do
       before { get '/my_health/v1/medical_records/conditions' }
 

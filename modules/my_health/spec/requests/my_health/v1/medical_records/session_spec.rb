@@ -19,6 +19,12 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Session', type: :request do
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
     allow(PHRMgr::Client).to receive(:new).and_return(PHRMgr::Client.new(12_345))
     sign_in_as(current_user)
+    VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
+                        match_requests_on: %i[method sm_user_ignoring_path_param])
+  end
+
+  after do
+    VCR.eject_cassette
   end
 
   it 'responds to POST #create' do

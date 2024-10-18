@@ -27,6 +27,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_MR_HOST>') { Settings.mhv.medical_records.host }
   c.filter_sensitive_data('<MHV_MR_X_AUTH_KEY>') { Settings.mhv.medical_records.x_auth_key }
   c.filter_sensitive_data('<MHV_MR_APP_TOKEN>') { Settings.mhv.medical_records.app_token }
+  c.filter_sensitive_data('<MHV_X_API_KEY>') { Settings.mhv.medical_records.mhv_x_api_key }
   c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
   c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
   c.filter_sensitive_data('<MPI_URL>') { Settings.mvi.url }
@@ -60,5 +61,13 @@ VCR.configure do |c|
 
       i.send(env).headers.update('Authorization' => 'Bearer <TOKEN>')
     end
+  end
+
+  c.register_request_matcher :sm_user_ignoring_path_param do |request1, request2|
+    # Matches, ignoring the user id and icn after `/isValidSMUser/` to handle any user id and icn
+    # E.g. <HOST>mhvapi/v1/usermgmt/usereligibility/isValidSMUser/10000000/1000000000V000000
+    path1 = request1.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+    path2 = request2.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
+    path1 == path2
   end
 end
