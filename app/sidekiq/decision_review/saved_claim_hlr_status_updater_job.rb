@@ -71,8 +71,8 @@ module DecisionReview
 
       if status == ERROR_STATUS
         Rails.logger.info('DecisionReview::SavedClaimHlrStatusUpdaterJob form status error', guid: hlr.guid)
-        StatsD.increment('silent_failure', tags: { service: 'higher-level-review',
-                                                   function: 'lighthouse claim submission' })
+        tags = ['service:higher-level-review', 'function: form submission to Lighthouse']
+        StatsD.increment('silent_failure', tags:)
       end
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])

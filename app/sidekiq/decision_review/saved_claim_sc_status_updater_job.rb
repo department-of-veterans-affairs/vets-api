@@ -91,8 +91,8 @@ module DecisionReview
 
       if status == ERROR_STATUS
         Rails.logger.info('DecisionReview::SavedClaimScStatusUpdaterJob form status error', guid: sc.guid)
-        StatsD.increment('silent_failure', tags: { service: 'supplemental-claims',
-                                                   function: 'lighthouse claim submission' })
+        tags = ['service:supplemental-claims', 'function: form submission to Lighthouse']
+        StatsD.increment('silent_failure', tags:)
       end
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])
@@ -114,8 +114,8 @@ module DecisionReview
         if status == ERROR_STATUS
           Rails.logger.info('DecisionReview::SavedClaimScStatusUpdaterJob evidence status error',
                             { guid: sc.guid, lighthouse_upload_id: upload_id, detail: upload['detail'] })
-          StatsD.increment('silent_failure', tags: { service: 'supplemental-claims',
-                                                     function: 'lighthouse evidence submission' })
+          tags = ['service:supplemental-claims', 'function: evidence submission to Lighthouse']
+          StatsD.increment('silent_failure', tags:)
         end
         StatsD.increment("#{STATSD_KEY_PREFIX}_upload.status", tags: ["status:#{status}"])
       end
