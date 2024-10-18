@@ -27,8 +27,6 @@ describe ClaimsApi::VANotifyJob, type: :job do
     create(:power_of_attorney, form_data: va_notify_org_poa_form_data, auth_headers: va_notify_auth_headers)
   end
 
-  let(:vanotify_client) { instance_double(VaNotify::Service) }
-
   let(:va_notify_rep_poa_form_data) do
     data = JSON.parse(
       Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
@@ -44,7 +42,6 @@ describe ClaimsApi::VANotifyJob, type: :job do
       Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
                       'veterans', 'power_of_attorney', '2122a', 'valid_with_claimant.json').read
     )
-
     form_data = data['data']['attributes']
     form_data
   end
