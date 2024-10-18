@@ -80,14 +80,19 @@ module V0
     private
 
     def active_facilities(lighthouse_facilities)
-      active_ids = cached_ves_facility_ids
-
-      if active_ids.empty?
-        HCA::StdInstitutionImportJob.new.perform
-        active_ids = cached_ves_facility_ids
-      end
-
+      active_ids = active_ves_facility_ids
       lighthouse_facilities.select { |facility| active_ids.include?(facility.unique_id) }
+    end
+
+    def active_ves_facility_ids
+      ids = cached_ves_facility_ids
+
+      return ids if ids.any?
+      return ids if Flipper.enabled?(:hca_retrieve_facilities_without_repopulating)
+
+      HCA::StdInstitutionImportJob.new.perform
+
+      cached_ves_facility_ids
     end
 
     def cached_ves_facility_ids
