@@ -24,7 +24,7 @@ RSpec.describe 'V0::User', type: :request do
       end
     end
 
-    context 'dont stub mpi' do
+    context 'dont stub mpi', :skip_va_profile_user do
       let(:mhv_user) { build(:user, :mhv, :no_mpi_profile) }
 
       it 'GET /v0/user - returns proper json' do
@@ -161,6 +161,7 @@ RSpec.describe 'V0::User', type: :request do
 
     context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', :skip_vet360 do
       before do
+        Flipper.disable(:remove_pciu)
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
         allow_any_instance_of(VAProfile::Service).to receive(:perform).and_raise(
@@ -323,7 +324,7 @@ RSpec.describe 'V0::User', type: :request do
         .not_to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
     end
 
-    context 'when breakers is used' do
+    context 'when breakers is used', :skip_va_profile_user do
       let(:user2) { create(:user, :loa3, :no_mpi_profile, icn: SecureRandom.uuid) }
       let(:edipi) { '1005127153' }
 

@@ -26,6 +26,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
     before(:all) do
       Flipper.disable(:va_v3_contact_information_service)
+      Flipper.disable(:remove_pciu)
       Flipper.disable(:mobile_lighthouse_letters)
     end
 
