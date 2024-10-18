@@ -11,7 +11,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     Sidekiq::Job.clear_all
     stub_claims_api_auth_token
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
-    allow(Flipper).to receive(:enabled?).with(:claims_api_bd_refactor).and_return true
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -50,6 +49,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
 
   context 'successful submission' do
     service = described_class.new
+    let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-526EZ.pdf' }
 
     it 'successful submit should add the job' do
       expect do
@@ -60,7 +60,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     it 'the claim should still be established on a successful BD submission' do
       VCR.use_cassette('claims_api/bd/upload') do
         expect(claim.status).to eq('pending') # where we start
-
+        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return false
         service.perform(claim.id)
 
         claim.reload
@@ -69,18 +69,30 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     end
 
     it 'submits successfully with BD' do
-      expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document).and_return true
-
+      expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return true
+      allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return false
       service.perform(claim.id)
 
       claim.reload
       expect(claim.uploader.blank?).to eq(false)
+    end
+
+    it 'submits successfully with refactored BD' do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return true
+      expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document).and_return true
+      VCR.use_cassette('claims_api/bd/upload') do
+        service.perform(claim.id)
+
+        claim.reload
+        expect(claim.uploader.blank?).to eq(false)
+      end
     end
   end
 
   context 'when the pdf is mocked' do
     it 'uploads to BD' do
       with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
+        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return false
         subject.perform_async(claim.id)
 
         claim.reload
