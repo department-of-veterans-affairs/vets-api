@@ -37,7 +37,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
       claimant_zip_code_suffix: '6789',
       claimant_phone: '5555555555',
       claimant_email: 'claimant@example.com',
-      organization_name: 'Best VSO',
+      organization_id: 'Best VSO',
       record_consent: true,
       consent_limits: %w[DRUG_ABUSE HIV SICKLE_CELL],
       consent_address_change: true
