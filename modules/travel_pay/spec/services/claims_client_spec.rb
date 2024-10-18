@@ -37,7 +37,7 @@ describe TravelPay::ClaimsClient do
 
   context '/claims' do
     before do
-      allow_any_instance_of(TravelPay::TokenService)
+      allow_any_instance_of(TravelPay::AuthenticatedSession)
         .to receive(:get_tokens)
         .and_return('veis_token', 'btsss_token')
     end

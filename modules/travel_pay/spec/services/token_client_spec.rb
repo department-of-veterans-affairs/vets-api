@@ -27,7 +27,7 @@ describe TravelPay::TokenClient do
           '{"access_token": "fake_veis_token"}'
         ]
       end
-      token_client = TravelPay::TokenClient.new
+      token_client = TravelPay::TokenClient.new(123)
       token = token_client.request_veis_token
 
       expect(token).to eq('fake_veis_token')
@@ -51,7 +51,7 @@ describe TravelPay::TokenClient do
         ]
       end
 
-      token_client = TravelPay::TokenClient.new
+      token_client = TravelPay::TokenClient.new(123)
       token = token_client.request_btsss_token('veis_token', user)
 
       expect(token).to eq('fake_btsss_token')
@@ -93,7 +93,7 @@ describe TravelPay::TokenClient do
           '{"data": {"access_token": "fake_sts_token"}}'
         ]
       end
-      token_client = TravelPay::TokenClient.new
+      token_client = TravelPay::TokenClient.new(123)
       sts_token = token_client.request_sts_token(user)
       expect(sts_token).to eq('fake_sts_token')
       @stubs.verify_stubbed_calls
