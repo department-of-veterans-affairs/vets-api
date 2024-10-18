@@ -28,11 +28,13 @@ class SecondaryAppealForm < ApplicationRecord
     schema_errors = JSON::Validator.fully_validate_schema(schema, { errors_as_objects: true })
     clear_cache = false
     unless schema_errors.empty?
-      Rails.logger.error('SecondaryAppealForm schema failed validation! Attempting to clear cache.', { errors: schema_errors })
+      Rails.logger.error('SecondaryAppealForm schema failed validation! Attempting to clear cache.',
+                         { errors: schema_errors })
       clear_cache = true
     end
 
-    validation_errors = JSON::Validator.fully_validate(schema, JSON.parse(form), { errors_as_objects: true, clear_cache: })
+    validation_errors = JSON::Validator.fully_validate(schema, JSON.parse(form),
+                                                       { errors_as_objects: true, clear_cache: })
 
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])

@@ -13,11 +13,8 @@ FactoryBot.define do
           },
           dateOfBirth: '1983-01-23',
           ssn: '111223333',
-          address: {
-
-          },
-          homePhone: '123-456-7890',
-
+          address: {},
+          homePhone: '123-456-7890'
         },
         patientIdentification: {
           isRequestingOwnMedicalRecords: true
@@ -30,7 +27,6 @@ FactoryBot.define do
         acknowledgeToReleaseInformation: true,
         limitedConsent: 'some string',
         privacyAgreementAccepted: true
-
       }.to_json
     end
     appeal_submission

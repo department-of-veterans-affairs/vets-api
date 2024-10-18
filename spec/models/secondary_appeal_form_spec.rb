@@ -9,7 +9,7 @@ RSpec.describe SecondaryAppealForm, type: :model do
   describe 'validations' do
     before do
       expect(subject).to be_valid
-      expect(JSON::Validator).to receive(:fully_validate).at_least(2).times.and_call_original
+      expect(JSON::Validator).to receive(:fully_validate).at_least(:twice).and_call_original
     end
 
     it { is_expected.to validate_presence_of(:guid) }
