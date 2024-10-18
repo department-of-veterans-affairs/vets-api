@@ -199,6 +199,10 @@ features:
     actor_type: user
     description: Diverts codepath to use refactored BD methods
     enable_in_development: true
+  claims_api_poa_uploads_bd_refactor:
+    actor_type: user
+    description: When enabled, sends poa forms to BD via the refactored logic
+    enable_in_development: true
   confirmation_page_new:
     actor_type: user
     description: Enables the 2024 version of the confirmation page view in simple forms
