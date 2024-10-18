@@ -1,16 +1,22 @@
 # frozen_string_literal: true
 
+require 'zero_silent_failures/monitor'
+
 module Pensions
   ##
   # Monitor functions for Rails logging and StatsD
   # @todo abstract, split logging for controller and sidekiq
   #
-  class Monitor
+  class Monitor < ::ZeroSilentFailures::Monitor
     # statsd key for api
     CLAIM_STATS_KEY = 'api.pension_claim'
 
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'worker.lighthouse.pension_benefit_intake_job'
+
+    def initialize
+      super('pension-application')
+    end
 
     ##
     # log GET 404 from controller
@@ -207,13 +213,18 @@ module Pensions
     # @param claim [Pension::SavedClaim]
     #
     def track_submission_exhaustion(msg, claim = nil)
+      user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
+      additional_context = {
+        form_id: claim&.form_id,
+        claim_id: msg['args'].first,
+        confirmation_number: claim&.confirmation_number,
+        message: msg
+      }
+      log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
+
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
-      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!', {
-                           claim_id: msg['args'].first,
-                           confirmation_number: claim&.confirmation_number,
-                           user_uuid: msg['args'].length <= 1 ? nil : msg['args'][1],
-                           message: msg
-                         })
+      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
+                         user_uuid: user_account_uuid, **additional_context)
     end
 
     ##
