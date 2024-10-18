@@ -44,7 +44,7 @@ module ClaimsApi
       slack_alert_on_failure(job_name, msg)
 
       ClaimsApi::Logger.log(
-        self.class::LOG_TAG,
+        LOG_TAG,
         detail: msg
       )
       # retry job
