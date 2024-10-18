@@ -30,6 +30,34 @@ module ClaimsApi
           render json: poa_list, status: :ok
         end
 
+        def decide
+          proc_id = form_attributes['procId']
+
+          unless proc_id
+            raise ::Common::Exceptions::ParameterMissing.new('procId',
+                                                             detail: 'procId is required')
+          end
+
+          decision = form_attributes['decision']
+
+          unless decision && %w[accepted declined].include?(normalize(decision))
+            raise ::Common::Exceptions::ParameterMissing.new(
+              'decision',
+              detail: 'decision is required and must be either "accepted" or "declined"'
+            )
+          end
+
+          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
+                                                    external_key: 'power_of_attorney_request_key')
+
+          res = service.update_poa_request(proc_id:, secondary_status: decision,
+                                           declined_reason: form_attributes['declinedReason'])
+
+          raise ::Common::Exceptions::Lighthouse::BadGateway unless res
+
+          render json: res, status: :ok
+        end
+
         def request_representative
           # validate target veteran exists
           target_veteran
@@ -91,6 +119,10 @@ module ClaimsApi
           bgs_form_attributes.deep_merge!(organization_data) if @organization
 
           bgs_form_attributes
+        end
+
+        def normalize(item)
+          item.to_s.strip.downcase
         end
 
         def veteran_data
