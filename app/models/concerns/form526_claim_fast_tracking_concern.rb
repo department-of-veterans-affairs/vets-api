@@ -106,23 +106,13 @@ module Form526ClaimFastTrackingConcern
     disabilities.select { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
   end
 
-  def increase_only?
-    disabilities.all? { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
-  end
-
-  def increase_or_new?
-    disabilities.all? do |disability|
-      disability['disabilityActionType']&.upcase == 'INCREASE' || disability['disabilityActionType']&.upcase == 'NEW'
-    end
-  end
-
   def diagnostic_codes
     disabilities.pluck('diagnosticCode')
   end
 
   def prepare_for_evss!
     begin
-      is_claim_fully_classified = update_classification!
+      is_claim_fully_classified = update_contention_classification_all!
     rescue => e
       Rails.logger.error "Contention Classification failed #{e.message}."
       Rails.logger.error e.backtrace.join('\n')
@@ -155,26 +145,6 @@ module Form526ClaimFastTrackingConcern
     end
   rescue => e
     Rails.logger.error("EP400 Merge eligibility failed #{e.message}.", backtrace: e.backtrace)
-  end
-
-  def get_claim_type
-    claim_type = disabilities.pick('disabilityActionType').upcase
-    if claim_type == 'INCREASE'
-      'claim_for_increase'
-    else
-      'new'
-    end
-  end
-
-  # Contact the VRO classifier service to classify the contentions on this form
-  # update the form with the classification codes
-  # returns true if all of form's contentions were classified
-  def update_classification!
-    if Flipper.enabled?(:disability_526_classifier_multi_contention)
-      update_contention_classification_all!
-    else
-      update_contention_classification_single_contention!
-    end
   end
 
   def update_form_with_classification_codes(classified_contentions)
@@ -232,51 +202,6 @@ module Form526ClaimFastTrackingConcern
     end
     update_form_with_classification_codes(classifier_response['contentions'])
     classifier_response['is_fully_classified']
-  end
-
-  # Submits contention information to the VRO contention classification
-  # service for single-contention claims.
-  #
-  # note: this method is only used for single-contention claims and is
-  # deprecated in favor of update_contention_classification_all, which handles
-  # both single and multi-contention claims
-  def update_contention_classification_single_contention!
-    return unless increase_or_new?
-    return unless disabilities.count == 1
-
-    claim_type = get_claim_type
-    return unless claim_type == 'claim_for_increase' || Flipper.enabled?(:disability_526_classifier_new_claims)
-
-    diagnostic_code = diagnostic_codes.first
-    params = {
-      diagnostic_code:,
-      claim_id: saved_claim_id,
-      form526_submission_id: id,
-      claim_type:,
-      contention_text: disabilities.pick('name')
-    }
-
-    classification = classify_single_contention(params)
-    Rails.logger.info('Classified 526Submission', id:, saved_claim_id:, classification:, claim_type:)
-    return if classification.blank?
-
-    update_form_with_classification_code(classification['classification_code'])
-    classification['classification_code'].present?
-  end
-
-  def classify_single_contention(params)
-    vro_client = VirtualRegionalOffice::Client.new
-    response = vro_client.classify_single_contention(params)
-    response.body
-  end
-
-  def update_form_with_classification_code(classification_code)
-    form[Form526Submission::FORM_526]['form526']['disabilities'].each do |disability|
-      disability['classificationCode'] = classification_code
-    end
-
-    update!(form_json: form.to_json)
-    invalidate_form_hash
   end
 
   def log_max_cfi_metrics_on_submit
