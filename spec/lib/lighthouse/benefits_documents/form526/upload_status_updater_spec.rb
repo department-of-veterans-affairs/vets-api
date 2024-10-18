@@ -203,11 +203,11 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
     end
 
     context 'when the document has been in progress for more than 24 hours' do
-      it_behaves_like('processing timeout', 'IN_PROGRESS', (DateTime.new(1985, 10, 23).utc.to_f * 1000).to_i, true)
+      it_behaves_like('processing timeout', 'IN_PROGRESS', (DateTime.new(1985, 10, 23).utc.to_i * 1000).to_i, true)
     end
 
     context 'when the document has been in progress for less than 24 hours' do
-      it_behaves_like('processing timeout', 'IN_PROGRESS', (DateTime.new(1985, 10, 25, 20).utc.to_f * 1000).to_i, false)
+      it_behaves_like('processing timeout', 'IN_PROGRESS', (DateTime.new(1985, 10, 25, 20).utc.to_i * 1000).to_i, false)
     end
   end
 end

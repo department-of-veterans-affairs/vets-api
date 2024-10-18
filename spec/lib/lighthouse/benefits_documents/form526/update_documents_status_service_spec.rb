@@ -7,7 +7,7 @@ require 'lighthouse/benefits_documents/form526/documents_status_polling_service'
 RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
   let(:start_time) { Time.new(1985, 10, 26).utc }
 
-  # Note: The Lighthouse Benefits Documents API returns UNIX timestamps in milliseconds
+  # NOTE: The Lighthouse Benefits Documents API returns UNIX timestamps in milliseconds
   let(:start_time_in_unix_milliseconds) { start_time.to_i * 1000 }
 
   # Simulate Lighthouse processing time offset
