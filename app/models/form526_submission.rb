@@ -82,7 +82,7 @@ class Form526Submission < ApplicationRecord
   # example: can be used as a search parameter in Datadog
   # TODO: follow-up in ticket #93563 to make this more robust, i.e. attempts of jobs, etc.
   def system_transaction_id
-    service_provider = submission.claims_api? ? 'lighthouse' : 'evss'
+    service_provider = saved_claim.parsed_form['startedFormVersion'].present? ? 'lighthouse' : 'evss'
     "Form526Submission_#{id}, user_uuid: #{User.find(user_uuid)}, service_provider: #{service_provider}"
   end
 
