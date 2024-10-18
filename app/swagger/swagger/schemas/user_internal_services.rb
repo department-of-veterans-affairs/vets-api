@@ -93,7 +93,7 @@ module Swagger
             property :onboarding, type: :object do
               property :show,
                        type: :boolean,
-                       description: "Whether the client should display Veteran Onboarding information"
+                       description: 'Whether the client should display Veteran Onboarding information'
 
             end
             property :prefills_available do
