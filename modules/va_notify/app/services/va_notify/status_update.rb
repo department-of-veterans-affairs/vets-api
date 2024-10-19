@@ -3,14 +3,18 @@
 module VANotify
   class StatusUpdate
     def delegate(notification_callback)
-      delivery_request = VANotify::Notification.find_by(notification_id: notification_callback[:id])
+      notification = VANotify::Notification.find_by(notification_id: notification_callback[:id])
 
-      klass = delivery_request.callback.constantize
+      klass = notification.callback.constantize
 
       if klass.respond_to?(:call)
-        klass.call(delivery_request)
+        begin
+          klass.call(notification)
+        rescue => e
+          Rails.logger.info(e.message)
+        end
       else
-        'error'
+        Rails.logger.info(source: notification.source_location, status: notification.status)
       end
     end
   end
