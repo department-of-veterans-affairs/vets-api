@@ -330,7 +330,8 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
             expect(Rails.logger).to have_received(:info).with(*logger_params2)
 
             expect(StatsD).to have_received(:increment)
-              .with('worker.decision_review.failure_notification_email.evidence.email_queued', tags: ['appeal_type:NOD'])
+              .with('worker.decision_review.failure_notification_email.evidence.email_queued',
+                    tags: ['appeal_type:NOD'])
               .exactly(2).times
           end
         end

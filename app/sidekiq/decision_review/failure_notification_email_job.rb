@@ -106,7 +106,9 @@ module DecisionReview
       StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.processing_records", submission_uploads.size)
 
       submission_uploads.each do |upload|
-        response = send_email_with_vanotify(upload.appeal_submission, upload.masked_attachment_filename, upload.created_at)
+        response = send_email_with_vanotify(upload.appeal_submission,
+                                            upload.masked_attachment_filename,
+                                            upload.created_at)
         upload.update(failure_notification_sent_at: DateTime.now)
 
         record_evidence_email_send_successful(upload, response.id)
