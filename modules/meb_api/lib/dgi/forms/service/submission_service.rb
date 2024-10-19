@@ -54,7 +54,7 @@ module MebApi
                 personCriteria: { ssn: @user.ssn }.stringify_keys)
 
               camelized_keys['toeClaimant'] = modified_keys
-            else 
+            else
               modified_keys = camelized_keys['claimant']&.merge(
                 personCriteria: { ssn: @user.ssn }.stringify_keys)
 
