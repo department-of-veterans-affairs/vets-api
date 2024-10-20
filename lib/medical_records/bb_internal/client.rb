@@ -48,8 +48,8 @@ module BBInternal
     #
     # @return [Hash] The status of the image request, including percent complete
     #
-    def request_study(icn, study_id)
-      response = perform(:get, "bluebutton/studyjob/#{session.patient_id}/icn/#{icn}/studyid/#{study_id}", nil,
+    def request_study(study_id)
+      response = perform(:get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil,
                          token_headers)
       response.body
     end
@@ -110,11 +110,16 @@ module BBInternal
     # Overriding MHVSessionBasedClient's method so we can get the patientId and store it as well.
     #
     def get_session
+      # Pull ICN out of the session var before it is overwritten in the super's save
+      icn = session.icn
+
       # Call MHVSessionBasedClient.get_session
       @session = super
 
       # Supplement session with patientId
       session.patient_id = get_patient_id
+      # Put ICN back into the session
+      session.icn = icn
 
       session.save
       session

@@ -11,9 +11,9 @@ module MyHealth
           render json: resource.to_json
         end
 
-        def request
+        def request_download
           study_id = params[:id].try(:to_s)
-          resource = bb_client.request_study(current_user.icn, study_id)
+          resource = bb_client.request_study(study_id)
           render json: resource.to_json
         end
 
@@ -30,7 +30,7 @@ module MyHealth
           response.headers['Content-Type'] = 'image/jpeg'
           begin
             chunk_stream = Enumerator.new do |stream|
-              bb_client.get_image(study_id, series_id, image_id, header_callback, stream)
+              bb_client.get_image(study_id, series_id, image_id, nil, stream)
             end
             chunk_stream.each { |c| response.stream.write c }
           ensure
