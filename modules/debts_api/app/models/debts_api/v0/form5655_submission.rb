@@ -74,7 +74,7 @@ module DebtsApi
         StatsD.increment("#{STATS_KEY}.vha.success")
       else
         submission.failed!
-        statsd.increment('silent_failure', [tags=[service: 'debt-resolution', function: 'VHA completed state']])
+        statsd.increment('silent_failure', [tags=[service: 'debt-resolution', function: 'set_vha_completed_state']])
         StatsD.increment("#{STATS_KEY}.vha.failure")
         Rails.logger.error('Batch FSR Processing Failed', status.failure_info)
       end
