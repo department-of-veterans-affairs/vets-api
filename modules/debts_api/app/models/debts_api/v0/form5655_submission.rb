@@ -74,7 +74,6 @@ module DebtsApi
         StatsD.increment("#{STATS_KEY}.vha.success")
       else
         submission.failed!
-        statsd.increment('silent_failure', [tags=[service: 'debt-resolution', function: 'set_vha_completed_state']])
         StatsD.increment("#{STATS_KEY}.vha.failure")
         Rails.logger.error('Batch FSR Processing Failed', status.failure_info)
       end
@@ -85,7 +84,7 @@ module DebtsApi
       update(error_message: message)
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
-      statsd.increment('silent_failure', [tags=[service: 'debt-resolution', function: 'register_failure']])
+      StatsD.increment('silent_failure', [service: 'debt-resolution', function: 'register_failure'])
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
     end
 
