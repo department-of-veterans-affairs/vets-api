@@ -35,7 +35,7 @@ module DebtsApi
       StatsD.increment("#{STATS_KEY}.success")
       submission.register_success
     rescue => e
-      submission.register_failure(e.message)
+      submission.register_failure("VBASubmissionJob#perform: #{e.message}")
       StatsD.increment("#{STATS_KEY}.failure")
       raise e
     end
