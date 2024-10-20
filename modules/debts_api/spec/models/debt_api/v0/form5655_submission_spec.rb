@@ -173,11 +173,13 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
 
     context 'combined form' do
       it 'saves error message and logs error' do
-        form5655_submission.public_metadata['combined'] = true
-        form5655_submission.save!
+        form5655_submission.public_metadata = { combined: true }
+        form5655_submission.save
+
         expect(Rails.logger).to receive(:error).with('Form5655Submission failed', message)
         expect(StatsD).to receive(:increment).with('silent_failure', [{ function: 'register_failure', service: "debt-resolution" }])
         expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.combined.failure')
         form5655_submission.register_failure(message)
         expect(form5655_submission.error_message).to eq(message)
       end
