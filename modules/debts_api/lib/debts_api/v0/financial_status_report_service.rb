@@ -135,7 +135,7 @@ module DebtsApi
       form_submission.submitted!
       { status: vbs_response.status }
     rescue => e
-      form_submission.register_failure(e.message)
+      form_submission.register_failure("FinancialStatusReportService#submit_vha_fsr: #{e.message}")
       raise e
     end
 
