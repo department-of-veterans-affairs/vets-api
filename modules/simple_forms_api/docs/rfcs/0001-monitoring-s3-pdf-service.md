@@ -31,8 +31,8 @@ Definition of key metrics to be monitored:
 
 - **Sensitive Data Handling**: Ensure that PII and PHI are not included in any logs or alerts. Logs must be scrubbed of sensitive information before being recorded.
 - **Upload/Download Events**: Log the following details:
-  - **Successful Upload/Download**: Timestamp, operation type, and anonymized user ID.
-  - **Failed Upload/Download**: Timestamp, operation type, error code, and anonymized user details.
+  - **Successful Upload/Download**: Timestamp, operation type, and `benefits_intake_uuid`.
+  - **Failed Upload/Download**: Timestamp, operation type, error code, and `benefits_intake_uuid`.
   - **Service Downtime**: Detect and log when services are unreachable or experience outages.
 - **Log Integration**: Utilize `Rails.logger` to log events, which will be captured by DataDog.
 
