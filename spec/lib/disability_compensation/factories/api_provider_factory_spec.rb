@@ -300,6 +300,5 @@ RSpec.describe ApiProviderFactory do
         expect(provider.class).to equal(EVSSSupplementalDocumentUploadProvider)
       end
     end
-
   end
 end

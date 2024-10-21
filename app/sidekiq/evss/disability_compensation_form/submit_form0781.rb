@@ -211,7 +211,7 @@ module EVSS
       end
 
       def create_document_data(evss_claim_id, upload_data)
-        #AJ todo - should this be a LH doc?
+        # AJ todo - should this be a LH doc?
         EVSSClaimDocument.new(
           evss_claim_id:,
           file_name: upload_data[:file_name],
@@ -235,7 +235,7 @@ module EVSS
       end
 
       def perform_client_upload(file_body, document_data, form_id)
-        if Flipper.enabled?(:disability_compensation_use_api_provider_for_0781)
+        if Flipper.enabled?(:disability_compensation_use_api_provider_for_0781_upload)
           provider = self.class.api_upload_provider(submission, form_id)
           upload_document = provider.generate_upload_document(document_data.file_name)
           provider.submit_upload_document(upload_document, file_body)
@@ -243,7 +243,6 @@ module EVSS
           EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
         end
       end
-
     end
   end
 end

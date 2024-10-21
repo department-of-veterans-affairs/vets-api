@@ -1596,10 +1596,10 @@ features:
   disability_compensation_upload_bdd_instructions_to_lighthouse:
     actor_type: user
     description: If enabled uploads BDD instructions to Lighthouse Benefits Documents API instead of EVSS
-  disability_compensation_use_api_provider_for_0781:
+  disability_compensation_use_api_provider_for_0781_upload:
     actor_type: user
     description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading Form 0781
-  disability_compensation_lighthouse_upload_0781:
+  disability_compensation_upload_0781_to_lighthouse:
     actor_type: user
     description: If enabled the ApiProviderFactory will select the Lighthouse Benefits Documents API to submit Form 0781 for Form 526 documents
   disablity_benefits_browser_monitoring_enabled:
