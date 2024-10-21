@@ -8,6 +8,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
   end
 
   describe 'state machine' do
+    before { allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send) }
+
     let(:config) do
       {
         form_data: anything,
@@ -28,19 +30,36 @@ RSpec.describe FormSubmissionAttempt, type: :model do
           .to transition_from(:pending).to(:failure).on_event(:fail)
       end
 
-      it 'sends an error email' do
-        notification_email = double
-        allow(notification_email).to receive(:send)
-        allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
-          config,
-          notification_type:,
-          user_account: anything
-        ).and_return(notification_email)
-        form_submission_attempt = create(:form_submission_attempt)
+      context 'is a simple form' do
+        let(:form_submission) { build(:form_submission, form_type: '21-4142') }
 
-        form_submission_attempt.fail!
+        it 'sends an error email' do
+          notification_email = double
+          allow(notification_email).to receive(:send)
+          allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
+            config,
+            notification_type:,
+            user_account: anything
+          ).and_return(notification_email)
+          form_submission_attempt = create(:form_submission_attempt, form_submission:)
 
-        expect(notification_email).to have_received(:send)
+          form_submission_attempt.fail!
+
+          expect(notification_email).to have_received(:send)
+        end
+      end
+
+      context 'is not a simple form' do
+        let(:form_submission) { build(:form_submission, form_type: 'some-other-form') }
+
+        it 'does not send an error email' do
+          allow(SimpleFormsApi::NotificationEmail).to receive(:new)
+          form_submission_attempt = create(:form_submission_attempt, form_submission:)
+
+          form_submission_attempt.fail!
+
+          expect(SimpleFormsApi::NotificationEmail).not_to have_received(:new)
+        end
       end
     end
 
@@ -74,6 +93,34 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         form_submission_attempt.vbms!
 
         expect(notification_email).to have_received(:send)
+      end
+
+      context 'form_data is nil' do
+        let(:config) do
+          {
+            form_data: nil,
+            form_number: anything,
+            date_submitted: anything,
+            lighthouse_updated_at: anything,
+            confirmation_number: anything
+          }
+        end
+
+        it 'gracefully handles the nil form_data' do
+          notification_email = double
+          allow(JSON).to receive(:parse)
+          allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
+            config,
+            notification_type:,
+            user_account: anything
+          ).and_return(notification_email)
+          allow(notification_email).to receive(:send)
+          form_submission_attempt = create(:form_submission_attempt)
+
+          form_submission_attempt.vbms!
+
+          expect(JSON).to have_received(:parse).with('{}')
+        end
       end
     end
   end

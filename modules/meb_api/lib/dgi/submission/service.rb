@@ -18,7 +18,7 @@ module MebApi
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
-            response = perform(:post, end_point, format_params(params), headers, options)
+            response = perform(:post, end_point(params['@type']), format_params(params), headers, options)
 
             MebApi::DGI::Submission::SubmissionResponse.new(response.status, response)
           end
@@ -26,8 +26,18 @@ module MebApi
 
         private
 
-        def end_point
-          'claimType/Chapter33/claimsubmission'
+        def end_point(form_type)
+          "claimType/#{dgi_url(form_type)}/claimsubmission"
+        end
+
+        def dgi_url(form_type)
+          if form_type == 'Chapter1606Submission'
+            'Chapter1606'
+          elsif form_type == 'Chapter30Submission'
+            'Chapter30'
+          else
+            'Chapter33'
+          end
         end
 
         def request_headers

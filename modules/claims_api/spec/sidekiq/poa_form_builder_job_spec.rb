@@ -81,7 +81,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         expect(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:new).and_call_original
         expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:construct).and_call_original
-        subject.new.perform(power_of_attorney.id)
+        subject.new.perform(power_of_attorney.id, action: 'post')
       end
 
       it 'Calls the POA updater job upon successful upload to VBMS' do
@@ -97,7 +97,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
 
         expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
 
-        subject.new.perform(power_of_attorney.id)
+        subject.new.perform(power_of_attorney.id, action: 'post')
       end
     end
 
@@ -111,7 +111,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         expect(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:new).and_call_original
         expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
-        subject.new.perform(power_of_attorney.id)
+        subject.new.perform(power_of_attorney.id, action: 'post')
       end
 
       it 'Calls the POA updater job upon successful upload to VBMS' do
@@ -127,7 +127,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
 
         expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
 
-        subject.new.perform(power_of_attorney.id)
+        subject.new.perform(power_of_attorney.id, action: 'post')
       end
     end
 
@@ -148,7 +148,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       it 'sets the status and store the error' do
         expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct)
           .and_raise(ClaimsApi::StampSignatureError)
-        subject.new.perform(power_of_attorney.id)
+        subject.new.perform(power_of_attorney.id, action: 'post')
         power_of_attorney.reload
         expect(power_of_attorney.status).to eq(ClaimsApi::PowerOfAttorney::ERRORED)
         expect(power_of_attorney.signature_errors).not_to be_empty
@@ -181,10 +181,21 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
 
     it 'calls the benefits document API upload instead of VBMS' do
       Flipper.enable(:lighthouse_claims_api_poa_use_bd)
+      Flipper.disable(:claims_api_poa_uploads_bd_refactor)
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
 
-      subject.new.perform(power_of_attorney.id)
+      subject.new.perform(power_of_attorney.id, action: 'post')
+    end
+
+    it 'calls the benefits document API upload_document instead of upload' do
+      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
+      Flipper.enable(:claims_api_poa_uploads_bd_refactor)
+      expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
+      expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload)
+      expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
+
+      subject.new.perform(power_of_attorney.id, action: 'post')
     end
 
     it 'rescues errors from BD and sets the status to errored' do
@@ -193,7 +204,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       VCR.use_cassette('claims_api/bd/upload_error') do
         allow(ClaimsApi::BD.new).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)
                                                     .and_raise(Common::Exceptions::BackendServiceException.new(errors))
-        subject.new.perform(power_of_attorney.id)
+        subject.new.perform(power_of_attorney.id, action: 'post')
       rescue
         power_of_attorney.reload
         expect(power_of_attorney.vbms_error_message).to eq(

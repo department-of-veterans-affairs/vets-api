@@ -16,7 +16,7 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
     }
   end
   let(:flashes) { %w[Hardship Homeless] }
-  let(:claim) { create(:auto_established_claim_with_auth_headers) }
+  let(:claim) { create(:auto_established_claim, :with_full_headers) }
   let(:assigned_flashes) do
     { flashes: flashes.map do |flash|
                  { assigned_indicator: claim.auth_headers['va_eauth_pnid'], flash_name: "#{flash}    ",

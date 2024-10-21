@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_18_163939) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -165,6 +165,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.string "lighthouse_upload_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "failure_notification_sent_at"
+    t.index ["appeal_submission_id"], name: "index_appeal_submission_uploads_on_appeal_submission_id"
   end
 
   create_table "appeal_submissions", force: :cascade do |t|
@@ -177,6 +179,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.text "upload_metadata_ciphertext"
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
+    t.datetime "failure_notification_sent_at"
+    t.index ["submitted_appeal_uuid"], name: "index_appeal_submissions_on_submitted_appeal_uuid"
     t.index ["user_account_id"], name: "index_appeal_submissions_on_user_account_id"
   end
 
@@ -673,6 +677,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.boolean "ignored_as_duplicate", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "remediation_type", default: 0
     t.index ["form526_submission_id"], name: "index_form526_submission_remediations_on_form526_submission_id"
   end
 
@@ -1047,6 +1052,20 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "secondary_appeal_forms", force: :cascade do |t|
+    t.string "form_id"
+    t.text "encrypted_kms_key"
+    t.text "form_ciphertext"
+    t.uuid "guid"
+    t.string "status"
+    t.datetime "status_updated_at"
+    t.bigint "appeal_submission_id"
+    t.datetime "delete_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["appeal_submission_id"], name: "index_secondary_appeal_forms_on_appeal_submission_id"
+  end
+
   create_table "service_account_configs", force: :cascade do |t|
     t.string "service_account_id", null: false
     t.text "description", null: false
@@ -1305,6 +1324,23 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.index ["user_account_id", "form_id"], name: "index_in_progress_reminders_sent_user_account_form_id", unique: true
   end
 
+  create_table "va_notify_notifications", force: :cascade do |t|
+    t.uuid "notification_id", null: false
+    t.text "reference"
+    t.text "to"
+    t.text "status"
+    t.datetime "completed_at"
+    t.datetime "sent_at"
+    t.text "notification_type"
+    t.text "status_reason"
+    t.text "provider"
+    t.text "source_location"
+    t.text "callback"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "metadata"
+  end
+
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
     t.integer "month", null: false
     t.integer "year", null: false
@@ -1330,7 +1366,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.index ["created_at"], name: "index_vba_documents_upload_submissions_on_created_at"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
-    t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at", where: "(s3_deleted IS NOT TRUE)"
+    t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at_false", where: "(s3_deleted IS FALSE)"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
 
