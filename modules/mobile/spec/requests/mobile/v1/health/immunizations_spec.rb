@@ -3,8 +3,7 @@
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
 
-RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation,
-               type: :request do
+RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, type: :request do
   include JsonSchemaMatchers
   include CommitteeHelper
 
