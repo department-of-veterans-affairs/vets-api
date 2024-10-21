@@ -33,7 +33,7 @@ module SwaggerSharedComponents
 
     def self.representative
       {
-        id: '123456789',
+        id: '8c3b3b53-02a1-4dbd-bd23-2b556f5ef635',
         organization_id: '6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943'
       }
     end
@@ -104,8 +104,8 @@ module SwaggerSharedComponents
       {
         type: :object,
         properties: {
-          id: { type: :string, example: '123456789' },
-          organization_id: { type: :string, example: 'Veterans Organization' }
+          id: { type: :string, example: '8c3b3b53-02a1-4dbd-bd23-2b556f5ef635' },
+          organization_id: { type: :string, example: '6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943' }
         },
         required: [:id]
       }
