@@ -188,16 +188,20 @@ RSpec.describe HealthCareApplication, type: :model do
     end
 
     context 'with a loa1 user' do
-      it 'returns partial ee data when enrollment_status is present' do
-        expect(described_class.parsed_ee_data(ee_data, false)).to eq(
-          parsed_status: HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED
-        )
+      context 'when enrollment_status is present' do
+        it 'returns partial ee data' do
+          expect(described_class.parsed_ee_data(ee_data, false)).to eq(
+            parsed_status: HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED
+          )
+        end
       end
 
-      it 'returns none of the above ee data when enrollment_status is not set' do
-        expect(described_class.parsed_ee_data({}, false)).to eq(
-          parsed_status: HCA::EnrollmentEligibility::Constants::NONE_OF_THE_ABOVE
-        )
+      context 'when enrollment_status is not set' do
+        it 'returns none of the above ee data' do
+          expect(described_class.parsed_ee_data({}, false)).to eq(
+            parsed_status: HCA::EnrollmentEligibility::Constants::NONE_OF_THE_ABOVE
+          )
+        end
       end
     end
   end
