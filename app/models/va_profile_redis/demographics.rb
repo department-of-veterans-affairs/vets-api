@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'va_profile/demographics/service'
 require 'va_profile/demographics/demographic_response'
 require 'va_profile/models/demographic'
 require 'common/models/redis_store'

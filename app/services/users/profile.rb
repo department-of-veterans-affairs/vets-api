@@ -46,6 +46,7 @@ module Users
 
     def fetch_and_serialize_profile
       scaffold.account = account
+      # scaffold.demographics = demographics
       scaffold.profile = profile
       scaffold.vet360_contact_information = vet360_contact_information
       scaffold.va_profile = mpi_profile
@@ -55,7 +56,6 @@ module Users
       scaffold.services = services
       scaffold.session = session_data
       scaffold.onboarding = onboarding
-      scaffold.demographics = demographics
     end
 
     def account
@@ -72,6 +72,7 @@ module Users
         first_name: user.first_name,
         middle_name: user.middle_name,
         last_name: user.last_name,
+        preferred_name: user&.demographics&.preferred_name&.text,
         birth_date: user.birth_date,
         gender: user.gender,
         zip: user.postal_code,
@@ -220,13 +221,6 @@ module Users
     def onboarding
       {
         show: user.show_onboarding_flow_on_login
-      }
-    end
-
-    def demographics
-      demographics = user.demographics
-      {
-        preferred_name: demographics.preferred_name
       }
     end
   end
