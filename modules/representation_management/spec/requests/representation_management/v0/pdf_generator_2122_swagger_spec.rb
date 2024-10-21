@@ -6,16 +6,14 @@ require_relative '../../../support/swagger_shared_components/v0'
 
 RSpec.describe 'PDF Generator 21-22', openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json',
                                       type: :request do
+  before do
+    create(:accredited_organization,
+           id: SwaggerSharedComponents::V0.representative[:organization_id],
+           name: 'Veterans Organization')
+  end
+
   path '/representation_management/v0/pdf_generator2122' do
     post('Generate a PDF for form 21-22') do
-      before do
-        # Mock the AccreditedOrganization lookup
-        allow(AccreditedOrganization)
-          .to receive(:find_by)
-          .with(id: 'Veterans Organization')
-          .and_return(double('AccreditedOrganization', name: 'Veterans Organization'))
-      end
-
       tags 'PDF Generation'
       consumes 'application/json'
       produces 'application/pdf'

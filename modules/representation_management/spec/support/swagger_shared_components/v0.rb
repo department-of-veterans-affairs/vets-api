@@ -34,7 +34,7 @@ module SwaggerSharedComponents
     def self.representative
       {
         id: '123456789',
-        organization_id: 'Veterans Organization'
+        organization_id: '6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943'
       }
     end
 
