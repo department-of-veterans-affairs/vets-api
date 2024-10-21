@@ -16,7 +16,7 @@ module ClaimsApi
         'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
         'errored', @search_from, @search_to, '0oagdm49ygCSJTp8X297'
       ).pluck(:id).uniq
-      @va_gov_errored_claims = va_gov_errored_claims
+      @va_gov_errored_claims = get_unique_errors
       @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @search_from..@search_to,
                                                       status: 'errored').pluck(:id).uniq
       @errored_itf = ClaimsApi::IntentToFile.where(created_at: @search_from..@search_to,
@@ -66,33 +66,22 @@ module ClaimsApi
       Flipper.enabled? :claims_hourly_slack_error_report_enabled
     end
 
-    def va_gov_errored_claims
-      errored_claims = get_unique_errors
-      errored_claims.map { |record| record[0] } # rubocop:disable Rails/Pluck
-    end
-
     def get_unique_errors
-      begin
-        last_day = ClaimsApi::AutoEstablishedClaim
-                   .where(created_at: 24.hours.ago..1.hour.ago,
-                          status: 'errored', cid: '0oagdm49ygCSJTp8X297')
+      last_day = ClaimsApi::AutoEstablishedClaim
+                 .where(created_at: 24.hours.ago..1.hour.ago,
+                        status: 'errored', cid: '0oagdm49ygCSJTp8X297')
 
-        last_hour = ClaimsApi::AutoEstablishedClaim
-                    .where(created_at: 1.hour.ago..Time.zone.now,
-                           status: 'errored', cid: '0oagdm49ygCSJTp8X297')
+      last_hour = ClaimsApi::AutoEstablishedClaim
+                  .where(created_at: 1.hour.ago..Time.zone.now,
+                         status: 'errored', cid: '0oagdm49ygCSJTp8X297')
 
-        day_trans_ids = last_day.pluck(:transaction_id)
+      day_trans_ids = last_day&.pluck(:transaction_id)
 
-        errored_claims = last_hour.find_all do |claim|
-          day_trans_ids.exclude?(claim[:transaction_id])
-        end
-      rescue ActiveRecord::Exception => e
-        ClaimsApi::Logger "SQL error in #{e}"
-        ActiveRecord::Base.connection.execute 'ROLLBACK'
-
-        raise e
+      errored_claims = last_hour.find_all do |claim|
+        day_trans_ids.exclude?(claim[:transaction_id])
       end
-      errored_claims&.pluck(:id, :transaction_id)
+
+      errored_claims&.pluck(:id)
     end
   end
 end
