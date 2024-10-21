@@ -35,7 +35,7 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
       it 'updates submission on error' do
         expect { described_class.new.perform(form_submission.id, user.uuid) }.to raise_exception('uhoh')
         expect(form_submission.failed?).to eq(true)
-        expect(form_submission.error_message).to eq('uhoh')
+        expect(form_submission.error_message).to eq('VBASubmissionJob#perform: uhoh')
       end
     end
 
