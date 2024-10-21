@@ -248,7 +248,7 @@ RSpec.describe ApiProviderFactory do
   context 'upload supplemental document' do
     let(:submission) { create(:form526_submission) }
     let(:va_document_type_bdd) { 'L023' }
-    let(:va_document_type_0781) { 'L228' }
+    let(:va_document_type_0781_upload) { 'L228' }
 
     def provider(api_provider = nil)
       ApiProviderFactory.call(
