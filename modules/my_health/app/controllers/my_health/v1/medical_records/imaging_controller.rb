@@ -4,8 +4,6 @@ module MyHealth
   module V1
     module MedicalRecords
       class ImagingController < MrController
-        REPORT_HEADERS = %w[Content-Type Content-Disposition].freeze
-
         def index
           resource = bb_client.list_imaging_studies
           render json: resource.to_json
@@ -40,11 +38,14 @@ module MyHealth
 
         def dicom
           study_id = params[:id].try(:to_s)
+
+          # Lambda to capture headers from the upstream response
           header_callback = lambda do |headers|
             headers.each do |k, v|
-              request[k] = v if REPORT_HEADERS.include? k
+              response.headers[k] = v if k.present?
             end
           end
+
           begin
             chunk_stream = Enumerator.new do |stream|
               bb_client.get_dicom(study_id, header_callback, stream)
