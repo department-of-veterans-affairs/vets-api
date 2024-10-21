@@ -10,6 +10,10 @@ describe VAOS::V2::PatientsService do
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#index' do
+    before do
+      Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+    end
+
     context 'with an patient' do
       context 'using VAOS' do
         before do

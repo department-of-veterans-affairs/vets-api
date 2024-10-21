@@ -11,6 +11,7 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
   before do
     allow_any_instance_of(User).to receive(:va_patient?).and_return(true)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
   describe 'authorization' do
