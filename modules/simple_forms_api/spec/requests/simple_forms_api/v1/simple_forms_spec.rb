@@ -38,7 +38,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:new).and_return(mock_s3_client)
     allow(mock_s3_client).to receive(:upload).and_return(presigned_s3_url)
     allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-    allow(Flipper).to receive(:enabled?).with(:submission_pdf_s3_upload).and_return(true)
   end
 
   describe '#submit' do
@@ -55,6 +54,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           original_method.call(args[0], random_string)
         end
         Flipper.disable(:simple_forms_email_confirmations)
+        Flipper.enable(:submission_pdf_s3_upload)
       end
 
       after do
@@ -62,6 +62,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
         Common::FileHelpers.delete_file_if_exists(metadata_file)
         Flipper.enable(:simple_forms_email_confirmations)
+        Flipper.disable(:submission_pdf_s3_upload)
       end
 
       shared_examples 'form submission' do |form, is_authenticated|
