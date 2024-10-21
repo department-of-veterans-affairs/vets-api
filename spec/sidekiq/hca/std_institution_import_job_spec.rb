@@ -4,6 +4,35 @@ require 'rails_helper'
 require 'csv'
 
 RSpec.describe HCA::StdInstitutionImportJob, type: :worker do
+  describe '#fetch_csv_data' do
+    let(:job) { described_class.new }
+
+    context 'when CSV fetch is successful' do
+      it 'returns the CSV data' do
+        csv_data = <<~CSV
+          header1,header2
+          value1,value2
+        CSV
+        stub_request(:get, 'https://sitewide-public-websites-income-limits-data.s3-us-gov-west-1.amazonaws.com/std_institution.csv')
+          .to_return(status: 200, body: csv_data)
+
+        result = job.fetch_csv_data
+        expect(result).to eq(csv_data)
+      end
+    end
+
+    context 'when CSV fetch fails' do
+      it 'logs an error and returns nil' do
+        stub_request(:get, 'https://sitewide-public-websites-income-limits-data.s3-us-gov-west-1.amazonaws.com/std_institution.csv')
+          .to_return(status: 404)
+
+        expect(Rails.logger).to receive(:info).with('CSV retrieval failed with response code 404')
+        result = job.fetch_csv_data
+        expect(result).to be_nil
+      end
+    end
+  end
+
   describe '#perform' do
     context 'actual records' do
       it 'populates institutions with the relevant attributes' do
@@ -73,6 +102,16 @@ RSpec.describe HCA::StdInstitutionImportJob, type: :worker do
         expect(facility.updated).to eq '2021-04-12 14:58:11 +0000'
         expect(facility.created_by).to eq 'Initial Load'
         expect(facility.updated_by).to eq 'DataBroker - CQ# 0998 3/02/2021'
+      end
+    end
+
+    context 'when fetch_csv_data returns nil' do
+      it 'raises an error' do
+        allow_any_instance_of(HCA::StdInstitutionImportJob).to receive(:fetch_csv_data).and_return(nil)
+
+        expect do
+          described_class.new.perform
+        end.to raise_error(RuntimeError, 'Failed to fetch CSV data.')
       end
     end
   end
