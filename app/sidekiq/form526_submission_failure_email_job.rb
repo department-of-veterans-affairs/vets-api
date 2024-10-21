@@ -13,7 +13,6 @@ class Form526SubmissionFailureEmailJob
     'service:disability-application',
     'function:526_backup_submission_to_lighthouse'
   ].freeze
-
   FORM_DESCRIPTIONS = {
     'form4142' => 'VA Form 21-4142',
     'form0781' => 'VA Form 21-0781',
@@ -125,7 +124,7 @@ class Form526SubmissionFailureEmailJob
     )
 
     StatsD.increment("#{STATSD_PREFIX}.success")
-    StatsD.increment('silent_failure_avoided', tags: DD_ZSF_TAGS)
+    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   end
 
   def log_failure(error, submission)
