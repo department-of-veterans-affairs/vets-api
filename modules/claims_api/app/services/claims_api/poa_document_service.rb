@@ -12,8 +12,7 @@ module ClaimsApi
       end
 
       body = generate_body(poa:, doc_type:, pdf_path:, action:)
-      doc_type_name = 'POA'
-      ClaimsApi::BD.new.upload_document(identifier: poa.id, doc_type_name:, body:)
+      ClaimsApi::BD.new.upload_document(identifier: poa.id, doc_type_name: 'POA', body:)
     end
 
     private
@@ -28,14 +27,11 @@ module ClaimsApi
                                           auth_headers['va_eauth_lastName'])
       ptcpnt_vet_id = auth_headers['va_eauth_pid']
       participant_id = find_ptcpnt_vet_id(auth_headers, ptcpnt_vet_id)
-      birls_file_number = nil
-      claim_id = nil
       form_name = get_form_name(action:, doc_type:)
       file_name = build_file_name(veteran_name:, identifier: nil, suffix: form_name)
-      system_name = 'Lighthouse'
 
-      generate_upload_body(claim_id:, system_name:, doc_type:, pdf_path:, file_name:, birls_file_number:,
-                           participant_id:, tracked_item_ids: nil)
+      generate_upload_body(claim_id: nil, system_name: 'Lighthouse', doc_type:, pdf_path:, file_name:,
+                           birls_file_number: nil, participant_id:, tracked_item_ids: nil)
     end
 
     def get_form_name(action:, doc_type:)
