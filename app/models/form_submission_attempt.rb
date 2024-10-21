@@ -46,10 +46,12 @@ class FormSubmissionAttempt < ApplicationRecord
           jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async form526_submission_id
           Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify completed', log_info.merge({ jid: }))
         end
-      rescue
+      rescue => e
         cl = caller_locations.first
         call_location = ZeroSilentFailures::Monitor::CallLocation.new(zsf_function, cl.path, cl.lineno)
-        ZeroSilentFailures::Monitor.new(zsf_service).log_silent_failure(log_info, user_uuid, call_location:)
+        error_hash = { error_class: e.class, error_message: e.message }
+        ZeroSilentFailures::Monitor.new(zsf_service).log_silent_failure(log_info.merge(error_hash), user_uuid,
+                                                                        call_location:)
       end
 
       transitions from: :pending, to: :failure
