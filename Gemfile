@@ -11,6 +11,7 @@ path 'modules' do
   gem 'apps_api'
   gem 'ask_va_api'
   gem 'avs'
+  gem 'burials'
   gem 'check_in'
   gem 'claims_api'
   gem 'covid_research'
@@ -137,6 +138,7 @@ gem 'rails-session_cookie'
 gem 'redis'
 gem 'redis-namespace'
 gem 'request_store'
+gem 'require_all'
 gem 'restforce'
 gem 'rgeo-geojson'
 gem 'roo'
@@ -180,6 +182,7 @@ end
 
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.1.0.vsp'
+  gem 'committee-rails'
   gem 'mock_redis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'

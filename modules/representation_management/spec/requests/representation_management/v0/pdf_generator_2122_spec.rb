@@ -10,7 +10,6 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
     let(:params) do
       {
         pdf_generator2122: {
-          organization_name: 'My Organization',
           record_consent: '',
           consent_address_change: '',
           consent_limits: [],
@@ -29,7 +28,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
               address_line2: '',
               city: 'ClaimantCity',
               state_code: 'CC',
-              country: 'US',
+              country: 'USA', # This is a 3 character country code as submitted by the frontend
               zip_code: '12345',
               zip_code_suffix: '6789'
             }
@@ -53,7 +52,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
               address_line2: '',
               city: 'VeteranCity',
               state_code: 'VC',
-              country: 'US',
+              country: 'USA', # This is a 3 character country code as submitted by the frontend
               zip_code: '98765',
               zip_code_suffix: '4321'
             }
@@ -80,10 +79,25 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
       end
     end
 
+    context 'When submitting a valid request without a claimant' do
+      before do
+        params[:pdf_generator2122].delete(:claimant)
+        post(base_path, params:)
+      end
+
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'responds with a PDF' do
+        expect(response.content_type).to eq('application/pdf')
+      end
+    end
+
     context 'when triggering validation errors' do
-      context 'when submitting without the organization name for a single validation error' do
+      context 'when submitting without the veteran first name for a single validation error' do
         before do
-          params[:pdf_generator2122][:organization_name] = nil
+          params[:pdf_generator2122][:veteran][:name][:first] = nil
           post(base_path, params:)
         end
 
@@ -92,7 +106,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
         end
 
         it 'responds with the expected body' do
-          expect(response.body).to eq({ errors: ["Organization name can't be blank"] }.to_json)
+          expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
         end
       end
 

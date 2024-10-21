@@ -107,7 +107,8 @@ module RepresentationManagement
       validates :claimant_country, presence: true, length: { is: 2 }
       validates :claimant_state_code, presence: true, length: { is: 2 }
       validates :claimant_zip_code, presence: true, length: { is: 5 }, format: { with: FIVE_DIGIT_NUMBER }
-      validates :claimant_zip_code_suffix, length: { is: 4 }, format: { with: FOUR_DIGIT_NUMBER }
+      validates :claimant_zip_code_suffix, length: { is: 4 }, format: { with: FOUR_DIGIT_NUMBER },
+                                           if: -> { claimant_zip_code_suffix.present? }
       validates :claimant_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
     end
 

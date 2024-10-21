@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
   let(:auto_form) { create(:auto_established_claim_va_gov, auth_headers: { some: 'data' }) }.freeze
-  let(:pending_record) { create(:auto_established_claim) }.freeze
+  let(:pending_record) { create(:auto_established_claim, :special_issues, :flashes) }.freeze
 
   describe 'encrypted attributes' do
     it 'does the thing' do
@@ -503,6 +503,33 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
       expect(payload['form526']['treatments'][0]['center']['name']).to eq(' ')
     end
+
+    context 'handles empty spaces and dashes in the unitPhone numbers values' do
+      let(:temp_form_data) do
+        pending_record.form_data.tap do |data|
+          data['serviceInformation']['reservesNationalGuardService']['unitPhone'] = {
+            'areaCode' => '  555  ',
+            'phoneNumber' => '555-5555  '
+          }
+        end
+      end
+      let(:payload) { JSON.parse(pending_record.to_internal) }
+      let(:reserves) { payload['form526']['serviceInformation']['reservesNationalGuardService'] }
+
+      before do
+        pending_record.form_data = temp_form_data
+      end
+
+      it 'removes any extra spaces and dashes from the phoneNumber' do
+        phone_number = reserves['unitPhone']['phoneNumber']
+        expect(phone_number).to eq('5555555')
+      end
+
+      it 'removes any extra spaces from the areaCode' do
+        phone_number = reserves['unitPhone']['areaCode']
+        expect(phone_number).to eq('555')
+      end
+    end
   end
 
   describe 'evss_id_by_token' do
@@ -736,7 +763,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
   describe "'remove_encrypted_fields' callback" do
     context "when 'status' is 'established'" do
-      let(:auto_form) { create(:auto_established_claim, :status_established, auth_headers: { some: 'data' }) }
+      let(:auto_form) { create(:auto_established_claim, :established, auth_headers: { some: 'data' }) }
 
       context 'and the record is updated' do
         it "erases the 'form_data' attribute" do
@@ -760,7 +787,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         end
 
         it "does not erase the 'file_data' attribute" do
-          auto_form = build(:auto_established_claim, :status_established, auth_headers: { some: 'data' })
+          auto_form = build(:auto_established_claim, :established, auth_headers: { some: 'data' })
           file = Rack::Test::UploadedFile.new(
             ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
           )
