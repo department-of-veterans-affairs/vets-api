@@ -3370,7 +3370,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/v1/SecureMessageList.yml
+                $ref: ./schemas/v1/SecureMessageListV1.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
@@ -3960,7 +3960,7 @@ paths:
               schema:
                 properties:
                   data:
-                    $ref: ./schemas/v1/User.yml
+                    $ref: ./schemas/v1/UserV1.yml
                   meta:
                     properties:
                       availableServices:
@@ -4012,7 +4012,7 @@ paths:
               schema:
                 properties:
                   data:
-                    $ref: ./schemas/v2/User.yml
+                    $ref: ./schemas/v2/UserV2.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
@@ -4262,7 +4262,7 @@ paths:
                     $ref: ./examples/addresses/validation_multiple_matches.yml
                 Single match:
                   value:
-                    $ref: ./examples/addresses/validation_single_matches.yml
+                    $ref: ./examples/addresses/validation_single_match.yml
               schema:
                 $ref: ./schemas/AddressResponse.yml
           description: OK
@@ -4753,7 +4753,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/v1/Immunizations.yml
+                $ref: ./schemas/v1/ImmunizationsV1.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
