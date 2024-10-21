@@ -25,34 +25,31 @@ class FormSubmissionAttempt < ApplicationRecord
 
     event :fail do
       after do
-        begin
-          zsf_service = 'simple-forms-api' # get from simple forms team
-          zsf_function = 'queue failure email'
-          user_uuid = form_submission.user_account.id
-          log_info = { form_submission_id:,
-                      benefits_intake_uuid: form_submission&.benefits_intake_uuid,
-                      form_type: form_submission&.form_type,
-                      user_uuid: user_uuid
-                     }
-          if should_send_simple_forms_email
-            Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
-            simple_forms_enqueue_result_email(:error)
-          elsif should_send_form526_form4142_email
-            # Do not love hard coding this in here like this.
-            # Hoping to refactor this at somepoint to better support various emailing on arbitrary or inherited classes
-            zsf_service = 'disability-application'
-            zsf_function = 'Form 525 Flow - Form 4142 failure email queuing'
-            form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
-            Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
-                              log_info.merge({ form526_submission_id: }))
-            jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async form526_submission_id
-            Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify completed', log_info.merge({ jid: }))
-          end
-        rescue => e
-          cl = caller_locations.first
-          call_location = ZeroSilentFailures::Monitor::CallLocation.new(zsf_function, cl.path, cl.lineno)
-          ZeroSilentFailures::Monitor.new(zsf_service).log_silent_failure(log_info, user_uuid, call_location:)
+        zsf_service = 'simple-forms-api' # get from simple forms team
+        zsf_function = 'queue failure email'
+        user_uuid = form_submission.user_account.id
+        log_info = { form_submission_id:,
+                     benefits_intake_uuid: form_submission&.benefits_intake_uuid,
+                     form_type: form_submission&.form_type,
+                     user_uuid: user_uuid }
+        if should_send_simple_forms_email
+          Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
+          simple_forms_enqueue_result_email(:error)
+        elsif should_send_form526_form4142_email
+          # Do not love hard coding this in here like this.
+          # Hoping to refactor this at somepoint to better support various emailing on arbitrary or inherited classes
+          zsf_service = 'disability-application'
+          zsf_function = 'Form 525 Flow - Form 4142 failure email queuing'
+          form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
+          Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
+                            log_info.merge({ form526_submission_id: }))
+          jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async form526_submission_id
+          Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify completed', log_info.merge({ jid: }))
         end
+      rescue
+        cl = caller_locations.first
+        call_location = ZeroSilentFailures::Monitor::CallLocation.new(zsf_function, cl.path, cl.lineno)
+        ZeroSilentFailures::Monitor.new(zsf_service).log_silent_failure(log_info, user_uuid, call_location:)
       end
 
       transitions from: :pending, to: :failure
