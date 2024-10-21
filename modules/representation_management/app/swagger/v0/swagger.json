@@ -330,11 +330,18 @@
                   "representative": {
                     "type": "object",
                     "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "123456789"
+                      },
                       "organization_id": {
                         "type": "string",
                         "example": "Veterans Organization"
                       }
-                    }
+                    },
+                    "required": [
+                      "id"
+                    ]
                   },
                   "veteran": {
                     "type": "object",

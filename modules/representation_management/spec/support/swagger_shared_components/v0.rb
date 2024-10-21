@@ -11,7 +11,6 @@ module SwaggerSharedComponents
 
     def self.pdf_generator2122
       {
-        # organization_id: 'My Organization',
         record_consent: '',
         consent_address_change: '',
         consent_limits: [],
@@ -34,6 +33,7 @@ module SwaggerSharedComponents
 
     def self.representative
       {
+        id: '123456789',
         organization_id: 'Veterans Organization'
       }
     end
@@ -104,8 +104,10 @@ module SwaggerSharedComponents
       {
         type: :object,
         properties: {
+          id: { type: :string, example: '123456789' },
           organization_id: { type: :string, example: 'Veterans Organization' }
-        }
+        },
+        required: [:id]
       }
     end
 

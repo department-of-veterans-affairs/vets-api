@@ -35,6 +35,7 @@ module RepresentationManagement
       def representative_params_permitted
         [
           :organization_id,
+          :id,
           :type,
           :phone,
           :email,
