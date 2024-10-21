@@ -1494,13 +1494,13 @@ RSpec.describe Form526Submission do
         FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
       end
 
-      it 'returns true if the most recent remediation ignored_as_duplicate value is true' do
-        remediation.update(ignored_as_duplicate: true)
+      it 'returns true if the most recent remediation_type is ignored_as_duplicate' do
+        remediation.update(remediation_type: :ignored_as_duplicate)
         expect(subject).to be_duplicate
       end
 
-      it 'returns false if the most recent remediation ignored_as_duplicate value is false' do
-        remediation.update(ignored_as_duplicate: false)
+      it 'returns false if the most recent remediation_type is not ignored_as_duplicate' do
+        remediation.update(remediation_type: :manual)
         expect(subject).not_to be_duplicate
       end
     end
