@@ -157,53 +157,6 @@
               }
             }
           },
-          "502": {
-            "description": "Bad gateway",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Bad Gateway",
-                      "detail": "Bad Gateway"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Bad Gateway"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Bad Gateway"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
