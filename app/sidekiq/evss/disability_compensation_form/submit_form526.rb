@@ -75,7 +75,6 @@ module EVSS
       # submission service (currently EVSS)
       #
       # @param submission_id [Integer] The {Form526Submission} id
-
       def perform(submission_id)
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
