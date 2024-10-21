@@ -109,6 +109,33 @@ describe 'PowerOfAttorney', metadata do
         end
       end
 
+      response '502', 'Bad gateway' do
+        let(:data) { body_schema[:example] }
+
+        before do |example|
+          pattern = %r{/VDC/ManageRepresentativeService}
+          stub_request(:post, pattern).to_raise(
+            Faraday::ConnectionFailed
+          )
+
+          mock_ccg(scopes) do
+            submit_request(example.metadata)
+          end
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        it do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+      end
+
       response '422', 'Malformed request body' do
         # Depends on `rswag-specs` internals.
         let(:data) { OpenStruct.new(to_json: '{{{{') }
