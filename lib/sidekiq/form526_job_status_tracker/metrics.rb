@@ -19,19 +19,19 @@ module Sidekiq
 
       # Increments a job success
       # rubocop:disable Style/OptionalBooleanParameter
-      def increment_success(is_bdd = false, service_provider = '')
+      def increment_success(is_bdd = false, service_provider = nil)
         StatsD.increment("#{@prefix}.success", tags: %W[is_bdd:#{is_bdd} service_provider:#{service_provider}])
       end
 
       # Increments a non retryable error with a tag for the specific error
       #
-      def increment_non_retryable(error, is_bdd = false, service_provider = '')
+      def increment_non_retryable(error, is_bdd = false, service_provider = nil)
         StatsD.increment("#{@prefix}.non_retryable_error", tags: error_tags(error, is_bdd, service_provider))
       end
 
       # Increments a retryable error with a tag for the specific error
       #
-      def increment_retryable(error, is_bdd = false, service_provider = '')
+      def increment_retryable(error, is_bdd = false, service_provider = nil)
         StatsD.increment("#{@prefix}.retryable_error", tags: error_tags(error, is_bdd, service_provider))
       end
 
