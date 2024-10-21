@@ -22,7 +22,6 @@ RSpec.describe FormSubmissionAttempt, type: :model do
 
     context 'transitioning to a failure state' do
       let(:notification_type) { :error }
-      let(:vanotify_client) { instance_double(VaNotify::Service) }
 
       it 'transitions to a failure state' do
         form_submission_attempt = create(:form_submission_attempt)
@@ -63,8 +62,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         end
 
         context 'is a form526_form4142 form' do
+          let(:vanotify_client) { instance_double(VaNotify::Service) }
           let!(:email_klass) { EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail }
-          let(:mocked_notification_service) { instance_double(VaNotify::Service) }
           let!(:form526_submission) { create(:form526_submission) }
           let!(:form526_form4142_form_submission) do
             create(:form_submission, saved_claim_id: form526_submission.saved_claim.id,
@@ -78,8 +77,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
             Flipper.enable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
             Flipper.enable(CentralMail::SubmitForm4142Job::POLLED_FAILURE_EMAIL)
 
-            allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
-            allow(mocked_notification_service).to receive(:send_email).and_return(true)
+            allow(VaNotify::Service).to receive(:new).and_return(vanotify_client)
+            allow(vanotify_client).to receive(:send_email).and_return(true)
 
             with_settings(Settings.vanotify.services.benefits_disability, { api_key: 'test_service_api_key' }) do
               expect do
