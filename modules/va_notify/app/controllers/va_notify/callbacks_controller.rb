@@ -13,6 +13,16 @@ module VANotify
 
     def create
       Rails.logger.debug { "Notification received: #{params.inspect}" }
+      required_fields = %i[notification_id reference to status]
+      missing_fields = required_fields.select { |field| params[:va_notify_notification][field].blank? }
+
+      if missing_fields.any?
+        render json: { errors: { message: 'Missing required fields' } }, status: :unprocessable_entity
+        return
+      end
+
+      va_notify_notification = VaNotifyNotification.new(notification_params)
+      va_notify_notification.save!
       render json: { message: 'success' }, status: :ok
     end
 
@@ -35,6 +45,22 @@ module VANotify
 
     def bearer_token_secret
       Settings.dig(:va_notify, :status_callback, :bearer_token)
+    end
+
+    def notification_params
+      params.require(:va_notify_notification).permit(
+        :notification_id,
+        :reference,
+        :to,
+        :status,
+        :completed_at,
+        :sent_at,
+        :notification_type,
+        :status_reason,
+        :provider,
+        :source_location,
+        :callback
+      )
     end
   end
 end
