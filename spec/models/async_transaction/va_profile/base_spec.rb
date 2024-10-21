@@ -35,6 +35,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   end
 
   describe '.refresh_transaction_status()' do
+    Flipper.disable(:remove_pciu)
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:va_profile_address_transaction,
@@ -279,8 +280,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     end
   end
 
-  describe '.refresh_transaction_status() v2', :initiate_vaprofile, :skip_vet360 do
-    Flipper.enable(:va_v3_contact_information_service)
+  describe '.refresh_transaction_status() v2', :skip_vet360 do
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:address_transaction,
@@ -297,10 +297,15 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     let(:service) { VAProfile::V2::ContactInformation::Service.new(user) }
 
     before do
+      Flipper.enable(:va_v3_contact_information_service)
       # vet360_id appears in the API request URI so we need it to match the cassette
       allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
         create(:find_profile_response, profile: build(:mpi_profile, vet360_id: '1'))
       )
+    end
+
+    after do
+      Flipper.disable(:va_v3_contact_information_service)
     end
 
     it 'updates the transaction_status' do
@@ -364,6 +369,10 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
       allow(user).to receive_messages(vet360_id: '1781151', icn: '1234')
     end
 
+    after do
+      Flipper.disable(:va_v3_contact_information_service)
+    end
+
     let(:user) { build(:user, :loa3) }
     let!(:user_verification) { create(:user_verification, idme_uuid: user.idme_uuid) }
     let(:address) { build(:va_profile_address_v2, vet360_id: user.vet360_id, source_system_user: user.icn) }
@@ -385,7 +394,14 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   end
 
   describe '.fetch_transaction v2' do
-    Flipper.enable(:va_v3_contact_information_service)
+    before do
+      Flipper.enable(:va_v3_contact_information_service)
+    end
+
+    after do
+      Flipper.disable(:va_v3_contact_information_service)
+    end
+
     it 'raises an error if passed unrecognized transaction' do
       # Instead of simply calling Struct.new('Surprise'), we need to check that it hasn't been defined already
       # in order to prevent the following warning:
@@ -399,7 +415,6 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   end
 
   describe '.refresh_transaction_statuses() v2' do
-    Flipper.enable(:va_v3_contact_information_service)
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:address_transaction,
@@ -410,10 +425,15 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     let(:service) { VAProfile::V2::ContactInformation::Service.new(user) }
 
     before do
+      Flipper.enable(:va_v3_contact_information_service)
       # vet360_id appears in the API request URI so we need it to match the cassette
       allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
         create(:find_profile_response, profile: build(:mpi_profile, vet360_id: '1'))
       )
+    end
+
+    after do
+      Flipper.disable(:va_v3_contact_information_service)
     end
 
     it 'does not return completed transactions (whose status has not changed)' do
