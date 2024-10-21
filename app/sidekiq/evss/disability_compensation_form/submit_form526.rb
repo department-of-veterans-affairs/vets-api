@@ -75,7 +75,7 @@ module EVSS
       # submission service (currently EVSS)
       #
       # @param submission_id [Integer] The {Form526Submission} id
-      # rubocop:disable Metrics/MethodLength
+
       def perform(submission_id)
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
@@ -95,13 +95,7 @@ module EVSS
           return unless successfully_prepare_submission_for_evss?(submission)
 
           begin
-            # send submission data to either EVSS or Lighthouse (LH)
-            response = if submission.claims_api? # not needed once fully migrated to LH
-                         send_submission_data_to_lighthouse(submission, submission_account(submission).icn)
-                       else
-                         service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
-                       end
-
+            response = choose_service_provider(submission, service)
             response_handler(response)
             send_post_evss_notifications(submission, true)
           rescue => e
@@ -110,9 +104,17 @@ module EVSS
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       private
+
+      # send submission data to either EVSS or Lighthouse (LH)
+      def choose_service_provider(submission, service)
+        if submission.claims_api? # not needed once fully migrated to LH
+          send_submission_data_to_lighthouse(submission, submission_account(submission).icn)
+        else
+          service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+        end
+      end
 
       def conditionally_handle_errors(e)
         if submission.claims_api?

@@ -83,7 +83,7 @@ class Form526Submission < ApplicationRecord
   # TODO: follow-up in ticket #93563 to make this more robust, i.e. attempts of jobs, etc.
   def system_transaction_id
     service_provider = saved_claim.parsed_form['startedFormVersion'].present? ? 'lighthouse' : 'evss'
-    "Form526Submission_#{id}, user_uuid: #{User.find(user_uuid)}, service_provider: #{service_provider}"
+    "Form526Submission_#{id}, user_uuid: #{User.find(user_uuid).uuid}, service_provider: #{service_provider}"
   end
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
