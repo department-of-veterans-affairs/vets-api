@@ -7,7 +7,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:disability_compensation_use_api_provider_for_0781)
+    Flipper.disable(:disability_compensation_use_api_provider_for_0781_upload)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -105,7 +105,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     end
 
     before do
-      Flipper.enable(:disability_compensation_use_api_provider_for_0781)
+      Flipper.enable(:disability_compensation_use_api_provider_for_0781_upload)
       # StatsD metrics are incremented in several callbacks we're not testing here so we need to allow them
       allow(StatsD).to receive(:increment)
     end
@@ -125,7 +125,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       before do
-        Flipper.enable(:disability_compensation_lighthouse_upload_0781)
+        Flipper.enable(:disability_compensation_upload_0781_to_lighthouse)
 
         allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
           .and_return(faraday_response)
@@ -141,7 +141,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       it 'uploads the 0781 documents to Lighthouse' do
-        allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:generate_upload_document).and_return(expected_lighthouse_document)
+        allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+          .to receive(:generate_upload_document)
+          .and_return(expected_lighthouse_document)
         expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
           .with(
             an_instance_of(String), # generated file
@@ -240,15 +242,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       before do
-        Flipper.disable(:disability_compensation_lighthouse_upload_0781)
+        Flipper.disable(:disability_compensation_upload_0781_to_lighthouse)
         allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
       end
 
       it 'uploads the 0781 documents to EVSS' do
         # AJ TODO - tried Mocking a PDF with the right format, but it gets deleted in the codebase.
-        # allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).and_return('spec/fixtures/pdf_fill/21-0781/simple.pdf')
+        # allow_any_instance_of(described_class)
+        # .to receive(:generate_stamp_pdf)
+        # .and_return('spec/fixtures/pdf_fill/21-0781/simple.pdf')
 
-        allow_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document).and_return(evss_claim_document)
+        allow_any_instance_of(EVSSSupplementalDocumentUploadProvider)
+          .to receive(:generate_upload_document)
+          .and_return(evss_claim_document)
 
         expect_any_instance_of(EVSS::DocumentsService).to receive(:upload)
           .with(
