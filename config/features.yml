@@ -1205,6 +1205,10 @@ features:
     actor_type: user
     description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
     enable_in_development: false
+  submission_pdf_s3_upload:
+    actor_type: user
+    description: Used to toggle use of uploading a submission pdf to S3 and returning a pre-signed url.
+    enable_in_development: false
   meb_1606_30_automation:
     actor_type: user
     description: Enables MEB form to handle Chapter 1606/30 forms as well as Chapter 33.
