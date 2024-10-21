@@ -26,6 +26,7 @@ Definition of key metrics to be monitored:
   - **Threshold**: Alert if the error rate exceeds 1% of total requests over a **10-minute window**.
 - **Service Availability**: Monitor the availability and responsiveness of the S3 service and `vets-api` endpoints.
   - **Threshold**: Alert if services are down for more than **2 minutes**.
+  - **Implementation**: This will be managed by a job that checks for service availability. The job is triggered only when the service responds with errors consistent with being unreachable (e.g., network timeouts or 5xx errors). This approach reduces unnecessary checks and focuses on addressing sustained outages.
 
 ### 4.2. Logging Standards
 
@@ -42,7 +43,7 @@ Definition of key metrics to be monitored:
 - **Alert Types**:
   - **Performance Alerts**: Triggered if performance metrics exceed defined thresholds (e.g., high error rate or slow download speeds).
   - **Error Alerts**: Triggered on failed uploads/downloads with error details (scrubbed for PII/PHI).
-  - **Service Downtime Alerts**: Triggered when services are unavailable for more than the defined threshold.
+  - **Service Downtime Alerts**: Triggered when services are unavailable for more than the defined threshold, based on availability checks managed by the job described above.
 - **Escalation Protocol**:
   - **Tier 1**: Initial alert, handled by the person on-call.
   - **Tier 2**: If unresolved for 30 minutes, escalate to the engineering team lead.
