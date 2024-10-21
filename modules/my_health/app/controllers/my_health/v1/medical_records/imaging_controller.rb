@@ -4,56 +4,55 @@ module MyHealth
   module V1
     module MedicalRecords
       class ImagingController < MrController
+        before_action :set_study_id, only: %i[request_download images image dicom]
+
         def index
-          resource = bb_client.list_imaging_studies
-          render json: resource.to_json
+          render_resource(bb_client.list_imaging_studies)
         end
 
         def request_download
-          study_id = params[:id].try(:to_s)
-          resource = bb_client.request_study(study_id)
-          render json: resource.to_json
+          render_resource(bb_client.request_study(@study_id))
         end
 
         def images
-          study_id = params[:id].try(:to_s)
-          resource = bb_client.list_images(study_id)
-          render json: resource.to_json
+          render_resource(bb_client.list_images(@study_id))
         end
 
         def image
-          study_id = params[:id].to_s
-          series_id = params[:series_id].to_s
-          image_id = params[:image_id].to_s
-          response.headers['Content-Type'] = 'image/jpeg'
-          begin
-            chunk_stream = Enumerator.new do |stream|
-              bb_client.get_image(study_id, series_id, image_id, nil, stream)
-            end
-            chunk_stream.each { |c| response.stream.write c }
-          ensure
-            response.stream.close if response.committed?
+          stream_data do |stream|
+            bb_client.get_image(@study_id, params[:series_id].to_s, params[:image_id].to_s, header_callback, stream)
           end
         end
 
         def dicom
-          study_id = params[:id].try(:to_s)
+          stream_data do |stream|
+            bb_client.get_dicom(@study_id, header_callback, stream)
+          end
+        end
 
-          # Lambda to capture headers from the upstream response
-          header_callback = lambda do |headers|
+        private
+
+        def set_study_id
+          @study_id = params[:id].to_s
+        end
+
+        def render_resource(resource)
+          render json: resource.to_json
+        end
+
+        def header_callback
+          lambda do |headers|
             headers.each do |k, v|
               response.headers[k] = v if k.present?
             end
           end
+        end
 
-          begin
-            chunk_stream = Enumerator.new do |stream|
-              bb_client.get_dicom(study_id, header_callback, stream)
-            end
-            chunk_stream.each { |c| response.stream.write c }
-          ensure
-            response.stream.close if response.committed?
-          end
+        def stream_data(&)
+          chunk_stream = Enumerator.new(&)
+          chunk_stream.each { |chunk| response.stream.write(chunk) }
+        ensure
+          response.stream.close if response.committed?
         end
       end
     end
