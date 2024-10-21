@@ -16,7 +16,7 @@ module ClaimsApi
         'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
         'errored', @search_from, @search_to, '0oagdm49ygCSJTp8X297'
       ).pluck(:id).uniq
-      @va_gov_errored_claims = va_gov_errored_claims.map { |grp| grp[1][0] }.pluck(:id)
+      @va_gov_errored_claims = get_unique_errors
       @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @search_from..@search_to,
                                                       status: 'errored').pluck(:id).uniq
       @errored_itf = ClaimsApi::IntentToFile.where(created_at: @search_from..@search_to,
@@ -24,11 +24,10 @@ module ClaimsApi
       @errored_ews = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @search_from..@search_to,
                                                                status: 'errored').pluck(:id).uniq
       @environment = Rails.env
-
       if errored_submissions_exist?
         notify(
           @errored_claims,
-          @va_gov_errored_claims,
+          @va_gov_errored_claims || [],
           @errored_poa,
           @errored_itf,
           @errored_ews,
@@ -58,8 +57,8 @@ module ClaimsApi
     private
 
     def errored_submissions_exist?
-      [@errored_claims, @va_gov_errored_claims, @errored_poa, @errored_itf, @errored_ews].any? do |var|
-        var.count.positive?
+      [@errored_claims, @va_gov_errored_claims, @errored_poa, @errored_itf, @errored_ews].any? do |collection|
+        collection&.count&.positive?
       end
     end
 
@@ -67,14 +66,22 @@ module ClaimsApi
       Flipper.enabled? :claims_hourly_slack_error_report_enabled
     end
 
-    def va_gov_errored_claims
-      va_gov = ClaimsApi::AutoEstablishedClaim.select(:id, :transaction_id)
-                                              .where(created_at: @search_from..@search_to,
-                                                     status: 'errored', cid: '0oagdm49ygCSJTp8X297')
-                                              .group(
-                                                :id, :transaction_id
-                                              )
-      va_gov.group_by(&:transaction_id)
+    def get_unique_errors
+      last_day = ClaimsApi::AutoEstablishedClaim
+                 .where(created_at: 24.hours.ago..1.hour.ago,
+                        status: 'errored', cid: '0oagdm49ygCSJTp8X297')
+
+      last_hour = ClaimsApi::AutoEstablishedClaim
+                  .where(created_at: 1.hour.ago..Time.zone.now,
+                         status: 'errored', cid: '0oagdm49ygCSJTp8X297')
+
+      day_trans_ids = last_day&.pluck(:transaction_id)
+
+      errored_claims = last_hour.find_all do |claim|
+        day_trans_ids.exclude?(claim[:transaction_id])
+      end
+
+      errored_claims&.pluck(:id)
     end
   end
 end
