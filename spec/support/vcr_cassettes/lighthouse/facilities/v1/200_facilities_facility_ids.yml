@@ -126,4 +126,62 @@ http_interactions:
         - Sundown","friday":"Sunrise - Sundown","saturday":"Sunrise - Sundown","sunday":"Sunrise
         - Sundown"},"operatingStatus":{"code":"NORMAL"}}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=1&per_page=10","next":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=2&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v1/facilities?page=257&per_page=10"},"meta":{"pagination":{"currentPage":1,"perPage":10,"totalPages":257,"totalEntries":2563}}}'
   recorded_at: Wed, 10 Apr 2024 20:19:43 GMT
+- request:
+    method: get
+    uri: 'https://sitewide-public-websites-income-limits-data.s3-us-gov-west-1.amazonaws.com/std_institution.csv'
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+        - application/json
+      Content-Type:
+        - application/json
+      User-Agent:
+        - Vets.gov Agent
+      Apikey:
+        - abcde
+      Accept-Encoding:
+        - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+        - Wed, 10 Apr 2024 20:19:43 GMT
+      Content-Type:
+        - application/json
+      Connection:
+        - keep-alive
+      X-Ratelimit-Remaining-Minute:
+        - '47'
+      X-Ratelimit-Limit-Minute:
+        - '60'
+      Ratelimit-Remaining:
+        - '47'
+      Ratelimit-Limit:
+        - '60'
+      Ratelimit-Reset:
+        - '17'
+      Strict-Transport-Security:
+        - max-age=16000000; includeSubDomains; preload;
+        - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+        - "*"
+      Cache-Control:
+        - ''
+        - no-cache, no-store
+      X-Frame-Options:
+        - SAMEORIGIN
+      Pragma:
+        - no-cache
+      Transfer-Encoding:
+        - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: "ID,ACTIVATIONDATE,DEACTIVATIONDATE,NAME,STATIONNUMBER,VISTANAME,AGENCY_ID,STREETCOUNTRY_ID,STREETADDRESSLINE1,STREETADDRESSLINE2,STREETADDRESSLINE3,STREETCITY,STREETSTATE_ID,STREETCOUNTY_ID,STREETPOSTALCODE,MAILINGCOUNTRY_ID,MAILINGADDRESSLINE1,MAILINGADDRESSLINE2,MAILINGADDRESSLINE3,MAILINGCITY,MAILINGSTATE_ID,MAILINGCOUNTY_ID,MAILINGPOSTALCODE,FACILITYTYPE_ID,MFN_ZEG_RECIPIENT,PARENT_ID,REALIGNEDFROM_ID,REALIGNEDTO_ID,VISN_ID,VERSION,CREATED,UPDATED,CREATEDBY,UPDATEDBY\n
+1000250,,,AUDIE L. MURPHY MEMORIAL HOSP,671,AUDIE L. MURPHY MEMORIAL HOSP,1009121,1006840,7400 MERTON MINTER BLVD,,,SAN ANTONIO,1009348,,78229-4404,1006840,7400 MERTON MINTER BLVD,,,SAN ANTONIO,1009348,,78229-4404,1009231,1,1002217,,,1002217,0,2004-06-04 13:18:48 +0000,2015-12-28 10:05:46 +0000,Initial Load,DataBroker - CQ# 0938 12/09/2015\n
+1000090,,1969-12-31 00:00:00 +0000,CRAWFORD COUNTY CBOC (420),420,ZZ CRAWFORD COUNTY CBOC,1009121,1006840,,,,,1009342,,,,,,,,,,,1009197,0,,,,,0,2004-06-04 13:18:48 +0000,2007-05-07 10:18:36 +0000,Initial Load,Cleanup For Inactive Rows"
+  recorded_at: Wed, 10 Apr 2024 20:19:43 GMT
 recorded_with: VCR 6.2.0
