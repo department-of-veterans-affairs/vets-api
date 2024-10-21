@@ -10,7 +10,42 @@ module RepresentationManagement
         protected
 
         def next_steps_page?
-          false
+          true
+        end
+
+        def next_steps_part1(pdf)
+          add_text_with_spacing(pdf,
+                                'Request help from a VA accredited representative or VSO', size: 20,
+                                                                                           style: :bold)
+          add_text_with_spacing(pdf, 'VA Form 21-22')
+          add_text_with_spacing(pdf, 'Your Next Steps', size: 16, style: :bold)
+          str = <<~HEREDOC.squish
+            Both you and the accredited representative will need to sign your form.
+            You can bring your form to them in person or mail it to them.
+          HEREDOC
+          add_text_with_spacing(pdf, str, move_down: 30, font: 'soursesanspro')
+        end
+
+        def next_steps_contact(pdf, data)
+          # rep_name = <<~HEREDOC.squish
+          #   #{data.representative_first_name}
+          #   #{data.representative_middle_initial}
+          #   #{data.representative_last_name}
+          # HEREDOC
+          # add_text_with_spacing(pdf, rep_name, style: :bold, move_down: 8)
+          # pdf.font('soursesanspro') do
+          #   pdf.text(data.representative_address_line1)
+          #   pdf.text(data.representative_address_line2)
+          #   city_state_zip = <<~HEREDOC.squish
+          #     #{data.representative_city},
+          #     #{data.representative_state_code}
+          #     #{data.representative_zip_code}
+          #   HEREDOC
+          #   pdf.text(city_state_zip)
+          #   pdf.move_down(5)
+          #   pdf.text(format_phone_number(data.representative_phone))
+          #   pdf.text(data.representative_email_address)
+          # end
         end
 
         def template_path
