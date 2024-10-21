@@ -1,12 +1,17 @@
 # frozen_string_literal: true
 
 module TravelPay
-  class TokenService
+  class AuthManager
+    def initialize(client_number, current_user)
+      @user = current_user
+      @client = TravelPay::TokenClient.new(client_number)
+    end
+
     #
     # returns a hash containing the veis_token & btsss_token
     #
-    def get_tokens(current_user)
-      cached = cached_by_account_uuid(current_user.account_uuid)
+    def authorize
+      cached = TravelPayStore.find(@user.account_uuid)
       if cached
         Rails.logger.info('BTSSS tokens retrieved from cache',
                           { request_id: RequestStore.store['request_id'] })
@@ -14,14 +19,22 @@ module TravelPay
       else
         Rails.logger.info('BTSSS tokens not cached, requesting new tokens',
                           { request_id: RequestStore.store['request_id'] })
-        request_new_tokens(current_user)
+
+        request_new_tokens
       end
     end
 
     private
 
-    def cached_by_account_uuid(account_uuid)
-      TravelPayStore.find(account_uuid)
+    def request_new_tokens
+      veis_token = @client.request_veis_token
+      btsss_token = @client.request_btsss_token(veis_token, @user)
+      if btsss_token
+        save_tokens!(@user.account_uuid, { veis_token:, btsss_token: })
+        Rails.logger.info('BTSSS tokens saved to cache',
+                          { request_id: RequestStore.store['request_id'] })
+        { veis_token:, btsss_token: }
+      end
     end
 
     def save_tokens!(account_uuid, tokens)
@@ -31,21 +44,6 @@ module TravelPay
         btsss_token: tokens[:btsss_token]
       )
       token_record.save
-    end
-
-    def request_new_tokens(current_user)
-      veis_token = token_client.request_veis_token
-      btsss_token = token_client.request_btsss_token(veis_token, current_user)
-      if btsss_token
-        save_tokens!(current_user.account_uuid, { veis_token:, btsss_token: })
-        Rails.logger.info('BTSSS tokens saved to cache',
-                          { request_id: RequestStore.store['request_id'] })
-        { veis_token:, btsss_token: }
-      end
-    end
-
-    def token_client
-      TravelPay::TokenClient.new
     end
 
     def redis

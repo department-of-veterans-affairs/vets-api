@@ -55,20 +55,21 @@ describe TravelPay::ClaimsService do
       )
     end
 
-    let(:tokens) { %w[veis_token btsss_token] }
+    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
     before do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims)
-        .with(*tokens)
         .and_return(claims_response)
+
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @service = TravelPay::ClaimsService.new(auth_manager)
     end
 
     it 'returns sorted and parsed claims' do
       expected_statuses = ['In Progress', 'In Progress', 'Incomplete', 'Claim Submitted']
 
-      service = TravelPay::ClaimsService.new
-      claims = service.get_claims(*tokens)
+      claims = @service.get_claims
       actual_statuses = claims[:data].pluck('claimStatus')
 
       expect(actual_statuses).to match_array(expected_statuses)
@@ -78,56 +79,49 @@ describe TravelPay::ClaimsService do
       it 'returns a single claim when passed a valid id' do
         claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
         expected_claim = claims_data['data'].find { |c| c['id'] == claim_id }
-        service = TravelPay::ClaimsService.new
-        actual_claim = service.get_claim_by_id(*tokens, claim_id)
+        actual_claim = @service.get_claim_by_id(claim_id)
 
         expect(actual_claim).to eq(expected_claim)
       end
 
       it 'returns nil if a claim with the given id was not found' do
         claim_id = SecureRandom.uuid
-        service = TravelPay::ClaimsService.new
-        actual_claim = service.get_claim_by_id(*tokens, claim_id)
+        actual_claim = @service.get_claim_by_id(claim_id)
 
         expect(actual_claim).to eq(nil)
       end
 
       it 'throws an ArgumentException if claim_id is invalid format' do
         claim_id = 'this-is-definitely-a-uuid-right'
-        service = TravelPay::ClaimsService.new
 
-        expect { service.get_claim_by_id(*tokens, claim_id) }
+        expect { @service.get_claim_by_id(claim_id) }
           .to raise_error(ArgumentError, /valid UUID/i)
       end
     end
 
     context 'filter by appt date' do
       it 'returns claims that match appt date if specified' do
-        service = TravelPay::ClaimsService.new
-        claims = service.get_claims(*tokens, { 'appt_datetime' => '2024-01-01' })
+        claims = @service.get_claims({ 'appt_datetime' => '2024-01-01' })
 
         expect(claims.count).to equal(1)
       end
 
       it 'returns 0 claims if appt date does not match' do
-        service = TravelPay::ClaimsService.new
-        claims = service.get_claims(*tokens, { 'appt_datetime' => '1700-01-01' })
+        claims = @service.get_claims({ 'appt_datetime' => '1700-01-01' })
 
         expect(claims[:data].count).to equal(0)
       end
 
       it 'returns all claims if appt date is invalid' do
-        service = TravelPay::ClaimsService.new
-        claims = service.get_claims(*tokens, { 'appt_datetime' => 'banana' })
+        claims = @service.get_claims({ 'appt_datetime' => 'banana' })
 
         expect(claims[:data].count).to equal(claims_data['data'].count)
       end
 
       it 'returns all claims if appt date is not specified' do
-        service = TravelPay::ClaimsService.new
-        claims_empty_date = service.get_claims(*tokens, { 'appt_datetime' => '' })
-        claims_nil_date = service.get_claims(*tokens, { 'appt_datetime' => 'banana' })
-        claims_no_param = service.get_claims(*tokens)
+        claims_empty_date = @service.get_claims({ 'appt_datetime' => '' })
+        claims_nil_date = @service.get_claims({ 'appt_datetime' => 'banana' })
+        claims_no_param = @service.get_claims
 
         expect(claims_empty_date[:data].count).to equal(claims_data['data'].count)
         expect(claims_nil_date[:data].count).to equal(claims_data['data'].count)
@@ -152,31 +146,36 @@ describe TravelPay::ClaimsService do
       )
     end
 
-    let(:tokens) { %w[veis_token btsss_token] }
+    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
+    before do
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @service = TravelPay::ClaimsService.new(auth_manager)
+    end
 
     it 'returns a claim ID when passed a valid btsss appt id' do
       btsss_appt_id = '73611905-71bf-46ed-b1ec-e790593b8565'
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:create_claim)
-        .with(*tokens, { 'btsss_appt_id' => btsss_appt_id, 'claim_name' => 'SMOC claim' })
+        .with(tokens[:veis_token], tokens[:btsss_token], { 'btsss_appt_id' => btsss_appt_id,
+                                                           'claim_name' => 'SMOC claim' })
         .and_return(new_claim_response)
 
-      service = TravelPay::ClaimsService.new
-      actual_claim_response = service.create_new_claim(*tokens,
-                                                       { 'btsss_appt_id' => btsss_appt_id,
-                                                         'claim_name' => 'SMOC claim' })
+      actual_claim_response = @service.create_new_claim({
+                                                          'btsss_appt_id' => btsss_appt_id,
+                                                          'claim_name' => 'SMOC claim'
+                                                        })
 
       expect(actual_claim_response['data']).to equal(new_claim_data['data'])
     end
 
     it 'throws an ArgumentException if btsss_appt_id is invalid format' do
       btsss_appt_id = 'this-is-definitely-a-uuid-right'
-      service = TravelPay::ClaimsService.new
 
-      expect { service.create_new_claim(*tokens, { 'btsss_appt_id' => btsss_appt_id }) }
+      expect { @service.create_new_claim({ 'btsss_appt_id' => btsss_appt_id }) }
         .to raise_error(ArgumentError, /valid UUID/i)
 
-      expect { service.create_new_claim(*tokens, { 'btsss_appt_id' => nil }) }
+      expect { @service.create_new_claim({ 'btsss_appt_id' => nil }) }
         .to raise_error(ArgumentError, /must provide/i)
     end
   end
