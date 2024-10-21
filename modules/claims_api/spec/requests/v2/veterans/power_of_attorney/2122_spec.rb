@@ -113,7 +113,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 end
 
                 context 'and the request includes a claimant' do
-                  it 'enqueues the PoaAssignDependentClaimantJob' do
+                  it 'enqueues the PoaAssignDependentClaimantJob and not the PoaFormBuilder job' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
                         json = JSON.parse(request_body)
@@ -123,6 +123,10 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                         expect do
                           post appoint_organization_path, params: request_body, headers: auth_header
                         end.to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size).by(1)
+
+                        expect do
+                          post appoint_organization_path, params: request_body, headers: auth_header
+                        end.not_to change(ClaimsApi::V2::PoaFormBuilderJob.jobs, :size)
                       end
                     end
                   end

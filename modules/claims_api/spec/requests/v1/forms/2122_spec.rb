@@ -404,11 +404,15 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
 
         context 'and the request includes a dependent claimant' do
-          it 'enqueues the PoaAssignDependentClaimantJob' do
+          it 'enqueues the PoaAssignDependentClaimantJob and not the PoaFormBuilderJob' do
             mock_acg(scopes) do |auth_header|
               expect do
                 post path, params: data_with_claimant, headers: headers.merge(auth_header)
               end.to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size).by(1)
+
+              expect do
+                post path, params: data_with_claimant, headers: headers.merge(auth_header)
+              end.not_to change(ClaimsApi::V1::PoaFormBuilderJob.jobs, :size)
             end
           end
         end
