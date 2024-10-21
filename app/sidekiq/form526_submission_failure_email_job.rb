@@ -9,7 +9,10 @@ class Form526SubmissionFailureEmailJob
 
   STATSD_PREFIX = 'api.form_526.veteran_notifications.form526_submission_failure_email'
   # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/274bea7fb835e51626259ac16b32c33ab0b2088a/platform/practices/zero-silent-failures/logging-silent-failures.md#capture-silent-failures-state
-  ZSF_DD_TAG_FUNCTION = '526_backup_submission_to_lighthouse'
+  DD_ZSF_TAGS = [
+    'service:disability-application',
+    'function:526_backup_submission_to_lighthouse'
+  ].freeze
 
   FORM_DESCRIPTIONS = {
     'form4142' => 'VA Form 21-4142',
@@ -39,13 +42,7 @@ class Form526SubmissionFailureEmailJob
     )
 
     StatsD.increment("#{STATSD_PREFIX}.exhausted")
-
-    cl = caller_locations.first
-    call_location = ZeroSilentFailures::Monitor::CallLocation.new(
-      ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno
-    )
-    ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
-                               .log_silent_failure(log_info, user_uuid, call_location:)
+    StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
   rescue => e
     Rails.logger.error(
       'Failure in Form526SubmissionFailureEmailJob#sidekiq_retries_exhausted',
@@ -128,13 +125,7 @@ class Form526SubmissionFailureEmailJob
     )
 
     StatsD.increment("#{STATSD_PREFIX}.success")
-
-    cl = caller_locations.first
-    call_location = ZeroSilentFailures::Monitor::CallLocation.new(
-      ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno
-    )
-    ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
-                               .log_silent_failure_avoided(log_info, user_uuid, call_location:)
+    StatsD.increment('silent_failure_avoided', tags: DD_ZSF_TAGS)
   end
 
   def log_failure(error, submission)
