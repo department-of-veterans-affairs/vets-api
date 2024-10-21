@@ -37,7 +37,7 @@ RSpec.configure do |config|
     }
   end
 
-  config.after :each, :openapi_schema_validation, type: :request do
+  config.after :each, :openapi_schema_validation do
     config.committee_options = nil
   end
 end
