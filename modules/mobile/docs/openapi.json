@@ -22,7 +22,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Message"
+                  "$ref": "#/components/schemas/EndpointDiscovery"
                 }
               }
             },
@@ -8411,21 +8411,50 @@
       }
     },
     "schemas": {
-      "Message": {
+      "EndpointDiscovery": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
-          "attributes"
+          "data"
         ],
         "properties": {
-          "attributes": {
+          "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
-              "message"
+              "id",
+              "type",
+              "attributes"
             ],
             "properties": {
-              "message": {
+              "id": {
                 "type": "string",
-                "example": "Welcome to the mobile API"
+                "example": "welcome"
+              },
+              "type": {
+                "type": "string",
+                "example": "welcome"
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "message",
+                  "endpoints"
+                ],
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "Welcome to the mobile API"
+                  },
+                  "endpoints": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "mobile/v0/appointments"
+                    }
+                  }
+                }
               }
             }
           }
