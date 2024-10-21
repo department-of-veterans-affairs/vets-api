@@ -33,7 +33,7 @@ describe ClaimsApi::BD do
 
       it 'uploads a document to BD using refactored #upload_document' do
         VCR.use_cassette('claims_api/bd/upload') do
-          result = subject.upload_document(claim_id: claim.evss_id, doc_type_name: 'claim', body:)
+          result = subject.upload_document(identifier: claim.evss_id, doc_type_name: 'claim', body:)
           expect(result).to be_a Hash
           expect(result[:data][:success]).to be true
         end
