@@ -474,7 +474,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
         log_data = log.data
         expect(log_data['address_line1']).to eq(address.address_line1)
         expect(log_data['address_pou']).to eq(address.address_pou)
-        expect(log.error_class).to eq('VAProfile::Models::V2::Address ValidationError')
+        expect(log.error_class).to eq('VAProfile::Models::V3::Address ValidationError')
       end
 
       it 'matches the errors schema', :aggregate_failures do

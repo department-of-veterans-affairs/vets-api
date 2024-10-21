@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :person_v2, class: 'VAProfile::Models::V2::Person' do
+  factory :person_v2, class: 'VAProfile::Models::V3::Person' do
     addresses   { [FactoryBot.build(:va_profile_address_v2), FactoryBot.build(:va_profile_address_v2, :mailing)] }
     emails      { [FactoryBot.build(:email, :contact_info_v2)] }
     telephones  { [FactoryBot.build(:telephone, :contact_info_v2)] }
