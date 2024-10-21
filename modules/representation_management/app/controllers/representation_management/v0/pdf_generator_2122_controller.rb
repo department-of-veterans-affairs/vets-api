@@ -4,6 +4,9 @@ module RepresentationManagement
   module V0
     class PdfGenerator2122Controller < RepresentationManagement::V0::PdfGeneratorBaseController
       def create
+        binding.pry
+        FactoryBot.create(:accredited_individual) if AccreditedIndividual.count.zero?
+        FactoryBot.create(:accredited_organization) if AccreditedOrganization.count.zero?
         form = RepresentationManagement::Form2122Data.new(flatten_form_params)
 
         if form.valid?

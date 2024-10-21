@@ -5,6 +5,8 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/pdf_generator2122' }
+    let(:organization) { create(:organization) }
+    let(:representative) { create(:representative) }
     let(:params) do
       {
         pdf_generator2122: {
@@ -55,6 +57,10 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
               zip_code: '98765',
               zip_code_suffix: '4321'
             }
+          },
+          representative: {
+            organization_id: organization.poa,
+            id: representative.representative_id
           }
         }
       }

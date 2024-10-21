@@ -45,13 +45,30 @@ module RepresentationManagement
       claimant_email
     ]
 
+    representative_attrs = %i[
+      representative_id
+      representative_type
+      representative_first_name
+      representative_middle_initial
+      representative_last_name
+      representative_address_line1
+      representative_address_line2
+      representative_city
+      representative_country
+      representative_state_code
+      representative_zip_code
+      representative_zip_code_suffix
+      representative_phone
+      representative_email_address
+    ]
+
     consent_attrs = %i[
       record_consent
       consent_address_change
       consent_limits
     ]
 
-    attr_accessor(*[veteran_attrs, claimant_attrs, consent_attrs].flatten)
+    attr_accessor(*[veteran_attrs, claimant_attrs, representative_attrs, consent_attrs].flatten)
 
     validates :veteran_first_name, presence: true, length: { maximum: 12 }
     validates :veteran_middle_initial, length: { maximum: 1 }
