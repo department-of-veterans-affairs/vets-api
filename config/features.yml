@@ -1751,3 +1751,6 @@ features:
   banner_use_alternative_banners:
     actor_type: user
     description: Used to toggle use of alternative banners.
+  show_ratings_gi_comparison_tool:
+    actor_type: user
+    description: Display Veteran student ratings in GI comparison Tool
