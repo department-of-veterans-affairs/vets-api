@@ -111,6 +111,7 @@ module EVSS
         end
       end
       # rubocop:enable Metrics/MethodLength
+
       private
 
       def conditionally_handle_errors(e)
