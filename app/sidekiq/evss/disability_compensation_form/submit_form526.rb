@@ -88,8 +88,8 @@ module EVSS
         # be addressed to make this service and test more robust and readable.
         service = service(submission.auth_headers)
 
-        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?, 
-service_provider) do
+        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?,
+                      service_provider) do
           submission.mark_birls_id_as_tried!
 
           return unless successfully_prepare_submission_for_evss?(submission)
