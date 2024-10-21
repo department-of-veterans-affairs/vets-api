@@ -17,10 +17,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122a', type: :request do
 
   describe 'PowerOfAttorney' do
     before do
-      Veteran::Service::Representative.create!(representative_id: '12345', poa_codes: [individual_poa_code],
-                                               first_name: 'Abraham', last_name: 'Lincoln')
-      Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: [organization_poa_code],
-                                               first_name: 'George', last_name: 'Washington')
+      FactoryBot.create(:representative, representative_id: '12345', poa_codes: [individual_poa_code])
+      FactoryBot.create(:representative, representative_id: '999999999999', poa_codes: [organization_poa_code])
 
       Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
     end

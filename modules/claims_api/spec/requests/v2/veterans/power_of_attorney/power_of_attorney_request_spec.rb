@@ -13,10 +13,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
   let(:local_bgs) { ClaimsApi::LocalBGS }
 
   before do
-    Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: ['067'],
-                                             first_name: 'Abraham', last_name: 'Lincoln',
-                                             user_types: ['veteran_service_officer'])
-    Veteran::Service::Organization.create!(poa: '067', name: 'DISABLED AMERICAN VETERANS')
+    FactoryBot.create(:representative, :vso, representative_id: '999999999999', poa_codes: ['067'])
+    FactoryBot.create(:organization, poa: '067', name: 'DISABLED AMERICAN VETERANS')
 
     Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
   end

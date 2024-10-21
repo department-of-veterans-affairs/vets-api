@@ -383,13 +383,10 @@ describe 'PowerOfAttorney',
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
-            Veteran::Service::Organization.create!(poa: organization_poa_code,
-                                                   name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS",
-                                                   phone: '555-555-5555')
-            Veteran::Service::Representative.create!(representative_id: '999999999999',
-                                                     poa_codes: [organization_poa_code],
-                                                     first_name: 'Firstname', last_name: 'Lastname',
-                                                     phone: '555-555-5555')
+            FactoryBot.create(:organization, poa: organization_poa_code,
+                                             name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
+            FactoryBot.create(:representative, representative_id: '999999999999',
+                                               poa_codes: [organization_poa_code])
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
@@ -713,10 +710,8 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
-            Veteran::Service::Organization.create!(poa: poa_code)
-            Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: [poa_code],
-                                                     first_name: 'Firstname', last_name: 'Lastname',
-                                                     phone: '555-555-5555')
+            FactoryBot.create(:organization, poa: poa_code)
+            FactoryBot.create(:representative, representative_id: '999999999999', poa_codes: [poa_code])
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
@@ -978,10 +973,10 @@ describe 'PowerOfAttorney',
             allow_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
               .to receive(:submit_request)
               .and_return(true)
-            Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: ['067'],
-                                                     first_name: 'Abraham', last_name: 'Lincoln',
-                                                     user_types: ['veteran_service_officer'])
-            Veteran::Service::Organization.create!(poa: '067', name: 'DISABLED AMERICAN VETERANS')
+            FactoryBot.create(:representative, representative_id: '999999999999', poa_codes: ['067'],
+                                               first_name: 'Abraham', last_name: 'Lincoln',
+                                               user_types: ['veteran_service_officer'])
+            FactoryBot.create(:organization, poa: '067', name: 'DISABLED AMERICAN VETERANS')
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
