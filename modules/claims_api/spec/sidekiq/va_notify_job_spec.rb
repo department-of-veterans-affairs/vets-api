@@ -161,6 +161,20 @@ describe ClaimsApi::VANotifyJob, type: :job do
     end
   end
 
+  describe 'Va Notify Failure' do
+    context 'when an error occurs' do
+      it 'calls handle_failure' do
+        instance = described_class.new
+        error = StandardError.new('Some error')
+        allow(instance).to receive(:skip_notification_email?).and_return(false)
+        allow(instance).to receive(:organization_filing?).with(rep_poa.form_data).and_raise(error)
+
+        expect(instance).to receive(:handle_failure).with(rep_poa.id, error)
+        instance.perform(rep_poa.id, va_notify_rep)
+      end
+    end
+  end
+
   describe '#organization_filing?' do
     it 'properly selects the org template when the filing is 2122' do
       res = subject.send(:organization_filing?, org_poa.form_data)

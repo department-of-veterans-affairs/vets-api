@@ -102,6 +102,10 @@ module SignIn
         30.minutes
       end
 
+      def log_prefix
+        '[SignIn][Logingov][Service]'
+      end
+
       def connection
         @connection ||= Faraday.new(
           base_path,

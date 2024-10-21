@@ -96,12 +96,14 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
           allow(Rails.logger).to receive(:info)
         end
 
-        it 'does not log or increment metrics for stale form error status' do
+        it 'does not increment metrics for unchanged form status' do
           SavedClaim::HigherLevelReview.create(guid: guid1, form: '{}', metadata: '{"status":"error"}')
           SavedClaim::HigherLevelReview.create(guid: guid2, form: '{}', metadata: '{"status":"submitted"}')
+          SavedClaim::HigherLevelReview.create(guid: guid3, form: '{}', metadata: '{"status":"pending"}')
 
           expect(service).to receive(:get_higher_level_review).with(guid1).and_return(response_error)
           expect(service).to receive(:get_higher_level_review).with(guid2).and_return(response_error)
+          expect(service).to receive(:get_higher_level_review).with(guid3).and_return(response_pending)
 
           subject.new.perform
 
@@ -116,6 +118,8 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.saved_claim_hlr_status_updater.status', tags: ['status:error'])
             .exactly(1).time
+          expect(StatsD).not_to have_received(:increment)
+            .with('worker.decision_review.saved_claim_hlr_status_updater.status', tags: ['status:pending'])
 
           expect(Rails.logger).not_to have_received(:info)
             .with('DecisionReview::SavedClaimHlrStatusUpdaterJob form status error', guid: guid1)

@@ -175,7 +175,7 @@ describe SimpleFormsApi::NotificationEmail do
                 'veteran.longemail@email.com',
                 "form21_10210_#{notification_type}_email_template_id",
                 {
-                  'first_name' => 'JOHN',
+                  'first_name' => 'John',
                   'date_submitted' => date_submitted,
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => nil
@@ -198,7 +198,7 @@ describe SimpleFormsApi::NotificationEmail do
                 'claimant.long@address.com',
                 "form21_10210_#{notification_type}_email_template_id",
                 {
-                  'first_name' => 'JOE',
+                  'first_name' => 'Joe',
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => nil
@@ -223,7 +223,7 @@ describe SimpleFormsApi::NotificationEmail do
                 'my.long.email.address@email.com',
                 "form21_10210_#{notification_type}_email_template_id",
                 {
-                  'first_name' => 'JACK',
+                  'first_name' => 'Jack',
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => nil
@@ -246,7 +246,7 @@ describe SimpleFormsApi::NotificationEmail do
                 'my.long.email.address@email.com',
                 "form21_10210_#{notification_type}_email_template_id",
                 {
-                  'first_name' => 'JACK',
+                  'first_name' => 'Jack',
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => nil
@@ -283,7 +283,7 @@ describe SimpleFormsApi::NotificationEmail do
                   user.va_profile_email,
                   "form21_10210_#{notification_type}_email_template_id",
                   {
-                    'first_name' => 'JOHN',
+                    'first_name' => 'John',
                     'date_submitted' => date_submitted,
                     'confirmation_number' => 'confirmation_number',
                     'lighthouse_updated_at' => nil
@@ -325,7 +325,7 @@ describe SimpleFormsApi::NotificationEmail do
                   user.va_profile_email,
                   "form21_10210_#{notification_type}_email_template_id",
                   {
-                    'first_name' => 'JOE',
+                    'first_name' => 'Joe',
                     'date_submitted' => date_submitted,
                     'confirmation_number' => 'confirmation_number',
                     'lighthouse_updated_at' => nil
@@ -379,7 +379,7 @@ describe SimpleFormsApi::NotificationEmail do
               'a@b.com',
               'form40_0247_confirmation_email_template_id',
               {
-                'first_name' => 'JOE',
+                'first_name' => 'Joe',
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => nil
@@ -474,7 +474,7 @@ describe SimpleFormsApi::NotificationEmail do
               'authorizer_email@example.com',
               'form21_0845_confirmation_email_template_id',
               {
-                'first_name' => 'JACK',
+                'first_name' => 'Jack',
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => nil
@@ -495,7 +495,7 @@ describe SimpleFormsApi::NotificationEmail do
               'authorizer_email@example.com',
               'form21_0845_confirmation_email_template_id',
               {
-                'first_name' => 'JOHN',
+                'first_name' => 'John',
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => nil
@@ -518,7 +518,7 @@ describe SimpleFormsApi::NotificationEmail do
               'authorizer_email@example.com',
               'form21_0845_confirmation_email_template_id',
               {
-                'first_name' => 'JACK',
+                'first_name' => 'Jack',
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => nil
@@ -555,7 +555,7 @@ describe SimpleFormsApi::NotificationEmail do
               user.va_profile_email,
               'form21_0845_confirmation_email_template_id',
               {
-                'first_name' => 'JACK',
+                'first_name' => 'Jack',
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => nil
@@ -604,7 +604,7 @@ describe SimpleFormsApi::NotificationEmail do
             user.va_profile_email,
             'form21_0966_confirmation_email_template_id',
             {
-              'first_name' => 'VETERAN',
+              'first_name' => 'Veteran',
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil,
@@ -658,7 +658,7 @@ describe SimpleFormsApi::NotificationEmail do
           'jv@example.com',
           'form20_10206_confirmation_email_template_id',
           {
-            'first_name' => 'JOHN',
+            'first_name' => 'John',
             'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => nil
@@ -694,7 +694,7 @@ describe SimpleFormsApi::NotificationEmail do
             user.va_profile_email,
             'form20_10207_confirmation_email_template_id',
             {
-              'first_name' => 'JOHN',
+              'first_name' => 'John',
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil
@@ -723,7 +723,7 @@ describe SimpleFormsApi::NotificationEmail do
             user.va_profile_email,
             'form20_10207_confirmation_email_template_id',
             {
-              'first_name' => 'JOE',
+              'first_name' => 'Joey Jo',
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil
@@ -752,7 +752,7 @@ describe SimpleFormsApi::NotificationEmail do
             user.va_profile_email,
             'form20_10207_confirmation_email_template_id',
             {
-              'first_name' => 'JOHN',
+              'first_name' => 'John',
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil
@@ -781,7 +781,7 @@ describe SimpleFormsApi::NotificationEmail do
             user.va_profile_email,
             'form20_10207_confirmation_email_template_id',
             {
-              'first_name' => 'JOE',
+              'first_name' => 'Joe',
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil

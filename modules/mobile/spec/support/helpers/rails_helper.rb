@@ -26,4 +26,14 @@ RSpec.configure do |config|
       expect(JSONAPI.parse_response!(response.parsed_body)).to eq(nil)
     end
   end
+
+  config.before :each, :openapi_schema_validation, type: :request do
+    config.include Committee::Rails::Test::Methods
+    config.add_setting :committee_options
+    config.committee_options = {
+      schema_path: Rails.root.join('modules', 'mobile', 'docs', 'openapi.json').to_s,
+      prefix: '/mobile',
+      strict_reference_validation: true
+    }
+  end
 end

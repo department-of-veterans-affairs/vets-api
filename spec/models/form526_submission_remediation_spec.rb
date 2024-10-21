@@ -39,14 +39,14 @@ RSpec.describe Form526SubmissionRemediation, type: :model do
         subject.mark_as_unsuccessful(remediate_context)
       end
 
-      it 'is invalid if ignored_as_duplicate is true and success is false' do
-        subject.ignored_as_duplicate = true
+      it 'is invalid if remediation_type is ignored_as_duplicate and success is false' do
+        subject.remediation_type = :ignored_as_duplicate
         subject.success = false
         expect(subject).not_to be_valid
       end
 
       it 'is valid if ignored_as_duplicate is true and success is true' do
-        subject.ignored_as_duplicate = true
+        subject.remediation_type = :ignored_as_duplicate
         subject.success = true
         expect(subject).to be_valid
       end

@@ -190,6 +190,7 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
 
         let(:upload_id) { SecureRandom.uuid }
         let(:upload_id2) { SecureRandom.uuid }
+        let(:upload_id3) { SecureRandom.uuid }
 
         let(:metadata1) do
           {
@@ -212,12 +213,17 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
                 'status' => 'pending',
                 'detail' => nil,
                 'id' => upload_id2
+              },
+              {
+                'status' => 'processing',
+                'detail' => nil,
+                'id' => upload_id3
               }
             ]
           }
         end
 
-        it 'does not log or increment metrics for stale form error status' do
+        it 'does not increment metrics for unchanged form status' do
           SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', metadata: '{"status":"error","uploads":[]}')
           SavedClaim::SupplementalClaim.create(guid: guid2, form: '{}', metadata: '{"status":"submitted","uploads":[]}')
 
@@ -244,7 +250,7 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
             .with('DecisionReview::SavedClaimScStatusUpdaterJob form status error', guid: guid2)
         end
 
-        it 'does not log or increment metrics for stale evidence error status' do
+        it 'does not increment metrics for unchanged evidence status' do
           SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', metadata: metadata1.to_json)
           appeal_submission = create(:appeal_submission, submitted_appeal_uuid: guid1)
           create(:appeal_submission_upload, appeal_submission:, lighthouse_upload_id: upload_id)
@@ -252,6 +258,7 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
           SavedClaim::SupplementalClaim.create(guid: guid2, form: '{}', metadata: metadata2.to_json)
           appeal_submission2 = create(:appeal_submission, submitted_appeal_uuid: guid2)
           create(:appeal_submission_upload, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id2)
+          create(:appeal_submission_upload, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id3)
 
           expect(service).to receive(:get_supplemental_claim).with(guid1).and_return(response_pending)
           expect(service).to receive(:get_supplemental_claim).with(guid2).and_return(response_error)
@@ -259,12 +266,17 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
                                                                     .and_return(upload_response_error)
           expect(service).to receive(:get_supplemental_claim_upload).with(uuid: upload_id2)
                                                                     .and_return(upload_response_error)
+          expect(service).to receive(:get_supplemental_claim_upload).with(uuid: upload_id3)
+                                                                    .and_return(upload_response_processing)
 
           subject.new.perform
 
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.saved_claim_sc_status_updater_upload.status', tags: ['status:error'])
             .exactly(1).times
+          expect(StatsD).not_to have_received(:increment)
+            .with('worker.decision_review.saved_claim_sc_status_updater_upload.status', tags: ['status:processing'])
+
           expect(Rails.logger).not_to have_received(:info)
             .with('DecisionReview::SavedClaimScStatusUpdaterJob evidence status error',
                   guid: anything, lighthouse_upload_id: upload_id, detail: anything)
