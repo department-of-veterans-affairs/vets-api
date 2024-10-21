@@ -176,7 +176,10 @@ module SignIn
 
     def mpi_response_profile
       @mpi_response_profile ||=
-        if idme_uuid
+        if mhv_correlation_id
+          mpi_service.find_profile_by_identifier(identifier: mhv_correlation_id,
+                                                 identifier_type: MPI::Constants::MHV_UUID)&.profile
+        elsif idme_uuid
           mpi_service.find_profile_by_identifier(identifier: idme_uuid,
                                                  identifier_type: MPI::Constants::IDME_UUID)&.profile
         elsif logingov_uuid
