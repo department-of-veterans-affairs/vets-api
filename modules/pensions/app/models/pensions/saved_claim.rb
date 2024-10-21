@@ -88,7 +88,7 @@ module Pensions
         }
       )
 
-      insert_notification
+      insert_notification(Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email)
     end
 
     ##
@@ -96,14 +96,11 @@ module Pensions
     #
     # @see ClaimVANotification
     #
-    def insert_notification
-      ClaimVANotification.create!(
+    def insert_notification(email_template_id)
+      claim_va_notifications.create!(
         form_type: form_id,
-        saved_claim_id: id,
         email_sent: true,
-        email_template_id: Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email,
-        created_at: DateTime.now,
-        updated_at: DateTime.now
+        email_template_id: email_template_id
       )
     end
 
@@ -114,9 +111,8 @@ module Pensions
     # @see ClaimVANotification
     #
     def va_notification?(email_template_id)
-      ClaimVANotification.find_by(
+      claim_va_notifications.find_by(
         form_type: form_id,
-        saved_claim_id: id,
         email_template_id: email_template_id
       )
     end

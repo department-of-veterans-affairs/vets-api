@@ -69,17 +69,6 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
       allow(Settings.vanotify.services.va_gov.template_id).to receive(:form527ez_confirmation_email).and_return(0)
 
       claim.send_confirmation_email
-
-      expect(VANotify::EmailJob).to have_received(:perform_async).with(
-        'foo@foo.com',
-        0,
-        {
-          'first_name' => 'TEST',
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => claim.guid
-        }
-      ).once
-
       claim.send_confirmation_email
 
       expect(VANotify::EmailJob).to have_received(:perform_async).with(
