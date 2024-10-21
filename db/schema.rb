@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_18_163939) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_21_152303) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -845,6 +845,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_18_163939) do
     t.datetime "form_start_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "status", default: "not_processed"
     t.index ["veteran_icn"], name: "index_intent_to_file_queue_exhaustions_on_veteran_icn"
   end
 
