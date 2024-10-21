@@ -1772,13 +1772,13 @@ paths:
     get:
       description: returns requested document
       parameters:
-        - description: What the name of the returned file will be.
+        - description: File name of the document to be returned.
           in: query
           name: file_name
           required: true
           schema:
             type: string
-        - description: id of the document to be returned.
+        - description: ID of the document to be returned.
           in: path
           name: document_id
           required: true
