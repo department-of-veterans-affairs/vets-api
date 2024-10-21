@@ -6,6 +6,9 @@ module EVSS
   module DisabilityCompensationForm
     class Form4142DocumentUploadFailureEmail < Job
       STATSD_METRIC_PREFIX = 'api.form_526.veteran_notifications.form4142_upload_failure_email'
+      ZSF_DD_TAG_FUNCTION  =  'Form 525 Flow - Form 4142 failure email sending'
+      ZSF_DD_TAG_SERVICE   = 'disability-application'
+
 
       # retry for one day
       sidekiq_options retry: 14
@@ -16,22 +19,6 @@ module EVSS
         error_message = msg['error_message']
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
-
-        # Job status records are upserted in the JobTracker module
-        # when the retryable_error_handler is called
-        form_job_status = Form526JobStatus.find_by(job_id:)
-        bgjob_errors = form_job_status.bgjob_errors || {}
-        new_error = {
-          "#{timestamp.to_i}": {
-            caller_method: __method__.to_s,
-            timestamp:,
-            form526_submission_id:
-          }
-        }
-        form_job_status.update(
-          status: Form526JobStatus::STATUS[:exhausted],
-          bgjob_errors: bgjob_errors.merge(new_error)
-        )
 
         Rails.logger.warn(
           'Form4142DocumentUploadFailureEmail retries exhausted',
@@ -45,6 +32,27 @@ module EVSS
         )
 
         StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
+        cl = caller_locations.first
+        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        ZeroSilentFailures::Monitor.new(zsf_service).log_silent_failure(log_info, user_uuid,
+                                                                        call_location:)
+
+        # Job status records are upserted in the JobTracker module
+        # when the retryable_error_handler is called
+        form_job_status = Form526JobStatus.find_by(job_id:)
+        bgjob_errors = form_job_status.bgjob_errors || {}
+        new_error = {
+          "#{timestamp.to_i}": {
+            caller_method: __method__.to_s,
+            timestamp:,
+            form526_submission_id:
+          }
+        }
+
+        form_job_status.update(
+          status: Form526JobStatus::STATUS[:exhausted],
+          bgjob_errors: bgjob_errors.merge(new_error)
+        )
       rescue => e
         Rails.logger.error(
           'Failure in Form4142DocumentUploadFailureEmail#sidekiq_retries_exhausted',
@@ -104,6 +112,10 @@ module EVSS
           }
         )
 
+        cl = caller_locations.first
+        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        ZeroSilentFailures::Monitor.new(ZSF_DD_TAG_SERVICE).log_silent_failure(log_info, user_uuid,
+                                                                        call_location:)
         StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
       end
 
