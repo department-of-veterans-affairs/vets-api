@@ -18,14 +18,14 @@ The S3 PDF upload service handles benefits-related submissions that include PII 
 
 Definition of key metrics to be monitored:
 
-- **Upload/Download Success Rate**: Percentage of successful upload and download operations.
-  - **Threshold**: Alert if success rate drops below 98%.
+- **Upload/Download Success Rate**: Percentage of successful upload and download operations over a defined time window.
+  - **Threshold**: Alert if the success rate drops below 98% over a rolling **15-minute window**.
 - **Average Upload/Download Time**: Time taken for uploads and downloads to complete.
-  - **Threshold**: Alert if the average time exceeds 5 seconds (adjustable based on real-world data).
-- **Error Rate**: Number of failed uploads/downloads over a period.
-  - **Threshold**: Alert if the error rate exceeds 1% of total requests.
+  - **Threshold**: Alert if the average time exceeds 5 seconds (adjustable based on real-world data once recorded) over a **10-minute window**.
+- **Error Rate**: Number of failed uploads/downloads over a defined time period.
+  - **Threshold**: Alert if the error rate exceeds 1% of total requests over a **10-minute window**.
 - **Service Availability**: Monitor the availability and responsiveness of the S3 service and `vets-api` endpoints.
-  - **Threshold**: Alert if services are down for more than 2 minutes.
+  - **Threshold**: Alert if services are down for more than **2 minutes**.
 
 ### 4.2. Logging Standards
 
