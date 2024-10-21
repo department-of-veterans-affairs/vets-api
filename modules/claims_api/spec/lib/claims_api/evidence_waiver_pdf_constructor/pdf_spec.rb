@@ -18,7 +18,7 @@ describe ClaimsApi::EvidenceWaiver do
     Timecop.return
   end
 
-  let(:ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara) }
+  let(:ews) { create(:evidence_waiver_submission, :with_full_headers_tamara) }
 
   context 'normal name' do
     it 'construct pdf' do

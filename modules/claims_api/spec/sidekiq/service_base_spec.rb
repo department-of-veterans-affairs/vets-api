@@ -13,8 +13,8 @@ RSpec.describe ClaimsApi::ServiceBase do
   let(:claim_date) { (Time.zone.today - 1.day).to_s }
   let(:anticipated_separation_date) { 2.days.from_now.strftime('%m-%d-%Y') }
 
-  let(:ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara) }
-  let(:errored_ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara, status: 'errored') }
+  let(:ews) { create(:evidence_waiver_submission, :with_full_headers_tamara) }
+  let(:errored_ews) { create(:evidence_waiver_submission, :with_full_headers_tamara, status: 'errored') }
 
   let(:form_data) do
     temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',

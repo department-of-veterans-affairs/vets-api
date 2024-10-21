@@ -9,7 +9,7 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
     Sidekiq::Job.clear_all
   end
 
-  let(:ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara) }
+  let(:ews) { create(:evidence_waiver_submission, :with_full_headers_tamara) }
 
   describe 'when an errored job has a 48 hour time limitation' do
     it 'expires in 48 hours' do

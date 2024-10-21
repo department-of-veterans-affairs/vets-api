@@ -8,7 +8,7 @@ describe ClaimsApi::VANotifyJob, type: :job do
 
   let(:va_notify_org) do
     create(:organization, address_line1: '345 Sixth St.', address_line2: 'Suite 3',
-                          zip_code: '12345', zip_suffix: '9876', city: 'Pensacola', state: 'FL')
+                          zip_code: '12345', zip_suffix: '9876', city: 'Pensacola', state: 'FL', phone: '')
   end
 
   let(:va_notify_rep) do
