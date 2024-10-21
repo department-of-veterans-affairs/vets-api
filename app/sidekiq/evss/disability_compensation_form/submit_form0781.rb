@@ -199,7 +199,7 @@ module EVSS
       end
 
       def create_document_data(evss_claim_id, upload_data)
-        #AJ todo - should this be a LH doc?
+        # AJ todo - should this be a LH doc?
         EVSSClaimDocument.new(
           evss_claim_id:,
           file_name: upload_data[:file_name],
@@ -231,7 +231,6 @@ module EVSS
           EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
         end
       end
-
     end
   end
 end
