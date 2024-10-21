@@ -129,7 +129,10 @@ module SimpleFormsApi
           'Simple forms api - sent to benefits intake',
           { form_number: params[:form_number], status:, uuid: confirmation_number }
         )
-        presigned_s3_url = upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
+
+        presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
+                             upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
+                           end
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           send_confirmation_email(parsed_form_data, form_id, confirmation_number)
@@ -240,10 +243,10 @@ module SimpleFormsApi
       end
 
       def get_json(confirmation_number, form_id, presigned_s3_url)
-        json = { confirmation_number:, presigned_s3_url: }
-        json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
-
-        json
+        { confirmation_number: }.tap do |json|
+          json[:presigned_s3_url] = presigned_s3_url if presigned_s3_url.present?
+          json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
+        end
       end
 
       def prepare_params_for_benefits_intake_and_log_error(e)
