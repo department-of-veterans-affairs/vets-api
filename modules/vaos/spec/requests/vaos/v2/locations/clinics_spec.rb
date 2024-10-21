@@ -228,7 +228,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
       end
     end
 
-    describe 'GET recent sorted clinics' do
+    describe 'GET recent clinics' do
       let(:user) { build(:user, :vaos) }
 
       context 'using VAOS' do
@@ -238,10 +238,10 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
 
         context 'on successful query for recent sorted clinics' do
           it 'returns the recent sorted clinics' do
-            VCR.use_cassette('vaos/v2/systems/get_recent_sorted_clinics_200',
+            VCR.use_cassette('vaos/v2/systems/get_recent_clinics_200',
                              match_requests_on: %i[method path query]) do
               Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
-                get '/vaos/v2/locations/recent_sorted_clinics', headers: inflection_header
+                get '/vaos/v2/locations/recent_clinics', headers: inflection_header
                 expect(response).to have_http_status(:ok)
                 clinic_info = JSON.parse(response.body)['data']
                 expect(clinic_info[0]['attributes']['stationId']).to eq('983')
@@ -256,7 +256,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
             expect_any_instance_of(VAOS::V2::AppointmentsService)
               .to receive(:get_recent_sorted_clinic_appointments)
               .and_return(nil)
-            get '/vaos/v2/locations/recent_sorted_clinics', headers: inflection_header
+            get '/vaos/v2/locations/recent_clinics', headers: inflection_header
             expect(response).to have_http_status(:not_found)
           end
         end
@@ -264,10 +264,10 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
         context 'on unsuccessful query for clinic information' do
           it 'does not populate the sorted clinics list' do
             allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic_with_cache).and_return(nil)
-            VCR.use_cassette('vaos/v2/systems/get_recent_sorted_clinics_200',
+            VCR.use_cassette('vaos/v2/systems/get_recent_clinics_200',
                              match_requests_on: %i[method path query]) do
               Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
-                get '/vaos/v2/locations/recent_sorted_clinics', headers: inflection_header
+                get '/vaos/v2/locations/recent_clinics', headers: inflection_header
                 expect(JSON.parse(response.body)['data']).to eq([])
               end
             end

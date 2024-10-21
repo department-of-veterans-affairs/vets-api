@@ -41,39 +41,31 @@ module VAOS
         render json: VAOS::V2::ClinicsSerializer.new(clinic)
       end
 
-      # rubocop:disable Metrics/MethodLength
-      def recent_sorted_clinics
+      def recent_clinics
         sorted_clinics = []
         sorted_appointments = appointments_service.get_recent_sorted_clinic_appointments
 
         if sorted_appointments.nil?
           render json: { message: 'No appointments found' }, status: :not_found
           return
-        else
-          sorted_appointments.each do |appt|
-            # if we don't have the information to lookup the clinic, return 'unable to lookup' message
-            if unable_to_lookup_clinic?(appt)
-              log_unable_to_lookup_clinic(appt)
-              # sorted_clinics.push('Unable to lookup clinic.')
-            else
-              # get the clinic details using the station id and clinic id
-              station_id = appt.location_id
-              clinic_id = appt.clinic
-              clinic = mobile_facility_service.get_clinic_with_cache(station_id:, clinic_id:)
+        end
+        sorted_appointments.each do |appt|
+          # if we don't have the information to lookup the clinic, return 'unable to lookup' message
+          if unable_to_lookup_clinic?(appt)
+            log_unable_to_lookup_clinic(appt)
+          else
+            # get the clinic details using the station id and clinic id
+            station_id = appt.location_id
+            clinic_id = appt.clinic
+            clinic = mobile_facility_service.get_clinic_with_cache(station_id:, clinic_id:)
 
-              # if clinic details are not returned, log 'not found' message
-              if clinic.nil?
-                log_no_clinic_details_found(station_id, clinic_id)
-              else
-                sorted_clinics.push(clinic)
-              end
-            end
+            # if clinic details are not returned, log 'not found' message
+            clinic.nil? ? log_no_clinic_details_found(station_id, clinic_id) : sorted_clinics.push(clinic)
           end
         end
 
         render json: VAOS::V2::ClinicsSerializer.new(sorted_clinics)
       end
-      # rubocop:enable Metrics/MethodLength
 
       private
 
