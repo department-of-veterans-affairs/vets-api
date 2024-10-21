@@ -38,7 +38,7 @@ class FormSubmissionAttempt < ApplicationRecord
         elsif should_send_form526_form4142_email
           # Do not love hard coding this in here like this.
           # Hoping to refactor this at somepoint to better support various emailing on arbitrary or inherited classes
-          zsf_function = 'Form 525 Flow - Form 4142 failure email queuing'
+          zsf_function = 'Form 526 Flow - Form 4142 failure email queuing'
           form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
           Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
                             log_info.merge({ form526_submission_id: }))

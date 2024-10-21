@@ -6,7 +6,7 @@ module EVSS
   module DisabilityCompensationForm
     class Form4142DocumentUploadFailureEmail < Job
       STATSD_METRIC_PREFIX = 'api.form_526.veteran_notifications.form4142_upload_failure_email'
-      ZSF_DD_TAG_FUNCTION  = 'Form 525 Flow - Form 4142 failure email sending'
+      ZSF_DD_TAG_FUNCTION  = 'Form 526 Flow - Form 4142 failure email sending'
 
       # retry for one day
       sidekiq_options retry: 14
