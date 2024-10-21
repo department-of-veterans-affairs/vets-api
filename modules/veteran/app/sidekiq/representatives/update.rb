@@ -36,34 +36,13 @@ module Representatives
       address_validation_api_response = nil
 
       if rep_data['address_changed']
-        candidate_address = build_validation_address(rep_data['address'])
-        address_validation_api_response = validate_address(candidate_address)
-        return unless address_valid?(address_validation_api_response)
+        api_response = get_best_address_candidate(rep_data['address'])
 
-        # retry validation if we get zero as the coordinates - this should indicate some warning with validation that
-        #   we've typically seen with addresses that mix street addresses with P.O. Boxes
-        if lat_long_zero?(address_validation_api_response)
-          rep_address = rep_data['address']
-
-          # the address validation service requires at least one of address_line1, address_line2, and address_line3 to
-          #   exist. No need to run the retry if we know it will fail before attempting the api call.
-          api_response = retry_address_validation(rep_address, 1) if rep_address['address_line1'].present?
-
-          if retriable?(api_response) && rep_address['address_line2'].present?
-            api_response = retry_address_validation(rep_address, 2)
-          end
-
-          if retriable?(api_response) && rep_address['address_line3'].present?
-            api_response = retry_address_validation(rep_address, 3)
-          end
-
-          # we no longer want to update the record if there is not a valid address with non-zero
-          #   lat and long at this point
-          if retriable?(api_response)
-            return
-          else
-            address_validation_api_response = api_response
-          end
+        # don't update the record if there is not a valid address with non-zero lat and long at this point
+        if api_response.nil?
+          return
+        else
+          address_validation_api_response = api_response
         end
       end
 
@@ -227,7 +206,7 @@ module Representatives
     # @param address [Hash] the OGC address object
     # @param retry_count [Integer] the current retry attempt which determines how the address object should be modified
     # @return [Hash] the response from the address validation service
-    def retry_address_validation(address, retry_count)
+    def modified_validation(address, retry_count)
       address_attempt = address.dup
       case retry_count
       when 1 # only use the original address_line1
@@ -244,12 +223,54 @@ module Representatives
     end
 
     # An address validation attempt is retriable if the address is invalid OR the coordinates are zero
-    # @param response [Hash] the response from the address validation service
+    # @param response [Hash, Nil] the response from the address validation service
     # @return [Boolean]
     def retriable?(response)
       return true if response.blank?
 
       !address_valid?(response) || lat_long_zero?(response)
+    end
+
+    # Retry address validation
+    # @param rep_address [Hash] the address provided by OGC
+    # @return [Hash, Nil] the response from the address validation service
+    def retry_validation(rep_address)
+      # the address validation service requires at least one of address_line1, address_line2, and address_line3 to
+      #   exist. No need to run the retry if we know it will fail before attempting the api call.
+      api_response = modified_validation(rep_address, 1) if rep_address['address_line1'].present?
+
+      if retriable?(api_response) && rep_address['address_line2'].present?
+        api_response = modified_validation(rep_address, 2)
+      end
+
+      if retriable?(api_response) && rep_address['address_line3'].present?
+        api_response = modified_validation(rep_address, 3)
+      end
+
+      api_response
+    end
+
+    # Get the best address that the address validation api can provide with some retry logic added in
+    # @param rep_address [Hash] the address provided by OGC
+    # @return [Hash, Nil] the response from the address validation service
+    def get_best_address_candidate(rep_address)
+      candidate_address = build_validation_address(rep_address)
+      original_response = validate_address(candidate_address)
+      return nil unless address_valid?(original_response)
+
+      # retry validation if we get zero as the coordinates - this should indicate some warning with validation that
+      #   is typically seen with addresses that mix street addresses with P.O. Boxes
+      if lat_long_zero?(original_response)
+        retry_response = retry_validation(rep_address)
+
+        if retriable?(retry_response)
+          nil
+        else
+          retry_response
+        end
+      else
+        original_response
+      end
     end
   end
 end
