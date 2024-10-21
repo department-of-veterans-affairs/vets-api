@@ -27,25 +27,26 @@ module RepresentationManagement
         end
 
         def next_steps_contact(pdf, data)
-          # rep_name = <<~HEREDOC.squish
-          #   #{data.representative_first_name}
-          #   #{data.representative_middle_initial}
-          #   #{data.representative_last_name}
-          # HEREDOC
-          # add_text_with_spacing(pdf, rep_name, style: :bold, move_down: 8)
-          # pdf.font('soursesanspro') do
-          #   pdf.text(data.representative_address_line1)
-          #   pdf.text(data.representative_address_line2)
-          #   city_state_zip = <<~HEREDOC.squish
-          #     #{data.representative_city},
-          #     #{data.representative_state_code}
-          #     #{data.representative_zip_code}
-          #   HEREDOC
-          #   pdf.text(city_state_zip)
-          #   pdf.move_down(5)
-          #   pdf.text(format_phone_number(data.representative_phone))
-          #   pdf.text(data.representative_email_address)
-          # end
+          rep_name = <<~HEREDOC.squish
+            #{data.representative.first_name}
+            #{data.representative.middle_initial}
+            #{data.representative.last_name}
+          HEREDOC
+          add_text_with_spacing(pdf, rep_name, style: :bold, move_down: 8)
+          pdf.font('soursesanspro') do
+            pdf.text(data.organization_name)
+            pdf.text(data.representative.address_line1)
+            pdf.text(data.representative.address_line2)
+            city_state_zip = <<~HEREDOC.squish
+              #{data.representative.city},
+              #{data.representative.state_code}
+              #{data.representative.zip_code}
+            HEREDOC
+            pdf.text(city_state_zip)
+            pdf.move_down(5)
+            pdf.text(format_phone_number(data.representative.phone))
+            pdf.text(data.representative.email)
+          end
         end
 
         def template_path

@@ -4,9 +4,11 @@ module RepresentationManagement
   module V0
     class PdfGenerator2122Controller < RepresentationManagement::V0::PdfGeneratorBaseController
       def create
-        binding.pry
+        # TODO: Remove all this!
         FactoryBot.create(:accredited_individual) if AccreditedIndividual.count.zero?
         FactoryBot.create(:accredited_organization) if AccreditedOrganization.count.zero?
+        p 'RepresentationManagement::V0::PdfGenerator2122Controller#create ' * 10, AccreditedIndividual.first.inspect,
+          AccreditedOrganization.first.inspect
         form = RepresentationManagement::Form2122Data.new(flatten_form_params)
 
         if form.valid?

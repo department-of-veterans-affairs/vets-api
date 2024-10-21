@@ -94,6 +94,7 @@ module RepresentationManagement
               if: -> { veteran_service_number.present? }
 
     validate :consent_limits_must_contain_valid_values
+    validate :representative_resolves
 
     with_options if: -> { claimant_first_name.present? } do
       validates :claimant_first_name, presence: true, length: { maximum: 12 }
@@ -111,6 +112,8 @@ module RepresentationManagement
                                            if: -> { claimant_zip_code_suffix.present? }
       validates :claimant_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
     end
+
+    validates :representative_id, presence: true
 
     def representative
       @representative ||= find_representative
@@ -132,6 +135,12 @@ module RepresentationManagement
     def find_representative
       AccreditedIndividual.find_by(id: representative_id) ||
         Veteran::Service::Representative.find_by(representative_id:)
+    end
+
+    def representative_resolves
+      return unless find_representative.nil?
+
+      errors.add(:representative_id, 'Representative not found')
     end
   end
 end
