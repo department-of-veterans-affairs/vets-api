@@ -21,7 +21,7 @@ module VANotify
         return
       end
 
-      va_notify_notification = VaNotifyNotification.new(notification_params)
+      va_notify_notification = VANotify::Notification.new(notification_params)
       va_notify_notification.save!
       render json: { message: 'success' }, status: :ok
     end
