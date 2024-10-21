@@ -18,7 +18,7 @@ describe Sidekiq::Form526JobStatusTracker::Metrics do
   describe '#increment_success' do
     it 'increments a statsd counter' do
       expect(StatsD).to receive(:increment).with("#{job_prefix}.success",
-                                                 tags: ['is_bdd:false'])
+                                                 tags: %w[is_bdd:false service_provider:])
       subject.increment_success
     end
   end
@@ -27,7 +27,7 @@ describe Sidekiq::Form526JobStatusTracker::Metrics do
     it 'increments a statsd counter' do
       expect(StatsD).to receive(:increment).with(
         "#{job_prefix}.non_retryable_error",
-        tags: ['error:StandardError', 'message:non retryable', 'is_bdd:false']
+        tags: ['error:StandardError', 'message:non retryable', 'is_bdd:false', 'service_provider:']
       )
       subject.increment_non_retryable(StandardError.new('non retryable'))
     end
@@ -37,7 +37,7 @@ describe Sidekiq::Form526JobStatusTracker::Metrics do
     it 'increments a statsd counter' do
       expect(StatsD).to receive(:increment).with(
         "#{job_prefix}.retryable_error",
-        tags: ['error:StandardError', 'message:retryable', 'is_bdd:false']
+        tags: %w[error:StandardError message:retryable is_bdd:false service_provider:]
       )
       subject.increment_retryable(StandardError.new('retryable'))
     end
