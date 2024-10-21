@@ -94,6 +94,10 @@ module RepresentationManagement
       validates :claimant_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
     end
 
+    def representative
+      @representative ||= find_representative
+    end
+
     private
 
     def consent_limits_must_contain_valid_values
@@ -105,6 +109,11 @@ module RepresentationManagement
                      "#{limit} is not a valid limitation of consent")
         end
       end
+    end
+
+    def find_representative
+      AccreditedRepresentation.find_by(id: representative_id) ||
+        Veteran::Service::Representative.find_by(representative_id:)
     end
   end
 end
