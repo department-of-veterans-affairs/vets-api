@@ -27,17 +27,13 @@ class FormSubmissionAttempt < ApplicationRecord
       after do
         user_uuid = form_submission.user_account.id
         form_type = form_submission&.form_type
-        log_info = { form_submission_id:,
-                     benefits_intake_uuid: form_submission&.benefits_intake_uuid,
-                     form_type:,
+        log_info = { form_submission_id:, benefits_intake_uuid: form_submission&.benefits_intake_uuid, form_type:,
                      user_uuid: user_uuid }
         zsf_function = "#{form_id} form submission to Lighthouse"
         if should_send_simple_forms_email
           Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
           simple_forms_enqueue_result_email(:error)
         elsif should_send_form526_form4142_email
-          # Do not love hard coding this in here like this.
-          # Hoping to refactor this at somepoint to better support various emailing on arbitrary or inherited classes
           zsf_function = 'Form 526 Flow - Form 4142 failure email queuing'
           form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
           Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
@@ -50,10 +46,7 @@ class FormSubmissionAttempt < ApplicationRecord
         call_location = ZeroSilentFailures::Monitor::CallLocation.new(zsf_function, cl.path, cl.lineno)
         ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
                                    .log_silent_failure(
-                                     log_info.merge({
-                                                      error_class: e.class,
-                                                      error_message: e.message
-                                                    }),
+                                     log_info.merge({ error_class: e.class, error_message: e.message }),
                                      user_uuid,
                                      call_location:
                                    )
