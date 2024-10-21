@@ -2,7 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, :skip_json_api_validation,
+RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation,
                type: :request do
   include JsonSchemaMatchers
 
@@ -27,7 +27,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
         end
       end
 
-      it 'returns a 200 that matches the expected schema' do
+      it 'returns a 200 that matches the expected schema', :openapi_schema_validation do
         expect(response).to have_http_status(:ok)
         assert_schema_conform(200)
       end
@@ -79,7 +79,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
         end
       end
 
-      it 'returns empty array and matches the expected schema' do
+      it 'returns empty array and matches the expected schema', :openapi_schema_validation do
         expect(response).to have_http_status(:ok)
         assert_schema_conform(200)
         expect(response.parsed_body['data']).to eq([])
@@ -93,7 +93,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
         end
       end
 
-      it 'returns a 200 and matches the expected schema' do
+      it 'returns a 200 and matches the expected schema', :openapi_schema_validation do
         expect(response).to have_http_status(:ok)
         assert_schema_conform(200)
       end
@@ -121,7 +121,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
         end
       end
 
-      it 'returns a 502 and matches the expected schema' do
+      it 'returns a 502 and matches the expected schema', :openapi_schema_validation do
         expect(response).to have_http_status(:bad_gateway)
         assert_schema_conform(502)
         error = { 'errors' => [{ 'title' => 'Bad Gateway',
@@ -350,7 +350,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
       end
 
       context 'date is missing' do
-        it 'returns missing date items at end of list' do
+        it 'returns missing date items at end of list', :openapi_schema_validation do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations_date_missing',
                            match_requests_on: %i[method uri]) do
             get '/mobile/v1/health/immunizations', headers: sis_headers, params: default_params
@@ -369,7 +369,7 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :openapi_schema_validation, 
           end
         end
 
-        it 'matches expected schema' do
+        it 'matches expected schema', :openapi_schema_validation do
           assert_schema_conform(200)
         end
 
