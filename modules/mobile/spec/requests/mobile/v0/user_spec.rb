@@ -6,9 +6,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
   include JsonSchemaMatchers
 
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
-  let(:contact_information_service) do
-    VAProfile::ContactInformation::Service
-  end
 
   describe 'GET /mobile/v0/user' do
     let!(:user) do
@@ -25,7 +22,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     end
 
     before(:all) do
-      Flipper.disable(:va_v3_contact_information_service)
+      Flipper.disable(:mobile_v2_contact_info)
       Flipper.disable(:mobile_lighthouse_letters)
     end
 
@@ -258,7 +255,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
     context 'when the upstream va profile service returns a 502' do
       before do
-        allow_any_instance_of(contact_information_service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
           Common::Exceptions::BackendServiceException.new('VET360_502')
         )
       end
@@ -275,7 +272,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
     context 'when the upstream va profile service returns a 404' do
       before do
-        allow_any_instance_of(contact_information_service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
           Common::Exceptions::RecordNotFound.new(user.uuid)
         )
       end
@@ -306,7 +303,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
     context 'when the va profile service throws an argument error' do
       before do
-        allow_any_instance_of(contact_information_service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
           ArgumentError.new
         )
       end
@@ -321,7 +318,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
     context 'when the va profile service throws an client error' do
       before do
-        allow_any_instance_of(contact_information_service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
           Common::Client::Errors::ClientError.new
         )
       end
