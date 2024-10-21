@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../support/helpers/rails_helper'
+require_relative '../../support/helpers/committee_helper'
 
-RSpec.describe 'Mobile', :openapi_schema_validation, type: :request do
+RSpec.describe 'Mobile', type: :request do
+  include CommitteeHelper
+
   describe 'GET /mobile' do
     before { get '/mobile' }
 
