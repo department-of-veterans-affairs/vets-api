@@ -71,11 +71,12 @@ module Pensions
     ##
     # enqueue the sending of the submission confirmation email
     #
-    # @param id [Pensions::SavedClaim]
     # @see VANotify::EmailJob
     #
-    def send_confirmation_email(saved_claim_id)
-      return if email.blank? || find_notification(saved_claim_id).present?
+    def send_confirmation_email
+      if email.blank? || va_notification?(Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email)
+        return
+      end
 
       VANotify::EmailJob.perform_async(
         email,
@@ -87,19 +88,18 @@ module Pensions
         }
       )
 
-      insert_notification(saved_claim_id)
+      insert_notification
     end
 
     ##
-    # insert notifcation post VANotify email send
+    # insert notifcation after VANotify email send
     #
-    # @param id [Pensions::SavedClaim]
     # @see ClaimVANotification
     #
-    def insert_notification(saved_claim_id)
+    def insert_notification
       ClaimVANotification.create!(
         form_type: form_id,
-        saved_claim_id: saved_claim_id,
+        saved_claim_id: id,
         email_sent: true,
         email_template_id: Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email,
         created_at: DateTime.now,
@@ -108,13 +108,17 @@ module Pensions
     end
 
     ##
-    # Find notifcation
+    # Find notifcation by args*
     #
-    # @param id [Pensions::SavedClaim]
+    # @param email_template_id
     # @see ClaimVANotification
     #
-    def find_notification(saved_claim_id)
-      ClaimVANotification.find_by(saved_claim_id:)
+    def va_notification?(email_template_id)
+      ClaimVANotification.find_by(
+        form_type: form_id,
+        saved_claim_id: id,
+        email_template_id: email_template_id
+      )
     end
 
     # Run after a claim is saved, this processes any files and workflows that are present

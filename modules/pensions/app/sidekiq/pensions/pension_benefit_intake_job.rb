@@ -63,7 +63,7 @@ module Pensions
 
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
-      send_confirmation_email(@claim.id)
+      send_confirmation_email
 
       @intake_service.uuid
     rescue => e
