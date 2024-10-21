@@ -131,11 +131,11 @@ class Form526SubmissionFailureEmailJob
     StatsD.increment("#{STATSD_PREFIX}.success")
 
     cl = caller_locations.first
-    call_location = ZeroSilentFailures::Monitor::CallLocation
-      .new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-    ZeroSilentFailures::Monitor
-      .new(Form526Submission::ZSF_DD_TAG_SERVICE)
-      .log_silent_failure_avoided(log_info, user_uuid, call_location:)
+    call_location = ZeroSilentFailures::Monitor::CallLocation.new(
+      ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno
+    )
+    ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+                               .log_silent_failure_avoided(log_info, user_uuid, call_location:)
   end
 
   def log_failure(error, submission)
