@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_14_205528) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_18_163939) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -166,6 +166,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_14_205528) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "failure_notification_sent_at"
+    t.index ["appeal_submission_id"], name: "index_appeal_submission_uploads_on_appeal_submission_id"
   end
 
   create_table "appeal_submissions", force: :cascade do |t|
@@ -179,6 +180,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_14_205528) do
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
     t.datetime "failure_notification_sent_at"
+    t.index ["submitted_appeal_uuid"], name: "index_appeal_submissions_on_submitted_appeal_uuid"
     t.index ["user_account_id"], name: "index_appeal_submissions_on_user_account_id"
   end
 
@@ -1050,6 +1052,20 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_14_205528) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "secondary_appeal_forms", force: :cascade do |t|
+    t.string "form_id"
+    t.text "encrypted_kms_key"
+    t.text "form_ciphertext"
+    t.uuid "guid"
+    t.string "status"
+    t.datetime "status_updated_at"
+    t.bigint "appeal_submission_id"
+    t.datetime "delete_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["appeal_submission_id"], name: "index_secondary_appeal_forms_on_appeal_submission_id"
+  end
+
   create_table "service_account_configs", force: :cascade do |t|
     t.string "service_account_id", null: false
     t.text "description", null: false
@@ -1350,7 +1366,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_14_205528) do
     t.index ["created_at"], name: "index_vba_documents_upload_submissions_on_created_at"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
-    t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at", where: "(s3_deleted IS NOT TRUE)"
+    t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at_false", where: "(s3_deleted IS FALSE)"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
 
