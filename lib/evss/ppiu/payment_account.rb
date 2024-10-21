@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module EVSS
   module PPIU
@@ -16,11 +16,7 @@ module EVSS
     # @!attribute financial_institution_routing_number
     #   @return [String] The routing number of the financial institution; exactly 9 digits
     #
-    class PaymentAccount
-      include Virtus.model
-      include ActiveModel::Validations
-      include ActiveModel::Serialization
-
+    class PaymentAccount < Vets::Model
       ACCOUNT_NUM_REGEX = /\A\d*\z/
       ROUTING_NUM_REGEX = /\A\d{9}\z/
 

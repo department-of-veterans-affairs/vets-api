@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module EVSS
   module DisabilityCompensationForm
@@ -11,9 +11,7 @@ module EVSS
     # @!attribute name
     #   @return [String] The name of the issue.
     #
-    class SpecialIssue
-      include Virtus.model
-
+    class SpecialIssue < Vets::Model
       attribute :code, String
       attribute :name, String
     end

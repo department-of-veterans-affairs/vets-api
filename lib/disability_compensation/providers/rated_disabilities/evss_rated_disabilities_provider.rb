@@ -21,18 +21,18 @@ class EvssRatedDisabilitiesProvider
     rated_disabilities =
       data[:rated_disabilities].map do |rated_disability|
         DisabilityCompensation::ApiProvider::RatedDisability.new(
-          name: rated_disability['name'],
-          decision_code: rated_disability['decision_code'],
-          decision_text: rated_disability['decision_text'],
-          diagnostic_code: rated_disability['diagnostic_code'],
-          effective_date: rated_disability['effective_date'],
-          rated_disability_id: rated_disability['rated_disability_id'],
-          rating_decision_id: rated_disability['rating_decision_id'],
-          rating_percentage: rated_disability['rating_percentage'],
-          related_disability_date: rated_disability['related_disability_date'],
-          special_issues: rated_disability['special_issues'].map do |special_issue|
+          name: rated_disability.name,
+          decision_code: rated_disability.decision_code,
+          decision_text: rated_disability.decision_text,
+          diagnostic_code: rated_disability.diagnostic_code,
+          effective_date: rated_disability.effective_date,
+          rated_disability_id: rated_disability.rated_disability_id,
+          rating_decision_id: rated_disability.rating_decision_id,
+          rating_percentage: rated_disability.rating_percentage,
+          related_disability_date: rated_disability.related_disability_date,
+          special_issues: rated_disability.special_issues.map do |special_issue|
             DisabilityCompensation::ApiProvider::SpecialIssue.new(
-              code: special_issue['code'], name: special_issue['name']
+              code: special_issue.code, name: special_issue.name
             )
           end
         )
