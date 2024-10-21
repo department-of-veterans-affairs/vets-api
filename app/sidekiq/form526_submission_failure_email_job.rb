@@ -41,11 +41,11 @@ class Form526SubmissionFailureEmailJob
     StatsD.increment("#{STATSD_PREFIX}.exhausted")
 
     cl = caller_locations.first
-    call_location = ZeroSilentFailures::Monitor::CallLocation
-      .new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-    ZeroSilentFailures::Monitor
-      .new(Form526Submission::ZSF_DD_TAG_SERVICE)
-      .log_silent_failure(log_info, user_uuid, call_location:)
+    call_location = ZeroSilentFailures::Monitor::CallLocation.new(
+      ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno
+    )
+    ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+                               .log_silent_failure(log_info, user_uuid, call_location:)
   rescue => e
     Rails.logger.error(
       'Failure in Form526SubmissionFailureEmailJob#sidekiq_retries_exhausted',
