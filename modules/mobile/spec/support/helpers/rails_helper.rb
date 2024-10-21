@@ -36,4 +36,8 @@ RSpec.configure do |config|
       strict_reference_validation: true
     }
   end
+
+  config.after :each, :openapi_schema_validation, type: :request do
+    config.committee_options = nil
+  end
 end
