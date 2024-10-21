@@ -1369,7 +1369,9 @@ vanotify:
       api_key: fake_secret
       template_id:
         higher_level_review_form_error_email: fake_hlr_template_id
+        notice_of_disagreement_evidence_error_email: fake_nod_evidence_template_id
         notice_of_disagreement_form_error_email: fake_nod_template_id
+        supplemental_claim_evidence_error_email: fake_sc_evidence_template_id
         supplemental_claim_form_error_email: fake_sc_template_id
     benefits_disability:
       api_key: fake_secret
@@ -1633,7 +1635,6 @@ virtual_regional_office:
   url: http://localhost:8120
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
-  ctn_classification_path: classifier
   vagov_classification_path: contention-classification/va-gov-claim-classifier
   max_cfi_path: employee-experience/max-ratings
   ep_merge_path: employee-experience-ep-merge-app/merge

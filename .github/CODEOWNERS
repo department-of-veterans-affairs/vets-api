@@ -2034,6 +2034,7 @@ spec/support/vcr_cassettes/lighthouse/claims/200_response.yml @department-of-vet
 spec/support/vcr_cassettes/lighthouse/direct_deposit @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/dbex-trex  @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/lighthouse/facilities.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-facilities-frontend
 spec/support/vcr_cassettes/lighthouse/facilities_401.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-facilities-frontend
+spec/support/vcr_cassettes/lighthouse/facilities/v1/200_facilities_facility_ids.yml @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/lighthouse/veteran_verification @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/dbex-trex @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/mail_automation @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/map @department-of-veterans-affairs/octo-identity
@@ -2045,6 +2046,7 @@ spec/support/vcr_cassettes/mhv_logging_client @department-of-veterans-affairs/vf
 spec/support/vcr_cassettes/mobile @department-of-veterans-affairs/mobile-api-team
 spec/support/vcr_cassettes/mpi @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/mr_client @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/user_eligibility_client @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/mulesoft @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/okta @department-of-veterans-affairs/lighthouse-pivot
 spec/support/vcr_cassettes/pagerduty @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
