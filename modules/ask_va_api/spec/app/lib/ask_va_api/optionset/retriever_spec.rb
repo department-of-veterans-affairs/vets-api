@@ -10,18 +10,17 @@ module AskVAApi
       let(:entity_class) { Entity }
       let(:name) { 'branchofservice' }
       let(:cache_data_service) { instance_double(Crm::CacheData) }
+      let(:retriever) { described_class.new(user_mock_data: true, entity_class:) }
 
       describe '#call' do
         context 'with user_mock_data' do
-          let(:retriever) { described_class.new(name:, user_mock_data: true, entity_class:) }
-
           it 'reads from file' do
             expect(retriever.call).to all(be_a(entity_class))
           end
         end
 
         context 'with no user_mock_data' do
-          let(:retriever) { described_class.new(name:, user_mock_data: false, entity_class:) }
+          let(:retriever) { described_class.new(user_mock_data: false, entity_class:) }
 
           before do
             allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
@@ -35,7 +34,7 @@ module AskVAApi
         end
 
         context 'when an API error occur' do
-          let(:retriever) { described_class.new(name: 'branchofservic', user_mock_data: false, entity_class:) }
+          let(:retriever) { described_class.new(user_mock_data: false, entity_class:) }
           let(:body) do
             '{"Data":null,"Message":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
               ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \

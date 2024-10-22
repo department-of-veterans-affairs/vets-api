@@ -53,7 +53,7 @@ module AskVAApi
         def state_data
           {
             Name: inquiry_params[:veterans_location_of_residence],
-            StateCode: inquiry_params[:veterans_location_of_residence]
+            StateCode: fetch_state_code(inquiry_params[:veterans_location_of_residence])
           }
         end
       end
