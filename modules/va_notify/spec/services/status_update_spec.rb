@@ -30,7 +30,9 @@ describe VANotify::StatusUpdate do
           status: "temporary-failure"
         }
 
-        expect(Rails.logger).to receive(:info).with(source: notification.source_location, status: notification.status)
+        expected_error_message = "undefined method `constantize' for nil"
+
+        expect(Rails.logger).to receive(:info).with(source: notification.source_location, status: notification.status, error_message: expected_error_message)
 
         described_class.new.delegate(provider_callback)
       end

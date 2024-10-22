@@ -13,9 +13,9 @@ module VANotify
         rescue => e
           Rails.logger.info(e.message)
         end
-      else
-        Rails.logger.info(source: notification.source_location, status: notification.status)
       end
+    rescue => e
+      Rails.logger.info(source: notification.source_location, status: notification.status, error_message: e.message)
     end
   end
 end
