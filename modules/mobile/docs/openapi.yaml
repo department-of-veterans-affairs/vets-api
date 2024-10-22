@@ -17,7 +17,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/Message.yml
+                $ref: ./schemas/EndpointDiscovery.yml
           description: OK
       summary: /
     post:

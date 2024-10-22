@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
   - meta
@@ -7,6 +8,7 @@ properties:
     type: array
     items:
       type: object
+      additionalProperties: false
       required: 
         - id
         - type
@@ -21,6 +23,7 @@ properties:
           example: "triage_teams"
         attributes:
           type: object
+          additionalProperties: false
           required:
             - triageTeamId
             - name
@@ -38,11 +41,13 @@ properties:
               example: PATIENT
   meta:
     type: object
+    additionalProperties: false
     required:
       - sort
     properties:
       sort:
         type: object
+        additionalProperties: false
         required:
           - name
         properties:
