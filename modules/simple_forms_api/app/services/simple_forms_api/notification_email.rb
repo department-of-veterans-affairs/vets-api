@@ -18,7 +18,7 @@ module SimpleFormsApi
       },
       'vba_21_0966' => {
         confirmation: Settings.vanotify.services.va_gov.template_id.form21_0966_confirmation_email,
-        error: nil,
+        error: Settings.vanotify.services.va_gov.template_id.form21_0966_error_email,
         received: nil
       },
       'vba_21_0972' => {

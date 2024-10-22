@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - type
   - id
@@ -14,6 +15,7 @@ properties:
     description: Upstream identifier
   attributes:
     type: object
+    additionalProperties: false
     required:
       - cvxCode
       - date
@@ -54,11 +56,13 @@ properties:
         example: "Swelling"
   relationships:
     type: object
+    additionalProperties: false
     required:
       - location
     properties:
       location:
         type: object
+        additionalProperties: false
         required:
           - data
           - links
@@ -77,6 +81,7 @@ properties:
                 example: "location"
           links:
             type: object
+            additionalProperties: false
             required:
               - related
             properties:

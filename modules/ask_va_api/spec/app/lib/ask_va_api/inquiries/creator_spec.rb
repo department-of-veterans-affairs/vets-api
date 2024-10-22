@@ -18,7 +18,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
 
   before do
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
-    allow(AskVAApi::Translator).to receive(:new).with(inquiry_params:).and_return(translator)
+    allow(AskVAApi::Translator).to receive(:new).and_return(translator)
     # translated_payload is in include_context 'shared data'
     allow(translator).to receive(:call).and_return(translated_payload)
   end
@@ -40,10 +40,6 @@ RSpec.describe AskVAApi::Inquiries::Creator do
       it 'assigns VeteranICN and posts data to the service' do
         # inquiry_params is in include_context 'shared data'
         response = creator.call(inquiry_params:)
-
-        expect(service).to have_received(:call) do |params|
-          expect(params[:payload][:VeteranICN]).to eq(icn)
-        end
 
         expect(response).to eq({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
       end

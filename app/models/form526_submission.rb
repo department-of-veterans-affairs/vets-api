@@ -423,7 +423,7 @@ class Form526Submission < ApplicationRecord
   end
 
   def duplicate?
-    last_remediation&.ignored_as_duplicate || false
+    last_remediation&.ignored_as_duplicate?
   end
 
   def remediated?
