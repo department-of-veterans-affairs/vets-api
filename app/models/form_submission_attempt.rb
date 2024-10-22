@@ -38,7 +38,9 @@ class FormSubmissionAttempt < ApplicationRecord
           form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
           Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
                             log_info.merge({ form526_submission_id: }))
-          jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async form526_submission_id
+          jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(
+            form526_submission_id
+          )
           Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify completed', log_info.merge({ jid: }))
         end
       rescue => e
