@@ -19,12 +19,14 @@ module MyHealth
         end
 
         def image
+          response.headers['Content-Type'] = 'image/jpeg'
           stream_data do |stream|
             bb_client.get_image(@study_id, params[:series_id].to_s, params[:image_id].to_s, header_callback, stream)
           end
         end
 
         def dicom
+          response.headers['Content-Type'] = 'application/zip'
           stream_data do |stream|
             bb_client.get_dicom(@study_id, header_callback, stream)
           end
@@ -43,6 +45,8 @@ module MyHealth
         def header_callback
           lambda do |headers|
             headers.each do |k, v|
+              next if %w[Content-Type Transfer-Encoding].include?(k)
+
               response.headers[k] = v if k.present?
             end
           end
