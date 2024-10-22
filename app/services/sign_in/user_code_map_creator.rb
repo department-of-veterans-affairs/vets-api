@@ -65,7 +65,8 @@ module SignIn
     def create_mhv_account
       return unless Settings.mhv.account_creation.create_after_login
 
-      MHV::AccountCreatorJob.perform_async(user_verification.id)
+      MHV::AccountCreatorJob.perform_async(user_verification.id) if Flipper.enabled?(:mhv_account_creation_after_login,
+                                                                                     @current_user)
     end
 
     def device_sso

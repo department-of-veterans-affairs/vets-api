@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -13,6 +14,7 @@ properties:
     example: "demographics"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - genderIdentity
       - preferredName

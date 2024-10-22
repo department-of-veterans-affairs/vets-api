@@ -74,7 +74,9 @@ module Pensions
     # @see VANotify::EmailJob
     #
     def send_confirmation_email
-      return if email.blank?
+      if email.blank? || va_notification?(Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email)
+        return
+      end
 
       VANotify::EmailJob.perform_async(
         email,
@@ -84,6 +86,34 @@ module Pensions
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
           'confirmation_number' => guid
         }
+      )
+
+      insert_notification(Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email)
+    end
+
+    ##
+    # insert notifcation after VANotify email send
+    #
+    # @see ClaimVANotification
+    #
+    def insert_notification(email_template_id)
+      claim_va_notifications.create!(
+        form_type: form_id,
+        email_sent: true,
+        email_template_id: email_template_id
+      )
+    end
+
+    ##
+    # Find notifcation by args*
+    #
+    # @param email_template_id
+    # @see ClaimVANotification
+    #
+    def va_notification?(email_template_id)
+      claim_va_notifications.find_by(
+        form_type: form_id,
+        email_template_id: email_template_id
       )
     end
 

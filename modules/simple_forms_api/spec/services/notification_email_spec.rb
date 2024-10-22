@@ -592,17 +592,17 @@ describe SimpleFormsApi::NotificationEmail do
       end
       let(:user) { create(:user, :loa3) }
 
-      context 'template_id is provided', if: notification_type == :confirmation do
-        it 'sends the confirmation email' do
+      context 'template_id is provided', unless: notification_type == :received do
+        it 'sends the email' do
           allow(VANotify::EmailJob).to receive(:perform_async)
 
-          subject = described_class.new(config, user:)
+          subject = described_class.new(config, notification_type:, user:)
 
           subject.send
 
           expect(VANotify::EmailJob).to have_received(:perform_async).with(
             user.va_profile_email,
-            'form21_0966_confirmation_email_template_id',
+            "form21_0966_#{notification_type}_email_template_id",
             {
               'first_name' => 'Veteran',
               'date_submitted' => date_submitted,
@@ -615,7 +615,7 @@ describe SimpleFormsApi::NotificationEmail do
         end
       end
 
-      context 'template_id is missing', if: notification_type != :confirmation do
+      context 'template_id is missing', if: notification_type == :received do
         let(:data) do
           fixture_path = Rails.root.join(
             'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0966.json'

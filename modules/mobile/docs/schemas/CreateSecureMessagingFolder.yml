@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - folder
 properties:
   folder:
     type: object
+    additionalProperties: false
     required:
       - name
     properties:

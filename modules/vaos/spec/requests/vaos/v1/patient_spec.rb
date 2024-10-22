@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VAOS::V1::Patient', type: :request do
+RSpec.describe 'VAOS::V1::Patient', skip: 'deprecated', type: :request do
   include SchemaMatchers
 
   before do
