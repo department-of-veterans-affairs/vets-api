@@ -74,10 +74,13 @@ RSpec.describe VANotify::EmailJob, type: :worker do
     end
 
     context 'with optional callback support' do
-      it 'receives a valid Hash' do
+      it 'can accept callback options' do
         client = double
         api_key = Settings.vanotify.services.va_gov.api_key
-        callback_options = {}
+        callback_options = {
+          callback: 'TestTeam::TestClass',
+          metadata: 'optional_test_metadata'
+        }
 
         expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
 
