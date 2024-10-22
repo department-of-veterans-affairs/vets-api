@@ -14,8 +14,7 @@ module AskVAApi
       end
 
       def call(inquiry_params:)
-        payload = build_payload(inquiry_params)
-        post_data(payload)
+        post_data(inquiry_params)
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
@@ -24,12 +23,6 @@ module AskVAApi
 
       def default_service
         Crm::Service.new(icn:)
-      end
-
-      def build_payload(inquiry_params)
-        translated_payload = params_translator(inquiry_params).call
-        translated_payload[:VeteranICN] = icn
-        translated_payload
       end
 
       def post_data(payload)
