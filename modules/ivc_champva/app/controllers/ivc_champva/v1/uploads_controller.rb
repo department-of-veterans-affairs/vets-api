@@ -20,22 +20,10 @@ module IvcChampva
           form_id = get_form_id
           Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
-          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
 
-          # Ensure statuses is always treated as an array
-          statuses = Array(statuses)
+          statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
 
-          # Retry attempt if specific error message is found
-          if statuses.any? do |status|
-            status.is_a?(String) && status.include?('No such file or directory @ rb_sysopen')
-          end
-            file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-            statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
-            statuses = Array(statuses)
-          end
-
-          response = build_json(statuses, error_message)
+          response = build_json(Array(statuses), error_message)
 
           if @current_user && response[:status] == 200
             InProgressForm.form_for_user(params[:form_number], @current_user)&.destroy!
@@ -61,6 +49,20 @@ module IvcChampva
       end
 
       private
+
+      def handle_file_uploads(form_id, parsed_form_data)
+        file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+        statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+        statuses = Array(statuses)
+
+        # Retry attempt if specific error message is found
+        if statuses.any? { |status| status.is_a?(String) && status.include?('No such file or directory @ rb_sysopen') }
+          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+          statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+        end
+
+        [statuses, error_message]
+      end
 
       def get_attachment_ids_and_form(parsed_form_data)
         form_id = get_form_id
