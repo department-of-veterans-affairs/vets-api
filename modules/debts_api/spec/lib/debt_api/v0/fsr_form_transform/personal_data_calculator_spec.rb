@@ -28,6 +28,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::PersonalDataCalculator, type: :se
         calculator_data = calculator.get_personal_data
 
         expect(calculator_data['address']['addresslineTwo']).to eq('')
+        expect(calculator_data['address']['addresslineThree']).to eq('')
       end
     end
   end
