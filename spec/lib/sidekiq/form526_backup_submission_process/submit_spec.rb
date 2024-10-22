@@ -53,10 +53,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       end
 
       context 'when send_backup_submission_exhaustion_email_notice is enabled' do
-        around do |spec|
+        before do
           Flipper.enable(:send_backup_submission_exhaustion_email_notice)
-          spec.run
-          Flipper.disable(:send_backup_submission_exhaustion_email_notice)
         end
 
         it 'remediates the submission via an email notification' do
@@ -69,6 +67,10 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       end
 
       context 'when send_backup_submission_exhaustion_email_notice is disabled' do
+        before do
+          Flipper.disable(:send_backup_submission_exhaustion_email_notice)
+        end
+
         it 'does not remediates the submission via an email notification' do
           args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
           subject.within_sidekiq_retries_exhausted_block(args) do
