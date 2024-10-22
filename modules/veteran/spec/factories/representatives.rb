@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :representative, class: 'Veteran::Service::Representative' do
+  factory :veteran_representative, class: 'Veteran::Service::Representative' do
     representative_id { '1234' }
     poa_codes { ['A1Q'] }
     first_name { 'Bob' }
     last_name { 'Law' }
-    phone_number { '1234567890' }
-    phone { '222-222-2222' }
+    phone_number { Faker::PhoneNumber.phone_number }
+    phone { Faker::PhoneNumber.phone_number }
     email { 'example@email.com' }
     user_types { ['attorney'] }
 

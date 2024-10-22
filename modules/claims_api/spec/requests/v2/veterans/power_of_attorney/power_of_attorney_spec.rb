@@ -18,12 +18,12 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
 
   describe 'PowerOfAttorney' do
     before do
-      FactoryBot.create(:representative, representative_id: '12345', poa_codes: [individual_poa_code],
-                                         first_name: 'Abraham', last_name: 'Lincoln')
-      FactoryBot.create(:representative, representative_id: '67890', poa_codes: [organization_poa_code],
-                                         first_name: 'George', last_name: 'Washington')
-      FactoryBot.create(:organization, poa: organization_poa_code,
-                                       name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
+      FactoryBot.create(:veteran_representative, representative_id: '12345', poa_codes: [individual_poa_code],
+                                                 first_name: 'Abraham', last_name: 'Lincoln')
+      FactoryBot.create(:veteran_representative, representative_id: '67890', poa_codes: [organization_poa_code],
+                                                 first_name: 'George', last_name: 'Washington')
+      FactoryBot.create(:veteran_organization, poa: organization_poa_code,
+                                               name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
     end
 
     describe 'show' do
@@ -45,8 +45,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
             context 'when the current poa is not associated with an organization' do
               context 'when there is one unique representative_id' do
                 before do
-                  create(:representative, representative_id: '12345', first_name: 'Robert', last_name: 'Lawlaw',
-                                          poa_codes: ['ABC'], phone: '321-654-0987', created_at: Time.zone.now)
+                  create(:veteran_representative, representative_id: '12345', first_name: 'Robert', last_name: 'Lawlaw',
+                                                  poa_codes: ['ABC'], phone: '321-654-0987', created_at: Time.zone.now)
                 end
 
                 it 'returns the most recently created representative' do
@@ -77,8 +77,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
 
                 context 'when there are multiple unique representative_ids' do
                   before do
-                    create(:representative, representative_id: '67890', poa_codes: ['EDF'])
-                    create(:representative, representative_id: '54321', poa_codes: ['EDF'])
+                    create(:veteran_representative, representative_id: '67890', poa_codes: ['EDF'])
+                    create(:veteran_representative, representative_id: '54321', poa_codes: ['EDF'])
                   end
 
                   it 'returns a meaningful 422' do

@@ -1,15 +1,12 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :representative, class: 'Veteran::Service::Representative' do
-    representative_id { '1234' }
-    poa_codes { ['A1Q'] }
-    first_name { 'Bob' }
-    last_name { 'Law' }
-    phone_number { '1234567890' }
-    phone { '222-222-2222' }
-    email { 'example@email.com' }
-    user_types { ['attorney'] }
+  factory :veteran_organization, class: 'Veteran::Service::Organization' do
+    poa { Faker::Alphanumeric.alphanumeric(number: 3) }
+    phone { Faker::PhoneNumber.phone_number }
+    name { 'Org Name' }
+    created_at { Time.zone.now }
+    updated_at { Time.zone.now }
 
     trait :with_address do
       address_line1 { '123 East Main St' }
@@ -27,14 +24,6 @@ FactoryBot.define do
       lat { '39' }
       long { '-75' }
       location { "POINT(#{long} #{lat})" }
-    end
-
-    trait :vso do
-      user_types { ['veteran_service_officer'] }
-    end
-
-    trait :claim_agents do
-      user_types { ['claim_agents'] }
     end
   end
 end

@@ -3,10 +3,7 @@
 FactoryBot.define do
   factory :organization, class: 'Veteran::Service::Organization' do
     poa { Faker::Alphanumeric.alphanumeric(number: 3) }
-    phone { Faker::PhoneNumber.phone_number }
     name { 'Org Name' }
-    created_at { Time.zone.now }
-    updated_at { Time.zone.now }
 
     trait :with_address do
       address_line1 { '123 East Main St' }

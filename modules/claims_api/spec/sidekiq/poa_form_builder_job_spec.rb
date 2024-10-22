@@ -74,7 +74,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
   describe 'generating the filled and signed pdf' do
     context 'when representative is an individual' do
       before do
-        FactoryBot.create(:representative, representative_id: '12345', poa_codes: [poa_code.to_s]).save!
+        FactoryBot.create(:veteran_representative, representative_id: '12345', poa_codes: [poa_code.to_s]).save!
       end
 
       it 'generates the pdf to match example' do
@@ -103,8 +103,8 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
 
     context 'when representative is part of an organization' do
       before do
-        FactoryBot.create(:representative, representative_id: '67890', poa_codes: [poa_code.to_s]).save!
-        FactoryBot.create(:organization, poa: 'ABC', name: 'Some org')
+        FactoryBot.create(:veteran_representative, representative_id: '67890', poa_codes: [poa_code.to_s]).save!
+        FactoryBot.create(:veteran_organization, poa: 'ABC', name: 'Some org')
       end
 
       it 'generates the pdf to match example' do
@@ -133,8 +133,8 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
 
     context 'when signature has prefix' do
       before do
-        FactoryBot.create(:representative, representative_id: '67890', poa_codes: ['ABC']).save!
-        FactoryBot.create(:organization, poa: 'ABC', name: 'Some org')
+        FactoryBot.create(:veteran_representative, representative_id: '67890', poa_codes: ['ABC']).save!
+        FactoryBot.create(:veteran_organization, poa: 'ABC', name: 'Some org')
         power_of_attorney.update(form_data: power_of_attorney.form_data.deep_merge(
           {
             signatures: {
