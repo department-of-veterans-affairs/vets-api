@@ -3,7 +3,15 @@
 module OtherTeam
   class OtherForm
     def self.call(notification)
-      notification
+      true
+    end
+  end
+end
+
+module NonCompliantModule
+  class NonCompliantClass
+    def self.not_call(notification)
+      false
     end
   end
 end

@@ -13,6 +13,12 @@ module VANotify
         rescue => e
           Rails.logger.info(e.message)
         end
+      else
+        begin
+          Rails.logger.info(message: 'The callback class does not implement #call')
+        ensure
+          Rails.logger.info(source: notification.source_location)
+        end
       end
     rescue => e
       Rails.logger.info(source: notification.source_location, status: notification.status, error_message: e.message)
