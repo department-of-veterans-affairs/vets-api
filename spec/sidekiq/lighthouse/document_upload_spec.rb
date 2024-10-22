@@ -2,50 +2,26 @@
 
 require 'rails_helper'
 
-require 'evss/document_upload'
+require 'lighthouse/document_upload'
 
-RSpec.describe EVSS::DocumentUpload, type: :job do
+RSpec.describe Lighthouse::DocumentUpload, type: :job do
   subject { described_class }
 
-  let(:client_stub) { instance_double('EVSS::DocumentsService') }
   let(:notify_client_stub) { instance_double('VaNotify::Service') }
-  let(:uploader_stub) { instance_double('EVSSClaimDocumentUploader') }
-
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }
-  let(:user) { FactoryBot.create(:user, :loa3) }
   let(:filename) { 'doctors-note.pdf' }
-  let(:document_data) do
-    EVSSClaimDocument.new(
-      evss_claim_id: 189_625,
-      file_name: filename,
-      tracked_item_id: 33,
-      document_type: 'L023'
-    )
-  end
-  let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
 
   let(:issue_instant) { Time.now.to_i }
   let(:args) do
     {
-      'args' => [{ 'va_eauth_firstName' => 'Bob' }, user_account_uuid, { 'file_name' => filename }],
+      'args' => [user_account.icn, { 'file_name' => filename, 'first_name' => 'Bob' }],
       'created_at' => issue_instant
     }
   end
 
   before do
     allow(Rails.logger).to receive(:info)
-  end
-
-  it 'retrieves the file and uploads to EVSS' do
-    allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
-    allow(EVSS::DocumentsService).to receive(:new) { client_stub }
-    file = File.read("#{::Rails.root}/spec/fixtures/files/#{filename}")
-    allow(uploader_stub).to receive(:retrieve_from_store!).with(filename) { file }
-    allow(uploader_stub).to receive(:read_for_upload) { file }
-    expect(uploader_stub).to receive(:remove!).once
-    expect(client_stub).to receive(:upload).with(file, document_data)
-    described_class.new.perform(auth_headers, user.uuid, document_data.to_serializable_hash)
   end
 
   context 'when cst_send_evidence_failure_emails is enabled' do
@@ -79,7 +55,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
 
         expect(Rails.logger)
           .to receive(:info)
-          .with('EVSS::DocumentUpload exhaustion handler email sent')
+          .with('Lighthouse::DocumentUpload exhaustion handler email sent')
       end
     end
   end
