@@ -15,7 +15,8 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
              state_code: 'OR',
              zip_code: '12345',
              phone: '5555555555',
-             email: 'representative@example.com')
+             email: 'representative@example.com',
+             individual_type: 'attorney')
     end
     let(:params) do
       {
@@ -68,24 +69,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
             }
           },
           representative: {
-            id: representative.id,
-            type: 'ATTORNEY',
-            phone: '5555555555',
-            email: 'representative@example.com',
-            name: {
-              first: 'John',
-              middle: 'M',
-              last: 'Representative'
-            },
-            address: {
-              address_line1: '123 Fake Representative St',
-              address_line2: '',
-              city: 'Portland',
-              state_code: 'OR',
-              country: 'US',
-              zip_code: '12345',
-              zip_code_suffix: '6789'
-            }
+            id: representative.id
           }
         }
       }

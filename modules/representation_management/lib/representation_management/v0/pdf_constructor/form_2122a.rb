@@ -171,7 +171,9 @@ module RepresentationManagement
             "#{PAGE2_KEY}.MailingAddress_ApartmentOrUnitNumber[2]": data.representative.address_line2,
             "#{PAGE2_KEY}.MailingAddress_City[2]": data.representative.city,
             "#{PAGE2_KEY}.MailingAddress_StateOrProvince[2]": data.representative.state_code,
-            "#{PAGE2_KEY}.MailingAddress_Country[2]": normalize_country_code_to_alpha2(data.representative.country_code_iso3),
+            "#{PAGE2_KEY}.MailingAddress_Country[2]": normalize_country_code_to_alpha2(
+              data.representative.country_code_iso3
+            ),
             "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[2]": data.representative.zip_code,
             "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[2]": data.representative.zip_suffix,
             # Representative Phone Number

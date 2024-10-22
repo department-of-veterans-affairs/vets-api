@@ -4,24 +4,6 @@ module RepresentationManagement
   module V0
     class PdfGenerator2122aController < RepresentationManagement::V0::PdfGeneratorBaseController
       def create
-        # TODO: Remove all this!
-        if AccreditedIndividual.count.zero?
-          FactoryBot.create(:accredited_individual,
-                            first_name: 'John',
-                            middle_initial: 'M',
-                            last_name: 'Representative',
-                            address_line1: '123 Fake Representative St',
-                            city: 'Portland',
-                            state_code: 'OR',
-                            zip_code: '12345',
-                            country_code_iso3: 'USA',
-                            phone: '5555555555',
-                            email: 'representative@example.com',
-                            individual_type: 'attorney')
-        end
-        FactoryBot.create(:accredited_organization, name: 'Best VSO') if AccreditedOrganization.count.zero?
-        p 'RepresentationManagement::V0::PdfGenerator2122Controller#create ' * 10, AccreditedIndividual.first.inspect,
-          AccreditedOrganization.first.inspect
         form = RepresentationManagement::Form2122aData.new(flatten_form_params)
 
         if form.valid?
@@ -57,30 +39,11 @@ module RepresentationManagement
           conditions_of_appointment: form_params[:conditions_of_appointment]
         }.merge(flatten_veteran_params(form_params))
           .merge(flatten_claimant_params(form_params))
-          .merge(flatten_representative_params(form_params))
       end
 
       def flatten_veteran_params(veteran_params)
         super.merge(veteran_service_number: veteran_params.dig(:veteran, :service_number),
                     veteran_service_branch: veteran_params.dig(:veteran, :service_branch))
-      end
-
-      def flatten_representative_params(representative_params)
-        {
-          representative_first_name: representative_params.dig(:representative, :name, :first),
-          representative_middle_initial: representative_params.dig(:representative, :name, :middle),
-          representative_last_name: representative_params.dig(:representative, :name, :last),
-          representative_type: representative_params.dig(:representative, :type)&.upcase,
-          representative_address_line1: representative_params.dig(:representative, :address, :address_line1),
-          representative_address_line2: representative_params.dig(:representative, :address, :address_line2),
-          representative_city: representative_params.dig(:representative, :address, :city),
-          representative_state_code: representative_params.dig(:representative, :address, :state_code),
-          representative_country: representative_params.dig(:representative, :address, :country),
-          representative_zip_code: representative_params.dig(:representative, :address, :zip_code),
-          representative_zip_code_suffix: representative_params.dig(:representative, :address, :zip_code_suffix),
-          representative_phone: representative_params.dig(:representative, :phone),
-          representative_email_address: representative_params.dig(:representative, :email)
-        }
       end
     end
   end
