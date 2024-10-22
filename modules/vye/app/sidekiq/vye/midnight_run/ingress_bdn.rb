@@ -7,6 +7,7 @@ module Vye
       sidekiq_options retry: 5
 
       def perform
+        Rails.logger.info 'Vye::MidnightRun::IngressBdn starting for BdnClone'
         bdn_clone = Vye::BdnClone.create!(transact_date: Time.zone.today)
         bdn_clone_id = bdn_clone.id
 
@@ -14,8 +15,8 @@ module Vye
 
         batch = Sidekiq::Batch.new
         batch.description = 'Ingress BDN Clone feed as chunked files'
-        batch.on(:complete, "#{self.class.name}#on_complete", 'bdn_clone_id' => bdn_clone_id)
-        batch.on(:success, "#{self.class.name}#on_success", 'bdn_clone_id' => bdn_clone_id)
+        batch.on(:complete, 'Vye::MidnightRun::IngressBdn#on_complete', 'bdn_clone_id' => bdn_clone_id)
+        batch.on(:success, 'Vye::MidnightRun::IngressBdn#on_success', 'bdn_clone_id' => bdn_clone_id)
         batch.jobs do
           chunks.each_with_index do |chunk, index|
             offset, block_size, filename = %i[offset block_size filename].map { |key| chunk.send(key) }
@@ -29,10 +30,10 @@ module Vye
 
         message =
           if status.failures.zero?
-            "#{self.class.name}: All chunks have ran for BdnClone(#{bdn_clone_id}), there were no failures."
+            "Vye::MidnightRun::IngressBdn: All chunks have ran for BdnClone(#{bdn_clone_id}), there were no failures."
           else
             <<~MESSAGE
-              #{self.class.name}: All chunks have ran for BdnClone(#{bdn_clone_id}),
+              Vye::MidnightRun::IngressBdn: All chunks have ran for BdnClone(#{bdn_clone_id}),
               there were #{status.failures} failure(s).
             MESSAGE
           end
@@ -45,7 +46,7 @@ module Vye
         bdn_clone = BdnClone.find(bdn_clone_id)
         bdn_clone.update!(is_active: false)
 
-        Rails.logger.info "#{self.class.name}: Ingress completed successfully for BdnClone(#{bdn_clone_id})"
+        Rails.logger.info "Vye::MidnightRun::IngressBdn completed successfully for BdnClone(#{bdn_clone_id})"
       end
     end
   end

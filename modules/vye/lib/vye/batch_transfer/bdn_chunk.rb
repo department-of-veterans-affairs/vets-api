@@ -15,6 +15,7 @@ module Vye
       end
 
       def import
+        Rails.logger.info "Vye::BatchTransfer::BdnChunk: import starting for #{@filename}"
         clear_existing_records
 
         locator = offset
@@ -35,7 +36,8 @@ module Vye
           end
         end
 
-        Rails.logger.info "BDN Import completed: success: #{counts[:success]}, failure: #{counts[:failure]}"
+        Rails.logger.info "Vye::BatchTransfer::BdnChunk: import finished for #{@filename}: " \
+                          "success: #{counts[:success]}, failure: #{counts[:failure]}"
 
         counts
       end

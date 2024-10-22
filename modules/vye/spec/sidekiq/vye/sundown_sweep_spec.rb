@@ -4,6 +4,8 @@ require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
 describe Vye::SundownSweep, type: :worker do
+  let(:logger) { Rails.logger }
+
   before do
     Sidekiq::Job.clear_all
   end
@@ -20,11 +22,17 @@ describe Vye::SundownSweep, type: :worker do
     expect(Vye::SundownSweep::PurgeStaleVerifications).to have_enqueued_sidekiq_job
   end
 
+  describe 'normal logging' do
+    include_examples 'logging behavior', [
+      { log_level: :info, text: 'Vye::SundownSweep starting' },
+      { log_level: :info, text: 'Vye::SundownSweep finished' }
+    ]
+  end
+
   # Exceptions are tested one by one rather than all at once because it's easier to debug
   # if one of them is broken rather than trying to figure out which one in the loop is broken.
   describe 'exception handling' do
     let(:s3_client) { Aws::S3::Client.new(stub_responses: true) }
-    let(:logger) { Rails.logger }
 
     before do
       allow(Aws::S3::Client).to receive(:new).and_return(s3_client)

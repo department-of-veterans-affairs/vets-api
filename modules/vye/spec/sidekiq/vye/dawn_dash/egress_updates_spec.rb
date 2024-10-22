@@ -20,4 +20,12 @@ describe Vye::DawnDash::EgressUpdates, type: :worker do
 
     described_class.drain
   end
+
+  # describe 'logging' do
+  #   allow 
+  #   include_examples 'logging behavior', [
+  #     { log_level: :info, text: 'Vye::DawnDash::EgressUpdates starting' },
+  #     { log_level: :info, text: 'Vye::DawnDash::EgressUpdates finished' }
+  #   ]
+  # end
 end

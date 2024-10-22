@@ -1,0 +1,7 @@
+{
+    "claimantId" : "600010259",
+    "delimitingDate" : "2022-02-09",
+    "enrollmentVerifications" : "['enrollv1', enrollv2', 'enrollv3']",
+    "verifiedDetails" : "['verifiedd1', 'verifiedd2', 'verifiedd3']",
+    "paymentOnHold" : false
+}

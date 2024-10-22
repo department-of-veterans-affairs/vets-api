@@ -29,15 +29,21 @@ module Vye
       public
 
       def address_changes_upload
+        Rails.logger.info 'Vye::BatchTransfer::EgressFiles.address_changes_upload starting'
         upload_report(address_changes_filename, &AddressChange.method(:write_report))
+        Rails.logger.info 'Vye::BatchTransfer::EgressFiles.address_changes_upload finished'
       end
 
       def direct_deposit_upload
+        Rails.logger.info 'Vye::BatchTransfer::EgressFiles.direct_deposit_upload starting'
         upload_report(direct_deposit_filename, &DirectDepositChange.method(:write_report))
+        Rails.logger.info 'Vye::BatchTransfer::EgressFiles.direct_deposit_upload finished'
       end
 
       def verification_upload
+        Rails.logger.info 'Vye::BatchTransfer::EgressFiles.verification_upload starting'
         upload_report(verification_filename, &Verification.method(:write_report))
+        Rails.logger.info 'Vye::BatchTransfer::EgressFiles.verification_upload finished'
       end
     end
   end

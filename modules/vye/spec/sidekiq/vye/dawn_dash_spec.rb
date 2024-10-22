@@ -17,4 +17,11 @@ describe Vye::DawnDash, type: :worker do
 
     expect(Vye::DawnDash::ActivateBdn).to have_enqueued_sidekiq_job
   end
+
+  describe 'logging' do
+    include_examples 'logging behavior', [
+      { log_level: :info, text: 'Vye::DawnDash starting' },
+      { log_level: :info, text: 'Vye::DawnDash finished' }
+    ]
+  end
 end

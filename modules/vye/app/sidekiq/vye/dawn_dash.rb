@@ -5,7 +5,9 @@ module Vye
     include Sidekiq::Worker
 
     def perform
+      Rails.logger.info 'Vye::DawnDash starting'
       ActivateBdn.perform_async
+      Rails.logger.info 'Vye::DawnDash finished'
     end
   end
 end

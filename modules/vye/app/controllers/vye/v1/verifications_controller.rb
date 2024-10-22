@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'dgib/verification_record/service'
+
 module Vye
   module Vye::V1
     class Vye::V1::VerificationsController < Vye::V1::ApplicationController
@@ -11,6 +13,28 @@ module Vye
 
       # this is in the models concern NeedsEnrollmentVerification and is aliased to enrollments
       delegate :pending_verifications, to: :user_info
+
+      def get_verification_record(claimant_id)
+        response = verification_service.get_verification_record(claimant_id)
+        serializer = Vye::ClaimantVerificationSerializer
+
+        case response.status
+        when 200
+          render json: serializer.new(response)
+        when 204
+          head :no_content
+        when 403
+          head :forbidden
+        when 404
+          head :not_found
+        when 422
+          head :unprocessable_entity
+        when 500
+          head :internal_server_error
+        else
+          head :server_error
+        end
+      end
 
       def create
         authorize user_info, policy_class: UserInfoPolicy
@@ -26,6 +50,10 @@ module Vye
       end
 
       private
+
+      def verification_service
+        Vye::DGIB::VerificationRecord::Service.new(@current_user)
+      end
 
       def cert_through_date
         # act_end is defined as timestamp without time zone

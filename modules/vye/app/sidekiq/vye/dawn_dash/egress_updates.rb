@@ -7,10 +7,12 @@ module Vye
       sidekiq_options retry: 0
 
       def perform
+        Rails.logger.info 'Vye::DawnDash::EgressUpdates starting'
         Vye::BatchTransfer::EgressFiles.address_changes_upload
         Vye::BatchTransfer::EgressFiles.direct_deposit_upload
         Vye::BatchTransfer::EgressFiles.verification_upload
         BdnClone.clear_export_ready!
+        Rails.logger.info 'Vye::DawnDash::EgressUpdates completed'
       end
     end
   end

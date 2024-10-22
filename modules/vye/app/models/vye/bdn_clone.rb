@@ -22,14 +22,16 @@ module Vye
     validates :transact_date, presence: true
 
     def self.activate_injested!
+      Rails.logger.info 'Vye::BdnClone.activate_injested! starting'
       injested = where(is_active: false).first
 
       if injested.present?
         injested.activate!
       else
-        Rails.logger.error "#{self.class.name}: nothing found to activate"
+        Rails.logger.error 'Vye::BdnClone: nothing found to activate'
         raise BndCloneNotFound
       end
+      Rails.logger.info 'Vye::BdnClone.activate_injested! finished'
     end
 
     def self.clear_export_ready!
@@ -38,7 +40,7 @@ module Vye
 
     def activate!
       user_info_count = 0
-      Rails.logger.info "#{self.class.name}: proceeding with activation"
+      Rails.logger.info 'Vye::BdnClone: proceeding with activation'
       transaction do
         old = self.class.find_by(is_active: true)
 
@@ -54,10 +56,10 @@ module Vye
         user_info_count = UserInfo.where(bdn_clone_id: id).update_all(bdn_clone_active: true)
         # rubocop:enable Rails/SkipsModelValidations
       end
-      Rails.logger.info "#{self.class.name}: activation complete with #{user_info_count} user_info records"
+      Rails.logger.info "Vye::BdnClone: activation complete with #{user_info_count} user_info records"
       user_info_count
     rescue
-      Rails.logger.error "#{self.class.name}: there was a problem during activation"
+      Rails.logger.error 'Vye::BdnClone: there was a problem during activation'
       raise
     end
   end

@@ -17,4 +17,11 @@ describe Vye::MidnightRun, type: :worker do
 
     expect(Vye::MidnightRun::IngressBdn).to have_enqueued_sidekiq_job
   end
+
+  describe 'logging' do
+    include_examples 'logging behavior', [
+      { log_level: :info, text: 'Vye::MidnightRun starting' },
+      { log_level: :info, text: 'Vye::MidnightRun finished' }
+    ]
+  end
 end
