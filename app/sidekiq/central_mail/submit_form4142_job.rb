@@ -146,15 +146,15 @@ module CentralMail
     end
 
     def upload_to_lighthouse
+      log_info = { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id }
+
       Rails.logger.info(
         'Successful Form4142 Upload Intake UUID aquired from Lighthouse',
-        { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id }
+        log_info
       )
 
       payload = payload_hash(lighthouse_service.location)
       lighthouse_service.upload_doc(**payload)
-
-      log_info = { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id }
 
       if Flipper.enabled?(POLLING_FLIPPER_KEY)
         form526_submission = Form526Submission.find(@submission_id)
