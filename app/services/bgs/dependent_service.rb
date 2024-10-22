@@ -66,7 +66,7 @@ module BGS
     end
 
     def submit_pdf_job(claim:, encrypted_vet_info:)
-      Rails.logger.debug("BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob",
+      Rails.logger.debug('BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
                          { claim_id: claim.id })
       VBMS::SubmitDependentsPdfJob.perform_sync(
         claim.id,
