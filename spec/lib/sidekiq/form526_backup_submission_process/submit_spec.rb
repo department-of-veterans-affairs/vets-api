@@ -36,8 +36,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     end
   end
 
-  context 'failures' do
-    describe 'when all retries are exhausted' do
+  describe 'failures' do
+    context 'when all retries are exhausted' do
       let!(:form526_submission) { create(:form526_submission) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
