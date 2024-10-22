@@ -2126,3 +2126,6 @@ modules/accredited_representative_portal/app/services/accredited_representative_
 config/form_profile_mappings/FORM-MOCK-AE-DESIGN-PATTERNS.yml @department-of-veterans-affairs/tmf-auth-exp-design-patterns @department-of-veterans-affairs/backend-review-group
 postman/vets-api.pm-collection.json @department-of-veterans-affairs/backend-review-group
 postman/Dockerfile @department-of-veterans-affairs/backend-review-group
+app/models/secondary_appeal_form.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
+spec/models/secondary_appeal_form_spec.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
+spec/factories/secondary_appeal_forms.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
