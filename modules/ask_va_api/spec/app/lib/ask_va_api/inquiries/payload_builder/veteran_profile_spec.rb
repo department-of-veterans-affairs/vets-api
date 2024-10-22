@@ -47,7 +47,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
         Country: nil,
         Street: nil,
         City: nil,
-        State: { Name: 'Texas', StateCode: 'TX' },
+        State: { Name: 'Texas', StateCode: 'Texas' },
         ZipCode: params[:veteran_postal_code],
         DateOfBirth: params[:about_the_veteran][:date_of_birth],
         BranchOfService: params[:about_the_veteran][:branch_of_service],
