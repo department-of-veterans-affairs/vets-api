@@ -71,7 +71,7 @@ module SimpleFormsApi
 
       def create_form_submission_attempt(uuid)
         form_submission = create_form_submission(uuid)
-        FormSubmissionAttempt.create(form_submission:)
+        FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
       end
 
       def create_form_submission(uuid)

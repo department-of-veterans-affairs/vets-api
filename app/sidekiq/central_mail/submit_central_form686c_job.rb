@@ -83,7 +83,7 @@ module CentralMail
         saved_claim: claim,
         user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
       )
-      FormSubmissionAttempt.create(form_submission:)
+      FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: intake_uuid)
     end
 
     def get_files_from_claim

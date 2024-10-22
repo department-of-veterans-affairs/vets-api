@@ -151,7 +151,8 @@ module Lighthouse
       form_submission[:user_account] = @user_account unless @user_account_uuid.nil?
 
       @form_submission = FormSubmission.create(**form_submission)
-      @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission)
+      @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission,
+                                                              benefits_intake_uuid: @intake_service.uuid)
 
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
     end

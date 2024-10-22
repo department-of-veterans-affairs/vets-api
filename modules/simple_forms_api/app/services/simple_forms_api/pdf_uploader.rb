@@ -21,7 +21,7 @@ module SimpleFormsApi
         form_data: params.to_json,
         user_account: @current_user&.user_account
       )
-      FormSubmissionAttempt.create(form_submission:)
+      FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid_and_location[:uuid])
 
       Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
       Rails.logger.info(

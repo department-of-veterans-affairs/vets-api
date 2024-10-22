@@ -168,7 +168,8 @@ module Lighthouse
         saved_claim: @claim,
         saved_claim_id: @claim.id
       )
-      @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
+      @form_submission_attempt = FormSubmissionAttempt.create(form_submission:,
+                                                              benefits_intake_uuid: @lighthouse_service.uuid)
     end
 
     def cleanup_file_paths
