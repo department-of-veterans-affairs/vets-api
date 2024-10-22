@@ -45,17 +45,17 @@ jobs:
         run: |
           echo "ready_for_review=true" >> $GITHUB_OUTPUT
 
-      # If require-backend-approval label is present, get reviews
-      - name: Check backend-review-group approval status
+      # If backend-review-group approval is required, get reviews
+      - name: Get PR Reviews
         if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
-        id: check_backend_review_group_approval_status
+        id: get_pr_reviews
         uses: octokit/request-action@v2.x
         with:
           route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      #
+      # If backend-review-group approval is required, get team members
       - name: Get backend-review-group members
         if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: get_team_members
@@ -65,6 +65,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
+      # If backend-review-group approval is required, confirm an approval exists from at least one BE team member
       - name: Verify backend-review-group approval
         if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: verify_approval
@@ -75,7 +76,7 @@ jobs:
           )
 
           APPROVALS=$(cat <<'EOF' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l
-          ${{ steps.check_backend_review_group_approval_status.outputs.data }}
+          ${{ steps.get_pr_reviews.outputs.data }}
           EOF
           )
 
@@ -99,6 +100,7 @@ jobs:
           labels: |
             ready-for-backend-review
 
+      # Remove ready-for-backend-review label if draft or any failures from previous steps
       - name: Remove Review label
         uses: actions-ecosystem/action-remove-labels@v1
         if: |
