@@ -16,7 +16,7 @@ module ClaimsApi
       # it queues a job to update the POA code in BGS, as well.
       #
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-      def perform(power_of_attorney_id, form_number = nil, action:) # rubocop:disable Metrics/MethodLength
+      def perform(power_of_attorney_id, action, form_number = nil) # rubocop:disable Metrics/MethodLength
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
         rep_or_org = form_number == '2122A' ? 'representative' : 'serviceOrganization'
         poa_code = power_of_attorney.form_data&.dig(rep_or_org, 'poaCode')
