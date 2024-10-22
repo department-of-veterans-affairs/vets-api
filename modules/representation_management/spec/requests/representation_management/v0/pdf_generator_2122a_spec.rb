@@ -5,6 +5,18 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/pdf_generator2122a' }
+    let(:representative) do
+      create(:accredited_individual,
+             first_name: 'First',
+             middle_initial: 'M',
+             last_name: 'Last',
+             address_line1: '789 Rep St',
+             city: 'RepCity',
+             state_code: 'RC',
+             zip_code: '54321',
+             phone: '5555555555',
+             email: 'rep@rep.com')
+    end
     let(:params) do
       {
         pdf_generator2122a: {
@@ -56,6 +68,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
             }
           },
           representative: {
+            id: representative.id,
             type: 'ATTORNEY',
             phone: '5555555555',
             email: 'rep@rep.com',
@@ -95,7 +108,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
     context 'when triggering validation errors' do
       context 'when submitting without the representative first name for a single validation error' do
         before do
-          params[:pdf_generator2122a][:representative][:name][:first] = nil
+          params[:pdf_generator2122a][:veteran][:name][:first] = nil
           post(base_path, params:)
         end
 
@@ -104,7 +117,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
         end
 
         it 'responds with the expected body' do
-          expect(response.body).to eq({ errors: ["Representative first name can't be blank"] }.to_json)
+          expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
         end
       end
 
