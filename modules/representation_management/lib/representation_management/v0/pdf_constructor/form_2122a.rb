@@ -84,9 +84,9 @@ module RepresentationManagement
             # Veteran File Number
             "#{PAGE1_KEY}.Veterans_Service_Number_If_Applicable[0]": data.veteran_va_file_number,
             # Veteran DOB
-            "#{PAGE1_KEY}.Date_Of_Birth_Month[0]": data.veteran_date_of_birth.split('/').first,
-            "#{PAGE1_KEY}.Date_Of_Birth_Day[0]": data.veteran_date_of_birth.split('/').second,
-            "#{PAGE1_KEY}.Date_Of_Birth_Year[0]": data.veteran_date_of_birth.split('/').last,
+            "#{PAGE1_KEY}.Date_Of_Birth_Month[0]": data.veteran_date_of_birth.split('-').second,
+            "#{PAGE1_KEY}.Date_Of_Birth_Day[0]": data.veteran_date_of_birth.split('-').last,
+            "#{PAGE1_KEY}.Date_Of_Birth_Year[0]": data.veteran_date_of_birth.split('-').first,
             # Veteran Service Number
             "#{PAGE1_KEY}.Veterans_Service_Number_If_Applicable[1]": data.veteran_service_number,
             # Item 6 Service Branch
@@ -122,9 +122,9 @@ module RepresentationManagement
             "#{PAGE1_KEY}.Claimants_Middle_Initial[0]": data.claimant_middle_initial,
             "#{PAGE1_KEY}.Claimants_Last_Name[0]": data.claimant_last_name,
             # Claimant DOB
-            "#{PAGE1_KEY}.Claimants_Date_Of_Birth_Month[0]": data.claimant_date_of_birth.split('/').first,
-            "#{PAGE1_KEY}.Date_Of_Birth_Day[1]": data.claimant_date_of_birth.split('/').second,
-            "#{PAGE1_KEY}.Date_Of_Birth_Year[1]": data.claimant_date_of_birth.split('/').last,
+            "#{PAGE1_KEY}.Claimants_Date_Of_Birth_Month[0]": data.claimant_date_of_birth.split('-').second,
+            "#{PAGE1_KEY}.Date_Of_Birth_Day[1]": data.claimant_date_of_birth.split('-').last,
+            "#{PAGE1_KEY}.Date_Of_Birth_Year[1]": data.claimant_date_of_birth.split('-').first,
             # Claimant Relationship
             "#{PAGE1_KEY}.RelationshipToVeteran[0]": data.claimant_relationship
           }

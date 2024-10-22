@@ -87,9 +87,9 @@ module RepresentationManagement
             # Veteran File Number
             "#{PAGE1_KEY}.VAFileNumber[0]": data.veteran_va_file_number,
             # Veteran DOB
-            "#{PAGE1_KEY}.DOBmonth[0]": data.veteran_date_of_birth.split('/').first,
-            "#{PAGE1_KEY}.DOBday[0]": data.veteran_date_of_birth.split('/').second,
-            "#{PAGE1_KEY}.DOByear[0]": data.veteran_date_of_birth.split('/').last,
+            "#{PAGE1_KEY}.DOBmonth[0]": data.veteran_date_of_birth.split('-').second,
+            "#{PAGE1_KEY}.DOBday[0]": data.veteran_date_of_birth.split('-').last,
+            "#{PAGE1_KEY}.DOByear[0]": data.veteran_date_of_birth.split('-').first,
             # Veteran Service Number
             "#{PAGE1_KEY}.VeteransServiceNumber_If_Applicable[0]": \
             data.veteran_service_number,
@@ -129,9 +129,9 @@ module RepresentationManagement
             "#{PAGE1_KEY}.Claimants_MiddleInitial1[0]": data.claimant_middle_initial,
             "#{PAGE1_KEY}.Claimants_LastName[0]": data.claimant_last_name,
             # Claimant DOB
-            "#{PAGE1_KEY}.DOBmonth[1]": data.claimant_date_of_birth.split('/').first,
-            "#{PAGE1_KEY}.DOBday[1]": data.claimant_date_of_birth.split('/').second,
-            "#{PAGE1_KEY}.DOByear[1]": data.claimant_date_of_birth.split('/').last,
+            "#{PAGE1_KEY}.DOBmonth[1]": data.claimant_date_of_birth.split('-').second,
+            "#{PAGE1_KEY}.DOBday[1]": data.claimant_date_of_birth.split('-').last,
+            "#{PAGE1_KEY}.DOByear[1]": data.claimant_date_of_birth.split('-').first,
             # Claimant Relationship
             "#{PAGE1_KEY}.Relationship_To_Veteran[0]": data.claimant_relationship
           }

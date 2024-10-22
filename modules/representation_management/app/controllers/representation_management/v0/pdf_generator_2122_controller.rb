@@ -7,15 +7,15 @@ module RepresentationManagement
         # TODO: Remove all this!
         if AccreditedIndividual.count.zero?
           FactoryBot.create(:accredited_individual,
-                            first_name: 'First',
+                            first_name: 'John',
                             middle_initial: 'M',
-                            last_name: 'Last',
-                            address_line1: '789 Rep St',
-                            city: 'RepCity',
-                            state_code: 'RC',
-                            zip_code: '54321',
+                            last_name: 'Representative',
+                            address_line1: '123 Fake Representative St',
+                            city: 'Portland',
+                            state_code: 'OR',
+                            zip_code: '12345',
                             phone: '5555555555',
-                            email: 'rep@rep.com')
+                            email: 'representative@example.com')
         end
         FactoryBot.create(:accredited_organization, name: 'Best VSO') if AccreditedOrganization.count.zero?
         p 'RepresentationManagement::V0::PdfGenerator2122Controller#create ' * 10, AccreditedIndividual.first.inspect,
