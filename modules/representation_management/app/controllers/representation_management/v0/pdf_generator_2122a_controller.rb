@@ -4,6 +4,23 @@ module RepresentationManagement
   module V0
     class PdfGenerator2122aController < RepresentationManagement::V0::PdfGeneratorBaseController
       def create
+        # TODO: Remove all this!
+        if AccreditedIndividual.count.zero?
+          FactoryBot.create(:accredited_individual,
+                            first_name: 'John',
+                            middle_initial: 'M',
+                            last_name: 'Representative',
+                            address_line1: '123 Fake Representative St',
+                            city: 'Portland',
+                            state_code: 'OR',
+                            zip_code: '12345',
+                            country_code_iso3: 'USA',
+                            phone: '5555555555',
+                            email: 'representative@example.com')
+        end
+        FactoryBot.create(:accredited_organization, name: 'Best VSO') if AccreditedOrganization.count.zero?
+        p 'RepresentationManagement::V0::PdfGenerator2122Controller#create ' * 10, AccreditedIndividual.first.inspect,
+          AccreditedOrganization.first.inspect
         form = RepresentationManagement::Form2122aData.new(flatten_form_params)
 
         if form.valid?
@@ -52,7 +69,7 @@ module RepresentationManagement
           representative_first_name: representative_params.dig(:representative, :name, :first),
           representative_middle_initial: representative_params.dig(:representative, :name, :middle),
           representative_last_name: representative_params.dig(:representative, :name, :last),
-          representative_type: representative_params.dig(:representative, :type),
+          representative_type: representative_params.dig(:representative, :type)&.upcase,
           representative_address_line1: representative_params.dig(:representative, :address, :address_line1),
           representative_address_line2: representative_params.dig(:representative, :address, :address_line2),
           representative_city: representative_params.dig(:representative, :address, :city),

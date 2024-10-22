@@ -4,10 +4,23 @@ require 'rails_helper'
 require_relative '../../../../support/pdf_matcher'
 
 describe RepresentationManagement::V0::PdfConstructor::Form2122a do
+  let(:representative) do
+    create(:accredited_individual,
+           first_name: 'John',
+           middle_initial: 'M',
+           last_name: 'Representative',
+           address_line1: '123 Fake Representative St',
+           city: 'Portland',
+           state_code: 'OR',
+           country_code_iso3: 'USA',
+           zip_code: '12345',
+           phone: '5555555555',
+           email: 'representative@example.com')
+  end
   let(:data) do
     {
       veteran_first_name: 'John',
-      veteran_middle_initial: 'Q',
+      veteran_middle_initial: 'M',
       veteran_last_name: 'Veteran',
       veteran_social_security_number: '123456789',
       veteran_va_file_number: '123456789',
@@ -37,23 +50,12 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
       claimant_zip_code_suffix: '6789',
       claimant_phone: '5555555555',
       claimant_email: 'claimant@example.com',
-      representative_first_name: 'John',
-      representative_middle_initial: 'M',
-      representative_last_name: 'Representative',
-      representative_type: 'ATTORNEY',
-      representative_address_line1: '123 Fake Representative St',
-      representative_address_line2: '',
-      representative_city: 'Portland',
-      representative_state_code: 'OR',
-      representative_country: 'US',
-      representative_zip_code: '12345',
-      representative_zip_code_suffix: '6789',
-      representative_phone: '2222222222',
-      representative_email_address: 'representative@example.com',
+      representative_id: representative.id,
+
       record_consent: true,
       consent_limits: [],
       consent_address_change: true,
-      conditions_of_appointment: %w[a123 b456 c789]
+      conditions_of_appointment: []
     }
   end
 
