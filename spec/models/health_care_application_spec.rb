@@ -597,8 +597,12 @@ RSpec.describe HealthCareApplication, type: :model do
     end
 
     describe '#log_async_submission_failure' do
-      it 'triggers statsd' do
+      it 'triggers failed_wont_retry statsd' do
         expect { subject }.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+      end
+
+      it 'triggers zero silent failures statsd' do
+        expect { subject }.to trigger_statsd_increment('silent_failure_avoided_no_confirmation')
       end
 
       context 'short form' do
