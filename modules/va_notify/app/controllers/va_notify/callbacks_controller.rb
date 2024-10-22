@@ -13,17 +13,12 @@ module VANotify
 
     def create
       Rails.logger.debug { "Notification received: #{params.inspect}" }
-      required_fields = %i[notification_id reference to status]
-      missing_fields = required_fields.select { |field| params[:va_notify_notification][field].blank? }
-
-      if missing_fields.any?
-        render json: { errors: { message: 'Missing required fields' } }, status: :unprocessable_entity
-        return
+      if (notification = VANotify::Notification.find(params[:id]))
+        Rails.logger.info("va_notify callbacks - Updating notification #{notification.id}")
+        notification.update(notification_params)
+      else
+        Rails.logger.info("va_notify callbacks - Received update for unknown notification #{params[:id]}")
       end
-
-      va_notify_notification = VANotify::Notification.new(notification_params)
-      va_notify_notification.save!
-      render json: { message: 'success' }, status: :ok
     end
 
     def authenticate_callback
