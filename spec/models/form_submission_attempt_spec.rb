@@ -66,7 +66,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
           let!(:email_klass) { EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail }
           let!(:form526_submission) { create(:form526_submission) }
           let!(:form526_form4142_form_submission) do
-            create(:form_submission, saved_claim_id: form526_submission.saved_claim.id,
+            create(:form_submission, saved_claim_id: form526_submission.saved_claim_id,
                                      form_type: CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE)
           end
           let!(:form_submission_attempt) do
