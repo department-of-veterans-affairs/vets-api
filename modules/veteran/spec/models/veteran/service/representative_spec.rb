@@ -61,6 +61,14 @@ describe Veteran::Service::Representative, type: :model do
     end
 
     describe '#all_for_user' do
+      jacquelyn = FactoryBot.create(:representative,
+                                    representative_id: SecureRandom.hex(8),
+                                    first_name: 'jacquelyn', last_name: 'Mitchell',
+                                    poa_codes: ['000'])
+      bill = FactoryBot.create(:representative,
+                               representative_id: SecureRandom.hex(8),
+                               first_name: 'Bill', last_name: 'Mitchell',
+                               poa_codes: ['016'])
       it 'handles a nil value without throwing an exception' do
         expect(Veteran::Service::Representative.all_for_user(
                  first_name: identity.first_name,
@@ -68,6 +76,22 @@ describe Veteran::Service::Representative, type: :model do
                  middle_initial: 'J',
                  poa_code: '016'
                )).to eq([])
+      end
+
+      it 'can find a user with a suffix' do
+        expect(Veteran::Service::Representative.all_for_user(
+          first_name: jacquelyn.first_name,
+          last_name: "#{jacquelyn.last_name} III",
+          poa_code: '000'
+        ).first.id).to eq(jacquelyn.id)
+      end
+
+      it 'can find a user with a suffix on the first name' do
+        expect(Veteran::Service::Representative.all_for_user(
+          first_name: "#{bill.first_name} Esq",
+          last_name: bill.last_name,
+          poa_code: '016'
+        ).first.id).to eq(bill.id)
       end
     end
   end

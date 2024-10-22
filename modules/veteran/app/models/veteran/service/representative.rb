@@ -29,10 +29,11 @@ module Veteran
       def self.all_for_user(first_name:, last_name:, middle_initial: nil, poa_code: nil)
         return [] if first_name.nil? || last_name.nil?
 
-        representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
-                                last_name&.downcase)
-        representatives = representatives.where('? = ANY(poa_codes)', poa_code) if poa_code
-        representatives.select { |rep| matching_middle_initial(rep, middle_initial) }
+        representatives = get_representatives(first_name, last_name)
+
+        representatives = representatives&.where('? = ANY(poa_codes)', poa_code) if poa_code
+
+        representatives&.select { |rep| matching_middle_initial(rep, middle_initial) }
       end
 
       #
@@ -109,6 +110,28 @@ module Veteran
         %i[address email phone_number].each_with_object({}) do |field, diff|
           diff["#{field}_changed"] = field == :address ? address_changed?(rep_data) : send(field) != rep_data[field]
         end
+      end
+
+      def self.get_suffix(first_name, last_name)
+        suffixes = %w[H.M H.I.H H.R.H Dr Esq Jr Sr III II I AB BA BS BE BFA BTech LLB BSc MA MS MFA LLM
+                      MLA MBA MSc MEng JD MD DO PharmD DMin PhD EdD DPhil DBA LLD EngD]
+        suffixes.detect { |suff| last_name.include?(suff) || first_name.include?(suff) }
+      end
+
+      def self.get_representatives(first_name, last_name)
+        suffix = get_suffix(first_name, last_name)
+
+        representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
+                                last_name&.downcase)
+        if representatives.blank? && suffix.present?
+          # check without suffix
+          last_name = last_name.delete(suffix).strip
+          first_name = first_name.delete(suffix).strip
+
+          representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
+                                  last_name&.downcase)
+        end
+        representatives
       end
 
       private
