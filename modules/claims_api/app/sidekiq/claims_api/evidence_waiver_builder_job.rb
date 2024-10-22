@@ -41,7 +41,7 @@ module ClaimsApi
       if Flipper.enabled?(:claims_api_ews_uploads_bd_refactor)
         EvidenceWaiverDocumentService.new.create_upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
       else
-        benefits_doc_api.upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
+        benefits_doc_api.upload(claim:, pdf_path:, doc_type:, pctpnt_vet_id: ptcpnt_vet_id)
       end
     end
 

@@ -12,7 +12,7 @@ module ClaimsApi
       end
 
       body = generate_body(claim:, doc_type:, pdf_path:, ptcpnt_vet_id:)
-      ClaimsApi::BD.new.upload_document(identifier: claim.id, doc_type_name: '5103', body:)
+      ClaimsApi::BD.new.upload_document(identifier: claim.claim_id, doc_type_name: '5103', body:)
     end
 
     private
@@ -25,10 +25,11 @@ module ClaimsApi
       auth_headers = claim.auth_headers
       veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'],
                                           auth_headers['va_eauth_lastName'])
-      file_name = build_file_name(veteran_name:, identifier: claim.id, suffix: '5103')
+      file_name = build_file_name(veteran_name:, identifier: claim.claim_id, suffix: '5103')
+      tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
 
-      generate_upload_body(claim_id: claim.id, system_name: 'Lighthouse', doc_type:, pdf_path:, file_name:,
-                           birls_file_number: nil, participant_id: ptcpnt_vet_id, tracked_item_ids: nil)
+      generate_upload_body(claim_id: claim.claim_id, system_name: 'VA.gov', doc_type:, pdf_path:, file_name:,
+                           birls_file_number: nil, participant_id: ptcpnt_vet_id, tracked_item_ids:)
     end
   end
 end
