@@ -68,17 +68,12 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
       context 'when the exhaustion hook fails' do
         it 'updates a StatsD counter for the silent failure' do
-          # allow(Form526SubmissionFailureEmailJob).to receive(:perform_async).and_raise('nah')
           allow(Form526JobStatus).to receive(:find_by).and_raise('nah')
           args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
           expect do
-
             subject.within_sidekiq_retries_exhausted_block(args) do
-              # expect(StatsD).to receive(:increment)
-              #   .with("#{subject::STATSD_KEY_PREFIX}.exhausted").ordered
               expect(StatsD).to receive(:increment)
                 .with('silent_failure', { tags: Form526SubmissionFailureEmailJob::DD_ZSF_TAGS })
-                .ordered
             end
           end.to raise_error('nah')
         end
