@@ -4,7 +4,19 @@ require 'rails_helper'
 require_relative '../../../../support/pdf_matcher'
 
 describe RepresentationManagement::V0::PdfConstructor::Form2122 do
-  let(:accredited_organization) { create(:accredited_organization, id: 'Best VSO', name: 'Best VSO') }
+  let(:accredited_organization) { create(:accredited_organization, name: 'Best VSO') }
+  let(:representative) do
+    create(:accredited_individual,
+           first_name: 'First',
+           middle_initial: 'M',
+           last_name: 'Last',
+           address_line1: '789 Rep St',
+           city: 'RepCity',
+           state_code: 'RC',
+           zip_code: '54321',
+           phone: '5555555555',
+           email: 'rep@rep.com')
+  end
   let(:data) do
     {
       veteran_first_name: 'John',
@@ -39,6 +51,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
       claimant_phone: '5555555555',
       claimant_email: 'claimant@example.com',
       organization_id: accredited_organization.id,
+      representative_id: representative.id,
       record_consent: true,
       consent_limits: %w[DRUG_ABUSE HIV SICKLE_CELL],
       consent_address_change: true
