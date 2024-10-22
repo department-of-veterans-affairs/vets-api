@@ -1063,9 +1063,6 @@ features:
   profile_show_quick_submit_notification_setting:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
-  profile_show_proof_of_veteran_status_eligible:
-    actor_type: user
-    description: Include/exclude the proof of veteran status eligibility in service_history response
   profile_show_no_validation_key_address_alert:
     actor_type: user
     description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
