@@ -24,14 +24,8 @@ module VaNotify
     end
 
     def send_email(args)
-      caller = caller_locations(1, 1)[0].label
       with_monitoring do
-        response = notify_client.send_email(args)
-        if callback_options
-          VANotify::Notification.new(notification_id: response[:uuid], source_location: caller, callback: callback_options[:callback], metadata: callback_options[:metadata])
-        else
-          VANotify::Notification.new(notification_id: response[:uuid], source_location: caller)
-        end
+        notify_client.send_email(args)
       end
     rescue => e
       handle_error(e)
