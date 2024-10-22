@@ -7,15 +7,15 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
   let(:accredited_organization) { create(:accredited_organization, name: 'Best VSO') }
   let(:representative) do
     create(:accredited_individual,
-           first_name: 'First',
+           first_name: 'John',
            middle_initial: 'M',
-           last_name: 'Last',
-           address_line1: '789 Rep St',
-           city: 'RepCity',
-           state_code: 'RC',
-           zip_code: '54321',
+           last_name: 'Representative',
+           address_line1: '123 Fake Representative St',
+           city: 'Portland',
+           state_code: 'OR',
+           zip_code: '12345',
            phone: '5555555555',
-           email: 'rep@rep.com')
+           email: 'representative@example.com')
   end
   let(:data) do
     {
@@ -37,7 +37,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
       veteran_phone: '5555555555',
       veteran_email: 'veteran@example.com',
       claimant_first_name: 'John',
-      claimant_middle_initial: 'Q',
+      claimant_middle_initial: 'M',
       claimant_last_name: 'Claimant',
       claimant_date_of_birth: '12/31/1234',
       claimant_relationship: 'Spouse',

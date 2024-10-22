@@ -7,15 +7,15 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
     let(:base_path) { '/representation_management/v0/pdf_generator2122a' }
     let(:representative) do
       create(:accredited_individual,
-             first_name: 'First',
+             first_name: 'John',
              middle_initial: 'M',
-             last_name: 'Last',
-             address_line1: '789 Rep St',
-             city: 'RepCity',
-             state_code: 'RC',
-             zip_code: '54321',
+             last_name: 'Representative',
+             address_line1: '123 Fake Representative St',
+             city: 'Portland',
+             state_code: 'OR',
+             zip_code: '12345',
              phone: '5555555555',
-             email: 'rep@rep.com')
+             email: 'representative@example.com')
     end
     let(:params) do
       {
@@ -30,15 +30,15 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
             phone: '5555555555',
             email: 'claimant@example.com',
             name: {
-              first: 'First',
+              first: 'John',
               middle: 'M',
-              last: 'Last'
+              last: 'Claimant'
             },
             address: {
-              address_line1: '123 Claimant St',
+              address_line1: '123 Fake Claimant St',
               address_line2: '',
-              city: 'ClaimantCity',
-              state_code: 'CC',
+              city: 'Portland',
+              state_code: 'OR',
               country: 'US',
               zip_code: '12345',
               zip_code_suffix: '6789'
@@ -53,38 +53,38 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
             email: 'veteran@example.com',
             insurance_numbers: [],
             name: {
-              first: 'First',
+              first: 'John',
               middle: 'M',
-              last: 'Last'
+              last: 'Veteran'
             },
             address: {
-              address_line1: '456 Veteran Rd',
+              address_line1: '123 Fake Veteran St',
               address_line2: '',
-              city: 'VeteranCity',
-              state_code: 'VC',
+              city: 'Portland',
+              state_code: 'OR',
               country: 'US',
-              zip_code: '98765',
-              zip_code_suffix: '4321'
+              zip_code: '12345',
+              zip_code_suffix: '6789'
             }
           },
           representative: {
             id: representative.id,
             type: 'ATTORNEY',
             phone: '5555555555',
-            email: 'rep@rep.com',
+            email: 'representative@example.com',
             name: {
-              first: 'First',
+              first: 'John',
               middle: 'M',
-              last: 'Last'
+              last: 'Representative'
             },
             address: {
-              address_line1: '789 Rep St',
+              address_line1: '123 Fake Representative St',
               address_line2: '',
-              city: 'RepCity',
-              state_code: 'RC',
+              city: 'Portland',
+              state_code: 'OR',
               country: 'US',
-              zip_code: '54321',
-              zip_code_suffix: '9876'
+              zip_code: '12345',
+              zip_code_suffix: '6789'
             }
           }
         }

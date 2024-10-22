@@ -19,15 +19,15 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             phone: '5555555555',
             email: 'claimant@example.com',
             name: {
-              first: 'First',
+              first: 'John',
               middle: 'M',
-              last: 'Last'
+              last: 'Claimant'
             },
             address: {
-              address_line1: '123 Claimant St',
+              address_line1: '123 Fake Claimant St',
               address_line2: '',
-              city: 'ClaimantCity',
-              state_code: 'CC',
+              city: 'Portland',
+              state_code: 'OR',
               country: 'USA', # This is a 3 character country code as submitted by the frontend
               zip_code: '12345',
               zip_code_suffix: '6789'
@@ -43,18 +43,18 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             email: 'veteran@example.com',
             insurance_numbers: [],
             name: {
-              first: 'First',
+              first: 'John',
               middle: 'M',
-              last: 'Last'
+              last: 'Veteran'
             },
             address: {
-              address_line1: '456 Veteran Rd',
+              address_line1: '123 Fake Veteran St',
               address_line2: '',
-              city: 'VeteranCity',
-              state_code: 'VC',
+              city: 'Portland',
+              state_code: 'OR',
               country: 'USA', # This is a 3 character country code as submitted by the frontend
-              zip_code: '98765',
-              zip_code_suffix: '4321'
+              zip_code: '12345',
+              zip_code_suffix: '6789'
             }
           },
           representative: {
