@@ -13,18 +13,22 @@ properties:
     properties:
       id:
         type: string
-        example: bf01349c-585d-480f-8afc-7a2f88697a1a
-        description: Randomly generated UUID
+        example: "welcome"
       type:
         type: string
-        example: dependents
+        example: "welcome"
       attributes:
         type: object
         additionalProperties: false
         required:
-          - submitFormJobId
+          - message
+          - endpoints
         properties:
-          submitFormJobId:
+          message:
             type: string
-            example: "908550d787e8dbfb0bf3df85"
-
+            example: "Welcome to the mobile API"
+          endpoints:
+            type: array
+            items:
+              type: string
+              example: "mobile/v0/appointments"
