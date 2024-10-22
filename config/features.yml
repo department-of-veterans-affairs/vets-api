@@ -440,14 +440,6 @@ features:
     actor_type: user
     description: enables failure email when explicit failure is detected downstream
     enable_in_development: true
-  disability_526_classifier_new_claims:
-    actor_type: user
-    description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
-    enable_in_development: true
-  disability_526_classifier_multi_contention:
-    actor_type: user
-    description: enables submitting multi-contention (in addition to single-contention) 526ez claims to VRO Contention Classification service for more accurate classification entry.
-    enable_in_development: true
   contention_classification_claim_linker:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
