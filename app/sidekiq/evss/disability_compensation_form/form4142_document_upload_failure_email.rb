@@ -19,13 +19,7 @@ module EVSS
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
 
-        log_info = {
-          job_id:,
-          timestamp:,
-          form526_submission_id:,
-          error_class:,
-          error_message:
-        }
+        log_info = { job_id:, timestamp:, form526_submission_id:, error_class:, error_message: }
 
         Rails.logger.warn(
           'Form4142DocumentUploadFailureEmail retries exhausted',
@@ -35,8 +29,6 @@ module EVSS
         StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
         cl = caller_locations.first
         call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        # nil user_uuid
-        # we could get it but that introduces more failure potential in what is supposed ot be a last resort
         ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(log_info, nil,
                                                                                                   call_location:)
 
@@ -107,10 +99,7 @@ module EVSS
       end
 
       def log_mailer_dispatch(form526_submission_id, email_response = {})
-        log_info = {
-          form526_submission_id:,
-          timestamp: Time.now.utc
-        }
+        log_info = { form526_submission_id:, timestamp: Time.now.utc }
         Rails.logger.info('Form4142DocumentUploadFailureEmail notification dispatched', log_info)
 
         cl = caller_locations.first
