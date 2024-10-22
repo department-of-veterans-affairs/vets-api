@@ -7,7 +7,7 @@ require 'stringio'
 describe BBInternal::Client do
   before(:all) do
     # The "get_patient" cassette also contains the session auth call.
-    VCR.use_cassette 'mr_client/bb_internal/get_patient', record: :new_episodes do
+    VCR.use_cassette 'mr_client/bb_internal/get_patient' do
       @client ||= begin
         client = BBInternal::Client.new(session: { user_id: '11375034', icn: '1012740022V620959' })
         client.authenticate
