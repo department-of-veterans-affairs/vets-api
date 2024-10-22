@@ -25,8 +25,8 @@ class FormSubmissionAttempt < ApplicationRecord
 
     event :fail do
       after do
-        user_uuid = form_submission.user_account.id
-        form_type = form_submission&.form_type
+        user_uuid = form_submission.user_account_id
+        form_type = form_submission.form_type
         log_info = { form_submission_id:, benefits_intake_uuid: form_submission&.benefits_intake_uuid, form_type:,
                      user_uuid: user_uuid }
         zsf_function = "#{form_id} form submission to Lighthouse"
