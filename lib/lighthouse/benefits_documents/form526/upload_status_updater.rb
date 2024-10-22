@@ -92,12 +92,12 @@ module BenefitsDocuments
       # Lighthouse returns date times as UNIX timestamps in milliseconds
       def start_time
         unix_start_time = @lighthouse526_document_status.dig('time', 'startTime')
-        Time.at(unix_start_time).utc.to_datetime
+        Time.at(unix_start_time / 1000).utc.to_datetime
       end
 
       def end_time
         unix_end_time = @lighthouse526_document_status.dig('time', 'endTime')
-        Time.at(unix_end_time).utc.to_datetime
+        Time.at(unix_end_time / 1000).utc.to_datetime
       end
 
       def failed?
