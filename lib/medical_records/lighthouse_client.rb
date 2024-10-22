@@ -9,7 +9,6 @@ module MedicalRecords
   # Core class responsible for Medical Records API interface operations with the Lighthouse FHIR server.
   #
   class LighthouseClient < Common::Client::Base
-
     # Default number of records to request per call when searching
     DEFAULT_COUNT = 10
 
@@ -22,8 +21,9 @@ module MedicalRecords
     #
     def initialize(icn)
       super()
-   # TODO - Remove this temporary ICN once the Lighthouse sandbox test users are available 
-      icn = "23000219"
+
+      # TODO: Remove this temporary ICN once the Lighthouse sandbox test users are available
+      icn = '23000219'
       puts "Temp icn for testing with Lighthouse sandbox users: #{icn}"
       raise Common::Exceptions::ParameterMissing, 'ICN' if icn.blank?
 
@@ -34,7 +34,7 @@ module MedicalRecords
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "https://sandbox-api.va.gov/services/fhir/v0/r4/"
+      Settings.mhv.lighthouse.base_url
     end
 
     ##
@@ -63,7 +63,6 @@ module MedicalRecords
     # @return [FHIR::Client]
     #
     def fhir_client
-
       @fhir_client ||= sessionless_fhir_client(self.class.configuration.get_token(@icn))
     end
 
