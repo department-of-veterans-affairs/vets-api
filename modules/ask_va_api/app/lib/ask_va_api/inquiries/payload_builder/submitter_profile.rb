@@ -26,22 +26,30 @@ module AskVAApi
 
         private
 
+        def submitter_info
+          inquiry_params[:about_yourself]
+        end
+
+        def submitter_address
+          inquiry_params[:address]
+        end
+
         def base_profile
           {
-            FirstName: inquiry_params.dig(:about_yourself, :first),
-            MiddleName: inquiry_params.dig(:about_yourself, :middle),
-            LastName: inquiry_params.dig(:about_yourself, :last),
+            FirstName: submitter_info[:first],
+            MiddleName: submitter_info[:middle],
+            LastName: submitter_info[:last],
             PreferredName: inquiry_params[:preferred_name],
-            Suffix: @translator.call(inquiry_params.dig(:about_yourself, :suffix)),
+            Suffix: @translator.call(submitter_info[:suffix]),
             Gender: nil,
             Pronouns: formatted_pronouns(inquiry_params[:pronouns]),
             Country: country_data,
-            Street: inquiry_params.dig(:address, :street),
-            City: inquiry_params.dig(:address, :city),
+            Street: submitter_address[:street],
+            City: submitter_address[:city],
             State: state_data,
             ZipCode: inquiry_params[:postal_code],
             Province: inquiry_params[:province],
-            DateOfBirth: inquiry_params.dig(:about_yourself, :date_of_birth)
+            DateOfBirth: submitter_info[:date_of_birth]
           }
         end
 
@@ -64,8 +72,8 @@ module AskVAApi
 
         def service_info
           {
-            BranchOfService: inquiry_params.dig(:about_yourself, :branch_of_service),
-            SSN: inquiry_params.dig(:about_yourself, :ssn),
+            BranchOfService: submitter_info[:branch_of_service],
+            SSN: submitter_info[:ssn],
             EDIPI: user&.edipi,
             ICN: user&.icn,
             ServiceNumber: nil,
@@ -84,8 +92,8 @@ module AskVAApi
 
         def state_data
           {
-            Name: fetch_state(inquiry_params.dig(:address, :state)),
-            StateCode: inquiry_params.dig(:address, :state)
+            Name: fetch_state(submitter_address[:state]),
+            StateCode: submitter_address[:state]
           }
         end
 

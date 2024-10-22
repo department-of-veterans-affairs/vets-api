@@ -5,8 +5,6 @@ module AskVAApi
     class OptionsetRetrieverError < StandardError; end
 
     class Retriever < BaseRetriever
-      attr_reader :name
-
       private
 
       def fetch_data

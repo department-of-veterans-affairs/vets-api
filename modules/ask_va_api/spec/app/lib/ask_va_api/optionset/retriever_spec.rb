@@ -8,7 +8,6 @@ module AskVAApi
       include_context 'shared data'
 
       let(:entity_class) { Entity }
-      let(:name) { 'branchofservice' }
       let(:cache_data_service) { instance_double(Crm::CacheData) }
       let(:retriever) { described_class.new(user_mock_data: true, entity_class:) }
 
