@@ -7,7 +7,7 @@ module ClaimsApi
     def create_upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log(LOG_TAG, detail: "Error creating upload doc: #{pdf_path} doesn't exist,
-                                                    claim_id: #{claim.id}")
+                                                    claim_id: #{claim.claim_id}")
         raise Errno::ENOENT, pdf_path
       end
 
