@@ -41,14 +41,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       let!(:form526_submission) { create(:form526_submission) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
-      around do |spec|
-        Flipper.enable(:send_backup_submission_exhaustion_email_notice)
-        spec.run
-        Flipper.disable(:send_backup_submission_exhaustion_email_notice)
-      end
-
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
-        expect(Form526SubmissionFailureEmailJob).to receive(:perform_async).and_return(nil)
+        allow(Form526SubmissionFailureEmailJob).to receive(:perform_async).and_return(nil)
         args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
         subject.within_sidekiq_retries_exhausted_block(args) do
           expect(StatsD).to receive(:increment).with("#{subject::STATSD_KEY_PREFIX}.exhausted")
@@ -58,11 +52,30 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
         expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
       end
 
-      it 'remediates the submission via an email notification' do
-        args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
-        subject.within_sidekiq_retries_exhausted_block(args) do
-          expect(Form526SubmissionFailureEmailJob)
-            .to receive(:perform_async).with(form526_submission_id: form526_submission.id)
+      context 'when send_backup_submission_exhaustion_email_notice is enabled' do
+        around do |spec|
+          Flipper.enable(:send_backup_submission_exhaustion_email_notice)
+          spec.run
+          Flipper.disable(:send_backup_submission_exhaustion_email_notice)
+        end
+
+        it 'remediates the submission via an email notification' do
+          args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
+          subject.within_sidekiq_retries_exhausted_block(args) do
+            expect(Form526SubmissionFailureEmailJob)
+              .to receive(:perform_async).with(form526_submission_id: form526_submission.id)
+          end
+        end
+      end
+
+      context 'when send_backup_submission_exhaustion_email_notice is disabled' do
+        it 'does not remediates the submission via an email notification' do
+          args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
+          subject.within_sidekiq_retries_exhausted_block(args) do
+            expect(Form526SubmissionFailureEmailJob)
+              .not_to receive(:perform_async)
+              .with(form526_submission_id: form526_submission.id)
+          end
         end
       end
 
