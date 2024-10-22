@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_notify/service'
+require 'zero_silent_failures/monitor'
 
 module EVSS
   module DisabilityCompensationForm
@@ -18,21 +19,25 @@ module EVSS
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
 
+        log_info = {
+          job_id:,
+          timestamp:,
+          form526_submission_id:,
+          error_class:,
+          error_message:
+        }
+
         Rails.logger.warn(
           'Form4142DocumentUploadFailureEmail retries exhausted',
-          {
-            job_id:,
-            timestamp:,
-            form526_submission_id:,
-            error_class:,
-            error_message:
-          }
+          log_info
         )
 
         StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
         cl = caller_locations.first
         call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(log_info, user_uuid,
+        # nil user_uuid
+        # we could get it but that introduces more failure potential in what is supposed ot be a last resort
+        ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(log_info, nil,
                                                                                                   call_location:)
 
         # Job status records are upserted in the JobTracker module
@@ -77,7 +82,7 @@ module EVSS
           first_name = form526_submission.get_first_name
           date_submitted = form526_submission.format_creation_time_for_mailers
 
-          @notify_client.send_email(
+          notify_response = @notify_client.send_email(
             email_address:,
             template_id: mailer_template_id,
             personalisation: {
@@ -86,7 +91,7 @@ module EVSS
             }
           )
 
-          log_mailer_dispatch(form526_submission_id)
+          log_mailer_dispatch(form526_submission_id, notify_response)
         end
       rescue => e
         retryable_error_handler(e)
@@ -101,19 +106,21 @@ module EVSS
         raise error
       end
 
-      def log_mailer_dispatch(form526_submission_id)
-        Rails.logger.info(
-          'Form4142DocumentUploadFailureEmail notification dispatched',
-          {
-            form526_submission_id:,
-            timestamp: Time.now.utc
-          }
-        )
+      def log_mailer_dispatch(form526_submission_id, email_response = {})
+        log_info = {
+          form526_submission_id:,
+          timestamp: Time.now.utc
+        }
+        Rails.logger.info('Form4142DocumentUploadFailureEmail notification dispatched', log_info)
 
         cl = caller_locations.first
         call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
         ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
-                                   .log_silent_failure_avoided(log_info, user_uuid, call_location:)
+                                   .log_silent_failure_avoided(
+                                     log_info.merge(email_confirmation_id: email_response&.id),
+                                     nil,
+                                     call_location:
+                                   )
         StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
       end
 
