@@ -1,4 +1,4 @@
-name: Label Pull Request Reviewers
+name: Add Reviewer Labels
 on:
   pull_request:
     types: [opened, reopened, review_requested, synchronize, ready_for_review, unlabeled]
@@ -59,10 +59,10 @@ jobs:
       - name: Add require-backend-approval label
         uses: actions-ecosystem/action-add-labels@v1
         if: |
-            github.event.pull_request.draft == false &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
+          github.event.pull_request.draft == false &&
+          !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') &&
+          !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') &&
+          !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |

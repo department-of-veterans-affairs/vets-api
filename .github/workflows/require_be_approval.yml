@@ -27,14 +27,15 @@ jobs:
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
 
-# Find Backend Labels, Approvals and Comments
-      - name: Find Approval  Comment
+      # Find BE Approval comment
+      - name: Find BE Approval Comment
         uses: peter-evans/find-comment@v3
         id: find_backend_approval_comment
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-includes: Backend-review-group approval confirmed.
+          body-includes: "Backend-review-group approval confirmed."
 
+      # If backend-review-group approval is required, get team members
       - name: Get backend-review-group members
         if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: get_team_members
@@ -44,15 +45,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
-      - name: Check backend-review-group approval status
+      # If backend-review-group approval is required, get reviews
+      - name: Get PR Reviews
         if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
-        id: check_backend_review_group_approval_status
+        id: get_pr_reviews
         uses: octokit/request-action@v2.x
         with:
           route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}/reviews
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # If backend-review-group approval is required, confirm an approval exists from at least one BE team member
       - name: Verify backend-review-group approval
         if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: verify_approval
@@ -63,7 +66,7 @@ jobs:
           )
 
           APPROVALS=$(cat <<'EOF' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l
-          ${{ steps.check_backend_review_group_approval_status.outputs.data }}
+          ${{ steps.get_pr_reviews.outputs.data }}
           EOF
           )
 
@@ -75,6 +78,7 @@ jobs:
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
 
+      # If approved and no "Approved" comment, add comment
       - name: Comment PR - Approval Confirmed
         if: success() && steps.verify_approval.outputs.approval_status == 'confirmed' && steps.find_backend_approval_comment.outputs.comment-id == ''
         uses: peter-evans/create-or-update-comment@v4
@@ -82,6 +86,7 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: "Backend-review-group approval confirmed."
 
+      # If approved and has ready-for-review label, remove label
       - name: Remove ready-for-review label
         if: success() && steps.verify_approval.outputs.approval_status == 'confirmed' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
         uses: actions-ecosystem/action-remove-labels@v1
