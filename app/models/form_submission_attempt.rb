@@ -29,7 +29,7 @@ class FormSubmissionAttempt < ApplicationRecord
         form_type = form_submission.form_type
         log_info = { form_submission_id:, benefits_intake_uuid: form_submission&.benefits_intake_uuid, form_type:,
                      user_uuid: user_uuid }
-        zsf_function = "#{form_id} form submission to Lighthouse"
+        zsf_function = "#{form_type} form submission to Lighthouse"
         if should_send_simple_forms_email
           Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
           simple_forms_enqueue_result_email(:error)
