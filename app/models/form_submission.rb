@@ -49,6 +49,10 @@ class FormSubmission < ApplicationRecord
         where.not(form_type: nil)
       end
     end
+
+    def benefits_intake_uuid
+      form_submission_attempts.order_by(:created_at, :asc).last.benefits_intake_uuid
+    end
   end
 
   def latest_pending_attempt
