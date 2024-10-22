@@ -82,6 +82,33 @@ RSpec.describe VANotify::UserAccountJob, type: :worker do
         end
       end
     end
+
+    context 'with optional callback support' do
+      it 'can accept callback options' do
+        client = double
+        api_key = Settings.vanotify.services.va_gov.api_key
+        callback_options = {
+          callback: 'TestTeam::TestClass',
+          metadata: 'optional_test_metadata'
+        }
+
+        expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
+
+        expect(client).to receive(:send_email).with(
+          {
+            recipient_identifier: {
+              id_value: icn,
+              id_type: 'ICN'
+            },
+            template_id:,
+            personalisation: {}
+          }
+        )
+        personalization = {}
+
+        described_class.new.perform(user_account.id, template_id, personalization, api_key, callback_options)
+      end
+    end
   end
 
   describe 'when job has failed' do
