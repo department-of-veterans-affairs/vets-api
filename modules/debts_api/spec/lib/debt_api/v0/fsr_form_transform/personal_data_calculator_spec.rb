@@ -26,7 +26,6 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::PersonalDataCalculator, type: :se
         pre_transform_fsr_form_data['personal_data']['veteran_contact_information']['address']['address_line2'] = nil
         calculator = described_class.new(pre_transform_fsr_form_data)
         calculator_data = calculator.get_personal_data
-        # expected_personal_data = post_transform_fsr_form_data['personalData']
 
         expect(calculator_data['address']['addresslineTwo']).to eq('')
       end
