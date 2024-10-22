@@ -35,7 +35,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
           },
           veteran: {
             ssn: '123456789',
-            va_file_number: '987654321',
+            va_file_number: '123456789',
             date_of_birth: '1970-01-01',
             service_number: '123123456',
             service_branch: 'ARMY',
