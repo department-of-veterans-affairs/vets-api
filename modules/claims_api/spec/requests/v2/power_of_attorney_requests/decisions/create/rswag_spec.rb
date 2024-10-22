@@ -53,6 +53,8 @@ describe 'PowerOfAttorney', metadata do
       parameter name: 'data', in: :body, required: true, schema: body_schema
 
       response '200', 'Submit decision' do
+        schema JSON.load_file(File.expand_path('rswag/200.json', __dir__))
+
         let(:data) { body_schema[:example] }
 
         before do |example|
@@ -81,6 +83,8 @@ describe 'PowerOfAttorney', metadata do
       end
 
       response '400', 'Invalid request' do
+        schema JSON.load_file(File.expand_path('rswag/400.json', __dir__))
+
         let(:data) do
           {
             'data' => {
@@ -110,6 +114,8 @@ describe 'PowerOfAttorney', metadata do
       end
 
       response '422', 'Malformed request body' do
+        schema JSON.load_file(File.expand_path('rswag/422.json', __dir__))
+
         # Depends on `rswag-specs` internals.
         let(:data) { OpenStruct.new(to_json: '{{{{') }
 
@@ -133,6 +139,8 @@ describe 'PowerOfAttorney', metadata do
       end
 
       response '401', 'Unauthorized' do
+        schema JSON.load_file(File.expand_path('rswag/401.json', __dir__))
+
         let(:data) { body_schema[:example] }
 
         before do |example|

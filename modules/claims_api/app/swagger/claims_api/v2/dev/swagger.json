@@ -112,6 +112,37 @@
                   "declinedReason": null,
                   "procId": "76529",
                   "secondaryStatus": "ACC"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "VSOUserEmail": {
+                      "type": "string"
+                    },
+                    "VSOUserFirstName": {
+                      "type": "string"
+                    },
+                    "VSOUserLastName": {
+                      "type": "string"
+                    },
+                    "dateRequestActioned": {
+                      "type": "string"
+                    },
+                    "declinedReason": {
+                      "type": "string"
+                    },
+                    "procId": {
+                      "type": "string"
+                    },
+                    "secondaryStatus": {
+                      "type": "string",
+                      "enum": [
+                        "ACC",
+                        "DEC",
+                        "OBS"
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -134,6 +165,43 @@
                       ]
                     }
                   }
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "400"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -153,6 +221,42 @@
                       }
                     }
                   ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "type": "object"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "422"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -169,6 +273,44 @@
                       "detail": "Not authorized"
                     }
                   ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "enum": [
+                              "Not authorized"
+                            ]
+                          },
+                          "detail": {
+                            "type": "string",
+                            "enum": [
+                              "Not authorized"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "401"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -203,7 +345,7 @@
                         "properties": {
                           "procId": {
                             "type": "string",
-                            "description": "This is the unique identifier of a process."
+                            "description": "The unique identifier of a process."
                           },
                           "decision": {
                             "type": "string",
