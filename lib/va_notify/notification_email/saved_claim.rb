@@ -3,9 +3,14 @@
 module VANotify
   module NotificationEmail
 
+    STATSD = 'api.va_notify.notification_email'
+
     CONFIRMATION = :confirmation
     ERROR = :error
     RECEIVED = :received
+
+    # error indicating failure to send email
+    class FailureToSend < StandardError; end
 
     class SavedClaim
 
@@ -19,9 +24,7 @@ module VANotify
         config = config&.email[type]
         raise ArgumentError, "Invalid service '#{service_name}' or type '#{type}'" unless config
 
-        return unless flipper?(config.flipper)
-
-        email_template_id = able_to_send?(config.template_id)
+        email_template_id = able_to_send?(config)
         return unless email_template_id
 
         if at
@@ -40,18 +43,21 @@ module VANotify
         end
 
         claim.insert_notification(config.template_id)
-      rescue =>
-        # TODO add logging and metrics for failure to send
+      rescue => e
+        metric = "#{VANotify::NotificationEmail::STATSD}.failure"
+
         tags = ["service_name:#{service_name}", "form_id:#{claim.form_id}", "email_template_id:#{email_template_id}"]
-        StatsD.increment('', tags:)
+        StatsD.increment(metric, tags:)
 
         payload = {
+          statsd: metric,
           form_id: claim.form_id,
           saved_claim_id: claim.id
+          service_name:
           email_template_id:
           message: e&.message
         }
-        Rails.logger.error('', **payload)
+        Rails.logger.error('VANotify::NotificationEmail#send failure!', **payload)
       end
 
       private
@@ -66,18 +72,12 @@ module VANotify
         !flipper_id || (flipper_id && Flipper.enabled?(:"#{flipper_id}"))
       end
 
-      def able_to_send?(template_id)
-        return if !template_id
+      def able_to_send?(email_config)
+        raise FailureToSend, 'Invalid configuration' if !email_config.template_id
+        raise FailureToSend, 'Missing email' if email.blank?
+        raise FailureToSend, 'Notification already sent' if claim.va_notification?(config.template_id)
 
-        return if email.blank?
-
-        return if claim.va_notification?(config.template_id)
-
-        # TODO add logging and metrics for failure to send
-        StatsD.increment('', tags:)
-        Rails.logger.warn('', **payload)
-
-        template_id
+        email_config.template_id if flipper?(email_config.flipper)
       end
 
       def email
