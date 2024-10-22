@@ -1,5 +1,5 @@
 type: object
-additionalAttributes: false
+additionalProperties: false
 required:
   - data
   - meta
@@ -7,16 +7,18 @@ properties:
   data:
     type: array
     items:
+      type: object
+      additionalProperties: false
       $ref: "../ImmunizationRecord.yml"
   meta:
     type: object
-    additionalAttributes: false
+    additionalProperties: false
     required:
       - pagination
     properties:
       pagination:
         type: object
-        additionalAttributes: false
+        additionalProperties: false
         required:
           - currentPage
           - perPage
