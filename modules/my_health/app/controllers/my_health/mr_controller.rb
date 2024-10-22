@@ -3,6 +3,7 @@
 require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'medical_records/phr_mgr/client'
+require 'medical_records/lighthouse_client'
 
 module MyHealth
   class MrController < ApplicationController
@@ -18,9 +19,12 @@ module MyHealth
 
     protected
 
+    use_oh_data_path = params[:use_oh_data_path]
+
     def client
-      @client ||= MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
-                                                        icn: current_user.icn })
+      @client ||= use_oh_data_path ? MedicalRecords::LighthouseClient.new(current_user.icn) 
+      : MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
+      icn: current_user.icn })
     end
 
     def phrmgr_client
