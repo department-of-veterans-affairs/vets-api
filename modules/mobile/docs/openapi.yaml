@@ -1769,7 +1769,7 @@ paths:
         - Bearer: []
       summary: /v0/efolder/documents
   /v0/efolder/documents/{documentId}/download:
-    get:
+    post:
       description: returns requested document
       parameters:
         - description: File name of the document to be returned.

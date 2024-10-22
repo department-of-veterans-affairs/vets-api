@@ -50,8 +50,8 @@ RSpec.describe 'Mobile::V0::Efolder', type: :request do
     context 'with working upstream service' do
       stub_efolder_documents(:show)
       it 'returns expected document' do
-        get "/mobile/v0/efolder/documents/#{CGI.escape(document_id)}/download", params: { file_name: 'test' },
-                                                                                headers: sis_headers
+        post "/mobile/v0/efolder/documents/#{CGI.escape(document_id)}/download", params: { file_name: 'test' },
+                                                                                 headers: sis_headers
         expect(response).to have_http_status(:ok)
         expect(response.body).to eq(content)
         expect(response.headers['Content-Disposition']).to eq("attachment; filename=\"test\"; filename*=UTF-8''test")
@@ -67,7 +67,7 @@ RSpec.describe 'Mobile::V0::Efolder', type: :request do
       end
 
       it 'returns expected error' do
-        get '/mobile/v0/efolder/documents/123/download', params: { file_name: 'test' }, headers: sis_headers
+        post '/mobile/v0/efolder/documents/123/download', params: { file_name: 'test' }, headers: sis_headers
 
         expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Operation failed',

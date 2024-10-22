@@ -39,7 +39,7 @@ Mobile::Engine.routes.draw do
     get '/disability-rating', to: 'disability_rating#index'
     get '/enrollment-status', to: 'enrollment_status#show'
     get '/efolder/documents', to: 'efolder#index'
-    get '/efolder/documents/:document_id/download', to: 'efolder#download'
+    post '/efolder/documents/:document_id/download', to: 'efolder#download'
     get '/facilities-info', to: 'facilities_info#index'
     get '/facilities-info/:sort', to: 'facilities_info#schedulable'
     post '/financial-status-reports/download', to: 'financial_status_reports#download'
