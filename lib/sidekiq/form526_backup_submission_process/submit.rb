@@ -69,6 +69,7 @@ module Sidekiq
             }
           }
         )
+        StatsD.increment('silent_failure', tags: Form526SubmissionFailureEmailJob::DD_ZSF_TAGS)
         raise e
       end
 
