@@ -14,7 +14,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
           consent_address_change: '',
           consent_limits: [],
           claimant: {
-            date_of_birth: '1980-01-01',
+            date_of_birth: '1980-12-31',
             relationship: 'Spouse',
             phone: '5555555555',
             email: 'claimant@example.com',
@@ -36,8 +36,8 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
           veteran: {
             ssn: '123456789',
             va_file_number: '123456789',
-            date_of_birth: '1970-01-01',
-            service_number: '123123456',
+            date_of_birth: '1980-12-31',
+            service_number: '123456789',
             service_branch: 'ARMY',
             phone: '5555555555',
             email: 'veteran@example.com',
