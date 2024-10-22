@@ -53,7 +53,7 @@ module BGS
         submit_form_job_id:
       }
     rescue => e
-      Rails.logger.error('BGS::DependentService#submit_686c_form method failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
+      Rails.logger.warn('BGS::DependentService#submit_686c_form method failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
       log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
       raise e
