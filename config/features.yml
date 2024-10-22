@@ -374,10 +374,6 @@ features:
   decision_review_sc_status_updater_enabled:
     actor_type: user
     description: Enables the Supplemental Claim status update batch job
-  decision_review_sc_use_lighthouse_api_for_form4142:
-    actor_type: user
-    description: Use Lighthouse API to submit Form 21-4142 from Supplemental Claims
-    enable_in_development: true
   decision_review_icn_updater_enabled:
     actor_type: user
     description: Enables the ICN lookup job
