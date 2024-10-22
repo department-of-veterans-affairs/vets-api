@@ -15,7 +15,8 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
            country_code_iso3: 'USA',
            zip_code: '12345',
            phone: '5555555555',
-           email: 'representative@example.com')
+           email: 'representative@example.com',
+           individual_type: 'attorney')
   end
   let(:data) do
     {

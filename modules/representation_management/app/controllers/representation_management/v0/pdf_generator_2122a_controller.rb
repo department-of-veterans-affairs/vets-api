@@ -16,7 +16,8 @@ module RepresentationManagement
                             zip_code: '12345',
                             country_code_iso3: 'USA',
                             phone: '5555555555',
-                            email: 'representative@example.com')
+                            email: 'representative@example.com',
+                            individual_type: 'attorney')
         end
         FactoryBot.create(:accredited_organization, name: 'Best VSO') if AccreditedOrganization.count.zero?
         p 'RepresentationManagement::V0::PdfGenerator2122Controller#create ' * 10, AccreditedIndividual.first.inspect,
