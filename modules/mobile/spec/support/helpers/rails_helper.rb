@@ -18,10 +18,8 @@ RSpec.configure do |config|
   end
 
   config.after :each, :mobile_spec, type: :request do |example|
-    content_type = response.header['Content-Type']
-
-    if content_type != 'application/pdf' && response.body.present? &&
-       response.body != 'null' && !example.metadata[:skip_json_api_validation]
+    if !example.metadata[:skip_json_api_validation] && response.header['Content-Type'] != 'application/pdf' &&
+       response.body.present? && response.body != 'null'
 
       expect(JSONAPI.parse_response!(response.parsed_body)).to eq(nil)
     end
