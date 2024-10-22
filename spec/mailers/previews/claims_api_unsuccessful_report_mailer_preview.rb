@@ -104,10 +104,10 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
 
   def make_ews_submissions
     # ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).destroy_all
-    FactoryBot.create(:claims_api_evidence_waiver_submission, :errored)
-    FactoryBot.create(:claims_api_evidence_waiver_submission)
-    FactoryBot.create(:claims_api_evidence_waiver_submission, :errored)
-    FactoryBot.create(:claims_api_evidence_waiver_submission)
+    FactoryBot.create(:evidence_waiver_submission, :errored)
+    FactoryBot.create(:evidence_waiver_submission)
+    FactoryBot.create(:evidence_waiver_submission, :errored)
+    FactoryBot.create(:evidence_waiver_submission)
   end
 
   def make_itfs
