@@ -3483,7 +3483,7 @@
       }
     },
     "/v0/efolder/documents/{documentId}/download": {
-      "get": {
+      "post": {
         "description": "returns requested document",
         "parameters": [
           {
