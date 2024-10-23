@@ -12,13 +12,17 @@ module VANotify
     before_action :authenticate_callback
 
     def create
-      Rails.logger.debug { "Notification received: #{params.inspect}" }
-      if (notification = VANotify::Notification.find(params[:id]))
+      Rails.logger.info { "Notification received: #{params.inspect}" }
+      notification_id = params[:id]
+
+      if (notification = VANotify::Notification.find_by(notification_id: notification_id))
         Rails.logger.info("va_notify callbacks - Updating notification #{notification.id}")
         notification.update(notification_params)
       else
-        Rails.logger.info("va_notify callbacks - Received update for unknown notification #{params[:id]}")
+        Rails.logger.info("va_notify callbacks - Received update for unknown notification #{notification_id}")
       end
+
+      render json: { message: 'success' }, status: :ok
     end
 
     def authenticate_callback
@@ -43,8 +47,7 @@ module VANotify
     end
 
     def notification_params
-      params.require(:va_notify_notification).permit(
-        :notification_id,
+      params.permit(
         :reference,
         :to,
         :status,
