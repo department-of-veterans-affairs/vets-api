@@ -99,12 +99,18 @@ module MedicalRecords
     # @return [FHIR::Bundle]
     #
     def fhir_search(fhir_model, params)
-      reply = fhir_search_query(fhir_model, params)
+      tags = ["fhir_resource:#{fhir_model.to_s.gsub(':', '_')}"]
+      reply = measure_duration(event: 'fhir_search', tags:) do
+        fhir_search_query(fhir_model, params)
+      end
+
       combined_bundle = reply.resource
       loop do
         break unless reply.resource.next_link
 
-        reply = fhir_client.next_page(reply)
+        reply = measure_duration(event: 'fhir_search', tags:) do
+          fhir_client.next_page(reply)
+        end
         combined_bundle = merge_bundles(combined_bundle, reply.resource)
       end
       combined_bundle
@@ -126,7 +132,10 @@ module MedicalRecords
     end
 
     def fhir_read(fhir_model, id)
-      result = fhir_client.read(fhir_model, id)
+      tags = ["fhir_resource:#{fhir_model.to_s.gsub(':', '_')}"]
+      result = measure_duration(event: 'fhir_read', tags:) do
+        fhir_client.read(fhir_model, id)
+      end
       handle_api_errors(result) if result.resource.nil?
       result.resource
     end
@@ -244,6 +253,20 @@ module MedicalRecords
       field_path.split('.').reduce(object) do |obj, method|
         obj.respond_to?(method) ? obj.send(method) : nil
       end
+    end
+
+    def measure_duration(event: 'default', tags: [])
+      # Use time since boot to avoid clock skew issues
+      # https://github.com/sidekiq/sidekiq/issues/3999
+      start_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
+      result = yield
+      duration = (::Process.clock_gettime(::Process::CLOCK_MONOTONIC) - start_time).round(4)
+
+      # log duration
+      Rails.logger.info("Duration: #{duration}")
+
+      StatsD.measure("api.mhv.lighthouse.#{event}.duration", duration, tags:)
+      result
     end
   end
 end
