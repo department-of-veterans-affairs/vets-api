@@ -1415,6 +1415,8 @@ vanotify:
         error: null
         received: null
     burials: *vanotify_services_burial
+    21p_530: *vanotify_services_burial
+    21p_530v2: *vanotify_services_burial
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications

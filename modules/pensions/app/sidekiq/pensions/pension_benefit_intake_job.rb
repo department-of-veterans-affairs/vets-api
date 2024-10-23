@@ -204,7 +204,6 @@ module Pensions
     #
     def send_confirmation_email
       Pensions::NotificationEmail.new(@claim).deliver(:confirmation)
-      # @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
     rescue => e
       @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
     end
