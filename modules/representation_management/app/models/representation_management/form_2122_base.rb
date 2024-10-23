@@ -125,7 +125,7 @@ module RepresentationManagement
     end
 
     def representative_resolves
-      return unless find_representative.nil?
+      return unless representative.nil?
 
       errors.add(:representative_id, 'Representative not found')
     end

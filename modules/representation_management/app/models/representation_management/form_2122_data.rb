@@ -20,7 +20,7 @@ module RepresentationManagement
     end
 
     def organization_name_resolves?
-      return unless find_organization_name.nil?
+      return unless organization_name.nil?
 
       errors.add(:organization_name, 'Organization not found')
     end
