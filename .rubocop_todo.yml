@@ -709,7 +709,7 @@ RSpec/SubjectDeclaration:
     - 'spec/sidekiq/pager_duty/cache_global_downtime_spec.rb'
     - 'spec/uploaders/form1010cg/poa_uploader_spec.rb'
 
-# Offense count: 91
+# Offense count: 92
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: constant, string
@@ -763,6 +763,7 @@ RSpec/VerifiedDoubleReference:
     - 'spec/sidekiq/facilities/facility_location_download_job_spec.rb'
     - 'spec/sidekiq/facilities/pssg_download_spec.rb'
     - 'spec/sidekiq/form526_confirmation_email_job_spec.rb'
+    - 'spec/sidekiq/lighthouse/document_upload_spec.rb'
     - 'spec/sidekiq/pager_duty/cache_global_downtime_spec.rb'
     - 'spec/sidekiq/pager_duty/poll_maintenance_windows_spec.rb'
     - 'spec/sidekiq/webhooks/callback_url_job_spec.rb'
