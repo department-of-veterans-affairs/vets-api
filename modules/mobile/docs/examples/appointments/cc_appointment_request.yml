@@ -48,9 +48,5 @@ data:
       friendly_location_name: 'DAYTSHR -Dayton VA Medical Center'
       locationId: '938'
 meta:
-  errors: null
-  checkinWindow:
-    minutesBefore: 45
-    minutesAfter: 15
   upcomingAppointmentsCount: 1
   upcomingDaysLimit: 7
