@@ -23,6 +23,7 @@ module BenefitsDocuments
 
       start_timer = Time.zone.now
       claim_id = params[:claimId] || params[:claim_id]
+      tracked_item_id = params[:trackedItemIds] || params[:tracked_item_ids]
 
       unless claim_id
         raise Common::Exceptions::InternalServerError,
@@ -30,6 +31,7 @@ module BenefitsDocuments
       end
 
       jid = submit_document(params[:file], params, lighthouse_client_id)
+      record_evidence_submission(claim_id, jid, tracked_item_id)
       StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ['is_multifile:false'])
       jid
     end
@@ -41,6 +43,7 @@ module BenefitsDocuments
 
       start_timer = Time.zone.now
       claim_id = params[:claimId] || params[:claim_id]
+      tracked_item_id = params[:trackedItemIds] || params[:tracked_item_ids]
       unless claim_id
         raise Common::Exceptions::InternalServerError,
               ArgumentError.new("Claim with id #{claim_id} not found")
@@ -48,6 +51,7 @@ module BenefitsDocuments
 
       file_to_upload = generate_multi_image_pdf(params[:files])
       jid = submit_document(file_to_upload, params, lighthouse_client_id)
+      record_evidence_submission(claim_id, jid, tracked_item_id)
       StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ['is_multifile:true'])
       jid
     end
@@ -103,6 +107,18 @@ module BenefitsDocuments
         lighthouse_client_id,
         "#{config.base_api_path}/#{endpoint}"
       )
+    end
+
+    def record_evidence_submission(claim_id, job_id, tracked_item_id)
+      icn = @user.icn
+      job_class = self.class
+      upload_status = 'pending'
+      EvidenceSubmission.create(claim_id:,
+                                tracked_item_id:,
+                                icn:,
+                                job_id:,
+                                job_class:,
+                                upload_status:)
     end
 
     def generate_multi_image_pdf(image_list)

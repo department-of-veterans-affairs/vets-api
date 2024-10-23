@@ -132,6 +132,11 @@ RSpec.describe EVSSClaimService do
       end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     end
 
+    it 'records evidence submission' do
+      subject.upload_document(document)
+      expect(EvidenceSubmission.count).to eq(1)
+    end
+
     it 'updates document with sanitized filename' do
       subject.upload_document(document)
       job = EVSS::DocumentUpload.jobs.last
