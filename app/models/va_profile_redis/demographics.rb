@@ -25,8 +25,6 @@ module VAProfileRedis
     def demographics
       return unless @user.loa3?
 
-      # Need to dig into bio.preferred_name per app/models/va_profile_redis/demographics.rb?
-      # Or use lib/va_profile/models/preferred_name.rb
       response&.demographics
     end
 
