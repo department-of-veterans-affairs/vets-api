@@ -27,16 +27,6 @@ RSpec.describe 'VAOS::V2::CommunityCare::Eligibility', type: :request do
     context 'loa3 user' do
       let(:current_user) { build(:user, :vaos) }
 
-      context 'with flipper disabled' do
-        it 'does not have access' do
-          Flipper.disable('va_online_scheduling')
-          get "/vaos/v2/community_care/eligibility/#{service_type}"
-          expect(response).to have_http_status(:forbidden)
-          expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('You do not have access to online scheduling')
-        end
-      end
-
       it 'has access and returns eligibility true', :skip_mvi do
         VCR.use_cassette('vaos/cc_eligibility/get_eligibility_true', match_requests_on: %i[method path query]) do
           logged_info =

@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - addressLine1
       - addressPou
@@ -13,6 +15,7 @@ properties:
     properties:
       addressMetaData:
         type: object
+        additionalProperties: false
         properties:
           confidenceScore:
             type: integer

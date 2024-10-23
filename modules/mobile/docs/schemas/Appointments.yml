@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
   - meta
@@ -9,6 +10,7 @@ properties:
       $ref: "./Appointment.yml"
   meta:
     type: object
+    additionalProperties: false
     required:
       - errors
       - checkinWindow
@@ -19,6 +21,7 @@ properties:
         type: [array, null]
       checkinWindow:
         type: object
+        additionalProperties: false
         required:
           - minutesBefore
           - minutesAfter

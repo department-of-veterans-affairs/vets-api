@@ -1,7 +1,7 @@
 ## Running the app Natively
 
 
-To run vets-api and its redis and postgres dependencies run the following command from within the repo you cloned 
+To run vets-api and its redis and postgres dependencies run the following command from within the repo you cloned
 in the above steps.
 
 ```
@@ -14,6 +14,7 @@ directory will be reflected automatically via a docker volume mount, just as
 they would be when running rails directly.
 
 ### Running tests
+Follow these steps, or alternatively use [binstubs](binstubs.md).
 
 - `bundle exec rake spec` - Run the entire test suite  ( for `rspec spec`). Test coverage statistics are in `coverage/index.html`.
 - `make guard` - Run the guard test server that reruns your tests after files are saved. Useful for TDD!
@@ -51,7 +52,7 @@ clamav:
   port: '33100'
 ```
 
-1. In another terminal window, navigate to the project directory and run 
+1. In another terminal window, navigate to the project directory and run
 ```
 docker-compose -f docker-compose-clamav.yml up
 ```

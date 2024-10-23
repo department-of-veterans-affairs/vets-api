@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -13,6 +14,7 @@ properties:
     example: "Prescription"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - refillStatus
       - refillSubmitDate

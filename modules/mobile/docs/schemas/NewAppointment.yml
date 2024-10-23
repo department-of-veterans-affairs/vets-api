@@ -53,6 +53,7 @@ properties:
     description: The duration of the meeting, in minutes.
   slot:
     type: object
+    additionalProperties: false
     properties:
       id:
         pattern: '[A-Za-z0-9\-\.]{1,64}'

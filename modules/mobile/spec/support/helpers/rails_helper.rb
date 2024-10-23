@@ -17,7 +17,7 @@ RSpec.configure do |config|
     Flipper.enable('va_online_scheduling')
   end
 
-  config.after :each, :mobile_spec, type: :request do |example|
+  config.after :each, :mobile_spec, skipped?: false, type: :request do |example|
     content_type = response.header['Content-Type']
 
     if content_type != 'application/pdf' && response.body.present? &&
@@ -25,15 +25,5 @@ RSpec.configure do |config|
 
       expect(JSONAPI.parse_response!(response.parsed_body)).to eq(nil)
     end
-  end
-
-  config.before :each, :openapi_schema_validation, type: :request do
-    config.include Committee::Rails::Test::Methods
-    config.add_setting :committee_options
-    config.committee_options = {
-      schema_path: Rails.root.join('modules', 'mobile', 'docs', 'openapi.json').to_s,
-      prefix: '/mobile',
-      strict_reference_validation: true
-    }
   end
 end

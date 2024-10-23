@@ -3,6 +3,7 @@
 require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pension_burial/tag_sentry'
+require 'burials/monitor'
 require 'benefits_intake_service/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'pdf_info'
@@ -27,6 +28,16 @@ module Lighthouse
         "Failed all retries on Lighthouse::SubmitBenefitsIntakeClaim, last error: #{msg['error_message']}"
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+
+      begin
+        claim = SavedClaim.find(msg['args'].first)
+      rescue
+        claim = nil
+      end
+      if %w[21P-530V2 21P-530].include?(claim&.form_id)
+        burial_monitor = Burials::Monitor.new
+        burial_monitor.track_submission_exhaustion(msg, claim)
+      end
     end
 
     def perform(saved_claim_id) # rubocop:disable Metrics/MethodLength

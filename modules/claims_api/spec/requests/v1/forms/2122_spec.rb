@@ -393,8 +393,6 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
             .to receive(:check_file_number_exists!).and_return(nil)
           allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
             .to receive(:validate_dependent_claimant!).and_return(nil)
-          allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-            .to receive(:assign_poa_to_dependent!).and_return(nil)
         end
       end
 
@@ -406,23 +404,25 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
 
         context 'and the request includes a dependent claimant' do
-          it 'calls assign_poa_to_dependent!' do
+          it 'enqueues the PoaAssignDependentClaimantJob and not the PoaFormBuilderJob' do
             mock_acg(scopes) do |auth_header|
-              expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-                .to receive(:assign_poa_to_dependent!)
+              expect do
+                post path, params: data_with_claimant, headers: headers.merge(auth_header)
+              end.to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size).by(1)
 
-              post path, params: data_with_claimant, headers: headers.merge(auth_header)
+              expect do
+                post path, params: data_with_claimant, headers: headers.merge(auth_header)
+              end.not_to change(ClaimsApi::V1::PoaFormBuilderJob.jobs, :size)
             end
           end
         end
 
         context 'and the request does not include a dependent claimant' do
-          it 'does not call assign_poa_to_dependent!' do
+          it 'does not enqueue the PoaAssignDependentClaimantJob' do
             mock_acg(scopes) do |auth_header|
-              expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-                .not_to receive(:assign_poa_to_dependent!)
-
-              post path, params: data, headers: headers.merge(auth_header)
+              expect do
+                post path, params: data, headers: headers.merge(auth_header)
+              end.not_to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size)
             end
           end
         end
@@ -435,12 +435,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
           Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
         end
 
-        it 'does not call assign_poa_to_dependent!' do
+        it 'does not enqueue the PoaAssignDependentClaimantJob' do
           mock_acg(scopes) do |auth_header|
-            expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-              .not_to receive(:assign_poa_to_dependent!)
-
-            post path, params: data_with_claimant, headers: headers.merge(auth_header)
+            expect do
+              post path, params: data_with_claimant, headers: headers.merge(auth_header)
+            end.not_to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size)
           end
         end
       end

@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -13,12 +14,14 @@ properties:
     example: "user"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - authorizedServices
     properties:
       authorizedServices:
         description: All services with a boolean value of whether or not the service has access to that service.
         type: object
+        additionalProperties: false
         example:
           appeals: true
           appointments: true

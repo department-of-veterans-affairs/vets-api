@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - type
       - id
@@ -17,6 +19,7 @@ properties:
         example: "f26bc1f0-c389-4f3c-86e0-7712fb08fbe6"
       attributes:
         type: object
+        additionalProperties: false
         required:
           - id
           - aportnRecipId

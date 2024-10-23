@@ -16,6 +16,7 @@ module RepresentationManagement
           { consent_limits: [],
             conditions_of_appointment: [],
             claimant: claimant_params_permitted,
+            representative: representative_params_permitted,
             veteran: veteran_params_permitted }
         ]
       end
@@ -24,6 +25,18 @@ module RepresentationManagement
         [
           :date_of_birth,
           :relationship,
+          :phone,
+          :email,
+          { name: name_params_permitted,
+            address: address_params_permitted }
+        ]
+      end
+
+      def representative_params_permitted
+        [
+          :organization_id,
+          :id,
+          :type,
           :phone,
           :email,
           { name: name_params_permitted,
@@ -49,6 +62,8 @@ module RepresentationManagement
 
       def flatten_claimant_params(claimant_params)
         claimant = claimant_params[:claimant]
+        return {} if claimant.nil?
+
         address = claimant[:address]
         country_code = normalize_country_code_to_alpha2(address[:country])
         {

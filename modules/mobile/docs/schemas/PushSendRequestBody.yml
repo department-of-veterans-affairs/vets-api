@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - appName
   - templateId
@@ -12,6 +13,7 @@ properties:
     example: "0EF7C8C9390847D7B3B521426EFF5814"
   personalization:
     type: object
+    additionalProperties: false
     properties:
       "%APPOINTMENT_DATE%":
         type: string

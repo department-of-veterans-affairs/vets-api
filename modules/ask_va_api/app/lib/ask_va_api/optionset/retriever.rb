@@ -5,27 +5,7 @@ module AskVAApi
     class OptionsetRetrieverError < StandardError; end
 
     class Retriever < BaseRetriever
-      attr_reader :name
-
-      def initialize(name:, **args)
-        super(**args)
-        @name = name
-      end
-
       private
-
-      # list of valid name for payload:
-      # iris_inquiryabout
-      # iris_inquirysource
-      # iris_inquirytype
-      # iris_levelofauthentication
-      # iris_suffix
-      # iris_veteranrelationship
-      # iris_branchofservice
-      # iris_country
-      # iris_dependentrelationship
-      # iris_responsetype
-      # iris_province
 
       def fetch_data
         if user_mock_data

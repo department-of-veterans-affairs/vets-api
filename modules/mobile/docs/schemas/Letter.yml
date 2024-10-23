@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - type
       - id
@@ -17,11 +19,13 @@ properties:
         example: abe3f152-90b0-45cb-8776-4958bad0e0ef
       attributes:
         type: object
+        additionalProperties: false
         required:
           - letter
         properties:
           letter:
             type: object
+            additionalProperties: false
             required:
               - letterDescription
               - letterContent
@@ -33,6 +37,7 @@ properties:
                 type: array
                 items:
                   type: object
+                  additionalProperties: false
                   required:
                     - contentKey
                     - contentTitle

@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
@@ -6,6 +7,7 @@ properties:
     type: array
     items:
       type: object
+      additionalProperties: false
       properties:
         id:
           type: string
@@ -16,6 +18,7 @@ properties:
           example: "maintenance_window"
         attributes:
           type: object
+          additionalProperties: false
           required:
             - service
             - start_time

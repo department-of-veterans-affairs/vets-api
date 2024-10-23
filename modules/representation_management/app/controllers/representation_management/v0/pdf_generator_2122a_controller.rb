@@ -30,16 +30,6 @@ module RepresentationManagement
         )
       end
 
-      def representative_params_permitted
-        [
-          :type,
-          :phone,
-          :email,
-          { name: name_params_permitted,
-            address: address_params_permitted }
-        ]
-      end
-
       def flatten_form_params
         {
           record_consent: form_params[:record_consent],

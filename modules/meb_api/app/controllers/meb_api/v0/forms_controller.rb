@@ -32,7 +32,7 @@ module MebApi
 
         return render_claimant_error(claimant_response) unless valid_claimant_response?(claimant_response)
 
-        claimant_id = claimant_response['claimant']&.dig('claimant_id')
+        claimant_id = claimant_response['claimant']['claimant_id']
 
         return render_claimant_id_error if claimant_id.blank?
 

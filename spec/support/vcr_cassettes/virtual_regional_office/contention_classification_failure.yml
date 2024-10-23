@@ -2,10 +2,13 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8120/classifier
+    uri: http://localhost:8120/contention-classification/va-gov-claim-classifier
     body:
       encoding: UTF-8
-      string: '{"diagnostic_code":5235,"claim_id":190,"form526_submission_id":179}'
+      string: '{"claim_id":366,"form526_submission_id":366,"contentions":[{"contention_text":"Asthma,
+        bronchial","contention_type":"INCREASE","diagnostic_code":6602},{"contention_text":"plantar
+        fasciitis","contention_type":"NEW"},{"contention_text":"additional free text
+        entry","contention_type":"NEW","diagnostic_code":9999}]}'
     headers:
       Accept:
       - application/json

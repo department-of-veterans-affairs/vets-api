@@ -40,15 +40,6 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
     end
 
     describe 'authorization' do
-      context 'when feature flag is off' do
-        before { Flipper.disable('va_online_scheduling') }
-
-        it 'returns forbidden' do
-          post '/mobile/v0/appointment', params: va_proposed_request_body, headers: sis_headers
-          expect(response).to have_http_status(:forbidden)
-        end
-      end
-
       context 'when user does not have access' do
         let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
 
@@ -58,7 +49,7 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
         end
       end
 
-      context 'when feature flag is on and user has access' do
+      context 'when user has access' do
         context 'using VAOS' do
           before do
             Flipper.disable(:va_online_scheduling_use_vpg)

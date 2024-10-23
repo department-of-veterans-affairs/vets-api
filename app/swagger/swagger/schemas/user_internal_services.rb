@@ -46,6 +46,7 @@ module Swagger
                        example: true,
                        description: "ID.me boolean value if the signed-in 'wallet' has multifactor enabled"
               property :last_signed_in, type: :string, example: '2019-10-02T13:55:54.261Z'
+              property :initial_sign_in, type: :string, example: '2019-10-02T13:55:54.261Z'
               property :authn_context,
                        enum: ['dslogon', 'dslogon_loa3', 'dslogon_multifactor', 'myhealthevet', 'myhealthevet_loa3',
                               'myhealthevet_multifactor', LOA::IDME_LOA1_VETS, LOA::IDME_LOA3_VETS],
@@ -88,6 +89,11 @@ module Swagger
                          description: "level of assurance - During the login flow reference 'highest', otherwise, use
                                        'current'"
               end
+            end
+            property :onboarding, type: :object do
+              property :show,
+                       type: :boolean,
+                       description: 'Whether the client should display Veteran Onboarding information'
             end
             property :prefills_available do
               key :type, :array

@@ -16,22 +16,13 @@
         ],
         "properties": {
           "title": {
-            "type": "string",
-            "enum": [
-              "Bad request"
-            ]
+            "type": "string"
           },
           "detail": {
-            "type": "string",
-            "enum": [
-              "Malformed JSON in request body"
-            ]
+            "type": "string"
           },
           "code": {
-            "type": "string",
-            "enum": [
-              "400"
-            ]
+            "type": "string"
           },
           "status": {
             "type": "string",

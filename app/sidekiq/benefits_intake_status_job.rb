@@ -108,8 +108,6 @@ class BenefitsIntakeStatusJob
     StatsD.increment("#{STATS_KEY}.#{form_id}.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
     if result == 'failure'
-      tags = ['service:veteran-facing-forms', "function:#{form_id} form submission to Lighthouse"]
-      StatsD.increment('silent_failure', tags:)
       Rails.logger.error('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:, error_message:)
     else
       Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:)

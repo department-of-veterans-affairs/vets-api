@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
@@ -6,6 +7,7 @@ properties:
     type: array
     items:
       type: object
+      additionalProperties: false
       required:
         - type
         - id
@@ -20,6 +22,7 @@ properties:
           description: Randomly generated UUID
         attributes:
           type: object
+          additionalProperties: false
           required:
             - awardIndicator
             - dateOfBirth
