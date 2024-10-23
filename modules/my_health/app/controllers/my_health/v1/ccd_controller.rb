@@ -11,7 +11,7 @@ module MyHealth
       end
 
       # Downloads the CCD once it has been generated
-      # @param generated_datetime [String] date receieved from get_generate_ccd call property dateGenerated (e.g. 2024-10-18T09:55:58.000-0400)
+      # @param generated_datetime [String] date receieved from get_generate_ccd call property dateGenerated
       # @return [XML] Continuity of Care Document
       def download_ccd
         resource = bb_client.get_download_ccd(generated_datetime)
