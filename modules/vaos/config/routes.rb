@@ -1,18 +1,6 @@
 # frozen_string_literal: true
 
 VAOS::Engine.routes.draw do
-  namespace :v1, defaults: { format: :json } do
-    get '/Appointment/', to: 'appointments#index'
-    get '/HealthcareService', to: 'healthcare_services#index'
-    get '/Location/:id', to: 'locations#show'
-    get '/Organization', to: 'organizations#index'
-    get '/Organization/:id', to: 'organizations#show'
-    get '/Patient', to: 'patients#index'
-    get '/Slot', to: 'slots#index'
-    post '/Appointment', to: 'appointments#create'
-    put '/Appointment/:id', to: 'appointments#update'
-  end
-
   namespace :v2, defaults: { format: :json } do
     get 'apidocs', to: 'apidocs#index'
     get '/appointments', to: 'appointments#index'
