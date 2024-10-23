@@ -304,14 +304,14 @@
                           },
                           "zip_code_suffix": {
                             "type": "string",
-                            "example": "1234"
+                            "example": "6789"
                           }
                         }
                       },
                       "date_of_birth": {
                         "type": "string",
                         "format": "date",
-                        "example": "12/31/2000"
+                        "example": "1980-12-31"
                       },
                       "relationship": {
                         "type": "string",
@@ -402,7 +402,7 @@
                           },
                           "zip_code_suffix": {
                             "type": "string",
-                            "example": "1234"
+                            "example": "6789"
                           }
                         }
                       },
@@ -417,7 +417,7 @@
                       "date_of_birth": {
                         "type": "string",
                         "format": "date",
-                        "example": "12/31/2000"
+                        "example": "1980-12-31"
                       },
                       "service_number": {
                         "type": "string",
