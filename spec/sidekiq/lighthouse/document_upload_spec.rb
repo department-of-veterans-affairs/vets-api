@@ -3,11 +3,12 @@
 require 'rails_helper'
 
 require 'lighthouse/document_upload'
+require 'va_notify/service'
 
 RSpec.describe Lighthouse::DocumentUpload, type: :job do
   subject { described_class }
 
-  let(:notify_client_stub) { instance_double('VaNotify::Service') }
+  let(:notify_client_stub) { instance_double(VaNotify::Service) }
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }
   let(:filename) { 'doctors-note.pdf' }
