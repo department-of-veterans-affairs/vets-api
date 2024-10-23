@@ -14,6 +14,8 @@ module MebApi
         STATSD_KEY_PREFIX = 'api.dgi.automation'
 
         def get_claimant_info(type = 'Chapter33')
+          type ||= 'Chapter33'
+
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
@@ -26,7 +28,7 @@ module MebApi
         private
 
         def end_point(type)
-          "claimType/#{type}/claimants"
+          "claimType/#{type.capitalize}/claimants"
         end
 
         def request_headers

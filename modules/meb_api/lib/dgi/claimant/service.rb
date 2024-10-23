@@ -14,9 +14,12 @@ module MebApi
         STATSD_KEY_PREFIX = 'api.dgi.claimant'
 
         def get_claimant_info(type = 'Chapter33')
+          type ||= 'Chapter33'
+
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
+
             raw_response = perform(:post, end_point(type), { ssn: @user.ssn.to_s }.to_json, headers, options)
 
             MebApi::DGI::Claimant::ClaimantResponse.new(raw_response.status, raw_response)
@@ -26,7 +29,7 @@ module MebApi
         private
 
         def end_point(type)
-          "claimType/#{type}/claimants/claimantId"
+          "claimType/#{type.capitalize}/claimants/claimantId"
         end
 
         def request_headers
