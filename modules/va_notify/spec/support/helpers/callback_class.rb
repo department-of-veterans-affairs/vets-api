@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module OtherTeam
+module VANotify::OtherTeam
   class OtherForm
     def self.call(_notification)
       true

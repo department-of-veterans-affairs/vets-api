@@ -5,6 +5,7 @@ module VANotify
     def delegate(notification_callback)
       notification = VANotify::Notification.find_by(notification_id: notification_callback[:id])
 
+      # notification.callback is set by other teams, not user input
       klass = notification.callback.constantize
 
       if klass.respond_to?(:call)

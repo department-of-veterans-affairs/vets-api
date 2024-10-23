@@ -4,24 +4,27 @@ require 'rails_helper'
 require_relative '../support/helpers/callback_class'
 
 describe VANotify::StatusUpdate do
+  subject { described_class.new }
+
   describe '#delegate' do
     context 'notification with callback' do
-      it 'returns the callback klass' do
+      it 'invokes callback class #call' do
         notification_id = SecureRandom.uuid
-        create(:notification, notification_id:, callback: 'OtherTeam::OtherForm')
+        create(:notification, notification_id:, callback: 'VANotify::OtherTeam::OtherForm')
+        allow(VANotify::OtherTeam::OtherForm).to receive(:call)
 
         provider_callback = {
           id: notification_id
         }
 
-        received_callback = described_class.new.delegate(provider_callback)
+        subject.delegate(provider_callback)
 
-        expect(received_callback).to be_truthy
+        expect(VANotify::OtherTeam::OtherForm).to have_received(:call)
       end
 
-      it 'logs error message if callback klass throws error during #call' do
+      it 'logs error message if #call fails' do
         notification_id = SecureRandom.uuid
-        notification = create(:notification, notification_id:, callback: 'OtherTeam::OtherForm')
+        notification = create(:notification, notification_id:, callback: 'VANotify::OtherTeam::OtherForm')
         provider_callback = {
           id: notification_id
         }
@@ -31,7 +34,7 @@ describe VANotify::StatusUpdate do
 
         expect(Rails.logger).to receive(:info).with('Something went wrong')
 
-        described_class.new.delegate(provider_callback)
+        subject.delegate(provider_callback)
       end
 
       it 'logs a message and source location if callback klass does not implement #call' do
@@ -44,7 +47,7 @@ describe VANotify::StatusUpdate do
         expect(Rails.logger).to receive(:info).with(message: 'The callback class does not implement #call')
         expect(Rails.logger).to receive(:info).with(source: notification.source_location)
 
-        described_class.new.delegate(provider_callback)
+        subject.delegate(provider_callback)
       end
     end
 
@@ -63,7 +66,7 @@ describe VANotify::StatusUpdate do
         expect(Rails.logger).to receive(:info).with(source: notification.source_location, status: notification.status,
                                                     error_message: expected_error_message)
 
-        described_class.new.delegate(provider_callback)
+        subject.delegate(provider_callback)
       end
     end
   end
