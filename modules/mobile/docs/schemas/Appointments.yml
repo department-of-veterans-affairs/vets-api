@@ -10,9 +10,11 @@ properties:
       $ref: "./Appointment.yml"
   meta:
     type: object
+    additionalProperties: false
     required:
       - upcomingAppointmentsCount
       - upcomingDaysLimit
+      - pagination
     properties:
       errors:
         type: [array, null]
@@ -22,3 +24,24 @@ properties:
       upcomingDaysLimit:
         type: number
         description: The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 7.
+      pagination:
+        type: object
+        additionalProperties: false
+        required:
+          - currentPage
+          - perPage
+          - totalPages
+          - totalEntries
+        properties:
+          currentPage:
+            type: number
+            example: 1
+          perPage:
+            type: number
+            example: 10
+          totalPages:
+            type: number
+            example: 2
+          totalEntries:
+            type: number
+            example: 15
