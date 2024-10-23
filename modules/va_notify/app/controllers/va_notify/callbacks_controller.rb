@@ -25,6 +25,8 @@ module VANotify
       render json: { message: 'success' }, status: :ok
     end
 
+    private
+
     def authenticate_callback
       authenticate_token || authenticity_error
     end
