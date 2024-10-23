@@ -31,7 +31,7 @@ describe VaNotify::Service do
       }
     }
   end
-  let(:response) { 
+  let(:response) {
     {
       "id": "a7855d03-7e57-474a-aa74-95322f0eb12c",
     }
@@ -110,13 +110,18 @@ describe VaNotify::Service do
       expect(StatsD).to have_received(:increment).with('api.vanotify.send_email.total')
     end
 
-    it 'creates a notification record' do
-      allow(Notifications::Client).to receive(:new).and_return(notification_client)
-      allow(notification_client).to receive(:send_email).and_return(response)
-      allow(response).to receive(:[]).and_return("a7855d03-7e57-474a-aa74-95322f0eb12c")
+    context 'when :notification_creation flag is on' do
+      it 'creates a notification record' do
+        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(notification_client).to receive(:send_email).and_return(response)
+        allow(response).to receive(:[]).and_return("a7855d03-7e57-474a-aa74-95322f0eb12c")
+        # allow(VaNotify::Service).to receive(:caller_locations).with({1,1}).and_return(locations)
+        # allow(locations).to receive(:[])
 
-      subject.send_email(send_email_parameters)
-      expect(VANotify::Notification.count).to eq(1)
+        subject.send_email(send_email_parameters)
+        expect(VANotify::Notification.count).to eq(1)
+      end
     end
   end
 
@@ -136,13 +141,16 @@ describe VaNotify::Service do
       expect(StatsD).to have_received(:increment).with('api.vanotify.send_sms.total')
     end
 
-    it 'creates a notification record' do
-      allow(Notifications::Client).to receive(:new).and_return(notification_client)
-      allow(notification_client).to receive(:send_sms).and_return(response)
-      allow(response).to receive(:[]).and_return("a7855d03-7e57-474a-aa74-95322f0eb12c")
+    context 'when :notification_creation flag is on' do
+      it 'creates a notification record' do
+        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(notification_client).to receive(:send_sms).and_return(response)
+        allow(response).to receive(:[]).and_return("a7855d03-7e57-474a-aa74-95322f0eb12c")
 
-      subject.send_sms(send_sms_parameters)
-      expect(VANotify::Notification.count).to eq(1)
+        subject.send_sms(send_sms_parameters)
+        expect(VANotify::Notification.count).to eq(1)
+      end
     end
   end
 

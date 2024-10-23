@@ -27,7 +27,9 @@ module VaNotify
       response = with_monitoring do
         notify_client.send_email(args)
       end
-      create_notification(response)
+      if Flipper.enabled?(:notification_creation)
+        create_notification(response)
+      end
     rescue => e
       handle_error(e)
     end
@@ -36,7 +38,9 @@ module VaNotify
       response = with_monitoring do
         notify_client.send_sms(args)
       end
-      create_notification(response)
+      if Flipper.enabled?(:notification_creation)
+        create_notification(response)
+      end
     rescue => e
       handle_error(e)
     end
@@ -90,7 +94,7 @@ module VaNotify
 
       notification = VANotify::Notification.new(
         notification_id: response["id"],
-       # source_location: ""#caller_locations(1, 1)[0].label
+        #source_location: caller_locations(1, 1)[0].label
       )
 
       if notification.save
