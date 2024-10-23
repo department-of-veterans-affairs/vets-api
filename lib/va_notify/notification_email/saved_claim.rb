@@ -2,7 +2,6 @@
 
 module VANotify
   module NotificationEmail
-
     STATSD = 'api.va_notify.notification_email'
 
     CONFIRMATION = :confirmation
@@ -12,60 +11,56 @@ module VANotify
     # error indicating failure to send email
     class FailureToSend < StandardError; end
 
-    class SavedClaim
+    def monitor_send_failure(error_message, tags:, context: {})
+      metric = "#{VANotify::NotificationEmail::STATSD}.failure"
+      StatsD.increment(metric, tags:)
 
-      def initialize(saved_claim, service_name: nil)
+      payload = {
+        statsd: metric,
+        error_message:,
+        context:
+      }
+      Rails.logger.error('VANotify::NotificationEmail #send failure!', **payload)
+    end
+
+    class SavedClaim
+      def initialize(saved_claim, user: nil, service_name: nil)
         @claim = saved_claim
-        @service_name = service_name
+        @user = user
+        @vanotify_service = service_name
+        @config = Settings.vanotify.services[vanotify_service]
+        raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless config
       end
 
-      def send(type, at: nil)
-        config = Settings.vanotify.services[service_name]
-        config = config&.email[type]
-        raise ArgumentError, "Invalid service '#{service_name}' or type '#{type}'" unless config
+      def send(email_type, at: nil)
+        email_config = config&.email&.[](email_type)
+        raise ArgumentError, "Invalid email_type '#{email_type}'" unless email_config
 
-        email_template_id = able_to_send?(config)
+        email_template_id = able_to_send?(email_config)
         return unless email_template_id
 
-        if at
-          VANotify::EmailJob.perform_at(
-            at,
-            email,
-            email_template_id,
-            personalization
-          )
-        else
-          VANotify::EmailJob.perform_async(
-            email,
-            email_template_id,
-            personalization
-          )
-        end
+        at ? enqueue_email(email_template_id, at) : send_email_now(email_template_id)
 
-        claim.insert_notification(config.template_id)
+        claim.insert_notification(email_config.template_id)
       rescue => e
-        metric = "#{VANotify::NotificationEmail::STATSD}.failure"
-
-        tags = ["service_name:#{service_name}", "form_id:#{claim.form_id}", "email_template_id:#{email_template_id}"]
-        StatsD.increment(metric, tags:)
-
-        payload = {
-          statsd: metric,
+        tags = ["service_name:#{vanotify_service}", "form_id:#{claim.form_id}",
+                "email_template_id:#{email_template_id}"]
+        context = {
           form_id: claim.form_id,
-          saved_claim_id: claim.id
-          service_name:
+          saved_claim_id: claim.id,
+          service_name: vanotify_service,
+          email_type:,
           email_template_id:
-          message: e&.message
         }
-        Rails.logger.error('VANotify::NotificationEmail#send failure!', **payload)
+        VANotify::NotificationEmail.monitor_send_failure(e&.message, tags:, context:)
       end
 
       private
 
-      attr_reader :claim
+      attr_reader :claim, :config, :user
 
-      def service_name
-        @service_name ||= claim.form_id.downcase.gsub(/-/, '_')
+      def vanotify_service
+        @vanotify_service ||= claim.form_id.downcase.gsub(/-/, '_')
       end
 
       def flipper?(flipper_id)
@@ -73,29 +68,48 @@ module VANotify
       end
 
       def able_to_send?(email_config)
-        raise FailureToSend, 'Invalid configuration' if !email_config.template_id
-        raise FailureToSend, 'Missing email' if email.blank?
-        raise FailureToSend, 'Notification already sent' if claim.va_notification?(config.template_id)
+        raise VANotify::NotificationEmail::FailureToSend, 'Invalid configuration' unless email_config.template_id
+        raise VANotify::NotificationEmail::FailureToSend, 'Missing email' if email.blank?
+
+        if claim.va_notification?(email_config.template_id)
+          raise VANotify::NotificationEmail::FailureToSend, 'Notification already sent'
+        end
 
         email_config.template_id if flipper?(email_config.flipper)
       end
 
+      def enqueue_email(email_template_id, at)
+        VANotify::EmailJob.perform_at(
+          at,
+          email,
+          email_template_id,
+          personalization
+        )
+      end
+
+      def send_email_now(email_template_id)
+        VANotify::EmailJob.perform_async(
+          email,
+          email_template_id,
+          personalization
+        )
+      end
+
       def email
-        claim.email
+        claim.email || user&.email
       end
 
       def first_name
-        claim.parsed_form.dig('veteranFullName', 'first')
+        claim.first_name || user&.first_name
       end
 
       def personalization
         {
           'first_name' => first_name&.titleize,
           'date_submitted' => claim.submitted_at,
-          'confirmation_number' => claim.confirmation_number,
+          'confirmation_number' => claim.confirmation_number
         }
       end
-
     end
   end
 end

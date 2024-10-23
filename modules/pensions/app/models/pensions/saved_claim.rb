@@ -69,6 +69,15 @@ module Pensions
     end
 
     ##
+    # utility function to retrieve claimant first name from form
+    #
+    # @return [String] the claimant first name
+    #
+    def first_name
+      parsed_form.dig('veteranFullName', 'first')
+    end
+
+    ##
     # enqueue the sending of the submission confirmation email
     #
     # @see VANotify::EmailJob

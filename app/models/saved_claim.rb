@@ -117,6 +117,14 @@ class SavedClaim < ApplicationRecord
     ''
   end
 
+  def email
+    nil
+  end
+
+  def first_name
+    ''
+  end
+
   ##
   # insert notifcation after VANotify email send
   #
