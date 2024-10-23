@@ -166,7 +166,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
     it 'saves error message and logs error' do
       expect(Rails.logger).to receive(:error).with('Form5655Submission failed', message)
       expect(StatsD).to receive(:increment).with(
-        'silent_failure', {tags: %w[service:debt-resolution function:register_failure] }
+        'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
       )
       expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
       form5655_submission.register_failure(message)
@@ -180,7 +180,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
 
         expect(Rails.logger).to receive(:error).with('Form5655Submission failed', message)
         expect(StatsD).to receive(:increment).with(
-          'silent_failure', {tags: %w[service:debt-resolution function:register_failure] }
+          'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
         )
         expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
         expect(StatsD).to receive(:increment).with('api.fsr_submission.combined.failure')
