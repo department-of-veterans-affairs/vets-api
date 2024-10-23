@@ -97,6 +97,27 @@ module BBInternal
       streaming_get(uri, token_headers, header_callback, yielder)
     end
 
+    ##
+    # @param icn - user icn
+    # @param last_name - user last name
+    # @return JSON [{ dateGenerated, status, patientId }]
+    #
+    def get_generate_ccd(icn, last_name)
+      response = perform(:get, "bluebutton/healthsummary/#{icn}/#{last_name}/xml", nil, token_headers)
+      response.body
+    end
+
+    ##
+    # @param date - receieved from get_generate_ccd call property dateGenerated (e.g. 2024-10-18T09:55:58.000-0400)
+    # @return - Continuity of Care Document in XML format
+    #
+    def get_download_ccd(date)
+      token_headers['Accept'] = 'application/xml'
+
+      response = perform(:get, "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML", nil, token_headers)
+      response.body
+    end
+
     private
 
     ##
