@@ -8,7 +8,7 @@ RSpec.describe SimpleFormsApi::S3::SubmissionArchiveHandler do
   let(:form_data) { File.read("modules/simple_forms_api/spec/fixtures/form_json/vba_#{form_type.tr('-', '_')}.json") }
   let(:submissions) do
     create_list(:form_submission, 4, :pending, form_type:, form_data:) do |submission|
-      submission.update!(benefits_intake_uuid: SecureRandom.uuid)
+      create(:form_submission_attempt, form_submission: submission, benefits_intake_uuid: SecureRandom.uuid)
     end
   end
   let(:benefits_intake_uuids) { submissions.map(&:benefits_intake_uuid) }
