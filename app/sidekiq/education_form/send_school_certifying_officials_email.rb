@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'gi/client'
 
 module EducationForm
@@ -31,7 +32,7 @@ module EducationForm
     private
 
     def get_institution(facility_code)
-      GI::Client.new.get_institution_details_v0({ id: facility_code })[:data][:attributes]
+      GI::Client.new.get_institution_details_v0({ id: facility_code }).body[:data][:attributes]
     end
 
     def school_changed?
