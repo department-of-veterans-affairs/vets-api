@@ -465,11 +465,6 @@
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
                         "upcomingDaysLimit": 7
                       }
@@ -529,11 +524,6 @@
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
                         "upcomingDaysLimit": 7
                       }
@@ -593,11 +583,6 @@
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
                         "upcomingDaysLimit": 7
                       }
@@ -648,11 +633,6 @@
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
                         "upcomingDaysLimit": 7
                       }
@@ -728,11 +708,6 @@
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
                         "upcomingDaysLimit": 7
                       }
@@ -810,11 +785,6 @@
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
                         "upcomingDaysLimit": 7
                       }
@@ -892,10 +862,6 @@
                             "source": "VA Service"
                           }
                         ],
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
                         "upcomingDaysLimit": 7
                       }
