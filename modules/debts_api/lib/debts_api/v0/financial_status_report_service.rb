@@ -232,7 +232,10 @@ module DebtsApi
       schema_path = Rails.root.join('lib', 'debt_management_center', 'schemas', 'fsr.json').to_s
       errors = JSON::Validator.fully_validate(schema_path, form)
 
-      raise FSRInvalidRequest if errors.any?
+      if errors.any?
+        Rails.logger.error("DebtsApi::V0::FinancialStatusReportService validation failed: #{errors}")
+        raise FSRInvalidRequest
+      end
     end
 
     def send_confirmation_email(template_id)

@@ -3482,6 +3482,81 @@
         "summary": "/v0/efolder/documents"
       }
     },
+    "/v0/efolder/documents/{documentId}/download": {
+      "post": {
+        "description": "returns requested document",
+        "parameters": [
+          {
+            "description": "File name of the document to be returned.",
+            "in": "query",
+            "name": "file_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "ID of the document to be returned.",
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "{93631483-E9F9-44AA-BB55-3552376400D8}"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/efolder/documents/{documentId}/download"
+      }
+    },
     "/v0/enrollment-status": {
       "get": {
         "description": "Returns the user's VA enrollment status.",
@@ -18216,39 +18291,53 @@
             ],
             "properties": {
               "cvxCode": {
-                "type": "integer, null",
+                "type": "integer",
+                "nullable": true,
                 "example": 140
               },
               "date": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "2009-03-19T12:24:55Z"
               },
               "doseNumber": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Booster"
               },
               "doseSeries": {
-                "type": "integer, null",
+                "type": {
+                  "anyOf": [
+                    "string",
+                    "integer"
+                  ]
+                },
+                "nullable": true,
                 "example": 1
               },
               "groupName": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "FLU"
               },
               "manufacturer": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "nil"
               },
               "note": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
               },
               "shortDescription": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Influenza  seasonal  injectable  preservative free"
               },
               "reaction": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Swelling"
               }
             }
@@ -18269,10 +18358,9 @@
                 ],
                 "properties": {
                   "data": {
-                    "type": [
-                      "object",
-                      null
-                    ],
+                    "type": "object",
+                    "additionalProperties": false,
+                    "nullable": true,
                     "required": [
                       "id",
                       "type"
@@ -18296,10 +18384,8 @@
                     ],
                     "properties": {
                       "related": {
-                        "type": [
-                          "string",
-                          null
-                        ],
+                        "type": "string",
+                        "nullable": true,
                         "example": "staging-api.va.gov/mobile/v0/health/locations/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000"
                       }
                     }
@@ -23351,19 +23437,19 @@
                 ],
                 "properties": {
                   "currentPage": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 1
                   },
                   "perPage": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 10
                   },
                   "totalPages": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 2
                   },
                   "totalEntries": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 15
                   }
                 }

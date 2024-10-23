@@ -19,9 +19,11 @@ jobs:
           latest_commit_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/commits/master")
           latest_sha=$(echo "${latest_commit_info}" | jq -r '.sha')
-          commit_time=$(echo "${latest_commit_info}" | jq -r '.commit.committer.date')
           echo "latest_sha=${latest_sha}" >> $GITHUB_ENV
+          echo "latest_sha: ${latest_sha}"
+          commit_time=$(echo "${latest_commit_info}" | jq -r '.commit.committer.date')
           echo "commit_time=${commit_time}" >> $GITHUB_ENV
+          echo "commit_time: ${commit_time}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -72,6 +74,9 @@ jobs:
           deployed_sha=${{ env.staging_deployed_sha }}
           info_message="Latest commit (${latest_sha:0:8}, ${commit_time}) to staging"
           action_items="\n- <https://argocd.vfs.va.gov/applications/vets-api-staging|ArgoCD staging>\n- <https://github.com/department-of-veterans-affairs/vets-api/actions/workflows/build.yml?query=branch%3Amaster|Build, Push, & Deploy> GitHub Action\n- <https://www.va.gov/atlas/apps/vets-api/deploy_status|Deploy dashboard>\n- <https://github.com/department-of-veterans-affairs/vets-api/commits/master/|Latest commits>"
+
+          echo "commit_time: $(date -d "${commit_time}" +%s)"
+          echo "current_time: $(date -d '45 minutes ago' +%s)"
 
           if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
@@ -125,11 +130,22 @@ jobs:
           ssm_parameter: /devops/github_actions_slack_bot_user_token
           env_variable_name: SLACK_BOT_TOKEN
 
-      - name: Slack notify
+      - name: Notify for deployment failure
+        if: ${{ env.latest_sha != '' }}
         uses: ./.github/actions/vsp-github-actions/slack-socket
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
           message: "Vets API Deployment Delay:"
           blocks: "[{\"type\": \"divider\"}, {\"type\": \"section\", \"text\": { \"type\": \"mrkdwn\", \"text\": \":scared_and_sweating_smiley: GitHub Action Runner Workflow failed! :scared_and_sweating_smiley:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n*Development Summary:*\n${{ needs.check-deployment.outputs.development_summary }}\n\n*Staging Summary:*\n${{ needs.check-deployment.outputs.staging_summary }}\"}}, {\"type\": \"divider\"}]"
+          channel_id: "C039HRTHXDH"
+
+      - name: Notify for other failure
+        if: ${{ env.latest_sha == '' }}
+        uses: ./.github/actions/vsp-github-actions/slack-socket
+        with:
+          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
+          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
+          message: "Vets API Deployment Delay:"
+          blocks: "[{\"type\": \"divider\"}, {\"type\": \"section\", \"text\": { \"type\": \"mrkdwn\", \"text\": \":scared_and_sweating_smiley: GitHub Action Runner Workflow failed! :scared_and_sweating_smiley:\n\n Unknown error occured. See logs:\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\"}}, {\"type\": \"divider\"}]"
           channel_id: "C039HRTHXDH"
