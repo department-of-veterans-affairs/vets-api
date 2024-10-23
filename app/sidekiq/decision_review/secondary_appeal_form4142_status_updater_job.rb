@@ -27,6 +27,10 @@ module DecisionReview
         status, attributes = get_status_and_attributes(form.guid)
         handle_form_status_metrics_and_logging(form, status)
         update_form_status(form, status, attributes)
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.error")
+        Rails.logger.error('DecisionReview::SecondaryAppealForm4142StatusUpdaterJob error',
+                           { guid: form.guid, message: e.message })
       end
     end
 

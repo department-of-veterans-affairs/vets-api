@@ -134,8 +134,21 @@ RSpec.describe DecisionReview::SecondaryAppealForm4142StatusUpdaterJob, type: :j
           end
         end
 
-        context 'an error occurs during processing' do
-          it 'logs the error'
+        context 'an error occurs while fetching the status' do
+          before do
+            allow(service).to receive(:get_supplemental_claim_upload).and_raise(DecisionReviewV1::ServiceException)
+            allow(Rails.logger).to receive(:error)
+          end
+
+          it 'logs the error' do
+            subject.new.perform
+
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.secondary_appeal_form4142_status_updater.error').exactly(3).times
+            expect(Rails.logger).to have_received(:error)
+              .with('DecisionReview::SecondaryAppealForm4142StatusUpdaterJob error',
+                    { guid: form1.guid, message: 'BackendServiceException: {:code=>"unmapped_service_exception"}' })
+          end
         end
       end
     end
