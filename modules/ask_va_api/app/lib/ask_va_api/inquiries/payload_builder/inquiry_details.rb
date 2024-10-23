@@ -4,7 +4,7 @@ module AskVAApi
   module Inquiries
     module PayloadBuilder
       class InquiryDetails
-        include SharedHelpers
+        # include SharedHelpers
 
         attr_reader :inquiry_params
 
