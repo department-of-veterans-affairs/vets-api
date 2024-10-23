@@ -26,14 +26,15 @@ class FormSubmissionAttempt < ApplicationRecord
     event :fail do
       after do
         if should_send_simple_forms_email
+          form_type = form_submission.form_type
           Rails.logger.info({
                               message: 'Preparing to send Form Submission Attempt error email',
                               form_submission_id:,
                               benefits_intake_uuid: form_submission.benefits_intake_uuid,
-                              form_type: form_submission.form_type
+                              form_type:
                             })
           simple_forms_enqueue_result_email(:error)
-          tags = ['service:veteran-facing-forms', "function:#{form_id} form submission to Lighthouse"]
+          tags = ['service:veteran-facing-forms', "function:#{form_type} form submission to Lighthouse"]
           StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
         end
       end
