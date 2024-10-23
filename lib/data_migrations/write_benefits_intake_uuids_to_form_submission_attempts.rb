@@ -5,7 +5,7 @@ module DataMigrations
     module_function
 
     def run
-      FormSubmissionAttempt.all.find_each do |attempt|
+      FormSubmissionAttempt.find_each do |attempt|
         next if attempt.benefits_intake_uuid
 
         attempt.update(benefits_intake_uuid: attempt.form_submission.benefits_intake_uuid)
