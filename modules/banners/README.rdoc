@@ -1,10 +1,7 @@
 = Banners
-TODO: Short description and motivation.
+The Banners API provides a means to generate VA.gov banners quickly, without relying on content-build.
 
 == Installation
 Ensure the following line is in the root project's Gemfile:
 
   gem 'banners', path: 'modules/banners'
-
-== License
-This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

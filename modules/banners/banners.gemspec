@@ -13,8 +13,9 @@ Gem::Specification.new do |spec|
   spec.email       = ['221539+dsasser@users.noreply.github.com']
   spec.homepage    = 'https://api.va.gov'
   spec.summary     = 'An api.va.gov module'
-  spec.description = 'This module was auto-generated please update this description'
+  spec.description = 'The Banners API.'
   spec.license     = 'CC0-1.0'
 
   spec.files = Dir['{app,config,db,lib}/**/*', 'Rakefile', 'README.md']
+  spec.metadata['rubygems_mfa_required'] = 'true'
 end
