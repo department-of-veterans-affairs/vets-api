@@ -21,6 +21,8 @@ module DecisionReview
     sidekiq_options retry: false, unique_for: 30.minutes
 
     def perform
+      return unless enabled? && forms.present?
+
       StatsD.increment("#{STATSD_KEY_PREFIX}.processing_records", forms.size)
 
       forms.each do |form|
@@ -35,6 +37,10 @@ module DecisionReview
     end
 
     private
+
+    def enabled?
+      Flipper.enabled?(:decision_review_track_4142_submissions)
+    end
 
     def decision_review_service
       @service ||= DecisionReviewV1::Service.new

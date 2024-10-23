@@ -153,4 +153,16 @@ RSpec.describe DecisionReview::SecondaryAppealForm4142StatusUpdaterJob, type: :j
       end
     end
   end
+
+  context 'with flag disabled' do
+    before do
+      Flipper.disable :decision_review_track_4142_submissions
+    end
+
+    it 'does not query SecondaryAppealForm records' do
+      expect(SecondaryAppealForm).not_to receive(:where)
+
+      subject.new.perform
+    end
+  end
 end
