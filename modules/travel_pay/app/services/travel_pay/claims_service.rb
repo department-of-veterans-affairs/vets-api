@@ -6,7 +6,6 @@ module TravelPay
       @auth_manager = auth_manager
     end
 
-    # def get_claims(veis_token, btsss_token, params = {})
     def get_claims(params = {})
       @auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims(veis_token, btsss_token)
