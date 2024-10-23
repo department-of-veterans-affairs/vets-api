@@ -14,6 +14,8 @@ module AskVAApi
         end
 
         def formatted_pronouns(pronouns)
+          return pronouns[:pronouns_not_listed_text] if pronouns[:pronouns_not_listed_text].present?
+
           pronouns&.key(true).to_s.tr('_', '/')
         end
 
