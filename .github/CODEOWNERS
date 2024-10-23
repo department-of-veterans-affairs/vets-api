@@ -1001,6 +1001,7 @@ lib/vic @department-of-veterans-affairs/octo-identity
 lib/virtual_regional_office @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/vre @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/res @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/va_notify @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/webhooks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/zero_silent_failures @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/accredited_representatives @department-of-veterans-affairs/accredited-representation-management
