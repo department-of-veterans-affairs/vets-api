@@ -182,30 +182,89 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
   end
 
   describe '#submit_vha_fsr' do
-    let(:form_submission) { build(:debts_api_form5655_submission) }
-    let(:user) { build(:user, :loa3) }
+    let(:user_account) { create(:user_account, '') }
+    let(:form_submission) { build(:debts_api_form5655_submission, user_account_id: user_account.id) }
     let(:user_data) { build(:user_profile_attributes) }
-
-    before do
-      mock_sharepoint_upload
+    let(:logingov_uuid) { 'some-logingov_uuid' }
+    let(:user_info) do
+      OpenStruct.new(
+        {
+          verified_at: '1-1-2022',
+          sub: logingov_uuid,
+          social_security_number: '123456789',
+          birthdate: '2022-01-01',
+          given_name: 'some-name',
+          family_name: 'some-family-name',
+          email: 'some-email'
+        }
+      )
     end
+    let(:mpi_profile) do
+      build(:mpi_profile,
+            ssn: user_info.social_security_number,
+            birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
+            given_names: [user_info.given_name],
+            family_name: user_info.family_name)
+    end
+    let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
-    it 'submits to the VBS endpoint' do
-      service = described_class.new(user_data)
-      VCR.use_cassette('dmc/submit_to_vbs') do
-        expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+    context 'success' do
+      before do
+        mock_sharepoint_upload
+      end
+
+      it 'submits to the VBS endpoint' do
+        service = described_class.new(user_data)
+        VCR.use_cassette('dmc/submit_to_vbs') do
+          expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+        end
+      end
+
+      context 'with streamlined waiver' do
+        let(:form_submission) { build(:debts_api_sw_form5655_submission) }
+        let(:non_streamlined_form_submission) { build(:debts_api_non_sw_form5655_submission) }
+
+        it 'submits to the VBS endpoint' do
+          VCR.use_cassette('dmc/submit_to_vbs') do
+            service = described_class.new(user_data)
+            expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+          end
+        end
       end
     end
 
-    context 'with streamlined waiver' do
-      let(:form_submission) { build(:debts_api_sw_form5655_submission) }
-      let(:non_streamlined_form_submission) { build(:debts_api_non_sw_form5655_submission) }
+    context 'failure' do
+      it 'raises an error when submission fails' do
+        service = described_class.new(user_data)
 
-      it 'submits to the VBS endpoint' do
-        VCR.use_cassette('dmc/submit_to_vbs') do
-          service = described_class.new(user_data)
-          expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+        allow_any_instance_of(MPI::Service)
+          .to receive(:find_profile_by_identifier).and_return(find_profile_response)
+        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(Rails.root.join(
+          *'/spec/fixtures/dmc/5655.pdf'.split('/')
+        ).to_s)
+        allow_any_instance_of(DebtManagementCenter::Sharepoint::Request)
+          .to receive(:set_sharepoint_access_token).and_return('fake token')
+
+        Timecop.freeze(Time.new(2024, 10, 22).utc) do
+          VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+            expect do
+              service.submit_vha_fsr(form_submission)
+            end.to raise_error(Common::Exceptions::BackendServiceException,
+                               'BackendServiceException: {:status=>400, :detail=>nil, :code=>"VA900", :source=>nil}')
+          end
         end
+      end
+
+      it 'raises an error when Faraday fails' do
+        service = described_class.new(user_data)
+
+        # Mock the Faraday connection and raise an error
+        allow_any_instance_of(Faraday::Connection)
+          .to receive(:post).and_raise(StandardError.new('Upload error'))
+
+        expect do
+          service.submit_vha_fsr(form_submission)
+        end.to raise_error(StandardError, 'Upload error')
       end
     end
   end
