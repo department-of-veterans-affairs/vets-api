@@ -46,7 +46,6 @@ data:
       best_time_to_call:
         - 'Morning'
       friendly_location_name: 'DAYTSHR -Dayton VA Medical Center'
-      locationId: '938'
 meta:
   upcomingAppointmentsCount: 1
   upcomingDaysLimit: 7

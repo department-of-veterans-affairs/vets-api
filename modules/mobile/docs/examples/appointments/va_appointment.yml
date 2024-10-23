@@ -41,7 +41,6 @@ data:
       patient_email: null
       best_time_to_call: null
       friendly_location_name: null
-      locationId: '938'
 meta:
   upcomingAppointmentsCount: 1
   upcomingDaysLimit: 7
