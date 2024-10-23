@@ -17,11 +17,10 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
   describe 'PowerOfAttorney' do
     before do
-      Veteran::Service::Representative.create!(representative_id: '999999999999',
-                                               poa_codes: [organization_poa_code],
-                                               first_name: 'George', last_name: 'Washington')
-      Veteran::Service::Organization.create!(poa: organization_poa_code,
-                                             name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
+      FactoryBot.create(:veteran_representative, representative_id: '999999999999',
+                                                 poa_codes: [organization_poa_code])
+      FactoryBot.create(:veteran_organization, poa: organization_poa_code,
+                                               name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
 
       Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
     end
@@ -261,9 +260,9 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
       context 'multiple reps with same poa code and registration number' do
         let(:rep_id) do
-          Veteran::Service::Representative.create!(representative_id: '999999999999',
-                                                   poa_codes: [organization_poa_code],
-                                                   first_name: 'George', last_name: 'Washington-test').id
+          FactoryBot.create(:veteran_representative, representative_id: '999999999999',
+                                                     poa_codes: [organization_poa_code],
+                                                     first_name: 'George', last_name: 'Washington-test').id
         end
 
         it 'returns the last one with a 202 response' do

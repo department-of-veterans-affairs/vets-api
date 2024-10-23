@@ -23,6 +23,10 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal
     enable_in_development: true
+  all_claims_add_disabilities_enhancement:
+    actor_type: user
+    description: Enables enhancement to the 21-526EZ "Add Disabilities" page being implemented by the Conditions Team.
+    enable_in_development: true
   appointments_consolidation:
     actor_type: user
     description: For features being tested while merging logic for appointments between web and mobile
@@ -101,6 +105,9 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
+  hca_retrieve_facilities_without_repopulating:
+    actor_type: user
+    description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
   cg1010_oauth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
@@ -198,6 +205,14 @@ features:
   claims_api_bd_refactor:
     actor_type: user
     description: Diverts codepath to use refactored BD methods
+    enable_in_development: true
+  claims_api_poa_uploads_bd_refactor:
+    actor_type: user
+    description: When enabled, sends poa forms to BD via the refactored logic
+    enable_in_development: true
+  claims_api_526_v2_uploads_bd_refactor:
+    actor_type: user
+    description: When enabled, sends 526 forms to BD via the refactored logic
     enable_in_development: true
   confirmation_page_new:
     actor_type: user
@@ -355,10 +370,6 @@ features:
   decision_review_sc_status_updater_enabled:
     actor_type: user
     description: Enables the Supplemental Claim status update batch job
-  decision_review_sc_use_lighthouse_api_for_form4142:
-    actor_type: user
-    description: Use Lighthouse API to submit Form 21-4142 from Supplemental Claims
-    enable_in_development: true
   decision_review_icn_updater_enabled:
     actor_type: user
     description: Enables the ICN lookup job
@@ -397,6 +408,14 @@ features:
     actor_type: user
     description: Enable job to delete SavedClaim records when the record has a delete_date and the date is in the past
     enable_in_development: true
+  decision_review_failure_notification_email_job_enabled:
+    actor_type: user
+    description: Enable job to send form and evidence failure notification emails
+    enable_in_development: true
+  decision_review_track_4142_submissions:
+    actor_type: user
+    description: Enable saving record of 4142 forms submitted to Lighthouse as part of a Supplemental Claim
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -416,14 +435,6 @@ features:
   dependents_management:
     actor_type: user
     description: Manage dependent removal from view dependent page
-    enable_in_development: true
-  disability_526_classifier_new_claims:
-    actor_type: user
-    description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
-    enable_in_development: true
-  disability_526_classifier_multi_contention:
-    actor_type: user
-    description: enables submitting multi-contention (in addition to single-contention) 526ez claims to VRO Contention Classification service for more accurate classification entry.
     enable_in_development: true
   contention_classification_claim_linker:
     actor_type: user
@@ -829,6 +840,10 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  mhv_account_creation_after_login:
+    actor_type: user
+    descriptiom: Enables access to MHV Account Creation API
+    enable_in_development: true
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
@@ -918,6 +933,9 @@ features:
     actor_type: user
     description: Enables/disables Medical Records on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
+  mhv_medical_records_new_eligibility_check:
+    actor_type: user
+    description: Enables/disables Medical Records new access policy eligibility check endpoint
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
@@ -1033,6 +1051,9 @@ features:
   profile_show_proof_of_veteran_status_eligible:
     actor_type: user
     description: Include/exclude the proof of veteran status eligibility in service_history response
+  profile_show_no_validation_key_address_alert:
+    actor_type: user
+    description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
   profile_use_experimental:
     description: Use experimental features for Profile application - Do not remove
     enable_in_development: true
@@ -1333,10 +1354,6 @@ features:
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
-  va_online_scheduling_enable_OH_reads:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing appointment read requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
@@ -1400,7 +1417,7 @@ features:
   veteran_onboarding_show_welcome_message_to_new_users:
     actor_type: user
     description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
-    enable_in_development: true
+    enable_in_development: false
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1672,6 +1689,11 @@ features:
       Controls how the GI Bill State of Benefits (SOB) application is presented.
       When enabled: it use the new SOB application that works 24/7.
       When disabled: it will use the old SOB application that only works from 0600 to 2200 hrs
+  sob_print_page_update:
+    actor_type: user
+    description: >-
+      Changes classname by which query selector looks for breadcrumbs on print page of GI Bill Statement of Benefits (SOB)
+      application. Used to test fix in staging.
   travel_pay_power_switch:
     actor_type: user
     enable_in_development: true

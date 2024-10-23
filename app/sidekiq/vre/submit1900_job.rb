@@ -17,9 +17,9 @@ module VRE
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
 
-    def perform(claim_id, user_uuid)
+    def perform(claim_id, encrypted_user)
       claim = SavedClaim::VeteranReadinessEmploymentClaim.find claim_id
-      user = User.find user_uuid
+      user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
       claim.send_to_vre(user)
     rescue => e
       Rails.logger.warn("VRE::Submit1900Job failed, retrying...: #{e.message}")

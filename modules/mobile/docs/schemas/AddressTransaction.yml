@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - id
       - type
@@ -18,6 +20,7 @@ properties:
         example: "async_transaction_vet360_address_transactions"
       attributes:
         type: object
+        additionalProperties: false
         required:
           - transactionId
           - transactionStatus
