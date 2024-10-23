@@ -18,7 +18,7 @@ module AskVAApi
     private
 
     def retrieve_option_set
-      retriever.new(name: '', user_mock_data: nil, entity_class: optionset_entity_class).call
+      retriever.new(user_mock_data: nil, entity_class: optionset_entity_class).call
     rescue => e
       raise TranslatorError, e if e.message.include?('Crm::CacheDataError')
     end
