@@ -15,5 +15,11 @@ module ClaimsApi
 
       make_request(endpoint: bean_name, action: 'findBnftClaim', body:)
     end
+
+    def update_bnft_claim(claim:)
+      claim[:bnft_claim_dto].transform_keys { |key| key.to_s.camelize :lower }
+
+      make_request(endpoint: bean_name, action: 'updateBnftClaim', body: { bnftClaimDTO: claim })
+    end
   end
 end
