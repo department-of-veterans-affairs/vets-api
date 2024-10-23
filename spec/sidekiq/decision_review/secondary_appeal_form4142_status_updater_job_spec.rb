@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'decision_review_v1/service'
 
 RSpec.describe DecisionReview::SecondaryAppealForm4142StatusUpdaterJob, type: :job do
+  subject { described_class }
+
   context 'when the feature is eneabled' do
     context 'when there are SecondaryAppealForm records of type 4142' do
       let(:service) { instance_double(DecisionReviewV1::Service) }
@@ -53,7 +55,7 @@ RSpec.describe DecisionReview::SecondaryAppealForm4142StatusUpdaterJob, type: :j
         expect(service).to receive(:get_supplemental_claim_upload).with(uuid: form2.guid)
         expect(service).to receive(:get_supplemental_claim_upload).with(uuid: form3.guid)
         expect(service).not_to receive(:get_supplemental_claim_upload).with(uuid: form_with_delete_date.guid)
-        subject.perform
+        subject.new.perform
       end
 
       it 'does NOT check status for records that are not a 4142' do
@@ -61,7 +63,7 @@ RSpec.describe DecisionReview::SecondaryAppealForm4142StatusUpdaterJob, type: :j
         expect(service).to receive(:get_supplemental_claim_upload).with(uuid: form2.guid)
         expect(service).to receive(:get_supplemental_claim_upload).with(uuid: form3.guid)
         expect(service).not_to receive(:get_supplemental_claim_upload).with(uuid: other_form_type.guid)
-        subject.perform
+        subject.new.perform
       end
 
       context 'updating information' do
@@ -69,7 +71,7 @@ RSpec.describe DecisionReview::SecondaryAppealForm4142StatusUpdaterJob, type: :j
 
         it 'updates the status and sets delete_date if appropriate' do
           Timecop.freeze(frozen_time) do
-            subject.perform
+            subject.new.perform
           end
           expect(form1.reload.status).to include('vbms')
           expect(form1.reload.status_updated_at).to eq frozen_time
@@ -84,13 +86,14 @@ RSpec.describe DecisionReview::SecondaryAppealForm4142StatusUpdaterJob, type: :j
           expect(form3.reload.delete_date).to be_nil
         end
 
-        it 'logs updates to the status' do
+        it 'logs ands increments metrics for updates to the status' do
           Timecop.freeze(frozen_time) do
-            subject.perform
+            subject.new.perform
           end
 
           expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.secondary_appeal_form4142_status_updater.processing_records', 3).exactly(1).time
+            .with('worker.decision_review.secondary_appeal_form4142_status_updater.processing_records', 3)
+            .exactly(1).time
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.secondary_appeal_form4142_status_updater.delete_date_update').exactly(1).time
           expect(StatsD).to have_received(:increment)
@@ -109,10 +112,26 @@ RSpec.describe DecisionReview::SecondaryAppealForm4142StatusUpdaterJob, type: :j
         end
 
         context 'when the status is unchanged' do
-          before do
+          let(:previous_status) do
+            {
+              'status' => 'processing'
+            }
           end
 
-          it 'does not log a change'
+          before do
+            form2.update!(status: previous_status.to_json, status_updated_at: frozen_time - 3.days)
+          end
+
+          it 'does not log or increment metrics for a status change' do
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            expect(form2.reload.status_updated_at).to eq frozen_time
+            expect(StatsD).not_to have_received(:increment)
+              .with('worker.decision_review.secondary_appeal_form4142_status_updater.status',
+                    tags: ['status:processing'])
+          end
         end
 
         context 'an error occurs during processing' do
