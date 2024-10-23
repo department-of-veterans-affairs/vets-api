@@ -25,10 +25,10 @@ class FormSubmissionAttempt < ApplicationRecord
 
     event :fail do
       after do
-        user_uuid = form_submission.user_account_id
+        user_account_uuid = form_submission.user_account_id
         form_type = form_submission.form_type
         log_info = { form_submission_id:, benefits_intake_uuid: form_submission&.benefits_intake_uuid, form_type:,
-                     user_uuid: user_uuid }
+                     user_account_uuid: }
         zsf_function = "#{form_type} form submission to Lighthouse"
         if should_send_simple_forms_email
           Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
@@ -56,7 +56,7 @@ class FormSubmissionAttempt < ApplicationRecord
         ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
                                    .log_silent_failure(
                                      log_info.merge({ error_class: e.class, error_message: e.message }),
-                                     user_uuid,
+                                     user_account_uuid,
                                      call_location:
                                    )
       end
