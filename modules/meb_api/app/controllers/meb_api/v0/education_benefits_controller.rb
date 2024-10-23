@@ -33,7 +33,8 @@ module MebApi
       def claim_status
         claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = claimant_response['claimant_id']
-        claim_status_response = claim_status_service.get_claim_status(params, claimant_id)
+
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
 
         response = claimant_response.status == 201 ? claim_status_response : claimant_response
         serializer = claimant_response.status == 201 ? ClaimStatusSerializer : ClaimantSerializer
@@ -44,8 +45,8 @@ module MebApi
       def claim_letter
         claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = claimant_response['claimant_id']
-        claim_status_response = claim_status_service.get_claim_status(params, claimant_id)
-        claim_letter_response = claim_letters_service.get_claim_letter(claimant_id)
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
+        claim_letter_response = claim_letters_service.get_claim_letter(claimant_id, @form_type)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
         response = claimant_response.status == 201 ? claim_letter_response : claimant_response
 
@@ -141,7 +142,7 @@ module MebApi
       private
 
       def set_type
-        @form_type = params['type'].presence || 'Chapter33'
+        @form_type = params['type']&.capitalize.presence || 'Chapter33'
       end
 
       def contact_info_service

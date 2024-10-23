@@ -34,7 +34,7 @@ http_interactions:
   recorded_at: Wed, 15 Jun 2022 18:42:36 GMT
 - request:
     method: get
-    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimant/600000001/claimType/Chapter33/claimstatus?latest=false
+    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimant/600000001/claimType/Chapter1606/claimstatus?latest=false
     body:
       encoding: US-ASCII
       string: ''
