@@ -185,12 +185,11 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     let(:user_account) { create(:user_account) }
     let(:form_submission) { build(:debts_api_form5655_submission, user_account_id: user_account.id) }
     let(:user_data) { build(:user_profile_attributes) }
-    let(:logingov_uuid) { 'some-logingov_uuid' }
     let(:user_info) do
       OpenStruct.new(
         {
           verified_at: '1-1-2022',
-          sub: logingov_uuid,
+          sub: 'some-logingov_uuid',
           social_security_number: '123456789',
           birthdate: '2022-01-01',
           given_name: 'some-name',
@@ -239,11 +238,12 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
         allow_any_instance_of(MPI::Service)
           .to receive(:find_profile_by_identifier).and_return(find_profile_response)
-        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(Rails.root.join(
-          *'/spec/fixtures/dmc/5655.pdf'.split('/')
-        ).to_s)
         allow_any_instance_of(DebtManagementCenter::Sharepoint::Request)
           .to receive(:set_sharepoint_access_token).and_return('fake token')
+
+        expect(form_submission).to receive(:register_failure).with(
+          a_string_starting_with('FinancialStatusReportService#submit_vha_fsr: BackendServiceException:')
+        )
 
         Timecop.freeze(Time.new(2024, 10, 22).utc) do
           VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
