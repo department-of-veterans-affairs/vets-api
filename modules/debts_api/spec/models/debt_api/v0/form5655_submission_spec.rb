@@ -142,7 +142,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
     end
 
     context 'failure' do
-      let(:id) { 123 }
+      let(:id) { SecureRandom.uuid }
       let(:status) do
         OpenStruct.new(
           failures: 1,
