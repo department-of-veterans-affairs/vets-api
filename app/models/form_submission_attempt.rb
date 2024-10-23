@@ -33,6 +33,8 @@ class FormSubmissionAttempt < ApplicationRecord
                               form_type: form_submission.form_type
                             })
           simple_forms_enqueue_result_email(:error)
+          tags = ['service:veteran-facing-forms', "function:#{form_id} form submission to Lighthouse"]
+          StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
         end
       end
 
