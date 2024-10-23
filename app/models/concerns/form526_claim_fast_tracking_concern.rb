@@ -132,7 +132,7 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
     return unless pending_eps.count == 1
 
-    actor = OpenStruct.new({ flipper_id: submission.user_uuid })
+    actor = OpenStruct.new({ flipper_id: user_uuid })
     feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api,
                                        actor) && !Flipper.enabled?(:disability_compensation_production_tester, actor)
     open_claim_review = open_claim_review?
