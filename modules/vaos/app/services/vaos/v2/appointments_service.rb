@@ -174,8 +174,8 @@ module VAOS
         start_time = 1.year.ago
         statuses = 'booked,fulfilled,arrived'
 
-        appointments = fetch_clinic_appointments(start_time, end_time, statuses)
-        sort_recent_appointments(appointments)
+        appointments = get_appointments(start_time, end_time, statuses)
+        sort_recent_appointments(appointments[:data])
       end
 
       def sort_recent_appointments(appointments)
