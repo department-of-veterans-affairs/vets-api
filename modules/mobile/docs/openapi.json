@@ -459,8 +459,7 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
@@ -518,8 +517,7 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
@@ -577,8 +575,7 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
@@ -627,8 +624,7 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
@@ -702,8 +698,7 @@
                             "best_time_to_call": [
                               "Morning"
                             ],
-                            "friendly_location_name": "DAYTSHR -Dayton VA Medical Center",
-                            "locationId": "938"
+                            "friendly_location_name": "DAYTSHR -Dayton VA Medical Center"
                           }
                         }
                       ],
@@ -779,8 +774,7 @@
                               "Evening",
                               "Morning"
                             ],
-                            "friendly_location_name": "CHYSHR-Cheyenne VA Medical Center",
-                            "locationId": "938"
+                            "friendly_location_name": "CHYSHR-Cheyenne VA Medical Center"
                           }
                         }
                       ],
@@ -851,8 +845,7 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
