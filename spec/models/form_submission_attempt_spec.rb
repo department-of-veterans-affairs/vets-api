@@ -78,7 +78,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
             Flipper.enable(CentralMail::SubmitForm4142Job::POLLED_FAILURE_EMAIL)
 
             allow(VaNotify::Service).to receive(:new).and_return(vanotify_client)
-            allow(vanotify_client).to receive(:send_email).and_return(true)
+            allow(vanotify_client).to receive(:send_email).and_return(OpenStruct.new(id: 'some_id'))
 
             with_settings(Settings.vanotify.services.benefits_disability, { api_key: 'test_service_api_key' }) do
               expect do
