@@ -412,6 +412,10 @@ features:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
     enable_in_development: true
+  decision_review_track_4142_submissions:
+    actor_type: user
+    description: Enable saving record of 4142 forms submitted to Lighthouse as part of a Supplemental Claim
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -844,6 +848,10 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  mhv_account_creation_after_login:
+    actor_type: user
+    descriptiom: Enables access to MHV Account Creation API
+    enable_in_development: true
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
@@ -1051,6 +1059,9 @@ features:
   profile_show_proof_of_veteran_status_eligible:
     actor_type: user
     description: Include/exclude the proof of veteran status eligibility in service_history response
+  profile_show_no_validation_key_address_alert:
+    actor_type: user
+    description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
   profile_use_experimental:
     description: Use experimental features for Profile application - Do not remove
     enable_in_development: true
@@ -1351,10 +1362,6 @@ features:
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
-  va_online_scheduling_enable_OH_reads:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing appointment read requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
@@ -1395,6 +1402,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
+  vaos_online_scheduling_remove_podiatry:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
@@ -1594,7 +1605,7 @@ features:
     description: NOD Datadog RUM monitoring
   nod_callbacks_endpoint:
     actor_type: user
-    description: NOD VANotify notification callbacks endpoint
+    description: Enables Decision Review endpoint to process VANotify notification callbacks
     enable_in_development: true
   nod_confirmation_update:
     actor_type: user
