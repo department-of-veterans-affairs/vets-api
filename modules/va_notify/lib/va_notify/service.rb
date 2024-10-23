@@ -24,17 +24,19 @@ module VaNotify
     end
 
     def send_email(args)
-      with_monitoring do
+      response = with_monitoring do
         notify_client.send_email(args)
       end
+      create_notification(response)
     rescue => e
       handle_error(e)
     end
 
     def send_sms(args)
-      with_monitoring do
+      response = with_monitoring do
         notify_client.send_sms(args)
       end
+      create_notification(response)
     rescue => e
       handle_error(e)
     end
@@ -81,6 +83,29 @@ module VaNotify
         message: error.message,
         body: error.body
       )
+    end
+
+    def create_notification(response)
+      raise Common::Exceptions::BackendServiceException, notification if response.nil?
+
+      notification = VANotify::Notification.new(
+        notification_id: response["id"],
+       # source_location: ""#caller_locations(1, 1)[0].label
+      )
+
+      if notification.save
+        notification
+      else
+        Rails.logger.error(
+          'VANotify notification record failed to save',
+          {
+            error_messages: notification.errors,
+            user_logged_in: current_user.present?,
+            current_user_uuid: current_user&.uuid
+          }
+        )
+        raise Common::Exceptions::ValidationErrors, notification
+      end
     end
   end
 end
