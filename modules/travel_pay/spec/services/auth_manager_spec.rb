@@ -57,7 +57,7 @@ describe TravelPay::AuthManager do
       it 'returns a cached veis_token and btsss_token' do
         client_number = 123
         service = TravelPay::AuthManager.new(client_number, user)
-        response = service.get_tokens
+        response = service.authorize
         cached_tokens => { veis_token:, btsss_token: }
         destructured_cached_tokens = { veis_token:, btsss_token: }
         expect(response).to eq(destructured_cached_tokens)
