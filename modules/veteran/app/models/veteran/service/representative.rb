@@ -113,7 +113,9 @@ module Veteran
       end
 
       def self.get_suffix(first_name, last_name)
-        [first_name.split.last, last_name.split.last]
+        first_suffix = first_name.split.last if first_name.split.count > 1
+        last_suffix = last_name.split.last if last_name.split.count > 1
+        [first_suffix, last_suffix]
       end
 
       def self.get_representatives(first_name, last_name)
