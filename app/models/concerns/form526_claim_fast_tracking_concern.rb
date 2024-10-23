@@ -205,21 +205,20 @@ module Form526ClaimFastTrackingConcern
   end
 
   def log_max_cfi_metrics_on_submit
-    any_claimed = false
     max_rated_diagnostic_codes_from_ipf.each do |diagnostic_code|
       disability_claimed = diagnostic_codes.include?(diagnostic_code)
-      any_claimed ||= disability_claimed
       StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.submit",
                        tags: ["diagnostic_code:#{diagnostic_code}", "claimed:#{disability_claimed}"])
     end
+    claimed_max_rated_dcs = max_rated_diagnostic_codes_from_ipf & diagnostic_codes
     Rails.logger.info('Max CFI form526 submission',
                       id:,
                       num_max_rated: max_rated_diagnostic_codes_from_ipf.count,
-                      num_max_rated_cfi: (max_rated_diagnostic_codes_from_ipf & diagnostic_codes).count,
+                      num_max_rated_cfi: claimed_max_rated_dcs.count,
                       total_cfi: increase_disabilities.count,
                       cfi_checkbox_was_selected: cfi_checkbox_was_selected?)
     StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.on_submit",
-                     tags: ["claimed:#{any_claimed}",
+                     tags: ["claimed:#{claimed_max_rated_dcs.any?}",
                             "has_max_rated:#{max_rated_diagnostic_codes_from_ipf.any?}"])
   rescue => e
     # Log the exception but but do not fail, otherwise form will not be submitted
