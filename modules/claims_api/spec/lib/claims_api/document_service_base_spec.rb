@@ -49,9 +49,9 @@ describe ClaimsApi::DocumentServiceBase do
 
     it 'builds an L705 (POA) body correctly' do
       result = subject.send(:build_body, system_name: 'VA.gov', doc_type: 'L705', file_name: 'temp_5103.pdf',
-                                         claim_id: nil, participant_id:)
+                                         claim_id:, participant_id:)
 
-      expected = { data: { systemName: 'VA.gov', docType: 'L705',
+      expected = { data: { systemName: 'VA.gov', docType: 'L705', claimId: '581128c6-ad08-4b1e-8b82-c3640e829fb3',
                            fileName: 'temp_5103.pdf', trackedItemIds: [], participantId: '987654321' } }
       expect(result).to eq(expected)
     end
