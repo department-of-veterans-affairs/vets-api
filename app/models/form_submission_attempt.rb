@@ -33,15 +33,22 @@ class FormSubmissionAttempt < ApplicationRecord
         if should_send_simple_forms_email
           Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
           simple_forms_enqueue_result_email(:error)
-        elsif should_send_form526_form4142_email
-          zsf_function = CentralMail::SubmitForm4142Job::FORM4142_DD_ZSF_FUNCTION
-          form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
-          Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
-                            log_info.merge({ form526_submission_id: }))
-          jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(
-            form526_submission_id
-          )
-          Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify completed', log_info.merge({ jid: }))
+        elsif form_submission.form_type == CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE
+          if Flipper.enabled?(CentralMail::SubmitForm4142Job::POLLED_FAILURE_EMAIL)
+            zsf_function = CentralMail::SubmitForm4142Job::FORM4142_DD_ZSF_FUNCTION
+            form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
+            Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
+                              log_info.merge({ form526_submission_id: }))
+            jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(
+              form526_submission_id
+            )
+            Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify completed', log_info.merge({ jid: }))
+          else
+            Rails.logger.info(
+              'Would queue EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail, but flipper is off.',
+              log_info
+            )
+          end
         end
       rescue => e
         cl = caller_locations.first
@@ -100,13 +107,6 @@ class FormSubmissionAttempt < ApplicationRecord
 
   def should_send_simple_forms_email
     simple_forms_form_number && Flipper.enabled?(:simple_forms_email_notifications)
-  end
-
-  def should_send_form526_form4142_email
-    email_klass = CentralMail::SubmitForm4142Job
-    email_klass_form_type = email_klass::FORM4142_FORMSUBMISSION_TYPE
-    email_klass_polled_failure_email_enabled = Flipper.enabled?(email_klass::POLLED_FAILURE_EMAIL)
-    form_submission.form_type == email_klass_form_type && email_klass_polled_failure_email_enabled
   end
 
   def simple_forms_enqueue_result_email(notification_type)

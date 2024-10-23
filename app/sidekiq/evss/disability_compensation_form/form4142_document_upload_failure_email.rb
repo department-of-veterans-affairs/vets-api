@@ -29,7 +29,8 @@ module EVSS
         StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
         cl = caller_locations.first
         call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        zsf_monitor.log_silent_failure(log_info, nil, call_location:)
+        ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(log_info, nil,
+                                                                                                  call_location:)
 
         # Job status records are upserted in the JobTracker module
         # when the retryable_error_handler is called
@@ -63,10 +64,6 @@ module EVSS
         raise e
       end
 
-      def zsf_monitor
-        @zsf_monitor ||= ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
-      end
-
       def perform(form526_submission_id)
         form526_submission = Form526Submission.find(form526_submission_id)
 
@@ -93,6 +90,10 @@ module EVSS
       end
 
       private
+
+      def zsf_monitor
+        @zsf_monitor ||= ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+      end
 
       def retryable_error_handler(error)
         # Needed to log the error properly in the Sidekiq::Form526JobStatusTracker::JobTracker,
