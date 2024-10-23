@@ -129,6 +129,7 @@ module DebtsApi
         form_submission:,
         station_id: vha_form['facilityNum']
       )
+
       vbs_response = vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
                                       { jsonDocument: vha_form.to_json })
 
