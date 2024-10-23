@@ -195,7 +195,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
 
-      subject.new.perform(power_of_attorney.id, action: 'post')
+      subject.new.perform(power_of_attorney.id, 'post')
     end
 
     it 'rescues errors from BD and sets the status to errored' do
@@ -204,7 +204,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       VCR.use_cassette('claims_api/bd/upload_error') do
         allow(ClaimsApi::BD.new).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)
                                                     .and_raise(Common::Exceptions::BackendServiceException.new(errors))
-        subject.new.perform(power_of_attorney.id, action: 'post')
+        subject.new.perform(power_of_attorney.id, 'post')
       rescue
         power_of_attorney.reload
         expect(power_of_attorney.vbms_error_message).to eq(
