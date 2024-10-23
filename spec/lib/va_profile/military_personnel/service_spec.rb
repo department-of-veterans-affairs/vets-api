@@ -18,72 +18,7 @@ describe VAProfile::MilitaryPersonnel::Service do
   end
 
   describe '#get_service_history' do
-    context 'when successful without show_proof_of_veteran_status_eligible flipper' do
-      before do
-        Flipper.disable(:profile_show_proof_of_veteran_status_eligible)
-      end
-
-      it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
-          response = subject.get_service_history
-
-          expect(response).to be_ok
-          expect(response.episodes).to be_a(Array)
-        end
-      end
-
-      it 'returns a single service history episode' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
-          response = subject.get_service_history
-          episode = response.episodes.first
-
-          expect(episode.branch_of_service).to eq('Army')
-        end
-      end
-
-      it 'returns multiple service history episodes' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-          response = subject.get_service_history
-          episodes = response.episodes
-
-          expect(episodes.count).to eq(5)
-          episodes.each do |e|
-            expect(e.branch_of_service).not_to be_nil
-            expect(e.begin_date).not_to be_nil
-            expect(e.end_date).not_to be_nil
-          end
-        end
-      end
-
-      it 'sorts service history episodes' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-          response = subject.get_service_history
-          episodes = response.episodes
-
-          expect(episodes.count).to eq(5)
-          expect(episodes[0].begin_date).to eq('1999-06-23')
-          expect(episodes[1].begin_date).to eq('2000-06-30')
-          expect(episodes[2].begin_date).to eq('2002-02-02')
-          expect(episodes[3].begin_date).to eq('2009-03-01')
-          expect(episodes[4].begin_date).to eq('2012-03-02')
-        end
-      end
-
-      it 'does not contain eligibility information' do
-        VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
-          response = subject.get_service_history
-
-          expect(response).to be_ok
-          expect(response.vet_status_eligibility).to be_nil
-        end
-      end
-    end
-
-    context 'when successful with show_proof_of_veteran_status_eligible flipper' do
-      before do
-        Flipper.enable(:profile_show_proof_of_veteran_status_eligible)
-      end
-
+    context 'when successful' do
       it 'contains eligibility information' do
         VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
           response = subject.get_service_history
