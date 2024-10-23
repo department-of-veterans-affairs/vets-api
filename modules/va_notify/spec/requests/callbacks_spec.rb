@@ -5,9 +5,10 @@ require 'rails_helper'
 RSpec.describe 'VANotify Callbacks', type: :request do
   let(:valid_token) { Settings.dig(:va_notify, :status_callback, :bearer_token) }
   let(:invalid_token) { 'invalid_token' }
+  let(:notification_id) { SecureRandom.uuid }
   let(:callback_params) do
     {
-      id: '6ba01111-f3ee-4a45-9d04-234asdfb6abbb9a',
+      id: notification_id,
       status: 'delivered',
       notification_type: 'email',
       to: 'user@example.com'
@@ -16,6 +17,27 @@ RSpec.describe 'VANotify Callbacks', type: :request do
   let(:callback_route) { '/va_notify/callbacks' }
 
   describe 'POST #notifications' do
+    it 'with found notification' do
+      notification = VANotify::Notification.create(notification_id: notification_id)
+      expect(notification.status).to eq(nil)
+
+      post(callback_route,
+           params: callback_params.to_json,
+           headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
+
+      expect(response.body).to include('success')
+      notification.reload
+      expect(notification.status).to eq('delivered')
+    end
+
+    it 'with missing notification' do
+      post(callback_route,
+           params: callback_params.to_json,
+           headers: { 'Authorization' => "Bearer #{valid_token}", 'Content-Type' => 'application/json' })
+
+      expect(response.body).to include('success')
+    end
+
     context 'with valid token' do
       it 'returns http success' do
         post(callback_route,
