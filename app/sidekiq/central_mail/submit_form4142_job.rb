@@ -162,7 +162,7 @@ module CentralMail
         form_submission    = FormSubmission.create(
           form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
           benefits_intake_uuid: lighthouse_service.uuid,
-          form_data: '{}', # we have this already in the Form526Submission.form['form526']['form526']['form4142']
+          form_data: '{}', # we have this already in the Form526Submission.form['form4142']
           user_account: form526_submission.user_account,
           saved_claim: form526_submission.saved_claim
         )

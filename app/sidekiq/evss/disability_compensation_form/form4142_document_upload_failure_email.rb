@@ -26,12 +26,6 @@ module EVSS
           log_info
         )
 
-        StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
-        cl = caller_locations.first
-        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(log_info, nil,
-                                                                                                  call_location:)
-
         # Job status records are upserted in the JobTracker module
         # when the retryable_error_handler is called
         form_job_status = Form526JobStatus.find_by(job_id:)
@@ -62,6 +56,12 @@ module EVSS
           }
         )
         raise e
+      ensure
+        StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
+        cl = caller_locations.first
+        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(log_info, nil,
+                                                                                                  call_location:)
       end
 
       def perform(form526_submission_id)
