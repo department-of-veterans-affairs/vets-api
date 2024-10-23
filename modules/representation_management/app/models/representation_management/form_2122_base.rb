@@ -81,7 +81,7 @@ module RepresentationManagement
               if: -> { veteran_service_number.present? }
 
     validate :consent_limits_must_contain_valid_values
-    validate :representative_resolves
+    validate :representative_exists?
 
     with_options if: -> { claimant_first_name.present? } do
       validates :claimant_first_name, presence: true, length: { maximum: 12 }
@@ -124,7 +124,7 @@ module RepresentationManagement
         Veteran::Service::Representative.find_by(representative_id:)
     end
 
-    def representative_resolves
+    def representative_exists?
       return unless representative.nil?
 
       errors.add(:representative_id, 'Representative not found')
