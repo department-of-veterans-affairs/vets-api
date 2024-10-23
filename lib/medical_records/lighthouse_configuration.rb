@@ -84,7 +84,12 @@ module MedicalRecords
     end
 
     def conn
-      Faraday.new(url: token_request_url)
+      Faraday.new(url: token_request_url) do |conn|
+        conn.use :breakers
+        conn.response :betamocks if Settings.mhv.lighthouse.mock
+
+        conn.adapter Faraday.default_adapter
+      end
     end
 
     def post(params, headers = lighthouse_headers)
