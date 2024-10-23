@@ -9,10 +9,22 @@ module Mobile
         render json: Mobile::V0::EfolderSerializer.new(documents)
       end
 
+      def download
+        send_data(
+          service.get_document(params[:document_id]),
+          type: 'application/pdf',
+          filename: file_name
+        )
+      end
+
       private
 
       def service
         ::Efolder::Service.new(@current_user)
+      end
+
+      def file_name
+        params.require(:file_name)
       end
 
       def efolder_adapter

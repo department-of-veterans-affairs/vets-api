@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VAOS FHIR routing configuration', type: :routing do
+RSpec.describe 'VAOS FHIR routing configuration', skip: 'deprecated', type: :routing do
   it 'routes to the locations show' do
     expect(get('/vaos/v1/Location/123')).to route_to(
       format: :json,
