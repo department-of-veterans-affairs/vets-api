@@ -10,7 +10,7 @@ require 'dgi/exclusion_period/service'
 module MebApi
   module V0
     class EducationBenefitsController < MebApi::V0::BaseController
-      before_action :set_type, only: [:claim_letter, :claim_status, :claimant_info, :eligibility]
+      before_action :set_type, only: %i[:claim_letter :claim_status :claimant_info :eligibility]
 
       def claimant_info
         response = automation_service.get_claimant_info(@form_type)
@@ -141,7 +141,7 @@ module MebApi
       private
 
       def set_type
-        @form_type = params["type"].blank? ? 'Chapter33' : params["type"]
+        @form_type = (params['type'].presence || 'Chapter33')
       end
 
       def contact_info_service

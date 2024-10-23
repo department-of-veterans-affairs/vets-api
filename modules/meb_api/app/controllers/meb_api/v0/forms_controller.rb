@@ -9,7 +9,7 @@ module MebApi
   module V0
     class FormsController < MebApi::V0::BaseController
       before_action :check_forms_flipper
-      before_action :set_type, only: [:claim_letter, :claim_status, :claimant_info]
+      before_action :set_type, only: %i[:claim_letter :claim_status :claimant_info]
 
       def claim_letter
         claimant_response = claimant_service.get_claimant_info(@form_type)
@@ -93,7 +93,7 @@ module MebApi
       private
 
       def set_type
-        @form_type = params["type"] == 'toe' ? 'toe' : params["type"]&.capitalize
+        @form_type = params['type'] == 'toe' ? 'toe' : params['type']&.capitalize
       end
 
       def valid_claimant_response?(response)
