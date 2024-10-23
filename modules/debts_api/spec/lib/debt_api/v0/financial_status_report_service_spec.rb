@@ -182,7 +182,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
   end
 
   describe '#submit_vha_fsr' do
-    let(:user_account) { create(:user_account, '') }
+    let(:user_account) { create(:user_account) }
     let(:form_submission) { build(:debts_api_form5655_submission, user_account_id: user_account.id) }
     let(:user_data) { build(:user_profile_attributes) }
     let(:logingov_uuid) { 'some-logingov_uuid' }
