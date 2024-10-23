@@ -10,7 +10,7 @@ module MedicalRecords
   #
   class LighthouseClient < Common::Client::Base
     # Default number of records to request per call when searching
-    DEFAULT_COUNT = 10
+    DEFAULT_COUNT = 200
 
     configuration MedicalRecords::LighthouseConfiguration
 
@@ -24,7 +24,6 @@ module MedicalRecords
 
       # TODO: Remove this temporary ICN once the Lighthouse sandbox test users are available
       icn = '23000219'
-      puts "Temp icn for testing with Lighthouse sandbox users: #{icn}"
       raise Common::Exceptions::ParameterMissing, 'ICN' if icn.blank?
 
       @icn = icn

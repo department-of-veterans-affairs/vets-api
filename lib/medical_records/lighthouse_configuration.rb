@@ -77,7 +77,7 @@ module MedicalRecords
     end
 
     def lighthouse_headers
-      headers = {
+      {
         accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded'
       }
