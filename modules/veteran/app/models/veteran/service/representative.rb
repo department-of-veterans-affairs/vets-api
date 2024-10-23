@@ -113,9 +113,7 @@ module Veteran
       end
 
       def self.get_suffix(first_name, last_name)
-        suffixes = %w[H.M H.I.H H.R.H Dr Esq Jr Sr III II I AB BA BS BE BFA BTech LLB BSc MA MS MFA LLM
-                      MLA MBA MSc MEng JD MD DO PharmD DMin PhD EdD DPhil DBA LLD EngD]
-        suffixes.detect { |suff| last_name.include?(suff) || first_name.include?(suff) }
+        [first_name.split.last, last_name.split.last]
       end
 
       def self.get_representatives(first_name, last_name)
@@ -123,10 +121,11 @@ module Veteran
 
         representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
                                 last_name&.downcase)
+
         if representatives.blank? && suffix.present?
           # check without suffix
-          last_name = last_name.delete(suffix).strip
-          first_name = first_name.delete(suffix).strip
+          first_name = first_name.delete(suffix[0]).strip if suffix[0].present?
+          last_name = last_name.delete(suffix[1]).strip if suffix[1].present?
 
           representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
                                   last_name&.downcase)
