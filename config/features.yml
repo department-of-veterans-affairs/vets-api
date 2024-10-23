@@ -1051,6 +1051,9 @@ features:
   profile_show_proof_of_veteran_status_eligible:
     actor_type: user
     description: Include/exclude the proof of veteran status eligibility in service_history response
+  profile_show_no_validation_key_address_alert:
+    actor_type: user
+    description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
   profile_use_experimental:
     description: Use experimental features for Profile application - Do not remove
     enable_in_development: true
