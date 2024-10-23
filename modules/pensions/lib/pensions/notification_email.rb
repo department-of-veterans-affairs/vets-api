@@ -6,8 +6,8 @@ module Pensions
   class NotificationEmail < ::VANotify::NotificationEmail::SavedClaim
     # @see VANotify::NotificationEmail::SavedClaim
     # pass thru to super class, no additional processing needed
-    def initialize(_saved_claim)
-      super(claim, 'pensions')
+    def initialize(saved_claim)
+      super(saved_claim, service_name: 'pensions')
     end
   end
 end

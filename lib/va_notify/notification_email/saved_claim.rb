@@ -1,45 +1,25 @@
 # frozen_string_literal: true
 
+require 'va_notify/notification_email'
+
 module VANotify
   module NotificationEmail
-    STATSD = 'api.va_notify.notification_email'
-
-    CONFIRMATION = :confirmation
-    ERROR = :error
-    RECEIVED = :received
-
-    # error indicating failure to send email
-    class FailureToSend < StandardError; end
-
-    def monitor_send_failure(error_message, tags:, context: {})
-      metric = "#{VANotify::NotificationEmail::STATSD}.failure"
-      StatsD.increment(metric, tags:)
-
-      payload = {
-        statsd: metric,
-        error_message:,
-        context:
-      }
-      Rails.logger.error('VANotify::NotificationEmail #send failure!', **payload)
-    end
-
     class SavedClaim
-      def initialize(saved_claim, user: nil, service_name: nil)
+      def initialize(saved_claim, service_name: nil)
         @claim = saved_claim
-        @user = user
         @vanotify_service = service_name
         @config = Settings.vanotify.services[vanotify_service]
         raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless config
       end
 
-      def send(email_type, at: nil)
-        email_config = config&.email&.[](email_type)
+      def deliver(email_type, at: nil)
+        email_config = config&.email[email_type]
         raise ArgumentError, "Invalid email_type '#{email_type}'" unless email_config
 
         email_template_id = able_to_send?(email_config)
         return unless email_template_id
 
-        at ? enqueue_email(email_template_id, at) : send_email_now(email_template_id)
+        at ? enqueue_email(email_template_id, at) : send_email(email_template_id)
 
         claim.insert_notification(email_config.template_id)
       rescue => e
@@ -57,7 +37,7 @@ module VANotify
 
       private
 
-      attr_reader :claim, :config, :user
+      attr_reader :claim, :config
 
       def vanotify_service
         @vanotify_service ||= claim.form_id.downcase.gsub(/-/, '_')
@@ -75,7 +55,7 @@ module VANotify
           raise VANotify::NotificationEmail::FailureToSend, 'Notification already sent'
         end
 
-        email_config.template_id if flipper?(email_config.flipper)
+        email_config.template_id if flipper?(email_config.flipper_id)
       end
 
       def enqueue_email(email_template_id, at)
@@ -87,7 +67,7 @@ module VANotify
         )
       end
 
-      def send_email_now(email_template_id)
+      def send_email(email_template_id)
         VANotify::EmailJob.perform_async(
           email,
           email_template_id,
@@ -96,11 +76,11 @@ module VANotify
       end
 
       def email
-        claim.email || user&.email
+        claim.email
       end
 
       def first_name
-        claim.first_name || user&.first_name
+        claim.first_name
       end
 
       def personalization

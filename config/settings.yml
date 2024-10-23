@@ -1402,7 +1402,7 @@ vanotify:
       email:
         confirmation:
           template_id: form527ez_confirmation_email_template_id
-          flipper: false
+          flipper_id: false
         error: null
         received: null
     pensions: *vanotify_services_pension
@@ -1411,7 +1411,7 @@ vanotify:
       email:
         confirmation:
           template_id: burial_claim_confirmation_email_template_id
-          flipper: false
+          flipper_id: false
         error: null
         received: null
     burials: *vanotify_services_burial

@@ -77,29 +77,6 @@ module Pensions
       parsed_form.dig('veteranFullName', 'first')
     end
 
-    ##
-    # enqueue the sending of the submission confirmation email
-    #
-    # @see VANotify::EmailJob
-    #
-    def send_confirmation_email
-      if email.blank? || va_notification?(Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email)
-        return
-      end
-
-      VANotify::EmailJob.perform_async(
-        email,
-        Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email,
-        {
-          'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => guid
-        }
-      )
-
-      insert_notification(Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email)
-    end
-
     # Run after a claim is saved, this processes any files and workflows that are present
     # and sends them to our internal partners for processing.
     # Only removed Sidekiq call from super
