@@ -25,8 +25,8 @@ module DecisionReview
 
       forms.each do |form|
         status, attributes = get_status_and_attributes(form.guid)
-        update_form_status(form, status, attributes)
         handle_form_status_metrics_and_logging(form, status)
+        update_form_status(form, status, attributes)
       end
     end
 
@@ -55,12 +55,12 @@ module DecisionReview
       else
         delete_date = nil
       end
-      form.update!(status: attributes, status_updated_at: Time.current, delete_date:)
+      form.update!(status: attributes.to_json, status_updated_at: Time.current, delete_date:)
     end
 
     def handle_form_status_metrics_and_logging(form, status)
       # Skip logging and statsd metrics when there is no status change
-      # return if JSON.parse(sc.metadata || '{}')['status'] == status
+      return if JSON.parse(form.status || '{}')['status'] == status
 
       if status == ERROR_STATUS
         Rails.logger.info('DecisionReview::SecondaryAppealForm4142StatusUpdaterJob status error', guid: form.guid)
