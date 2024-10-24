@@ -23,19 +23,31 @@ module VaNotify
     end
 
     def send_email(args)
-      response = with_monitoring do
-        notify_client.send_email(args)
+      if Flipper.enabled?(:notification_creation)
+        response = with_monitoring do
+          notify_client.send_email(args)
+        end
+        create_notification(response)
+      else
+        with_monitoring do
+          notify_client.send_email(args)
+        end
       end
-      create_notification(response) if Flipper.enabled?(:notification_creation)
     rescue => e
       handle_error(e)
     end
 
     def send_sms(args)
-      response = with_monitoring do
-        notify_client.send_sms(args)
+      if Flipper.enabled?(:notification_creation)
+        response = with_monitoring do
+          notify_client.send_sms(args)
+        end
+        create_notification(response)
+      else
+        with_monitoring do
+          notify_client.send_sms(args)
+        end
       end
-      create_notification(response) if Flipper.enabled?(:notification_creation)
     rescue => e
       handle_error(e)
     end
