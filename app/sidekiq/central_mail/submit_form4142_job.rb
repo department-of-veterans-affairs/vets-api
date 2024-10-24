@@ -150,7 +150,7 @@ module CentralMail
       log_info = { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id }
 
       Rails.logger.info(
-        'Successful Form4142 Upload Intake UUID aquired from Lighthouse',
+        'Successful Form4142 Upload Intake UUID acquired from Lighthouse',
         log_info
       )
 
