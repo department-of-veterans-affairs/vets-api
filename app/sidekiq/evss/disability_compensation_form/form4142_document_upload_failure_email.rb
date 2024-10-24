@@ -67,7 +67,7 @@ module EVSS
         end
         ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(
           log_info,
-          user_account_id:,
+          user_account_id,
           call_location:
         )
       end
