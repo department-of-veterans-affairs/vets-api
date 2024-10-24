@@ -39,21 +39,14 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::InstallmentContractsOtherDebtsCal
         expect(expected_installment_contracts_other_debts_data).to eq(@total_data)
       end
 
-      it 'returns empty string for spouseFullName/last' do
-        pre_form_data['personal_data']['spouse_full_name']['last'] = nil
+      it 'returns empty string for creditorName' do
+        pre_form_data['installment_contracts'].first['creditor_name'] = nil
         calculator = described_class.new(pre_form_data)
         calculator_data = calculator.get_data
 
-        expect(calculator_data['spouseFullName']['last']).to eq('')
+        creditor_names = calculator_data.pluck('creditorName')
+        expect(creditor_names).to eq(['', ''])
       end
-
-      # it 'returns empty string for creditorName' do
-      #   pre_form_data['installment_contracts_and_other_debts']['creditor_name'] = nil
-      #   calculator = described_class.new(pre_form_data)
-      #   calculator_data = calculator.get_data
-      #
-      #   expect(calculator_data['installmentContractsAndOtherDebts']['creditorName']).to eq('')
-      # end
     end
   end
 end
