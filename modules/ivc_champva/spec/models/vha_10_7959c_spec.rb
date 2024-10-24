@@ -64,6 +64,14 @@ RSpec.describe IvcChampva::VHA107959c do
     end
   end
 
+  describe '#desired_stamps' do
+    it 'returns country code stamp' do
+      expect(vha107959c.desired_stamps).to include(
+        hash_including(coords: [525, 580], text: 'USA', page: 0)
+      )
+    end
+  end
+
   describe '#method_missing' do
     it 'returns the method name and arguments' do
       result = instance.some_missing_method('arg1', 'arg2')
