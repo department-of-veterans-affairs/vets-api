@@ -49,7 +49,7 @@ module TravelClaim
 
         resp = client.token
 
-        Oj.load(resp.body)&.fetch('access_token').tap do |access_token|
+        Oj.safe_load(resp.body)&.fetch('access_token').tap do |access_token|
           redis_client.save_token(token: access_token)
         end
       end
