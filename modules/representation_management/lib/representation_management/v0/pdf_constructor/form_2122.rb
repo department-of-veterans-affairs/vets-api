@@ -10,7 +10,43 @@ module RepresentationManagement
         protected
 
         def next_steps_page?
-          false
+          true
+        end
+
+        def next_steps_part1(pdf)
+          add_text_with_spacing(pdf,
+                                'Request help from a VA accredited representative or VSO', size: 20,
+                                                                                           style: :bold)
+          add_text_with_spacing(pdf, 'VA Form 21-22')
+          add_text_with_spacing(pdf, 'Your Next Steps', size: 16, style: :bold)
+          str = <<~HEREDOC.squish
+            Both you and the accredited representative will need to sign your form.
+            You can bring your form to them in person or mail it to them.
+          HEREDOC
+          add_text_with_spacing(pdf, str, move_down: 30, font: 'soursesanspro')
+        end
+
+        def next_steps_contact(pdf, data)
+          rep_name = <<~HEREDOC.squish
+            #{data.representative.first_name}
+            #{data.representative.middle_initial}
+            #{data.representative.last_name}
+          HEREDOC
+          add_text_with_spacing(pdf, rep_name, style: :bold, move_down: 8)
+          pdf.font('soursesanspro') do
+            pdf.text(data.organization_name)
+            pdf.text(data.representative.address_line1)
+            pdf.text(data.representative.address_line2)
+            city_state_zip = <<~HEREDOC.squish
+              #{data.representative.city},
+              #{data.representative.state_code}
+              #{data.representative.zip_code}
+            HEREDOC
+            pdf.text(city_state_zip)
+            pdf.move_down(5)
+            pdf.text(format_phone_number(data.representative.phone))
+            pdf.text(data.representative.email)
+          end
         end
 
         def template_path
@@ -51,9 +87,9 @@ module RepresentationManagement
             # Veteran File Number
             "#{PAGE1_KEY}.VAFileNumber[0]": data.veteran_va_file_number,
             # Veteran DOB
-            "#{PAGE1_KEY}.DOBmonth[0]": data.veteran_date_of_birth.split('/').first,
-            "#{PAGE1_KEY}.DOBday[0]": data.veteran_date_of_birth.split('/').second,
-            "#{PAGE1_KEY}.DOByear[0]": data.veteran_date_of_birth.split('/').last,
+            "#{PAGE1_KEY}.DOBmonth[0]": data.veteran_date_of_birth.split('-').second,
+            "#{PAGE1_KEY}.DOBday[0]": data.veteran_date_of_birth.split('-').last,
+            "#{PAGE1_KEY}.DOByear[0]": data.veteran_date_of_birth.split('-').first,
             # Veteran Service Number
             "#{PAGE1_KEY}.VeteransServiceNumber_If_Applicable[0]": \
             data.veteran_service_number,
@@ -93,9 +129,9 @@ module RepresentationManagement
             "#{PAGE1_KEY}.Claimants_MiddleInitial1[0]": data.claimant_middle_initial,
             "#{PAGE1_KEY}.Claimants_LastName[0]": data.claimant_last_name,
             # Claimant DOB
-            "#{PAGE1_KEY}.DOBmonth[1]": data.claimant_date_of_birth.split('/').first,
-            "#{PAGE1_KEY}.DOBday[1]": data.claimant_date_of_birth.split('/').second,
-            "#{PAGE1_KEY}.DOByear[1]": data.claimant_date_of_birth.split('/').last,
+            "#{PAGE1_KEY}.DOBmonth[1]": data.claimant_date_of_birth.split('-').second,
+            "#{PAGE1_KEY}.DOBday[1]": data.claimant_date_of_birth.split('-').last,
+            "#{PAGE1_KEY}.DOByear[1]": data.claimant_date_of_birth.split('-').first,
             # Claimant Relationship
             "#{PAGE1_KEY}.Relationship_To_Veteran[0]": data.claimant_relationship
           }

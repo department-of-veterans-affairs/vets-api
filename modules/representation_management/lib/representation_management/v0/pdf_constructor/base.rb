@@ -54,17 +54,8 @@ module RepresentationManagement
           raise 'NotImplemented' # Extend this class and implement
         end
 
-        def next_steps_part1(pdf)
-          add_text_with_spacing(pdf,
-                                'Request help from a VA accredited representative or VSO', size: 20,
-                                                                                           style: :bold)
-          add_text_with_spacing(pdf, 'VA Form 21-22a')
-          add_text_with_spacing(pdf, 'Your Next Steps', size: 16, style: :bold)
-          str = <<~HEREDOC.squish
-            Both you and the accredited representative will need to sign your form.
-            You can bring your form to them in person or mail it to them.
-          HEREDOC
-          add_text_with_spacing(pdf, str, move_down: 30, font: 'soursesanspro')
+        def next_steps_part1(_pdf)
+          raise 'NotImplemented' # Extend this class and implement
         end
 
         def next_steps_part2(pdf)

@@ -457,6 +457,9 @@ features:
   disability_526_toxic_exposure_ipf:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
+  disability_526_new_confirmation_page:
+    actor_type: user
+    description: enables new confirmation page for form 526 submission confirmation page
   disability_526_toxic_exposure_document_upload_polling:
     actor_type: user
     description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
@@ -1394,6 +1397,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
+  vaos_online_scheduling_remove_podiatry:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
@@ -1593,7 +1600,7 @@ features:
     description: NOD Datadog RUM monitoring
   nod_callbacks_endpoint:
     actor_type: user
-    description: NOD VANotify notification callbacks endpoint
+    description: Enables Decision Review endpoint to process VANotify notification callbacks
     enable_in_development: true
   nod_confirmation_update:
     actor_type: user
