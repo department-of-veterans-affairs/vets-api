@@ -27,7 +27,12 @@ module VANotify
           personalisation:
         }.compact
       )
+      StatsD.increment('api.vanotify.email_job.success')
     rescue Common::Exceptions::BackendServiceException => e
+      handle_backend_exception(e, template_id, personalisation)
+    end
+
+    def handle_backend_exception(e, template_id, personalisation)
       if e.status_code == 400
         log_exception_to_sentry(
           e,
