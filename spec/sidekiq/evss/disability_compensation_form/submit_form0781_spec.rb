@@ -25,8 +25,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     original['form0781'].delete('form0781a')
     original.to_json
   end
-  # AJ TODO - can try something like this for generated PDF arg:
-  # let(:sample_pdf) { File.read('spec/fixtures/pdf_fill/21-0781/simple.pdf') }
 
   VCR.configure do |c|
     c.default_cassette_options = {
@@ -96,13 +94,15 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       Form526Submission.create(user_uuid: user.uuid,
                                auth_headers_json: auth_headers.to_json,
                                saved_claim_id: saved_claim.id,
-                               form_json: form0781_only,
+                               form_json: form0781,
                                submitted_claim_id: evss_claim_id)
     end
     let(:perform_upload) do
       subject.perform_async(submission.id)
       described_class.drain
     end
+    let(:sample_0781_pdf) { File.read('spec/fixtures/pdf_fill/21-0781/simple.pdf') }
+    let(:sample_0781a_pdf) { File.read('spec/fixtures/pdf_fill/21-0781a/simple.pdf') }
 
     before do
       Flipper.enable(:disability_compensation_use_api_provider_for_0781_upload)
@@ -116,13 +116,22 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       let(:expected_statsd_metrics_prefix) do
         'worker.evss.submit_form0781.lighthouse_supplemental_document_upload_provider'
       end
-      let(:expected_lighthouse_document) do
+      let(:lighthouse_0781_document) do
         LighthouseDocument.new(
           claim_id: submission.submitted_claim_id,
           participant_id: submission.auth_headers['va_eauth_pid'],
           document_type: 'L228'
         )
       end
+      let(:lighthouse_0781a_document) do
+        LighthouseDocument.new(
+          claim_id: submission.submitted_claim_id,
+          participant_id: submission.auth_headers['va_eauth_pid'],
+          document_type: 'L229'
+        )
+      end
+      let(:parsed_0781_form) {JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781']}
+      let(:parsed_0781a_form) {JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781a']}
 
       before do
         Flipper.enable(:disability_compensation_upload_0781_to_lighthouse)
@@ -141,14 +150,22 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       it 'uploads the 0781 documents to Lighthouse' do
-        allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
-          .to receive(:generate_upload_document)
-          .and_return(expected_lighthouse_document)
-        expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-          .with(
-            an_instance_of(String), # generated file
-            expected_lighthouse_document
-          )
+        # 0781 
+        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).with(parsed_0781_form, submission.submitted_claim_id, '21-0781').and_return('spec/fixtures/pdf_fill/21-0781/simple.pdf')
+
+        allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:generate_upload_document).and_return(lighthouse_0781_document)
+
+        allow(File).to receive(:delete).and_return(nil)
+
+        expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call).with(sample_0781_pdf, lighthouse_0781a_document)
+
+        #0781a
+        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a').and_return('spec/fixtures/pdf_fill/21-0781a/simple.pdf')
+
+        allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:generate_upload_document).and_return(lighthouse_0781a_document)
+
+        # allow(File).to receive(:delete).and_return(nil)
+        expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call).with(sample_0781a_pdf, lighthouse_0781a_document)
 
         perform_upload
       end
@@ -179,6 +196,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
         perform_upload
         expect(Lighthouse526DocumentUpload.where(**upload_attributes).where(document_type: 'Form 0781').count).to eq(1)
+        expect(Lighthouse526DocumentUpload.where(**upload_attributes).where(document_type: 'Form 0781a').count).to eq(1)
       end
 
       context 'when Lighthouse returns an error response' do
@@ -215,6 +233,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
               lighthouse_error_response: error_response_body
             }
           )
+          expect(Rails.logger).to receive(:error).with(
+            'LighthouseSupplementalDocumentUploadProvider upload failed',
+            {
+              class: 'LighthouseSupplementalDocumentUploadProvider',
+              submission_id: submission.submitted_claim_id,
+              user_uuid: submission.user_uuid,
+              va_document_type_code: 'L229',
+              primary_form: 'Form526',
+              lighthouse_error_response: error_response_body
+            }
+          )
 
           perform_upload
         end
@@ -222,7 +251,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         it 'increments the correct status failure metric' do
           expect(StatsD).to receive(:increment).with(
             "#{expected_statsd_metrics_prefix}.upload_failure"
-          )
+          ).twice #For 0781 and 0781a
 
           perform_upload
         end
@@ -234,40 +263,64 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       let(:expected_statsd_metrics_prefix) do
         'worker.evss.submit_form0781.evss_supplemental_document_upload_provider'
       end
-      let(:evss_claim_document) do
+      let(:evss_claim_0781_document) do
         EVSSClaimDocument.new(
           evss_claim_id: submission.submitted_claim_id,
-          document_type: 'L228'
+          document_type: 'L228',
+          # file_name: 'simple.pdf'
         )
       end
+      let(:evss_claim_0781a_document) do
+        EVSSClaimDocument.new(
+          evss_claim_id: submission.submitted_claim_id,
+          document_type: 'L229'
+        )
+      end
+      let(:client_stub) { instance_double('EVSS::DocumentsService') }
+      let(:provider_stub) { instance_double('EVSSSupplementalDocumentUploadProvider') }
 
       before do
         Flipper.disable(:disability_compensation_upload_0781_to_lighthouse)
+        allow(EVSS::DocumentsService).to receive(:new) { client_stub }
         allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
       end
 
       it 'uploads the 0781 documents to EVSS' do
-        # AJ TODO - tried Mocking a PDF with the right format, but it gets deleted in the codebase.
-        # allow_any_instance_of(described_class)
-        # .to receive(:generate_stamp_pdf)
-        # .and_return('spec/fixtures/pdf_fill/21-0781/simple.pdf')
+        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).with(anything, evss_claim_id, '21-0781').and_return('spec/fixtures/pdf_fill/21-0781/simple.pdf')
 
-        allow_any_instance_of(EVSSSupplementalDocumentUploadProvider)
-          .to receive(:generate_upload_document)
-          .and_return(evss_claim_document)
+        allow(File).to receive(:delete).and_return(nil)
 
-        expect_any_instance_of(EVSS::DocumentsService).to receive(:upload)
-          .with(
-            anything, # file_body arg
-            evss_claim_document
-          )
+        allow_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document).and_return(evss_claim_0781_document)
+
+        allow(File).to receive(:delete).and_return(nil)
+
+        expect(client_stub).to receive(:upload).with(sample_0781_pdf, evss_claim_0781_document)
+
+        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).with(anything, evss_claim_id, '21-0781a').and_return('spec/fixtures/pdf_fill/21-0781a/simple.pdf')
+
+        # the 0781a doc
+        expect(client_stub).to receive(:upload).with(sample_0781a_pdf, evss_claim_0781a_document)
+
         perform_upload
-      end
+
+      end  
+
+      # it 'uploads the 0781a document to EVSS' do
+      #   allow_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document).and_return(evss_claim_0781a_document)
+
+      #   #the 0781A doc
+      #   expect(client_stub).to receive(:upload).with(anything, anything)
+
+      #   expect(client_stub).to receive(:upload).with(anything, evss_claim_0781a_document)
+
+      #   perform_upload
+
+      # end  
 
       it 'logs the upload attempt with the correct job prefix' do
         expect(StatsD).to receive(:increment).with(
           "#{expected_statsd_metrics_prefix}.upload_attempt"
-        )
+        ).twice #For 0781 and 0781a
 
         perform_upload
       end
