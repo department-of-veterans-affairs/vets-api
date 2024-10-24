@@ -17,7 +17,7 @@ module VAProfile
             address: attributes.slice(
               :address_line1,
               :address_line2,
-              :address_line3,
+              :address_line3
             ).deep_transform_keys { |k| k.to_s.camelize(:lower) }.merge(
               intPostalCode: @international_postal_code,
               cityName: @city,
