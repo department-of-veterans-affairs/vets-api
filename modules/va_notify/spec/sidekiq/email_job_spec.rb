@@ -19,7 +19,7 @@ RSpec.describe VANotify::EmailJob, type: :worker do
   describe '#perform' do
     it 'sends an email using the template id' do
       client = double
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(client)
+      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key, nil).and_return(client)
 
       expect(client).to receive(:send_email).with(
         {
@@ -36,7 +36,7 @@ RSpec.describe VANotify::EmailJob, type: :worker do
     it 'can use non-default api key' do
       client = double
       api_key = 'test-yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy-zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz'
-      expect(VaNotify::Service).to receive(:new).with(api_key).and_return(client)
+      expect(VaNotify::Service).to receive(:new).with(api_key, nil).and_return(client)
 
       expect(client).to receive(:send_email).with(
         {

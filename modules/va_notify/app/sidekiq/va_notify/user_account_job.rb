@@ -25,11 +25,7 @@ module VANotify
       callback_options = nil
     )
       user_account = UserAccount.find(user_account_id)
-      notify_client = if callback_options
-                        VaNotify::Service.new(api_key, callback_options)
-                      else
-                        VaNotify::Service.new(api_key)
-                      end
+      notify_client = VaNotify::Service.new(api_key, callback_options)
 
       notify_client.send_email(
         {
