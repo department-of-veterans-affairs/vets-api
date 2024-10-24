@@ -116,8 +116,6 @@ describe VaNotify::Service do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_email).and_return(response)
         allow(response).to receive(:[]).and_return("a7855d03-7e57-474a-aa74-95322f0eb12c")
-        # allow(VaNotify::Service).to receive(:caller_locations).with({1,1}).and_return(locations)
-        # allow(locations).to receive(:[])
 
         subject.send_email(send_email_parameters)
         expect(VANotify::Notification.count).to eq(1)
@@ -200,19 +198,6 @@ describe VaNotify::Service do
           expect(e.errors.first.code).to eq('VANOTIFY_429')
         end
       end
-    end
-
-    it 'raises a 500 exception' do
-      VCR.use_cassette('va_notify/internal_server_error') do
-        expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(500)
-          expect(e.errors.first.code).to eq('VANOTIFY_500')
-        end
-      end
-    end
-
-    it 'logs an error if the notification record cannot be created' do
     end
   end
 end

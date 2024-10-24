@@ -93,8 +93,7 @@ module VaNotify
       raise Common::Exceptions::BackendServiceException, notification if response.nil?
 
       notification = VANotify::Notification.new(
-        notification_id: response["id"],
-        #source_location: caller_locations(1, 1)[0].label
+        notification_id: response["id"]
       )
 
       if notification.save
