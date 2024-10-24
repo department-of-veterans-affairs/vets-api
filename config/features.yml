@@ -457,6 +457,9 @@ features:
   disability_526_toxic_exposure_ipf:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
+  disability_526_new_confirmation_page:
+    actor_type: user
+    description: enables new confirmation page for form 526 submission confirmation page
   disability_526_toxic_exposure_document_upload_polling:
     actor_type: user
     description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
@@ -733,19 +736,19 @@ features:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
   form1010d:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
   form107959c:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
   form107959a:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-7959a (IVC CHAMPVA claim form)
   form107959f1:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program register form)
   form107959f2:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-7959f-2 (Foreign Medical Program claim form)
   form_upload_flow:
     actor_type: user
@@ -1394,6 +1397,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
+  vaos_online_scheduling_remove_podiatry:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2

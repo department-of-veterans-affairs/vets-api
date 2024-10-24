@@ -69,10 +69,12 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         claim_four = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
                                                                                  transaction_id: 'transaction_3',
                                                                                  id: '4')
+        expected_array = [claim_three.id,
+                          claim_four.id] || [claim_four.id, claim_three.id]
         # rubocop:disable RSpec/SubjectStub
         expect(subject).to receive(:notify).with(
           [],
-          [claim_three.id, claim_four.id],
+          expected_array,
           ['poa1'],
           ['itf1'],
           ['ews1'],
