@@ -9,8 +9,10 @@ class Banner < ApplicationRecord
   validates :show_close, presence: true
   validates :content, presence: true
   validates :context, presence: true
-  validates :operating_status_cta, presence: true
-  validates :email_updates_button, presence: true
-  validates :find_facilities_cta, presence: true
-  validates :limit_subpage_inheritance, presence: true
+
+  # Validations for boolean fields
+  validates :operating_status_cta, inclusion: { in: [true, false] }
+  validates :email_updates_button, inclusion: { in: [true, false] }
+  validates :find_facilities_cta, inclusion: { in: [true, false] }
+  validates :limit_subpage_inheritance, inclusion: { in: [true, false] }
 end
