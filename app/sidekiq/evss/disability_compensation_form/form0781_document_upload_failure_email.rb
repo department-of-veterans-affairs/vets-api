@@ -7,7 +7,7 @@ module EVSS
   module DisabilityCompensationForm
     class Form0781DocumentUploadFailureEmail < Job
       STATSD_METRIC_PREFIX = 'api.form_526.veteran_notifications.form0781_upload_failure_email'
-      ZSF_DD_TAG_FUNCTION  = 'Form 526 Flow - Form 0781 failure email sending'
+      ZSF_DD_TAG_FUNCTION = 'Form 526 Flow - Form 0781 failure email sending'
 
       # retry for one day
       sidekiq_options retry: 14
@@ -65,25 +65,10 @@ module EVSS
       end
 
       def perform(form526_submission_id)
-        form526_submission = form526_submission(form526_submission_id)
+        submission = form526_submission(form526_submission_id)
 
-        with_tracking('Form0781DocumentUploadFailureEmail', form526_submission.saved_claim_id, form526_submission_id) do
-          notify_client = VaNotify::Service.new(notify_service_bd.api_key)
-
-          email_address = form526_submission.veteran_email_address
-          first_name = form526_submission.get_first_name
-          date_submitted = form526_submission.format_creation_time_for_mailers
-
-          notify_response = notify_client.send_email(
-            email_address:,
-            template_id: mailer_template_id,
-            personalisation: {
-              first_name:,
-              date_submitted:
-            }
-          )
-
-          log_mailer_dispatch(form526_submission_id, notify_response)
+        with_tracking('Form0781DocumentUploadFailureEmail', submission.saved_claim_id, form526_submission_id) do
+          send_notification_mailer(form526_submission_id)
         end
       rescue => e
         retryable_error_handler(e)
@@ -96,6 +81,23 @@ module EVSS
         # which is included near the top of this job's inheritance tree in EVSS::DisabilityCompensationForm::JobStatus
         super(error)
         raise error
+      end
+
+      def send_notification_mailer(form526_submission_id)
+        email_address = @form526_submission.veteran_email_address
+        first_name = @form526_submission.get_first_name
+        date_submitted = @form526_submission.format_creation_time_for_mailers
+
+        notify_response = notify_client.send_email(
+          email_address:,
+          template_id: mailer_template_id,
+          personalisation: {
+            first_name:,
+            date_submitted:
+          }
+        )
+
+        log_mailer_dispatch(form526_submission_id, notify_response)
       end
 
       def log_mailer_dispatch(form526_submission_id, email_response = {})
@@ -117,6 +119,10 @@ module EVSS
 
       def mailer_template_id
         notify_service_bd.template_id.form0781_upload_failure_notification_template_id
+      end
+
+      def notify_client
+        @notify_client ||= VaNotify::Service.new(notify_service_bd.api_key)
       end
 
       def notify_service_bd

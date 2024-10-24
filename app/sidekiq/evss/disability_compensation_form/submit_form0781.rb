@@ -8,7 +8,7 @@ require 'zero_silent_failures/monitor'
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm0781 < Job
-      ZSF_DD_TAG_FUNCTION  = 'Form 526 Flow - Form 0781 failure email sending'
+      ZSF_DD_TAG_FUNCTION = 'Form 526 Flow - Form 0781 failure email sending'
 
       extend Logging::ThirdPartyTransaction::MethodWrapper
 
