@@ -19,6 +19,7 @@ MyHealth::Engine.routes.draw do
       end
       resources :imaging, only: %i[index], defaults: { format: :json } do
         get 'request', on: :member, action: :request_download
+        get :status, on: :collection, action: :request_status
         get :images, on: :member
         get 'images/:series_id/:image_id', to: 'imaging#image', on: :member, as: :image
         get :dicom, on: :member
