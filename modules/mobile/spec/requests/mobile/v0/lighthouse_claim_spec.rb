@@ -42,7 +42,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         expect(tracked_item_with_no_docs['documents'].count).to eq(0)
         expect(tracked_item_with_no_docs['uploaded']).to eq(false)
 
-
         uploaded_of_events = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').pluck('uploaded').compact
         date_of_events = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').pluck('date')
 
