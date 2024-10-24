@@ -525,13 +525,8 @@ GEM
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
-    google-protobuf (4.28.2)
+    google-protobuf (4.28.3)
       bigdecimal
-      rake (>= 13)
-    google-protobuf (4.28.2-java)
-      bigdecimal
-      ffi (~> 1)
-      ffi-compiler (~> 1)
       rake (>= 13)
     googleauth (1.11.1)
       faraday (>= 1.0, < 3.a)
