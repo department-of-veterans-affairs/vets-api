@@ -26,14 +26,16 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           get '/mobile/v0/claim/600117255', headers: sis_headers
         end
 
-        untracked_document = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
-          event['type'] == 'other_documents_list'
-        end.first
-        tracked_item_with_no_docs = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
+        event_timeline = response.parsed_body.dig('data', 'attributes', 'eventsTimeline')
+
+        tracked_item_with_no_docs = event_timeline.select do |event|
           event['trackedItemId'] == 360_055
         end.first
-        tracked_item_with_docs = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
+        tracked_item_with_docs = event_timeline.select do |event|
           event['trackedItemId'] == 360_052
+        end.first
+        untracked_document = event_timeline.select do |event|
+          event['type'] == 'other_documents_list'
         end.first
 
         expect(response).to have_http_status(:ok)
