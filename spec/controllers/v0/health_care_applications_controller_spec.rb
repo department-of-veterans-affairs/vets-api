@@ -19,6 +19,7 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
     let(:lighthouse_service) { instance_double(Lighthouse::Facilities::V1::Client) }
     let(:unrelated_facility) { Lighthouse::Facilities::Facility.new('id' => 'vha_123', 'attributes' => {}) }
     let(:target_facility) { Lighthouse::Facilities::Facility.new('id' => 'vha_456ab', 'attributes' => {}) }
+    let(:deactivated_facility) { Lighthouse::Facilities::Facility.new('id' => 'vha_789', 'attributes' => {}) }
     let(:facilities) { [unrelated_facility, target_facility] }
 
     before do
@@ -39,11 +40,41 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
     it 'filters out deactivated facilities' do
       params = { state: 'AK' }
 
-      StdInstitutionFacility.create(station_number: target_facility.unique_id, deactivation_date: Time.current)
+      StdInstitutionFacility.create(station_number: target_facility.unique_id, deactivation_date: nil)
+      StdInstitutionFacility.create(station_number: deactivated_facility.unique_id, deactivation_date: Time.current)
 
       get(:facilities, params:)
 
-      expect(response.body).to eq([].to_json)
+      expect(response.body).to eq([target_facility].to_json)
+    end
+
+    context 'with hca_retrieve_facilities_without_repopulating disabled' do
+      it 'invokes VES import job if query results are empty' do
+        allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(false)
+
+        params = { state: 'AK' }
+
+        expect(StdInstitutionFacility.all).to eq([])
+
+        import_job = instance_double(HCA::StdInstitutionImportJob)
+        expect(HCA::StdInstitutionImportJob).to receive(:new).and_return(import_job)
+        expect(import_job).to receive(:perform)
+
+        get(:facilities, params:)
+      end
+    end
+
+    context 'with hca_retrieve_facilities_without_repopulating enabled' do
+      it 'does not invoke VES import job even if query results are empty' do
+        allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(true)
+        params = { state: 'AK' }
+
+        expect(StdInstitutionFacility.all).to eq([])
+
+        expect(HCA::StdInstitutionImportJob).not_to receive(:new)
+
+        get(:facilities, params:)
+      end
     end
   end
 end

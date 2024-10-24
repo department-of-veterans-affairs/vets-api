@@ -77,7 +77,7 @@ module DebtsApi
         def address
           {
             'addresslineOne' => @personal_data['veteran_contact_information']['address']['address_line1'],
-            'addresslineTwo' => @personal_data['veteran_contact_information']['address']['address_line2'],
+            'addresslineTwo' => @personal_data['veteran_contact_information']['address']['address_line2'] || '',
             'addresslineThree' => @personal_data['veteran_contact_information']['address']['address_line3'] || '',
             'city' => @personal_data['veteran_contact_information']['address']['city'],
             'stateOrProvince' => @personal_data['veteran_contact_information']['address']['state_code'],

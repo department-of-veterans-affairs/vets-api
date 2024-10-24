@@ -3,11 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe V1::NodCallbacksController, type: :controller do
+  let(:notification_id) { SecureRandom.uuid }
+  let(:reference) { 'reference-id' }
   let(:status) { 'delivered' }
   let(:params) do
     {
-      id: '6ba01111-f3ee-4a40-9d04-234asdfb6abab9c',
-      reference: nil,
+      id: notification_id,
+      reference: reference,
       to: 'test@test.com',
       status:,
       created_at: '2023-01-10T00:04:25.273410Z',
@@ -16,56 +18,43 @@ RSpec.describe V1::NodCallbacksController, type: :controller do
       notification_type: 'email',
       status_reason: '',
       provider: 'sendgrid'
-    }
+    }.stringify_keys!
   end
 
   describe '#create' do
     before do
       request.headers['Authorization'] = "Bearer #{Settings.nod_vanotify_status_callback.bearer_token}"
       Flipper.enable(:nod_callbacks_endpoint)
-      allow(NodNotification).to receive(:create!)
+
+      allow(DecisionReviewNotificationAuditLog).to receive(:create!)
     end
 
-    context 'with payload' do
-      context 'if status is delivered' do
-        it 'returns success and does not save a record of the payload' do
-          post(:create, params:, as: :json)
+    context 'the record saved without an issue' do
+      it 'returns success' do
+        expect(DecisionReviewNotificationAuditLog).to receive(:create!)
+          .with(notification_id:, reference:, status:, payload: params)
 
-          expect(NodNotification).not_to receive(:create!)
+        post(:create, params:, as: :json)
 
-          expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:ok)
 
-          res = JSON.parse(response.body)
-          expect(res['message']).to eq 'success'
-        end
+        res = JSON.parse(response.body)
+        expect(res['message']).to eq 'success'
+      end
+    end
+
+    context 'the record failed to save' do
+      before do
+        expect(DecisionReviewNotificationAuditLog).to receive(:create!).and_raise(ActiveRecord::RecordInvalid)
       end
 
-      context 'if status is a failure that will not retry' do
-        let(:status) { 'permanent-failure' }
+      it 'returns failed' do
+        post(:create, params:, as: :json)
 
-        it 'returns success' do
-          post(:create, params:, as: :json)
+        expect(response).to have_http_status(:ok)
 
-          expect(response).to have_http_status(:ok)
-
-          res = JSON.parse(response.body)
-          expect(res['message']).to eq 'success'
-        end
-
-        context 'and the record failed to save' do
-          before do
-            allow(NodNotification).to receive(:create!).and_raise(ActiveRecord::RecordInvalid)
-          end
-
-          it 'returns failed' do
-            post(:create, params:, as: :json)
-
-            expect(response).to have_http_status(:ok)
-
-            res = JSON.parse(response.body)
-            expect(res['message']).to eq 'failed'
-          end
-        end
+        res = JSON.parse(response.body)
+        expect(res['message']).to eq 'failed'
       end
     end
   end
@@ -75,6 +64,7 @@ RSpec.describe V1::NodCallbacksController, type: :controller do
       it 'returns 401' do
         request.headers['Authorization'] = nil
         post(:create, params:, as: :json)
+
         expect(response).to have_http_status(:unauthorized)
       end
     end
@@ -83,8 +73,22 @@ RSpec.describe V1::NodCallbacksController, type: :controller do
       it 'returns 401' do
         request.headers['Authorization'] = 'Bearer foo'
         post(:create, params:, as: :json)
+
         expect(response).to have_http_status(:unauthorized)
       end
+    end
+  end
+
+  describe 'feature flag is disabled' do
+    before do
+      Flipper.disable :nod_callbacks_endpoint
+    end
+
+    it 'returns a 404 error code' do
+      request.headers['Authorization'] = "Bearer #{Settings.nod_vanotify_status_callback.bearer_token}"
+      post(:create, params:, as: :json)
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

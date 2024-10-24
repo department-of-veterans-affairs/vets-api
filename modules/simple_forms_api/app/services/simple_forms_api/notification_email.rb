@@ -18,7 +18,7 @@ module SimpleFormsApi
       },
       'vba_21_0966' => {
         confirmation: Settings.vanotify.services.va_gov.template_id.form21_0966_confirmation_email,
-        error: nil,
+        error: Settings.vanotify.services.va_gov.template_id.form21_0966_error_email,
         received: nil
       },
       'vba_21_0972' => {
@@ -303,7 +303,7 @@ module SimpleFormsApi
 
     def form21_0966_first_name
       if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
-        form_data('surviving_dependent_full_name', 'first')
+        form_data.dig('surviving_dependent_full_name', 'first')
       else
         form_data.dig('veteran_full_name', 'first')
       end
