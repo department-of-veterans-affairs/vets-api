@@ -40,8 +40,7 @@ module SignIn
       validate_credential_attributes
 
       if mhv_auth?
-        mhv_set_user_attributes_from_mpi
-        add_mpi_user
+        validate_mhv_mpi_record
         validate_existing_mpi_attributes
       elsif mpi_record_exists?
         validate_existing_mpi_attributes
@@ -142,17 +141,13 @@ module SignIn
       attribute.tr('-', '').downcase
     end
 
-    def mhv_set_user_attributes_from_mpi
+    def validate_mhv_mpi_record
       unless mpi_response_profile
         handle_error('No MPI Record for MHV Account',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                      error: Errors::MHVMissingMPIRecordError)
       end
-      @first_name = mpi_response_profile.given_names.first
-      @last_name = mpi_response_profile.family_name
-      @birth_date = mpi_response_profile.birth_date
-      @ssn = mpi_response_profile.ssn
-      @mhv_icn = mpi_response_profile.icn
+      attribute_mismatch_check(:icn, mhv_icn, verified_icn)
     end
 
     def check_lock_flag(attribute, attribute_description, code)
@@ -170,13 +165,17 @@ module SignIn
     def handle_error(error_message, error_code, error: nil)
       sign_in_logger.info('attribute validator error', { errors: error_message,
                                                          credential_uuid:,
-                                                         type: service_name })
+                                                         mhv_icn:,
+                                                         type: service_name }.compact)
       raise error.new message: error_message, code: error_code if error
     end
 
     def mpi_response_profile
       @mpi_response_profile ||=
-        if idme_uuid
+        if mhv_correlation_id
+          mpi_service.find_profile_by_identifier(identifier: mhv_correlation_id,
+                                                 identifier_type: MPI::Constants::MHV_UUID)&.profile
+        elsif idme_uuid
           mpi_service.find_profile_by_identifier(identifier: idme_uuid,
                                                  identifier_type: MPI::Constants::IDME_UUID)&.profile
         elsif logingov_uuid
