@@ -7,6 +7,8 @@ module Burials
   # Monitor functions for Rails logging and StatsD
   #
   class Monitor < ::ZeroSilentFailures::Monitor
+    include Logging::Monitor
+
     # statsd key for api
     CLAIM_STATS_KEY = 'api.burial_claim'
 

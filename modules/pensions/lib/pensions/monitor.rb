@@ -8,6 +8,8 @@ module Pensions
   # @todo abstract, split logging for controller and sidekiq
   #
   class Monitor < ::ZeroSilentFailures::Monitor
+    include Logging::Monitor
+
     # statsd key for api
     CLAIM_STATS_KEY = 'api.pension_claim'
 
