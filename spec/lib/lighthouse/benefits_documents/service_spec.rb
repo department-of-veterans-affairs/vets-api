@@ -7,6 +7,7 @@ require 'lighthouse/benefits_documents/configuration'
 
 RSpec.describe BenefitsDocuments::Service do
   let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user_account) { create(:user_account) }
   let(:service) { BenefitsDocuments::Service.new(user) }
 
   describe '#queue_document_upload' do
@@ -48,6 +49,12 @@ RSpec.describe BenefitsDocuments::Service do
         expect do
           service.queue_document_upload(params)
         end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+      end
+
+      it 'records an evidence submission when cst_synchronous_evidence_uploads is false' do
+        Flipper.disable(:cst_synchronous_evidence_uploads)
+        service.queue_document_upload(params)
+        expect(EvidenceSubmission.count).to eq(1)
       end
 
       it 'does not enqueue a job when cst_synchronous_evidence_uploads is true' do

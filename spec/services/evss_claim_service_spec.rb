@@ -6,6 +6,7 @@ RSpec.describe EVSSClaimService do
   subject { service }
 
   let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user_account) { create(:user_account) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
   let(:service) { described_class.new(user) }
 
@@ -130,6 +131,11 @@ RSpec.describe EVSSClaimService do
       expect do
         subject.upload_document(document)
       end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
+    end
+
+    it 'records evidence submission' do
+      subject.upload_document(document)
+      expect(EvidenceSubmission.count).to eq(1)
     end
 
     it 'updates document with sanitized filename' do
