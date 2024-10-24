@@ -18,9 +18,8 @@ module VAProfile
               :address_line1,
               :address_line2,
               :address_line3,
-              :int_postal_code
             ).deep_transform_keys { |k| k.to_s.camelize(:lower) }.merge(
-              int_postal_code: @international_postal_code,
+              intPostalCode: @international_postal_code,
               cityName: @city,
               zipCode5: @zip_code,
               zipCode4: @zip_code_suffix,
