@@ -36,7 +36,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             index_request_with(poa_codes:, auth_header:)
 
             expect(response).to have_http_status(:ok)
-            expect(JSON.parse(response.body).size).to eq(16)
+            expect(JSON.parse(response.body).size).to eq(3)
           end
         end
       end

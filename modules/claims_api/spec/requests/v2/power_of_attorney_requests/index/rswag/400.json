@@ -11,25 +11,23 @@
         "required": [
           "title",
           "detail",
+          "code",
           "status"
         ],
         "properties": {
           "title": {
-            "type": "string",
-            "enum": [
-              "Not authorized"
-            ]
+            "type": "string"
           },
           "detail": {
-            "type": "string",
-            "enum": [
-              "Not authorized"
-            ]
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
           },
           "status": {
             "type": "string",
             "enum": [
-              "401"
+              "400"
             ]
           }
         }
