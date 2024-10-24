@@ -33,7 +33,7 @@ class FormSubmissionAttempt < ApplicationRecord
         if should_send_simple_forms_email
           simple_forms_api_email(log_info)
         elsif form_type == CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE
-          form_526_form4142_email(log_info)
+          form526_form4142_email(log_info)
         end
       end
 
@@ -112,7 +112,7 @@ class FormSubmissionAttempt < ApplicationRecord
     )
     ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(
       log_info.merge({ error_class: e.class, error_message: e.message }),
-      user_account_uuid, call_location:
+      log_info[:user_account_uuid], call_location:
     )
   end
 
