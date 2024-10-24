@@ -51,6 +51,10 @@ class FormSubmission < ApplicationRecord
     end
   end
 
+  def benefits_intake_uuid
+    form_submission_attempts.order(created_at: :asc).last&.benefits_intake_uuid
+  end
+
   def latest_pending_attempt
     form_submission_attempts.where(aasm_state: 'pending').order(created_at: :asc).last
   end

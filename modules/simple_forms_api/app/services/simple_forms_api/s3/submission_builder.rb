@@ -8,7 +8,7 @@ module SimpleFormsApi
       def initialize(benefits_intake_uuid:) # rubocop:disable Lint/MissingSuper
         validate_input(benefits_intake_uuid)
 
-        @submission = FormSubmission.find_by(benefits_intake_uuid:)
+        @submission = FormSubmissionAttempt.find_by(benefits_intake_uuid:).form_submission
         validate_submission
 
         @attachments = []
