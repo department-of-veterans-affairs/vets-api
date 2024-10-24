@@ -6,9 +6,9 @@ module VANotify
       notification = VANotify::Notification.find_by(notification_id: notification_callback[:id])
 
       # notification.callback is set by other teams, not user input
-      # rubocop:disable Style/IoMethods
+      # rubocop:disable Security/IoMethods
       klass = notification.callback.constantize
-      # rubocop:enable Style/IoMethods
+      # rubocop:enable Security/IoMethods
 
       if klass.respond_to?(:call)
         begin
