@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :banner do
     entity_id { 1 }
@@ -6,6 +8,7 @@ FactoryBot.define do
     alert_type { 'warning' }
     show_close { false }
     content { '<p>This is a warning alert.</p>' }
+    # rubocop:disable RSpec/MissingExampleGroupArgument
     context {
       [
         {
@@ -27,6 +30,7 @@ FactoryBot.define do
         }
       ]
     }
+    # rubocop:enable RSpec/MissingExampleGroupArgument
 
     operating_status_cta { false }
     email_updates_button { false }
