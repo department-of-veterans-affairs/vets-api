@@ -28,7 +28,7 @@ module ClaimsApi
     end
 
     attr_reader :uuid
-    attr_accessor :first_name, :last_name, :middle_name, :email
+    attr_accessor :first_name, :last_name, :middle_name, :email, :suffix
 
     def authn_context
       'authn'
