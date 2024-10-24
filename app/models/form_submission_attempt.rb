@@ -29,36 +29,11 @@ class FormSubmissionAttempt < ApplicationRecord
         form_type = form_submission.form_type
         log_info = { form_submission_id:, benefits_intake_uuid: form_submission&.benefits_intake_uuid, form_type:,
                      user_account_uuid: }
-        zsf_function = "#{form_type} form submission to Lighthouse"
         if should_send_simple_forms_email
-          Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
-          simple_forms_enqueue_result_email(:error)
+          simple_forms_api_email(log_info)
         elsif form_submission.form_type == CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE
-          if Flipper.enabled?(CentralMail::SubmitForm4142Job::POLLED_FAILURE_EMAIL)
-            zsf_function = CentralMail::SubmitForm4142Job::FORM4142_DD_ZSF_FUNCTION
-            form526_submission_id = Form526Submission.find_by(saved_claim_id:).id
-            Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
-                              log_info.merge({ form526_submission_id: }))
-            jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(
-              form526_submission_id
-            )
-            Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify completed', log_info.merge({ jid: }))
-          else
-            Rails.logger.info(
-              'Would queue EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail, but flipper is off.',
-              log_info
-            )
-          end
+          form_526_form4142_email(log_info)
         end
-      rescue => e
-        cl = caller_locations.first
-        call_location = ZeroSilentFailures::Monitor::CallLocation.new(zsf_function, cl.path, cl.lineno)
-        ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
-                                   .log_silent_failure(
-                                     log_info.merge({ error_class: e.class, error_message: e.message }),
-                                     user_account_uuid,
-                                     call_location:
-                                   )
       end
 
       transitions from: :pending, to: :failure
@@ -104,6 +79,41 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   private
+
+  def simple_forms_api_email(log_info)
+    Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
+    simple_forms_enqueue_result_email(:error)
+  end
+
+  def queue_form526_form4142_email(form526_submission_id, log_info)
+    Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
+                      log_info.merge({ form526_submission_id: }))
+    jid = EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(
+      form526_submission_id
+    )
+    Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify completed',
+                      log_info.merge({ jid:, form526_submission_id: }))
+  end
+
+  def form526_form4142_email(log_info)
+    if Flipper.enabled?(CentralMail::SubmitForm4142Job::POLLED_FAILURE_EMAIL)
+      queue_form526_form4142_email(Form526Submission.find_by(saved_claim_id:).id, log_info)
+    else
+      Rails.logger.info(
+        'Would queue EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail, but flipper is off.',
+        log_info.merge({ form526_submission_id: })
+      )
+    end
+  rescue => e
+    cl = caller_locations.first
+    call_location = ZeroSilentFailures::Monitor::CallLocation.new(
+      CentralMail::SubmitForm4142Job::FORM4142_DD_ZSF_FUNCTION, cl.path, cl.lineno
+    )
+    ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(
+      log_info.merge({ error_class: e.class, error_message: e.message }),
+      user_account_uuid, call_location:
+    )
+  end
 
   def should_send_simple_forms_email
     simple_forms_form_number && Flipper.enabled?(:simple_forms_email_notifications)
