@@ -54,8 +54,22 @@ module BenefitsDocuments
       end
 
       def update_status
-        # Only save an upload's status if it has transitioned since the last Lighthouse poll
+        # puts "status"
+        # puts @lighthouse526_document_status
+
+        # puts "checking if status changed for request id"
+        # puts @lighthouse526_document_upload.lighthouse_document_request_id
+   
+        # # Only save an upload's status if it has transitioned since the last Lighthouse poll
+        # puts "checking request id status"
+        # puts @lighthouse526_document_upload.lighthouse_document_request_id
+        puts "checking status changed"
+        puts "status we are checking in the update_status method"
+        puts @lighthouse526_document_status
         return unless status_changed?
+        puts "yes status changed"
+        # I DON'T THINK THE FAILED ONE IS GETTING HERE!
+        # puts "status changed"
 
         # Ensure start time and latest status response from API are saved, regardless if document is still in progress
         @lighthouse526_document_upload.update!(
@@ -86,6 +100,14 @@ module BenefitsDocuments
       private
 
       def status_changed?
+        # puts "checking upload request id"
+        # puts @lighthouse526_document_upload.lighthouse_document_request_id
+        puts "status we are checking for change"
+        # WAIT WHY IS THIS CHECKING THE SUCCESS STATUS?
+        puts @lighthouse526_document_status
+        puts "last status response"
+        puts @lighthouse526_document_upload.last_status_response
+        
         @lighthouse526_document_status != @lighthouse526_document_upload.last_status_response
       end
 

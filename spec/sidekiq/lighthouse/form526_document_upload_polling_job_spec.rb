@@ -213,5 +213,127 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
         end
       end
     end
+
+    describe 'Document Polling Logging' do
+      context 'for pending documents' do
+        # let(:faraday_response) { instance_double(Faraday::Response, body: {}, status: 200) }
+        let!(:pending_polling_documents) { create_list(:lighthouse526_document_upload, 2, aasm_state: 'pending') }
+        let!(:pending_recently_polled_document) { create(:lighthouse526_document_upload, aasm_state: 'pending', status_last_polled_at: polling_time - 45.minutes) }
+
+        let(:polling_time) { DateTime.new(1985, 10, 26).utc }
+        let(:faraday_response) { instance_double(Faraday::Response, body: {
+          'data' => {
+            'statuses' => [
+              {
+                'requestId' => pending_polling_documents.first.lighthouse_document_request_id,
+                'time' => {
+                  # faker?
+                  'startTime' => 1502199000,
+                  'endTime' => 1502199000
+                },
+                'status' => 'SUCCESS'
+              }, {
+                'requestId' => pending_polling_documents[1].lighthouse_document_request_id,
+                'time' => {
+                  'startTime' => 1502199000,
+                  'endTime' => 1502199000
+                },
+                'status' => 'FAILED',
+                'error' => {
+                  'detail' => 'Something went wrong',
+                  'step' => 'BENEFITS_GATEWAY_SERVICE'
+                }
+              }
+            ],
+            'requestIdsNotFound' => [
+              0
+            ]
+          }
+        }, status: 200) }
+
+        around { |example| Timecop.freeze(polling_time) { example.run } }
+
+        before do
+          allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(faraday_response)
+          # to deal with multuiple calls?
+          allow(StatsD).to receive(:gauge)
+        end
+
+        describe 'polled documents metric' do
+          it 'increments a StatsD gauge metric with the total number of pending documents which require a status update, discluding recently polled documents' do
+            expect(StatsD).to receive(:gauge).with('worker.lighthouse.poll_form526_document_uploads.pending_documents_polled', 2)
+            described_class.new.perform
+          end
+        end
+
+        describe 'completed and failed documents' do
+          let!(:existing_completed_documents) { create_list(:lighthouse526_document_upload, 2, aasm_state: 'completed') }
+          let!(:existing_failed_documents) { create_list(:lighthouse526_document_upload, 2, aasm_state: 'failed') }
+          # let!(:pending_polling_document) { create(:lighthouse526_document_upload, aasm_state: 'pending') }
+          # let!(:polled_documents) { create_list(:lighthouse526_document_upload, 2, aasm_state: 'pending') }
+
+          it 'increments a StatsD gauge metric with the total number of documents marked complete' do
+            # existing_successfull_documents = create_list(:lighthouse526_document_upload, 2, aasm_state: 'completed')
+            # Should only count documents newly counted success
+            expect(StatsD).to receive(:gauge).with('worker.lighthouse.poll_form526_document_uploads.pending_documents_marked_completed', 1)
+            described_class.new.perform
+          end
+
+          # something here is not makring the document as failed
+          it 'increments a StatsD gauge metric with the total number of documents marked failed' do
+            # Should only count documents newly counted failed
+            expect(StatsD).to receive(:gauge).with('worker.lighthouse.poll_form526_document_uploads.pending_documents_marked_failed', 1)
+            described_class.new.perform
+          end
+        end
+
+        # # describe 'pending documents total' do
+        # #   let!(:completed_document) { create(:lighthouse526_document_upload, aasm_state: 'completed') }
+
+        # #   it 'increments a StatsD gauge metric with the total number of pending documents and ignores documents in other states' do
+        # #     expect(StatsD).to receive(:gauge).with('worker.lighthouse.poll_form526_document_uploads.pending_documents_total', 2)  
+        # #     described_class.new.perform
+        # #   end
+        # # end
+
+        # # Explain this rigamorol
+        # describe 'recently-polled documents' do
+        #   let!(:pending_polling_document) { create(:lighthouse526_document_upload, aasm_state: 'pending') }
+        #   let!(:pending_recently_polled_document) { create(:lighthouse526_document_upload, aasm_state: 'pending', status_last_polled_at: polling_time - 45.minutes) }
+
+        #   it 'includes the recently polled documents in the total' do
+        #     expect(StatsD).to receive(:gauge).with('worker.lighthouse.poll_form526_document_uploads.pending_documents_total', 2)
+        #     described_class.new.perform
+        #   end
+
+        #   it 'increments a StatsD gauge metric with the total number of pending documents which require a status update, discluding recently polled documents' do
+        #     expect(StatsD).to receive(:gauge).with('worker.lighthouse.poll_form526_document_uploads.pending_documents_polled', 1)
+        #     described_class.new.perform
+        #   end
+        # end
+
+        # describe 'completed and failed documents' do
+        #   let!(:existing_completed_documents) { create_list(:lighthouse526_document_upload, 2, aasm_state: 'completed') }
+        #   let!(:existing_failed_documents) { create_list(:lighthouse526_document_upload, 2, aasm_state: 'failed') }
+        #   # let!(:pending_polling_document) { create(:lighthouse526_document_upload, aasm_state: 'pending') }
+
+
+        #   # let!(:polled_documents) { create_list(:lighthouse526_document_upload, 2, aasm_state: 'pending') }
+
+        #   it 'increments a StatsD gauge metric with the total number of documents marked complete' do
+        #     # existing_successfull_documents = create_list(:lighthouse526_document_upload, 2, aasm_state: 'completed')
+        #     # Should only count documents newly counted success
+        #     expect(StatsD).to receive(:gauge).with('worker.lighthouse.poll_form526_document_uploads.pending_documents_marked_completed', 1)
+        #     described_class.new.perform
+        #   end
+
+        #   it 'increments a StatsD gauge metric with the total number of documents marked failed' do
+        #     # Should only count documents newly counted failed
+        #     expect(StatsD).to receive(:gauge).with('worker.lighthouse.poll_form526_document_uploads.pending_documents_marked_failed', 1)
+        #     described_class.new.perform
+        #   end
+        # end
+      end
+    end
   end
 end

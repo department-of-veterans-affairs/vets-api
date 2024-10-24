@@ -14,6 +14,10 @@ module Lighthouse
 
     POLLED_BATCH_DOCUMENT_COUNT = 100
     STATSD_KEY_PREFIX = 'worker.lighthouse.poll_form526_document_uploads'
+    # STATSD_PENDING_DOCUMENT_TOTAL_KEY = 'pending_documents_total'
+    STATSD_PENDING_DOCUMENTS_POLLED_KEY = 'pending_documents_polled'
+    STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY = 'pending_documents_marked_completed'
+    STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY = 'pending_documents_marked_failed'
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
@@ -41,11 +45,20 @@ module Lighthouse
     end
 
     def perform
-      Lighthouse526DocumentUpload.pending.status_update_required.in_batches(
+      successful_documents_before_polling = Lighthouse526DocumentUpload.completed.count
+      failed_documents_before_polling = Lighthouse526DocumentUpload.failed.count
+
+      documents_to_poll = Lighthouse526DocumentUpload.pending.status_update_required
+      StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_POLLED_KEY}", documents_to_poll.count)
+
+      # Lighthouse526DocumentUpload.pending.status_update_required.in_batches(
+      documents_to_poll.in_batches(
         of: POLLED_BATCH_DOCUMENT_COUNT
       ) do |document_batch|
         lighthouse_document_request_ids = document_batch.pluck(:lighthouse_document_request_id)
         response = BenefitsDocuments::Form526::DocumentsStatusPollingService.call(lighthouse_document_request_ids)
+        # puts "response body"
+        # puts response.body
 
         if response.status == 200
           result = BenefitsDocuments::Form526::UpdateDocumentsStatusService.call(document_batch, response.body)
@@ -63,6 +76,12 @@ module Lighthouse
 
         handle_error(response_struct, lighthouse_document_request_ids)
       end
+
+      documents_marked_success = Lighthouse526DocumentUpload.completed.count - successful_documents_before_polling
+      StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY}", documents_marked_success)
+
+      documents_marked_failed = Lighthouse526DocumentUpload.failed.count - failed_documents_before_polling
+      StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY}", documents_marked_failed)
     end
 
     private

@@ -63,11 +63,20 @@ module BenefitsDocuments
       end
 
       def update_document_status(status)
+        puts "updatuing documetn status"
+        puts status
         document_upload = @lighthouse526_document_uploads.find_by!(lighthouse_document_request_id: status['requestId'])
         statsd_document_base_key(STATSD_DOCUMENT_TYPE_KEY_MAP[document_upload.document_type])
 
-        status_updater(status, document_upload)
-        @status_updater.update_status
+        status_updater = BenefitsDocuments::Form526::UploadStatusUpdater.new(status, document_upload)
+
+        # status_updater(status, document_upload)
+        # puts "status before"
+        # puts document_upload.aasm_state
+        # @status_updater.update_status
+        status_updater.update_status
+        # puts "Status after"
+        # puts document_upload.aasm_state
 
         if document_upload.completed?
           # ex. 'api.form526.lighthouse_document_upload_processing_status.bdd_instructions.complete'
@@ -81,10 +90,12 @@ module BenefitsDocuments
         end
       end
 
+      # YO!!!! THIS IS MEMOIZING A STATUS UPDATER IT SHOULD NOT BE DOING THAT THESE NEED TO BE NEW FOR EACH STATUS!!!
       def status_updater(status, document_upload)
-        # UploadStatusUpdater encapsulates all parsing of a status response from Lighthouse
+      #   # UploadStatusUpdater encapsulates all parsing of a status response from Lighthouse
         @status_updater ||= BenefitsDocuments::Form526::UploadStatusUpdater.new(status, document_upload)
-      end
+      #   BenefitsDocuments::Form526::UploadStatusUpdater.new(status, document_upload)
+      # end
 
       def statsd_document_base_key(statsd_document_type_key)
         @statsd_document_base_key ||= "#{STATSD_BASE_KEY}.#{statsd_document_type_key}"
