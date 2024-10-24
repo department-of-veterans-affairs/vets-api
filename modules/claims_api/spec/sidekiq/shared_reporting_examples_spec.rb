@@ -13,8 +13,7 @@ RSpec.shared_examples 'shared reporting behavior' do
       unsuccessful_poa_submissions = job.unsuccessful_poa_submissions
 
       expect(poa_totals[0]['VA TurboClaim'][:totals]).to eq(6)
-      # TODO: address in subsequent ticket
-      # expect(unsuccessful_poa_submissions.count).to eq(2)
+      expect(unsuccessful_poa_submissions[1][:created_at]).to be > 1.day.ago
       expect(unsuccessful_poa_submissions[0][:cid]).to eq('0oa9uf05lgXYk6ZXn297')
     end
   end
@@ -31,8 +30,7 @@ RSpec.shared_examples 'shared reporting behavior' do
       unsuccessful_evidence_waiver_submissions = job.unsuccessful_evidence_waiver_submissions
 
       expect(ews_totals[0]['VA TurboClaim'][:totals]).to eq(6)
-      # TODO: address in subsequent ticket
-      # expect(unsuccessful_evidence_waiver_submissions.count).to eq(2)
+      expect(unsuccessful_evidence_waiver_submissions[1][:created_at]).to be > 1.day.ago
       expect(unsuccessful_evidence_waiver_submissions[0][:cid]).to eq('0oa9uf05lgXYk6ZXn297')
     end
   end
@@ -62,20 +60,23 @@ RSpec.shared_examples 'shared reporting behavior' do
 
   it 'includes 526EZ claims from VaGov' do
     with_settings(Settings.claims_api, report_enabled: true) do
-      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
-      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
-      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
-      create(:auto_established_claim_va_gov, created_at: Time.zone.now).freeze
+      claim_one = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                              transaction_id: '467384632186')
+      claim_two = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                              transaction_id: '467384632187')
+      FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                  transaction_id: '467384632187')
 
       job = described_class.new
       job.perform
       va_gov_groups = job.unsuccessful_va_gov_claims_submissions
+      first_group = va_gov_groups[1]
+      first_transaction_id = claim_one[:transaction_id]
+      expect(first_group[0][:transaction_id]).to eq(first_transaction_id)
 
-      expect(va_gov_groups).to include('A')
-      expect(va_gov_groups).to include('B')
-      expect(va_gov_groups).to include('C')
-      expect(va_gov_groups['A'][0][:transaction_id]).to be_a(String)
-      expect(va_gov_groups['A'][0][:id]).to be_a(String)
+      second_group = va_gov_groups[2]
+      second_transaction_id = claim_two[:transaction_id]
+      expect(second_group[0][:transaction_id]).to eq(second_transaction_id)
     end
   end
 end

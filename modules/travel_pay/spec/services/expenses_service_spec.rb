@@ -20,9 +20,14 @@ describe TravelPay::ExpensesService do
       )
     end
 
-    let(:tokens) { %w[veis_token btsss_token] }
+    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
     context 'add new expense' do
+      before do
+        auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+        @service = TravelPay::ExpensesService.new(auth_manager)
+      end
+
       it 'returns an expense ID when passed a valid claim id and appointment date' do
         params = { 'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
                    'appt_date' => '2024-10-02T14:36:38.043Z',
@@ -31,11 +36,10 @@ describe TravelPay::ExpensesService do
 
         allow_any_instance_of(TravelPay::ExpensesClient)
           .to receive(:add_mileage_expense)
-          .with(*tokens, params)
+          .with(tokens[:veis_token], tokens[:btsss_token], params)
           .and_return(add_expense_response)
 
-        service = TravelPay::ExpensesService.new
-        actual_new_expense_response = service.add_expense(*tokens, params)
+        actual_new_expense_response = @service.add_expense(params)
 
         expect(actual_new_expense_response['data']).to equal(add_expense_data['data'])
       end
@@ -46,29 +50,26 @@ describe TravelPay::ExpensesService do
 
         allow_any_instance_of(TravelPay::ExpensesClient)
           .to receive(:add_mileage_expense)
-          .with(*tokens, params)
+          .with(tokens[:veis_token], tokens[:btsss_token], params)
           .and_return(add_expense_response)
 
-        service = TravelPay::ExpensesService.new
-        actual_new_expense_response = service.add_expense(*tokens, params)
+        actual_new_expense_response = @service.add_expense(params)
 
         expect(actual_new_expense_response['data']).to equal(add_expense_data['data'])
       end
 
       it 'throws an ArgumentException if not passed the right params' do
-        service = TravelPay::ExpensesService.new
-
         expect do
-          service.add_expense(*tokens, { 'claim_id' => nil,
-                                         'appt_date' => '2024-10-02T14:36:38.043Z',
-                                         'trip_type' => 'OneWay' })
+          @service.add_expense({ 'claim_id' => nil,
+                                 'appt_date' => '2024-10-02T14:36:38.043Z',
+                                 'trip_type' => 'OneWay' })
         end
           .to raise_error(ArgumentError, /You must provide/i)
 
         expect do
-          service.add_expense(*tokens, { 'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
-                                         'appt_date' => nil,
-                                         'trip_type' => 'RoundTrip' })
+          @service.add_expense({ 'claim_id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+                                 'appt_date' => nil,
+                                 'trip_type' => 'RoundTrip' })
         end
           .to raise_error(ArgumentError, /You must provide/i)
       end

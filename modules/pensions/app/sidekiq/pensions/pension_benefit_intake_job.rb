@@ -31,12 +31,12 @@ module Pensions
 
     # retry exhaustion
     sidekiq_retries_exhausted do |msg|
-      pension_monitor = Pensions::Monitor.new
       begin
         claim = Pensions::SavedClaim.find(msg['args'].first)
       rescue
         claim = nil
       end
+      pension_monitor = Pensions::Monitor.new
       pension_monitor.track_submission_exhaustion(msg, claim)
     end
 

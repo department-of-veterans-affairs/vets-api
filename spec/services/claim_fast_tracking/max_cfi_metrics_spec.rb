@@ -100,12 +100,8 @@ RSpec.describe ClaimFastTracking::MaxCfiMetrics do
         expect(subject).to eq([6260])
       end
     end
-  end
 
-  describe '#diagnostic_codes_for_logging_metrics' do
-    subject { metrics.diagnostic_codes_for_logging_metrics }
-
-    context 'when some but not all rated disabilities are for metrics' do
+    context 'when all rated disabilities are at maximum percentage' do
       let(:new_form_data) do
         { 'rated_disabilities' => [
           { 'name' => 'Hypertension',
@@ -119,46 +115,8 @@ RSpec.describe ClaimFastTracking::MaxCfiMetrics do
         ] }
       end
 
-      it 'returns only diagnostic codes of interest for logging metrics' do
-        expect(subject).to eq([6260])
-      end
-    end
-
-    context 'when all rated disabilities are for metrics but only one at max rating' do
-      let(:new_form_data) do
-        { 'rated_disabilities' => [
-          { 'name' => 'Migraines',
-            'diagnostic_code' => 8100,
-            'maximum_rating_percentage' => 50,
-            'rating_percentage' => 30 },
-          { 'name' => 'Tinnitus',
-            'diagnostic_code' => 6260,
-            'maximum_rating_percentage' => 10,
-            'rating_percentage' => 10 }
-        ] }
-      end
-
-      it 'returns only diagnostic codes of interest for logging metrics' do
-        expect(subject).to eq([6260])
-      end
-    end
-
-    context 'when all rated disabilities are for metrics with multiple at max rating' do
-      let(:new_form_data) do
-        { 'rated_disabilities' => [
-          { 'name' => 'Migraines',
-            'diagnostic_code' => 8100,
-            'maximum_rating_percentage' => 50,
-            'rating_percentage' => 50 },
-          { 'name' => 'Tinnitus',
-            'diagnostic_code' => 6260,
-            'maximum_rating_percentage' => 10,
-            'rating_percentage' => 10 }
-        ] }
-      end
-
-      it 'returns only diagnostic codes of interest for logging metrics' do
-        expect(subject).to eq([6260, 8100])
+      it 'returns diagnostic codes for maximum rated disabilities' do
+        expect(subject).to eq([7101, 6260])
       end
     end
   end
