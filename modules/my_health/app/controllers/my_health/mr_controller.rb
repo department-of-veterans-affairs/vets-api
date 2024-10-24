@@ -3,14 +3,18 @@
 require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'medical_records/phr_mgr/client'
+require 'medical_records/lighthouse_client'
 
 module MyHealth
   class MrController < ApplicationController
-    include MyHealth::MHVControllerConcerns
+    # FIXME: Conditionalize this
+    # include MyHealth::MHVControllerConcerns
     service_tag 'mhv-medical-records'
 
+    # FIXME: Conditionalize this
     # skip_before_action :authenticate
-    before_action :authenticate_bb_client
+    # FIXME: Conditionalize this
+    # before_action :authenticate_bb_client
 
     rescue_from ::MedicalRecords::PatientNotFound do |_exception|
       render body: nil, status: :accepted
@@ -19,8 +23,14 @@ module MyHealth
     protected
 
     def client
-      @client ||= MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
-                                                        icn: current_user.icn })
+      use_oh_data_path = Flipper.enabled?(:mhv_accelerated_delivery_allergies_enabled, @current_user) &&
+                         params[:use_oh_data_path].to_i == 1
+      @client ||= if use_oh_data_path
+                    MedicalRecords::LighthouseClient.new(current_user.icn)
+                  else
+                    MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
+                                                          icn: current_user.icn })
+                  end
     end
 
     def phrmgr_client
