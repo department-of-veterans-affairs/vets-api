@@ -6,7 +6,7 @@ class DeleteOldPiiLogsJob
   sidekiq_options unique_for: 30.minutes, retry: false
 
   EXPIRATION_TIME = 2.weeks
-  BATCH_SIZE = 1000
+  BATCH_SIZE = 10000
 
   def perform
     loop do
