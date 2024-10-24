@@ -60,8 +60,16 @@ module EVSS
         StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
         cl = caller_locations.first
         call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(log_info, nil,
-                                                                                                  call_location:)
+        user_account_id = begin
+          Form526Submission.find(form526_submission_id).user_account_id
+        rescue
+          nil
+        end
+        ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(
+          log_info,
+          user_account_id:,
+          call_location:
+        )
       end
 
       def perform(form526_submission_id)
@@ -110,7 +118,7 @@ module EVSS
         call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
         zsf_monitor.log_silent_failure_avoided(
           log_info.merge(email_confirmation_id: email_response&.id),
-          nil,
+          Form526Submission.find(form526_submission_id).user_account_id,
           call_location:
         )
         StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
