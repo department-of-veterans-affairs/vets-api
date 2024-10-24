@@ -18,7 +18,7 @@ module V0
       private
 
       def set_mhv_user_account
-        @mhv_user_account = current_user.mhv_user_account
+        @mhv_user_account = current_user.mhv_user_account(break_cache: true)
       end
 
       def render_errors(error_message, status: :unprocessable_entity)

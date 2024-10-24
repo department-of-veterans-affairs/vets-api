@@ -151,9 +151,9 @@ class User < Common::RedisStore
     identity.mhv_correlation_id || mpi_mhv_correlation_id
   end
 
-  def mhv_user_account
+  def mhv_user_account(break_cache: false)
     @mhv_user_account ||= if va_patient?
-                            MHV::UserAccount::Creator.new(user_verification:).perform
+                            MHV::UserAccount::Creator.new(user_verification:, break_cache:).perform
                           else
                             log_mhv_user_account_error('User has no va_treatment_facility_ids')
 
