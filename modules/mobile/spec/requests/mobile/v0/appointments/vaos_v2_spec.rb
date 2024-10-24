@@ -11,6 +11,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
 
   before do
     Flipper.enable_actor(:appointments_consolidation, user)
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
   context 'with VAOS' do

@@ -285,7 +285,7 @@ module VAOS
       end
 
       def clinic_url(station_id)
-        "/vaos/v1/locations/#{station_id}/clinics"
+        "/#{base_vaos_route}/locations/#{station_id}/clinics"
       end
 
       def scheduling_url
