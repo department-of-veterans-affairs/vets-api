@@ -26,9 +26,7 @@ module VaNotify
       response = with_monitoring do
         notify_client.send_email(args)
       end
-      if Flipper.enabled?(:notification_creation)
-        create_notification(response)
-      end
+      create_notification(response) if Flipper.enabled?(:notification_creation)
     rescue => e
       handle_error(e)
     end
@@ -37,9 +35,7 @@ module VaNotify
       response = with_monitoring do
         notify_client.send_sms(args)
       end
-      if Flipper.enabled?(:notification_creation)
-        create_notification(response)
-      end
+      create_notification(response) if Flipper.enabled?(:notification_creation)
     rescue => e
       handle_error(e)
     end
@@ -92,7 +88,7 @@ module VaNotify
       raise Common::Exceptions::BackendServiceException, notification if response.nil?
 
       notification = VANotify::Notification.new(
-        notification_id: response["id"]
+        notification_id: response['id']
       )
 
       if notification.save
