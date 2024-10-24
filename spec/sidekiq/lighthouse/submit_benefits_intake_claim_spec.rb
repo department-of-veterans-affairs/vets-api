@@ -13,6 +13,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
     let(:response) { double('response') }
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:location) { 'test_location' }
+    let(:notification) { double('notification') }
 
     before do
       job.instance_variable_set(:@claim, claim)
@@ -23,6 +24,9 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
       allow(service).to receive(:uuid)
       allow(service).to receive_messages(location:, upload_doc: response)
+
+      allow(Burials::NotificationEmail).to receive(:new).and_return(notification)
+      allow(notification).to receive(:deliver)
     end
 
     it 'submits the saved claim successfully' do
@@ -32,7 +36,9 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       expect(job).to receive(:create_form_submission_attempt)
       expect(job).to receive(:generate_metadata).once
       expect(service).to receive(:upload_doc)
-      expect(claim).to receive(:send_confirmation_email)
+
+      # burials only
+      expect(notification).to receive(:deliver).with(:confirmation)
 
       expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
 
