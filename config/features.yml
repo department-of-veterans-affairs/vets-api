@@ -457,6 +457,9 @@ features:
   disability_526_toxic_exposure_ipf:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
+  disability_526_new_confirmation_page:
+    actor_type: user
+    description: enables new confirmation page for form 526 submission confirmation page
   disability_526_toxic_exposure_document_upload_polling:
     actor_type: user
     description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
