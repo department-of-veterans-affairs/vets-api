@@ -5,6 +5,7 @@ require 'benefits_intake_service/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pdf_info'
 require 'simple_forms_api_submission/metadata_validator'
+require 'dependents/monitor'
 
 module CentralMail
   class SubmitCentralForm686cJob
@@ -28,10 +29,10 @@ module CentralMail
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      Rails.logger.error(
-        "Failed all retries on CentralMail::SubmitCentralForm686cJob, last error: #{msg['error_message']}"
-      )
-      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+      monitor = Dependents::Monitor.new
+      monitor.track_submission_exhaustion(msg)
+
+      #this is where the email will go
     end
 
     def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
