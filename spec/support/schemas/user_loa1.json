@@ -137,6 +137,12 @@
                     null
                   ]
                 },
+                "preferred_name": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
                 "birth_date": {
                   "type": [
                     "string",

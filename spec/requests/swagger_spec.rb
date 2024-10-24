@@ -1946,16 +1946,19 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports getting the 200 user data' do
-      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
-                                                                                  allow_playback_repeats: true) do
-        expect(subject).to validate(:get, '/v0/user', 200, headers)
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body]) do
+        VCR.use_cassette('va_profile/demographics/demographics', allow_playback_repeats: true) do
+          expect(subject).to validate(:get, '/v0/user', 200, headers)
+        end
       end
     end
 
     it 'supports getting the 401 user data' do
-      VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[body],
-                                                                                 allow_playback_repeats: true) do
-        expect(subject).to validate(:get, '/v0/user', 401)
+      VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank',
+                       match_requests_on: %i[body]) do
+        VCR.use_cassette('va_profile/demographics/demographics', allow_playback_repeats: true) do
+          expect(subject).to validate(:get, '/v0/user', 401)
+        end
       end
     end
 
@@ -1968,7 +1971,9 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       it 'supports getting user with some external errors', :skip_mvi do
-        expect(subject).to validate(:get, '/v0/user', 296, headers)
+        VCR.use_cassette('va_profile/demographics/demographics', allow_playback_repeats: true) do
+          expect(subject).to validate(:get, '/v0/user', 296, headers)
+        end
       end
     end
 

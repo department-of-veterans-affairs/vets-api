@@ -135,6 +135,12 @@
                 "last_name": {
                   "type": "string"
                 },
+                "preferred_name": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
                 "birth_date": {
                   "type": "string"
                 },

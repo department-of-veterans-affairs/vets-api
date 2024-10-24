@@ -393,6 +393,14 @@ class User < Common::RedisStore
     @onboarding ||= VeteranOnboarding.for_user(self)
   end
 
+  def demographics_info
+    @demographics_info ||= VAProfileRedis::Demographics.for_user(self)
+  end
+
+  def demographics
+    demographics_info&.demographics
+  end
+
   # VeteranOnboarding attributes & methods
   delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
 
