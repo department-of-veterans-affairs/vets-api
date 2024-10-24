@@ -1,31 +1,31 @@
 FactoryBot.define do
   factory :banner do
-    entity_id { 1234 }
+    entity_id { 1 }
     entity_bundle { 'full_width_banner_alert' }
-    headline { 'Hurricane season is upon us.' }
-    alert_type { 'info' }
+    headline { 'Important Alert!' }
+    alert_type { 'warning' }
     show_close { false }
-    content { '<p>Prepare for this coming hurricane season.</p>' }
+    content { '<p>This is a warning alert.</p>' }
     context {
-      '{[
+      [
         {
-          "entity": {
-            "title": "Operating status | VA San Francisco health care",
-            "entityUrl": {
-              "path": "/san-francisco-health-care/operating-status"
+          entity: {
+            title: 'Operating status | VA Puget Sound health care',
+            entityUrl: {
+              path: '/puget-sound-health-care/operating-status'
             },
-            "fieldOffice": {
-              "entity": {
-                "fieldVamcEhrSystem": "vista",
-                "title": "VA San Francisco health care",
-                "entityUrl": {
-                  "path": "/san-francisco-health-care"
+            fieldOffice: {
+              entity: {
+                fieldVamcEhrSystem: 'vista',
+                title: 'VA Puget Sound health care',
+                entityUrl: {
+                  path: '/puget-sound-health-care'
                 }
               }
             }
           }
         }
-      ]}'
+      ]
     }
 
     operating_status_cta { false }
