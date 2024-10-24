@@ -26,6 +26,9 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           get '/mobile/v0/claim/600117255', headers: sis_headers
         end
 
+        untracked_document = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
+          event['type'] == 'other_documents_list'
+        end.first
         tracked_item_with_no_docs = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
           event['trackedItemId'] == 360_055
         end.first
@@ -38,9 +41,12 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
         expect(tracked_item_with_docs['documents'].count).to eq(1)
         expect(tracked_item_with_docs['uploaded']).to eq(true)
+        expect(tracked_item_with_docs.dig('documents', 0, 'documentId')).to eq('{883B6CC8-D726-4911-9C65-2EB360E12F52}')
 
         expect(tracked_item_with_no_docs['documents'].count).to eq(0)
         expect(tracked_item_with_no_docs['uploaded']).to eq(false)
+
+        expect(untracked_document['documentId']).to eq('{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}')
 
         uploaded_of_events = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').pluck('uploaded').compact
         date_of_events = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').pluck('date')
