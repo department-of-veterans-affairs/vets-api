@@ -136,6 +136,88 @@ describe TravelPay::ClaimsService do
     end
   end
 
+  context 'get_claims_by_date_range' do
+    let(:user) { build(:user) }
+    let(:claims_by_date_data) do
+      {
+        'data' => [
+          {
+            'id' => 'uuid1',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'InProgress',
+            'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+            'facilityName' => 'Cheyenne VA Medical Center',
+            'createdOn' => '2024-03-22T21:22:34.465Z',
+            'modifiedOn' => '2024-01-01T16:44:34.465Z'
+          },
+          {
+            'id' => 'uuid2',
+            'claimNumber' => 'TC0000000000002',
+            'claimStatus' => 'InProgress',
+            'appointmentDateTime' => '2024-03-01T16:45:34.465Z',
+            'facilityName' => 'Cheyenne VA Medical Center',
+            'createdOn' => '2024-02-22T21:22:34.465Z',
+            'modifiedOn' => '2024-03-01T00:00:00.0Z'
+          },
+          {
+            'id' => 'uuid3',
+            'claimNumber' => 'TC0000000000002',
+            'claimStatus' => 'Incomplete',
+            'appointmentDateTime' => '2024-02-01T16:45:34.465Z',
+            'facilityName' => 'Cheyenne VA Medical Center',
+            'createdOn' => '2024-01-22T21:22:34.465Z',
+            'modifiedOn' => '2024-02-01T00:00:00.0Z'
+          }
+        ]
+      }
+    end
+    let(:claims_by_date_response) do
+      Faraday::Response.new(
+        body: claims_by_date_data
+      )
+    end
+
+    let(:tokens) { %w[veis_token btsss_token] }
+
+    let(:params) do
+      {
+        'start_date' => '2024-01-01T16:45:34Z',
+        'end_date' => '2024-03-01T16:45:34Z'
+      }
+    end
+
+    before do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(*tokens, params)
+        .and_return(claims_by_date_response)
+    end
+
+    it 'returns claims that are in the specified date range' do
+      service = TravelPay::ClaimsService.new
+      claims_by_date = service.get_claims_by_date_range(*tokens, params)
+
+      expect(claims_by_date[:data].count).to equal(3)
+    end
+
+    it 'throws an Argument exception if both start and end dates are not provided' do
+      service = TravelPay::ClaimsService.new
+
+      expect { service.get_claims_by_date_range(*tokens, { 'start_date' => '2024-01-01T16:45:34.465Z' }) }
+        .to raise_error(ArgumentError, /Both start and end/i)
+    end
+
+    it 'throws an exception if dates are invalid' do
+      service = TravelPay::ClaimsService.new
+
+      expect do
+        service.get_claims_by_date_range(*tokens,
+                                         { 'start_date' => '2024-01-01T16:45:34.465Z', 'end_date' => 'banana' })
+      end
+        .to raise_error(ArgumentError, /Invalid date/i)
+    end
+  end
+
   context 'create_new_claim' do
     let(:user) { build(:user) }
     let(:new_claim_data) do
