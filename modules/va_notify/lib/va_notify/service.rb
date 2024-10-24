@@ -88,7 +88,8 @@ module VaNotify
       raise Common::Exceptions::BackendServiceException, notification if response.nil?
 
       notification = VANotify::Notification.new(
-        notification_id: response['id']
+        notification_id: response['id'],
+        source_location: find_caller_locations
       )
 
       if notification.save
@@ -101,6 +102,12 @@ module VaNotify
           }
         )
         raise Common::Exceptions::ValidationErrors, notification
+      end
+    end
+
+    def find_caller_locations
+      caller_locations(1,1).map do |location|
+        "#{location.path}:#{location.lineno} in #{location.label}"
       end
     end
   end
