@@ -39,7 +39,8 @@ describe VANotify::StatusUpdate do
 
       it 'logs a message and source location if callback klass does not implement #call' do
         notification_id = SecureRandom.uuid
-        notification = create(:notification, notification_id:, callback: 'NonCompliantModule::NonCompliantClass')
+        notification = create(:notification, notification_id:,
+                                             callback: 'VANotify::NonCompliantModule::NonCompliantClass')
         provider_callback = {
           id: notification_id
         }

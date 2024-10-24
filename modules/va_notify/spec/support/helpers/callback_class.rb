@@ -8,7 +8,7 @@ module VANotify::OtherTeam
   end
 end
 
-module NonCompliantModule
+module VANotify::NonCompliantModule
   class NonCompliantClass
     def self.not_call(_notification)
       false
