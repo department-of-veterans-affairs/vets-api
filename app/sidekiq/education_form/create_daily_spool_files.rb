@@ -115,12 +115,7 @@ module EducationForm
             # This mailer is intended to only work for development, staging and NOT production
             # Rails.env will return 'production' on the development & staging servers and  which
             # will trip the unwary. To be safe, use Settings.hostname
-            email_staging_spool_files(contents) if
-              # local developer development
-              Rails.env.eql?('development') ||
-
-              # VA Staging environment where we really want this to work.
-              Settings.hostname.eql?('staging-api.va.gov')
+            email_staging_spool_files(contents) if local_or_staging_env?
 
             # track and update the records as processed once the file has been successfully written
             track_submissions(region_id)
@@ -238,6 +233,10 @@ module EducationForm
 
     def email_staging_spool_files(contents)
       CreateStagingSpoolFilesMailer.build(contents).deliver_now
+    end
+
+    def local_or_staging_env?
+      Rails.env.eql?('development') || Settings.hostname.eql?('staging-api.va.gov')
     end
   end
 end
