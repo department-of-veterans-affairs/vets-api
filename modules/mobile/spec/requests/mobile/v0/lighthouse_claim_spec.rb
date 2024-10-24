@@ -38,7 +38,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
         expect(tracked_item_with_docs['documents'].count).to eq(1)
         expect(tracked_item_with_docs['uploaded']).to eq(true)
-
         expect(tracked_item_with_no_docs['documents'].count).to eq(0)
         expect(tracked_item_with_no_docs['uploaded']).to eq(false)
 
