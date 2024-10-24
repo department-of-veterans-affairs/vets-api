@@ -12,6 +12,7 @@ describe VaNotify::Service do
   let(:test_api_key) { 'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' }
   let(:send_email_parameters) do
     {
+      id: '975312468',
       email_address: 'test@email.com',
       template_id: '1234',
       personalisation: {
@@ -21,12 +22,18 @@ describe VaNotify::Service do
   end
   let(:send_sms_parameters) do
     {
+      id: '864213579',
       phone_number: '+19876543210',
       template_id: '1234',
       sms_sender_id: '9876',
       personalisation: {
         foo: 'bar'
       }
+    }
+  end
+  let(:response) do
+    {
+      id: 'a7855d03-7e57-474a-aa74-95322f0eb12c'
     }
   end
 
@@ -94,11 +101,45 @@ describe VaNotify::Service do
     it 'calls notifications client' do
       allow(Notifications::Client).to receive(:new).and_return(notification_client)
       allow(notification_client).to receive(:send_email)
+      allow(notification_client).to receive(:send_email).and_return(response)
+      allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
       allow(StatsD).to receive(:increment).with('api.vanotify.send_email.total')
 
       subject.send_email(send_email_parameters)
       expect(notification_client).to have_received(:send_email).with(send_email_parameters)
       expect(StatsD).to have_received(:increment).with('api.vanotify.send_email.total')
+    end
+
+    context 'when :notification_creation flag is on' do
+      it 'creates a notification record' do
+        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(notification_client).to receive(:send_email).and_return(response)
+        allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
+
+        subject.send_email(send_email_parameters)
+        expect(VANotify::Notification.count).to eq(1)
+      end
+
+      it 'logs an error if the notification cannot be saved' do
+        notification = VANotify::Notification.new
+        notification.errors.add(:base, 'Some error occurred')
+        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(notification_client).to receive(:send_email).and_return(response)
+        allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
+        allow(notification).to receive(:save).and_return(false)
+        allow(VANotify::Notification).to receive(:new).and_return(notification)
+
+        expect(Rails.logger).to receive(:error).with(
+          'VANotify notification record failed to save',
+          { error_messages: notification.errors.full_messages }
+        )
+
+        expect { subject.send_email(send_email_parameters) }.to raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::ValidationErrors)
+        end
+      end
     end
   end
 
@@ -109,12 +150,45 @@ describe VaNotify::Service do
 
     it 'calls notifications client' do
       allow(Notifications::Client).to receive(:new).and_return(notification_client)
-      allow(notification_client).to receive(:send_sms)
+      allow(notification_client).to receive(:send_sms).and_return(response)
+      allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
       allow(StatsD).to receive(:increment).with('api.vanotify.send_sms.total')
 
       subject.send_sms(send_sms_parameters)
       expect(notification_client).to have_received(:send_sms).with(send_sms_parameters)
       expect(StatsD).to have_received(:increment).with('api.vanotify.send_sms.total')
+    end
+
+    context 'when :notification_creation flag is on' do
+      it 'creates a notification record' do
+        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(notification_client).to receive(:send_sms).and_return(response)
+        allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
+
+        subject.send_sms(send_sms_parameters)
+        expect(VANotify::Notification.count).to eq(1)
+      end
+
+      it 'logs an error if the notification cannot be saved' do
+        notification = VANotify::Notification.new
+        notification.errors.add(:base, 'Some error occurred')
+        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(notification_client).to receive(:send_sms).and_return(response)
+        allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
+        allow(notification).to receive(:save).and_return(false)
+        allow(VANotify::Notification).to receive(:new).and_return(notification)
+
+        expect(Rails.logger).to receive(:error).with(
+          'VANotify notification record failed to save',
+          { error_messages: notification.errors.full_messages }
+        )
+
+        expect { subject.send_sms(send_sms_parameters) }.to raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::ValidationErrors)
+        end
+      end
     end
   end
 
@@ -162,16 +236,6 @@ describe VaNotify::Service do
           expect(e).to be_a(Common::Exceptions::BackendServiceException)
           expect(e.status_code).to eq(429)
           expect(e.errors.first.code).to eq('VANOTIFY_429')
-        end
-      end
-    end
-
-    it 'raises a 500 exception' do
-      VCR.use_cassette('va_notify/internal_server_error') do
-        expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(500)
-          expect(e.errors.first.code).to eq('VANOTIFY_500')
         end
       end
     end

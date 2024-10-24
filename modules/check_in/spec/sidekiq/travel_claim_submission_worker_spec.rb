@@ -4,6 +4,7 @@ require 'rails_helper'
 
 shared_examples 'travel claims worker #perform' do |facility_type|
   before do
+    allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(false)
     if 'oracle_health'.casecmp?(facility_type)
       @sms_sender_id = Settings.vanotify.services.oracle_health.sms_sender_id
       @success_template_id = Settings.vanotify.services.oracle_health.template_id.claim_submission_success_text
