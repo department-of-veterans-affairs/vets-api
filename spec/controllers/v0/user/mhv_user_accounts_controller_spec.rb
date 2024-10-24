@@ -42,11 +42,15 @@ describe V0::User::MHVUserAccountsController, type: :controller do
         allow(mhv_client).to receive(:create_account).and_return(mhv_response)
       end
 
-      it 'returns the MHV account' do
+      it 'breaks the cache and returns the MHV account' do
         get :show
 
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']).to eq(mhv_response.with_indifferent_access)
+        expect(mhv_client).to have_received(:create_account).with(icn:,
+                                                                  email: user_credential_email.credential_email,
+                                                                  tou_occurred_at: terms_of_use_agreement.created_at,
+                                                                  break_cache: true)
       end
     end
 
