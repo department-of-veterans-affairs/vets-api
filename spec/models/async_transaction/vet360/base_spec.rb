@@ -249,7 +249,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     let(:user) { build(:user, :loa3) }
     let!(:user_verification) { create(:user_verification, idme_uuid: user.idme_uuid) }
 
-    let(:address) { build(:va_profile_address_v2, vet360_id: user.vet360_id, source_system_user: user.icn) }
+    let(:address) { build(:va_profile_v3_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
 
     it 'returns an instance with the user uuid', :aggregate_failures do
       VCR.use_cassette('va_profile/v2/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do

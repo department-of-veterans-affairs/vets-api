@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -18,6 +19,7 @@ properties:
     properties:
       accountControl:
         type: object
+        additionalProperties: false
         required:
           - canUpdateAddress
           - corpAvailIndicator
@@ -52,6 +54,7 @@ properties:
             type: boolean
       paymentAccount:
         type: object
+        additionalProperties: false
         required:
           - accountNumber
           - accountType

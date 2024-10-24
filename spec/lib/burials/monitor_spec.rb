@@ -6,6 +6,7 @@ require_relative '../../../lib/burials/monitor'
 RSpec.describe Burials::Monitor do
   let(:monitor) { described_class.new }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
+  let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
   let(:claim) { create(:burial_claim_v2) }
   let(:ipf) { create(:in_progress_form) }
 
@@ -78,6 +79,24 @@ RSpec.describe Burials::Monitor do
       end
     end
 
+    describe '#track_process_attachment_error' do
+      it 'logs process attachment failed' do
+        log = '21P-530EZ process attachment error'
+        payload = {
+          confirmation_number: claim.confirmation_number,
+          user_uuid: current_user.uuid,
+          in_progress_form_id: ipf.id,
+          errors: [], # mock claim does not have `errors`
+          statsd: "#{claim_stats_key}.process_attachment_error"
+        }
+
+        expect(StatsD).to receive(:increment).with("#{claim_stats_key}.process_attachment_error")
+        expect(Rails.logger).to receive(:error).with(log, payload)
+
+        monitor.track_process_attachment_error(ipf, claim, current_user)
+      end
+    end
+
     describe '#track_create_error' do
       it 'logs sidekiq failed' do
         log = '21P-530EZ submission to Sidekiq failed'
@@ -112,6 +131,26 @@ RSpec.describe Burials::Monitor do
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_create_success(ipf, claim, current_user)
+      end
+    end
+
+    describe '#track_submission_exhaustion' do
+      it 'logs sidekiq job exhaustion' do
+        msg = { 'args' => [claim.id, current_user.uuid] }
+
+        log = 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!'
+        payload = {
+          form_id: claim.form_id,
+          claim_id: claim.id,
+          confirmation_number: claim.confirmation_number,
+          message: msg
+        }
+
+        expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
+        expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
+
+        monitor.track_submission_exhaustion(msg, claim)
       end
     end
   end
