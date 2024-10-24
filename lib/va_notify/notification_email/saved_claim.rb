@@ -79,13 +79,8 @@ module VANotify
         claim.email
       end
 
-      def first_name
-        claim.first_name
-      end
-
       def personalization
         {
-          'first_name' => first_name&.titleize,
           'date_submitted' => claim.submitted_at,
           'confirmation_number' => claim.confirmation_number
         }

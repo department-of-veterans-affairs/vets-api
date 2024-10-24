@@ -12,6 +12,8 @@ module VANotify
     # error indicating failure to send email
     class FailureToSend < StandardError; end
 
+    module_function
+
     def monitor_send_failure(error_message, tags:, context: nil)
       metric = "#{VANotify::NotificationEmail::STATSD}.failure"
       payload = {
