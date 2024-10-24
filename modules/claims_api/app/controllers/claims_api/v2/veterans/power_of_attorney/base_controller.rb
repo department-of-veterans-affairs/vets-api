@@ -120,7 +120,7 @@ module ClaimsApi
                 dependent_claimant_poa_assignment_service(poa_code:)
               )
             else
-              ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id)
+              ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id, 'post')
             end
           end
 
