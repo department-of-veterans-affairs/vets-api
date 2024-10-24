@@ -34,7 +34,7 @@ module SimpleFormsApi
 
         response = if intent_service.use_intent_api?
                      handle_210966_authenticated
-                   elsif form_is264555_and_should_use_lgy_api
+                   elsif params[:form_number] == '26-4555'
                      handle264555
                    else
                      submit_form_to_benefits_intake
@@ -211,10 +211,6 @@ module SimpleFormsApi
         }.compact
 
         lighthouse_service.perform_upload(**upload_params)
-      end
-
-      def form_is264555_and_should_use_lgy_api
-        params[:form_number] == '26-4555' && icn
       end
 
       def icn
