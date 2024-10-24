@@ -110,21 +110,14 @@ module SimpleFormsApi
     end
 
     def get_attachments
-      [].tap do |attachments|
-        %w[
-          als_documents
-          financial_hardship_documents
-          medal_award_documents
-          pow_documents
-          terminal_illness_documents
-          vsi_documents
-        ].each do |doc_type|
-          next unless @data[doc_type]
+      PersistentAttachment.where(guid: attachment_guids).map(&:to_pdf)
+    end
 
-          confirmation_codes = @data[doc_type].pluck('confirmation_code')
-          attachments.concat(PersistentAttachment.where(guid: confirmation_codes).map(&:to_pdf))
-        end
-      end
+    def attachment_guids
+      doc_types = %w[als_documents financial_hardship_documents medal_award_documents pow_documents
+                     terminal_illness_documents vsi_documents]
+
+      doc_types.flat_map { |type| @data[type]&.pluck('confirmation_code') }.compact
     end
 
     private
