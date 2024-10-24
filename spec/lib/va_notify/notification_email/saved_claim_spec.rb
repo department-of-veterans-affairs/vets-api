@@ -8,28 +8,23 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
   let(:confirmation_email_template_id) { 'form9999ez_confirmation_email_template_id' }
   let(:vanotify_services_settings) do
     Config::Options.new({
-      '55p_9999ez'.to_sym => {
+      '55p_9999ez'.to_sym => Config::Options.new({
         api_key: 'fake-api-key',
-        email: {
-          confirmation: {
+        email: Config::Options.new({
+          confirmation: Config::Options.new({
             template_id: confirmation_email_template_id,
             flipper_id: false
-          },
+          }),
           error: nil,
           received: nil
-        }
-      }
+        })
+      })
     })
   end
 
-  let(:fake_email) { 'foo@bar.com'}
-  let(:fake_claim) { OpenStruct.new({
-    form_id: '55P-9999EZ',
-    id: 12345,
-    submitted_at: 'some-datetime',
-    confirmation_number: SecureRandom.uuid,
-    email: fake_email
-  })}
+
+  let(:fake_claim) { FactoryBot.build(:fake_saved_claim) }
+  let(:fake_email) { fake_claim.email }
   let(:notification) { described_class.new(fake_claim) }
 
   describe '#deliver' do
@@ -38,11 +33,46 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
     end
 
     it 'successfully sends a confirmation email' do
+      expect(fake_claim).to receive(:va_notification?).with confirmation_email_template_id
       expect(VANotify::EmailJob).to receive(:perform_async).with(
         fake_email,
         confirmation_email_template_id,
         { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number }
       )
+      notification.deliver(:confirmation)
+    end
+
+    it 'successfully enqueues a confirmation email' do
+      at = Time.now + 23.days
+
+      expect(fake_claim).to receive(:va_notification?).with confirmation_email_template_id
+      expect(VANotify::EmailJob).to receive(:perform_at).with(
+        at,
+        fake_email,
+        confirmation_email_template_id,
+        { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number }
+      )
+      notification.deliver(:confirmation, at:)
+    end
+
+    it 'records a failure to send' do
+      allow(fake_claim).to receive(:email).and_return nil
+
+      metric = "#{VANotify::NotificationEmail::STATSD}.send_failure"
+      # expect(VANotify::NotificationEmail).to receive(:monitor_send_failure)
+      expect(StatsD).to receive(:increment).with(metric, tags: anything)
+      expect(Rails.logger).to receive(:error)
+
+      notification.deliver(:confirmation)
+    end
+
+    it 'records a duplicate attempt' do
+      allow(fake_claim).to receive(:va_notification?).and_return true
+
+      metric = "#{VANotify::NotificationEmail::STATSD}.duplicate_attempt"
+      # expect(VANotify::NotificationEmail).to receive(:monitor_duplicate_attempt)
+      expect(StatsD).to receive(:increment).with(metric, tags: anything)
+      expect(Rails.logger).to receive(:warn)
 
       notification.deliver(:confirmation)
     end

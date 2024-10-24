@@ -15,7 +15,7 @@ module VANotify
     module_function
 
     def monitor_send_failure(error_message, tags:, context: nil)
-      metric = "#{VANotify::NotificationEmail::STATSD}.failure"
+      metric = "#{VANotify::NotificationEmail::STATSD}.send_failure"
       payload = {
         statsd: metric,
         error_message:,
@@ -24,6 +24,17 @@ module VANotify
 
       StatsD.increment(metric, tags:)
       Rails.logger.error('VANotify::NotificationEmail #send failure!', **payload)
+    end
+
+    def monitor_duplicate_attempt(tags:, context: nil)
+      metric = "#{VANotify::NotificationEmail::STATSD}.duplicate_attempt"
+      payload = {
+        statsd: metric,
+        context:
+      }
+
+      StatsD.increment(metric, tags:)
+      Rails.logger.warn('VANotify::NotificationEmail #send duplicate attempt', **payload)
     end
   end
 end
