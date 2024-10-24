@@ -184,7 +184,7 @@ module Lighthouse
     def send_confirmation_email
       @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
 
-      if %w[21P-530V2 21P-530].include?(claim&.form_id)
+      if %w[21P-530V2 21P-530].include?(@claim&.form_id)
         Burials::NotificationEmail.new(@claim).deliver(:confirmation)
       end
     rescue => e
