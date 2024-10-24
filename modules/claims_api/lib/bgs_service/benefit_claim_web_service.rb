@@ -19,7 +19,18 @@ module ClaimsApi
     def update_bnft_claim(claim:)
       claim[:bnft_claim_dto].transform_keys { |key| key.to_s.camelize :lower }
 
-      make_request(endpoint: bean_name, action: 'updateBnftClaim', body: { bnftClaimDTO: claim })
+      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <bnftClaimId />
+      EOXML
+
+      { bnftClaimId: id }.each do |k, v|
+        body.xpath("./*[local-name()='#{k}']")[0].content = v
+      end
+
+      make_request(endpoint: bean_name, action: 'updateBnftClaim',
+                   body: { bnftClaimDTO: claim }, key: claim[:bnftClaimId])
+
+      response.body[:update_bnft_claim_response]
     end
   end
 end

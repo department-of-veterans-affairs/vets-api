@@ -34,7 +34,7 @@ module ClaimsApi
     end
 
     def update_bgs_claim(ews, bgs_claim)
-      response = @bms.update_bnft_claim(claim: bgs_claim)
+      response = benefit_claim_web_service(ews).update_bnft_claim(claim: bgs_claim)
       if response[:bnft_claim_dto].nil?
         ews.status = ClaimsApi::EvidenceWaiverSubmission::ERRORED
         ews.bgs_error_message = "BGS Error: update_record failed with code #{response[:return_code]}"
