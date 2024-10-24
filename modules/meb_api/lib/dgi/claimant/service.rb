@@ -13,7 +13,7 @@ module MebApi
         configuration MebApi::DGI::Claimant::Configuration
         STATSD_KEY_PREFIX = 'api.dgi.claimant'
 
-        def get_claimant_info(type = 'Chapter33')
+        def get_claimant_info(type)
           type ||= 'Chapter33'
 
           with_monitoring do
