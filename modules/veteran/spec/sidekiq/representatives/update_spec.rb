@@ -553,6 +553,7 @@ RSpec.describe Representatives::Update do
           expect(representative.lat).to eq(39)
           expect(representative.long).to eq(-75)
           expect(representative.address_line1).to eq('123 East Main St')
+
           subject.perform(json_data)
           representative.reload
 

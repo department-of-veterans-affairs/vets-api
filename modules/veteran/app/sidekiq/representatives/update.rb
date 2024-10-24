@@ -38,6 +38,7 @@ module Representatives
       address_validation_api_response = nil
 
       if rep_data['address_changed']
+
         api_response = if Flipper.enabled?(:va_v3_contact_information_service)
                          get_best_address_candidate(rep_data)
                        else
