@@ -41,21 +41,39 @@ module FormAttachmentCreate
       raise Common::Exceptions::InvalidFieldValue.new('file_data', filtered_params[:file_data].class.name)
     end
   rescue => e
-    log_exception_to_sentry(e, { context: 'FAC_validate', class: filtered_params[:file_data].class.name })
+    log_message_to_sentry(
+      'form attachment error 1',
+      :info,
+      phase: 'FAC_validate',
+      klass: filtered_params[:file_data].class.name,
+      exception: e.message
+    )
     raise e
   end
 
   def save_attachment_to_cloud!
     form_attachment.set_file_data!(filtered_params[:file_data], filtered_params[:password])
   rescue => e
-    log_exception_to_sentry(e, { context: 'FAC_cloud' })
+    log_message_to_sentry(
+      'form attachment error 2',
+      :info,
+      phase: 'FAC_cloud',
+      exception: e.message
+    )
     raise e
   end
 
   def save_attachment_to_db!
     form_attachment.save!
   rescue => e
-    log_exception_to_sentry(e, { context: 'FAC_db', errors: form_attachment.errors })
+    log_message_to_sentry(
+      'form attachment error 3',
+      :info,
+      phase: 'FAC_db',
+      errors: form_attachment.errors,
+      exception: e.message
+    )
+
     raise e
   end
 
