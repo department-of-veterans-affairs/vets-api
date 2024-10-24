@@ -42,9 +42,7 @@ module VAOS
 
           validate_response_schema(response, 'appointments_index')
           appointments = response.body[:data]
-          # claims will need to match the entire array, not just a single appt
           appointments.each do |appt|
-            # this converts the timestamp of the appt so we'll need to match before this method
             prepare_appointment(appt, include)
             cnp_count += 1 if cnp?(appt)
           end
@@ -72,8 +70,6 @@ module VAOS
         }
       end
 
-      # To clarify: this is what's called if a user refreshes the appt details page, yes?
-
       # rubocop:enable Metrics/MethodLength
       def get_appointment(appointment_id, include = {})
         params = {}
@@ -83,8 +79,6 @@ module VAOS
           # We always fetch facility and clinic information when getting a single appointment
           include[:facilities] = true
           include[:clinics] = true
-
-          # This is where other items are added, but problematic for claims matching
           prepare_appointment(appointment, include)
           OpenStruct.new(appointment)
         end
@@ -284,8 +278,6 @@ module VAOS
         get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
       end
 
-      # Can use only when matching a single appt > claim, otherwise need full array matching.... ?
-
       def prepare_appointment(appointment, include = {})
         # for CnP, covid, CC and telehealth appointments set cancellable to false per GH#57824, GH#58690, ZH#326
         set_cancellable_false(appointment) if cannot_be_cancelled?(appointment)
@@ -298,7 +290,6 @@ module VAOS
         # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
         appointment[:requested_periods] = nil if booked?(appointment) && VAOS::AppointmentsHelper.cerner?(appointment)
 
-        # This might be problematic as we match on datetime for the claim association
         convert_appointment_time(appointment)
 
         appointment[:station], appointment[:ien] = extract_station_and_ien(appointment)
