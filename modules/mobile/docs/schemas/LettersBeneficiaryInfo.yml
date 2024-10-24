@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - type
       - id
@@ -18,12 +20,14 @@ properties:
         description: user UUID
       attributes:
         type: object
+        additionalProperties: false
         required:
           - letters
           - benefitInformation
         properties:
           benefitInformation:
             type: object
+            additionalProperties: false
             required:
               - awardEffectiveDate
               - hasChapter35Eligibility
@@ -70,6 +74,7 @@ properties:
             type: array
             items:
               type: object
+              additionalProperties: false
               required:
                 - branch
                 - characterOfService

@@ -27,10 +27,16 @@ module MebApi
         private
 
         def end_point(form_type)
-          if form_type
-            "claimType/#{form_type.capitalize}/claimsubmission"
+          "claimType/#{dgi_url(form_type)}/claimsubmission"
+        end
+
+        def dgi_url(form_type)
+          if form_type == 'Chapter1606Submission'
+            'Chapter1606'
+          elsif form_type == 'Chapter30Submission'
+            'Chapter30'
           else
-            'claimType/Chapter33/claimsubmission'
+            'Chapter33'
           end
         end
 

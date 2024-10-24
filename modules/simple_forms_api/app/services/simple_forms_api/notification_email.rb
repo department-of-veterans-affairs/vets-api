@@ -18,7 +18,7 @@ module SimpleFormsApi
       },
       'vba_21_0966' => {
         confirmation: Settings.vanotify.services.va_gov.template_id.form21_0966_confirmation_email,
-        error: nil,
+        error: Settings.vanotify.services.va_gov.template_id.form21_0966_error_email,
         received: nil
       },
       'vba_21_0972' => {
@@ -58,12 +58,7 @@ module SimpleFormsApi
       check_missing_keys(config)
 
       @form_data = config[:form_data]
-      incoming_form_number = config[:form_number]
-      @form_number = if TEMPLATE_IDS.keys.include?(incoming_form_number)
-                       incoming_form_number
-                     else
-                       SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[incoming_form_number]
-                     end
+      @form_number = config[:form_number]
       @confirmation_number = config[:confirmation_number]
       @date_submitted = config[:date_submitted]
       @lighthouse_updated_at = config[:lighthouse_updated_at]
@@ -222,7 +217,7 @@ module SimpleFormsApi
     # personalization hash shared by all simple form confirmation emails
     def default_personalization(first_name)
       {
-        'first_name' => first_name&.upcase,
+        'first_name' => first_name&.titleize,
         'date_submitted' => date_submitted,
         'confirmation_number' => confirmation_number,
         'lighthouse_updated_at' => lighthouse_updated_at
@@ -308,7 +303,7 @@ module SimpleFormsApi
 
     def form21_0966_first_name
       if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
-        form_data('surviving_dependent_full_name', 'first')
+        form_data.dig('surviving_dependent_full_name', 'first')
       else
         form_data.dig('veteran_full_name', 'first')
       end
