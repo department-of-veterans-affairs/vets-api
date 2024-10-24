@@ -125,12 +125,12 @@ class EVSSClaimService
   end
 
   def record_evidence_submission(claim_id, job_id, tracked_item_id)
-    icn = @user.icn
+    user_account_id = @user.user_account_uuid
     job_class = self.class
     upload_status = 'pending'
     EvidenceSubmission.create(claim_id:,
                               tracked_item_id:,
-                              icn:,
+                              user_account_id:,
                               job_id:,
                               job_class:,
                               upload_status:)

@@ -4,7 +4,7 @@ class CreateEvidenceSubmissions < ActiveRecord::Migration[7.1]
       t.string :job_id
       t.string :job_class
       t.string :claim_id
-      t.string :icn
+      t.string :user_account_id
       t.json :template_metadata_ciphertext
       t.text :encrypted_kms_key
       t.string :upload_status

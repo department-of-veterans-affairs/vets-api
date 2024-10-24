@@ -580,7 +580,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_25_160219) do
     t.string "job_id"
     t.string "job_class"
     t.string "claim_id"
-    t.string "icn"
+    t.string "user_account_id"
     t.json "template_metadata_ciphertext"
     t.text "encrypted_kms_key"
     t.string "upload_status"

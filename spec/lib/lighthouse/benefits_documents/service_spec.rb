@@ -7,6 +7,7 @@ require 'lighthouse/benefits_documents/configuration'
 
 RSpec.describe BenefitsDocuments::Service do
   let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user_account) { create(:user_account) }
   let(:service) { BenefitsDocuments::Service.new(user) }
 
   describe '#queue_document_upload' do
