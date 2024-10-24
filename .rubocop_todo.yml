@@ -299,6 +299,7 @@ Lint/MissingSuper:
     - 'lib/search_typeahead/service.rb'
     - 'lib/token_validation/v2/client.rb'
     - 'lib/va_profile/address_validation/service.rb'
+    - 'lib/va_profile/v3/address_validation/service.rb'
     - 'lib/va_profile/service.rb'
     - 'lib/vbs/requests/list_statements.rb'
     - 'lib/vic/id_card_attribute_error.rb'
