@@ -25,13 +25,14 @@ class FormSubmissionAttempt < ApplicationRecord
 
     event :fail do
       after do
-        user_account_uuid = form_submission.user_account_id
         form_type = form_submission.form_type
-        log_info = { form_submission_id:, benefits_intake_uuid: form_submission&.benefits_intake_uuid, form_type:,
-                     user_account_uuid: }
+        log_info = { form_submission_id:,
+                     benefits_intake_uuid: form_submission&.benefits_intake_uuid,
+                     form_type:,
+                     user_account_uuid: form_submission.user_account_id }
         if should_send_simple_forms_email
           simple_forms_api_email(log_info)
-        elsif form_submission.form_type == CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE
+        elsif form_type == CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE
           form_526_form4142_email(log_info)
         end
       end
