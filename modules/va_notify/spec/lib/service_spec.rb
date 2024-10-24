@@ -120,6 +120,26 @@ describe VaNotify::Service do
         subject.send_email(send_email_parameters)
         expect(VANotify::Notification.count).to eq(1)
       end
+
+      it 'logs an error if the notification cannot be saved' do
+        notification = VANotify::Notification.new
+        notification.errors.add(:base, "Some error occurred")
+        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(notification_client).to receive(:send_email).and_return(response)
+        allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
+        allow(notification).to receive(:save).and_return(false)
+        allow(VANotify::Notification).to receive(:new).and_return(notification)
+
+        expect(Rails.logger).to receive(:error).with(
+          'VANotify notification record failed to save',
+          { error_messages: notification.errors.full_messages }
+        )
+
+        expect { subject.send_email(send_email_parameters) }.to raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::ValidationErrors)
+        end
+      end
     end
   end
 
@@ -148,6 +168,26 @@ describe VaNotify::Service do
 
         subject.send_sms(send_sms_parameters)
         expect(VANotify::Notification.count).to eq(1)
+      end
+
+      it 'logs an error if the notification cannot be saved' do
+        notification = VANotify::Notification.new
+        notification.errors.add(:base, "Some error occurred")
+        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(notification_client).to receive(:send_sms).and_return(response)
+        allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
+        allow(notification).to receive(:save).and_return(false)
+        allow(VANotify::Notification).to receive(:new).and_return(notification)
+
+        expect(Rails.logger).to receive(:error).with(
+          'VANotify notification record failed to save',
+          { error_messages: notification.errors.full_messages }
+        )
+
+        expect { subject.send_sms(send_sms_parameters) }.to raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::ValidationErrors)
+        end
       end
     end
   end

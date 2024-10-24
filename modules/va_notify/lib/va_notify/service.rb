@@ -98,9 +98,7 @@ module VaNotify
         Rails.logger.error(
           'VANotify notification record failed to save',
           {
-            error_messages: notification.errors,
-            user_logged_in: current_user.present?,
-            current_user_uuid: current_user&.uuid
+            error_messages: notification.errors
           }
         )
         raise Common::Exceptions::ValidationErrors, notification
