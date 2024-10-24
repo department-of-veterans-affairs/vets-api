@@ -6,11 +6,11 @@ class Banner < ApplicationRecord
   validates :entity_bundle, presence: true
   validates :headline, presence: true
   validates :alert_type, presence: true
-  validates :show_close, presence: true
   validates :content, presence: true
   validates :context, presence: true
 
   # Validations for boolean fields
+  validates :show_close, inclusion: { in: [true, false] }
   validates :operating_status_cta, inclusion: { in: [true, false] }
   validates :email_updates_button, inclusion: { in: [true, false] }
   validates :find_facilities_cta, inclusion: { in: [true, false] }
