@@ -112,22 +112,22 @@ module Veteran
         end
       end
 
-      def self.get_suffix(first_name, last_name)
+      def self.get_suffixes(first_name, last_name)
         first_suffix = first_name.split.last if first_name.split.count > 1
         last_suffix = last_name.split.last if last_name.split.count > 1
         [first_suffix, last_suffix]
       end
 
       def self.get_representatives(first_name, last_name)
-        suffix = get_suffix(first_name, last_name)
+        suffixes = get_suffixes(first_name, last_name)
 
         representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
                                 last_name&.downcase)
 
-        if representatives.blank? && suffix.present?
+        if representatives.blank? && suffixes.any?
           # check without suffix
-          first_name = first_name.delete(suffix[0]).strip if suffix[0].present?
-          last_name = last_name.delete(suffix[1]).strip if suffix[1].present?
+          first_name = first_name.delete(suffixes[0]).strip if suffixes[0].present?
+          last_name = last_name.delete(suffixes[1]).strip if suffixes[1].present?
 
           representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
                                   last_name&.downcase)
