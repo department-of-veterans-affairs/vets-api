@@ -6,19 +6,19 @@ require 'va_notify/notification_email/saved_claim'
 RSpec.describe VANotify::NotificationEmail::SavedClaim do
   let(:confirmation_email_template_id) { 'form9999ez_confirmation_email_template_id' }
   let(:vanotify_services_settings) do
-    Config::Options.new({
-                          '55p_9999ez': Config::Options.new({
-                                                              api_key: 'fake-api-key',
-                                                              email: Config::Options.new({
-                                                                                           confirmation: Config::Options.new({
-                                                                                                                               template_id: confirmation_email_template_id,
-                                                                                                                               flipper_id: false
-                                                                                                                             }),
-                                                                                           error: nil,
-                                                                                           received: nil
-                                                                                         })
-                                                            })
-                        })
+    {
+      form23_42fake: {
+        api_key: 'fake-api-key',
+        email: {
+          confirmation: {
+            template_id: confirmation_email_template_id,
+            flipper_id: false
+          },
+          error: nil,
+          received: nil
+        }
+      }
+    }
   end
 
   let(:fake_claim) { FactoryBot.build(:fake_saved_claim) }
@@ -27,7 +27,8 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
 
   describe '#deliver' do
     before do
-      allow(Settings.vanotify).to receive(:services).and_return vanotify_services_settings
+      Settings.vanotify.services.add_source! vanotify_services_settings
+      Settings.vanotify.services.reload!
     end
 
     it 'successfully sends a confirmation email' do
