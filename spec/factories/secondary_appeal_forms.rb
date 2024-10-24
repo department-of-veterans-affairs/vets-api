@@ -49,6 +49,7 @@ FactoryBot.define do
         privacyAgreementAccepted: true
       }.to_json
     end
+    delete_date { nil }
     appeal_submission
   end
 end
