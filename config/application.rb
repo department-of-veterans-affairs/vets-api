@@ -68,7 +68,9 @@ module VetsAPI
     config.middleware.insert_before 0, Rack::Cors, logger: -> { Rails.logger } do
       allow do
         regex = Regexp.new(Settings.web_origin_regex)
-        origins { |source, _env| Settings.web_origin.split(',').include?(source) || source.match?(regex) }
+        web_origins = Settings.web_origin.split(',') + Array(Settings.sign_in.web_origins)
+
+        origins { |source, _env| web_origins.include?(source) || source.match?(regex) }
         resource '*', headers: :any,
                       methods: :any,
                       credentials: true,

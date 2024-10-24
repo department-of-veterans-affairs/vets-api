@@ -3,12 +3,13 @@
 require 'rails_helper'
 
 require 'evss/document_upload'
+require 'va_notify/service'
 
 RSpec.describe EVSS::DocumentUpload, type: :job do
   subject { described_class }
 
   let(:client_stub) { instance_double('EVSS::DocumentsService') }
-  let(:notify_client_stub) { instance_double('VaNotify::Sidekiq') }
+  let(:notify_client_stub) { instance_double(VaNotify::Service) }
   let(:uploader_stub) { instance_double('EVSSClaimDocumentUploader') }
 
   let(:user_account) { create(:user_account) }

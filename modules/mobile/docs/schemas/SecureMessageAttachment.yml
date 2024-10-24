@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -13,6 +14,7 @@ properties:
     example: "attachments"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - name
       - messageId
@@ -29,6 +31,7 @@ properties:
         example: 225457
   links:
     type: object
+    additionalProperties: false
     required:
       - download
     properties:
