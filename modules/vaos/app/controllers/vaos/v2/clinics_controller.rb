@@ -55,12 +55,12 @@ module VAOS
             log_unable_to_lookup_clinic(appt)
           else
             # get the clinic details using the station id and clinic id
-            station_id = appt.location_id
-            clinic_id = appt.clinic
-            clinic = mobile_facility_service.get_clinic_with_cache(station_id:, clinic_id:)
+            location_id = appt.location_id
+            clinic_ids = appt.clinic
+            clinic = systems_service.get_facility_clinics(location_id:, clinic_ids:)&.first
 
             # if clinic details are not returned, log 'not found' message
-            clinic.nil? ? log_no_clinic_details_found(station_id, clinic_id) : sorted_clinics.push(clinic)
+            clinic.nil? ? log_no_clinic_details_found(location_id, clinic_ids) : sorted_clinics.push(clinic)
           end
         end
 
