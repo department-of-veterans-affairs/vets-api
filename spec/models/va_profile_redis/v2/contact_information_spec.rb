@@ -23,7 +23,7 @@ describe VAProfileRedis::V2::ContactInformation do
 
   before do
     Flipper.enable(:va_v3_contact_information_service)
-    allow(VAProfile::Models::V2::Person).to receive(:build_from).and_return(person)
+    allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
   end
 
   [404, 400].each do |status|
@@ -104,7 +104,7 @@ describe VAProfileRedis::V2::ContactInformation do
   describe 'contact information attributes' do
     context 'with a successful response' do
       before do
-        allow(VAProfile::Models::V2::Person).to receive(:build_from).and_return(person)
+        allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
         allow_any_instance_of(
           VAProfile::V2::ContactInformation::Service
         ).to receive(:get_person).and_return(person_response)
@@ -121,20 +121,20 @@ describe VAProfileRedis::V2::ContactInformation do
 
       describe '#residential_address' do
         it 'returns the users residential address object', :aggregate_failures do
-          residence = address_for VAProfile::Models::V2::Address::RESIDENCE
+          residence = address_for VAProfile::Models::V3::Address::RESIDENCE
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             expect(contact_info.residential_address).to eq residence
-            expect(contact_info.residential_address.class).to eq VAProfile::Models::V2::Address
+            expect(contact_info.residential_address.class).to eq VAProfile::Models::V3::Address
           end
         end
       end
 
       describe '#mailing_address' do
         it 'returns the users mailing address object', :aggregate_failures do
-          correspondence = address_for VAProfile::Models::V2::Address::CORRESPONDENCE
+          correspondence = address_for VAProfile::Models::V3::Address::CORRESPONDENCE
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             expect(contact_info.mailing_address).to eq correspondence
-            expect(contact_info.mailing_address.class).to eq VAProfile::Models::V2::Address
+            expect(contact_info.mailing_address.class).to eq VAProfile::Models::V3::Address
           end
         end
       end
@@ -270,7 +270,7 @@ describe VAProfileRedis::V2::ContactInformation do
       end
 
       before do
-        allow(VAProfile::Models::V2::Person).to receive(:build_from).and_return(nil)
+        allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(nil)
         allow_any_instance_of(
           VAProfile::V2::ContactInformation::Service
         ).to receive(:get_person).and_return(empty_response)

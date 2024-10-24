@@ -99,7 +99,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
 
   #   let(:user) { create(:user, :api_auth_v2) }
 
-  #   let(:params) { build(:va_profile_address_v2, :override, validation_key: nil) }
+  #   let(:params) { build(:va_profile_v3_address, :override, validation_key: nil) }
 
   #   context 'when it succeeds' do
   #     let(:transaction) do

@@ -69,6 +69,21 @@ describe VaNotify::Service do
         expect(Notifications::Client).to have_received(:new).with(*parameters)
       end
     end
+
+    it 'can receive callback_options' do
+      test_base_url = 'https://fakishapi.com'
+      callback_options = {
+        callback: 'TestTeam::TestClass',
+        metadata: 'optional_test_metadata'
+      }
+      with_settings(Settings.vanotify,
+                    client_url: test_base_url) do
+        allow(Notifications::Client).to receive(:new).with(test_api_key,
+                                                           test_base_url).and_return(notification_client)
+        service_object = VaNotify::Service.new(test_api_key, callback_options)
+        expect(service_object.callback_options).to eq(callback_options)
+      end
+    end
   end
 
   describe '#send_email', test_service: false do

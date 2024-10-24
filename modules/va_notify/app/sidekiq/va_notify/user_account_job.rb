@@ -21,10 +21,11 @@ module VANotify
       user_account_id,
       template_id,
       personalisation = nil,
-      api_key = Settings.vanotify.services.va_gov.api_key
+      api_key = Settings.vanotify.services.va_gov.api_key,
+      callback_options = nil
     )
       user_account = UserAccount.find(user_account_id)
-      notify_client = VaNotify::Service.new(api_key)
+      notify_client = VaNotify::Service.new(api_key, callback_options)
 
       notify_client.send_email(
         {

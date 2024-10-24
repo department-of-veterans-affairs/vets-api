@@ -7,7 +7,7 @@ require 'va_profile/concerns/expirable'
 
 module VAProfile
   module Models
-    module V2
+    module V3
       class BaseAddress < Base
         include VAProfile::Concerns::Defaultable
         include VAProfile::Concerns::Expirable

@@ -39,7 +39,7 @@ module Vet360
     def build_record(type, params)
       # This needs to be refactored after V2 upgrade is complete
       model = if type == 'address' && Flipper.enabled?(:va_v3_contact_information_service, @current_user)
-                'VAProfile::Models::V2::Address'
+                'VAProfile::Models::V3::Address'
               else
                 "VAProfile::Models::#{type.capitalize}"
               end

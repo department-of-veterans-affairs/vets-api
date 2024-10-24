@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_profile/models/v2/address'
+require 'va_profile/models/v3/address'
 
-describe VAProfile::Models::V2::Address do
-  let(:address) { build(:va_profile_address_v2) }
+describe VAProfile::Models::V3::Address do
+  let(:address) { build(:va_profile_v3_address) }
 
   describe 'geolocation' do
     it 'returns gelocation information' do
@@ -107,7 +107,7 @@ describe VAProfile::Models::V2::Address do
     end
 
     context 'when address_type is domestic' do
-      let(:address) { build(:va_profile_address_v2, :domestic) }
+      let(:address) { build(:va_profile_v3_address, :domestic) }
 
       it 'city must only have US-ASCII characters' do
         address.city = '12-34 2nd & 31st Street!'
@@ -142,7 +142,7 @@ describe VAProfile::Models::V2::Address do
     end
 
     context 'when address_type is international' do
-      let(:address) { build(:va_profile_address_v2, :international) }
+      let(:address) { build(:va_profile_v3_address, :international) }
 
       it 'province must only have US-ASCII characters' do
         address.province = '12-34 2nd & 31st Street!'
@@ -204,7 +204,7 @@ describe VAProfile::Models::V2::Address do
     end
 
     context 'when address_type is military' do
-      let(:address) { build(:va_profile_address_v2, :military_overseas) }
+      let(:address) { build(:va_profile_v3_address, :military_overseas) }
 
       it 'state_code is required' do
         expect(address.valid?).to eq(true)
@@ -233,12 +233,12 @@ describe VAProfile::Models::V2::Address do
 
     context 'when address pou is correspondence' do
       it 'correspondence? is true' do
-        address.address_pou = VAProfile::Models::V2::Address::CORRESPONDENCE
+        address.address_pou = VAProfile::Models::V3::Address::CORRESPONDENCE
         expect(address.correspondence?).to eq(true)
       end
 
       it 'bad address is false' do
-        address.address_pou = VAProfile::Models::V2::Address::CORRESPONDENCE
+        address.address_pou = VAProfile::Models::V3::Address::CORRESPONDENCE
         json = JSON.parse(address.in_json)
         expect(json['bio']['badAddress']).to eq(false)
       end
@@ -246,12 +246,12 @@ describe VAProfile::Models::V2::Address do
 
     context 'when address pou is residence' do
       it 'correspondence? is false' do
-        address.address_pou = VAProfile::Models::V2::Address::RESIDENCE
+        address.address_pou = VAProfile::Models::V3::Address::RESIDENCE
         expect(address.correspondence?).to eq(false)
       end
 
       it 'bad address is nil' do
-        address.address_pou = VAProfile::Models::V2::Address::RESIDENCE
+        address.address_pou = VAProfile::Models::V3::Address::RESIDENCE
         json = JSON.parse(address.in_json)
         expect(json['bio']['badAddress']).to eq(nil)
       end

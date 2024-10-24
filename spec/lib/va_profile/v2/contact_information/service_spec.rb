@@ -24,7 +24,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::V2::Person)
+          expect(response.person).to be_a(VAProfile::Models::V3::Person)
         end
       end
 
@@ -50,7 +50,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/v2/contact_information/person_without_data', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
-          expect(response.person).to be_a(VAProfile::Models::V2::Person)
+          expect(response.person).to be_a(VAProfile::Models::V3::Person)
         end
       end
     end
@@ -154,7 +154,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   describe '#post_address' do
     let(:address) do
-      build(:va_profile_address_v2, vet360_id: user.vet360_id, source_system_user: user.icn)
+      build(:va_profile_v3_address, vet360_id: user.vet360_id, source_system_user: user.icn)
     end
 
     context 'when successful' do
@@ -191,7 +191,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   describe '#put_address' do
     let(:address) do
-      build(:va_profile_address_v2, :override, vet360_id: user.vet360_id, source_system_user: user.icn)
+      build(:va_profile_v3_address, :override, vet360_id: user.vet360_id, source_system_user: user.icn)
     end
 
     context 'when successful' do
@@ -214,7 +214,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
     context 'with a validation key' do
       let(:address) do
-        build(:va_profile_address_v2, :override, country_name: nil)
+        build(:va_profile_v3_address, :override, country_name: nil)
       end
 
       it 'overrides the address error', run_at: '2020-02-14T00:19:15.000Z' do
@@ -318,7 +318,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     [
       {
         model_name: 'address',
-        factory: 'va_profile_address_v2',
+        factory: 'va_profile_v3_address',
         trait: 'contact_info_v2',
         attr: 'residential_address',
         id: 577_127
