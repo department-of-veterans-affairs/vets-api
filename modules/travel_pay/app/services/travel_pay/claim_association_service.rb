@@ -21,29 +21,36 @@ module TravelPay
       #   + if date-time & facility match
       #       associatedTravelPayClaim => claimId (string)
 
+      appointments = []
       # Get claims for the specified date range
       raw_claims = service.get_claims_by_date_range(*tokens,
                                                     { 'start_date' => params['start_date'],
                                                       'end_date' => params['end_date'] })
 
-      # If no claims for the selected range, just return the original appointments
-      return params['appointments'] unless raw_claims.count?
+      # TODO: figure out how to append an error message to appt if claims call fails
 
       # map over the appointments list and the raw_claims and match dates
-      (params['appointments']).map do |appt|
-        raw_claims['data'].each do |cl|
+      params['appointments']['data'].each do |appt|
+        raw_claims[:data].each do |cl|
           # Match the exact date-time of the appointment
-          if DateTime.parse(cl['appointmentDateTime']) == DateTime.parse(appt['startDate']) &&
-             # match the facility
-             cl['facilityName'] == appt['facilityName']
+          if !cl['appointmentDateTime'].nil? &&
+             (DateTime.parse(cl['appointmentDateTime']).to_s == DateTime.parse(appt['start']).to_s)
+
+            # match the facility
+            #  cl['facilityName'] == appt['facilityName']
             # Add the new attribute "associatedTravelPayClaim" => claim ID to the appt hash
-            appt[:associatedTravelPayClaim] = cl[:id]
+            appt['associatedTravelPayClaim'] = cl
+            break
           else
-            # if no claims match, return the original unaltered appointment
-            appt
+            # if no claims match, append.... something?
+            appt['associatedTravelPayClaim'] = {
+              'metadata' => 'No claim found for this appointment' # Appt team requested a string to this effect, actual string TBD
+            }
           end
         end
+        appointments.push(appt)
       end
+      appointments
     end
 
     private
