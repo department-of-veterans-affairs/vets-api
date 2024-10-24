@@ -68,12 +68,14 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
                                                    file_type: 'Civilian Police Reports',
                                                    document_type: nil,
                                                    filename: '7B434B58-477C-4379-816F-05E6D3A10487.pdf',
-                                                   upload_date: '2023-03-01' }],
+                                                   upload_date: '2023-03-01',
+                                                   document_id: "{883B6CC8-D726-4911-9C65-2EB360E12F52}" }],
                                      upload_date: '2023-03-01',
                                      date: Date.new(2023, 3, 1),
                                      file_type: nil,
                                      document_type: nil,
-                                     filename: nil })
+                                     filename: nil,
+                                     document_id: nil })
   end
 
   context 'with claim in phase CLAIM_RECEIVED' do
