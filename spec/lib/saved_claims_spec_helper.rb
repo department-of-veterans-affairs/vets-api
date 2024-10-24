@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 shared_examples_for 'saved_claim_with_confirmation_number' do
+  subject { described_class.new }
+
   it_behaves_like 'saved_claim'
 
   it 'responds to #confirmation_number' do
@@ -22,6 +24,14 @@ shared_examples_for 'saved_claim' do
       expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(instance.id)
 
       instance.process_attachments!
+    end
+  end
+
+  describe 'Check for schema being loaded' do
+    it 'logs the message' do
+      saved_claim = SavedClaim::ApplicationRecord.new
+      saved_claim.schema_loaded_check('21P-527EZ')
+      expect(Rails.logger).to receive(:info).with("#{subject} has been loaded")
     end
   end
 
