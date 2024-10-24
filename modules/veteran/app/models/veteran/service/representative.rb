@@ -26,10 +26,10 @@ module Veteran
       # @param poa_code: nil [String] filter to reps working this POA code
       #
       # @return [Array(Veteran::Service::Representative)] All representatives found using the submitted search criteria
-      def self.all_for_user(first_name:, last_name:, middle_initial: nil, poa_code: nil)
+      def self.all_for_user(first_name:, last_name:, middle_initial: nil, suffix: nil, poa_code: nil)
         return [] if first_name.nil? || last_name.nil?
 
-        representatives = get_representatives(first_name, last_name)
+        representatives = get_representatives(first_name, last_name, suffix)
 
         representatives = representatives&.where('? = ANY(poa_codes)', poa_code) if poa_code
 
@@ -112,22 +112,13 @@ module Veteran
         end
       end
 
-      def self.get_suffixes(first_name, last_name)
-        first_suffix = first_name.split.last if first_name.split.count > 1
-        last_suffix = last_name.split.last if last_name.split.count > 1
-        [first_suffix, last_suffix]
-      end
-
-      def self.get_representatives(first_name, last_name)
-        suffixes = get_suffixes(first_name, last_name)
-
+      def self.get_representatives(first_name, last_name, suffix)
         representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
                                 last_name&.downcase)
 
-        if representatives.blank? && suffixes.any?
-          # check without suffix
-          first_name = first_name.delete(suffixes[0]).strip if suffixes[0].present?
-          last_name = last_name.delete(suffixes[1]).strip if suffixes[1].present?
+        if representatives.blank? && suffix.present?
+          # check with suffix
+          last_name = "#{last_name} #{suffix.downcase}"
 
           representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
                                   last_name&.downcase)

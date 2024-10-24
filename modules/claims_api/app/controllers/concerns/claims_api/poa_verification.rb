@@ -68,8 +68,10 @@ module ClaimsApi
       def valid_poa_code_for_current_user?(poa_code) # rubocop:disable Metrics/MethodLength
         return false if @current_user.first_name.nil? || @current_user.last_name.nil?
 
+        suffix = @current_user.suffix.presence
         reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
-                                                               last_name: @current_user.last_name)
+                                                               last_name: @current_user.last_name,
+                                                               suffix:)
 
         return false if reps.blank?
 
@@ -80,12 +82,12 @@ module ClaimsApi
             middle_initial = @current_user.middle_name[0]
             reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
                                                                    last_name: @current_user.last_name,
-                                                                   middle_initial:)
+                                                                   middle_initial:, suffix:)
 
             if reps.blank? || reps.count > 1
               reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
                                                                      last_name: @current_user.last_name,
-                                                                     poa_code:)
+                                                                     suffix:, poa_code:)
             end
 
             raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?
