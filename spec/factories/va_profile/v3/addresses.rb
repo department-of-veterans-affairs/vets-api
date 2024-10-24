@@ -2,10 +2,10 @@
 
 # This will be removed after ContactInformation has been updated
 FactoryBot.define do
-  factory :va_profile_address_v2, class: 'VAProfile::Models::V2::Address' do
+  factory :va_profile_v3_address, class: 'VAProfile::Models::V3::Address' do
     address_line1 { '140 Rock Creek Rd' }
-    address_pou { VAProfile::Models::V2::Address::RESIDENCE }
-    address_type { VAProfile::Models::V2::Address::DOMESTIC }
+    address_pou { VAProfile::Models::V3::Address::RESIDENCE }
+    address_type { VAProfile::Models::V3::Address::DOMESTIC }
     bad_address { true }
     city { 'Washington' }
     country_name { 'USA' }
@@ -23,23 +23,23 @@ FactoryBot.define do
     vet360_id { '1781151' }
 
     trait :mailing do
-      address_pou { VAProfile::Models::V2::Address::CORRESPONDENCE }
+      address_pou { VAProfile::Models::V3::Address::CORRESPONDENCE }
       address_line1 { '1515 Broadway' }
     end
 
     trait :domestic do
-      address_type { VAProfile::Models::V2::Address::DOMESTIC }
+      address_type { VAProfile::Models::V3::Address::DOMESTIC }
     end
 
     trait :international do
-      address_type { VAProfile::Models::V2::Address::INTERNATIONAL }
+      address_type { VAProfile::Models::V3::Address::INTERNATIONAL }
       international_postal_code { '100-0001' }
       state_code { nil }
       zip_code { nil }
     end
 
     trait :military_overseas do
-      address_type { VAProfile::Models::V2::Address::MILITARY }
+      address_type { VAProfile::Models::V3::Address::MILITARY }
     end
 
     trait :multiple_matches do
@@ -50,7 +50,7 @@ FactoryBot.define do
     end
 
     trait :override do
-      address_pou { VAProfile::Models::V2::Address::CORRESPONDENCE }
+      address_pou { VAProfile::Models::V3::Address::CORRESPONDENCE }
       address_line1 { '1494 Martin Luther King Rd' }
       address_line2 { 'null' }
       city { 'Fulton' }

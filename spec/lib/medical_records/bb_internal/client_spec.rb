@@ -117,4 +117,23 @@ describe BBInternal::Client do
       end
     end
   end
+
+  describe '#get_study_status' do
+    it 'retrieves the status of all study jobs' do
+      VCR.use_cassette 'mr_client/bb_internal/study_status' do
+        study_job_list = client.get_study_status
+
+        expect(study_job_list).to be_an(Array)
+        expect(study_job_list).not_to be_empty
+
+        first_study_job = study_job_list.first
+        expect(first_study_job).to be_a(Hash)
+
+        expect(first_study_job).to have_key('status')
+        expect(first_study_job['status']).to be_a(String)
+        expect(first_study_job).to have_key('studyIdUrn')
+        expect(first_study_job['studyIdUrn']).to be_a(String)
+      end
+    end
+  end
 end

@@ -118,6 +118,15 @@ module BBInternal
       response.body
     end
 
+    # check the status of a study job
+    # @return [Array] - [{ status: "COMPLETE", studyIdUrn: "111-1234567" percentComplete: 100, fileSize: "1.01 MB",
+    #   startDate: 1729777818853, endDate}]
+    #
+    def get_study_status
+      response = perform(:get, "bluebutton/studyjob/#{session.patient_id}", nil, token_headers)
+      response.body
+    end
+
     private
 
     ##
