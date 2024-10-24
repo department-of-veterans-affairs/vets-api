@@ -39,7 +39,7 @@ module BenefitsDocuments
 
       # @param lighthouse526_document_uploads [Lighthouse526DocumentUpload] a collection of
       # Lighthouse526DocumentUpload records polled for status updates on Lighthouse's '/uploads/status' endpoint
-      # @param lighthouse_status_response [Hash] the parsed JSON response body from the Lighthouse '/uploads/status' endpoint
+      # @param lighthouse_status_response [Hash] the parsed JSON response body from the endpoint
       def initialize(lighthouse526_document_uploads, lighthouse_status_response)
         @lighthouse526_document_uploads = lighthouse526_document_uploads
         @lighthouse_status_response = lighthouse_status_response
