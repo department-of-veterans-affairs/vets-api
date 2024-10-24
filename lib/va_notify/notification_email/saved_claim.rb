@@ -44,7 +44,7 @@ module VANotify
         raise ArgumentError, "Invalid email_type '#{email_type}'" unless email_config
 
         @email_template_id = email_config.template_id
-        raise VANotify::NotificationEmail::FailureToSend, "Invalid template" unless email_template_id
+        raise VANotify::NotificationEmail::FailureToSend, 'Invalid template' unless email_template_id
         raise VANotify::NotificationEmail::FailureToSend, 'Missing email' if email.blank?
 
         is_enabled = flipper_enabled?(email_config.flipper_id)

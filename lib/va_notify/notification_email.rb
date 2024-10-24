@@ -2,7 +2,6 @@
 
 module VANotify
   module NotificationEmail
-
     STATSD = 'api.va_notify.notification_email'
 
     CONFIRMATION = :confirmation

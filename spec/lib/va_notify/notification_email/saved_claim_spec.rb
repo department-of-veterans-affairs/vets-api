@@ -4,24 +4,22 @@ require 'rails_helper'
 require 'va_notify/notification_email/saved_claim'
 
 RSpec.describe VANotify::NotificationEmail::SavedClaim do
-
   let(:confirmation_email_template_id) { 'form9999ez_confirmation_email_template_id' }
   let(:vanotify_services_settings) do
     Config::Options.new({
-      '55p_9999ez'.to_sym => Config::Options.new({
-        api_key: 'fake-api-key',
-        email: Config::Options.new({
-          confirmation: Config::Options.new({
-            template_id: confirmation_email_template_id,
-            flipper_id: false
-          }),
-          error: nil,
-          received: nil
-        })
-      })
-    })
+                          '55p_9999ez': Config::Options.new({
+                                                              api_key: 'fake-api-key',
+                                                              email: Config::Options.new({
+                                                                                           confirmation: Config::Options.new({
+                                                                                                                               template_id: confirmation_email_template_id,
+                                                                                                                               flipper_id: false
+                                                                                                                             }),
+                                                                                           error: nil,
+                                                                                           received: nil
+                                                                                         })
+                                                            })
+                        })
   end
-
 
   let(:fake_claim) { FactoryBot.build(:fake_saved_claim) }
   let(:fake_email) { fake_claim.email }
@@ -43,7 +41,7 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
     end
 
     it 'successfully enqueues a confirmation email' do
-      at = Time.now + 23.days
+      at = 23.days.from_now
 
       expect(fake_claim).to receive(:va_notification?).with confirmation_email_template_id
       expect(VANotify::EmailJob).to receive(:perform_at).with(
@@ -76,6 +74,5 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
 
       notification.deliver(:confirmation)
     end
-
   end
 end

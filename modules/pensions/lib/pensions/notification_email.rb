@@ -16,8 +16,8 @@ module Pensions
       default = super
 
       default.merge({
-        'first_name' => claim.first_name&.titleize
-      })
+                      'first_name' => claim.first_name&.titleize
+                    })
     end
   end
 end

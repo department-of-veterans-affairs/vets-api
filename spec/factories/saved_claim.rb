@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-FactoryBot.define do
-  class SavedClaim::TEST < SavedClaim
-    FORM = '55p_9999ez'
+class SavedClaim::Test < SavedClaim
+  FORM = '55p_9999ez'
 
-    def email
-      parsed_form['email']
-    end
+  def email
+    parsed_form['email']
   end
+end
 
-  factory :fake_saved_claim, class: 'SavedClaim::TEST' do
+FactoryBot.define do
+  factory :fake_saved_claim, class: 'SavedClaim::Test' do
     form do
       {
         veteranFullName: {
@@ -29,5 +29,4 @@ FactoryBot.define do
       }.to_json
     end
   end
-
 end
