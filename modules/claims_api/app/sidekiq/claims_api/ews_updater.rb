@@ -34,7 +34,7 @@ module ClaimsApi
     end
 
     def update_bgs_claim(ews, bgs_claim)
-      response = bgs_service(ews).benefit_claims.update_bnft_claim(claim: bgs_claim)
+      response = @bms.update_bnft_claim(claim: bgs_claim)
       if response[:bnft_claim_dto].nil?
         ews.status = ClaimsApi::EvidenceWaiverSubmission::ERRORED
         ews.bgs_error_message = "BGS Error: update_record failed with code #{response[:return_code]}"
@@ -47,11 +47,6 @@ module ClaimsApi
                                              detail: 'Waiver update Success')
         ews.status = ClaimsApi::EvidenceWaiverSubmission::UPDATED
       end
-    end
-
-    def bgs_service(ews)
-      BGS::Services.new(external_uid: ews.auth_headers['va_eauth_pnid'],
-                        external_key: ews.auth_headers['va_eauth_pnid'])
     end
   end
 end
