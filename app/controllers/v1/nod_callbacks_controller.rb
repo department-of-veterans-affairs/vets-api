@@ -7,65 +7,84 @@ module V1
     include ActionController::HttpAuthentication::Token::ControllerMethods
     include DecisionReviewV1::Appeals::LoggingUtils
 
-    service_tag 'nod-callbacks'
+    service_tag 'appeal-application'
 
     skip_before_action :verify_authenticity_token, only: [:create]
     skip_before_action :authenticate, only: [:create]
     skip_after_action :set_csrf_header, only: [:create]
     before_action :authenticate_header, only: [:create]
 
-    STATUSES_TO_IGNORE = %w[sent delivered temporary-failure].freeze
+    STATSD_KEY_PREFIX = 'api.decision_review.notification_callback'
+
+    DELIVERED_STATUS = 'delivered'
 
     def create
-      return render json: nil, status: :not_found unless Flipper.enabled? :nod_callbacks_endpoint
+      return render json: nil, status: :not_found unless enabled?
 
       payload = JSON.parse(request.body.string)
+      status = payload['status']&.downcase
 
-      log_params = {
-        key: :callbacks,
-        form_id: '10182',
-        user_uuid: nil,
-        upstream_system: 'VANotify',
-        body: payload.merge('to' => '<FILTERED>') # scrub PII from logs
-      }
+      StatsD.increment("#{STATSD_KEY_PREFIX}.received", tags: { status: })
 
-      # save encrypted request body in database table for non-successful notifications
-      payload_status = payload['status']&.downcase
-      if STATUSES_TO_IGNORE.exclude? payload_status
-        begin
-          NodNotification.create!(payload:)
-        rescue ActiveRecord::RecordInvalid => e
-          log_formatted(**log_params.merge(is_success: false), params: { exception_message: e.message })
-          return render json: { message: 'failed' }
-        end
+      if status == DELIVERED_STATUS
+        tags = ['service:supplemental-claim', 'function: form or evidence submission to Lighthouse']
+        StatsD.increment('silent_failure_avoided', tags:)
       end
 
-      log_formatted(**log_params.merge(is_success: true))
+      begin
+        DecisionReviewNotificationAuditLog.create!(notification_id: payload['id'],
+                                                   reference: payload['reference'],
+                                                   status:,
+                                                   payload:)
+      rescue ActiveRecord::RecordInvalid => e
+        log_formatted(**log_params(payload, false), params: { exception_message: e.message })
+        return render json: { message: 'failed' }
+      end
+
+      log_formatted(**log_params(payload, true))
       render json: { message: 'success' }
     end
 
     private
+
+    def log_params(payload, is_success)
+      {
+        key: :decision_review_notification_callback,
+        form_id: '995',
+        user_uuid: nil,
+        upstream_system: 'VANotify',
+        body: payload.merge('to' => '<FILTERED>'), # scrub PII from logs
+        is_success:,
+        params: {
+          notification_id: payload['id'],
+          status: payload['status']
+        }
+      }
+    end
 
     def authenticate_header
       authenticate_user_with_token || authenticity_error
     end
 
     def authenticate_user_with_token
-      Rails.logger.info('nod-callbacks-74832 - Received request, authenticating')
       authenticate_with_http_token do |token|
-        return false if bearer_token_secret.nil?
+        is_authenticated = token == bearer_token_secret
+        Rails.logger.info('NodCallbacksController callback received', is_authenticated:)
 
-        token == bearer_token_secret
+        is_authenticated
       end
     end
 
     def authenticity_error
-      Rails.logger.info('nod-callbacks-74832 - Failed to authenticate request')
       render json: { message: 'Invalid credentials' }, status: :unauthorized
     end
 
     def bearer_token_secret
       Settings.dig(:nod_vanotify_status_callback, :bearer_token)
+    end
+
+    def enabled?
+      Flipper.enabled? :nod_callbacks_endpoint
     end
   end
 end
