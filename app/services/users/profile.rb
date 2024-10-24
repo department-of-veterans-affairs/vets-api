@@ -71,7 +71,7 @@ module Users
         first_name: user.first_name,
         middle_name: user.middle_name,
         last_name: user.last_name,
-        preferred_name: user&.demographics&.preferred_name&.text,
+        preferred_name: preferred_name,
         birth_date: user.birth_date,
         gender: user.gender,
         zip: user.postal_code,
@@ -92,8 +92,14 @@ module Users
         initial_sign_in: user.initial_sign_in
       }
     end
-    # rubocop:enable Metrics/MethodLength
 
+    def preferred_name
+      user&.demographics&.preferred_name&.text
+    rescue => e
+      scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile::Demographics').serialize_error
+    end
+
+    # rubocop:enable Metrics/MethodLength
     def claims
       if Flipper.enabled?(:profile_user_claims, user)
         {
