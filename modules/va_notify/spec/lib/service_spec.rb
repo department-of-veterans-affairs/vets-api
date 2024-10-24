@@ -123,7 +123,7 @@ describe VaNotify::Service do
 
       it 'logs an error if the notification cannot be saved' do
         notification = VANotify::Notification.new
-        notification.errors.add(:base, "Some error occurred")
+        notification.errors.add(:base, 'Some error occurred')
         allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_email).and_return(response)
@@ -172,7 +172,7 @@ describe VaNotify::Service do
 
       it 'logs an error if the notification cannot be saved' do
         notification = VANotify::Notification.new
-        notification.errors.add(:base, "Some error occurred")
+        notification.errors.add(:base, 'Some error occurred')
         allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_sms).and_return(response)

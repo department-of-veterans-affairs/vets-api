@@ -107,7 +107,7 @@ module VaNotify
     end
 
     def find_caller_locations
-      caller_locations(1,1).map do |location|
+      caller_locations(1, 1).map do |location|
         "#{location.path}:#{location.lineno} in #{location.label}"
       end
     end
