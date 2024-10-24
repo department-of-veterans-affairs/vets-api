@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-if defined?(ENV.fetch('VSP_ENVIRONMENT', nil))
-  Settings.prepend_source!(Rails.root.join("config/settings/#{ENV.fetch('VSP_ENVIRONMENT', nil)}.local.yml").to_s)
+vsp_environment = ENV.fetch('VSP_ENVIRONMENT', nil) || ENV.fetch('SETTINGS__VSP_ENVIRONMENT', nil)
+
+if vsp_environment
+  source = Rails.root.join("config/settings/#{vsp_environment}.local.yml").to_s
+  Settings.prepend_source!(source)
   Settings.reload!
 end
