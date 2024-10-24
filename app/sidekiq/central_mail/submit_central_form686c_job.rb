@@ -16,7 +16,7 @@ module CentralMail
     FORM_ID = '686C-674'
     FORM_ID_674 = '21-674'
     STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
-    RETRY = 14
+    RETRY = 1
 
     attr_reader :claim, :form_path, :attachment_paths
 
