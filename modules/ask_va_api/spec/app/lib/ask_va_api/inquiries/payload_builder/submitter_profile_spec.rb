@@ -21,13 +21,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
       }
     end
     let(:pronouns) do
-      {
-        he_him_his: true,
-        pronouns_not_listed_text: '',
-        she_her_hers: false,
-        they_them_theirs: false,
-        ze_zir_zirs: false
-      }
+      { he_him_his: true }
     end
     let(:params) do
       {
@@ -137,13 +131,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
 
     context 'when pronouns is not listed' do
       let(:pronouns) do
-        {
-          he_him_his: false,
-          pronouns_not_listed_text: 'ze/they',
-          she_her_hers: false,
-          they_them_theirs: false,
-          ze_zir_zirs: false
-        }
+        { pronouns_not_listed_text: 'ze/they' }
       end
 
       it 'set pronouns to the value' do
