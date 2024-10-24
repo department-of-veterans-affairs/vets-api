@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe Form526ConfirmationEmailJob, type: :worker do
   before do
     Sidekiq::Job.clear_all
+    allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(false)
   end
 
   describe '#perform' do
