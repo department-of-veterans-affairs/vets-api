@@ -6,4 +6,8 @@ class IntentToFileQueueExhaustion < ApplicationRecord
   # processing that will be done for retry attempts will be
   # specified in the future.
   validates :veteran_icn, presence: true
+
+  STATUS = {
+    unprocessed: 'unprocessed'
+  }.freeze
 end
