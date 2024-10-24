@@ -31,11 +31,11 @@ describe VaNotify::Service do
       }
     }
   end
-  let(:response) {
+  let(:response) do
     {
-      "id": "a7855d03-7e57-474a-aa74-95322f0eb12c",
+      id: 'a7855d03-7e57-474a-aa74-95322f0eb12c'
     }
-  }
+  end
 
   describe 'service initialization', :test_service do
     let(:notification_client) { double('Notifications::Client') }
@@ -102,7 +102,7 @@ describe VaNotify::Service do
       allow(Notifications::Client).to receive(:new).and_return(notification_client)
       allow(notification_client).to receive(:send_email)
       allow(notification_client).to receive(:send_email).and_return(response)
-      allow(response).to receive(:[]).and_return("a7855d03-7e57-474a-aa74-95322f0eb12c")
+      allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
       allow(StatsD).to receive(:increment).with('api.vanotify.send_email.total')
 
       subject.send_email(send_email_parameters)
@@ -115,7 +115,7 @@ describe VaNotify::Service do
         allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_email).and_return(response)
-        allow(response).to receive(:[]).and_return("a7855d03-7e57-474a-aa74-95322f0eb12c")
+        allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
 
         subject.send_email(send_email_parameters)
         expect(VANotify::Notification.count).to eq(1)
@@ -131,7 +131,7 @@ describe VaNotify::Service do
     it 'calls notifications client' do
       allow(Notifications::Client).to receive(:new).and_return(notification_client)
       allow(notification_client).to receive(:send_sms).and_return(response)
-      allow(response).to receive(:[]).and_return("a7855d03-7e57-474a-aa74-95322f0eb12c")
+      allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
       allow(StatsD).to receive(:increment).with('api.vanotify.send_sms.total')
 
       subject.send_sms(send_sms_parameters)
@@ -144,7 +144,7 @@ describe VaNotify::Service do
         allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_sms).and_return(response)
-        allow(response).to receive(:[]).and_return("a7855d03-7e57-474a-aa74-95322f0eb12c")
+        allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
 
         subject.send_sms(send_sms_parameters)
         expect(VANotify::Notification.count).to eq(1)
