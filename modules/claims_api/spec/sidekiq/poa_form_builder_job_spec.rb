@@ -74,7 +74,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
   describe 'generating the filled and signed pdf' do
     context 'when representative is an individual' do
       before do
-        Veteran::Service::Representative.new(representative_id: '12345', poa_codes: [poa_code.to_s]).save!
+        FactoryBot.create(:veteran_representative, representative_id: '12345', poa_codes: [poa_code.to_s]).save!
       end
 
       it 'generates the pdf to match example' do
@@ -103,8 +103,8 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
 
     context 'when representative is part of an organization' do
       before do
-        Veteran::Service::Representative.new(representative_id: '67890', poa_codes: [poa_code.to_s]).save!
-        Veteran::Service::Organization.create(poa: 'ABC', name: 'Some org')
+        FactoryBot.create(:veteran_representative, representative_id: '67890', poa_codes: [poa_code.to_s]).save!
+        FactoryBot.create(:veteran_organization, poa: 'ABC', name: 'Some org')
       end
 
       it 'generates the pdf to match example' do
@@ -133,8 +133,8 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
 
     context 'when signature has prefix' do
       before do
-        Veteran::Service::Representative.new(representative_id: '67890', poa_codes: ['ABC']).save!
-        Veteran::Service::Organization.create(poa: 'ABC', name: 'Some org')
+        FactoryBot.create(:veteran_representative, representative_id: '67890', poa_codes: ['ABC']).save!
+        FactoryBot.create(:veteran_organization, poa: 'ABC', name: 'Some org')
         power_of_attorney.update(form_data: power_of_attorney.form_data.deep_merge(
           {
             signatures: {
@@ -195,7 +195,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
 
-      subject.new.perform(power_of_attorney.id, action: 'post')
+      subject.new.perform(power_of_attorney.id, 'post')
     end
 
     it 'rescues errors from BD and sets the status to errored' do
@@ -204,7 +204,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       VCR.use_cassette('claims_api/bd/upload_error') do
         allow(ClaimsApi::BD.new).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)
                                                     .and_raise(Common::Exceptions::BackendServiceException.new(errors))
-        subject.new.perform(power_of_attorney.id, action: 'post')
+        subject.new.perform(power_of_attorney.id, 'post')
       rescue
         power_of_attorney.reload
         expect(power_of_attorney.vbms_error_message).to eq(

@@ -487,7 +487,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
       it 'calls the Benefits Documents upload_document instead of upload' do
         expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
         expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
-        subject.new.perform(power_of_attorney.id, '2122', rep.id, action: 'post')
+        subject.new.perform(power_of_attorney.id, '2122', rep.id, 'post')
       end
     end
   end

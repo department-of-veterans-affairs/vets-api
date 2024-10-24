@@ -5,7 +5,7 @@ module RepresentationManagement
     attr_accessor :organization_id
 
     validates :organization_id, presence: true
-    validate :organization_name_resolves?
+    validate :organization_name_exists?
 
     def organization_name
       @organization_name ||= find_organization_name
@@ -19,8 +19,8 @@ module RepresentationManagement
       org&.name
     end
 
-    def organization_name_resolves?
-      return unless find_organization_name.nil?
+    def organization_name_exists?
+      return unless organization_name.nil?
 
       errors.add(:organization_name, 'Organization not found')
     end
