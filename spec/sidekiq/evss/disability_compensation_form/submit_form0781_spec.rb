@@ -101,8 +101,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       subject.perform_async(submission.id)
       described_class.drain
     end
-    let(:sample_0781_pdf) { File.read('spec/fixtures/pdf_fill/21-0781/simple.pdf') }
+    let(:sample_0781_pdf) { File.read('spec/fixtures/pdf_fill/21-0781/simple_0781.pdf') }
     let(:sample_0781a_pdf) { File.read('spec/fixtures/pdf_fill/21-0781a/simple.pdf') }
+    let(:parsed_0781_form) {JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781']}
+    let(:parsed_0781a_form) {JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781a']}
 
     before do
       Flipper.enable(:disability_compensation_use_api_provider_for_0781_upload)
@@ -130,8 +132,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
           document_type: 'L229'
         )
       end
-      let(:parsed_0781_form) {JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781']}
-      let(:parsed_0781a_form) {JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781a']}
 
       before do
         Flipper.enable(:disability_compensation_upload_0781_to_lighthouse)
@@ -151,7 +151,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
       it 'uploads the 0781 documents to Lighthouse' do
         # 0781 
-        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).with(parsed_0781_form, submission.submitted_claim_id, '21-0781').and_return('spec/fixtures/pdf_fill/21-0781/simple.pdf')
+        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).with(parsed_0781_form, submission.submitted_claim_id, '21-0781').and_return('spec/fixtures/pdf_fill/21-0781/simple_0781.pdf')
 
         allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider).to receive(:generate_upload_document).and_return(lighthouse_0781_document)
 
@@ -267,7 +267,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         EVSSClaimDocument.new(
           evss_claim_id: submission.submitted_claim_id,
           document_type: 'L228',
-          # file_name: 'simple.pdf'
         )
       end
       let(:evss_claim_0781a_document) do
@@ -286,36 +285,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       it 'uploads the 0781 documents to EVSS' do
-        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).with(anything, evss_claim_id, '21-0781').and_return('spec/fixtures/pdf_fill/21-0781/simple.pdf')
+        # 0781
+        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).with(parsed_0781_form, submission.submitted_claim_id, '21-0781').and_return('spec/fixtures/pdf_fill/21-0781/simple_0781.pdf')
 
-        allow(File).to receive(:delete).and_return(nil)
-
-        allow_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document).and_return(evss_claim_0781_document)
+        allow_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document).with('simple_0781.pdf').and_return(evss_claim_0781_document)
 
         allow(File).to receive(:delete).and_return(nil)
 
         expect(client_stub).to receive(:upload).with(sample_0781_pdf, evss_claim_0781_document)
 
-        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).with(anything, evss_claim_id, '21-0781a').and_return('spec/fixtures/pdf_fill/21-0781a/simple.pdf')
+        # 0781a
+        allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a').and_return('spec/fixtures/pdf_fill/21-0781a/simple.pdf')
 
-        # the 0781a doc
+        allow_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document).with('simple.pdf').and_return(evss_claim_0781a_document)
+
         expect(client_stub).to receive(:upload).with(sample_0781a_pdf, evss_claim_0781a_document)
 
         perform_upload
-
       end  
-
-      # it 'uploads the 0781a document to EVSS' do
-      #   allow_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:generate_upload_document).and_return(evss_claim_0781a_document)
-
-      #   #the 0781A doc
-      #   expect(client_stub).to receive(:upload).with(anything, anything)
-
-      #   expect(client_stub).to receive(:upload).with(anything, evss_claim_0781a_document)
-
-      #   perform_upload
-
-      # end  
 
       it 'logs the upload attempt with the correct job prefix' do
         expect(StatsD).to receive(:increment).with(
