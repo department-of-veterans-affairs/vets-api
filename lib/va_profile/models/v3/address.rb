@@ -4,15 +4,15 @@ require_relative 'base_address'
 
 module VAProfile
   module Models
-    module V2
-      class Address < V2::BaseAddress
+    module V3
+      class Address < V3::BaseAddress
         attribute :bad_address, Boolean
 
         validates(:source_date, presence: true)
 
         # Converts a decoded JSON response from VAProfile to an instance of the Address model
         # @param body [Hash] the decoded response body from VAProfile
-        # @return [VAProfile::Models::V2::Address] the model built from the response body
+        # @return [VAProfile::Models::V3::Address] the model built from the response body
         # rubocop:disable Metrics/MethodLength
         def in_json
           address_attributes = {
@@ -58,10 +58,10 @@ module VAProfile
 
         # Converts a decoded JSON response from VAProfile to an instance of the Address model
         # @param body [Hash] the decoded response body from VAProfile
-        # @return [VAProfile::Models::V2::Address] the model built from the response body
+        # @return [VAProfile::Models::V3::Address] the model built from the response body
         # rubocop:disable Metrics/MethodLength
         def self.build_from(body)
-          VAProfile::Models::V2::Address.new(
+          VAProfile::Models::V3::Address.new(
             address_line1: body['address_line1'],
             address_line2: body['address_line2'],
             address_line3: body['address_line3'],
@@ -96,7 +96,7 @@ module VAProfile
         # rubocop:enable Metrics/MethodLength
 
         def correspondence?
-          @address_pou == VAProfile::Models::V2::Address::CORRESPONDENCE
+          @address_pou == VAProfile::Models::V3::Address::CORRESPONDENCE
         end
       end
     end
