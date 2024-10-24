@@ -203,8 +203,8 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
                                                form: '{}')
         end
         let!(:saved_claim4) do
-          SavedClaim::SupplementalClaim.create(guid: secondary_form_with_delete_date.appeal_submission.submitted_appeal_uuid,
-                                               form: '{}')
+          SavedClaim::SupplementalClaim
+            .create(guid: secondary_form_with_delete_date.appeal_submission.submitted_appeal_uuid, form: '{}')
         end
 
         let(:upload_response_4142_vbms) do
@@ -240,7 +240,8 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
           expect(service).to receive(:get_supplemental_claim_upload).with(uuid: secondary_form1.guid)
           expect(service).to receive(:get_supplemental_claim_upload).with(uuid: secondary_form2.guid)
           expect(service).to receive(:get_supplemental_claim_upload).with(uuid: secondary_form3.guid)
-          expect(service).not_to receive(:get_supplemental_claim_upload).with(uuid: secondary_form_with_delete_date.guid)
+          expect(service).not_to receive(:get_supplemental_claim_upload)
+            .with(uuid: secondary_form_with_delete_date.guid)
           subject.new.perform
         end
 
@@ -285,7 +286,8 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
               .with('worker.decision_review.saved_claim_sc_status_updater_secondary_form.status', tags: ['status:vbms'])
               .exactly(1).time
             expect(StatsD).to have_received(:increment)
-              .with('worker.decision_review.saved_claim_sc_status_updater_secondary_form.status', tags: ['status:processing'])
+              .with('worker.decision_review.saved_claim_sc_status_updater_secondary_form.status',
+                    tags: ['status:processing'])
               .exactly(1).time
 
             expect(Rails.logger).to have_received(:info)
