@@ -26,6 +26,7 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
   it 'returns expected other documents in events_timeline field' do
     other_documents_list = under_review_claim[:events_timeline].select { |event| event[:type] == :other_documents_list }
     expect(other_documents_list.size).to eq(13)
+    expect(other_documents_list.first.document_id).to eq('{7AF4C5E0-EBCE-49B2-9544-999ECA2904FD}')
   end
 
   it 'returns expected filed event in events_timeline field' do
