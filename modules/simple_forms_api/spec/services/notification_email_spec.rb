@@ -191,7 +191,6 @@ describe SimpleFormsApi::NotificationEmail do
               data['claimant_type'] = 'non-veteran'
 
               subject = described_class.new(config, notification_type:)
-
               subject.send
 
               expect(VANotify::EmailJob).to have_received(:perform_async).with(

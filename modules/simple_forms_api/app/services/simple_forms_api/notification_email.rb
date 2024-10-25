@@ -166,10 +166,11 @@ module SimpleFormsApi
       when 'vba_40_0247'
         form_data['applicant_email']
       when 'vba_40_10007'
-        form_data.dig('application', 'claimant', 'email')  
+        form_data.dig('application', 'claimant', 'email')
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def get_first_name_from_form_data
       case @form_number
       when 'vba_21_0845'
@@ -191,9 +192,10 @@ module SimpleFormsApi
       when 'vba_40_0247'
         form_data.dig('applicant_full_name', 'first')
       when 'vba_40_10007'
-        form_data.dig('application', 'claimant', 'name', 'first')  
+        form_data.dig('application', 'claimant', 'name', 'first')
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def get_first_name_from_user_account
       mpi_response = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
