@@ -1771,3 +1771,6 @@ features:
   banner_use_alternative_banners:
     actor_type: user
     description: Used to toggle use of alternative banners.
+  is_DGIB_endpoint:
+    actor_type: user
+    description: used to call data from DGIB endpoints
