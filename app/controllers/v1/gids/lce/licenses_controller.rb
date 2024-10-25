@@ -2,8 +2,8 @@
 
 module V1
   module GIDS
-    module LCE
-      class LicensesController < GIDSController
+    module Lce
+      class LicensesController < LceController
         def show
           render json: service.get_license_details_v1(scrubbed_params)
         end

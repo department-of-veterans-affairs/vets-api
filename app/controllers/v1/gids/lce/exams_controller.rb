@@ -2,8 +2,8 @@
 
 module V1
   module GIDS
-    module LCE
-      class ExamsController < GIDSController
+    module Lce
+      class ExamsController < GIDS::LceController
         def show
           render json: service.get_exam_details_v1(scrubbed_params)
         end

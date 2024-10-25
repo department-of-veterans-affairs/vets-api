@@ -2,8 +2,8 @@
 
 module V1
   module GIDS
-    module LCE
-      class CertificationsController < GIDSController
+    module Lce
+      class CertificationsController < LceController
         def show
           render json: service.get_certification_details_v1(scrubbed_params)
         end

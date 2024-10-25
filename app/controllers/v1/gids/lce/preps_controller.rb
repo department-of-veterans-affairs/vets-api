@@ -2,8 +2,8 @@
 
 module V1
   module GIDS
-    module LCE
-      class PrepsController < GIDSController
+    module Lce
+      class PrepsController < LceController
         def show
           render json: service.get_prep_details_v1(scrubbed_params)
         end

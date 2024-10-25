@@ -3,7 +3,7 @@
 require 'gi/configuration'
 
 module GI
-  module LCE
-    class COnfiguration < GI::Configuration; end
+  module Lce
+    class Configuration < GI::Configuration; end
   end
 end
