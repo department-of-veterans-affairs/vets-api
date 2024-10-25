@@ -10,10 +10,10 @@ module Dependents
     # statsd key for api
     CLAIM_STATS_KEY = 'dependent-change'
 
-    #statsd key for initial sidekiq
+    # statsd key for initial sidekiq
     BGS_SUBMISSION_STATS_KEY = 'worker.submit_686c_674_bgs'
 
-    #stats key for pdf submission
+    # stats key for pdf submission
     PDF_SUBMISSION_STATS_KEY = 'worker.submit_dependents_pdf'
 
     # statsd key for backup sidekiq
