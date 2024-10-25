@@ -30,6 +30,7 @@ module VAOS
     end
 
     def base_vaos_route
+      #  This will not be used until the alt route is updated and has full test coverage
       if Flipper.enabled?(:va_online_scheduling_vaos_alternate_route, user)
         'vaos-alt/v1'
       else
