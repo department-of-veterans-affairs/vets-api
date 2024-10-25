@@ -97,6 +97,7 @@ module Users
       user&.demographics&.preferred_name&.text
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile::Demographics').serialize_error
+      nil
     end
 
     # rubocop:enable Metrics/MethodLength
