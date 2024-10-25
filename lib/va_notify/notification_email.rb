@@ -35,5 +35,16 @@ module VANotify
       StatsD.increment(metric, tags:)
       Rails.logger.warn('VANotify::NotificationEmail #send duplicate attempt', **payload)
     end
+
+    def monitor_deliver_success(tags:, context: nil)
+      metric = "#{VANotify::NotificationEmail::STATSD}.deliver_success"
+      payload = {
+        statsd: metric,
+        context:
+      }
+
+      StatsD.increment(metric, tags:)
+      Rails.logger.info('VANotify::NotificationEmail #send success!', **payload)
+    end
   end
 end

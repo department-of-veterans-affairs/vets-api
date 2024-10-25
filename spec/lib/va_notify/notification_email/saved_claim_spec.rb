@@ -38,6 +38,13 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
         confirmation_email_template_id,
         { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number }
       )
+      expect(fake_claim).to receive(:insert_notification).with(confirmation_email_template_id)
+
+      metric = "#{VANotify::NotificationEmail::STATSD}.deliver_success"
+      # expect(VANotify::NotificationEmail).to receive(:monitor_send_failure)
+      expect(StatsD).to receive(:increment).with(metric, tags: anything)
+      expect(Rails.logger).to receive(:info)
+
       notification.deliver(:confirmation)
     end
 
@@ -51,6 +58,13 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
         confirmation_email_template_id,
         { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number }
       )
+      expect(fake_claim).to receive(:insert_notification).with(confirmation_email_template_id)
+
+      metric = "#{VANotify::NotificationEmail::STATSD}.deliver_success"
+      # expect(VANotify::NotificationEmail).to receive(:monitor_send_failure)
+      expect(StatsD).to receive(:increment).with(metric, tags: anything)
+      expect(Rails.logger).to receive(:info)
+
       notification.deliver(:confirmation, at:)
     end
 

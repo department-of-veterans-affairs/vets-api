@@ -18,7 +18,11 @@ module VANotify
 
         at ? enqueue_email(email_template_id, at) : send_email(email_template_id)
 
-        claim.insert_notification(email_config.template_id)
+        db_record = claim.insert_notification(email_template_id)
+        tags, context = monitoring(email_type)
+        VANotify::NotificationEmail.monitor_deliver_success(tags:, context:)
+
+        db_record
       rescue => e
         tags, context = monitoring(email_type)
         VANotify::NotificationEmail.monitor_send_failure(e&.message, tags:, context:)
