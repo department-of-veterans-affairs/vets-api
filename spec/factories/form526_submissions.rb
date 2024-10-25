@@ -333,7 +333,6 @@ FactoryBot.define do
       end
 
       with_ancillary['form526_uploads'] = with_uploads
-      with_ancillary['form526']['form526']['veteran']['emailAddress'] = 'test@example.com'
       with_ancillary.to_json
     end
   end

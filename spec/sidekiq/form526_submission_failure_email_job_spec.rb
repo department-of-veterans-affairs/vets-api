@@ -5,7 +5,6 @@ require 'rails_helper'
 RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
   subject { described_class }
 
-  let!(:form526_submission) { create(:form526_submission, :with_uploads_and_ancillary_forms) }
   let(:email_service) { double('VaNotify::Service') }
 
   before do
@@ -17,40 +16,104 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
   end
 
   describe '#perform' do
-    let(:expected_params) do
-      {
-        email_address: 'test@example.com',
-        template_id: 'form526_submission_failure_notification_template_id',
-        personalisation: {
-          first_name: form526_submission.get_first_name,
-          date_submitted: form526_submission.format_creation_time_for_mailers,
-          files_submitted: ['extXas.pdf', 'extXas.pdf', 'extXas.pdf'],
-          forms_submitted: [
-            'VA Form 21-4142',
-            'VA Form 21-0781',
-            'VA Form 21-0781a',
-            'VA Form 21-8940'
-          ]
+    context 'when a user has additional form and files with their submission' do
+      let!(:form526_submission) { create(:form526_submission, :with_uploads_and_ancillary_forms) }
+
+      let(:expected_params) do
+        {
+          email_address: 'test@email.com',
+          template_id: 'form526_submission_failure_notification_template_id',
+          personalisation: {
+            first_name: form526_submission.get_first_name,
+            date_submitted: form526_submission.format_creation_time_for_mailers,
+            files_submitted: ['extXas.pdf', 'extXas.pdf', 'extXas.pdf'],
+            forms_submitted: [
+              'VA Form 21-4142',
+              'VA Form 21-0781',
+              'VA Form 21-0781a',
+              'VA Form 21-8940'
+            ]
+          }
         }
-      }
+      end
+
+      it 'dispatches a failure notification email with the expected params' do
+        expect(email_service).to receive(:send_email).with(expected_params)
+
+        subject.perform_async(form526_submission.id)
+        subject.drain
+      end
+
+      it 'creates a remediation record for the submission' do
+        allow(email_service).to receive(:send_email)
+        expect { subject.new.perform(form526_submission.id) }.to change(Form526SubmissionRemediation, :count)
+        remediation = Form526SubmissionRemediation.where(form526_submission_id: form526_submission.id)
+        expect(remediation.present?).to be true
+      end
     end
 
-    it 'dispatches a failure notification email with the expected params' do
-      expect(email_service).to receive(:send_email).with(expected_params)
+    context 'when a user has no additional additional forms their submission' do
+      let!(:form526_submission) { create(:form526_submission, :with_uploads) }
+      let(:expected_params) do
+        {
+          email_address: 'test@email.com',
+          template_id: 'form526_submission_failure_notification_template_id',
+          personalisation: {
+            first_name: form526_submission.get_first_name,
+            date_submitted: form526_submission.format_creation_time_for_mailers,
+            files_submitted: ['extXas.pdf', 'extXas.pdf', 'extXas.pdf'],
+            forms_submitted: 'None'
+          }
+        }
+      end
 
-      subject.perform_async(form526_submission.id)
-      subject.drain
+      before do
+        form526_submission.form['form526_uploads'].each do |upload|
+          create(:supporting_evidence_attachment, :with_file_data, guid: upload['confirmationCode'])
+        end
+      end
+
+      it 'replaces the forms list variable with a placeholder' do
+        expect(email_service).to receive(:send_email).with(expected_params)
+
+        subject.perform_async(form526_submission.id)
+        subject.drain
+      end
     end
 
-    it 'creates a remediation record for the submission' do
-      allow(email_service).to receive(:send_email)
-      expect { subject.new.perform(form526_submission.id) }.to change(Form526SubmissionRemediation, :count)
-      remediation = Form526SubmissionRemediation.where(form526_submission_id: form526_submission.id)
-      expect(remediation.present?).to be true
+    context 'when a user has no additional additional user-uploaded files their submission' do
+      let(:expected_params) do
+        {
+          email_address: 'test@email.com',
+          template_id: 'form526_submission_failure_notification_template_id',
+          personalisation: {
+            first_name: form526_submission.get_first_name,
+            date_submitted: form526_submission.format_creation_time_for_mailers,
+            files_submitted: 'None',
+            forms_submitted: [
+              'VA Form 21-4142',
+              'VA Form 21-0781',
+              'VA Form 21-0781a',
+              'VA Form 21-8940'
+            ]
+          }
+        }
+      end
+
+      let!(:form526_submission) { create(:form526_submission, :with_everything) }
+
+      it 'replaces the files list variable with a placeholder' do
+        expect(email_service).to receive(:send_email).with(expected_params)
+
+        subject.perform_async(form526_submission.id)
+        subject.drain
+      end
     end
   end
 
   describe 'logging' do
+    let!(:form526_submission) { create(:form526_submission, :with_uploads_and_ancillary_forms) }
+
     let(:timestamp) { Time.now.utc }
     let(:tags) { described_class::DD_ZSF_TAGS }
 
