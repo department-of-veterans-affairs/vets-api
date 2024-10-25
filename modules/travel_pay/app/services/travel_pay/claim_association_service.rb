@@ -10,7 +10,7 @@ module TravelPay
     # @returns
     # appointments: [VAOS::Appointment + associatedTravelPayClaim (string)]
 
-    def associate_appointments_to_claims(tokens, params = {})
+    def associate_appointments_to_claims(params = {})
       # We need to associate an existing claim to a VAOS appointment, matching on date-time & facility
       #
       # So there will be a 1:1 claimID > appt association
@@ -23,9 +23,10 @@ module TravelPay
 
       appointments = []
       # Get claims for the specified date range
-      raw_claims = service.get_claims_by_date_range(*tokens,
-                                                    { 'start_date' => params['start_date'],
-                                                      'end_date' => params['end_date'] })
+      raw_claims = service.get_claims_by_date_range(
+        { 'start_date' => params['start_date'],
+          'end_date' => params['end_date'] }
+      )
 
       # TODO: figure out how to append an error message to appt if claims call fails
 
@@ -56,7 +57,8 @@ module TravelPay
     private
 
     def service
-      TravelPay::ClaimsService.new
+      auth_manager = TravelPay::AuthManager.new(Settings.travel_pay.client_number, @current_user)
+      TravelPay::ClaimsService.new(auth_manager)
     end
   end
 end

@@ -308,23 +308,27 @@ describe TravelPay::ClaimsService do
       ] }
     end
 
-    let(:tokens) { %w[veis_token btsss_token] }
+    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
     let(:expected_uuids) { %w[uuid1] }
 
     before do
       allow_any_instance_of(TravelPay::ClaimsService)
         .to receive(:get_claims_by_date_range)
-        .with(*tokens,
-              { 'start_date' => '2024-01-01T16:45:00Z',
-                'end_date' => '2024-15-01T16:45:00Z' })
+        .with(
+          { 'start_date' => '2024-01-01T16:45:00Z',
+            'end_date' => '2024-15-01T16:45:00Z' }
+        )
         .and_return(claims_data)
+
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @service = TravelPay::ClaimsService.new(auth_manager)
     end
 
     it 'returns appointments with matched claims' do
       service = TravelPay::ClaimAssociationService.new
-      appts_with_claims = service.associate_appointments_to_claims(tokens, { 'appointments' => appointments,
-                                                                             'start_date' => '2024-01-01T16:45:00Z',
-                                                                             'end_date' => '2024-15-01T16:45:00Z' })
+      appts_with_claims = service.associate_appointments_to_claims({ 'appointments' => appointments,
+                                                                     'start_date' => '2024-01-01T16:45:00Z',
+                                                                     'end_date' => '2024-15-01T16:45:00Z' })
 
       actual_appts_with_claims = appts_with_claims.filter { |c| c['associatedTravelPayClaim']['id'] }
 
