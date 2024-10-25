@@ -48,7 +48,12 @@ module SimpleFormsApi
       },
       'vba_40_0247' => {
         confirmation: Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email,
-        error: nil,
+        error: Settings.vanotify.services.va_gov.template_id.form40_0247_error_email,
+        received: nil
+      },
+      'vba_40_10007' => {
+        confirmation: nil,
+        error: Settings.vanotify.services.va_gov.template_id.form40_10007_error_email,
         received: nil
       }
     }.freeze
@@ -160,6 +165,8 @@ module SimpleFormsApi
         form20_10207_contact_info[0]
       when 'vba_40_0247'
         form_data['applicant_email']
+      when 'vba_40_10007'
+        form_data.dig('application', 'claimant', 'email')  
       end
     end
 
@@ -183,6 +190,8 @@ module SimpleFormsApi
         form20_10207_contact_info[1]
       when 'vba_40_0247'
         form_data.dig('applicant_full_name', 'first')
+      when 'vba_40_10007'
+        form_data.dig('application', 'claimant', 'name', 'first')  
       end
     end
 
