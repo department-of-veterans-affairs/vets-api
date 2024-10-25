@@ -6,6 +6,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
 
   before do
+    allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
     Flipper.enable('va_online_scheduling')
     Flipper.disable(:va_online_scheduling_vaos_alternate_route)
     Flipper.enable_actor('appointments_consolidation', current_user)

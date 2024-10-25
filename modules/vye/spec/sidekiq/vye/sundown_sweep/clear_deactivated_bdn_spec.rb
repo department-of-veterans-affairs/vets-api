@@ -25,7 +25,7 @@ describe Vye::SundownSweep::ClearDeactivatedBdns, type: :worker do
     create(:vye_bdn_clone_with_user_info_children)
     create(:vye_bdn_clone_with_user_info_children, :active)
 
-    # rubocop:disable Rspec/ChangeByZero
+    # rubocop:disable RSpec/ChangeByZero
     expect do
       described_class.new.perform
     end.to change(Vye::BdnClone, :count)
@@ -40,13 +40,13 @@ describe Vye::SundownSweep::ClearDeactivatedBdns, type: :worker do
       .and change(Vye::Verification.where.not(award_id: nil), :count).by(-4)
 
     described_class.drain
-    # rubocop:enable Rspec/ChangeByZero
+    # rubocop:enable RSpec/ChangeByZero
   end
 
   it 'does not delete or nilify anything if there are no inactive BDNs' do
     create(:vye_bdn_clone_with_user_info_children, :active)
 
-    # rubocop:disable Rspec/ChangeByZero
+    # rubocop:disable RSpec/ChangeByZero
     expect do
       described_class.new.perform
     end.to change(Vye::BdnClone, :count)
@@ -57,6 +57,6 @@ describe Vye::SundownSweep::ClearDeactivatedBdns, type: :worker do
       .and change(Vye::Verification, :count).by(0)
 
     described_class.drain
-    # rubocop:enable Rspec/ChangeByZero
+    # rubocop:enable RSpec/ChangeByZero
   end
 end

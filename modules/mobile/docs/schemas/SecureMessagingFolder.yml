@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -14,6 +15,7 @@ properties:
     example: "folders"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - folderId
       - name
@@ -45,6 +47,7 @@ properties:
           Indicates whether the folder is one of the fixed, system-generated folders, or a custom user-created folder.
   links:
     type: object
+    additionalProperties: false
     required:
       - self
     properties:

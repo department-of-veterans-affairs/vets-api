@@ -13,11 +13,12 @@ module VaNotify
 
     configuration VaNotify::Configuration
 
-    attr_reader :notify_client
+    attr_reader :notify_client, :callback_options
 
-    def initialize(api_key)
+    def initialize(api_key, callback_options = nil)
       overwrite_client_networking
       @notify_client ||= Notifications::Client.new(api_key, client_url)
+      @callback_options = callback_options
     rescue => e
       handle_error(e)
     end
