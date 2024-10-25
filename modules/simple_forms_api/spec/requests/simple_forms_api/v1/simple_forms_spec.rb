@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 require 'lighthouse/benefits_intake/service'
+require 'lgy/service'
 
 RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   forms = [
@@ -343,6 +344,31 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             end
           end
         end
+      end
+    end
+
+    context 'going to SAHSHA API' do
+      let(:reference_number) { 'some-reference-number' }
+      let(:body_status) { 'ACCEPTED' }
+      let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }
+      let(:status) { 200 }
+      let(:lgy_response) { double(body:, status:) }
+
+      before do
+        sign_in
+        allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+      end
+
+      it 'calls LGY::Service' do
+        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                       'vba_26_4555.json')
+        data = JSON.parse(fixture_path.read)
+
+        post '/simple_forms_api/v1/simple_forms', params: data
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['reference_number']).to eq reference_number
+        expect(JSON.parse(response.body)['status']).to eq body_status
       end
     end
 
