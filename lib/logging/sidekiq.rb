@@ -7,6 +7,16 @@ module Logging
       super(@service)
     end
 
+    # ##
+    # log info request
+    #
+    # @param message [String]
+    # @param metric [String]
+    # @param claim [SavedClaim]
+    # @param benefits_intake_uuid [FormSubmissions]
+    # @param user_account_uuid [User]
+    # @param additional_context [Hash]
+    #
     # rubocop:disable Metrics/ParameterLists
     def track_claim_submission(message, metric, claim, benefits_intake_uuid,
                                user_account_uuid, additional_context, call_location: nil)
@@ -27,6 +37,16 @@ module Logging
                         })
     end
 
+    # ##
+    # log warn request
+    #
+    # @param message [String]
+    # @param metric [String]
+    # @param claim [SavedClaim]
+    # @param benefits_intake_uuid [FormSubmissions]
+    # @param user_account_uuid [User]
+    # @param additional_context [Hash]
+    #
     def track_claim_submission_warn(message, metric, claim, benefits_intake_uuid,
                                     user_account_uuid, additional_context, call_location: nil)
       function, file, line = parse_caller(call_location)
@@ -46,6 +66,16 @@ module Logging
                         })
     end
 
+    # ##
+    # log error request
+    #
+    # @param message [String]
+    # @param metric [String]
+    # @param claim [SavedClaim]
+    # @param benefits_intake_uuid [FormSubmissions]
+    # @param user_account_uuid [User]
+    # @param additional_context [Hash]
+    #
     def track_claim_submission_error(message, metric, claim, benefits_intake_uuid,
                                      user_account_uuid, additional_context, call_location: nil)
       function, file, line = parse_caller(call_location)
