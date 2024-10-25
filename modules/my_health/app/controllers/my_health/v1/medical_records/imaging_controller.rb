@@ -14,6 +14,10 @@ module MyHealth
           render_resource(bb_client.request_study(@study_id))
         end
 
+        def request_status
+          render_resource(bb_client.request_status)
+        end
+
         def images
           render_resource(bb_client.list_images(@study_id))
         end
