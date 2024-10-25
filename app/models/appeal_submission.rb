@@ -16,6 +16,9 @@ class AppealSubmission < ApplicationRecord
   has_many :appeal_submission_uploads, dependent: :destroy
   has_many :secondary_appeal_forms, dependent: :destroy
 
+  has_one :saved_claim, foreign_key: :guid, primary_key: :submitted_appeal_uuid, dependent: :restrict_with_exception,
+                        inverse_of: :appeal_submission
+
   scope :failure_not_sent, -> { where(failure_notification_sent_at: nil).order(id: :asc) }
 
   def self.submit_nod(request_body_hash:, current_user:, decision_review_service: nil)
