@@ -8,6 +8,7 @@ module AppealsApi::V2
         include SentryLogging
         include AppealsApi::CharacterUtilities
         include AppealsApi::Schemas
+        include AppealsApi::GatewayOriginCheck
 
         class EvidenceSubmissionRequestValidatorError < StandardError; end
 
