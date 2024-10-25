@@ -378,8 +378,6 @@ modules_appeals_api:
       enabled: false
     weekly_decision_review:
       enabled: false
-    daily_error:
-      enabled: false
     weekly_error:
       enabled: false
   schema_dir: config/schemas
