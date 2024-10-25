@@ -161,7 +161,7 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::LegacyAppeals', type: :request 
       end
     end
 
-    it_behaves_like 'an endpoint requiring gateway headers', headers: { 'X-VA-SSN': '123456789' } do
+    it_behaves_like 'an endpoint requiring gateway origin headers', headers: { 'X-VA-SSN': '123456789' } do
       def make_request(headers)
         VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
           get(path, params: nil, headers:)

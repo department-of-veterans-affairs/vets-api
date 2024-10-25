@@ -72,7 +72,7 @@ describe 'AppealsApi::V2::DecisionReviews::HigherLevelReviews', type: :request d
       end
     end
 
-    it_behaves_like 'an endpoint requiring gateway headers', headers: { 'X-VA-ICN' => '1013062086V794840' } do
+    it_behaves_like 'an endpoint requiring gateway origin headers', headers: { 'X-VA-ICN' => '1013062086V794840' } do
       def make_request(headers)
         get(path, headers:)
       end
@@ -400,7 +400,7 @@ describe 'AppealsApi::V2::DecisionReviews::HigherLevelReviews', type: :request d
       end
     end
 
-    it_behaves_like 'an endpoint requiring gateway headers',
+    it_behaves_like 'an endpoint requiring gateway origin headers',
                     headers: {
                       'X-VA-First-Name': 'Jane',
                       'X-VA-Last-Name': 'Doe',

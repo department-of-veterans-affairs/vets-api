@@ -138,7 +138,7 @@ Rspec.describe 'AppealsApi::V1::DecisionReviews::NoticeOfDisagreements', type: :
       end
     end
 
-    it_behaves_like 'an endpoint requiring gateway headers',
+    it_behaves_like 'an endpoint requiring gateway origin headers',
                     headers: {
                       'X-VA-First-Name': 'Jane',
                       'X-VA-Last-Name': 'Doe',
@@ -209,7 +209,7 @@ Rspec.describe 'AppealsApi::V1::DecisionReviews::NoticeOfDisagreements', type: :
       end
     end
 
-    it_behaves_like 'an endpoint requiring gateway headers',
+    it_behaves_like 'an endpoint requiring gateway origin headers',
                     headers: {
                       'X-VA-First-Name': 'Jane',
                       'X-VA-Last-Name': 'Doe',

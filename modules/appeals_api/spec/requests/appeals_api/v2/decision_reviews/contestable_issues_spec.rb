@@ -30,7 +30,7 @@ Rspec.describe AppealsApi::V2::DecisionReviews::ContestableIssuesController, typ
     let(:base_path) { '/services/appeals/v2/decision_reviews/contestable_issues' }
     let(:path) { "#{base_path}/#{decision_review_type}?benefit_type=compensation" }
 
-    it_behaves_like 'an endpoint requiring gateway headers',
+    it_behaves_like 'an endpoint requiring gateway origin headers',
                     headers: {
                       'X-VA-SSN': '123456789',
                       'X-VA-Receipt-Date': '2019-12-01'

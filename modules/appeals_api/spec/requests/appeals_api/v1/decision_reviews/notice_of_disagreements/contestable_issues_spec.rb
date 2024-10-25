@@ -11,7 +11,7 @@ Rspec.describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::Contestab
     let(:decision_review_type) { 'notice_of_disagreements' }
     let(:path) { "/services/appeals/v1/decision_reviews/#{decision_review_type}/contestable_issues" }
 
-    it_behaves_like 'an endpoint requiring gateway headers',
+    it_behaves_like 'an endpoint requiring gateway origin headers',
                     headers: {
                       'X-VA-SSN': '123456789',
                       'X-VA-Receipt-Date': '2019-12-01'

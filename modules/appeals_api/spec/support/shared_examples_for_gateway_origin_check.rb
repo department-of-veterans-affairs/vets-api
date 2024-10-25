@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-shared_examples 'an endpoint requiring gateway headers' do |headers:|
+shared_examples 'an endpoint requiring gateway origin headers' do |headers:|
   def make_request(_headers = {})
     raise "Pass a block to these shared examples and define a 'make_request' method inside. " \
           'This will allow the shared examples to make a successful request to the endpoint under test.'
