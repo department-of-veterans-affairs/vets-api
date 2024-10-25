@@ -528,7 +528,7 @@ GEM
     google-protobuf (4.28.3)
       bigdecimal
       rake (>= 13)
-    googleauth (1.11.1)
+    googleauth (1.11.2)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
       jwt (>= 1.4, < 3.0)
