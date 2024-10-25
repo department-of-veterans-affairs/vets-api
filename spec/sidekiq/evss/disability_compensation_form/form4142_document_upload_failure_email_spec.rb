@@ -53,6 +53,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEm
 
     it 'logs to the Rails logger' do
       allow(Rails.logger).to receive(:info)
+
       exhaustion_time = Time.new(1985, 10, 26).utc
 
       Timecop.freeze(exhaustion_time) do
@@ -128,6 +129,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEm
           expect(StatsD).to receive(:increment).with(
             'api.form_526.veteran_notifications.form4142_upload_failure_email.exhausted'
           )
+          expect(StatsD).to receive(:increment).with('silent_failure',
+                                                     tags: ['service:disability-application',
+                                                            'function:Form 526 Flow - Form 4142 failure email sending'])
         end
 
         expect(form526_job_status.reload.status).to eq(Form526JobStatus::STATUS[:exhausted])
