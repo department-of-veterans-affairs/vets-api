@@ -132,12 +132,7 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
     return unless pending_eps.count == 1
 
-    actor = OpenStruct.new({ flipper_id: user_uuid })
-    feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, actor)
-    if Flipper.enabled?(:disability_compensation_production_tester, actor)
-      feature_enabled = false
-      Rails.logger.info("EP merge skipped for submission #{id}")
-    end
+    feature_enabled = conditionally_determine_ep_merge
     open_claim_review = open_claim_review?
     Rails.logger.info(
       'EP Merge open EP eligibility',
@@ -258,6 +253,16 @@ module Form526ClaimFastTrackingConcern
       disability['specialIssues'].append(EP_MERGE_SPECIAL_ISSUE).uniq!
     end
     update!(form_json: JSON.dump(form))
+  end
+
+  def conditionally_determine_ep_merge
+    actor = OpenStruct.new({ flipper_id: user_uuid })
+    feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, actor)
+    if Flipper.enabled?(:disability_compensation_production_tester, actor)
+      feature_enabled = false
+      Rails.logger.info("EP merge skipped for submission #{id}, user_uuid #{user_uuid}")
+    end
+    feature_enabled
   end
 
   private
