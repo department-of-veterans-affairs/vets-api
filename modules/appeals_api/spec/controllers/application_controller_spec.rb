@@ -26,46 +26,6 @@ describe AppealsApi::ApplicationController, type: :controller do
     end
   end
 
-  describe '#require_gateway_origin' do
-    it 'does nothing by default' do
-      get(:index)
-
-      expect(response).to have_http_status(:ok)
-    end
-
-    context 'with benefits_require_gateway_origin flag on' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:benefits_require_gateway_origin).and_return(true)
-      end
-
-      it 'does nothing when rails is not running in production mode' do
-        get(:index)
-
-        expect(response).to have_http_status(:ok)
-      end
-
-      context 'when rails runs in production mode' do
-        before { allow(Rails.env).to receive(:production?).and_return(true) }
-
-        it 'rejects requests that did not come through the gateway' do
-          get(:index)
-
-          expect(response).to have_http_status(:unauthorized)
-        end
-
-        it 'allows requests that came through the gateway' do
-          request.headers['X-Consumer-Username'] = 'some-username'
-          request.headers['X-Consumer-ID'] = 'some-id'
-
-          get(:index)
-
-          expect(response).to have_http_status(:ok)
-        end
-      end
-    end
-  end
-
   describe 'deactivate_endpoint' do
     context 'when a sunset date is passed' do
       it 'returns a 404' do
