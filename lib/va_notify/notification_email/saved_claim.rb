@@ -2,8 +2,6 @@
 
 require 'va_notify/notification_email'
 
-require 'pry-byebug'
-
 module VANotify
   module NotificationEmail
     # general SavedClaim email notification function
@@ -63,7 +61,7 @@ module VANotify
 
       # return or default the service_name to be used
       def vanotify_service
-        @vanotify_service ||= claim.form_id.downcase.gsub(/-/, '_')
+        @vanotify_service ||= claim&.form_id&.downcase.gsub(/-/, '_')
       end
 
       # flipper exists and is enabled
