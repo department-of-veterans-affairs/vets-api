@@ -54,6 +54,7 @@ module BenefitsDocuments
       end
 
       def update_status
+        # Only save an upload's status if it has transitioned since the last Lighthouse poll
         return unless status_changed?
 
         # Ensure start time and latest status response from API are saved, regardless if document is still in progress
