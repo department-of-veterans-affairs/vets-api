@@ -394,7 +394,12 @@ class User < Common::RedisStore
   end
 
   def demographics_info
+    # return nil unless DemographicsPolicy.new(self).access? && MPIPolicy.new(self).queryable?
+
     @demographics_info ||= VAProfileRedis::Demographics.for_user(self)
+  rescue => e
+    Rails.logger.info('[User] VAProfileRedis::Demographics error', e.message)
+    nil
   end
 
   def demographics
