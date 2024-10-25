@@ -47,15 +47,15 @@ describe VANotify::InProgress1880FormReminder, type: :worker do
       expect(result).to eq(nil)
       expect(VANotify::OneTimeInProgressReminder).not_to have_received(:perform_async)
     end
-  
+
     it 'rescues VANotify::Veteran::MPINameError and returns nil' do
       allow(VANotify::OneTimeInProgressReminder).to receive(:perform_async)
       allow(VANotify::Veteran).to receive(:new).and_raise(VANotify::Veteran::MPINameError)
-  
+
       result = Sidekiq::Testing.inline! do
         described_class.new.perform(in_progress_form.id)
       end
-  
+
       expect(result).to eq(nil)
       expect(VANotify::OneTimeInProgressReminder).not_to have_received(:perform_async)
     end
