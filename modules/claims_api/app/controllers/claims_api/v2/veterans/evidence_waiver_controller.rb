@@ -51,6 +51,7 @@ module ClaimsApi
 
         def verify_if_dependent_claim!
           @pctpnt_vet_id = @bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_vet_id)
+
           if @pctpnt_vet_id.blank?
             raise ::Common::Exceptions::ResourceNotFound.new(detail:
               'Veteran participant id is required for uploading to Benefits Documents')
@@ -62,7 +63,9 @@ module ClaimsApi
               'Claim does not belong to this veteran')
           end
 
-          if @pctpnt_vet_id != pctpnt_clmant_id && target_veteran.participant_id == pctpnt_clmant_id
+          @dependent = @pctpnt_vet_id != pctpnt_clmant_id && target_veteran.participant_id == pctpnt_clmant_id
+
+          if @dependent
             claims_v2_logging('EWS_submit', level: :info,
                                             message: '5103 filed by dependent claimant')
           end
@@ -83,6 +86,7 @@ module ClaimsApi
           new_ews = ClaimsApi::EvidenceWaiverSubmission.create!(attributes)
           # ensure that in the case of a dependent claimant this gets into the correct folder
           new_ews.auth_headers['target_veteran_folder_id'] = @pctpnt_vet_id
+          new_ews.auth_headers['dependent_filing'] = @dependent
           new_ews.save
           new_ews
         end

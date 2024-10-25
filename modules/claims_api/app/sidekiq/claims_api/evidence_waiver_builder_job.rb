@@ -18,8 +18,8 @@ module ClaimsApi
       output_path = ClaimsApi::EvidenceWaiver.new(auth_headers:).construct
 
       # upload to BD
-      benefits_doc_api.upload(claim: lighthouse_claim, pdf_path: output_path,
-                              doc_type: 'L705', pctpnt_vet_id: auth_headers['target_veteran_folder_id'])
+      benefits_doc_upload(claim: lighthouse_claim, pdf_path: output_path,
+                          doc_type: 'L705', ptcpnt_vet_id: auth_headers['target_veteran_folder_id'])
 
       # with a successful upload we can set this back to pending if it errored previously
       update_status_for_submission(lighthouse_claim)
@@ -35,6 +35,14 @@ module ClaimsApi
 
     def benefits_doc_api
       ClaimsApi::BD.new
+    end
+
+    def benefits_doc_upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
+      if Flipper.enabled?(:claims_api_ews_uploads_bd_refactor)
+        EvidenceWaiverDocumentService.new.create_upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
+      else
+        benefits_doc_api.upload(claim:, pdf_path:, doc_type:, pctpnt_vet_id: ptcpnt_vet_id)
+      end
     end
 
     def update_status_for_submission(lighthouse_claim)
