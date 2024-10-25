@@ -64,8 +64,6 @@ module BenefitsDocuments
       end
 
       def update_document_status(status)
-        puts "updatuing documetn status"
-        puts status
         document_upload = @lighthouse526_document_uploads.find_by!(lighthouse_document_request_id: status['requestId'])
         statsd_document_base_key(STATSD_DOCUMENT_TYPE_KEY_MAP[document_upload.document_type])
 
