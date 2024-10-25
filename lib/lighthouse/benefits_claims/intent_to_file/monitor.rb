@@ -44,6 +44,7 @@ module BenefitsClaims
           form_start_date: form&.created_at&.to_s,
           user_account_uuid: form&.user_account_id
         }
+        ZeroSilentFailures::Monitor.new('sidekiq_retries_exhausted', 'CreateIntentToFileJob').log_silent_failure(context)
         Rails.logger.error("Lighthouse::CreateIntentToFileJob create #{itf_type} ITF exhausted", context)
       end
 
