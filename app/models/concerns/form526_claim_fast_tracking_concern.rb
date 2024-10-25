@@ -257,12 +257,11 @@ module Form526ClaimFastTrackingConcern
 
   def ep_merge_feature_enabled?
     actor = OpenStruct.new({ flipper_id: user_uuid })
-    feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, actor)
     if Flipper.enabled?(:disability_compensation_production_tester, actor)
-      feature_enabled = false
       Rails.logger.info("EP merge skipped for submission #{id}, user_uuid #{user_uuid}")
+      return false
     end
-    feature_enabled
+    Flipper.enabled?(:disability_526_ep_merge_api, actor)
   end
 
   private
