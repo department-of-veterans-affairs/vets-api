@@ -240,5 +240,15 @@ describe VaNotify::Service do
         end
       end
     end
+
+    it 'raises a 500 exception' do
+      VCR.use_cassette('va_notify/internal_server_error') do
+        expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(500)
+          expect(e.errors.first.code).to eq('VANOTIFY_500')
+        end
+      end
+    end
   end
 end
