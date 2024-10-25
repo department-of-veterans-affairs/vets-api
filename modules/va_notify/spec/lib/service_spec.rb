@@ -112,7 +112,7 @@ describe VaNotify::Service do
 
     context 'when :notification_creation flag is on' do
       it 'creates a notification record' do
-        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_email).and_return(response)
         allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
@@ -124,7 +124,7 @@ describe VaNotify::Service do
       it 'logs an error if the notification cannot be saved' do
         notification = VANotify::Notification.new
         notification.errors.add(:base, 'Some error occurred')
-        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_email).and_return(response)
         allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
@@ -161,7 +161,7 @@ describe VaNotify::Service do
 
     context 'when :notification_creation flag is on' do
       it 'creates a notification record' do
-        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_sms).and_return(response)
         allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
@@ -173,7 +173,7 @@ describe VaNotify::Service do
       it 'logs an error if the notification cannot be saved' do
         notification = VANotify::Notification.new
         notification.errors.add(:base, 'Some error occurred')
-        allow(Flipper).to receive(:enabled?).with(:notification_creation).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_sms).and_return(response)
         allow(response).to receive(:[]).and_return('a7855d03-7e57-474a-aa74-95322f0eb12c')
