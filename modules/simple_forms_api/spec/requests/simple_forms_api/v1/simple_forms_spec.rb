@@ -359,7 +359,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
       end
 
-      it 'calls LGY::Service' do
+      it 'makes the request to LGY::Service' do
         fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                        'vba_26_4555.json')
         data = JSON.parse(fixture_path.read)
@@ -367,8 +367,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         post '/simple_forms_api/v1/simple_forms', params: data
 
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['reference_number']).to eq reference_number
-        expect(JSON.parse(response.body)['status']).to eq body_status
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body['reference_number']).to eq reference_number
+        expect(parsed_body['status']).to eq body_status
       end
     end
 
