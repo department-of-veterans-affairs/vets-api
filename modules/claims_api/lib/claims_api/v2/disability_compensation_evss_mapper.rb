@@ -156,7 +156,7 @@ module ClaimsApi
       def claim_meta
         @evss_claim[:applicationExpirationDate] = Time.zone.today + 1.year
         @evss_claim[:claimantCertification] = @data[:claimantCertification]
-        @evss_claim[:submtrApplcnTypeCd] = 'LH-B'
+        @evss_claim[:claimSubmissionSource] = 'VA.gov'
       end
 
       def veteran_meta

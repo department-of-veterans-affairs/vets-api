@@ -30,6 +30,7 @@ module RepresentationManagement
 
       def flatten_form_params
         {
+          representative_id: form_params[:representative][:id],
           organization_id: form_params[:representative][:organization_id],
           record_consent: form_params[:record_consent],
           consent_limits: form_params[:consent_limits],

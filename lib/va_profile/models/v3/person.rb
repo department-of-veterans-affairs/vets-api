@@ -8,7 +8,7 @@ require 'common/models/attribute_types/iso8601_time'
 
 module VAProfile
   module Models
-    module V2
+    module V3
       class Person < Base
         attribute :addresses, Array[Address]
         attribute :created_at, Common::ISO8601Time
@@ -24,12 +24,12 @@ module VAProfile
         # @return [VAProfile::Models::Person] the model built from the response body
         def self.build_from(body)
           body ||= {}
-          addresses = body['addresses']&.map { |a| VAProfile::Models::V2::Address.build_from(a) }
+          addresses = body['addresses']&.map { |a| VAProfile::Models::V3::Address.build_from(a) }
           emails = body['emails']&.map { |e| VAProfile::Models::Email.build_from(e) }
           telephones = body['telephones']&.map { |t| VAProfile::Models::Telephone.build_from(t) }
           body['permissions']&.map { |t| VAProfile::Models::Permission.build_from(t) }
 
-          VAProfile::Models::V2::Person.new(
+          VAProfile::Models::V3::Person.new(
             created_at: body['create_date'],
             source_date: body['source_date'],
             updated_at: body['update_date'],

@@ -21,6 +21,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_21_182334) do
   enable_extension "postgis"
   enable_extension "uuid-ossp"
 
+  # Custom types defined in this database.
+  # Note that some types may not work with other database engines. Be careful if changing database.
+  create_enum "itf_remediation_status", ["unprocessed"]
+
   create_table "account_login_stats", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.datetime "idme_at"
@@ -867,6 +871,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_21_182334) do
     t.datetime "form_start_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.enum "status", default: "unprocessed", enum_type: "itf_remediation_status"
     t.index ["veteran_icn"], name: "index_intent_to_file_queue_exhaustions_on_veteran_icn"
   end
 
