@@ -32,7 +32,9 @@ module ClaimsApi
       end
 
       def build_dependent_claimant_verification_service(veteran_participant_id:, user_profile:, poa_code:)
-        claimant = user_profile.profile
+        # claimant = user_profile.profile
+        mock_claimant_obj = Struct.new(:given_names, :family_name, :participant_id)
+        claimant = mock_claimant_obj.new(['lilly'], 'gray', '600145005')
 
         ClaimsApi::DependentClaimantVerificationService.new(veteran_participant_id:,
                                                             claimant_first_name: claimant.given_names.first,
@@ -148,22 +150,22 @@ module ClaimsApi
 
       def validate_claimant_id_included(user_profile)
         claimant_icn = form_attributes.dig('claimant', 'claimantId')
-        if (user_profile.blank? || user_profile&.status == :not_found) && claimant_icn
-          collect_error_messages(
-            source: 'claimant/claimantId',
-            detail: "The 'claimantId' must be valid"
-          )
-        else
-          address = form_attributes.dig('claimant', 'address')
-          phone = form_attributes.dig('claimant', 'phone')
-          relationship = form_attributes.dig('claimant', 'relationship')
-          return if claimant_icn.present? && (address.present? || phone.present? || relationship.present?)
+        # if (user_profile.blank? || user_profile&.status == :not_found) && claimant_icn
+        #   collect_error_messages(
+        #     source: 'claimant/claimantId',
+        #     detail: "The 'claimantId' must be valid"
+        #   )
+        # else
+        #   address = form_attributes.dig('claimant', 'address')
+        #   phone = form_attributes.dig('claimant', 'phone')
+        #   relationship = form_attributes.dig('claimant', 'relationship')
+        #   return if claimant_icn.present? && (address.present? || phone.present? || relationship.present?)
 
-          collect_error_messages(
-            source: '/claimant/claimantId/',
-            detail: "If claimant is present 'claimantId' must be filled in"
-          )
-        end
+        #   collect_error_messages(
+        #     source: '/claimant/claimantId/',
+        #     detail: "If claimant is present 'claimantId' must be filled in"
+        #   )
+        # end
       end
 
       def errors_array

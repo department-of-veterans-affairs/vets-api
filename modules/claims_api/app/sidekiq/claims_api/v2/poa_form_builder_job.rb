@@ -16,20 +16,29 @@ module ClaimsApi
       # it queues a job to update the POA code in BGS, as well.
       #
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-      def perform(power_of_attorney_id, form_number, rep_id, action)
+      def perform(power_of_attorney_id, form_number, rep_id, action, dependent = nil)
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
         rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
 
         output_path = pdf_constructor(form_number).construct(data(power_of_attorney, form_number, rep),
                                                              id: power_of_attorney.id)
-
+        poa_code = power_of_attorney.form_data.dig('serviceOrganization', 'poaCode')
+        byebug
         if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
           doc_type = form_number == '2122' ? 'L190' : 'L075'
           benefits_doc_upload(poa: power_of_attorney, pdf_path: output_path, doc_type:, action:)
         else
           upload_to_vbms(power_of_attorney, output_path)
         end
-        ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep)
+
+        if dependent.present?
+          ClaimsApi::PoaAssignDependentClaimantJob.perform_async(
+            dependent_claimant_poa_assignment_service(dependent)
+          )
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep)
+        else
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep)
+        end
       rescue VBMS::Unknown
         rescue_vbms_error(power_of_attorney)
       rescue Errno::ENOENT
@@ -91,6 +100,18 @@ module ClaimsApi
         {
           'appointmentDate' => power_of_attorney.created_at
         }
+      end
+
+      def dependent_claimant_poa_assignment_service(dependent)
+        ClaimsApi::DependentClaimantPoaAssignmentService.new(
+          poa_code: dependent.instance_variable_get(:@poa_code),
+          veteran_participant_id: dependent.instance_variable_get(:@veteran_participant_id),
+          dependent_participant_id: dependent.instance_variable_get(:@dependent_participant_id),
+          veteran_file_number: dependent.instance_variable_get(:@veteran_file_number),
+          allow_poa_access: dependent.instance_variable_get(:@allow_poa_access),
+          allow_poa_cadd: dependent.instance_variable_get(:@allow_poa_cadd),
+          claimant_ssn: dependent.instance_variable_get(:@claimant_ssn)
+        )
       end
 
       def veteran_attributes(power_of_attorney)

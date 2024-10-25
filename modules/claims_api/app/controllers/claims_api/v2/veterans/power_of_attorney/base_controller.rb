@@ -72,7 +72,9 @@ module ClaimsApi
           # Assign the veteranʼs file number
           file_number_check
 
-          claimant = user_profile.profile
+          # claimant = user_profile.profile
+          mock_claimant_obj = Struct.new(:participant_id, :ssn)
+          claimant = mock_claimant_obj.new('600145005', '545787121')
 
           ClaimsApi::DependentClaimantPoaAssignmentService.new(
             poa_code:,
@@ -115,13 +117,20 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
           unless Settings.claims_api&.poa_v2&.disable_jobs
-            if feature_enabled_and_claimant_present?
-              ClaimsApi::PoaAssignDependentClaimantJob.perform_async(
-                dependent_claimant_poa_assignment_service(poa_code:)
-              )
-            else
-              ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id)
-            end
+            # if feature_enabled_and_claimant_present?
+            ClaimsApi::PoaAssignDependentClaimantJob.new.perform(
+              dependent_claimant_poa_assignment_service(poa_code:)
+            )
+            # else
+            # dependent = feature_enabled_and_claimant_present? ? dependent_claimant_poa_assignment_service(poa_code:) : nil
+            #   ClaimsApi::V2::PoaFormBuilderJob.new.perform(
+            #     power_of_attorney.id, 
+            #     form_number, 
+            #     @rep_id,
+            #     'post',
+            #     dependent
+            #   )
+            # end
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
