@@ -16,7 +16,7 @@ module ClaimsApi
     end
 
     attr_reader :icn, :loa, :first_name, :last_name, :ssn
-    attr_accessor :middle_name, :suffix
+    attr_accessor :middle_name
 
     def first_name_last_name(first_name, last_name)
       @first_name = first_name
