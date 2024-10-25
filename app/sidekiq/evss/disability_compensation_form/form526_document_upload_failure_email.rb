@@ -73,7 +73,7 @@ module EVSS
       def perform(form526_submission_id, supporting_evidence_attachment_guid)
         super(form526_submission_id)
 
-        submission = form526_submission(form526_submission_id)
+        submission = Form526Submission.find(form526_submission_id)
 
         with_tracking('Form526DocumentUploadFailureEmail', submission.saved_claim_id, form526_submission_id) do
           send_notification_mailer(submission, supporting_evidence_attachment_guid)
@@ -93,53 +93,36 @@ module EVSS
         first_name = submission.get_first_name
         date_submitted = submission.format_creation_time_for_mailers
 
+        notify_service_bd = Settings.vanotify.services.benefits_disability
+        notify_client = VaNotify::Service.new(notify_service_bd.api_key)
+        template_id = notify_service_bd.template_id.form526_document_upload_failure_notification_template_id
+
         notify_response = notify_client.send_email(
           email_address:,
-          template_id: mailer_template_id,
+          template_id:,
           personalisation: { first_name:, filename: obscured_filename, date_submitted: }
         )
 
         log_info = { obscured_filename:, form526_submission_id: submission.id,
                      supporting_evidence_attachment_guid:, timestamp: Time.now.utc }
 
-        log_mailer_dispatch(log_info, notify_response)
+        log_mailer_dispatch(log_info, submission, notify_response)
       end
 
-      def log_mailer_dispatch(log_info, email_response = {})
+      def log_mailer_dispatch(log_info, submission, email_response = {})
         StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
 
         Rails.logger.info('Form526DocumentUploadFailureEmail notification dispatched', log_info)
 
+        cl = caller_locations.first
+        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+
         zsf_monitor.log_silent_failure_avoided(
           log_info.merge(email_confirmation_id: email_response&.id),
-          @form526_submission&.user_account_id,
+          submission.user_account_id,
           call_location:
         )
-      end
-
-      def form526_submission(form526_submission_id)
-        @form526_submission ||= Form526Submission.find(form526_submission_id)
-      end
-
-      def mailer_template_id
-        notify_service_bd.template_id.form526_document_upload_failure_notification_template_id
-      end
-
-      def notify_client
-        @notify_client ||= VaNotify::Service.new(notify_service_bd.api_key)
-      end
-
-      def notify_service_bd
-        @notify_service_bd ||= Settings.vanotify.services.benefits_disability
-      end
-
-      def zsf_monitor
-        ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
-      end
-
-      def call_location
-        cl = caller_locations.first
-        ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
       end
 
       def retryable_error_handler(error)
