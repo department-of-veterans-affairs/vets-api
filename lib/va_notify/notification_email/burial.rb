@@ -4,13 +4,14 @@ require 'va_notify/notification_email/saved_claim'
 
 module Burials
   class NotificationEmail < ::VANotify::NotificationEmail::SavedClaim
-    # @see VANotify::NotificationEmail::SavedClaim
+    # @see VANotify::NotificationEmail::SavedClaim#new
     def initialize(saved_claim)
       super(saved_claim, service_name: 'burials')
     end
 
     private
 
+    # @see VANotify::NotificationEmail::SavedClaim#personalization
     def personalization
       default = super
 
@@ -25,7 +26,6 @@ module Burials
                       'facility_name' => facility_name,
                       'street_address' => street_address,
                       'city_state_zip' => city_state_zip,
-                      # override default
                       'first_name' => claim.claimaint_first_name&.upcase
                     })
     end
