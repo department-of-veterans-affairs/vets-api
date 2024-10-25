@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'vre/monitor'
 
 module VRE
   class Submit1900Job
@@ -11,10 +12,10 @@ module VRE
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      Rails.logger.error(
-        "Failed all retries on VRE::Submit1900Job, last error: #{msg['error_message']}"
-      )
-      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+      monitor = VRE::Monitor.new
+      monitor.track_submission_exhaustion(msg)
+
+      #do email here
     end
 
     def perform(claim_id, encrypted_user)
