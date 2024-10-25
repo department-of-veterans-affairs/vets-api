@@ -4,8 +4,10 @@ module Vye
   module DGIB
     class AuthenticationTokenService
       ALGORITHM_TYPE = 'RS256'
+      E = 'AQAB'
       TYP = 'JWT'
-      KID = 'VYE'
+      KID = 'vye'
+      USE = 'sig'
       SIGNING_KEY = Settings.dgi.vye.jwt.private_key_path
       RSA_PRIVATE = OpenSSL::PKey::RSA.new(File.read(SIGNING_KEY))
 

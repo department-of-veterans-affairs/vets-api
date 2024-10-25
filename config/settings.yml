@@ -1419,11 +1419,11 @@ dgi:
   vye:
     jwt:
       # May not need the public path
-      public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
-      private_key_path: modules/vye/spec/fixtures/dgi_private_test.pem
+      public_key_path: modules/vye/spec/fixtures/id_rsa_vye_dgib.pub
+      private_key_path: modules/vye/spec/fixtures/id_rsa_vye_dgib
     vets:
-      url: "https://dgi-afs003-vaapi.np.afsp.io:32512/vets-service/v1/"
-      mock: true
+      url: "https://dgi-afs003-vaapi.np.afsp.io/vets-service/v1/"
+      mock: false
   vets:
     url: "https://jenkins.ld.afsp.io:32512/vets-service/v1/" # Docker setup for microservice
     mock: false
