@@ -24,7 +24,7 @@ module VaNotify
     end
 
     def send_email(args)
-      if Flipper.enabled?(:va_notify_notification_creation)
+      if Flipper.enabled?(:va_notify_notification_creation) && !Rails.env.test?
         response = with_monitoring do
           notify_client.send_email(args)
         end
@@ -39,7 +39,7 @@ module VaNotify
     end
 
     def send_sms(args)
-      if Flipper.enabled?(:va_notify_notification_creation)
+      if Flipper.enabled?(:va_notify_notification_creation) && !Rails.env.test?
         response = with_monitoring do
           notify_client.send_sms(args)
         end
