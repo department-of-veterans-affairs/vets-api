@@ -4,8 +4,8 @@ module TravelPay
   class ClaimAssociationService
     ## @params
     # appointments: [VAOS::Appointment]
-    # start_date: string ('2024-01-01T12:45:34.465Z')
-    # end_date: string ('2024-01-01T12:45:34.465Z')
+    # start_date: string ('2024-01-01T12:45:00Z')
+    # end_date: string ('2024-02-01T12:45:00Z')
     #
     # @returns
     # appointments: [VAOS::Appointment + associatedTravelPayClaim (string)]
