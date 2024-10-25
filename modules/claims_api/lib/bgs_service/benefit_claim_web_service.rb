@@ -17,18 +17,10 @@ module ClaimsApi
     end
 
     def update_bnft_claim(claim:)
-      claim = claim[:bnft_claim_dto].transform_keys { |key| key.to_s.camelize :lower }
-
-      # body = claim.map do |k, value|
-      #   item = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-      #     <#{k} />
-      #   EOXML
-      #   item.xpath("./*[local-name()='#{k}']")[0].content = value
-      # end
-      # debugger
+      camelcase_claim = to_camelcase(claim: claim[:bnft_claim_dto])
+      body = Nokogiri::XML(camelcase_claim.to_xml(skip_instruct: true, root: 'bnftClaimDTO')).root
       make_request(endpoint: bean_name, action: 'updateBnftClaim',
-                   body: { bnftClaimDTO: claim, bnftClaimId: claim[:bnftClaimId] })
-      response.body[:update_bnft_claim_response]
+                   body:)
     end
   end
 end

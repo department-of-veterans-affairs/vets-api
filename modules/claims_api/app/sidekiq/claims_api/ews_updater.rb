@@ -29,8 +29,13 @@ module ClaimsApi
     private
 
     def benefit_claim_web_service(ews)
-      @bms ||= ClaimsApi::BenefitClaimWebService.new(external_uid: ews.auth_headers['va_eauth_pnid'],
-                                                     external_key: ews.auth_headers['va_eauth_pnid'])
+      if Flipper.enabled? :benefit_claim_web_service_update
+        @bms ||= ClaimsApi::BenefitClaimWebService.new(external_uid: ews.auth_headers['va_eauth_pnid'],
+                                                       external_key: ews.auth_headers['va_eauth_pnid'])
+      else
+        BGS::Services.new(external_uid: ews.auth_headers['va_eauth_pnid'],
+                          external_key: ews.auth_headers['va_eauth_pnid'])
+      end
     end
 
     def update_bgs_claim(ews, bgs_claim)
