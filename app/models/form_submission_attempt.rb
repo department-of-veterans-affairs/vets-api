@@ -66,10 +66,10 @@ class FormSubmissionAttempt < ApplicationRecord
       to_state: aasm.to_state,
       event: aasm.current_event
     }
-    if failure?
+    if aasm.current_event == 'fail!'
       log_hash[:message] = 'Form Submission Attempt failed'
       Rails.logger.error(log_hash)
-    elsif vbms?
+    elsif aasm.current_event == 'vbms!'
       log_hash[:message] = 'Form Submission Attempt went to vbms'
       Rails.logger.info(log_hash)
     else
