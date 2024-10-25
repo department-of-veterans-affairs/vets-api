@@ -38,7 +38,7 @@ module AppealsApi::LegacyAppeals::V0
     end
 
     def token_validation_api_key
-      Settings.dig(:modules_appeals_api, :token_validation, :legacy_appeals, :api_key)
+      Settings.modules_appeals_api.token_validation.legacy_appeals.api_key
     end
   end
 end

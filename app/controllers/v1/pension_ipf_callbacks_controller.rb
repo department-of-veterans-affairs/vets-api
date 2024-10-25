@@ -63,7 +63,7 @@ module V1
     end
 
     def bearer_token_secret
-      Settings.dig(:pension_ipf_vanotify_status_callback, :bearer_token)
+      Settings.pension_ipf_vanotify_status_callback.bearer_token
     end
 
     def log_params(payload)

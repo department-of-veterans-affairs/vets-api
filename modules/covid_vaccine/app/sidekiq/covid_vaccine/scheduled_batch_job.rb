@@ -32,7 +32,7 @@ module CovidVaccine
     private
 
     def enrollment_upload_enabled?
-      Settings.dig('covid_vaccine', 'enrollment_service', 'job_enabled')
+      Settings.covid_vaccine.enrollment_service.job_enabled
     end
 
     def handle_errors(ex)

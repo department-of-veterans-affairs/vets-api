@@ -41,7 +41,7 @@ module AppealsApi::AppealableIssues::V0
 
     def token_validation_api_key
       # FIXME: rename token storage key
-      Settings.dig(:modules_appeals_api, :token_validation, :contestable_issues, :api_key)
+      Settings.modules_appeals_api.token_validation.contestable_issues.api_key
     end
 
     def get_caseflow_response
