@@ -8,7 +8,7 @@ require 'zero_silent_failures/monitor'
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm0781 < Job
-      ZSF_DD_TAG_FUNCTION = 'Form 526 Flow - Form 0781 failure email sending'
+      ZSF_DD_TAG_FUNCTION = '526_form_0781_failure_email_queuing'
 
       extend Logging::ThirdPartyTransaction::MethodWrapper
 
@@ -78,10 +78,14 @@ module EVSS
       rescue => e
         cl = caller_locations.first
         call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        form_submission = Form526Submission.find_by(id: form526_submission_id)
         zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+        user_account_id = begin
+          Form526Submission.find(form526_submission_id).user_account_id
+        rescue
+          nil
+        end
 
-        zsf_monitor.log_silent_failure(log_info, form_submission&.user_account_id, call_location:)
+        zsf_monitor.log_silent_failure(log_info, user_account_id, call_location:)
 
         ::Rails.logger.error(
           'Failure in SubmitForm0781#sidekiq_retries_exhausted',

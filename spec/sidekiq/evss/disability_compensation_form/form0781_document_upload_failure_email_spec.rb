@@ -52,7 +52,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEm
         'silent_failure_avoided_no_confirmation',
         tags: [
           'service:disability-application',
-          'function:Form 526 Flow - Form 0781 failure email sending'
+          'function:526_form_0781_failure_email_queuing'
         ]
       )
     end
@@ -141,7 +141,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEm
             'silent_failure',
             tags: [
               'service:disability-application',
-              'function:Form 526 Flow - Form 0781 failure email sending'
+              'function:526_form_0781_failure_email_queuing'
             ]
           ).ordered
         end

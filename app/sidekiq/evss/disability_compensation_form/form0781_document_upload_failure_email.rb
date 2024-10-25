@@ -7,7 +7,7 @@ module EVSS
   module DisabilityCompensationForm
     class Form0781DocumentUploadFailureEmail < Job
       STATSD_METRIC_PREFIX = 'api.form_526.veteran_notifications.form0781_upload_failure_email'
-      ZSF_DD_TAG_FUNCTION = 'Form 526 Flow - Form 0781 failure email sending'
+      ZSF_DD_TAG_FUNCTION = '526_form_0781_failure_email_queuing'
 
       # retry for one day
       sidekiq_options retry: 14
@@ -58,10 +58,14 @@ module EVSS
 
         cl = caller_locations.first
         call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        form_submission = Form526Submission.find_by(id: form526_submission_id)
         zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+        user_account_id = begin
+          Form526Submission.find(form526_submission_id).user_account_id
+        rescue
+          nil
+        end
 
-        zsf_monitor.log_silent_failure(log_info, form_submission&.user_account_id, call_location:)
+        zsf_monitor.log_silent_failure(log_info, user_account_id, call_location:)
       end
 
       def perform(form526_submission_id)
