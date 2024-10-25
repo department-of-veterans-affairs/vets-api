@@ -6,7 +6,6 @@ require 'pry-byebug'
 
 module VANotify
   module NotificationEmail
-
     # general SavedClaim email notification function
     #
     # an entry should be in Settings.vanotify.services - config/settings.yml
@@ -22,7 +21,6 @@ module VANotify
     #     pensions: *vanotify_services_pension
     #
     class SavedClaim
-
       # constructor
       #
       # @param saved_claim [SavedClaim] the claim for which to send a notification

@@ -9,8 +9,11 @@ module VANotify
 
     # notification type constants
     module Type
+      # confirmation
       CONFIRMATION = :confirmation
+      # error
       ERROR = :error
+      # received
       RECEIVED = :received
     end
 
@@ -22,8 +25,8 @@ module VANotify
     # monitor send failure
     #
     # @param error_message [String] the error message to be logged
-    # @param tags: [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
-    # @params context: [Hash] additional information to send with the log
+    # @param tags [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
+    # @param context [Hash] additional information to send with the log
     def monitor_send_failure(error_message, tags:, context: nil)
       metric = "#{VANotify::NotificationEmail::STATSD}.send_failure"
       payload = {
@@ -38,8 +41,8 @@ module VANotify
 
     # monitor attempting a duplicate notification for the same item
     #
-    # @param tags: [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
-    # @params context: [Hash] additional information to send with the log
+    # @param tags [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
+    # @param context [Hash] additional information to send with the log
     def monitor_duplicate_attempt(tags:, context: nil)
       metric = "#{VANotify::NotificationEmail::STATSD}.duplicate_attempt"
       payload = {
@@ -53,8 +56,8 @@ module VANotify
 
     # monitor delivery successful
     #
-    # @param tags: [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
-    # @params context: [Hash] additional information to send with the log
+    # @param tags [Array<String>] array of tags for StatsD; ["tag_name:tag_value", ...]
+    # @param context [Hash] additional information to send with the log
     def monitor_deliver_success(tags:, context: nil)
       metric = "#{VANotify::NotificationEmail::STATSD}.deliver_success"
       payload = {

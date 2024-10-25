@@ -15,9 +15,9 @@ module Pensions
     def personalization
       default = super
 
-      default.merge({
-                      'first_name' => claim.first_name&.titleize
-                    })
+      pensions = { 'first_name' => claim.first_name&.titleize }
+
+      default.merge(pensions)
     end
   end
 end
