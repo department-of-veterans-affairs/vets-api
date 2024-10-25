@@ -15,6 +15,9 @@ class AppealSubmission < ApplicationRecord
 
   has_many :appeal_submission_uploads, dependent: :destroy
   has_many :secondary_appeal_forms, dependent: :destroy
+  has_many :incomplete_secondary_appeal_forms, lambda {
+    where(delete_date: nil)
+  }, class_name: 'SecondaryAppealForm', dependent: nil, inverse_of: :appeal_submission
 
   has_one :saved_claim, foreign_key: :guid, primary_key: :submitted_appeal_uuid, dependent: :restrict_with_exception,
                         inverse_of: :appeal_submission
