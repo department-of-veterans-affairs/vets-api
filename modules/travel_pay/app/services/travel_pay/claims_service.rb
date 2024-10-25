@@ -21,6 +21,31 @@ module TravelPay
       }
     end
 
+    def get_claims_by_date_range(params = {})
+      if params['start_date'] && params['end_date']
+        DateTime.parse(params['start_date'].to_s) && DateTime.parse(params['end_date'].to_s)
+      else
+        raise ArgumentError,
+              message: "Both start and end dates are required, got #{params['start_date']}-#{params['end_date']}."
+      end
+
+      @auth_manager.authorize => { veis_token:, btsss_token: }
+      faraday_response = client.get_claims_by_date(veis_token, btsss_token, params)
+      raw_claims = faraday_response.body['data'].deep_dup
+
+      {
+        data: raw_claims.map do |sc|
+          sc['claimStatus'] = sc['claimStatus'].underscore.titleize
+          sc
+        end
+      }
+    rescue Date::Error => e
+      Rails.logger.debug(message:
+      "#{e}. Invalid date(s) provided (given: #{params['start_date']} & #{params['end_date']}).")
+      raise ArgumentError,
+            message: "#{e}. Invalid date(s) provided (given: #{params['start_date']} & #{params['end_date']})."
+    end
+
     def get_claim_by_id(claim_id)
       # ensure claim ID is the right format, allowing any version
       uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
