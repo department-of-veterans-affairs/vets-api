@@ -10,7 +10,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
   let(:sub_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id}/5103" }
   let(:error_sub_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/abc123/5103" }
   let(:scopes) { %w[claim.write claim.read] }
-  let(:ews) { build(:claims_api_evidence_waiver_submission) }
+  let(:ews) { build(:evidence_waiver_submission) }
   let(:payload) do
     { 'ver' => 1,
       'cid' => '0oa8r55rjdDAH5Vaj2p7',
