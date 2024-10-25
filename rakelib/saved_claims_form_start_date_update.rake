@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # TODO: Remove this file after the migration has been run
 namespace :data_migration do
   desc 'Migrate data from deprecated itf_datetime column to form_start_date'
