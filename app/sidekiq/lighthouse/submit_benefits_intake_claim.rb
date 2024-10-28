@@ -161,15 +161,17 @@ module Lighthouse
                           benefits_intake_uuid: @lighthouse_service.uuid,
                           confirmation_number: @claim.confirmation_number
                         })
-      form_submission = FormSubmission.create(
-        form_type: @claim.form_id,
-        form_data: @claim.to_json,
-        benefits_intake_uuid: @lighthouse_service.uuid,
-        saved_claim: @claim,
-        saved_claim_id: @claim.id
-      )
-      @form_submission_attempt = FormSubmissionAttempt.create(form_submission:,
-                                                              benefits_intake_uuid: @lighthouse_service.uuid)
+      FormSubmissionAttempt.transaction do
+        form_submission = FormSubmission.create(
+          form_type: @claim.form_id,
+          form_data: @claim.to_json,
+          benefits_intake_uuid: @lighthouse_service.uuid,
+          saved_claim: @claim,
+          saved_claim_id: @claim.id
+        )
+        @form_submission_attempt = FormSubmissionAttempt.create(form_submission:,
+                                                                benefits_intake_uuid: @lighthouse_service.uuid)
+      end
     end
 
     def cleanup_file_paths
