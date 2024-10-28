@@ -6,7 +6,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
   subject { described_class }
 
   let(:email_service) { double('VaNotify::Service') }
-  let!(:timestamp) { Time.zone.now }
+  let(:timestamp) { Time.zone.utc }
   let(:failure_timestamp) { timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.') }
 
   before do

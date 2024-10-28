@@ -58,7 +58,7 @@ class Form526SubmissionFailureEmailJob
     raise e
   end
 
-  def perform(submission_id, date_of_failure = Time.zone.now)
+  def perform(submission_id, date_of_failure = Time.now.utc)
     @submission = Form526Submission.find(submission_id)
     @date_of_failure = date_of_failure
     send_email
