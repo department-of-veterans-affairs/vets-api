@@ -136,9 +136,7 @@ describe VaNotify::Service do
           { error_messages: notification.errors.full_messages }
         )
 
-        expect { subject.send_email(send_email_parameters) }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::ValidationErrors)
-        end
+        subject.send_email(send_email_parameters)
       end
     end
   end
@@ -185,9 +183,7 @@ describe VaNotify::Service do
           { error_messages: notification.errors.full_messages }
         )
 
-        expect { subject.send_sms(send_sms_parameters) }.to raise_error do |error|
-          expect(error).to be_a(Common::Exceptions::ValidationErrors)
-        end
+        subject.send_sms(send_sms_parameters)
       end
     end
   end

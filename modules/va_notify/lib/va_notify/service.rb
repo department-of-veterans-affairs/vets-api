@@ -117,7 +117,6 @@ module VaNotify
             error_messages: notification.errors
           }
         )
-        raise Common::Exceptions::ValidationErrors, notification
       end
     end
 
