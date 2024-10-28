@@ -190,6 +190,36 @@ RSpec.describe 'V0::User', type: :request do
         expect(error['status']).to eq 502
       end
     end
+
+    context 'with a 200 response from VAProfile::Demographics' do
+      let(:mhv_user) { build(:user, :mhv) }
+      let(:body) { JSON.parse(response.body) }
+
+      before do
+        sign_in_as(mhv_user)
+        VCR.use_cassette('va_profile/demographics/demographics', allow_playback_repeats: true) do
+          get v0_user_url, params: nil
+        end
+      end
+
+      it 'populates preferred_name' do
+        expect(body.dig('data', 'attributes', 'profile', 'preferred_name')).not_to be_nil
+      end
+    end
+
+    context 'with a 500 response from VAProfile::Demographics' do
+      let(:mhv_user) { build(:user, :mhv) }
+      let(:body) { JSON.parse(response.body) }
+
+      before do
+        sign_in_as(mhv_user)
+        get v0_user_url, params: nil
+      end
+
+      it 'preferred_name is nil' do
+        expect(body.dig('data', 'attributes', 'profile', 'preferred_name')).to be_nil
+      end
+    end
   end
 
   context 'GET /v0/user - when an LOA 1 user is logged in', :skip_mvi do
