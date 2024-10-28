@@ -108,7 +108,7 @@ class FormSubmissionAttempt < ApplicationRecord
   rescue => e
     cl = caller_locations.first
     call_location = ZeroSilentFailures::Monitor::CallLocation.new(
-      CentralMail::SubmitForm4142Job::FORM4142_DD_ZSF_FUNCTION, cl.path, cl.lineno
+      CentralMail::SubmitForm4142Job::ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno
     )
     ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(
       log_info.merge({ error_class: e.class, error_message: e.message }),
