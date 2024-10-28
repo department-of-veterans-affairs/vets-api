@@ -1779,3 +1779,6 @@ features:
   banner_use_alternative_banners:
     actor_type: user
     description: Used to toggle use of alternative banners.
+  fsr_wizard:
+    actor_type: user
+    description: Used to toggle the FSR wizard
