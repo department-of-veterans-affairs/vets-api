@@ -46,7 +46,7 @@ module VANotify
     end
 
     def bearer_token_secret
-      Settings.dig(:va_notify, :status_callback, :bearer_token)
+      Settings.va_notify.status_callback.bearer_token
     end
 
     def notification_params

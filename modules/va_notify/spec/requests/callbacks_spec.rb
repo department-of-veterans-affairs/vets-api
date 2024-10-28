@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'VANotify Callbacks', type: :request do
-  let(:valid_token) { Settings.dig(:va_notify, :status_callback, :bearer_token) }
+  let(:valid_token) { Settings.va_notify.status_callback.bearer_token }
   let(:invalid_token) { 'invalid_token' }
   let(:notification_id) { SecureRandom.uuid }
   let(:callback_params) do
