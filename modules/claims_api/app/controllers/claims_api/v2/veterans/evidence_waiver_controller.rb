@@ -86,7 +86,7 @@ module ClaimsApi
           new_ews = ClaimsApi::EvidenceWaiverSubmission.create!(attributes)
           # ensure that in the case of a dependent claimant this gets into the correct folder
           new_ews.auth_headers['target_veteran_folder_id'] = @pctpnt_vet_id
-          new_ews.auth_headers['dependent_filing'] = @dependent
+          new_ews.auth_headers['dependent'] = @dependent
           new_ews.save
           new_ews
         end

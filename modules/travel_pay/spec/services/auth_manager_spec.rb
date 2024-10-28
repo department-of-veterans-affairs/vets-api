@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe TravelPay::TokenService do
+describe TravelPay::AuthManager do
   context 'get_tokens' do
     let(:user) { build(:user) }
     let(:tokens) do
@@ -24,8 +24,10 @@ describe TravelPay::TokenService do
       )
     end
 
-    context 'get_tokens' do
+    context 'authorize' do
       it 'returns a hash with a veis_token and a btsss_token and stores it in the cache' do
+        client_number = 123
+
         allow_any_instance_of(TravelPay::TokenClient)
           .to receive(:request_veis_token)
           .and_return(tokens[:veis_token])
@@ -34,8 +36,8 @@ describe TravelPay::TokenService do
           .with(tokens[:veis_token], user)
           .and_return(tokens[:btsss_token])
 
-        service = TravelPay::TokenService.new
-        response = service.get_tokens(user)
+        service = TravelPay::AuthManager.new(client_number, user)
+        response = service.authorize
         expect(response).to eq(tokens)
         # Verify that the tokens were stored
         expect($redis.ttl("travel-pay-store:#{user.account_uuid}")).to eq(3300)
@@ -53,8 +55,9 @@ describe TravelPay::TokenService do
       end
 
       it 'returns a cached veis_token and btsss_token' do
-        service = TravelPay::TokenService.new
-        response = service.get_tokens(user)
+        client_number = 123
+        service = TravelPay::AuthManager.new(client_number, user)
+        response = service.authorize
         cached_tokens => { veis_token:, btsss_token: }
         destructured_cached_tokens = { veis_token:, btsss_token: }
         expect(response).to eq(destructured_cached_tokens)

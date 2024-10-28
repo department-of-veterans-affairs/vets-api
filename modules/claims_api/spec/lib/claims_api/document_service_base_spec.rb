@@ -54,7 +54,7 @@ describe ClaimsApi::DocumentServiceBase do
       expect(result).to eq(expected)
     end
 
-    it 'builds an L705 (POA) body correctly' do
+    it 'builds an L705 (EWS) body correctly' do
       result = subject.send(:build_body, system_name: 'VA.gov', doc_type: ews_doc_type, file_name: 'temp_5103.pdf',
                                          claim_id:, participant_id:)
 
