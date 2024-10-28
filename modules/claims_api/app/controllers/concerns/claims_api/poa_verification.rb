@@ -69,9 +69,18 @@ module ClaimsApi
         return false if @current_user.first_name.nil? || @current_user.last_name.nil?
 
         suffix = @current_user&.suffix
-        reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
-                                                               last_name: @current_user.last_name,
-                                                               suffix:)
+        reps =
+          ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
+                                                          last_name: @current_user.last_name)
+        if suffix.present? && reps.nil?
+          last_with_suffix = [@current_user.last_name, suffix].compact_blank.join(' ')
+
+          all_reps = ::Veteran::Service::Representative.where('lower(first_name) = ? AND lower(last_name) = ?',
+                                                              @current_user.first_name&.downcase,
+                                                              last_with_suffix&.downcase)
+
+          all_reps.where('? = ANY(poa_codes)', poa_code) if poa_code
+        end
 
         return false if reps.blank?
 
@@ -82,12 +91,12 @@ module ClaimsApi
             middle_initial = @current_user.middle_name[0]
             reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
                                                                    last_name: @current_user.last_name,
-                                                                   middle_initial:, suffix:)
+                                                                   middle_initial:)
 
             if reps.blank? || reps.count > 1
               reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
                                                                      last_name: @current_user.last_name,
-                                                                     suffix:, poa_code:)
+                                                                     poa_code:)
             end
 
             raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?

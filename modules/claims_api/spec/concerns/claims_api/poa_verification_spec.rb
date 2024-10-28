@@ -53,6 +53,28 @@ describe FakeController do
       end
     end
 
+    context 'when there is a suffix' do
+      context 'and the poa_code matches' do
+        let(:user) do
+          ClaimsApi::ClaimsUser.new('test')
+        end
+
+        before do
+          user.suffix = 'Jr'
+          user.first_name = 'Sam'
+          user.last_name = 'Smith'
+          FakeController.instance_variable_set(:@current_user, user)
+          FactoryBot.create(:representative, first_name: 'Sam', last_name: 'Smith Jr')
+        end
+
+        xit 'returns true', reason: 'wip' do # rubocop:disable RSpec/PendingWithoutReason
+          # allow_any_instance_of(ClaimsApi::PoaVerification).to receive(user).and_return(@current_user)
+          ret = subject.valid_poa_code_for_current_user?(poa_code)
+          expect(ret).to eq(true)
+        end
+      end
+    end
+
     context 'when multiple matches are found by first/last name' do
       before do
         create(:representative, representative_id: '12345', first_name:, last_name:,

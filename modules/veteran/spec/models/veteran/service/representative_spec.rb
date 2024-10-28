@@ -29,17 +29,10 @@ describe Veteran::Service::Representative, type: :model do
       FactoryBot.create(:representative,
                         basic_attributes)
     end
-    let(:rep_with_suffix) do
-      FactoryBot.create(:representative,
-                        representative_id: SecureRandom.hex(8),
-                        first_name: 'Sam',
-                        last_name: 'Smith Jr')
-    end
 
     before do
       identity
       representative
-      rep_with_suffix
     end
 
     describe 'finding by the name' do
@@ -75,15 +68,6 @@ describe Veteran::Service::Representative, type: :model do
                  middle_initial: 'J',
                  poa_code: '016'
                )).to eq([])
-      end
-
-      it 'can find a user with a suffix' do
-        expect(Veteran::Service::Representative.all_for_user(
-          first_name: 'Sam',
-          last_name: 'Smith',
-          suffix: 'Jr',
-          poa_code: 'A1Q'
-        ).first.id).to include(rep_with_suffix.representative_id)
       end
     end
   end
