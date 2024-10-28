@@ -71,10 +71,6 @@ class Form526SubmissionFailureEmailJob
 
   private
 
-  def format_failure_date(timestamp)
-    timestamp
-  end
-
   def send_email
     email_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
     template_id = Settings.vanotify.services.benefits_disability.template_id
