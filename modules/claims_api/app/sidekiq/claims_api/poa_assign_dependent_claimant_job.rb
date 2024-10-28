@@ -2,9 +2,53 @@
 
 module ClaimsApi
   class PoaAssignDependentClaimantJob < ClaimsApi::ServiceBase
-    def perform(dependent_claimant_poa_assignment_service)
-      byebug
-      dependent_claimant_poa_assignment_service.assign_poa_to_dependent!
+    LOG_TAG = 'poa_assign_dependent_claimant_job'
+
+    def perform(poa_id)
+      poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+
+      service = dependent_claimant_poa_assignment_service(
+        poa.form_data,
+        poa.auth_headers
+      )
+
+      res = service.assign_poa_to_dependent!
+
+      if res
+        ClaimsApi::PoaUpdater.perform_async(poa.id)
+      else
+        log_job_progress(
+          poa.id,
+          "Dependent Assignement did not return 'true'"
+        )
+      end
+    rescue => e
+      save_poa_errored_state(poa)
+      set_vbms_error_message(poa, e)
+      log_job_progress(
+        poa.id,
+        'Dependent Assignement failed'
+      )
+      raise e
+    end
+
+    private
+
+    def dependent_claimant_poa_assignment_service(data, auth_headers)
+      ClaimsApi::DependentClaimantPoaAssignmentService.new(
+        poa_code: find_poa_code(data),
+        veteran_participant_id: auth_headers['va_eauth_pid'],
+        dependent_participant_id: auth_headers.dig('dependent', 'participant_id'),
+        veteran_file_number: auth_headers['va_eauth_birlsfilenumber'],
+        allow_poa_access: data['recordConsent'].present? ? 'Y' : nil,
+        allow_poa_cadd: data['consentAddressChange'].present? ? 'Y' : nil,
+        claimant_ssn: auth_headers.dig('dependent', 'ssn')
+      )
+    end
+
+    def find_poa_code(data)
+      base = data.key?('serviceOrganization') ? 'serviceOrganization' : 'representative'
+      data.dig(base, 'poaCode')
     end
   end
 end

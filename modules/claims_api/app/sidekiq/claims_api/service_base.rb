@@ -80,6 +80,11 @@ module ClaimsApi
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::PENDING)
     end
 
+    def set_errorede_state_on_poa(poa)
+      poa.status = poa_errored_state
+      poa.save!
+    end
+
     def save_auto_claim!(auto_claim, status)
       auto_claim.status = status
       auto_claim.validation_method = ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
@@ -107,6 +112,11 @@ module ClaimsApi
       auto_claim.evss_response.concat(errors_to_add)
 
       auto_claim.save!
+    end
+
+    def set_vbms_error_message(poa, _error)
+      poa.vbms_error_message = get_error_message(e)
+      poa.save!
     end
 
     def get_error_message(error)
@@ -183,6 +193,11 @@ module ClaimsApi
 
     def errored_state_value
       ClaimsApi::AutoEstablishedClaim::ERRORED
+    end
+
+    def save_poa_errored_state(poa)
+      poa.status = ClaimsApi::PowerOfAttorney::ERRORED
+      poa.save!
     end
 
     def log_job_progress(claim_id, detail, transaction_id = nil)
