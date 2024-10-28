@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs_service/manage_representative_service'
+require 'claims_api/common/exceptions/lighthouse/bad_gateway'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
 
@@ -23,9 +24,9 @@ module ClaimsApi
 
           res = service.read_poa_request(poa_codes:)
 
-          poa_list = res[:poa_request_respond_return_vo_list]
+          poa_list = res['poaRequestRespondReturnVOList']
 
-          raise ::Common::Exceptions::Lighthouse::BadGateway unless poa_list
+          raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
           render json: poa_list, status: :ok
         end
