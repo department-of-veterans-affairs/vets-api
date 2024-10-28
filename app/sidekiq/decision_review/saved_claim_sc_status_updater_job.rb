@@ -28,15 +28,14 @@ module DecisionReview
       StatsD.increment("#{STATSD_KEY_PREFIX}.processing_records", supplemental_claims.size)
 
       supplemental_claims.each do |sc|
-        guid = sc.guid
-        status, attributes = get_status_and_attributes(guid)
-        uploads_metadata = get_evidence_uploads_statuses(guid)
+        status, attributes = get_status_and_attributes(sc.guid)
+        uploads_metadata = get_evidence_uploads_statuses(sc.guid)
+        secondary_forms_complete = get_and_update_secondary_form_statuses(sc.guid)
 
         timestamp = DateTime.now
         params = { metadata: attributes.merge(uploads: uploads_metadata).to_json, metadata_updated_at: timestamp }
-
         # only set delete date if attachments are all successful as well
-        if check_attachments_status(sc, uploads_metadata) && SUCCESSFUL_STATUS.include?(status)
+        if saved_claim_complete?(sc, status, uploads_metadata, secondary_forms_complete)
           params[:delete_date] = timestamp + RETENTION_PERIOD
           StatsD.increment("#{STATSD_KEY_PREFIX}.delete_date_update")
         else
@@ -46,7 +45,7 @@ module DecisionReview
         sc.update(params)
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.error")
-        Rails.logger.error('DecisionReview::SavedClaimScStatusUpdaterJob error', { guid:, message: e.message })
+        Rails.logger.error('DecisionReview::SavedClaimScStatusUpdaterJob error', { guid: sc.guid, message: e.message })
       end
 
       nil
@@ -85,15 +84,59 @@ module DecisionReview
       result
     end
 
-    def handle_form_status_metrics_and_logging(sc, status)
-      if status == ERROR_STATUS
-        # ignore logging and metrics for stale errors
-        return if JSON.parse(sc.metadata || '{}')['status'] == ERROR_STATUS
+    def get_and_update_secondary_form_statuses(submitted_appeal_uuid)
+      all_complete = true
+      return all_complete unless Flipper.enabled?(:decision_review_track_4142_submissions)
 
+      secondary_forms = AppealSubmission.find_by(submitted_appeal_uuid:)&.secondary_appeal_forms
+      secondary_forms = secondary_forms&.filter { |form| form.delete_date.nil? } || []
+
+      secondary_forms.each do |form|
+        response = decision_review_service.get_supplemental_claim_upload(uuid: form.guid).body
+        attributes = response.dig('data', 'attributes').slice(*ATTRIBUTES_TO_STORE)
+        all_complete = false unless UPLOAD_SUCCESSFUL_STATUS.include?(attributes['status'])
+        handle_secondary_form_status_metrics_and_logging(form, attributes['status'])
+        update_secondary_form_status(form, attributes)
+      end
+
+      all_complete
+    end
+
+    def handle_form_status_metrics_and_logging(sc, status)
+      # Skip logging and statsd metrics when there is no status change
+      return if JSON.parse(sc.metadata || '{}')['status'] == status
+
+      if status == ERROR_STATUS
         Rails.logger.info('DecisionReview::SavedClaimScStatusUpdaterJob form status error', guid: sc.guid)
+        tags = ['service:supplemental-claims', 'function: form submission to Lighthouse']
+        StatsD.increment('silent_failure', tags:)
       end
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])
+    end
+
+    def handle_secondary_form_status_metrics_and_logging(form, status)
+      # Skip logging and statsd metrics when there is no status change
+      return if JSON.parse(form.status || '{}')['status'] == status
+
+      if status == ERROR_STATUS
+        Rails.logger.info('DecisionReview::SavedClaimScStatusUpdaterJob secondary form status error', guid: form.guid)
+        tags = ['service:supplemental-claims-4142', 'function: PDF submission to Lighthouse']
+        StatsD.increment('silent_failure', tags:)
+      end
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}_secondary_form.status", tags: ["status:#{status}"])
+    end
+
+    def update_secondary_form_status(form, attributes)
+      status = attributes['status']
+      if UPLOAD_SUCCESSFUL_STATUS.include?(status)
+        StatsD.increment("#{STATSD_KEY_PREFIX}_secondary_form.delete_date_update")
+        delete_date = (Time.current + RETENTION_PERIOD)
+      else
+        delete_date = nil
+      end
+      form.update!(status: attributes.to_json, status_updated_at: Time.current, delete_date:)
     end
 
     def check_attachments_status(sc, uploads_metadata)
@@ -103,20 +146,26 @@ module DecisionReview
 
       uploads_metadata.each do |upload|
         status = upload['status']
+        upload_id = upload['id']
         result = false unless UPLOAD_SUCCESSFUL_STATUS.include? status
 
-        if status == ERROR_STATUS
-          upload_id = upload['id']
-          # Increment StatsD and log only for new errors
-          next if old_uploads_metadata.dig(upload_id, 'status') == ERROR_STATUS
+        # Skip logging and statsd metrics when there is no status change
+        next if old_uploads_metadata.dig(upload_id, 'status') == status
 
+        if status == ERROR_STATUS
           Rails.logger.info('DecisionReview::SavedClaimScStatusUpdaterJob evidence status error',
                             { guid: sc.guid, lighthouse_upload_id: upload_id, detail: upload['detail'] })
+          tags = ['service:supplemental-claims', 'function: evidence submission to Lighthouse']
+          StatsD.increment('silent_failure', tags:)
         end
         StatsD.increment("#{STATSD_KEY_PREFIX}_upload.status", tags: ["status:#{status}"])
       end
 
       result
+    end
+
+    def saved_claim_complete?(sc, status, uploads_metadata, secondary_forms_complete)
+      check_attachments_status(sc, uploads_metadata) && secondary_forms_complete && SUCCESSFUL_STATUS.include?(status)
     end
 
     def extract_uploads_metadata(metadata)

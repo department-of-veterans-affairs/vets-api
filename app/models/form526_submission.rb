@@ -77,12 +77,14 @@ class Form526Submission < ApplicationRecord
   # MAX_PENDING_TIME aligns with the farthest out expectation given in the LH BI docs,
   # plus 1 week to accomodate for edge cases and our sidekiq jobs
   MAX_PENDING_TIME = 3.weeks
+  ZSF_DD_TAG_SERVICE = 'disability-application'
 
   # used to track in APMs between systems such as Lighthouse
   # example: can be used as a search parameter in Datadog
   # TODO: follow-up in ticket #93563 to make this more robust, i.e. attempts of jobs, etc.
   def system_transaction_id
-    "Form526Submission_#{id}"
+    service_provider = saved_claim.parsed_form['startedFormVersion'].present? ? 'lighthouse' : 'evss'
+    "Form526Submission_#{id}, user_uuid: #{user_uuid}, service_provider: #{service_provider}"
   end
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
@@ -423,7 +425,7 @@ class Form526Submission < ApplicationRecord
   end
 
   def duplicate?
-    last_remediation&.ignored_as_duplicate || false
+    last_remediation&.ignored_as_duplicate?
   end
 
   def remediated?

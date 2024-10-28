@@ -9,6 +9,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   include AppealsApi::CharacterUtilities
   include AppealsApi::HeaderModification
   include AppealsApi::Schemas
+  include AppealsApi::GatewayOriginCheck
 
   skip_before_action :authenticate
   before_action :validate_json_format, if: -> { request.post? }

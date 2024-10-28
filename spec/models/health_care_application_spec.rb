@@ -11,7 +11,6 @@ RSpec.describe HealthCareApplication, type: :model do
     short_form
   end
   let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
-  let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
 
   describe 'LOCKBOX' do
     it 'can encrypt strings over 4kb' do
@@ -189,10 +188,20 @@ RSpec.describe HealthCareApplication, type: :model do
     end
 
     context 'with a loa1 user' do
-      it 'returns partial ee data' do
-        expect(described_class.parsed_ee_data(ee_data, false)).to eq(
-          parsed_status: login_required
-        )
+      context 'when enrollment_status is present' do
+        it 'returns partial ee data' do
+          expect(described_class.parsed_ee_data(ee_data, false)).to eq(
+            parsed_status: HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED
+          )
+        end
+      end
+
+      context 'when enrollment_status is not set' do
+        it 'returns none of the above ee data' do
+          expect(described_class.parsed_ee_data({}, false)).to eq(
+            parsed_status: HCA::EnrollmentEligibility::Constants::NONE_OF_THE_ABOVE
+          )
+        end
       end
     end
   end
@@ -597,8 +606,12 @@ RSpec.describe HealthCareApplication, type: :model do
     end
 
     describe '#log_async_submission_failure' do
-      it 'triggers statsd' do
+      it 'triggers failed_wont_retry statsd' do
         expect { subject }.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+      end
+
+      it 'triggers zero silent failures statsd' do
+        expect { subject }.to trigger_statsd_increment('silent_failure_avoided_no_confirmation')
       end
 
       context 'short form' do

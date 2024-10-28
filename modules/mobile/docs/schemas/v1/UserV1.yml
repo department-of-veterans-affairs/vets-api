@@ -1,0 +1,110 @@
+type: object
+additionalProperties: false
+required:
+  - id
+  - type
+  - attributes
+properties:
+  id:
+    type: string
+    example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+    description: user UUID
+  type:
+    type: string
+    example: "user"
+  attributes:
+    type: object
+    additionalProperties: false
+    required:
+      - profile
+      - authorizedServices
+      - health
+    properties:
+      profile:
+        type: object
+        additionalProperties: false
+        required:
+          - firstName
+          - preferredName
+          - middleName
+          - lastName
+          - email
+          - birthDate
+          - genderIdentity
+          - addresses
+          - signinService
+        properties:
+          firstName:
+            type: string
+            example: "Johnny"
+          preferredName:
+            type: string
+            example: "John"
+          middleName:
+            type: string
+            example: "A"
+          lastName:
+            type: string
+            example: "Smith"
+          contactEmail:
+            $ref: "../EmailUpdate.yml"
+          signinEmail:
+            type: string
+            example: "john.a.smith@domain.com"
+          genderIdentity:
+            type: string
+            example: "M"
+          residentialAddress:
+            $ref: "../Address.yml"
+          mailingAddress:
+            $ref: "../Address.yml"
+          homePhoneNumber:
+            $ref: "../PhoneUpdate.yml"
+          mobilePhoneNumber:
+            $ref: "../PhoneUpdate.yml"
+          workPhoneNumber:
+            $ref: "../PhoneUpdate.yml"
+          signinService:
+            type: string
+            enum:
+              - IDME
+              - DSL
+              - MHV
+              - LOGINGOV
+      authorizedServices:
+        description: Services the user is allowed to access. See availableServices for a list of all services available via the mobile API.
+        type: array
+        items:
+          type: string
+        example:
+          - appeals
+          - directDepositBenefits
+          - militaryServiceHistory
+          - directDepositBenefitsUpdate
+          - scheduleAppointments
+      health:
+        type: object
+        additionalProperties: false
+        required:
+          - isCernerPatient
+          - facilities
+          - facilityName
+        properties:
+          isCernerPatient:
+            type: boolean
+          facilities:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              properties:
+                facilityId:
+                  type: string
+                  example: "979"
+                isCerner:
+                  type: boolean
+                  example: false
+                facilityName:
+                  type: string
+                  example: "Cheyenne VA Medical Center"
+            

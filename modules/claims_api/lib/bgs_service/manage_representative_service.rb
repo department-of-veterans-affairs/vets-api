@@ -27,12 +27,12 @@ module ClaimsApi
       body = builder_to_xml(doc)
 
       make_request(endpoint: bean_name, action: 'readPOARequest', body:, key: 'POARequestRespondReturnVO',
-                   namespaces: { 'data' => '/data' })
+                   namespaces: { 'data' => '/data' }, transform_response: false)
     end
 
-    def update_poa_request(representative:, proc_id:)
-      first_name = representative.try(:first_name) || representative[:first_name]
-      last_name = representative.try(:last_name) || representative[:last_name]
+    def update_poa_request(proc_id:, representative: {}, secondary_status: 'obsolete', declined_reason: nil)
+      first_name = representative[:first_name].presence || 'vets-api'
+      last_name = representative[:last_name].presence || 'vets-api'
 
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.send('data:POARequestUpdate') do
@@ -40,7 +40,8 @@ module ClaimsApi
           xml.VSOUserLastName last_name
           xml.dateRequestActioned Time.current.iso8601
           xml.procId proc_id
-          xml.secondaryStatus 'obsolete'
+          xml.secondaryStatus secondary_status
+          xml.declinedReason declined_reason if declined_reason
         end
       end
 

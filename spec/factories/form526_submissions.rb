@@ -323,4 +323,17 @@ FactoryBot.define do
              success: false)
     end
   end
+
+  trait :with_uploads_and_ancillary_forms do
+    form_json do
+      with_ancillary = JSON.parse(File.read("#{submissions_path}/with_everything.json"))
+      with_uploads = JSON.parse(File.read("#{submissions_path}/with_uploads.json"))['form526_uploads']
+      with_uploads.each do |upload|
+        create(:supporting_evidence_attachment, :with_file_data, guid: upload['confirmationCode'])
+      end
+
+      with_ancillary['form526_uploads'] = with_uploads
+      with_ancillary.to_json
+    end
+  end
 end
