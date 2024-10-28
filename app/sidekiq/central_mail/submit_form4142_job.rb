@@ -14,7 +14,8 @@ module CentralMail
     POLLED_FAILURE_EMAIL = :disability_526_form4142_polling_record_failure_email
 
     FORM4142_FORMSUBMISSION_TYPE = "#{Form526Submission::FORM_526}_#{Form526Submission::FORM_4142}".freeze
-    FORM4142_DD_ZSF_FUNCTION = 'Form 526 Flow - Form 4142 failure email queuing'
+    ZSF_DD_TAG_FUNCTION = '526_form_4142_upload_failure_email_queuing'
+
     extend Logging::ThirdPartyTransaction::MethodWrapper
 
     # this is required to make instance variables available to logs via
