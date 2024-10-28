@@ -10,12 +10,6 @@ module Burials
       FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
     end
 
-    initializer 'burials.zero_silent_failures' do |app|
-      app.config.to_prepare do
-        require_all "#{__dir__}/../zero_silent_failures"
-      end
-    end
-
     # TODO: move PDFFill library to this module
     # initializer 'burials.register_form' do |app|
     #   app.config.to_prepare do
