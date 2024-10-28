@@ -141,7 +141,7 @@ RSpec.describe Form526StatusPollingJob, type: :job do
 
       context 'when a failure type response is returned from the API' do
         context 'when send_backup_submission_exhaustion_email_notice is enabled' do
-          let(:timestamp) { Time.zone.utc }
+          let(:timestamp) { Time.now.utc }
 
           before do
             Flipper.enable(:send_backup_submission_polling_failure_email_notice)

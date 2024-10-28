@@ -37,7 +37,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   end
 
   describe 'failures' do
-    let(:timestamp) { Time.zone.utc }
+    let(:timestamp) { Time.now.utc }
 
     context 'when all retries are exhausted' do
       let!(:form526_submission) { create(:form526_submission) }
