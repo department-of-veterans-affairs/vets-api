@@ -453,10 +453,6 @@ ask_va:
 nod_vanotify_status_callback:
   bearer_token: bearer_token_secret
 
-va_notify:
-  status_callback:
-    bearer_token: va_notify_callback_bearer_token
-
 travel_pay:
   veis:
     client_id: 'client_id'
