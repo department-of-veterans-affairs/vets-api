@@ -850,16 +850,13 @@
     # Patient Health API
     - :method: :post
       :path: "/oauth2/health/system/v1/token"
-      :file_path: "/mhv/lighthouse/AllergyIntolerance/token"
+      :file_path: "/lighthouse/veterans_health/token"
     - :method: :get
-      :path: "/fhir/v0/r4/AllergyIntolerance"
-      :file_path: "/mhv/lighthouse/AllergyIntolerance/index"
-    - :method: :get
-      :path: "/fhir/v0/r4/AllergyIntolerance/*"
-      :file_path: "/mhv/lighthouse/AllergyIntolerance/show"
+      :path: "/services/fhir/v0/r4/AllergyIntolerance"
+      :file_path: "/lighthouse/veterans_health/AllergyIntolerance"
       :cache_multiple_responses:
-        :uid_location: url
-        :uid_locator: '\/mhv\/lighthouse\/AllergyIntolerance\/(.*)'
+        :uid_location: query
+        :uid_locator: patient
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
