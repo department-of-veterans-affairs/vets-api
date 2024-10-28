@@ -31,7 +31,7 @@ RSpec.describe 'PDF Generator 21-22a', openapi_spec: 'modules/representation_man
       end
 
       response '422', 'unprocessable entity response' do
-        let(:pdf_generator2122) do
+        let(:pdf_generator2122a) do
           params = SwaggerSharedComponents::V0.body_examples[:pdf_generator2122a]
           params[:veteran][:name].delete(:first)
           params

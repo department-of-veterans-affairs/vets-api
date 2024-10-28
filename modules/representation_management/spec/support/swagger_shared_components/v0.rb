@@ -5,11 +5,24 @@ module SwaggerSharedComponents
     def self.body_examples
       {
         pdf_generator2122:,
-        pdf_generator2122_parameter:
+        pdf_generator2122_parameter:,
+        pdf_generator2122a:,
+        pdf_generator2122a_parameter:
       }
     end
 
     def self.pdf_generator2122
+      {
+        record_consent: '',
+        consent_address_change: '',
+        consent_limits: [],
+        claimant:,
+        representative:,
+        veteran:
+      }
+    end
+
+    def self.pdf_generator2122a
       {
         record_consent: '',
         consent_address_change: '',
@@ -56,6 +69,22 @@ module SwaggerSharedComponents
     def self.pdf_generator2122_parameter
       {
         name: :pdf_generator2122,
+        in: :body,
+        schema: {
+          type: :object,
+          properties: appointment_conditions_parameter.merge(
+            claimant: claimant_parameter,
+            representative: representative_parameter,
+            veteran: veteran_parameter
+          ),
+          required: %w[record_consent veteran]
+        }
+      }
+    end
+
+    def self.pdf_generator2122a_parameter
+      {
+        name: :pdf_generator2122a,
         in: :body,
         schema: {
           type: :object,
