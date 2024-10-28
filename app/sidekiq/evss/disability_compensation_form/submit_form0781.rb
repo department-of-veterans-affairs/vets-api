@@ -3,10 +3,13 @@
 require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/filler'
 require 'logging/third_party_transaction'
+require 'zero_silent_failures/monitor'
 
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm0781 < Job
+      ZSF_DD_TAG_FUNCTION = '526_form_0781_failure_email_queuing'
+
       extend Logging::ThirdPartyTransaction::MethodWrapper
 
       attr_reader :submission_id, :evss_claim_id, :uuid
@@ -47,6 +50,9 @@ module EVSS
         error_message = msg['error_message']
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
+        log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+
+        ::Rails.logger.warn('Submit Form 0781 Retries exhausted', log_info)
 
         form_job_status = Form526JobStatus.find_by(job_id:)
         bgjob_errors = form_job_status.bgjob_errors || {}
@@ -69,12 +75,18 @@ module EVSS
         if Flipper.enabled?(:form526_send_0781_failure_notification)
           EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail.perform_async(form526_submission_id)
         end
-
-        ::Rails.logger.warn(
-          'Submit Form 0781 Retries exhausted',
-          { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
-        )
       rescue => e
+        cl = caller_locations.first
+        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+        user_account_id = begin
+          Form526Submission.find(form526_submission_id).user_account_id
+        rescue
+          nil
+        end
+
+        zsf_monitor.log_silent_failure(log_info, user_account_id, call_location:)
+
         ::Rails.logger.error(
           'Failure in SubmitForm0781#sidekiq_retries_exhausted',
           {

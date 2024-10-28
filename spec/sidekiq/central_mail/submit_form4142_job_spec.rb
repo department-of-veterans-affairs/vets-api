@@ -204,13 +204,44 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           end.to change(subject.jobs, :size).by(1)
         end
 
+        it 'Creates a form 4142 submission polling record, when enabled' do
+          Flipper.enable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
+          expect do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                subject.perform_async(submission.id)
+                described_class.drain
+              end
+            end
+          end.to change(FormSubmission, :count).by(1)
+                                               .and change(FormSubmissionAttempt, :count).by(1)
+          fs_record = FormSubmission.last
+          fs_attempt_record = FormSubmissionAttempt.last
+          expect(Form526Submission.find_by(saved_claim_id: fs_record.saved_claim_id).id).to eq(submission.id)
+          expect(fs_attempt_record.pending?).to be(true)
+        end
+
+        it 'Does not create a form 4142 submission polling record, when disabled' do
+          Flipper.disable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
+          expect do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                subject.perform_async(submission.id)
+                described_class.drain
+              end
+            end
+          end.to not_change(FormSubmission, :count)
+            .and not_change(FormSubmissionAttempt, :count)
+        end
+
         it 'submits successfully' do
-          skip 'The VCR cassette needs to be changed to contain Lighthouse specific data.'
-          VCR.use_cassette('central_mail/submit_4142') do
-            subject.perform_async(submission.id)
-            jid = subject.jobs.last['jid']
-            described_class.drain
-            expect(jid).not_to be_empty
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              subject.perform_async(submission.id)
+              jid = subject.jobs.last['jid']
+              described_class.drain
+              expect(jid).not_to be_empty
+            end
           end
         end
 
@@ -276,7 +307,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       context 'with a client error' do
         it 'raises a central mail response error' do
           skip 'The VCR cassette needs to be changed to contain Lighthouse specific data.'
-          VCR.use_cassette('central_mail/submit_4142_400') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
             subject.perform_async(submission.id)
             expect { described_class.drain }.to raise_error(CentralMail::SubmitForm4142Job::CentralMailResponseError)
           end

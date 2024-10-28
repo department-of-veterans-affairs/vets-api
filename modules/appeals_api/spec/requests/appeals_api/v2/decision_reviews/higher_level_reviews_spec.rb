@@ -71,6 +71,12 @@ describe 'AppealsApi::V2::DecisionReviews::HigherLevelReviews', type: :request d
         expect(parsed['errors'][0]['detail']).to include('X-VA-ICN has an invalid format')
       end
     end
+
+    it_behaves_like 'an endpoint requiring gateway origin headers', headers: { 'X-VA-ICN' => '1013062086V794840' } do
+      def make_request(headers)
+        get(path, headers:)
+      end
+    end
   end
 
   describe '#create' do
@@ -391,6 +397,18 @@ describe 'AppealsApi::V2::DecisionReviews::HigherLevelReviews', type: :request d
         expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors'][0]['title']).to eql('Invalid pattern')
         expect(parsed['errors'][0]['detail']).to include("'#{icn}' did not match the defined pattern")
+      end
+    end
+
+    it_behaves_like 'an endpoint requiring gateway origin headers',
+                    headers: {
+                      'X-VA-First-Name': 'Jane',
+                      'X-VA-Last-Name': 'Doe',
+                      'X-VA-SSN': '123456789',
+                      'X-VA-Birth-Date': '1969-12-31'
+                    } do
+      def make_request(headers)
+        post(path, params: data_default, headers:)
       end
     end
   end

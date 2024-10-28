@@ -14,10 +14,23 @@ module DecisionReview
       SavedClaim::SupplementalClaim
     ].freeze
 
-    TEMPLATE_IDS = {
-      'HLR' => Settings.vanotify.services.benefits_decision_review.template_id.higher_level_review_form_error_email,
-      'NOD' => Settings.vanotify.services.benefits_decision_review.template_id.notice_of_disagreement_form_error_email,
-      'SC' => Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email
+    TEMPLATE_IDS = Settings.vanotify.services.benefits_decision_review.template_id
+
+    FORM_TEMPLATE_IDS = {
+      'HLR' => TEMPLATE_IDS.higher_level_review_form_error_email,
+      'NOD' => TEMPLATE_IDS.notice_of_disagreement_form_error_email,
+      'SC' => TEMPLATE_IDS.supplemental_claim_form_error_email
+    }.freeze
+
+    EVIDENCE_TEMPLATE_IDS = {
+      'NOD' => TEMPLATE_IDS.notice_of_disagreement_evidence_error_email,
+      'SC' => TEMPLATE_IDS.supplemental_claim_evidence_error_email
+    }.freeze
+
+    APPEAL_TYPE_TO_SERVICE_MAP = {
+      'HLR' => 'higher-level-review',
+      'NOD' => 'board-appeal',
+      'SC' => 'supplemental-claims'
     }.freeze
 
     ERROR_STATUS = 'error'
@@ -71,18 +84,19 @@ module DecisionReview
         date_submitted: created_at.strftime('%B %d, %Y')
       }
 
-      vanotify_service.send_email({ email_address:, template_id: TEMPLATE_IDS[submission.type_of_appeal],
-                                    personalisation: })
+      appeal_type = submission.type_of_appeal
+      template_id = filename.nil? ? FORM_TEMPLATE_IDS[appeal_type] : EVIDENCE_TEMPLATE_IDS[appeal_type]
+      vanotify_service.send_email({ email_address:, template_id:, personalisation: })
     end
 
     def send_form_emails
       StatsD.increment("#{STATSD_KEY_PREFIX}.form.processing_records", submissions.size)
 
       submissions.each do |submission|
-        send_email_with_vanotify(submission, nil, submission.created_at)
+        response = send_email_with_vanotify(submission, nil, submission.created_at)
         submission.update(failure_notification_sent_at: DateTime.now)
 
-        record_form_email_send_successful(submission)
+        record_form_email_send_successful(submission, response.id)
       rescue => e
         record_form_email_send_failure(submission, e)
       end
@@ -92,45 +106,61 @@ module DecisionReview
       StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.processing_records", submission_uploads.size)
 
       submission_uploads.each do |upload|
-        send_email_with_vanotify(upload.appeal_submission, upload.masked_attachment_filename, upload.created_at)
+        response = send_email_with_vanotify(upload.appeal_submission,
+                                            upload.masked_attachment_filename,
+                                            upload.created_at)
         upload.update(failure_notification_sent_at: DateTime.now)
 
-        record_evidence_email_send_successful(upload)
+        record_evidence_email_send_successful(upload, response.id)
       rescue => e
         record_evidence_email_send_failure(upload, e)
       end
     end
 
-    def record_form_email_send_successful(submission)
-      metadata = { submitted_appeal_uuid: submission.submitted_appeal_uuid, form_type: submission.type_of_appeal }
-      Rails.logger.info('DecisionReview::FailureNotificationEmailJob form email queued', metadata)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.form.email_queued", tags: ["form_type:#{submission.type_of_appeal}"])
+    def record_form_email_send_successful(submission, notification_id)
+      appeal_type = submission.type_of_appeal
+      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid, appeal_type:, notification_id: }
+      Rails.logger.info('DecisionReview::FailureNotificationEmailJob form email queued', params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.form.email_queued", tags: ["appeal_type:#{appeal_type}"])
+
+      tags = ["service:#{APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}", 'function: form submission to Lighthouse']
+      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
     end
 
     def record_form_email_send_failure(submission, e)
-      metadata = { submitted_appeal_uuid: submission.submitted_appeal_uuid, form_type: submission.type_of_appeal,
-                   message: e.message }
-      Rails.logger.error('DecisionReview::FailureNotificationEmailJob form error', metadata)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.form.error", tags: ["form_type:#{submission.type_of_appeal}"])
+      appeal_type = submission.type_of_appeal
+      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid, appeal_type:, message: e.message }
+      Rails.logger.error('DecisionReview::FailureNotificationEmailJob form error', params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.form.error", tags: ["appeal_type:#{appeal_type}"])
     end
 
-    def record_evidence_email_send_successful(upload)
+    def record_evidence_email_send_successful(upload, notification_id)
       submission = upload.appeal_submission
-      metadata = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
-                   lighthouse_upload_id: upload.lighthouse_upload_id,
-                   form_type: submission.type_of_appeal }
-      Rails.logger.info('DecisionReview::FailureNotificationEmailJob evidence email queued', metadata)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.email_queued", tags: ["form_type:#{submission.type_of_appeal}"])
+      appeal_type = submission.type_of_appeal
+      params = {
+        submitted_appeal_uuid: submission.submitted_appeal_uuid,
+        lighthouse_upload_id: upload.lighthouse_upload_id,
+        appeal_type:,
+        notification_id:
+      }
+      Rails.logger.info('DecisionReview::FailureNotificationEmailJob evidence email queued', params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.email_queued", tags: ["appeal_type:#{appeal_type}"])
+
+      tags = ["service:#{APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}", 'function: evidence submission to Lighthouse']
+      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
     end
 
     def record_evidence_email_send_failure(upload, e)
       submission = upload.appeal_submission
-      metadata = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
-                   lighthouse_upload_id: upload.lighthouse_upload_id,
-                   form_type: submission.type_of_appeal,
-                   message: e.message }
-      Rails.logger.error('DecisionReview::FailureNotificationEmailJob evidence error', metadata)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.error", tags: ["form_type:#{submission.type_of_appeal}"])
+      appeal_type = submission.type_of_appeal
+      params = {
+        submitted_appeal_uuid: submission.submitted_appeal_uuid,
+        lighthouse_upload_id: upload.lighthouse_upload_id,
+        appeal_type:,
+        message: e.message
+      }
+      Rails.logger.error('DecisionReview::FailureNotificationEmailJob evidence error', params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.error", tags: ["appeal_type:#{appeal_type}"])
     end
 
     def enabled?
