@@ -55,7 +55,6 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       end
 
       context 'when send_backup_submission_exhaustion_email_notice is enabled' do
-
         before do
           Flipper.enable(:send_backup_submission_exhaustion_email_notice)
         end
