@@ -121,7 +121,7 @@ module MebApi
         if claim_status_response.status == 200
           [claim_status_response, ClaimStatusSerializer]
         else
-          [claimant_response, ClaimantSerializer]
+          [claimant_response, ToeClaimantInfoSerializer]
         end
       end
 

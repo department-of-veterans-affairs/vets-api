@@ -5,6 +5,14 @@ require 'lighthouse/benefits_documents/form526/update_documents_status_service'
 require 'lighthouse/benefits_documents/form526/documents_status_polling_service'
 
 RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
+  let(:start_time) { Time.new(1985, 10, 26).utc }
+
+  # NOTE: The Lighthouse Benefits Documents API returns UNIX timestamps in milliseconds
+  let(:start_time_in_unix_milliseconds) { start_time.to_i * 1000 }
+
+  # Simulate Lighthouse processing time offset
+  let(:end_time_in_unix_milliseconds) { (start_time + 30.seconds).to_i * 1000 }
+
   describe '#call' do
     let(:pending_document_upload) { create(:lighthouse526_document_upload, document_type: 'Veteran Upload') }
     let(:uploads) { Lighthouse526DocumentUpload.where(id: pending_document_upload.id) }
@@ -15,7 +23,7 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
             {
               'requestId' => pending_document_upload.lighthouse_document_request_id,
               'status' => status,
-              'time' => { 'startTime' => 499_152_030, 'endTime' => end_time },
+              'time' => { 'startTime' => start_time_in_unix_milliseconds, 'endTime' => end_time },
               'steps' => steps,
               'error' => error
             }
@@ -44,7 +52,7 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
         ]
       end
       let(:error) { nil }
-      let(:end_time) { 499_152_060 }
+      let(:end_time) { end_time_in_unix_milliseconds }
 
       it_behaves_like 'document status updater', 'completed',
                       'api.form526.lighthouse_document_upload_processing_status.veteran_upload.complete'
@@ -59,7 +67,7 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
         ]
       end
       let(:error) { { 'detail' => 'VBMS System Outage', 'step' => 'CLAIMS_EVIDENCE' } }
-      let(:end_time) { 499_152_060 }
+      let(:end_time) { end_time_in_unix_milliseconds }
 
       it_behaves_like 'document status updater', 'failed',
                       'api.form526.lighthouse_document_upload_processing_status.veteran_upload.failed.claims_evidence'
@@ -74,17 +82,11 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
         ]
       end
       let(:error) { nil }
-      let(:lighthouse_processing_start_time) { DateTime.new(1985, 10, 26) }
       let(:end_time) { nil }
-
-      before do
-        allow(pending_document_upload).to receive(:lighthouse_processing_started_at)
-          .and_return(lighthouse_processing_start_time)
-      end
 
       context 'when it has been more than 24 hours since Lighthouse started processing a Lighthouse526DocumentUpload' do
         it 'logs a processing timeout metric to statsd' do
-          Timecop.freeze(lighthouse_processing_start_time + 2.days) do
+          Timecop.freeze(start_time + 2.days) do
             expect { described_class.call(uploads, status_response) }.to trigger_statsd_increment(
               'api.form526.lighthouse_document_upload_processing_status.veteran_upload.processing_timeout'
             )
@@ -94,11 +96,54 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
 
       context 'when it has been less than 24 hours since Lighthouse started processing a Lighthouse526DocumentUpload' do
         it 'does not log a processing timeout metric to statsd' do
-          Timecop.freeze(lighthouse_processing_start_time + 2.hours) do
+          Timecop.freeze(start_time + 2.hours) do
             expect { described_class.call(uploads, status_response) }.not_to trigger_statsd_increment(
               'api.form526.lighthouse_document_upload_processing_status.veteran_upload.processing_timeout'
             )
           end
+        end
+      end
+
+      context 'when updating multiple records' do
+        let!(:first_pending_polling_document) { create(:lighthouse526_document_upload, aasm_state: 'pending') }
+        let!(:second_pending_polling_document) { create(:lighthouse526_document_upload, aasm_state: 'pending') }
+
+        let(:status_response) do
+          {
+            'data' => {
+              'statuses' => [
+                {
+                  'requestId' => first_pending_polling_document.lighthouse_document_request_id,
+                  'time' => {
+                    'startTime' => start_time_in_unix_milliseconds,
+                    'endTime' => end_time_in_unix_milliseconds
+                  },
+                  'status' => 'SUCCESS'
+                }, {
+                  'requestId' => second_pending_polling_document.lighthouse_document_request_id,
+                  'time' => {
+                    'startTime' => start_time_in_unix_milliseconds,
+                    'endTime' => end_time_in_unix_milliseconds
+                  },
+                  'status' => 'FAILED',
+                  'error' => {
+                    'detail' => 'Something went wrong',
+                    'step' => 'BENEFITS_GATEWAY_SERVICE'
+                  }
+                }
+              ],
+              'requestIdsNotFound' => [
+                0
+              ]
+            }
+          }
+        end
+
+        it 'updates each record status properly' do
+          described_class.call(Lighthouse526DocumentUpload.all, status_response)
+
+          expect(first_pending_polling_document.reload.aasm_state).to eq('completed')
+          expect(second_pending_polling_document.reload.aasm_state).to eq('failed')
         end
       end
     end
@@ -112,7 +157,7 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
               {
                 'requestId' => request_id,
                 'status' => 'SUCCESS',
-                'time' => { 'startTime' => 499_152_030, 'endTime' => 499_152_060 }
+                'time' => { 'startTime' => start_time_in_unix_milliseconds, 'endTime' => end_time_in_unix_milliseconds }
               }
             ]
           }
@@ -156,7 +201,7 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
             {
               'requestId' => form0781_document_upload.lighthouse_document_request_id,
               'status' => 'FAILED',
-              'time' => { 'startTime' => 499_152_030, 'endTime' => 499_152_060 },
+              'time' => { 'startTime' => start_time_in_unix_milliseconds, 'endTime' => end_time_in_unix_milliseconds },
               'steps' => [
                 { 'name' => 'CLAIMS_EVIDENCE', 'status' => 'FAILED' },
                 { 'name' => 'BENEFITS_GATEWAY_SERVICE', 'status' => 'NOT_STARTED' }

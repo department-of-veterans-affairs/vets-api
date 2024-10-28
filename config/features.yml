@@ -206,6 +206,10 @@ features:
     actor_type: user
     description: Diverts codepath to use refactored BD methods
     enable_in_development: true
+  claims_api_ews_uploads_bd_refactor:
+    actor_type: user
+    description: When enabled, sends ews forms to BD via the refactored logic
+    enable_in_development: true
   claims_api_poa_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends poa forms to BD via the refactored logic
@@ -412,6 +416,10 @@ features:
     actor_type: user
     description: Enable job to send form and evidence failure notification emails
     enable_in_development: true
+  decision_review_track_4142_submissions:
+    actor_type: user
+    description: Enable saving record of 4142 forms submitted to Lighthouse as part of a Supplemental Claim
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -431,6 +439,14 @@ features:
   dependents_management:
     actor_type: user
     description: Manage dependent removal from view dependent page
+    enable_in_development: true
+  disability_526_form4142_polling_records:
+    actor_type: user
+    description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
+    enable_in_development: true
+  disability_526_form4142_polling_record_failure_email:
+    actor_type: user
+    description: enables failure email when explicit failure is detected downstream
     enable_in_development: true
   contention_classification_claim_linker:
     actor_type: user
@@ -453,6 +469,9 @@ features:
   disability_526_toxic_exposure_ipf:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
+  disability_526_new_confirmation_page:
+    actor_type: user
+    description: enables new confirmation page for form 526 submission confirmation page
   disability_526_toxic_exposure_document_upload_polling:
     actor_type: user
     description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
@@ -836,6 +855,10 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  mhv_account_creation_after_login:
+    actor_type: user
+    descriptiom: Enables access to MHV Account Creation API
+    enable_in_development: true
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
@@ -1043,6 +1066,9 @@ features:
   profile_show_proof_of_veteran_status_eligible:
     actor_type: user
     description: Include/exclude the proof of veteran status eligibility in service_history response
+  profile_show_no_validation_key_address_alert:
+    actor_type: user
+    description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
   profile_use_experimental:
     description: Use experimental features for Profile application - Do not remove
     enable_in_development: true
@@ -1190,6 +1216,10 @@ features:
   show_meb_5490_maintenance_alert:
     actor_type: user
     description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
+    enable_in_development: false
+  submission_pdf_s3_upload:
+    actor_type: user
+    description: Used to toggle use of uploading a submission pdf to S3 and returning a pre-signed url.
     enable_in_development: false
   meb_1606_30_automation:
     actor_type: user
@@ -1343,10 +1373,6 @@ features:
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
-  va_online_scheduling_enable_OH_reads:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing appointment read requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
@@ -1387,6 +1413,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
+  vaos_online_scheduling_remove_podiatry:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
   va_burial_v2:
     actor_type: user
     description: Allows us to toggle between 21-P530 and 21-P530V2
@@ -1586,7 +1616,7 @@ features:
     description: NOD Datadog RUM monitoring
   nod_callbacks_endpoint:
     actor_type: user
-    description: NOD VANotify notification callbacks endpoint
+    description: Enables Decision Review endpoint to process VANotify notification callbacks
     enable_in_development: true
   nod_confirmation_update:
     actor_type: user
@@ -1595,6 +1625,10 @@ features:
   hlr_updateed_contnet:
     actor_type: user
     description: HLR show form content updates
+    enable_in_development: true
+  sc_new_form:
+    actor_type: user
+    description: Supplemental Claim new form updates
     enable_in_development: true
   pension_ipf_callbacks_endpoint:
     actor_type: user
@@ -1753,3 +1787,6 @@ features:
   banner_use_alternative_banners:
     actor_type: user
     description: Used to toggle use of alternative banners.
+  fsr_wizard:
+    actor_type: user
+    description: Used to toggle the FSR wizard

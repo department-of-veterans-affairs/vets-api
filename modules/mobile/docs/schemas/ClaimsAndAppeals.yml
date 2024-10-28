@@ -12,6 +12,7 @@ properties:
       - appeal
   attributes:
     type: object
+    additionalProperties: false
     required:
       - subtype
       - completed
