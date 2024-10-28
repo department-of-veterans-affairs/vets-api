@@ -22,12 +22,7 @@ module TravelPay
     end
 
     def get_claims_by_date_range(params = {})
-      if params['start_date'] && params['end_date']
-        DateTime.parse(params['start_date'].to_s) && DateTime.parse(params['end_date'].to_s)
-      else
-        raise ArgumentError,
-              message: "Both start and end dates are required, got #{params['start_date']}-#{params['end_date']}."
-      end
+      validate_date_params(params['start_date'], params['end_date'])
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, params)
@@ -39,11 +34,6 @@ module TravelPay
           sc
         end
       }
-    rescue Date::Error => e
-      Rails.logger.debug(message:
-      "#{e}. Invalid date(s) provided (given: #{params['start_date']} & #{params['end_date']}).")
-      raise ArgumentError,
-            message: "#{e}. Invalid date(s) provided (given: #{params['start_date']} & #{params['end_date']})."
     end
 
     def get_claim_by_id(claim_id)
@@ -103,6 +93,20 @@ module TravelPay
     rescue Date::Error => e
       Rails.logger.debug(message: "#{e}. Not filtering claims by date (given: #{date_string}).")
       claims
+    end
+
+    def validate_date_params(start_date, end_date)
+      if start_date && end_date
+        DateTime.parse(start_date.to_s) && DateTime.parse(end_date.to_s)
+      else
+        raise ArgumentError,
+              message: "Both start and end dates are required, got #{start_date}-#{end_date}."
+      end
+    rescue Date::Error => e
+      Rails.logger.debug(message:
+      "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date}).")
+      raise ArgumentError,
+            message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
     end
 
     def client
