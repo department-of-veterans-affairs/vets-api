@@ -68,9 +68,10 @@ module ClaimsApi
       def valid_poa_code_for_current_user?(poa_code) # rubocop:disable Metrics/MethodLength
         return false if @current_user.first_name.nil? || @current_user.last_name.nil?
 
+        suffix = @current_user&.suffix
         reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
                                                                last_name: @current_user.last_name,
-                                                               suffix: @current_user.suffix)
+                                                               suffix:)
 
         return false if reps.blank?
 

@@ -112,17 +112,18 @@ module Veteran
         end
       end
 
-      def self.get_representatives(first_name, last_name, suffix)
+      def self.get_representatives(first_name, last_name, suffix = nil)
         representatives = if suffix.present?
-                            last_and_suffix = "#{last_name} #{suffix.downcase}"
+                            last_with_suffix = [last_name, suffix].compact_blank.join(' ')
 
                             where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
-                                  last_and_suffix&.downcase)
+                                  last_with_suffix&.downcase)
                           end
         if representatives.blank?
-          where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
-                last_name&.downcase)
+          representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
+                                  last_name&.downcase)
         end
+        representatives
       end
 
       private
