@@ -104,8 +104,13 @@ class Form526SubmissionFailureEmailJob
       first_name: submission.get_first_name,
       date_submitted: submission.format_creation_time_for_mailers,
       forms_submitted: list_forms_submitted.presence || 'None',
-      files_submitted: list_files_submitted.presence || 'None'
+      files_submitted: list_files_submitted.presence || 'None',
+      date_of_failure:
     }
+  end
+
+  def date_of_failure
+    Time.zone.now.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 
   def track_remedial_action
