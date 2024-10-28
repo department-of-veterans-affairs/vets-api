@@ -104,14 +104,13 @@ RSpec.describe FormSubmission, type: :model do
     end
   end
 
-  describe '#benefits_intake_uuid' do
-    it 'returns the benefits_intake_uuid of the newest, associated form_submission_attempt' do
-      benefits_intake_uuid = '74fe77dd-9323-457b-933e-ee22a9ad43ea' # this id is meaningless, just needed a uuid
+  describe '#latest_attempt' do
+    it 'returns the newest, associated form_submission_attempt' do
       form_submission = create(:form_submission, created_at: 1.day.ago)
       create_list(:form_submission_attempt, 2, form_submission:, created_at: 1.day.ago)
-      create(:form_submission_attempt, form_submission:, benefits_intake_uuid:)
+      form_submission_attempt = create(:form_submission_attempt, form_submission:)
 
-      expect(form_submission.benefits_intake_uuid).to eq benefits_intake_uuid
+      expect(form_submission.latest_attempt).to eq form_submission_attempt
     end
   end
 end
