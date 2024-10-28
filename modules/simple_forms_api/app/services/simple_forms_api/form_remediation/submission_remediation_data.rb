@@ -38,7 +38,7 @@ module SimpleFormsApi
 
       def fetch_submission(id)
         form_submission_attempt = FormSubmissionAttempt.find_by(benefits_intake_uuid: id)
-        @submission = config.submission_type.find_by(form_submission_attempt:)
+        @submission = form_submission_attempt&.form_submission
         validate_submission
       end
 
