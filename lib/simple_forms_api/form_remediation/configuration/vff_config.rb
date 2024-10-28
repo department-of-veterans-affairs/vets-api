@@ -7,7 +7,7 @@ module SimpleFormsApi
     module Configuration
       class VffConfig < Base
         def s3_settings
-          Settings.vff_simple_forms.aws
+          Settings.reports.aws
         end
       end
     end
