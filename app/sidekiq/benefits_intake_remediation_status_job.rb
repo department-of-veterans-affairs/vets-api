@@ -134,21 +134,16 @@ class BenefitsIntakeRemediationStatusJob
       orphaned = fs_saved_claim_ids - claim_ids
 
       failures = outstanding_failures(submissions)
-      handle_failures(failures)
+      failures.map! do |fs|
+        { claim_id: fs.saved_claim_id, uuid: fs.latest_attempt.benefits_intake_uuid,
+          error_message: fs.latest_attempt.error_message }
+      end
 
       audit_log = "BenefitsIntakeRemediationStatusJob submission audit #{form_type}"
       StatsD.gauge("#{STATS_KEY}.unsubmitted_claims", unsubmitted.length, tags: ["form_id:#{form_type}"])
       StatsD.gauge("#{STATS_KEY}.orphaned_submissions", orphaned.length, tags: ["form_id:#{form_type}"])
       StatsD.gauge("#{STATS_KEY}.outstanding_failures", failures.length, tags: ["form_id:#{form_type}"])
       Rails.logger.info(audit_log, form_id: form_type, unsubmitted:, orphaned:, failures:)
-    end
-  end
-
-  def handle_failures(failures)
-    failures.map! do |fs|
-      last_attempt = fs.form_submission_attempts.max_by(&:created_at)
-      { claim_id: fs.saved_claim_id, uuid: last_attempt.benefits_intake_uuid,
-        error_message: last_attempt.error_message }
     end
   end
 end
