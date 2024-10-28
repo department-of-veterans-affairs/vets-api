@@ -6,6 +6,7 @@ require 'appeals_api/form_schemas'
 
 class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::ApplicationController
   include AppealsApi::Schemas
+  include AppealsApi::GatewayOriginCheck
 
   SCHEMA_OPTIONS = {
     schema_version: 'v2',
