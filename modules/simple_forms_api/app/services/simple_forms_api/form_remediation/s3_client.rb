@@ -122,6 +122,8 @@ module SimpleFormsApi
       end
 
       def presign_required?
+        return true if upload_type == :submission
+
         config.presign_s3_url
       end
     end

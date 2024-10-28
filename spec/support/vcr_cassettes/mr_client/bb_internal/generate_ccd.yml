@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/bluebutton/healthsummary/1012740022V620959/DOE/xml"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 23 Oct 2024 20:04:00 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '[{"dateGenerated":"2024-10-23T12:42:48.000-0400","status":"COMPLETE","patientId":"1012740022V620959"},{"dateGenerated":"2024-10-22T15:10:37.000-0400","status":"COMPLETE","patientId":"1012740022V620959"}]'
+  recorded_at: Wed, 23 Oct 2024 20:04:00 GMT
+recorded_with: VCR 6.3.1
