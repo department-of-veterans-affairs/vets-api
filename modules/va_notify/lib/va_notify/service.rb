@@ -118,6 +118,8 @@ module VaNotify
           }
         )
       end
+    rescue => e
+      Rails.logger.error(e)
     end
 
     def find_caller_locations
