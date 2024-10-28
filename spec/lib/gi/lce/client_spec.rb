@@ -6,7 +6,7 @@ require 'gi/gids_response'
 
 # TO-DO: Replace stubbed data with VCR cassettes after GIDS connection established
 describe GI::Lce::Client do
-  let(:client) { GI::Lce::Client.new}
+  let(:client) { GI::Lce::Client.new }
   let(:search_data) do
     [
       {
@@ -23,7 +23,7 @@ describe GI::Lce::Client do
       type: 'license',
       tests: [{ name: 'Test Name' }],
       institution: institution,
-      officials: [{ title: 'Certifying Official'}]
+      officials: [{ title: 'Certifying Official' }]
     }
   end
   let(:exam_data) do
@@ -44,7 +44,7 @@ describe GI::Lce::Client do
   %w[license certification prep].each do |type|
     it "gets #{type} details" do
       details_response = OpenStruct.new(body: { data: lcp_data })
-      query_method = "get_#{type}_details_v1".to_sym
+      query_method = :"get_#{type}_details_v1"
 
       allow(client).to receive(query_method).with(id: '1').and_return(details_response)
       client_response = client.send(query_method, id: '1').body

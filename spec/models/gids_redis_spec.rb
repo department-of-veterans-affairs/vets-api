@@ -15,14 +15,15 @@ describe GIDSRedis do
     context 'and the method belongs to `GI::Client`' do
       it 'delegates to `GI::Client`' do
         allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0).and_return(gids_response)
-  
+
         expect(subject.get_institution_details_v0(scrubbed_params)).to eq(gids_response.body)
       end
     end
 
     context 'and the method belongs to `GI::SearchClient`' do
       it 'delegates to `GI::SearchClient`' do
-        get_lce_search_results_v1  
+        allows_any_instace_of(GI::SearchClient).to receive(get_lce_search_results_v1).and_return(gids_response)
+
         expect(subject.get_institution_search_results_v0(scrubbed_params)).to eq(gids_response.body)
       end
     end
@@ -30,7 +31,7 @@ describe GIDSRedis do
     context 'and the method belongs to `GI::Lce::Client`' do
       it 'delegates to `GI::Lce::Client`' do
         allow_any_instance_of(GI::Lce::Client).to receive(:get_lce_search_results_v1).and_return(gids_response)
-  
+
         expect(subject.get_lce_search_results_v1(scrubbed_params)).to eq(gids_response.body)
       end
     end
