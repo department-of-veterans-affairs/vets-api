@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: be610f6623ef1fac432e5616372d4a5eadb93773
+  revision: 71c4501d45b75000818c88707c9c0ecd3dc86dc7
   branch: master
   specs:
-    vets_json_schema (24.4.0)
+    vets_json_schema (24.5.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -527,6 +527,11 @@ GEM
       faraday (>= 1.0, < 3.a)
     google-protobuf (4.28.3)
       bigdecimal
+      rake (>= 13)
+    google-protobuf (4.28.3-java)
+      bigdecimal
+      ffi (~> 1)
+      ffi-compiler (~> 1)
       rake (>= 13)
     googleauth (1.11.2)
       faraday (>= 1.0, < 3.a)
