@@ -42,6 +42,8 @@ module EVSS
           Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
         end
 
+        # REMEMBER WILL NEED TO PASS ATTACHMENT TO PROVIDER
+
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
         ::Rails.logger.warn(
@@ -64,15 +66,19 @@ module EVSS
         raise e
       end
 
-      def self.api_upload_provider(submission, document_type)
+      def self.api_upload_provider(submission, document_type, supporting_evidence_attachment)
         user = User.find(submission.user_uuid)
+
+        puts "in proivder factory call here is attachment"
+        puts supporting_evidence_attachment
 
         ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
           options: {
             form526_submission: submission,
-            document_type: document,
-            statsd_metric_prefix: STATSD_KEY_PREFIX
+            document_type: document_type,
+            statsd_metric_prefix: STATSD_KEY_PREFIX,
+            supporting_evidence_attachment:
           },
           current_user: user,
         feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS
@@ -106,7 +112,8 @@ module EVSS
           # client.upload(file_body, document_data)
 
           if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
-            provider = self.class.api_upload_provider(submission)
+            document_type = upload_data['attachmentId']
+            provider = self.class.api_upload_provider(submission, document_type, sea)
             # file name used twice turn into var
             upload_document = provider.generate_upload_document(sea.converted_filename)
             provider.submit_upload_document(upload_document, file_body)

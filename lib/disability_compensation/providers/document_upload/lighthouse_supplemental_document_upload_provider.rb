@@ -10,18 +10,22 @@ class LighthouseSupplementalDocumentUploadProvider
 
   # Maps VA's internal Document Types to the correct document_type attribute for a Lighthouse526DocumentUpload polling
   # record. We need this to create a valid polling record
-  POLLING_DOCUMENT_TYPES = {
-    'L023' => Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE
-  }.freeze
+  # POLLING_DOCUMENT_TYPES = {
+  #   'L023' => Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE
+  #   # VETERAN EVIDENCE DO WE NEED TO WHITELIST A WHOLE BUNCH OF THESE BAD BOIS?
+  #   # DOES THE POLLING ACCOUNT FOR THIS?
+  # }.freeze
 
   # @param form526_submission [Form526Submission]
   #
   # @param va_document_type [String] VA document code, see LighthouseDocument::DOCUMENT_TYPES
   # @param statsd_metric_prefix [String] prefix, e.g. 'worker.evss.submit_form526_bdd_instructions' from including job
-  def initialize(form526_submission, va_document_type, statsd_metric_prefix)
+  # TODO: ADD DOCUMENTATION FOR ADDING SUPPORTING EVEIDENCE ATTACHMENT
+  def initialize(form526_submission, va_document_type, statsd_metric_prefix, supporting_evidence_attachment = nil)
     @form526_submission = form526_submission
     @va_document_type = va_document_type
     @statsd_metric_prefix = statsd_metric_prefix
+    @supporting_evidence_attachment = supporting_evidence_attachment
   end
 
   # Uploads to Lighthouse require both the file body and an instance
@@ -150,10 +154,32 @@ class LighthouseSupplementalDocumentUploadProvider
   #
   # @param lighthouse_request_id [String] unique ID Lighthouse provides us in the API response for polling later
   def create_lighthouse_polling_record(lighthouse_request_id)
+    document_type = polling_document_type
+
     Lighthouse526DocumentUpload.create!(
       form526_submission: @form526_submission,
-      document_type: POLLING_DOCUMENT_TYPES[@va_document_type],
-      lighthouse_document_request_id: lighthouse_request_id
+      document_type:,
+      lighthouse_document_request_id: lighthouse_request_id,
+      **form_attachment_params
     )
+  end
+
+  # CLEANER WAY TO DO THIS
+  def form_attachment_params
+    return {} unless @supporting_evidence_attachment
+
+    { form_attachment: @supporting_evidence_attachment }
+  end
+
+  # explain
+  def polling_document_type
+    puts "attachment"
+    puts @supporting_evidence_attachment
+    return Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE if @supporting_evidence_attachment.present?
+
+    case @va_document_type
+    when 'L023'
+      Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE
+    end
   end
 end

@@ -121,7 +121,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       let!(:attachment) do
         sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
         sea.set_file_data!(file)
-        sea.save
+        sea.save!
       end
 
       it 'calls the documents service api with file body and document data' do
@@ -161,23 +161,36 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       allow(StatsD).to receive(:increment)
     end
 
-    let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
+    # let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
     # let(:document_data) { double(:document_data, valid?: true) }
 
+
+
+    let(:upload_data) do
+      puts "uploads!"
+      puts submission.form[Form526Submission::FORM_526_UPLOADS]
+      submission.form[Form526Submission::FORM_526_UPLOADS][0]
+
+    end
+
+    # should not be duping all of these
     context 'when file_data exists' do
       let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
       let!(:attachment) do
-        sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
+        sea = SupportingEvidenceAttachment.new(guid: upload_data['confirmationCode'])
         sea.set_file_data!(file)
         sea.save!
+        sea
       end
 
-    let(:perform_upload) do
-      subject.perform_async(submission.id)
-      described_class.drain
-    end
+      # let(:file_read) { File.read('spec/fixtures/files/sm_file1.jpg') }
 
-    context 'when the disability_compensation_upload_bdd_instructions_to_lighthouse flipper is enabled' do
+      let(:perform_upload) do
+        subject.perform_async(submission.id, upload_data)
+        described_class.drain
+      end
+
+    context 'when the disability_compensation_upload_veteran_evidence_to_lighthouse flipper is enabled' do
       let(:faraday_response) { instance_double(Faraday::Response) }
       let(:lighthouse_request_id) { Faker::Number.number(digits: 8) }
       # let(:expected_statsd_metrics_prefix) do
@@ -188,14 +201,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         LighthouseDocument.new(
           claim_id: submission.submitted_claim_id,
           participant_id: user.participant_id,
-          # Think this comes in trhoughthe
           document_type: upload_data['attachmentId'],
-          file_name: 'spec/fixtures/files/sm_file1.jpg'
+          file_name: attachment.converted_filename,
+          supporting_evidence_attachment: attachment
         )
       end
 
+      # let(:expected_lighthouse_document_attributes) do
+      #   {
+      #     claim_id: submission.submitted_claim_id,
+      #     participant_id: user.participant_id,
+      #     document_type: upload_data['attachmentId'],
+      #     file_name: 'spec/fixtures/files/sm_file1.jpg',
+      #     supporting_evidence_attachment: attachment
+      #   }
+      # end
+
       before do
-        Flipper.enable(:disability_compensation_upload_bdd_instructions_to_lighthouse)
+        Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
 
         allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
           .and_return(faraday_response)
@@ -211,8 +234,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       end
 
       it 'uploads the veteran evidence to Lighthouse' do
+        # the expected document passed here ends up having a diffewrent object id than the one expected in the test above
         expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-          .with(file_read, expected_lighthouse_document)
+          .with(file.read, expected_lighthouse_document)
+
         perform_upload
       end
 
