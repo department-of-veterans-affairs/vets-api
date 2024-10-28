@@ -7,7 +7,6 @@ describe VaNotify::Service do
   before(:example, test_service: false) do
     test_base_url = 'http://fakeapi.com'
     allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return(test_base_url)
-    Rails.stub(env: ActiveSupport::StringInquirer.new('production'))
   end
 
   let(:test_api_key) { 'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' }
