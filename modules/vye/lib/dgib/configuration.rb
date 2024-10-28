@@ -45,7 +45,7 @@ module Vye
       end
 
       def mock_enabled?
-        Settings.dgi.vye.vets.mock
+        Settings.dgi.vye.vets.mock || false
       end
     end
   end

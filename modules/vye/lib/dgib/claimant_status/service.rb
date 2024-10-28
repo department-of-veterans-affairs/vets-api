@@ -3,29 +3,29 @@
 require 'common/client/base'
 require 'dgib/authentication_token_service'
 require 'dgib/service'
-require 'dgib/verification_record/configuration'
-require 'dgib/verification_record/response'
+require 'dgib/claimant_status/configuration'
+require 'dgib/claimant_status/response'
 
 module Vye
   module DGIB
-    module VerificationRecord
+    module ClaimantStatus
       class Service < Vye::DGIB::Service
-        configuration Vye::DGIB::VerificationRecord::Configuration
-        STATSD_KEY_PREFIX = 'api.dgi.verification_record_service'
+        configuration Vye::DGIB::ClaimantStatus::Configuration
+        STATSD_KEY_PREFIX = 'api.dgi.claimant_status_service'
 
-        def get_verification_record(claimant_id)
+        def get_claimant_status(claimant_id)
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
             raw_response = perform(:get, end_point(claimant_id), {}, headers, options)
-            Vye::DGIB::VerificationRecord::Response.new(raw_response.status, raw_response)
+            Vye::DGIB::ClaimantStatus::Response.new(raw_response.status, raw_response)
           end
         end
 
         private
 
         def end_point(claimant_id)
-          "verifications/vye/#{claimant_id}/verification-record"
+          "verifications/vye/#{claimant_id}/status"
         end
 
         def json

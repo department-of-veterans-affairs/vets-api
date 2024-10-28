@@ -4,10 +4,10 @@ require 'dgib/configuration'
 
 module Vye
   module DGIB
-    module VerificationRecord
+    module ClaimantLookup
       class Configuration < Vye::DGIB::Configuration
         def service_name
-          'DGIB/VerificationRecord'
+          'DGIB/ClaimantLookup'
         end
       end
     end

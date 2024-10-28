@@ -14,26 +14,37 @@ module Vye
       # this is in the models concern NeedsEnrollmentVerification and is aliased to enrollments
       delegate :pending_verifications, to: :user_info
 
-      def get_verification_record(claimant_id)
-        response = verification_service.get_verification_record(claimant_id)
+      def get_verification_record
+        response = verification_service.get_verification_record(params[:claimant_id])
         serializer = Vye::ClaimantVerificationSerializer
+        process_resonse(response.status, serializer)
+      end
 
-        case response.status
-        when 200
-          render json: serializer.new(response)
-        when 204
-          head :no_content
-        when 403
-          head :forbidden
-        when 404
-          head :not_found
-        when 422
-          head :unprocessable_entity
-        when 500
-          head :internal_server_error
-        else
-          head :server_error
-        end
+      def verify_claimant
+        response =
+          verify_claimant_service
+          .verify_claimant(
+            params[:claimant_id],
+            params[:verified_period_begin_date],
+            params[:verified_period_end_date],
+            params[:verfied_through_date]
+          )
+
+        serializer = Vye::VerifyClaimantSerializer
+        process_resonse(response.status, serializer)
+      end
+
+      # the serializer for this endpoint is the same as for verify_claimant
+      def get_claimant_status
+        response = claimant_status_service.get_claimant_status(params[:claimant_id])
+        serializer = Vye::VerifyClaimantSerializer
+        process_resonse(response.status, serializer)
+      end
+
+      def claimant_lookup
+        response = claimant_lookup_service.claimant_lookup(params[:ssn])
+        serializer = Vye::ClaimantLookupSerializer
+        process_resonse(response.status, serializer)
       end
 
       def create
@@ -51,9 +62,42 @@ module Vye
 
       private
 
+      # Vye Services related stuff
+      def claimant_lookup_service
+        Vye::DGIB::ClaimantLookupService.new(@current_user)
+      end
+
+      def claimant_status_service
+        Vye::DGIB::ClaimantStatusService.new(@current_user)
+      end
+
       def verification_service
         Vye::DGIB::VerificationRecord::Service.new(@current_user)
       end
+
+      def verify_claimant_service
+        Vye::DGIB::VerifyClaimantService.new(@current_user)
+      end
+
+      def process_resonse(response_status, serializer)
+        case response_status
+        when 200
+          render json: serializer.new(response)
+        when 204
+          head :no_content
+        when 403
+          head :forbidden
+        when 404
+          head :not_found
+        when 422
+          head :unprocessable_entity
+        when 500
+          head :internal_server_error
+        else
+          head :server_error
+        end
+      end
+      # End Vye Services
 
       def cert_through_date
         # act_end is defined as timestamp without time zone
