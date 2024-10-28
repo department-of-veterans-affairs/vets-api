@@ -145,7 +145,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       it 'logs success' do
         Timecop.freeze(timestamp) do
           expect(Rails.logger).to receive(:info).with(
-            'Form526SubmissionFailureEmail notification dispatched',
+            'Form526SubmissionFailureEmailJob notification dispatched',
             { form526_submission_id: form526_submission.id, timestamp: }
           )
           subject.new.perform(form526_submission.id)
@@ -157,7 +157,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       let(:error_message) { 'oh gosh oh jeeze oh no' }
       let(:expected_log) do
         [
-          'Form526SubmissionFailureEmail notification dispatched',
+          'Form526SubmissionFailureEmailJob notification dispatched',
           {
             form526_submission_id: form526_submission.id,
             error_message:,
@@ -178,7 +178,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       it 'logs error' do
         Timecop.freeze(timestamp) do
           expect(Rails.logger).to receive(:error).with(
-            'Form526SubmissionFailureEmail notification failed',
+            'Form526SubmissionFailureEmailJob notification failed',
             {
               form526_submission_id: form526_submission.id,
               error_message:,

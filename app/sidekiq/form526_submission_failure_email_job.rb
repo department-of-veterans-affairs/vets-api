@@ -124,7 +124,7 @@ class Form526SubmissionFailureEmailJob
 
   def log_success
     Rails.logger.info(
-      'Form526SubmissionFailureEmail notification dispatched',
+      'Form526SubmissionFailureEmailJob notification dispatched',
       {
         form526_submission_id: submission.id,
         timestamp: Time.now.utc
@@ -137,7 +137,7 @@ class Form526SubmissionFailureEmailJob
 
   def log_failure(error)
     Rails.logger.error(
-      'Form526SubmissionFailureEmail notification failed',
+      'Form526SubmissionFailureEmailJob notification failed',
       {
         form526_submission_id: submission&.id,
         error_message: error.try(:message),
