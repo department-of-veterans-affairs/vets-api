@@ -8,6 +8,7 @@ module AppealsApi::V2
   module DecisionReviews
     class ContestableIssuesController < AppealsApi::ApplicationController
       include AppealsApi::Schemas
+      include AppealsApi::GatewayOriginCheck
 
       skip_before_action :authenticate
       before_action :validate_json_schema, only: %i[index]
