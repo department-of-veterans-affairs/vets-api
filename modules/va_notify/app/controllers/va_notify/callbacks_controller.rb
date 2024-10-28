@@ -18,6 +18,7 @@ module VANotify
       if (notification = VANotify::Notification.find_by(notification_id: notification_id))
         Rails.logger.info("va_notify callbacks - Updating notification #{notification.id}")
         notification.update(notification_params)
+        VANotify::StatusUpdate.delegate(notification_params)
       else
         Rails.logger.info("va_notify callbacks - Received update for unknown notification #{notification_id}")
       end
