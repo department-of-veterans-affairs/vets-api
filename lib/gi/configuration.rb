@@ -27,6 +27,7 @@ module GI
         # conn.request :curl, ::Logger.new(STDOUT), :warn
 
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
+        conn.response :betamocks if use_mocks?
         conn.response :snakecase
         conn.response :raise_custom_error, error_prefix: service_name
         conn.response :gids_errors
@@ -34,6 +35,11 @@ module GI
 
         conn.adapter Faraday.default_adapter
       end
+    end
+
+    # To be overridden in gi/lce/configuration
+    def use_mocks?
+      false
     end
   end
 end

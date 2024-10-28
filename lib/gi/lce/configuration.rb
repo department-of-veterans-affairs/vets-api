@@ -4,6 +4,10 @@ require 'gi/configuration'
 
 module GI
   module Lce
-    class Configuration < GI::Configuration; end
+    class Configuration < GI::Configuration
+      def use_mocks?
+        Settings.gids.lce.use_mocks || false
+      end
+    end
   end
 end
