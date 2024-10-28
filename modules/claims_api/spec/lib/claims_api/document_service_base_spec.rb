@@ -63,8 +63,8 @@ describe ClaimsApi::DocumentServiceBase do
     end
 
     it 'builds an L705 (EWS) file name correctly for a dependent claimant' do
-      result = subject.send(:build_dependent_file_name, veteran_name: dependent_veteran_name, identifier: claim_id,
-                                                        suffix: ews_suffix)
+      result = subject.send(:build_file_name, veteran_name: dependent_veteran_name, identifier: claim_id,
+                                              suffix: ews_suffix, dependent: true)
       expected_file_name = "dependent_#{dependent_veteran_name}_#{claim_id}_5103.pdf"
 
       expect(result).to eq(expected_file_name)
