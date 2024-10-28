@@ -94,6 +94,21 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
       end
     end
 
+    context 'When submitting a valid request witoout a representative id' do
+      before do
+        params[:pdf_generator2122][:representative].delete(:id)
+        post(base_path, params:)
+      end
+
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'responds with a PDF' do
+        expect(response.content_type).to eq('application/pdf')
+      end
+    end
+
     context 'when triggering validation errors' do
       context 'when submitting without the veteran first name for a single validation error' do
         before do

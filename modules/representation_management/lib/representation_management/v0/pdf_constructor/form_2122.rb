@@ -27,25 +27,41 @@ module RepresentationManagement
         end
 
         def next_steps_contact(pdf, data)
-          rep_name = <<~HEREDOC.squish
-            #{data.representative.first_name}
-            #{data.representative.middle_initial}
-            #{data.representative.last_name}
-          HEREDOC
-          add_text_with_spacing(pdf, rep_name, style: :bold, move_down: 8)
-          pdf.font('soursesanspro') do
-            pdf.text(data.organization_name)
-            pdf.text(data.representative.address_line1)
-            pdf.text(data.representative.address_line2)
-            city_state_zip = <<~HEREDOC.squish
-              #{data.representative.city},
-              #{data.representative.state_code}
-              #{data.representative.zip_code}
+          if data.representative
+            rep_name = <<~HEREDOC.squish
+              #{data.representative.first_name}
+              #{data.representative.middle_initial}
+              #{data.representative.last_name}
             HEREDOC
-            pdf.text(city_state_zip)
-            pdf.move_down(5)
-            pdf.text(format_phone_number(data.representative.phone))
-            pdf.text(data.representative.email)
+            add_text_with_spacing(pdf, rep_name, style: :bold, move_down: 8)
+            pdf.font('soursesanspro') do
+              pdf.text(data.organization.name)
+              pdf.text(data.representative.address_line1)
+              pdf.text(data.representative.address_line2)
+              city_state_zip = <<~HEREDOC.squish
+                #{data.representative.city},
+                #{data.representative.state_code}
+                #{data.representative.zip_code}
+              HEREDOC
+              pdf.text(city_state_zip)
+              pdf.move_down(5)
+              pdf.text(format_phone_number(data.representative.phone))
+              pdf.text(data.representative.email)
+            end
+          else
+            add_text_with_spacing(pdf, data.organization.name, style: :bold, move_down: 8)
+            pdf.font('soursesanspro') do
+              pdf.text(data.organization.address_line1)
+              pdf.text(data.organization.address_line2)
+              city_state_zip = <<~HEREDOC.squish
+                #{data.organization.city},
+                #{data.organization.state_code}
+                #{data.organization.zip_code}
+              HEREDOC
+              pdf.text(city_state_zip)
+              pdf.move_down(5)
+              pdf.text(format_phone_number(data.organization.phone))
+            end
           end
         end
 
@@ -63,7 +79,7 @@ module RepresentationManagement
         def template_options(data)
           {
             # Service Organization Name
-            "#{PAGE1_KEY}.Name_Of_Service_Organization[0]": data.organization_name
+            "#{PAGE1_KEY}.Name_Of_Service_Organization[0]": data.organization.name
           }.merge(veteran_identification(data))
             .merge(veteran_contact_details(data))
             .merge(claimant_identification(data))

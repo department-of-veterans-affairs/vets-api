@@ -16,6 +16,8 @@ module RepresentationManagement
 
     attr_accessor(*[representative_consent_attrs, veteran_attrs].flatten)
 
+    validates :representative_id, presence: true
+
     validates :veteran_service_branch,
               inclusion: { in: VETERAN_SERVICE_BRANCHES },
               if: -> { veteran_service_branch.present? }

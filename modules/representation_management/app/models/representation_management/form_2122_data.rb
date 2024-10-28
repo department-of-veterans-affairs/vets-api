@@ -5,24 +5,23 @@ module RepresentationManagement
     attr_accessor :organization_id
 
     validates :organization_id, presence: true
-    validate :organization_name_exists?
+    validate :organization_exists?
 
-    def organization_name
-      @organization_name ||= find_organization_name
+    def organization
+      @organization ||= find_organization
     end
 
     private
 
-    def find_organization_name
-      org = AccreditedOrganization.find_by(id: organization_id) ||
-            Veteran::Service::Organization.find_by(poa: organization_id)
-      org&.name
+    def find_organization
+      AccreditedOrganization.find_by(id: organization_id) ||
+        Veteran::Service::Organization.find_by(poa: organization_id)
     end
 
-    def organization_name_exists?
-      return unless organization_name.nil?
+    def organization_exists?
+      return unless organization.nil?
 
-      errors.add(:organization_name, 'Organization not found')
+      errors.add(:organization, 'Organization not found')
     end
   end
 end

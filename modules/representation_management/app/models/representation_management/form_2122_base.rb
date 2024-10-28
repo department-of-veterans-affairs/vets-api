@@ -81,7 +81,7 @@ module RepresentationManagement
               if: -> { veteran_service_number.present? }
 
     validate :consent_limits_must_contain_valid_values
-    validate :representative_exists?
+    validate :representative_exists?, if: -> { representative_id.present? }
 
     with_options if: -> { claimant_first_name.present? } do
       validates :claimant_first_name, presence: true, length: { maximum: 12 }
@@ -99,8 +99,6 @@ module RepresentationManagement
                                            if: -> { claimant_zip_code_suffix.present? }
       validates :claimant_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
     end
-
-    validates :representative_id, presence: true
 
     def representative
       @representative ||= find_representative
