@@ -77,10 +77,12 @@ module AskVAApi
         end
 
         def attachment_present?
-          !list_of_attachments.empty?
+          !list_of_attachments.nil?
         end
 
         def list_of_attachments
+          return if inquiry_params[:files].first[:file_name].nil?
+
           inquiry_params[:files].map do |file|
             { FileName: file[:file_name], FileContent: file[:base64] }
           end
