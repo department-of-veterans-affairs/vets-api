@@ -27,6 +27,7 @@ module SwaggerSharedComponents
         record_consent: '',
         consent_address_change: '',
         consent_limits: [],
+        conditions_of_appointment: [],
         claimant:,
         representative:,
         veteran:
