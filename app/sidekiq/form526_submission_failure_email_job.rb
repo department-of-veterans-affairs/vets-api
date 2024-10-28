@@ -58,8 +58,9 @@ class Form526SubmissionFailureEmailJob
     raise e
   end
 
-  def perform(submission_id)
+  def perform(submission_id, date_of_failure = Time.zone.now)
     @submission = Form526Submission.find(submission_id)
+    @date_of_failure = date_of_failure
     send_email
     track_remedial_action
     log_success
@@ -69,6 +70,10 @@ class Form526SubmissionFailureEmailJob
   end
 
   private
+
+  def format_failure_date(timestamp)
+    timestamp
+  end
 
   def send_email
     email_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
@@ -110,7 +115,7 @@ class Form526SubmissionFailureEmailJob
   end
 
   def date_of_failure
-    Time.zone.now.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+    @date_of_failure.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 
   def track_remedial_action
