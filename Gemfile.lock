@@ -424,10 +424,10 @@ GEM
       tzinfo
     ethon (0.16.0)
       ffi (>= 1.15.0)
-    factory_bot (6.5.0)
+    factory_bot (6.4.5)
       activesupport (>= 5.0.0)
-    factory_bot_rails (6.4.4)
-      factory_bot (~> 6.5)
+    factory_bot_rails (6.4.3)
+      factory_bot (~> 6.4)
       railties (>= 5.0.0)
     faker (3.5.1)
       i18n (>= 1.8.11, < 2)
@@ -638,7 +638,7 @@ GEM
       rake (~> 13.0)
     lockbox (1.4.1)
     logger (1.6.1)
-    loofah (2.23.1)
+    loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lumberjack (1.2.10)
@@ -804,7 +804,7 @@ GEM
     rack-timeout (0.7.0)
     rack-vcr (0.1.6)
       vcr (>= 2.9)
-    rackup (1.0.1)
+    rackup (1.0.0)
       rack (< 3)
       webrick
     rails (7.1.4.1)
@@ -1106,7 +1106,7 @@ GEM
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
     yard (0.9.37)
-    zeitwerk (2.7.1)
+    zeitwerk (2.6.18)
 
 PLATFORMS
   aarch64-linux
