@@ -206,6 +206,10 @@ features:
     actor_type: user
     description: Diverts codepath to use refactored BD methods
     enable_in_development: true
+  claims_api_ews_uploads_bd_refactor:
+    actor_type: user
+    description: When enabled, sends ews forms to BD via the refactored logic
+    enable_in_development: true
   claims_api_poa_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends poa forms to BD via the refactored logic
@@ -736,19 +740,19 @@ features:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
   form1010d:
-    actor_type: cookie_id
+    actor_type: user
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
   form107959c:
-    actor_type: cookie_id
+    actor_type: user
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
   form107959a:
-    actor_type: cookie_id
+    actor_type: user
     description: If enabled shows the digital form experience for form 10-7959a (IVC CHAMPVA claim form)
   form107959f1:
-    actor_type: cookie_id
+    actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program register form)
   form107959f2:
-    actor_type: cookie_id
+    actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-2 (Foreign Medical Program claim form)
   form_upload_flow:
     actor_type: user
@@ -1204,6 +1208,10 @@ features:
   show_meb_5490_maintenance_alert:
     actor_type: user
     description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
+    enable_in_development: false
+  submission_pdf_s3_upload:
+    actor_type: user
+    description: Used to toggle use of uploading a submission pdf to S3 and returning a pre-signed url.
     enable_in_development: false
   meb_1606_30_automation:
     actor_type: user
@@ -1771,3 +1779,6 @@ features:
   banner_use_alternative_banners:
     actor_type: user
     description: Used to toggle use of alternative banners.
+  fsr_wizard:
+    actor_type: user
+    description: Used to toggle the FSR wizard

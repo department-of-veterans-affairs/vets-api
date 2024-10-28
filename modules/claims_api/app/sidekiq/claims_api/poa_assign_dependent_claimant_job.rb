@@ -19,20 +19,24 @@ module ClaimsApi
       else
         log_job_progress(
           poa.id,
-          "Dependent Assignement did not return 'true'"
+          "Dependent Assignment did not return 'true'"
         )
       end
     rescue => e
+      handle_error(poa, e)
+    end
+
+    private
+
+    def handle_error(poa, e)
       save_poa_errored_state(poa)
       set_vbms_error_message(poa, e)
       log_job_progress(
         poa.id,
-        'Dependent Assignement failed'
+        'Dependent Assignment failed'
       )
       raise e
     end
-
-    private
 
     def dependent_claimant_poa_assignment_service(data, auth_headers)
       ClaimsApi::DependentClaimantPoaAssignmentService.new(
