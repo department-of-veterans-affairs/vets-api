@@ -20,7 +20,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             email: 'claimant@example.com',
             name: {
               first: 'John',
-              middle: 'M',
+              middle: 'Middle', # This is a middle name as submitted by the frontend
               last: 'Claimant'
             },
             address: {
@@ -44,7 +44,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             insurance_numbers: [],
             name: {
               first: 'John',
-              middle: 'M',
+              middle: 'Middle', # This is a middle name as submitted by the frontend
               last: 'Veteran'
             },
             address: {

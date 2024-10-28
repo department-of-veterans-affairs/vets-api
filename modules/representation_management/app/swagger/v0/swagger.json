@@ -267,7 +267,7 @@
                           },
                           "middle": {
                             "type": "string",
-                            "example": "A"
+                            "example": "Middle"
                           },
                           "last": {
                             "type": "string",
@@ -365,7 +365,7 @@
                           },
                           "middle": {
                             "type": "string",
-                            "example": "A"
+                            "example": "Middle"
                           },
                           "last": {
                             "type": "string",

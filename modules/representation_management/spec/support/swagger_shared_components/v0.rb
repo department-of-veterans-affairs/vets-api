@@ -139,7 +139,7 @@ module SwaggerSharedComponents
         type: :object,
         properties: {
           first: { type: :string, example: 'John' },
-          middle: { type: :string, example: 'A' },
+          middle: { type: :string, example: 'Middle' },
           last: { type: :string, example: 'Doe' }
         }
       }
@@ -148,7 +148,7 @@ module SwaggerSharedComponents
     def self.name
       {
         first: 'John',
-        middle: 'A',
+        middle: 'Middle',
         last: 'Doe'
       }
     end
