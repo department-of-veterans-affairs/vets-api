@@ -118,7 +118,7 @@ module EVSS
 
         zsf_monitor.log_silent_failure_avoided(
           log_info.merge(email_confirmation_id: email_response&.id),
-          submission.user_account_id,
+          submission&.user_account_id,
           call_location:
         )
       end
