@@ -4,10 +4,9 @@ require 'rails_helper'
 require 'gi/lce/client'
 require 'gi/gids_response'
 
-# TO-DO: Update with VCR cassettes after GIDS connection established
+# TO-DO: Replace stubbed data with VCR cassettes after GIDS connection established
 describe GI::Lce::Client do
   let(:client) { GI::Lce::Client.new}
-  let(:faraday_response) { instance_double('Faraday::Response') }
   let(:search_data) do
     [
       {
@@ -17,54 +16,37 @@ describe GI::Lce::Client do
       }
     ]
   end
-  let(:institution) do
-    {
-      name: 'Institution',
-      abbreviated_name: 'INST',
-      physical_street: 'address',
-      physical_city: 'city',
-      physical_state: 'state',
-      physical_zip: 'zip',
-      physical_country: 'USA',
-      mailing_street: 'address',
-      mailing_city: 'city',
-      mailing_state: 'state',
-      mailing_zip: 'zip',
-      mailing_country: 'USA',
-      phone: 'phone',
-      web_address: 'website'
-    }
-  end
-  let(:license_details) do
+  let(:institution) { { name: 'Institution' } }
+  let(:lcp_data) do
     {
       desc: 'License Name',
       type: 'license',
-      tests: [{ name: 'License Test', fee: 30 }],
+      tests: [{ name: 'Test Name' }],
       institution: institution,
-      officials: [{ name: 'Official Name', title: 'Certifying Official'}]
+      officials: [{ title: 'Certifying Official'}]
     }
   end
-  let(:exam_details) do
+  let(:exam_data) do
     {
       name: 'Exam Name',
-      tests: [{ description: 'Description', dates: 'dates', amount: 100 }],
+      tests: [{ description: 'Description' }],
       institution: institution
     }
   end
 
   it 'gets a list of licenses, certifications, exams, and prep courses' do
-    allow(client).to receive(:get_lce_search_results_v1).with(type: 'all').and_return(faraday_response)
-    allow(faraday_response).to receive(:body).and_return(data: search_data)
+    search_response = OpenStruct.new(body: { data: search_data })
+    allow(client).to receive(:get_lce_search_results_v1).with(type: 'all').and_return(search_response)
     client_response = client.get_lce_search_results_v1(type: 'all').body
     expect(client_response[:data]).to be_an(Array)
   end
 
   %w[license certification prep].each do |type|
     it "gets #{type} details" do
+      details_response = OpenStruct.new(body: { data: lcp_data })
       query_method = "get_#{type}_details_v1".to_sym
 
-      allow(client).to receive(query_method).with(id: '1').and_return(faraday_response)
-      allow(faraday_response).to receive(:body).and_return(data: license_details)
+      allow(client).to receive(query_method).with(id: '1').and_return(details_response)
       client_response = client.send(query_method, id: '1').body
       expect(client_response[:data]).to be_an(Hash)
       expect(client_response[:data].keys).to contain_exactly(:desc, :type, :tests, :institution, :officials)
@@ -72,8 +54,9 @@ describe GI::Lce::Client do
   end
 
   it 'gets exam details' do
-    allow(client).to receive(:get_exam_details_v1).with(id: '1').and_return(faraday_response)
-    allow(faraday_response).to receive(:body).and_return(data: exam_details)
+    details_response = OpenStruct.new(body: { data: exam_data })
+
+    allow(client).to receive(:get_exam_details_v1).with(id: '1').and_return(details_response)
     client_response = client.get_exam_details_v1(id: '1').body
     expect(client_response[:data]).to be_an(Hash)
     expect(client_response[:data].keys).to contain_exactly(:name, :tests, :institution)
