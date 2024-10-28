@@ -11,7 +11,7 @@ namespace :simple_forms_api do
     benefits_intake_uuids.each do |benefits_intake_uuid|
       # Get the original submission
       form_submission_attempt = FormSubmissionAttempt.find_by(benefits_intake_uuid:)
-      form_submission = FormSubmission.find_by(form_submission_attempt:)
+      form_submission = form_submission_attempt&.form_submission
       next unless form_submission
 
       # Re-generate the form PDF
