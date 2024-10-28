@@ -224,7 +224,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               submission.reload
               expect(submission.read_metadata(:ep_merge_pending_claim_id)).to eq('600114692') # from claims.yml
               expect(submission.disabilities.first).to include('specialIssues' => ['EMP'])
-              expect(Flipper).to have_received(:enabled?).with(:disability_526_ep_merge_api, User).once
+              actor = OpenStruct.new({ flipper_id: submission.user_uuid })
+              expect(Flipper).to have_received(:enabled?).with(:disability_526_ep_merge_api, actor).once
             end
 
             context 'when the claim is not fully classified' do
