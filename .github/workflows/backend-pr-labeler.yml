@@ -12,23 +12,45 @@ jobs:
       - name: Check for exemption
         id: check_exemption
         run: |
-          if [ ${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), 'backend') }} ]; then
-            echo "exempt=false" >> $GITHUB_ENV
-            exit 1
-          else
+          if [ ! ${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), 'backend') }} ]; then
             echo "exempt=true" >> $GITHUB_ENV
-            exit 1
+            echo "PR is exempt from backend approval."
+            exit 0
           fi
+
+      - name: Check Draft state
+        id: check_draft
+        run: |
+          if [ ${{ github.event.pull_request.draft }} ]; then
+            echo "draft=true" >> $GITHUB_ENV
+            echo "Draft PR detected, skipping label checks."
+            exit 0
+          fi
+
+      # Add require-backend-approval label
+      - name: Add require-backend-approval label
+        if: ! env.draft && ! env.exempt
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            require-backend-approval
+
+      # Add ready-for-backend-review label
+
+      # Check for backend approval
+      #   Get Reviews
+      #   Get backend-review-group members
+
 
       - name: DELETE ME - echo vars
         if: always()
         run: |
           echo "exempt: ${{ env.exempt }}"
-          echo 'requested_teams: ${{ toJSON(github.event.pull_request) }}' | jq .
-          echo 'requested_teams: ${{ toJSON(github.event.pull_request.requested_teams) }}' | jq .
-          echo 'requested_teams: ${{ toJSON(github.event.pull_request.requested_teams) }}' | jq 'length'
+          echo '${{ toJSON(github.event.pull_request.requested_teams) }}' | jq 'length'
+          echo '${{ toJSON(github.event.pull_request.requested_teams) }}' | jq .
+          echo '${{ toJSON(github.event.pull_request) }}' | jq .
 
       - name: This shouldn't Run
         run: echo "This step should run only if checks don't exit early"
-
-      #
+      #   Verify backend-review-group approval
