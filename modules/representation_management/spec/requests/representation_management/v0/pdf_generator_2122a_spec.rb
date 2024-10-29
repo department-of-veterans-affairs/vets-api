@@ -89,6 +89,22 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
       end
     end
 
+    context 'When submitting a legacy representative' do
+      before do
+        legacy_representative = create(:representative)
+        params[:pdf_generator2122a][:representative][:id] = legacy_representative.representative_id
+        post(base_path, params:)
+      end
+
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'responds with a PDF' do
+        expect(response.content_type).to eq('application/pdf')
+      end
+    end
+
     context 'when triggering validation errors' do
       context 'when submitting without the representative first name for a single validation error' do
         before do
