@@ -336,4 +336,10 @@ FactoryBot.define do
       with_ancillary.to_json
     end
   end
+
+  trait :with_empty_disabilities do
+    form_json do
+      File.read("#{submissions_path}/only_526_empty_disabilities.json")
+    end
+  end
 end
