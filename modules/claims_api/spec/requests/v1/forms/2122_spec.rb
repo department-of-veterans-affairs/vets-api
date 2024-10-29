@@ -404,25 +404,34 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
 
         context 'and the request includes a dependent claimant' do
-          it 'enqueues the PoaAssignDependentClaimantJob and not the PoaFormBuilderJob' do
+          it 'enqueues the PoaFormBuilderJob' do
             mock_acg(scopes) do |auth_header|
-              expect do
-                post path, params: data_with_claimant, headers: headers.merge(auth_header)
-              end.to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size).by(1)
-
               expect do
                 post path, params: data_with_claimant, headers: headers.merge(auth_header)
               end.not_to change(ClaimsApi::V1::PoaFormBuilderJob.jobs, :size)
             end
           end
+
+          it "includes the 'dependent' object to the auth_headers" do
+            mock_acg(scopes) do |auth_header|
+              post path, params: data_with_claimant, headers: headers.merge(auth_header)
+              parsed = JSON.parse(response.body)
+              poa_id = parsed['data']['id']
+              poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+              expect(poa.auth_headers).to have_key('dependent')
+            end
+          end
         end
 
         context 'and the request does not include a dependent claimant' do
-          it 'does not enqueue the PoaAssignDependentClaimantJob' do
+          it "does not include the 'dependent' object to the auth_headers" do
             mock_acg(scopes) do |auth_header|
-              expect do
-                post path, params: data, headers: headers.merge(auth_header)
-              end.not_to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size)
+              params = JSON.parse data
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              parsed = JSON.parse(response.body)
+              poa_id = parsed['data']['id']
+              poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+              expect(poa.auth_headers).not_to have_key('dependent')
             end
           end
         end
@@ -435,11 +444,13 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
           Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
         end
 
-        it 'does not enqueue the PoaAssignDependentClaimantJob' do
+        it "does not include the 'dependent object in the auth_headers" do
           mock_acg(scopes) do |auth_header|
-            expect do
-              post path, params: data_with_claimant, headers: headers.merge(auth_header)
-            end.not_to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size)
+            post path, params: data_with_claimant, headers: headers.merge(auth_header)
+            parsed = JSON.parse(response.body)
+            poa_id = parsed['data']['id']
+            poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+            expect(poa.auth_headers).not_to have_key('dependent')
           end
         end
       end

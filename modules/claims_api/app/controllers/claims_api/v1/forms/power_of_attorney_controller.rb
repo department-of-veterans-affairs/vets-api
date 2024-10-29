@@ -29,7 +29,7 @@ module ClaimsApi
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
-          file_number = check_file_number_exists!
+          check_file_number_exists!
           dependent_participant_id, claimant_ssn = validate_dependent_claimant!(poa_code:)
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
@@ -48,18 +48,27 @@ module ClaimsApi
             unless power_of_attorney.persisted?
               power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5)
             end
+
+            if feature_enabled_and_claimant_present?
+              update_auth_headers_for_dependent(
+                power_of_attorney,
+                dependent_participant_id,
+                claimant_ssn
+              )
+            end
+
             power_of_attorney.auth_headers['participant_id'] = target_veteran.participant_id
             power_of_attorney.save!
           end
 
           data = power_of_attorney.form_data
 
-          if feature_enabled_and_claimant_present?
-            ClaimsApi::PoaAssignDependentClaimantJob.perform_async(
-              dependent_claimant_poa_assignment_service(poa_code:, file_number:, dependent_participant_id:,
-                                                        claimant_ssn:)
-            )
-          elsif data.dig('signatures', 'veteran').present? && data.dig('signatures', 'representative').present?
+          # if feature_enabled_and_claimant_present?
+          #   ClaimsApi::PoaAssignDependentClaimantJob.perform_async(
+          #     dependent_claimant_poa_assignment_service(poa_code:, file_number:, dependent_participant_id:,
+          #                                               claimant_ssn:)
+          #   )
+          if data.dig('signatures', 'veteran').present? && data.dig('signatures', 'representative').present?
             # Autogenerate a 21-22 form from the request body and upload it to VBMS.
             # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
             ClaimsApi::V1::PoaFormBuilderJob.perform_async(power_of_attorney.id, 'post')
@@ -152,6 +161,17 @@ module ClaimsApi
         end
 
         private
+
+        def update_auth_headers_for_dependent(poa, claimant_pctpnt_id, claimant_ssn)
+          auth_headers = poa.auth_headers
+
+          auth_headers.merge!({
+                                dependent: {
+                                  participant_id: claimant_pctpnt_id,
+                                  ssn: claimant_ssn
+                                }
+                              })
+        end
 
         def feature_enabled_and_claimant_present?
           Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) &&
