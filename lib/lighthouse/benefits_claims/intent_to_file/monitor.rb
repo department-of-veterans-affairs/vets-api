@@ -50,6 +50,7 @@ module BenefitsClaims
           user_account_uuid: form&.user_account_id
         }
         log_silent_failure(context, form&.user_account_id, call_location: caller_locations.first)
+
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
         Rails.logger.error("Lighthouse::CreateIntentToFileJob create #{itf_type} ITF exhausted", context)
       end
