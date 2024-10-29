@@ -54,7 +54,6 @@ Currently, PDFs are generated and uploaded synchronously to the `vff-simple-form
 1. **Status Messaging**:
    1. Display a spinner and "Uploading PDF..." message during the upload.
    1. Once upload completes, replace the message with a download link, allowing users to download their submission PDF.
-
 1. **Polling Logic**:
    1. Implement a polling mechanism to check PDF upload status, ensuring multiple frontend states (e.g., "success", "error", "in-progress") are accurately reflected to the user.
 
@@ -107,15 +106,15 @@ Currently, PDFs are generated and uploaded synchronously to the `vff-simple-form
 ## 5. Impact and Tradeoffs
 
 1. **Increased Complexity**:
-   1. Asynchronous processing with Sidekiq introduces complexity, but alternative solutions (such as one comprehensive frontend call to initiate and check status) simplify the workflow slightly. The proposed solution will considerably increase both front end and back end complexity regardless.
-1. **Wait Times**:
-   1. Although the proposed solution could impact wait times by up to 50%, the wait times are expected to be low as it is. The added complexity may not be worth the reduction in wait time.
-1. **Improved Resilience**:
-   1. Handling the upload asynchronously provides more robust handling of S3 service outages, although internal outages may still impact service availability.
-1. **Scalability**:
-   1. Offloading PDF uploads to Sidekiq will reduce synchronous load on the backend, allowing for better scalability during high-traffic periods.
-1. **Enhanced User Experience**:
-   1. Reduced wait times on the Confirmation page, allowing users quicker access to submission confirmations.
+   1. Asynchronous processing with Sidekiq introduces additional complexity for both the frontend and backend. Tracking job states, handling polling, and managing error notifications create new technical challenges and maintenance overhead.
+1. **User Experience Gains**:
+   1. Although async processing can reduce wait times on the Confirmation page by up to 50%, the current synchronous wait times may already be tolerable. Without concrete metrics showing significant user impact, the added complexity may not justify the gain.
+1. **Resilience vs. Simplicity**:
+   1. While an async solution provides greater resilience to S3 outages, these outages are rare. The current synchronous approach keeps the user experience simpler and more predictable.
+1. **Scalability Benefits**:
+   1. Offloading uploads to Sidekiq reduces backend load during peak times, which could improve scalability. However, scalability concerns may be premature given the current traffic levels.
+1. **Error Handling Limitations**:
+   1. Async workflows can obscure error handling from users, requiring robust retry and monitoring to ensure no failed uploads are missed. A synchronous approach offers more immediate and transparent error feedback.
 
 ## 6. Open Questions
 
@@ -123,7 +122,8 @@ Currently, PDFs are generated and uploaded synchronously to the `vff-simple-form
    1. Would handling both upload initiation and status polling with one API call improve simplicity without reducing functionality? This would prevent frontend polling and maintain a more synchronous user experience.
 1. **S3 Monitoring Interval**:
    1. What interval should the monitoring job use to check for S3 service restoration?
-1. **User Retry Option**: Should users be able to retry failed uploads manually, or should it be fully automated?
+1. **User Retry Option**:
+   1. Should users be able to retry failed uploads manually, or should it be fully automated?
 1. **Persistent Caching**:
    1. Should downloaded PDFs be cached locally on the user's device, or should caching be disabled to avoid repeated requests?
 1. **Job Failure Notification**:
