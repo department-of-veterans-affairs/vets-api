@@ -18,7 +18,6 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
   end
 
   describe '#perform' do
-
     context 'when a user has additional form and files with their submission' do
       let!(:form526_submission) { create(:form526_submission, :with_uploads_and_ancillary_forms) }
 
