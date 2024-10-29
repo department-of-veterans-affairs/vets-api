@@ -10,7 +10,7 @@ module MyHealth
     include MyHealth::MHVControllerConcerns
     service_tag 'mhv-medical-records'
 
-    skip_before_action :authenticate
+    # skip_before_action :authenticate
     before_action :authenticate_bb_client
 
     rescue_from ::MedicalRecords::PatientNotFound do |_exception|
