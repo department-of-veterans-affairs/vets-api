@@ -46,7 +46,6 @@ describe VRE::Submit1900Job do
   end
 
   describe 'raises an exception' do
-
     let(:user_struct) do
       OpenStruct.new(
         edipi: '1007697216',

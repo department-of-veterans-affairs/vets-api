@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'vre/monitor'
 
 module VRE
@@ -17,8 +18,8 @@ module VRE
       user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
       monitor = VRE::Monitor.new
       monitor.track_submission_exhaustion(msg)
-      #do email here, send to user
-      #email = claim.parsed_form['email'] || user['va_profile_email']
+      # do email here, send to user
+      # email = claim.parsed_form['email'] || user['va_profile_email']
       # VANotify::EmailJob.perform_async(
       #   email,
       #   Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
@@ -29,7 +30,6 @@ module VRE
       #     'confirmation_number' => claim.confirmation_number
       #   }
       # )
-
     end
 
     def perform(claim_id, encrypted_user)

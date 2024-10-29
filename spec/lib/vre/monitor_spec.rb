@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'vre/ch31_form'
 require 'vre/monitor'
@@ -27,7 +29,7 @@ RSpec.describe VRE::Monitor do
 
   describe '#track_submission_exhaustion' do
     it 'logs sidekiq job exhaustion' do
-      msg = { 'args' => [claim.id, encrypted_user], error_message: "Error!" }
+      msg = { 'args' => [claim.id, encrypted_user], error_message: 'Error!' }
 
       log = "Failed all retries on VRE::Submit1900Job, last error: #{msg['error_message']}"
       payload = {
