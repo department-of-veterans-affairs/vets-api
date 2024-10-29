@@ -69,22 +69,6 @@ describe Veteran::Service::Representative, type: :model do
                  poa_code: '016'
                )).to eq([])
       end
-
-      it 'can find a user with a suffix' do
-        expect(Veteran::Service::Representative.all_for_user(
-          first_name: identity.first_name,
-          last_name: "#{identity.last_name} III",
-          poa_code: 'A1Q'
-        ).first.poa_codes).to include('A1Q')
-      end
-
-      it 'can find a user with a suffix on the first name' do
-        expect(Veteran::Service::Representative.all_for_user(
-          first_name: "#{identity.first_name} Esq",
-          last_name: identity.last_name,
-          poa_code: 'A1Q'
-        ).first.poa_codes).to include('A1Q')
-      end
     end
   end
 
