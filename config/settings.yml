@@ -261,7 +261,6 @@ bip:
 vet360:
   url: "https://int.vet360.va.gov"
   contact_information:
-    url: "https://qa.vaprofile.va.gov"
     cache_enabled: false
     enabled: true
     timeout: 30
@@ -551,7 +550,6 @@ mhv:
     mock: true
     host: https://apigw-intb.aws.myhealth.va.gov
     access_key: some-access-key
-    create_after_login: false
     sts:
       service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
       issuer: http://localhost:3000

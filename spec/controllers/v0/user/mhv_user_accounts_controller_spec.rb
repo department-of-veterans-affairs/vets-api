@@ -4,8 +4,7 @@ require 'rails_helper'
 require 'mhv/account_creation/service'
 
 describe V0::User::MHVUserAccountsController, type: :controller do
-  let(:user) { build(:user, :loa3, vha_facility_ids:, icn:) }
-  let(:vha_facility_ids) { %w[450MH] }
+  let(:user) { build(:user, :loa3, icn:) }
   let(:icn) { '10101V964144' }
 
   let!(:user_verification) do
@@ -42,21 +41,15 @@ describe V0::User::MHVUserAccountsController, type: :controller do
         allow(mhv_client).to receive(:create_account).and_return(mhv_response)
       end
 
-      it 'returns the MHV account' do
+      it 'breaks the cache and returns the MHV account' do
         get :show
 
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']).to eq(mhv_response.with_indifferent_access)
-      end
-    end
-
-    context 'when the user does not have an MHV account' do
-      let(:vha_facility_ids) { [] }
-
-      it 'returns a 404' do
-        get :show
-
-        expect(response).to have_http_status(:not_found)
+        expect(mhv_client).to have_received(:create_account).with(icn:,
+                                                                  email: user_credential_email.credential_email,
+                                                                  tou_occurred_at: terms_of_use_agreement.created_at,
+                                                                  break_cache: true)
       end
     end
 
