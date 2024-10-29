@@ -104,6 +104,22 @@ module RepresentationManagement
       @representative ||= find_representative
     end
 
+    def representative_individual_type
+      if representative.is_a?(AccreditedIndividual)
+        representative.individual_type
+      else
+        representative.user_types.first
+      end
+    end
+
+    def representative_phone
+      if representative.is_a?(AccreditedIndividual)
+        representative.phone
+      else
+        representative.phone_number
+      end
+    end
+
     private
 
     def consent_limits_must_contain_valid_values

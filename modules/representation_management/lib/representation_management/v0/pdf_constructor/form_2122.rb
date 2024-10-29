@@ -28,7 +28,7 @@ module RepresentationManagement
 
         def next_steps_contact(pdf, data)
           if data.representative
-            add_representative_contact(pdf, data.representative, data.organization.name)
+            add_representative_contact(pdf, data)
           else
             add_organization_contact(pdf, data.organization)
           end
@@ -173,14 +173,16 @@ module RepresentationManagement
 
         private
 
-        def add_representative_contact(pdf, representative, organization_name)
+        def add_representative_contact(pdf, data)
+          representative = data.representative
+          organization_name = data.organization.name
           rep_name = format_name(representative)
           add_text_with_spacing(pdf, rep_name, style: :bold, move_down: 8)
           pdf.font('soursesanspro') do
             pdf.text(organization_name)
             add_address(pdf, representative)
             pdf.move_down(5)
-            pdf.text(format_phone_number(representative.phone))
+            pdf.text(format_phone_number(data.representative_phone))
             pdf.text(representative.email)
           end
         end
