@@ -82,8 +82,6 @@ describe IvcChampva::PdfFiller do
         allow(PdfForms).to receive(:new).and_return(double(fill_form: true))
         allow(Common::FileHelpers).to receive(:delete_file_if_exists)
 
-        # Use the correct regex with the uuid
-        # expect(pdf_filler.generate).to match(%r{tmp/#{@uuid}_#{form_number}-.*-tmp.pdf})
         expect(pdf_filler.generate).to match(%r{tmp/#{uuid}_#{form_number}-tmp\.pdf})
       end
     end
