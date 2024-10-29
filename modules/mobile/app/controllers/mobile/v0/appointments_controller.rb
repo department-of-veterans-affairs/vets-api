@@ -7,7 +7,7 @@ module Mobile
     class AppointmentsController < ApplicationController
       include AppointmentAuthorization
       before_action :authorize_with_facilities
-      UPCOMING_DAYS_LIMIT = 7
+      UPCOMING_DAYS_LIMIT = 30
 
       after_action :clear_appointments_cache, only: %i[cancel create]
 
