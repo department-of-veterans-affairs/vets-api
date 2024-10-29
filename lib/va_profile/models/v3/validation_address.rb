@@ -42,8 +42,8 @@ module VAProfile
             address_line3: address_suggestion_hash['address_line3'],
             address_type:,
             city: address_suggestion_hash['city_name'],
-            country_name: address_suggestion_hash['country']['country_name'],
-            country_code_iso3: address_suggestion_hash['country']['country_code_iso3']
+            country_name: address_suggestion_hash.dig('country', 'country_name'),
+            country_code_iso3: address_suggestion_hash.dig('country', 'country_code_iso3')
           }.merge(regional_attributes(address_type, address_suggestion_hash))
 
           new(attributes)
@@ -57,9 +57,9 @@ module VAProfile
             }
           else
             {
-              state_code: address_hash['state']['state_code'],
-              county_code: address_hash['county']['county_code'],
-              county_name: address_hash['county']['county_name'],
+              state_code: address_hash.dig('state', 'state_code'),
+              county_code: address_hash.dig('county', 'county_code'),
+              county_name: address_hash.dig('county', 'county_name'),
               zip_code: address_hash['zip_code5'],
               zip_code_suffix: address_hash['zip_code4']
             }
