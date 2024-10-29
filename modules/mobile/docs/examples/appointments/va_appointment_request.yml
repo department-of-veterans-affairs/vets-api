@@ -50,4 +50,4 @@ data:
       friendly_location_name: 'CHYSHR-Cheyenne VA Medical Center'
 meta:
   upcomingAppointmentsCount: 1
-  upcomingDaysLimit: 7
+  upcomingDaysLimit: 30
