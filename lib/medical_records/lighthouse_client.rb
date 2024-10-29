@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'medical_records/lighthouse_configuration'
+require 'lighthouse/veterans_health/client'
 # require 'medical_records/patient_not_found'
 
 module MedicalRecords
@@ -22,8 +23,6 @@ module MedicalRecords
     def initialize(icn)
       super()
 
-      # TODO: Remove this temporary ICN once the Lighthouse sandbox test users are available
-      icn = '23000219'
       raise Common::Exceptions::ParameterMissing, 'ICN' if icn.blank?
 
       @icn = icn
@@ -44,9 +43,6 @@ module MedicalRecords
     # @return [FHIR::Client]
     #
     def sessionless_fhir_client(bearer_token)
-      # FHIR debug level is extremely verbose, printing the full contents of every response body.
-      ::FHIR.logger.level = Logger::INFO
-
       FHIR::Client.new(base_path).tap do |client|
         client.use_r4
         client.default_json
@@ -76,11 +72,8 @@ module MedicalRecords
     # end
 
     def list_allergies
-      bundle = fhir_search(FHIR::AllergyIntolerance,
-                           {
-                             search: { parameters: { patient: @icn, 'clinical-status': 'active' } },
-                             headers: { 'Cache-Control': 'no-cache' }
-                           })
+      bundle = Lighthouse::VeteransHealth::Client.new(@icn).list_allergy_intolerances
+      bundle = Oj.load(bundle[:body].to_json, symbol_keys: true)
       sort_bundle(bundle, :recordedDate, :desc)
     end
 
@@ -227,9 +220,9 @@ module MedicalRecords
     # @param order [Symbol] the sort order, :asc (default) or :desc
     #
     def sort_bundle_with_criteria(bundle, order = :asc)
-      sorted_entries = bundle.entry.sort do |entry1, entry2|
-        value1 = yield(entry1.resource)
-        value2 = yield(entry2.resource)
+      sorted_entries = bundle[:entry].sort do |entry1, entry2|
+        value1 = yield(entry1[:resource])
+        value2 = yield(entry2[:resource])
         if value2.nil?
           -1
         elsif value1.nil?
@@ -238,7 +231,7 @@ module MedicalRecords
           order == :asc ? value1 <=> value2 : value2 <=> value1
         end
       end
-      bundle.entry = sorted_entries
+      bundle[:entry] = sorted_entries
       bundle
     end
 
