@@ -346,7 +346,7 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
 
       context 'when an error occurs during form processing' do
         let(:email_address) { nil }
-        let(:message) { 'Failed to retrieve email' }
+        let(:message) { 'Failed to retrieve email address' }
 
         before do
           SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', metadata: '{"status":"error"}')
