@@ -10,7 +10,7 @@ module ZeroSilentFailures
       attr_reader :claim, :zipfile, :aws_download_zip_link
 
       def initialize(saved_claim_id)
-        @claim = ::SavedClaim.find(saved_claim_id)
+        @claim = claim_class.find(saved_claim_id)
         @zipfile = "#{Common::FileHelpers.random_file_path}.zip"
       end
 
@@ -57,6 +57,10 @@ module ZeroSilentFailures
 
       def is_prod?
         Settings.vsp_environment == 'production'
+      end
+
+      def claim_class
+        ::SavedClaim
       end
 
       def files

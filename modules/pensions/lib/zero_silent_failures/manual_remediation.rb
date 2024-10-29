@@ -8,6 +8,10 @@ module Pensions
 
       private
 
+      def claim_class
+        ::Pensions::SavedClaim
+      end
+
       def stamps(timestamp)
         base = super(timestamp)
         pensions = [
