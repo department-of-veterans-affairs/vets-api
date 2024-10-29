@@ -12,22 +12,23 @@ jobs:
       - name: Check for exemption
         id: check_exemption
         run: |
-          echo "requested_teams=${{ github.event.pull_request.requested_teams }}" >> $GITHUB_ENV
           if [ ${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), 'backend') }} ]; then
             echo "exempt=false" >> $GITHUB_ENV
-            exit 0
+            exit 1
           else
             echo "exempt=true" >> $GITHUB_ENV
-            exit 0
+            exit 1
           fi
 
       - name: DELETE ME - echo vars
         if: always()
         run: |
           echo "exempt: ${{ env.exempt }}"
-          echo "requested_teams: ${{ toJSON(github.event.pull_request.requested_teams) }}"
+          echo 'requested_teams: ${{ toJSON(github.event.pull_request) }}' | jq .
+          echo 'requested_teams: ${{ toJSON(github.event.pull_request.requested_teams) }}' | jq .
+          echo 'requested_teams: ${{ toJSON(github.event.pull_request.requested_teams) }}' | jq 'length'
 
       - name: This shouldn't Run
         run: echo "This step should run only if checks don't exit early"
 
-     
+      #
