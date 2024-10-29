@@ -42,7 +42,7 @@ class BenefitsIntakeStatusJob
     intake_service = BenefitsIntake::Service.new
 
     pending_form_submissions.each_slice(batch_size) do |batch|
-      batch_uuids = batch.map(&:benefits_intake_uuid)
+      batch_uuids = batch.map { |submission| submission.latest_attempt&.benefits_intake_uuid }
       response = intake_service.bulk_status(uuids: batch_uuids)
 
       # Log the entire response for debugging purposes
@@ -72,7 +72,7 @@ class BenefitsIntakeStatusJob
     response.body['data']&.each do |submission|
       uuid = submission['id']
       form_submission = pending_form_submissions.find do |submission_from_db|
-        submission_from_db.benefits_intake_uuid == uuid
+        submission_from_db.latest_attempt&.benefits_intake_uuid == uuid
       end
       form_id = form_submission.form_type
 
