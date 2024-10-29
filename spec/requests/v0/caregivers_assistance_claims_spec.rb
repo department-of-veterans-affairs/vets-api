@@ -15,6 +15,98 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
   let(:build_valid_form_submission) { -> { VetsJsonSchema::EXAMPLES['10-10CG'].clone } }
   let(:get_schema) { -> { VetsJsonSchema::SCHEMAS['10-10CG'].clone } }
 
+  before do
+    allow_any_instance_of(Form1010cg::Auditor).to receive(:record)
+    allow_any_instance_of(Form1010cg::Auditor).to receive(:record_caregivers)
+  end
+
+  describe 'POST /v0/caregivers_assistance_claims' do
+    subject do
+      post('/v0/caregivers_assistance_claims', params: body, headers:)
+    end
+
+    let(:valid_form_data) { get_fixture('pdf_fill/10-10CG/simple').to_json }
+    let(:invalid_form_data) { '{}' }
+
+    before do
+      allow(SavedClaim::CaregiversAssistanceClaim).to receive(:new)
+        .and_return(claim) # Ensure the same claim instance is used
+    end
+
+    context 'when the claim is valid' do
+      let(:body) { { caregivers_assistance_claim: { form: valid_form_data } }.to_json }
+      let(:claim) { build(:caregivers_assistance_claim, form: valid_form_data) }
+
+      before do
+        allow_any_instance_of(Form1010cg::Service).to receive(:assert_veteran_status)
+        allow(Form1010cg::SubmissionJob).to receive(:perform_async)
+      end
+
+      it 'creates a new claim, enqueues a submission job, and returns claim id' do
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_attempt)
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record_caregivers).with(claim)
+
+        expect { subject }.to change(SavedClaim::CaregiversAssistanceClaim, :count).by(1)
+
+        expect(Form1010cg::SubmissionJob).to have_received(:perform_async).with(claim.id)
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['data']['id']).to eq(SavedClaim::CaregiversAssistanceClaim.last.id.to_s)
+        expect(JSON.parse(response.body)['data']['type']).to eq('claim')
+      end
+    end
+
+    context 'when the claim is invalid' do
+      let(:body) { { caregivers_assistance_claim: { form: invalid_form_data } }.to_json }
+      let(:claim) { build(:caregivers_assistance_claim, form: invalid_form_data) }
+
+      before do
+        allow(PersonalInformationLog).to receive(:create!)
+      end
+
+      it 'logs the error and returns unprocessable entity' do
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_attempt)
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_failure_client_data,
+                                                                             hash_including(
+                                                                               claim_guid: claim.guid,
+                                                                               errors: hash_including('#/': be_present)
+                                                                             ))
+
+        subject
+        expect(PersonalInformationLog).to have_received(:create!).with(
+          data: { form: claim.parsed_form },
+          error_class: '1010CGValidationError'
+        )
+        expect(response).to have_http_status(:unprocessable_entity)
+
+        res_body = JSON.parse(response.body)
+
+        expect(res_body['errors']).to be_present
+        expect(res_body['errors'].size).to eq(4)
+        expect(res_body['errors'][0]['title']).to include(
+          "did not contain a required property of 'veteran'"
+        )
+        expect(res_body['errors'][0]['code']).to eq('100')
+        expect(res_body['errors'][0]['status']).to eq('422')
+        expect(res_body['errors'][1]['title']).to include(
+          "#/ The property '#/' of type object did not match one or more of the required schemas in schema"
+        )
+        expect(res_body['errors'][1]['code']).to eq('100')
+        expect(res_body['errors'][1]['status']).to eq('422')
+        expect(res_body['errors'][2]['title']).to include(
+          "#/ The property '#/' did not contain a required property of 'primaryCaregiver'"
+        )
+        expect(res_body['errors'][2]['code']).to eq('100')
+        expect(res_body['errors'][2]['status']).to eq('422')
+        expect(res_body['errors'][3]['title']).to include(
+          "#/ The property '#/' did not contain a required property of 'secondaryCaregiverOne'"
+        )
+        expect(res_body['errors'][3]['code']).to eq('100')
+        expect(res_body['errors'][3]['status']).to eq('422')
+      end
+    end
+  end
+
   describe 'POST /v0/caregivers_assistance_claims/download_pdf' do
     subject do
       post('/v0/caregivers_assistance_claims/download_pdf', params: body, headers:)
@@ -46,6 +138,8 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
         expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
         expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
+
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:pdf_download)
 
         subject
 
@@ -80,6 +174,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
         expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
         expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:pdf_download)
 
         subject
 
