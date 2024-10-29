@@ -18,6 +18,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
   before do
     allow_any_instance_of(Form1010cg::Auditor).to receive(:record)
     allow_any_instance_of(Form1010cg::Auditor).to receive(:record_caregivers)
+    allow(Rails.logger).to receive(:debug)
   end
 
   describe 'POST /v0/caregivers_assistance_claims' do
@@ -55,6 +56,24 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
           expect(JSON.parse(response.body)['data']['id']).to eq(SavedClaim::CaregiversAssistanceClaim.last.id.to_s)
           expect(JSON.parse(response.body)['data']['type']).to eq('claim')
         end
+
+        context 'when an unexpected error occurs saving claim' do
+          let(:error_message) { 'Some unexpected error' }
+
+          before do
+            allow(claim).to receive(:save!).and_raise(StandardError.new(error_message))
+          end
+
+          it 'logs the error and re-raises it' do
+            expect(Rails.logger).to receive(:debug).with(
+              'CaregiverAssistanceClaim: error submitting claim',
+              { saved_claim_guid: claim.guid, error: kind_of(StandardError) }
+            )
+
+            subject
+            expect(response).to have_http_status(:internal_server_error)
+          end
+        end
       end
 
       context 'assert_veteran_status error' do
@@ -65,6 +84,11 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         end
 
         it 'returns backend service exception' do
+          expect(Rails.logger).not_to receive(:debug).with(
+            'CaregiverAssistanceClaim: error submitting claim',
+            { saved_claim_guid: claim.guid, error: instance_of(Form1010cg::Service::InvalidVeteranStatus) }
+          )
+
           subject
 
           expect(response).to have_http_status(:service_unavailable)
@@ -90,12 +114,18 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
                                                                                claim_guid: claim.guid,
                                                                                errors: hash_including('#/': be_present)
                                                                              ))
+        expect(Rails.logger).not_to receive(:debug).with(
+          'CaregiverAssistanceClaim: error submitting claim',
+          { saved_claim_guid: claim.guid,
+            error: instance_of(Common::Exceptions::ValidationErrors) }
+        )
 
         subject
         expect(PersonalInformationLog).to have_received(:create!).with(
           data: { form: claim.parsed_form },
           error_class: '1010CGValidationError'
         )
+
         expect(response).to have_http_status(:unprocessable_entity)
 
         res_body = JSON.parse(response.body)
@@ -122,6 +152,26 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         )
         expect(res_body['errors'][3]['code']).to eq('100')
         expect(res_body['errors'][3]['status']).to eq('422')
+      end
+    end
+
+    context 'when an unexpected error' do
+      let(:body) { { caregivers_assistance_claim: { form: valid_form_data } }.to_json }
+      let(:claim) { build(:caregivers_assistance_claim, form: valid_form_data) }
+      let(:error_message) { 'Some unexpected error' }
+
+      before do
+        allow(claim).to receive(:valid?).and_raise(StandardError.new(error_message))
+      end
+
+      it 'logs the error and re-raises it' do
+        expect(Rails.logger).to receive(:debug).with(
+          'CaregiverAssistanceClaim: error submitting claim',
+          { saved_claim_guid: claim.guid, error: kind_of(StandardError) }
+        )
+
+        subject
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end
