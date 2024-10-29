@@ -5,7 +5,7 @@ module IvcChampva
     attr_accessor :form_id, :uuid, :data
 
     def handle_attachments(file_path)
-      file_path_uuid = file_path.gsub("#{form_id}-tmp", "#{form_id}-tmp")
+      file_path_uuid = file_path
       File.rename(file_path, file_path_uuid)
       attachments = get_attachments
       file_paths = [file_path_uuid]
