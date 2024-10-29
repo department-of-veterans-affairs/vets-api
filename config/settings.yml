@@ -259,7 +259,7 @@ bip:
 
 # Settings for VAProfile
 vet360:
-  url: "https://localhost:4000"
+  url: "https://int.vet360.va.gov"
   contact_information:
     cache_enabled: false
     enabled: true
