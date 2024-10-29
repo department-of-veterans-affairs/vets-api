@@ -44,6 +44,36 @@ module EVSS
 
         # REMEMBER WILL NEED TO PASS ATTACHMENT TO PROVIDER
 
+        if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
+          submission = Form526Submission.find(form526_submission_id)
+
+          # yuckkkk
+          form526_submission_id, upload_data = msg['args']
+          # Match existing data check in perform method
+          upload_data = upload_data.first if upload_data.is_a?(Array)
+          # guid = upload_data['confirmationCode']
+
+          user = User.find(submission.user_uuid)
+
+          provider = ApiProviderFactory.call(
+            type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
+            options: {
+              form526_submission: submission,
+              document_type: upload_data['attachmentId'],
+              statsd_metric_prefix: STATSD_KEY_PREFIX,
+              # supporting_evidence_attachment:
+            },
+            current_user: user,
+            feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS
+          )
+
+          puts "provider think something went wrong here with init"
+          puts provider
+
+          # provider = api_upload_provider(submission, document_type, )
+          provider.log_uploading_job_failure(self, error_class, error_message)
+        end
+
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
         ::Rails.logger.warn(
@@ -68,9 +98,6 @@ module EVSS
 
       def self.api_upload_provider(submission, document_type, supporting_evidence_attachment)
         user = User.find(submission.user_uuid)
-
-        puts "in proivder factory call here is attachment"
-        puts supporting_evidence_attachment
 
         ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],

@@ -10,10 +10,11 @@ class EVSSSupplementalDocumentUploadProvider
   # @param form526_submission [Form526Submission]
   # @param va_document_type [String] VA document code; see LighthouseDocument::DOCUMENT_TYPES
   # @param statsd_metric_prefix [String] prefix, e.g. 'worker.evss.submit_form526_bdd_instructions' from including job
-  def initialize(form526_submission, va_document_type, statsd_metric_prefix)
+  def initialize(form526_submission, va_document_type, statsd_metric_prefix, attachment = nil)
     @form526_submission = form526_submission
     @va_document_type = va_document_type
     @statsd_metric_prefix = statsd_metric_prefix
+    @attachment = attachment
   end
 
   # Uploads to EVSS via the EVSS::DocumentsService require both the file body and an instance

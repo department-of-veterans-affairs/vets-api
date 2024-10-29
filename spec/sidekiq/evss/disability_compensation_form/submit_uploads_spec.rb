@@ -164,13 +164,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     # let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
     # let(:document_data) { double(:document_data, valid?: true) }
 
-
-
     let(:upload_data) do
-      puts "uploads!"
-      puts submission.form[Form526Submission::FORM_526_UPLOADS]
       submission.form[Form526Submission::FORM_526_UPLOADS][0]
-
     end
 
     # should not be duping all of these
@@ -183,201 +178,191 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         sea
       end
 
-      # let(:file_read) { File.read('spec/fixtures/files/sm_file1.jpg') }
-
       let(:perform_upload) do
         subject.perform_async(submission.id, upload_data)
         described_class.drain
       end
 
-    context 'when the disability_compensation_upload_veteran_evidence_to_lighthouse flipper is enabled' do
-      let(:faraday_response) { instance_double(Faraday::Response) }
-      let(:lighthouse_request_id) { Faker::Number.number(digits: 8) }
-      # let(:expected_statsd_metrics_prefix) do
-      #   'worker.evss.submit_form526_upload.lighthouse_supplemental_document_upload_provider'
-      # end
+      context 'when the disability_compensation_upload_veteran_evidence_to_lighthouse flipper is enabled' do
+        let(:faraday_response) { instance_double(Faraday::Response) }
+        let(:lighthouse_request_id) { Faker::Number.number(digits: 8) }
+        let(:expected_statsd_metrics_prefix) do
+          'worker.evss.submit_form526_upload.lighthouse_supplemental_document_upload_provider'
+        end
 
-      let(:expected_lighthouse_document) do
-        LighthouseDocument.new(
-          claim_id: submission.submitted_claim_id,
-          participant_id: user.participant_id,
-          document_type: upload_data['attachmentId'],
-          file_name: attachment.converted_filename,
-          supporting_evidence_attachment: attachment
-        )
-      end
+        let(:expected_lighthouse_document) do
+          LighthouseDocument.new(
+            claim_id: submission.submitted_claim_id,
+            participant_id: user.participant_id,
+            document_type: upload_data['attachmentId'],
+            file_name: attachment.converted_filename,
+            supporting_evidence_attachment: attachment
+          )
+        end
 
-      # let(:expected_lighthouse_document_attributes) do
-      #   {
-      #     claim_id: submission.submitted_claim_id,
-      #     participant_id: user.participant_id,
-      #     document_type: upload_data['attachmentId'],
-      #     file_name: 'spec/fixtures/files/sm_file1.jpg',
-      #     supporting_evidence_attachment: attachment
-      #   }
-      # end
+        before do
+          Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
 
-      before do
-        Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
+          allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+            .and_return(faraday_response)
 
-        allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-          .and_return(faraday_response)
-
-        allow(faraday_response).to receive(:body).and_return(
-          {
-            'data' => {
-              'success' => true,
-              'requestId' => lighthouse_request_id
+          allow(faraday_response).to receive(:body).and_return(
+            {
+              'data' => {
+                'success' => true,
+                'requestId' => lighthouse_request_id
+              }
             }
+          )
+        end
+
+        it 'uploads the veteran evidence to Lighthouse' do
+          expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+            .with(file.read, expected_lighthouse_document)
+
+          perform_upload
+        end
+
+        it 'logs the upload attempt with the correct job prefix' do
+          expect(StatsD).to receive(:increment).with(
+            "#{expected_statsd_metrics_prefix}.upload_attempt"
+          )
+          perform_upload
+        end
+
+        it 'increments the correct StatsD success metric' do
+          expect(StatsD).to receive(:increment).with(
+            "#{expected_statsd_metrics_prefix}.upload_success"
+          )
+          perform_upload
+        end
+
+        it 'creates a pending Lighthouse526DocumentUpload record for the submission so we can poll Lighthouse later' do
+          upload_attributes = {
+            aasm_state: 'pending',
+            form526_submission_id: submission.id,
+            document_type: 'Veteran Upload',
+            lighthouse_document_request_id: lighthouse_request_id
           }
-        )
+
+          expect(Lighthouse526DocumentUpload.where(**upload_attributes).count).to eq(0)
+
+          perform_upload
+
+          expect(Lighthouse526DocumentUpload.where(**upload_attributes).count).to eq(1)
+        end
+
+        context 'when Lighthouse returns an error response' do
+          let(:error_response_body) do
+            # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
+            {
+              'errors' => [
+                {
+                  'detail' => 'Something broke',
+                  'status' => 400,
+                  'title' => 'Bad Request',
+                  'instance' => Faker::Internet.uuid
+                }
+              ]
+            }
+          end
+
+          before do
+            allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+              .with(file.read, expected_lighthouse_document)
+              .and_return(faraday_response)
+
+            allow(faraday_response).to receive(:body).and_return(error_response_body)
+          end
+
+          it 'logs the Lighthouse error response' do
+            expect(Rails.logger).to receive(:error).with(
+              'LighthouseSupplementalDocumentUploadProvider upload failed',
+              {
+                class: 'LighthouseSupplementalDocumentUploadProvider',
+                submission_id: submission.submitted_claim_id,
+                user_uuid: submission.user_uuid,
+                va_document_type_code: 'L451',
+                primary_form: 'Form526',
+                lighthouse_error_response: error_response_body
+              }
+            )
+
+            perform_upload
+          end
+
+          it 'increments the correct status failure metric' do
+            expect(StatsD).to receive(:increment).with(
+              "#{expected_statsd_metrics_prefix}.upload_failure"
+            )
+
+            perform_upload
+          end
+        end
       end
 
-      it 'uploads the veteran evidence to Lighthouse' do
-        # the expected document passed here ends up having a diffewrent object id than the one expected in the test above
-        expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-          .with(file.read, expected_lighthouse_document)
+      # Upload to EVSS
+      context 'when the disability_compensation_upload_veteran_evidence_to_lighthouse flipper is disabled' do
+        before do
+          Flipper.disable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
+          allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
+        end
 
-        perform_upload
-      end
+        let(:evss_claim_document) do
+          EVSSClaimDocument.new(
+            evss_claim_id: submission.submitted_claim_id,
+            document_type: upload_data['attachmentId'],
+            file_name: attachment.converted_filename
+          )
+        end
 
-      # it 'logs the upload attempt with the correct job prefix' do
-      #   expect(StatsD).to receive(:increment).with(
-      #     "#{expected_statsd_metrics_prefix}.upload_attempt"
-      #   )
-      #   perform_upload
-      # end
+        let(:expected_statsd_metrics_prefix) do
+          'worker.evss.submit_form526_upload.evss_supplemental_document_upload_provider'
+        end
 
-      # it 'increments the correct StatsD success metric' do
-      #   expect(StatsD).to receive(:increment).with(
-      #     "#{expected_statsd_metrics_prefix}.upload_success"
-      #   )
-      #   perform_upload
-      # end
+        it 'uploads the document via the EVSS Documents Service' do
+          expect_any_instance_of(EVSS::DocumentsService).to receive(:upload)
+            .with(file.read, evss_claim_document)
 
-      # it 'creates a pending Lighthouse526DocumentUpload record for the submission so we can poll Lighthouse later' do
-      #   upload_attributes = {
-      #     aasm_state: 'pending',
-      #     form526_submission_id: submission.id,
-      #     document_type: 'BDD Instructions',
-      #     lighthouse_document_request_id: lighthouse_request_id
-      #   }
+          perform_upload
+        end
 
-      #   expect(Lighthouse526DocumentUpload.where(**upload_attributes).count).to eq(0)
+        it 'logs the upload attempt with the correct job prefix' do
+          expect(StatsD).to receive(:increment).with(
+            "#{expected_statsd_metrics_prefix}.upload_attempt"
+          )
 
-      #   perform_upload
+          perform_upload
+        end
 
-      #   expect(Lighthouse526DocumentUpload.where(**upload_attributes).count).to eq(1)
-      # end
+        it 'increments the correct StatsD success metric' do
+          expect(StatsD).to receive(:increment).with(
+            "#{expected_statsd_metrics_prefix}.upload_success"
+          )
 
-      # context 'when Lighthouse returns an error response' do
-      #   let(:error_response_body) do
-      #     # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
-      #     {
-      #       'errors' => [
-      #         {
-      #           'detail' => 'Something broke',
-      #           'status' => 400,
-      #           'title' => 'Bad Request',
-      #           'instance' => Faker::Internet.uuid
-      #         }
-      #       ]
-      #     }
-      #   end
+          perform_upload
+        end
 
-      #   before do
-      #     allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-      #       .with(file_read, expected_lighthouse_document)
-      #       .and_return(faraday_response)
+        context 'when an upload raises an EVSS response error' do
+          it 'logs an upload error and re-raises the error' do
+            allow_any_instance_of(EVSS::DocumentsService).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
+            expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_upload_failure)
 
-      #     allow(faraday_response).to receive(:body).and_return(error_response_body)
-      #   end
+            expect { perform_upload }.to raise_error(EVSS::ErrorMiddleware::EVSSError)
 
-        # it 'logs the Lighthouse error response' do
-        #   expect(Rails.logger).to receive(:error).with(
-        #     'LighthouseSupplementalDocumentUploadProvider upload failed',
-        #     {
-        #       class: 'LighthouseSupplementalDocumentUploadProvider',
-        #       submission_id: submission.submitted_claim_id,
-        #       user_uuid: submission.user_uuid,
-        #       va_document_type_code: 'L023',
-        #       primary_form: 'Form526',
-        #       lighthouse_error_response: error_response_body
-        #     }
-        #   )
-
-        #   perform_upload
-        # end
-
-        # it 'increments the correct status failure metric' do
-        #   expect(StatsD).to receive(:increment).with(
-        #     "#{expected_statsd_metrics_prefix}.upload_failure"
-        #   )
-
-        #   perform_upload
-        # end
+            # expect do
+              # subject.perform_async(submission.id)
+              # described_class.drain
+            # end.to raise_error(EVSS::ErrorMiddleware::EVSSError)
+          end
+        end
       end
     end
-
-    # Upload to EVSS
-    # context 'when the disability_compensation_upload_bdd_instructions_to_lighthouse flipper is disabled' do
-    #   before do
-    #     Flipper.disable(:disability_compensation_upload_bdd_instructions_to_lighthouse)
-    #     allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
-    #   end
-
-    #   let(:evss_claim_document) do
-    #     EVSSClaimDocument.new(
-    #       evss_claim_id: submission.submitted_claim_id,
-    #       document_type: 'L023',
-    #       file_name: 'BDD_Instructions.pdf'
-    #     )
-    #   end
-
-    #   let(:expected_statsd_metrics_prefix) do
-    #     'worker.evss.submit_form526_upload.evss_supplemental_document_upload_provider'
-    #   end
-
-      # it 'uploads the document via the EVSS Documents Service' do
-      #   expect_any_instance_of(EVSS::DocumentsService).to receive(:upload)
-      #     .with(file_read, evss_claim_document)
-
-      #   perform_upload
-      # end
-
-      # it 'logs the upload attempt with the correct job prefix' do
-      #   expect(StatsD).to receive(:increment).with(
-      #     "#{expected_statsd_metrics_prefix}.upload_attempt"
-      #   )
-
-      #   perform_upload
-      # end
-
-      # it 'increments the correct StatsD success metric' do
-      #   expect(StatsD).to receive(:increment).with(
-      #     "#{expected_statsd_metrics_prefix}.upload_success"
-      #   )
-
-      #   perform_upload
-      # end
-
-      # context 'when an upload raises an EVSS response error' do
-      #   it 'logs an upload error' do
-      #     allow_any_instance_of(EVSS::DocumentsService).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
-      #     expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_upload_failure)
-
-      #     expect do
-      #       subject.perform_async(submission.id)
-      #       described_class.drain
-      #     end.to raise_error(EVSS::ErrorMiddleware::EVSSError)
-      #   end
-      # end
-    # end
   end
 
   context 'catastrophic failure state' do
     describe 'when all retries are exhausted' do
-      let!(:form526_submission) { create(:form526_submission) }
+      let!(:form526_submission) { create(:form526_submission, :with_uploads) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
@@ -394,34 +379,38 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           Flipper.enable(:disability_compensation_use_api_provider_for_submit_veteran_upload)
         end
 
+        let(:upload_data) do
+          form526_submission.form[Form526Submission::FORM_526_UPLOADS][0]
+        end
+    
         let(:sidekiq_job_exhaustion_errors) do
           {
             'jid' => form526_job_status.job_id,
             'error_class' => 'Broken Job Error',
             'error_message' => 'Your Job Broke',
-            'args' => [form526_submission.id]
+            'args' => [form526_submission.id, upload_data]
           }
         end
 
         context 'for a Lighthouse upload' do
           it 'logs the job failure' do
-            Flipper.enable(:disability_compensation_upload_bdd_instructions_to_lighthouse)
+            Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
 
             subject.within_sidekiq_retries_exhausted_block(sidekiq_job_exhaustion_errors) do
               expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
                 .to receive(:log_uploading_job_failure)
-                .with(EVSS::DisabilityCompensationForm::UploadBddInstructions, 'Broken Job Error', 'Your Job Broke')
+                .with(EVSS::DisabilityCompensationForm::SubmitUploads, 'Broken Job Error', 'Your Job Broke')
             end
           end
         end
 
         context 'for an EVSS Upload' do
           it 'logs the job failure' do
-            Flipper.disable(:disability_compensation_upload_bdd_instructions_to_lighthouse)
+            Flipper.disable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
 
             subject.within_sidekiq_retries_exhausted_block(sidekiq_job_exhaustion_errors) do
               expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_uploading_job_failure)
-                .with(EVSS::DisabilityCompensationForm::UploadBddInstructions, 'Broken Job Error', 'Your Job Broke')
+                .with(EVSS::DisabilityCompensationForm::SubmitUploads, 'Broken Job Error', 'Your Job Broke')
             end
           end
         end

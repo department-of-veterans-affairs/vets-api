@@ -171,10 +171,7 @@ class LighthouseSupplementalDocumentUploadProvider
     { form_attachment: @supporting_evidence_attachment }
   end
 
-  # explain
   def polling_document_type
-    puts "attachment"
-    puts @supporting_evidence_attachment
     return Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE if @supporting_evidence_attachment.present?
 
     case @va_document_type
