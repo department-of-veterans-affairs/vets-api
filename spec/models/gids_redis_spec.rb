@@ -22,7 +22,7 @@ describe GIDSRedis do
 
     context 'and the method belongs to `GI::SearchClient`' do
       it 'delegates to `GI::SearchClient`' do
-        allow_any_instance_of(GI::SearchClient).to receive(get_lce_search_results_v1).and_return(gids_response)
+        allow_any_instance_of(GI::SearchClient).to receive(:get_lce_search_results_v1).and_return(gids_response)
 
         expect(subject.get_institution_search_results_v0(scrubbed_params)).to eq(gids_response.body)
       end
