@@ -42,7 +42,7 @@ module DebtsApi
         def get_installment_or_other_debt_data_for(item)
           data = {
             'purpose' => item['purpose'],
-            'creditorName' => item['creditor_name'],
+            'creditorName' => item['creditor_name'] || '',
             'originalAmount' => format_installment_debt_number(item['original_amount']),
             'unpaidBalance' => format_installment_debt_number(item['unpaid_balance']),
             'amountDueMonthly' => item['amount_due_monthly'],

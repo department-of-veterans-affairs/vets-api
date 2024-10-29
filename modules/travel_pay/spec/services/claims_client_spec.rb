@@ -36,12 +36,6 @@ describe TravelPay::ClaimsClient do
   end
 
   context '/claims' do
-    before do
-      allow_any_instance_of(TravelPay::TokenService)
-        .to receive(:get_tokens)
-        .and_return('veis_token', 'btsss_token')
-    end
-
     # GET
     it 'returns response from claims endpoint' do
       @stubs.get('/api/v1/claims') do

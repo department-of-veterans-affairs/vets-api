@@ -9,6 +9,7 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   include AppealsApi::StatusSimulation
   include AppealsApi::CharacterUtilities
   include AppealsApi::PdfDownloads
+  include AppealsApi::GatewayOriginCheck
 
   skip_before_action :authenticate
   before_action :validate_icn_header, only: %i[index download]
