@@ -6,6 +6,8 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
   subject { described_class }
 
   let(:email_service) { double('VaNotify::Service') }
+  let(:timestamp) { Time.now.utc }
+  let(:failure_timestamp) { timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.') }
 
   before do
     Sidekiq::Job.clear_all
@@ -26,6 +28,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
           personalisation: {
             first_name: form526_submission.get_first_name,
             date_submitted: form526_submission.format_creation_time_for_mailers,
+            date_of_failure: failure_timestamp,
             files_submitted: ['extXas.pdf', 'extXas.pdf', 'extXas.pdf'],
             forms_submitted: [
               'VA Form 21-4142',
@@ -38,17 +41,21 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       end
 
       it 'dispatches a failure notification email with the expected params' do
-        expect(email_service).to receive(:send_email).with(expected_params)
+        Timecop.freeze(timestamp) do
+          expect(email_service).to receive(:send_email).with(expected_params)
 
-        subject.perform_async(form526_submission.id)
-        subject.drain
+          subject.perform_async(form526_submission.id)
+          subject.drain
+        end
       end
 
       it 'creates a remediation record for the submission' do
-        allow(email_service).to receive(:send_email)
-        expect { subject.new.perform(form526_submission.id) }.to change(Form526SubmissionRemediation, :count)
-        remediation = Form526SubmissionRemediation.where(form526_submission_id: form526_submission.id)
-        expect(remediation.present?).to be true
+        Timecop.freeze(timestamp) do
+          allow(email_service).to receive(:send_email)
+          expect { subject.new.perform(form526_submission.id) }.to change(Form526SubmissionRemediation, :count)
+          remediation = Form526SubmissionRemediation.where(form526_submission_id: form526_submission.id)
+          expect(remediation.present?).to be true
+        end
       end
     end
 
@@ -61,6 +68,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
           personalisation: {
             first_name: form526_submission.get_first_name,
             date_submitted: form526_submission.format_creation_time_for_mailers,
+            date_of_failure: failure_timestamp,
             files_submitted: ['extXas.pdf', 'extXas.pdf', 'extXas.pdf'],
             forms_submitted: 'None'
           }
@@ -74,10 +82,12 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       end
 
       it 'replaces the forms list variable with a placeholder' do
-        expect(email_service).to receive(:send_email).with(expected_params)
+        Timecop.freeze(timestamp) do
+          expect(email_service).to receive(:send_email).with(expected_params)
 
-        subject.perform_async(form526_submission.id)
-        subject.drain
+          subject.perform_async(form526_submission.id)
+          subject.drain
+        end
       end
     end
 
@@ -89,6 +99,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
           personalisation: {
             first_name: form526_submission.get_first_name,
             date_submitted: form526_submission.format_creation_time_for_mailers,
+            date_of_failure: failure_timestamp,
             files_submitted: 'None',
             forms_submitted: [
               'VA Form 21-4142',
@@ -103,10 +114,12 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       let!(:form526_submission) { create(:form526_submission, :with_everything) }
 
       it 'replaces the files list variable with a placeholder' do
-        expect(email_service).to receive(:send_email).with(expected_params)
+        Timecop.freeze(timestamp) do
+          expect(email_service).to receive(:send_email).with(expected_params)
 
-        subject.perform_async(form526_submission.id)
-        subject.drain
+          subject.perform_async(form526_submission.id)
+          subject.drain
+        end
       end
     end
   end
@@ -132,7 +145,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       it 'logs success' do
         Timecop.freeze(timestamp) do
           expect(Rails.logger).to receive(:info).with(
-            'Form526SubmissionFailureEmail notification dispatched',
+            'Form526SubmissionFailureEmailJob notification dispatched',
             { form526_submission_id: form526_submission.id, timestamp: }
           )
           subject.new.perform(form526_submission.id)
@@ -144,7 +157,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       let(:error_message) { 'oh gosh oh jeeze oh no' }
       let(:expected_log) do
         [
-          'Form526SubmissionFailureEmail notification dispatched',
+          'Form526SubmissionFailureEmailJob notification dispatched',
           {
             form526_submission_id: form526_submission.id,
             error_message:,
@@ -165,7 +178,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       it 'logs error' do
         Timecop.freeze(timestamp) do
           expect(Rails.logger).to receive(:error).with(
-            'Form526SubmissionFailureEmail notification failed',
+            'Form526SubmissionFailureEmailJob notification failed',
             {
               form526_submission_id: form526_submission.id,
               error_message:,
