@@ -2,7 +2,6 @@
   "record_consent": true,
   "consent_address_change": true,
   "consent_limits": [],
-  "conditions_of_appointment": [],
   "veteran": {
     "ssn": "123456789",
     "va_file_number": "123456789",

@@ -194,9 +194,6 @@ module RepresentationManagement
             "#{PAGE2_KEY}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits),
             # Consent Address Change
             "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0
-            # Condtions of Appointment
-            # This is commented out because this field isn't included in the request payload.
-            # "#{PAGE3_KEY}.LIMITATIONS[0]": data.conditions_of_appointment.join(', ')
           }
         end
 

@@ -24,7 +24,6 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
           record_consent: '',
           consent_address_change: '',
           consent_limits: [],
-          conditions_of_appointment: [],
           claimant: {
             date_of_birth: '1980-12-31',
             relationship: 'Spouse',

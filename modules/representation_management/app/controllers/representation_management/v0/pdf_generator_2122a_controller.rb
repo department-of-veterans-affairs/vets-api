@@ -35,8 +35,7 @@ module RepresentationManagement
           representative_id: form_params[:representative][:id],
           record_consent: form_params[:record_consent],
           consent_limits: form_params[:consent_limits],
-          consent_address_change: form_params[:consent_address_change],
-          conditions_of_appointment: form_params[:conditions_of_appointment]
+          consent_address_change: form_params[:consent_address_change]
         }.merge(flatten_veteran_params(form_params))
           .merge(flatten_claimant_params(form_params))
       end

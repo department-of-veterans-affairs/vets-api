@@ -77,11 +77,6 @@ module SwaggerSharedComponents
           type: :array,
           items: { type: :string },
           example: %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL]
-        },
-        conditions_of_appointment: {
-          type: :array,
-          items: { type: :string },
-          example: %w[a123 b456 c789]
         }
       }
     end

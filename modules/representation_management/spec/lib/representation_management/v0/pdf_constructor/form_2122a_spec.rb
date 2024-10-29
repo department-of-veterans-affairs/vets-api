@@ -55,8 +55,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
 
       record_consent: true,
       consent_limits: [],
-      consent_address_change: true,
-      conditions_of_appointment: []
+      consent_address_change: true
     }
   end
 

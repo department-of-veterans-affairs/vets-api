@@ -14,7 +14,6 @@ module RepresentationManagement
           :record_consent,
           :consent_address_change,
           { consent_limits: [],
-            conditions_of_appointment: [],
             claimant: claimant_params_permitted,
             representative: representative_params_permitted,
             veteran: veteran_params_permitted }

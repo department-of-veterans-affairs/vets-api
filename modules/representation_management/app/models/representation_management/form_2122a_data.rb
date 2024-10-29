@@ -6,15 +6,11 @@ module RepresentationManagement
     VETERAN_SERVICE_BRANCHES = %w[ARMY NAVY AIR_FORCE MARINE_CORPS COAST_GUARD SPACE_FORCE NOAA
                                   USPHS].freeze
 
-    representative_consent_attrs = %i[
-      conditions_of_appointment
-    ]
-
     veteran_attrs = %i[
       veteran_service_branch
     ]
 
-    attr_accessor(*[representative_consent_attrs, veteran_attrs].flatten)
+    attr_accessor(*[veteran_attrs].flatten)
 
     validates :representative_id, presence: true
 
