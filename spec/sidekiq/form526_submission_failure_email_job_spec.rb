@@ -18,6 +18,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
   end
 
   describe '#perform' do
+
     context 'when a user has additional form and files with their submission' do
       let!(:form526_submission) { create(:form526_submission, :with_uploads_and_ancillary_forms) }
 
@@ -40,11 +41,22 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
         }
       end
 
+      context 'when a timestamp is not passed' do
+        it 'marks the current time as the date_of_failure' do
+          Timecop.freeze(timestamp) do
+            expect(email_service).to receive(:send_email).with(expected_params)
+
+            subject.perform_async(form526_submission.id)
+            subject.drain
+          end
+        end
+      end
+
       it 'dispatches a failure notification email with the expected params' do
         Timecop.freeze(timestamp) do
           expect(email_service).to receive(:send_email).with(expected_params)
 
-          subject.perform_async(form526_submission.id)
+          subject.perform_async(form526_submission.id, timestamp.to_s)
           subject.drain
         end
       end
@@ -85,7 +97,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
         Timecop.freeze(timestamp) do
           expect(email_service).to receive(:send_email).with(expected_params)
 
-          subject.perform_async(form526_submission.id)
+          subject.perform_async(form526_submission.id, timestamp.to_s)
           subject.drain
         end
       end
@@ -117,7 +129,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
         Timecop.freeze(timestamp) do
           expect(email_service).to receive(:send_email).with(expected_params)
 
-          subject.perform_async(form526_submission.id)
+          subject.perform_async(form526_submission.id, timestamp.to_s)
           subject.drain
         end
       end

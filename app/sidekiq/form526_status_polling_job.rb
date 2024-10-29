@@ -76,7 +76,7 @@ class Form526StatusPollingJob
 
   def notify_veteran(submission_id)
     if Flipper.enabled?(:send_backup_submission_polling_failure_email_notice)
-      Form526SubmissionFailureEmailJob.perform_async(submission_id, Time.now.utc)
+      Form526SubmissionFailureEmailJob.perform_async(submission_id, Time.now.utc.to_s)
     end
   end
 end
