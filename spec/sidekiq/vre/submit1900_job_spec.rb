@@ -80,7 +80,8 @@ describe VRE::Submit1900Job do
 
     it 'when queue is exhausted' do
       VRE::Submit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-        expect(SavedClaim).to receive(:find).with(claim.id)
+        # uncomment below when emails are approved
+        # expect(SavedClaim).to receive(:find).with(claim.id)
         exhaustion_msg['args'] = [claim.id, encrypted_user]
         expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg)
       end

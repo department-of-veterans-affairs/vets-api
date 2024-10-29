@@ -8,14 +8,15 @@ module VRE
     include SentryLogging
 
     STATSD_KEY_PREFIX = 'worker.vre.submit_1900_job'
-    RETRY = 1
+    RETRY = 14
 
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      claim_id, encrypted_user = msg['args']
-      claim = SavedClaim.find(claim_id)
-      user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
+      # uncomment below
+      # claim_id, encrypted_user = msg['args']
+      # claim = SavedClaim.find(claim_id)
+      # user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
       monitor = VRE::Monitor.new
       monitor.track_submission_exhaustion(msg)
       # do email here, send to user
