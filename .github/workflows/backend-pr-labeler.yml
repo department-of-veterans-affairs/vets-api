@@ -12,7 +12,7 @@ jobs:
       - name: Check for exemption
         id: check_exemption
         run: |
-          echo "requested_teams: ${{ github.event.pull_request.requested_teams }}"
+          echo "requested_teams=${{ github.event.pull_request.requested_teams }}" >> $GITHUB_ENV
           if [ ${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), 'backend') }} ]; then
             echo "exempt=false" >> $GITHUB_ENV
             exit 0
