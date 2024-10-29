@@ -95,7 +95,6 @@ module Lighthouse
       with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
         form526_pdf = get_form526_pdf(submission)
         if form526_pdf.present?
-          job_success
           Rails.logger.info('Poll for form 526 PDF: PDF found')
           return
         else
