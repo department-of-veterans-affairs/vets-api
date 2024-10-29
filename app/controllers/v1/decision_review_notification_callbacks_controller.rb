@@ -3,7 +3,7 @@
 require 'decision_review_v1/utilities/logging_utils'
 
 module V1
-  class NodCallbacksController < ApplicationController
+  class DecisionReviewNotificationCallbacksController < ApplicationController
     include ActionController::HttpAuthentication::Token::ControllerMethods
     include DecisionReviewV1::Appeals::LoggingUtils
 
