@@ -46,7 +46,7 @@ module VANotify
     end
 
     def bearer_token_secret
-      Settings.va_notify.status_callback.bearer_token
+      Settings.vanotify.status_callback.bearer_token
     end
 
     def notification_params

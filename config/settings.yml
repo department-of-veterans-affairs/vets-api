@@ -1404,8 +1404,6 @@ vanotify:
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
     password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
-
-va_notify:
   status_callback:
     bearer_token: fake_bearer_token
 
