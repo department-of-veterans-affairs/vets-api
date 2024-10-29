@@ -4,25 +4,44 @@ module AskVAApi
   class TranslatorError < StandardError; end
 
   class Translator
-    attr_reader :optionset_entity_class, :retriever, :logger
+    MAPPINGS = {
+      'levelofauthentication' => 'level_of_authentication',
+      'veteranrelationship' => 'veteran_relationship',
+      'responsetype' => 'response_type',
+      'dependentrelationship' => 'dependent_relationship',
+      'inquiryabout' => 'inquiry_about'
+    }.freeze
 
-    def initialize(entity_class: Optionset::Entity)
-      @optionset_entity_class = entity_class
-      @retriever = Optionset::Retriever
-    end
+    def call(key, value)
+      return if value.nil?
 
-    def call(key)
-      return if key.nil?
+      optionset = fetch_optionset
 
-      retrieve_option_set.find { |obj| key.downcase.include?(obj.name.downcase) }&.id
+      if optionset[key]
+        match = optionset[key].find { |obj| value.downcase.include?(obj[:Name].downcase) }
+        match[:Id] if match
+      else
+        raise TranslatorError, "Key '#{key}' not found in optionset data"
+      end
     end
 
     private
 
-    def retrieve_option_set
-      retriever.new(user_mock_data: nil, entity_class: optionset_entity_class).call
+    def fetch_optionset
+      retrieve_option_set[:Data].each_with_object({}) do |option, hash|
+        hash[to_snake_case(option[:Name]).to_sym] = option[:ListOfOptions]
+      end
     rescue => e
-      raise TranslatorError, e if e.message.include?('Crm::CacheDataError')
+      raise TranslatorError, "Failed to retrieve optionset data: #{e.message}"
+    end
+
+    def retrieve_option_set
+      Crm::CacheData.new.call(endpoint: 'optionset', cache_key: 'optionset')
+    end
+
+    def to_snake_case(str)
+      data = str.gsub(/^iris_/, '').downcase
+      MAPPINGS.fetch(data.downcase, data)
     end
   end
 end

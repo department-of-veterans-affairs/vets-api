@@ -7,16 +7,10 @@ RSpec.describe AskVAApi::Translator do
 
   let(:cache_data_service) { instance_double(Crm::CacheData) }
   let(:cached_data) do
-    { Data: [{ Name: 'iris_suffix',
-               ListOfOptions: [{ Id: 722_310_000, Name: 'Jr' },
-                               { Id: 722_310_001, Name: 'Sr' },
-                               { Id: 722_310_003, Name: 'II' },
-                               { Id: 722_310_004, Name: 'III' },
-                               { Id: 722_310_006, Name: 'IV' },
-                               { Id: 722_310_002, Name: 'V' },
-                               { Id: 722_310_005, Name: 'VI' }] }] }
+    data = File.read('modules/ask_va_api/config/locales/get_optionset_mock_data.json')
+    JSON.parse(data, symbolize_names: true)
   end
-  let(:result) { subject.call('Jr.') }
+  let(:result) { subject.call(:suffix, 'Jr.') }
 
   context 'when succesful' do
     before do
@@ -31,9 +25,17 @@ RSpec.describe AskVAApi::Translator do
     it 'translates all the option keys from name to id' do
       expect(result).to eq(722_310_000)
     end
+
+    context 'when key is not found' do
+      it 'raise TranslatorError' do
+        expect { subject.call(:fail, 'fail') }.to raise_error(
+          AskVAApi::TranslatorError, "Key 'fail' not found in optionset data"
+        )
+      end
+    end
   end
 
-  context 'when an error occurs' do
+  context 'when CRM error occurs' do
     let(:body) do
       '{"Data":null,"Message":"Data Validation: Invalid OptionSet Name iris_inquiryabou, valid' \
         ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
