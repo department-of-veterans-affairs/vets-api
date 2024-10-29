@@ -148,6 +148,34 @@ describe Veteran::Service::Representative, type: :model do
     end
   end
 
+  describe '#individual_type' do
+    let(:representative) { create(:representative, user_types: user_types) }
+
+    context 'when user_types is empty' do
+      let(:user_types) { [] }
+
+      it 'returns nil' do
+        expect(representative.individual_type).to be_nil
+      end
+    end
+
+    context 'when user_types has one element' do
+      let(:user_types) { ['attorney'] }
+
+      it 'returns the first element' do
+        expect(representative.individual_type).to eq('attorney')
+      end
+    end
+
+    context 'when user_types has multiple elements' do
+      let(:user_types) { %w[attorney agent] }
+
+      it 'returns the first element' do
+        expect(representative.individual_type).to eq('attorney')
+      end
+    end
+  end
+
   describe 'callbacks' do
     describe '#set_full_name' do
       context 'creating a new representative' do
