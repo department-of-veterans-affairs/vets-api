@@ -99,4 +99,30 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
       end
     end
   end
+
+  context 'Premium user when use_oh_data_path is true' do
+    let(:mhv_account_type) { 'Premium' }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
+
+      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
+                          match_requests_on: %i[method sm_user_ignoring_path_param])
+    end
+
+    after do
+      VCR.eject_cassette
+    end
+
+    it 'responds to GET #index' do
+      VCR.use_cassette('mr_client/get_a_list_of_allergies_oh_data_path') do
+        get '/my_health/v1/medical_records/allergies?use_oh_data_path=1'
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+    end
+  end
 end
