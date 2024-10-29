@@ -1,40 +1,34 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require AskVAApi::Engine.root.join('spec', 'support', 'shared_contexts.rb')
 
 RSpec.describe Crm::OptionsetDataJob, type: :job do
   include ActiveJob::TestHelper
 
   describe '#perform' do
-    include_context 'shared data'
-
-    let(:cache_data_instance) { instance_double(Crm::CacheData) }
-    let(:option_keys) do
-      %w[inquiryabout inquirysource inquirytype levelofauthentication suffix veteranrelationship
-         dependentrelationship responsetype]
+    let(:cache_data_instance) { Crm::CacheData.new }
+    let(:response) do
+      File.read('modules/ask_va_api/config/locales/get_optionset_mock_data.json')
     end
 
     context 'when successful' do
       before do
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+        allow_any_instance_of(Crm::Service).to receive(:call).and_return(response)
         allow(Crm::CacheData).to receive(:new).and_return(cache_data_instance)
-        allow(cache_data_instance).to receive(:fetch_and_cache_data).with(
-          endpoint: 'optionset',
-          cache_key: 'optionset',
-          payload: {}
-        ).and_return(optionset_cached_data)
+        allow(cache_data_instance).to receive(:fetch_and_cache_data)
       end
 
-      it 'creates an instance of Crm::CacheData for each option and calls it' do
-        described_class.new.perform
+      context 'when successful' do
+        it 'creates an instance of Crm::CacheData and calls fetch_and_cache_data with correct parameters' do
+          described_class.new.perform
 
-        expect(cache_data_instance).to have_received(:fetch_and_cache_data).with(
-          endpoint: 'optionset',
-          cache_key: 'optionset',
-          payload: {}
-        )
-
-        expect(cache_data_instance).to have_received(:fetch_and_cache_data)
+          expect(cache_data_instance).to have_received(:fetch_and_cache_data).with(
+            endpoint: 'optionset',
+            cache_key: 'optionset',
+            payload: {}
+          )
+        end
       end
     end
 

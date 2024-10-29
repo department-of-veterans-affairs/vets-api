@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require AskVAApi::Engine.root.join('spec', 'support', 'shared_contexts.rb')
 
 RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
-  # allow to have access to inquiry_params and translated_payload
-  include_context 'shared data'
-
   describe '#call' do
     subject(:builder) { described_class.new(inquiry_params: params, user: authorized_user, inquiry_details:) }
 
     let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '234', edipi: '123') }
+    let(:cached_data) do
+      data = File.read('modules/ask_va_api/config/locales/get_optionset_mock_data.json')
+      JSON.parse(data, symbolize_names: true)
+    end
     let(:level_of_authentication) { 'Personal' }
     let(:inquiry_details) do
       {
@@ -109,7 +109,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
       allow(cache_data_service).to receive(:call).with(
         endpoint: 'optionset',
         cache_key: 'optionset'
-      ).and_return(optionset_cached_data)
+      ).and_return(cached_data)
     end
 
     context 'when PERSONAL inquiry_params is received' do

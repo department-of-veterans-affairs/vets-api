@@ -17,13 +17,17 @@ RSpec.describe AskVAApi::Inquiries::Creator do
   let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
   let(:translator) { instance_double(AskVAApi::Translator) }
   let(:cache_data_service) { instance_double(Crm::CacheData) }
+  let(:cached_data) do
+    data = File.read('modules/ask_va_api/config/locales/get_optionset_mock_data.json')
+    JSON.parse(data, symbolize_names: true)
+  end
 
   before do
     allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
     allow(cache_data_service).to receive(:call).with(
       endpoint: 'optionset',
       cache_key: 'optionset'
-    ).and_return(optionset_cached_data)
+    ).and_return(cached_data)
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
 
