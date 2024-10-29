@@ -225,12 +225,12 @@ module CentralMail
       form_submission = form526_submission.saved_claim.form_submissions.find_by(form_type: FORM4142_FORMSUBMISSION_TYPE)
       if form_submission.present?
         form_submission = FormSubmission.create(
-            form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
-            benefits_intake_uuid: lighthouse_service.uuid,
-            form_data: '{}', # we have this already in the Form526Submission.form['form4142']
-            user_account: form526_submission.user_account,
-            saved_claim: form526_submission.saved_claim
-          )
+          form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
+          benefits_intake_uuid: lighthouse_service.uuid,
+          form_data: '{}', # we have this already in the Form526Submission.form['form4142']
+          user_account: form526_submission.user_account,
+          saved_claim: form526_submission.saved_claim
+        )
       end
       FormSubmissionAttempt.create(form_submission:)
     end
