@@ -32,24 +32,9 @@ module AskVAApi
         render_result(@contents)
       end
 
-      def categories
-        get_resource('categories', user_mock_data: params[:user_mock_data])
-        render_result(@categories)
-      end
-
       def states
         get_resource('states', service: mock_service)
         render_result(@states)
-      end
-
-      def subtopics
-        get_resource('sub_topics', topic_id: params[:topic_id], user_mock_data: params[:user_mock_data])
-        render_result(@sub_topics)
-      end
-
-      def topics
-        get_resource('topics', category_id: params[:category_id], user_mock_data: params[:user_mock_data])
-        render_result(@topics)
       end
 
       def zipcodes

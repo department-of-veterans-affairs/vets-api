@@ -22,13 +22,7 @@ module AskVAApi
     private
 
     def fetch_data
-      data = if user_mock_data
-               static = File.read('modules/ask_va_api/config/locales/static_data.json')
-               JSON.parse(static, symbolize_names: true)
-             else
-               Crm::CacheData.new.call(endpoint: 'Topics', cache_key: 'categories_topics_subtopics')
-             end
-      filter_data(data)
+      raise NotImplementedError, 'Subclasses must implement the filter_data method'
     end
 
     def filter_data(data)
