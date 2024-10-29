@@ -27,8 +27,10 @@ module ClaimsApi
       [first_name, last_name].compact_blank.join('_')
     end
 
-    def build_file_name(veteran_name:, identifier:, suffix:)
-      "#{[veteran_name, identifier, suffix].compact_blank.join('_')}.pdf"
+    def build_file_name(veteran_name:, identifier:, suffix:, dependent: nil)
+      prefix = dependent ? 'dependent_' : ''
+
+      "#{prefix}#{[veteran_name, identifier, suffix].compact_blank.join('_')}.pdf"
     end
 
     def find_ptcpnt_vet_id(auth_headers, ptcpnt_vet_id)
