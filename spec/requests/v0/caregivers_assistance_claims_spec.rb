@@ -129,29 +129,25 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
 
         res_body = JSON.parse(response.body)
+        expected_errors = [
+          { title: "did not contain a required property of 'veteran'", code: '100', status: '422' },
+          { title: "#/ The property '#/' of type object did not match one or more of the required schemas in schema",
+            code: '100', status: '422' },
+          { title: "#/ The property '#/' did not contain a required property of 'primaryCaregiver'", code: '100',
+            status: '422' },
+          { title: "#/ The property '#/' did not contain a required property of 'secondaryCaregiverOne'", code: '100',
+            status: '422' }
+        ]
 
         expect(res_body['errors']).to be_present
-        expect(res_body['errors'].size).to eq(4)
-        expect(res_body['errors'][0]['title']).to include(
-          "did not contain a required property of 'veteran'"
-        )
-        expect(res_body['errors'][0]['code']).to eq('100')
-        expect(res_body['errors'][0]['status']).to eq('422')
-        expect(res_body['errors'][1]['title']).to include(
-          "#/ The property '#/' of type object did not match one or more of the required schemas in schema"
-        )
-        expect(res_body['errors'][1]['code']).to eq('100')
-        expect(res_body['errors'][1]['status']).to eq('422')
-        expect(res_body['errors'][2]['title']).to include(
-          "#/ The property '#/' did not contain a required property of 'primaryCaregiver'"
-        )
-        expect(res_body['errors'][2]['code']).to eq('100')
-        expect(res_body['errors'][2]['status']).to eq('422')
-        expect(res_body['errors'][3]['title']).to include(
-          "#/ The property '#/' did not contain a required property of 'secondaryCaregiverOne'"
-        )
-        expect(res_body['errors'][3]['code']).to eq('100')
-        expect(res_body['errors'][3]['status']).to eq('422')
+        expect(res_body['errors'].size).to eq(expected_errors.size)
+
+        expected_errors.each_with_index do |expected_error, index|
+          actual_error = res_body['errors'][index]
+          expect(actual_error['title']).to include(expected_error[:title])
+          expect(actual_error['code']).to eq(expected_error[:code])
+          expect(actual_error['status']).to eq(expected_error[:status])
+        end
       end
     end
 
