@@ -284,7 +284,7 @@ RSpec.describe ApiProviderFactory do
           type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
           options: {
             form526_submission: submission,
-            document_type: va_document_type_0781,
+            document_type: va_document_type_0781_upload,
             statsd_metric_prefix: 'my_stats_metric_prefix_0781'
           },
           current_user:,
