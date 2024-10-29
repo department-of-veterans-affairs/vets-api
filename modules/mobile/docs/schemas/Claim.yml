@@ -46,10 +46,12 @@ properties:
             type: string
             example: "2017-12-08"
           minEstDate:
-            type: string, null
+            type: string
+            nullable: true
             example: "2017-12-08"
           maxEstDate:
-            type: string, null
+            type: string
+            nullable: true
             example: "2017-12-08"
           open:
             type: boolean
@@ -67,7 +69,8 @@ properties:
             items:
               $ref: "./claimEventTimeline.yml"
           phaseChangeDate:
-            type: string, null
+            type: string
+            nullable: true
             example: "2017-12-08"
           vaRepresentative:
             type: string
