@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 require 'lighthouse/benefits_intake/service'
+require 'lgy/service'
 
 RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   forms = [
@@ -346,6 +347,32 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
     end
 
+    context 'going to SAHSHA API' do
+      let(:reference_number) { 'some-reference-number' }
+      let(:body_status) { 'ACCEPTED' }
+      let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }
+      let(:status) { 200 }
+      let(:lgy_response) { double(body:, status:) }
+
+      before do
+        sign_in
+        allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+      end
+
+      it 'makes the request to LGY::Service' do
+        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                       'vba_26_4555.json')
+        data = JSON.parse(fixture_path.read)
+
+        post '/simple_forms_api/v1/simple_forms', params: data
+
+        expect(response).to have_http_status(:ok)
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body['reference_number']).to eq reference_number
+        expect(parsed_body['status']).to eq body_status
+      end
+    end
+
     describe 'failed requests scrub PII from error messages' do
       before do
         sign_in
@@ -641,10 +668,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          user.va_profile_email,
+          'veteran.surname@address.com',
           'form21_4142_confirmation_email_template_id',
           {
-            'first_name' => 'VETERAN',
+            'first_name' => 'Veteran',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number,
             'lighthouse_updated_at' => nil
@@ -683,10 +710,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          user.va_profile_email,
+          'my.long.email.address@email.com',
           'form21_10210_confirmation_email_template_id',
           {
-            'first_name' => 'JACK',
+            'first_name' => 'Jack',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number,
             'lighthouse_updated_at' => nil
@@ -731,10 +758,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          user.va_profile_email,
+          'preparer_address@email.com',
           'form21p_0847_confirmation_email_template_id',
           {
-            'first_name' => 'ARTHUR',
+            'first_name' => 'Arthur',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number,
             'lighthouse_updated_at' => nil
@@ -774,10 +801,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(response).to have_http_status(:ok)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          user.va_profile_email,
+          'preparer@email.com',
           'form21_0972_confirmation_email_template_id',
           {
-            'first_name' => 'PREPARE',
+            'first_name' => 'Prepare',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => confirmation_number,
             'lighthouse_updated_at' => nil
@@ -833,7 +860,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               'abraham.lincoln@vets.gov',
               'form21_0966_confirmation_email_template_id',
               {
-                'first_name' => 'ABRAHAM',
+                'first_name' => 'Veteran',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
                 'lighthouse_updated_at' => nil,
@@ -857,7 +884,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               'abraham.lincoln@vets.gov',
               'form21_0966_confirmation_email_template_id',
               {
-                'first_name' => 'ABRAHAM',
+                'first_name' => 'Veteran',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
                 'lighthouse_updated_at' => nil,

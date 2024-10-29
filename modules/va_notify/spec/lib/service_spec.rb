@@ -69,6 +69,21 @@ describe VaNotify::Service do
         expect(Notifications::Client).to have_received(:new).with(*parameters)
       end
     end
+
+    it 'can receive callback_options' do
+      test_base_url = 'https://fakishapi.com'
+      callback_options = {
+        callback: 'TestTeam::TestClass',
+        metadata: 'optional_test_metadata'
+      }
+      with_settings(Settings.vanotify,
+                    client_url: test_base_url) do
+        allow(Notifications::Client).to receive(:new).with(test_api_key,
+                                                           test_base_url).and_return(notification_client)
+        service_object = VaNotify::Service.new(test_api_key, callback_options)
+        expect(service_object.callback_options).to eq(callback_options)
+      end
+    end
   end
 
   describe '#send_email', test_service: false do
@@ -79,9 +94,11 @@ describe VaNotify::Service do
     it 'calls notifications client' do
       allow(Notifications::Client).to receive(:new).and_return(notification_client)
       allow(notification_client).to receive(:send_email)
+      allow(StatsD).to receive(:increment).with('api.vanotify.send_email.total')
 
       subject.send_email(send_email_parameters)
       expect(notification_client).to have_received(:send_email).with(send_email_parameters)
+      expect(StatsD).to have_received(:increment).with('api.vanotify.send_email.total')
     end
   end
 
@@ -93,9 +110,11 @@ describe VaNotify::Service do
     it 'calls notifications client' do
       allow(Notifications::Client).to receive(:new).and_return(notification_client)
       allow(notification_client).to receive(:send_sms)
+      allow(StatsD).to receive(:increment).with('api.vanotify.send_sms.total')
 
       subject.send_sms(send_sms_parameters)
       expect(notification_client).to have_received(:send_sms).with(send_sms_parameters)
+      expect(StatsD).to have_received(:increment).with('api.vanotify.send_sms.total')
     end
   end
 
@@ -103,6 +122,8 @@ describe VaNotify::Service do
     subject { VaNotify::Service.new(test_api_key) }
 
     it 'raises a 400 exception' do
+      allow(StatsD).to receive(:increment)
+
       VCR.use_cassette('va_notify/bad_request') do
         expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::BackendServiceException)
@@ -110,6 +131,9 @@ describe VaNotify::Service do
           expect(e.errors.first.code).to eq('VANOTIFY_400')
         end
       end
+
+      expect(StatsD).to have_received(:increment).with('api.vanotify.send_email.fail',
+                                                       { tags: ['error:CommonClientErrorsClientError', 'status:400'] })
     end
 
     it 'raises a 403 exception' do

@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
@@ -6,4 +7,5 @@ properties:
     type: array
     items:
       type: object
+      additionalProperties: false
       $ref: "./PrescriptionTrackingRecord.yml"
