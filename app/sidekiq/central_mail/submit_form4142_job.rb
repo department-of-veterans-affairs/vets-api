@@ -160,15 +160,8 @@ module CentralMail
 
       if Flipper.enabled?(POLLING_FLIPPER_KEY)
         form526_submission = Form526Submission.find(@submission_id)
-        form_submission    = FormSubmission.create(
-          form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
-          benefits_intake_uuid: lighthouse_service.uuid,
-          form_data: '{}', # we have this already in the Form526Submission.form['form4142']
-          user_account: form526_submission.user_account,
-          saved_claim: form526_submission.saved_claim
-        )
-        FormSubmissionAttempt.create(form_submission:)
-        log_info[:form_submission_id] = form_submission.id
+        form_submission_attempt = create_form_submission_attempt(form526_submission)
+        log_info[:form_submission_id] = form_submission_attempt.form_submission.id
       end
       Rails.logger.info('Successful Form4142 Submission to Lighthouse', log_info)
     end
@@ -225,6 +218,19 @@ module CentralMail
         code: key,
         source: source.to_s
       }
+    end
+
+    def create_form_submission_attempt(form526_submission)
+      FormSubmissionAttempt.transaction do
+        form_submission = FormSubmission.create(
+          form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
+          benefits_intake_uuid: lighthouse_service.uuid,
+          form_data: '{}', # we have this already in the Form526Submission.form['form4142']
+          user_account: form526_submission.user_account,
+          saved_claim: form526_submission.saved_claim
+        )
+        FormSubmissionAttempt.create(form_submission:)
+      end
     end
   end
 end

@@ -27,7 +27,7 @@ class FormSubmissionAttempt < ApplicationRecord
       after do
         form_type = form_submission.form_type
         log_info = { form_submission_id:,
-                     benefits_intake_uuid: form_submission&.benefits_intake_uuid,
+                     benefits_intake_uuid:,
                      form_type:,
                      user_account_uuid: form_submission.user_account_id }
         if should_send_simple_forms_email
@@ -61,7 +61,7 @@ class FormSubmissionAttempt < ApplicationRecord
   def log_status_change
     log_hash = {
       form_submission_id:,
-      benefits_intake_uuid: form_submission&.benefits_intake_uuid,
+      benefits_intake_uuid:,
       form_type: form_submission&.form_type,
       from_state: aasm.from_state,
       to_state: aasm.to_state,
@@ -126,7 +126,7 @@ class FormSubmissionAttempt < ApplicationRecord
     config = {
       form_data:,
       form_number: simple_forms_form_number,
-      confirmation_number: form_submission.benefits_intake_uuid,
+      confirmation_number: benefits_intake_uuid,
       date_submitted: created_at.strftime('%B %d, %Y'),
       lighthouse_updated_at: lighthouse_updated_at&.strftime('%B %d, %Y')
     }
