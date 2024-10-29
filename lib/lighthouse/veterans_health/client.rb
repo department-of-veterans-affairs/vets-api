@@ -56,6 +56,10 @@ module Lighthouse
         get_list(first_response)
       end
 
+      def get_allergy_intolerance(id)
+        perform_get("services/fhir/v0/r4/AllergyIntolerance/#{id}")
+      end
+
       def list_bp_observations
         params = {
           category: 'vital-signs',
