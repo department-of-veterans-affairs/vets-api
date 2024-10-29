@@ -9,6 +9,13 @@ require 'logging/third_party_transaction'
 # TODO: Update Namespace once we are 100% done with CentralMail here
 module CentralMail
   class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job
+    INITIAL_FAILURE_EMAIL = :form526_send_4142_failure_notification
+    POLLING_FLIPPER_KEY = :disability_526_form4142_polling_records
+    POLLED_FAILURE_EMAIL = :disability_526_form4142_polling_record_failure_email
+
+    FORM4142_FORMSUBMISSION_TYPE = "#{Form526Submission::FORM_526}_#{Form526Submission::FORM_4142}".freeze
+    ZSF_DD_TAG_FUNCTION = '526_form_4142_upload_failure_email_queuing'
+
     extend Logging::ThirdPartyTransaction::MethodWrapper
 
     # this is required to make instance variables available to logs via
@@ -131,20 +138,39 @@ module CentralMail
       @lighthouse_service ||= BenefitsIntakeService::Service.new(with_upload_location: true)
     end
 
-    def upload_to_lighthouse
-      Rails.logger.info(
-        'Successful Form4142 Submission to Lighthouse',
-        { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id }
-      )
-
-      payload = {
-        upload_url: lighthouse_service.location,
+    def payload_hash(lighthouse_service_location)
+      {
+        upload_url: lighthouse_service_location,
         file: { file: @pdf_path, file_name: @pdf_path.split('/').last },
         metadata: generate_metadata.to_json,
         attachments: []
       }
+    end
 
+    def upload_to_lighthouse
+      log_info = { benefits_intake_uuid: lighthouse_service.uuid, submission_id: @submission_id }
+
+      Rails.logger.info(
+        'Successful Form4142 Upload Intake UUID acquired from Lighthouse',
+        log_info
+      )
+
+      payload = payload_hash(lighthouse_service.location)
       lighthouse_service.upload_doc(**payload)
+
+      if Flipper.enabled?(POLLING_FLIPPER_KEY)
+        form526_submission = Form526Submission.find(@submission_id)
+        form_submission    = FormSubmission.create(
+          form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
+          benefits_intake_uuid: lighthouse_service.uuid,
+          form_data: '{}', # we have this already in the Form526Submission.form['form4142']
+          user_account: form526_submission.user_account,
+          saved_claim: form526_submission.saved_claim
+        )
+        FormSubmissionAttempt.create(form_submission:)
+        log_info[:form_submission_id] = form_submission.id
+      end
+      Rails.logger.info('Successful Form4142 Submission to Lighthouse', log_info)
     end
 
     def generate_metadata

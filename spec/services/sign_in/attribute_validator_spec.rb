@@ -82,12 +82,16 @@ RSpec.describe SignIn::AttributeValidator do
 
       shared_examples 'error response' do
         let(:expected_error_log) { 'attribute validator error' }
+        let(:expected_error_log_payload) do
+          { errors: expected_error_message,
+            credential_uuid: csp_id,
+            mhv_icn:,
+            type: service_name }.compact
+        end
+
         it 'raises the expected error' do
           expect_any_instance_of(SignIn::Logger).to receive(:info)
-            .with(expected_error_log,
-                  { errors: expected_error_message,
-                    credential_uuid: csp_id,
-                    type: service_name })
+            .with(expected_error_log, expected_error_log_payload)
 
           expect { subject }.to raise_error(expected_error, expected_error_message)
         end
@@ -366,8 +370,8 @@ RSpec.describe SignIn::AttributeValidator do
         let(:address) { nil }
         let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
         let(:email) { 'some-email' }
-        let(:identifier) { idme_uuid }
-        let(:identifier_type) { MPI::Constants::IDME_UUID }
+        let(:identifier) { mhv_correlation_id }
+        let(:identifier_type) { MPI::Constants::MHV_UUID }
 
         context 'and credential is missing mhv icn' do
           let(:mhv_icn) { nil }
@@ -454,25 +458,22 @@ RSpec.describe SignIn::AttributeValidator do
               }
             end
 
-            it 'makes an mpi call to create a new record' do
-              expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).with(expected_params)
-              subject
+            context 'and MPI icn does not match credential MHV ICN' do
+              let(:icn) { 'some-non-mhv-icn' }
+              let(:expected_error_message) { 'Attribute mismatch, icn in credential does not match MPI attribute' }
+              let(:expected_error_log) { 'attribute validator error' }
+
+              it 'makes a log to rails logger' do
+                expect_any_instance_of(SignIn::Logger).to receive(:info).with(expected_error_log,
+                                                                              { errors: expected_error_message,
+                                                                                credential_uuid: csp_id,
+                                                                                mhv_icn:,
+                                                                                type: service_name })
+                subject
+              end
             end
 
-            context 'and mpi add person call is not successful' do
-              let(:status) { :server_error }
-              let(:expected_error) { SignIn::Errors::MPIUserCreationFailedError }
-              let(:expected_error_message) { 'User MPI record cannot be created' }
-              let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
-
-              it_behaves_like 'error response'
-            end
-
-            context 'and mpi add person call is successful' do
-              let(:status) { :ok }
-
-              it_behaves_like 'mpi attribute validations'
-            end
+            it_behaves_like 'mpi attribute validations'
           end
         end
       end
