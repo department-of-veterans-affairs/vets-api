@@ -129,7 +129,6 @@ flipper:
   github_team: 0000000
   github_oauth_key: xxx000
   github_oauth_secret: 000xxx
-  github_api_key: ~
 
 va_forms:
   drupal_username: ~

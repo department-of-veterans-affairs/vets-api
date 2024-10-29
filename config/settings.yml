@@ -1678,7 +1678,6 @@ sidekiq:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 flipper:
   mute_logs: false
@@ -1686,7 +1685,6 @@ flipper:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 lgy:
   base_url: http://www.example.com
@@ -1755,7 +1753,6 @@ coverband:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 dogstatsd:
   enabled: false
