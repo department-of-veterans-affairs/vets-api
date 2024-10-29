@@ -16,6 +16,7 @@ module Logging
     # @param message [String]
     # @param metric [String]
     # @param tags [Array]
+    # @param context [String]
     # @param user_account_uuid [User]
     #
     def track_request(error_level, message, metric, tags, context, user_account_uuid = nil, call_location: nil) # rubocop:disable Metrics/ParameterLists
