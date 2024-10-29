@@ -63,6 +63,10 @@ module ZeroSilentFailures
                          })
     end
 
+    private
+
+    attr_reader :service
+
     # parse information from the `caller`
     #
     # @see https://alextaylor.ca/read/caller-tricks/
@@ -74,9 +78,5 @@ module ZeroSilentFailures
       call_location ||= caller_locations.second # default to location calling 'log_silent_failure...'
       [call_location.base_label, call_location.path, call_location.lineno]
     end
-
-    private
-
-    attr_reader :service
   end
 end
