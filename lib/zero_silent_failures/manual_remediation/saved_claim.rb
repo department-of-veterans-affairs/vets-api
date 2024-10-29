@@ -7,44 +7,57 @@ module ZeroSilentFailures
   module ManualRemediation
     class SavedClaim
 
-      attr_reader :claim, :metadata, :zipfile, :aws_download_zip_link
+      attr_reader :claim, :zipfile, :aws_download_zip_link
 
-      def intialize(saved_claim_id)
-        @claim = SavedClaim.find(saved_claim_id)
+      def initialize(saved_claim_id)
+        @claim = ::SavedClaim.find(saved_claim_id)
         @zipfile = "#{Common::FileHelpers.random_file_path}.zip"
       end
 
       def run
-        Rails.logger.info "Manual Remediation for #{claim.form_id} #{claim.id}"
+        Rails.logger.info "Manual Remediation for #{claim.form_id} #{claim.id} started"
+
         package_claim
         upload_documents
         update_database
-        Rails.logger.info " ... Complete!"
+
+        Rails.logger.info "Manual Remediation for #{claim.form_id} #{claim.id} Complete!"
       ensure
-        Common::FileHelpers.delete_file_if_exists(zipfile)
+        Common::FileHelpers.delete_file_if_exists(zipfile) if is_prod?
         files.each { |file| Common::FileHelpers.delete_file_if_exists(file[:path]) }
       end
 
       def package_claim
-        files << generate_metadata
+        files << generate_metadata_json
         files << generate_form_pdf
-        files << generate_attachment_pdfs
+
+        claim.persistent_attachments.each do |pa|
+          files << generate_attachment_pdf(pa)
+        end
+
         zip_files
       end
 
       def upload_documents
-        Rails.logger.info "Uploading documents for #{claim.form_id} #{claim.id}"
+        Rails.logger.info "Uploading documents - #{claim.form_id} #{claim.id}"
 
-        aws_upload_zipfile if Settings.vsp_environment == 'production'
+        aws_upload_zipfile if is_prod?
+        # @todo upload to sharepoint directly?
 
         aws_download_zip_link || zipfile
       end
 
       def update_database
-        Rails.logger.info "Updating Database - #{claim.form_id} #{claim.id}"
+        Rails.logger.info "Updating database - #{claim.form_id} #{claim.id}"
+
+        # @todo set form_submission_attempts to 'manual'
       end
 
       private
+
+      def is_prod?
+        Settings.vsp_environment == 'production'
+      end
 
       def files
         @files ||= []
@@ -54,7 +67,7 @@ module ZeroSilentFailures
         form = claim.parsed_form
         address = form['claimantAddress'] || form['veteranAddress']
 
-        @metadata = {
+        {
           claimId: claim.id,
           docType: claim.form_id,
           formStartDate: claim.form_start_date,
@@ -66,6 +79,10 @@ module ZeroSilentFailures
           zipCode: address['postalCode'],
           businessLine: claim.business_line
         }
+      end
+
+      def generate_metadata_json
+        metadata = generate_metadata
 
         metafile = Common::FileHelpers.generate_random_file(metadata.to_json)
         { name: "#{claim.form_id}_#{claim.id}-metadata.json", path: metafile }
@@ -79,15 +96,13 @@ module ZeroSilentFailures
         { name: File.basename(filepath), path: stamped }
       end
 
-      def generate_attachment_pdfs
-        claim.persistent_attachments.each do |pa|
-          filename = "#{claim.form_id}_#{claim.id}-attachment_#{pa.id}.pdf"
-          filepath = pa.to_pdf
-          Rails.logger.info "Stamping #{claim.form_id} #{claim.id} Attachment #{pa.id} - #{filepath}"
-          stamped = stamp_pdf(filepath, claim.created_at)
+      def generate_attachment_pdf(pa)
+        filename = "#{claim.form_id}_#{claim.id}-attachment_#{pa.id}.pdf"
+        filepath = pa.to_pdf
+        Rails.logger.info "Stamping #{claim.form_id} #{claim.id} Attachment #{pa.id} - #{filepath}"
+        stamped = stamp_pdf(filepath, claim.created_at)
 
-          { name: filename, path: stamped }
-        end
+        { name: filename, path: stamped }
       end
 
       def stamps(timestamp)
