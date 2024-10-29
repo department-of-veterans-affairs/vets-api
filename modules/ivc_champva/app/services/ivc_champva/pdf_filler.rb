@@ -1,26 +1,26 @@
 # frozen_string_literal: true
 
 require 'common/file_helpers'
-require 'securerandom'
 
 module IvcChampva
   class PdfFiller
-    attr_accessor :form, :form_number, :name
+    attr_accessor :form, :form_number, :name, :uuid
 
     TEMPLATE_BASE = Rails.root.join('modules', 'ivc_champva', 'templates')
 
-    def initialize(form_number:, form:, name: nil)
+    def initialize(form_number:, form:, name: nil, uuid: nil)
       raise 'form_number is required' if form_number.blank?
       raise 'form needs a data attribute' unless form&.data
 
       @form = form
       @form_number = form_number
       @name = name || form_number
+      @uuid = uuid
     end
 
     def generate(current_loa = nil)
-      generated_form_path = Rails.root.join("tmp/#{name}-#{SecureRandom.hex}-tmp.pdf").to_s
-      stamped_template_path = Rails.root.join("tmp/#{name}-#{SecureRandom.hex}-stamped.pdf").to_s
+      generated_form_path = Rails.root.join("tmp/#{@uuid}_#{name}-tmp.pdf").to_s
+      stamped_template_path = Rails.root.join("tmp/#{@uuid}_#{name}-stamped.pdf").to_s
 
       tempfile = create_tempfile
       FileUtils.touch(tempfile)
