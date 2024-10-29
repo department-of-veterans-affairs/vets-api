@@ -61,11 +61,7 @@ module SimpleFormsApi
       def set_storage_options!
         settings = config.s3_settings
 
-        self.aws_credentials = {
-          access_key_id: settings.aws_access_key_id,
-          secret_access_key: settings.aws_secret_access_key,
-          region: settings.region
-        }
+        self.aws_credentials = { region: settings.region }
         self.aws_acl = 'private'
         self.aws_bucket = settings.bucket
         self.aws_attributes = { server_side_encryption: 'AES256' }
