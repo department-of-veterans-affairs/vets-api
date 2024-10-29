@@ -20,8 +20,8 @@ module ClaimsApi
       auth_headers = power_of_attorney.auth_headers
 
       if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
-        benefits_doc_api.upload(claim: power_of_attorney, pdf_path: file_path, action:, doc_type: 'L075',
-                                pctpnt_vet_id: auth_headers['participant_id'])
+        benefits_doc_upload(poa: power_of_attorney, pdf_path: file_path, action:, doc_type: 'L075',
+                            ptcpnt_vet_id: auth_headers['participant_id'])
       else
         upload_to_vbms(power_of_attorney, file_path)
       end
@@ -60,6 +60,15 @@ module ClaimsApi
     end
 
     private
+
+    def benefits_doc_upload(poa:, pdf_path:, doc_type:, action:, ptcpnt_vet_id:)
+      if Flipper.enabled? :claims_api_poa_uploads_bd_refactor
+        PoaDocumentService.new.create_upload(poa:, pdf_path:, action:, doc_type:)
+      else
+        benefits_doc_api.upload(claim: poa, pdf_path:, action:, doc_type: 'L075',
+                                pctpnt_vet_id: ptcpnt_vet_id)
+      end
+    end
 
     def benefits_doc_api
       ClaimsApi::BD.new
