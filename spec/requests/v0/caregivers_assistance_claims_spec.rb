@@ -42,17 +42,36 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         allow(Form1010cg::SubmissionJob).to receive(:perform_async)
       end
 
-      it 'creates a new claim, enqueues a submission job, and returns claim id' do
-        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_attempt)
-        expect_any_instance_of(Form1010cg::Auditor).to receive(:record_caregivers).with(claim)
+      context 'assert_veteran_status is successful' do
+        it 'creates a new claim, enqueues a submission job, and returns claim id' do
+          expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_attempt)
+          expect_any_instance_of(Form1010cg::Auditor).to receive(:record_caregivers).with(claim)
 
-        expect { subject }.to change(SavedClaim::CaregiversAssistanceClaim, :count).by(1)
+          expect { subject }.to change(SavedClaim::CaregiversAssistanceClaim, :count).by(1)
 
-        expect(Form1010cg::SubmissionJob).to have_received(:perform_async).with(claim.id)
+          expect(Form1010cg::SubmissionJob).to have_received(:perform_async).with(claim.id)
 
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['data']['id']).to eq(SavedClaim::CaregiversAssistanceClaim.last.id.to_s)
-        expect(JSON.parse(response.body)['data']['type']).to eq('claim')
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data']['id']).to eq(SavedClaim::CaregiversAssistanceClaim.last.id.to_s)
+          expect(JSON.parse(response.body)['data']['type']).to eq('claim')
+        end
+      end
+
+      context 'assert_veteran_status error' do
+        before do
+          allow_any_instance_of(Form1010cg::Service).to receive(
+            :assert_veteran_status
+          ).and_raise(Form1010cg::Service::InvalidVeteranStatus)
+        end
+
+        it 'returns backend service exception' do
+          subject
+
+          expect(response).to have_http_status(:service_unavailable)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'Backend Service Outage'
+          )
+        end
       end
     end
 
