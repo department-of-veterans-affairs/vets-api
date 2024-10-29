@@ -16,21 +16,7 @@ module VRE
       monitor = VRE::Monitor.new
       monitor.track_submission_exhaustion(msg)
 
-      if Flipper.enabled?(:vre_trigger_action_needed_email)
-        claim_id, encrypted_user = msg['args']
-        claim = SavedClaim.find(claim_id)
-        user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
-        email = claim.parsed_form['email'] || user['va_profile_email']
-        VANotify::EmailJob.perform_async(
-          email,
-          Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
-          {
-            'first_name' => claim.parsed_form.dig('veteranInformation', 'fullName', 'first'),
-            'date' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => claim.confirmation_number
-          }
-        )
-      end
+      VRE::Submit1900Job.trigger_failure_events(msg) if Flipper.enabled?(:vre_trigger_action_needed_email)
     end
 
     def perform(claim_id, encrypted_user)
@@ -40,6 +26,22 @@ module VRE
     rescue => e
       Rails.logger.warn("VRE::Submit1900Job failed, retrying...: #{e.message}")
       raise
+    end
+
+    def self.trigger_failure_events(msg)
+      claim_id, encrypted_user = msg['args']
+      claim = SavedClaim.find(claim_id)
+      user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
+      email = claim.parsed_form['email'] || user['va_profile_email']
+      VANotify::EmailJob.perform_async(
+        email,
+        Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
+        {
+          'first_name' => claim.parsed_form.dig('veteranInformation', 'fullName', 'first'),
+          'date' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => claim.confirmation_number
+        }
+      )
     end
   end
 end
