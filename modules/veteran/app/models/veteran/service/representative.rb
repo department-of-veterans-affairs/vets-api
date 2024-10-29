@@ -83,14 +83,6 @@ module Veteran
         Veteran::Service::Organization.where(poa: poa_codes)
       end
 
-      # Returns the first user type from the user_types array.
-      # This is required to bring this class into parity with AccreditedIndividual.
-      #
-      # @return [String, nil] The first user type if the array is not empty, otherwise nil.
-      def individual_type
-        user_types.first
-      end
-
       def self.max_per_page
         Constants::MAX_PER_PAGE
       end
