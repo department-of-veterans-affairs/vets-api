@@ -1,0 +1,33 @@
+name: Backend PR Labeler
+on:
+  pull_request:
+    types: [opened, reopened, review_requested, synchronize, ready_for_review, unlabeled]
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    steps:
+      # - name: Checkout code
+      #   uses: actions/checkout@v4
+
+      - name: Check for exemption
+        id: check_exemption
+        run: |
+          echo "requested_teams: ${{ github.event.pull_request.requested_teams }}"
+          if [ ${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), 'backend') }} ]; then
+            echo "exempt=false" >> $GITHUB_ENV
+            exit 0
+          else
+            echo "exempt=true" >> $GITHUB_ENV
+            exit 0
+          fi
+
+      - name: DELETE ME - echo vars
+        if: always()
+        run: |
+          echo "exempt: ${{ env.exempt }}"
+          echo "requested_teams: ${{ toJSON(github.event.pull_request.requested_teams) }}"
+
+      - name: This shouldn't Run
+        run: echo "This step should run only if checks don't exit early"
+
+     
