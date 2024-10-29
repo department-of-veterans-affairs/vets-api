@@ -156,7 +156,7 @@ module CentralMail
       )
 
       payload = payload_hash(lighthouse_service.location)
-      lighthouse_service.upload_doc(**payload)
+      response = lighthouse_service.upload_doc(**payload)
 
       if Flipper.enabled?(POLLING_FLIPPER_KEY)
         form526_submission = Form526Submission.find(@submission_id)
@@ -164,6 +164,7 @@ module CentralMail
         log_info[:form_submission_id] = form_submission_attempt.form_submission.id
       end
       Rails.logger.info('Successful Form4142 Submission to Lighthouse', log_info)
+      response
     end
 
     def generate_metadata
@@ -221,16 +222,17 @@ module CentralMail
     end
 
     def create_form_submission_attempt(form526_submission)
-      FormSubmissionAttempt.transaction do
+      form_submission = form526_submission.saved_claim.form_submissions.find_by(form_type: FORM4142_FORMSUBMISSION_TYPE)
+      if form_submission.present?
         form_submission = FormSubmission.create(
-          form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
-          benefits_intake_uuid: lighthouse_service.uuid,
-          form_data: '{}', # we have this already in the Form526Submission.form['form4142']
-          user_account: form526_submission.user_account,
-          saved_claim: form526_submission.saved_claim
-        )
-        FormSubmissionAttempt.create(form_submission:)
+            form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
+            benefits_intake_uuid: lighthouse_service.uuid,
+            form_data: '{}', # we have this already in the Form526Submission.form['form4142']
+            user_account: form526_submission.user_account,
+            saved_claim: form526_submission.saved_claim
+          )
       end
+      FormSubmissionAttempt.create(form_submission:)
     end
   end
 end
