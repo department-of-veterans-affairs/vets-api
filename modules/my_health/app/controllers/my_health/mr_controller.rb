@@ -7,14 +7,11 @@ require 'medical_records/lighthouse_client'
 
 module MyHealth
   class MrController < ApplicationController
-    # FIXME: Conditionalize this
-    # include MyHealth::MHVControllerConcerns
+    include MyHealth::MHVControllerConcerns
     service_tag 'mhv-medical-records'
 
-    # FIXME: Conditionalize this
-    # skip_before_action :authenticate
-    # FIXME: Conditionalize this
-    # before_action :authenticate_bb_client
+    skip_before_action :authenticate
+    before_action :authenticate_bb_client
 
     rescue_from ::MedicalRecords::PatientNotFound do |_exception|
       render body: nil, status: :accepted
