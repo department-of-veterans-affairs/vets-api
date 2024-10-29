@@ -399,7 +399,7 @@ class User < Common::RedisStore
     @demographics_info ||= VAProfileRedis::Demographics.for_user(self)
   rescue => e
     Rails.logger.info('[User] VAProfileRedis::Demographics error', e.message)
-    nil
+    raise
   end
 
   def demographics
