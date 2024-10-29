@@ -8,7 +8,8 @@ module DebtsApi
     include SentryLogging
     STATS_KEY = 'api.vba_submission'
 
-    sidekiq_options retry: 5, retry_interval: ->(_) { 1.hour.to_i }
+    sidekiq_options retry: 5
+    sidekiq_retry_in { 1.hour.to_i }
 
     class MissingUserAttributesError < StandardError; end
 
