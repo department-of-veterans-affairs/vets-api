@@ -1,7 +1,7 @@
 name: Backend PR Labeler
 on:
   pull_request:
-    types: [opened, reopened, review_requested, synchronize, ready_for_review, unlabeled]
+    types: [opened, reopened, review_requested, synchronize, ready_for_review, labeled, unlabeled]
 jobs:
   labeler:
     runs-on: ubuntu-latest
