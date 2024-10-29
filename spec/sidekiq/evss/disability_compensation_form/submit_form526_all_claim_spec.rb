@@ -335,14 +335,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                  saved_claim_id: saved_claim.id)
         end
 
-       #it 'returns false to allow other jobs to run' do
-       # subject.perform_async(submission.id)
-       # expect(submission).to receive(:update_contention_classification_all)
-       # #.and_return(false)
-       #end 
+        it 'returns false to allow other jobs to run' do
+          subject.perform_async(submission.id)
+          expect(submission.update_contention_classification_all!).to eq false
+        end
 
         it 'does not call va-gov-claim-classifier' do
           subject.perform_async(submission.id)
+          described_class.drain
           expect(submission).not_to receive(:classify_vagov_contentions)
         end
       end
