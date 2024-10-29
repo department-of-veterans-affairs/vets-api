@@ -94,7 +94,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
       end
     end
 
-    context 'When submitting a valid request witoout a representative id' do
+    context 'When submitting a valid request without a representative id' do
       before do
         params[:pdf_generator2122][:representative].delete(:id)
         post(base_path, params:)
