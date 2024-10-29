@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-require 'logging/monitor'
-
 module Pensions
   ##
   # Monitor functions for Rails logging and StatsD
   # @todo abstract, split logging for controller and sidekiq
   #
-  class Monitor
-    include Logging::Monitor
+  class Monitor < ::Logging::Monitor
+    include ZeroSilentFailures
 
     # statsd key for api
     CLAIM_STATS_KEY = 'api.pension_claim'
@@ -17,7 +15,8 @@ module Pensions
     SUBMISSION_STATS_KEY = 'worker.lighthouse.pension_benefit_intake_job'
 
     def initialize
-      super('pension-application')
+      super('pension-application') # Pass the service to Logging::Monitor
+      # @service is already set from super and included
     end
 
     ##
@@ -222,7 +221,9 @@ module Pensions
         confirmation_number: claim&.confirmation_number,
         message: msg
       }
-      log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
+
+      log_silent_failure(additional_context, user_account_uuid,
+                         call_location: caller_locations.first)
 
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
       Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',

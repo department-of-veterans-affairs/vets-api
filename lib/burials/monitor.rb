@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'logging/monitor'
+require 'zero_silent_failures/monitor'
 
 module Burials
   ##
   # Monitor functions for Rails logging and StatsD
   #
-  class Monitor
-    include Logging::Monitor
+  class Monitor < ::Logging::Monitor
+    include ::ZeroSilentFailures
 
     # statsd key for api
     CLAIM_STATS_KEY = 'api.burial_claim'
@@ -16,7 +16,8 @@ module Burials
     SUBMISSION_STATS_KEY = 'worker.lighthouse.submit_benefits_intake_claim'
 
     def initialize
-      super('burial-application')
+      super('burial-application') # Pass the service to Logging::Monitor
+      # @service is already set from super and included
     end
 
     ##

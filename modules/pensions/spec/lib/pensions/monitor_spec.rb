@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'logging/monitor'
+require 'zero_silent_failures/monitor'
 require_relative '../../../lib/pensions/monitor'
 
 RSpec.describe Pensions::Monitor do
