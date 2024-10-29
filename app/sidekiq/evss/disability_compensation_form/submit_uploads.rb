@@ -14,6 +14,9 @@ module EVSS
         error_message = msg['error_message']
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
+        upload_data = msg['args'][1]
+        # Match existing data check in perform method
+        upload_data = upload_data.first if upload_data.is_a?(Array)
 
         form_job_status = Form526JobStatus.find_by(job_id:)
         bgjob_errors = form_job_status.bgjob_errors || {}
@@ -32,45 +35,14 @@ module EVSS
         )
 
         if Flipper.enabled?(:form526_send_document_upload_failure_notification)
-          # Extract original job arguments
-          # (form526_submission_id already extracted above;
-          # line will move there after flipper is removed)
-          form526_submission_id, upload_data = msg['args']
-          # Match existing data check in perform method
-          upload_data = upload_data.first if upload_data.is_a?(Array)
           guid = upload_data['confirmationCode']
           Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
         end
 
-        # REMEMBER WILL NEED TO PASS ATTACHMENT TO PROVIDER
-
         if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
           submission = Form526Submission.find(form526_submission_id)
 
-          # yuckkkk
-          form526_submission_id, upload_data = msg['args']
-          # Match existing data check in perform method
-          upload_data = upload_data.first if upload_data.is_a?(Array)
-          # guid = upload_data['confirmationCode']
-
-          user = User.find(submission.user_uuid)
-
-          provider = ApiProviderFactory.call(
-            type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
-            options: {
-              form526_submission: submission,
-              document_type: upload_data['attachmentId'],
-              statsd_metric_prefix: STATSD_KEY_PREFIX,
-              # supporting_evidence_attachment:
-            },
-            current_user: user,
-            feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS
-          )
-
-          puts "provider think something went wrong here with init"
-          puts provider
-
-          # provider = api_upload_provider(submission, document_type, )
+          provider = api_upload_provider(submission, upload_data['attachmentId'], nil)
           provider.log_uploading_job_failure(self, error_class, error_message)
         end
 
@@ -108,7 +80,7 @@ module EVSS
             supporting_evidence_attachment:
           },
           current_user: user,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS
         )
       end
 
@@ -131,19 +103,8 @@ module EVSS
           document_data = create_document_data(upload_data, sea.converted_filename)
           raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
-          # if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-          #   # TODO: create client from lighthouse document service
-          # else
-          #   client = EVSS::DocumentsService.new(submission.auth_headers)
-          # end
-          # client.upload(file_body, document_data)
-
           if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
-            document_type = upload_data['attachmentId']
-            provider = self.class.api_upload_provider(submission, document_type, sea)
-            # file name used twice turn into var
-            upload_document = provider.generate_upload_document(sea.converted_filename)
-            provider.submit_upload_document(upload_document, file_body)
+            upload_via_api_provider(submission, upload_data['attachmentId'], file_body, sea)
           else
             EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
           end
@@ -155,6 +116,20 @@ module EVSS
       end
 
       private
+
+      # Will upload the document via a SupplementalDocumentUploadProvider
+      # We use these providers to iteratively migrate uploads to Lighthouse
+      #
+      # @param submission [Form526Submission]
+      # @document_type [string] VA internal document code for attachment type (e.g. L451)
+      # @file_body [string] Attachment file contents
+      # @attachment [SupportingEvidenceAttachment] Upload attachment record
+      def upload_via_api_provider(submission, document_type, file_body, attachment)
+        provider = self.class.api_upload_provider(submission, document_type, attachment)
+
+        upload_document = provider.generate_upload_document(attachment.converted_filename)
+        provider.submit_upload_document(upload_document, file_body)
+      end
 
       def retryable_error_handler(error)
         super(error)
