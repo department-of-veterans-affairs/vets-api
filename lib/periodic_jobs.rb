@@ -61,7 +61,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 1 * * 1', 'BenefitsIntakeRemediationStatusJob')
 
   # Update Lighthouse526DocumentUpload statuses according to Lighthouse Benefits Documents service tracking
-  mgr.register('15 * * * *', 'Form526DocumentUploadPollingJob')
+  mgr.register('15 * * * *', 'Lighthouse::Form526DocumentUploadPollingJob')
 
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
   mgr.register('0 3 * * *', 'Form526StatusPollingJob')
