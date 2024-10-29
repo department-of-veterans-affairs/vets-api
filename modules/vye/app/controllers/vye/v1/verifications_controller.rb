@@ -17,7 +17,7 @@ module Vye
       def get_verification_record
         response = verification_service.get_verification_record(params[:claimant_id])
         serializer = Vye::ClaimantVerificationSerializer
-        process_resonse(response.status, serializer)
+        process_response(response.status, serializer)
       end
 
       def verify_claimant
@@ -31,20 +31,20 @@ module Vye
           )
 
         serializer = Vye::VerifyClaimantSerializer
-        process_resonse(response.status, serializer)
+        process_response(response.status, serializer)
       end
 
       # the serializer for this endpoint is the same as for verify_claimant
       def get_claimant_status
         response = claimant_status_service.get_claimant_status(params[:claimant_id])
         serializer = Vye::VerifyClaimantSerializer
-        process_resonse(response.status, serializer)
+        process_response(response.status, serializer)
       end
 
       def claimant_lookup
         response = claimant_lookup_service.claimant_lookup(params[:ssn])
         serializer = Vye::ClaimantLookupSerializer
-        process_resonse(response.status, serializer)
+        process_response(response.status, serializer)
       end
 
       def create
@@ -79,7 +79,7 @@ module Vye
         Vye::DGIB::VerifyClaimantService.new(@current_user)
       end
 
-      def process_resonse(response_status, serializer)
+      def process_response(response_status, serializer)
         case response_status
         when 200
           render json: serializer.new(response)
