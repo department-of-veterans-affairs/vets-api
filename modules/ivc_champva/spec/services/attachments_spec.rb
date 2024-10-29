@@ -15,9 +15,9 @@ end
 
 RSpec.describe IvcChampva::Attachments do
   # Mocking a class to include the Attachments module
-  let(:form_id) { '123' }
-  let(:uuid) { 'abc123' }
-  let(:file_path) { 'tmp/123-tmp.pdf' }
+  let(:form_id) { 'vha_10_7959c' }
+  let(:uuid) { 'f4ae6102-7f05-485a-948c-c0d9ef028983' }
+  let(:file_path) { 'tmp/f4ae6102-7f05-485a-948c-c0d9ef028983_vha_10_7959c-tmp.pdf' }
   let(:data) { { 'supporting_docs' => [{ 'confirmation_codes' => 'doc1' }, { 'confirmation_codes' => 'doc2' }] } }
   let(:test_instance) { TestClass.new(form_id, uuid, data) }
 

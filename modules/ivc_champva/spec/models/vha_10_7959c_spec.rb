@@ -30,7 +30,7 @@ RSpec.describe IvcChampva::VHA107959c do
     }
   end
   let(:vha107959c) { described_class.new(data) }
-  let(:file_path) { 'vha_10_7959c-tmp.pdf' }
+  let(:file_path) { "#{uuid}_vha_10_7959c-tmp.pdf" }
   let(:uuid) { SecureRandom.uuid }
   let(:instance) { IvcChampva::VHA107959c.new(data) }
 
