@@ -20,7 +20,6 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
   end
 
   before do
-    Flipper.disable(:va_v3_contact_information_service)
     allow_any_instance_of(User).to receive(:vet360_id).and_return('18277')
     sign_in_as(user)
   end
@@ -47,7 +46,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
   describe 'authorization' do
     context 'when the user doesnt have the flag enabled' do
       before do
-        Flipper.disable(:communication_preferences)
+        allow(Flipper).to receive(:enabled?).with(:communication_preferences, instance_of(User)).and_return(false)
       end
 
       it 'doesnt allow access' do
