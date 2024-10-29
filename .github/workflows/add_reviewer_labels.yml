@@ -5,6 +5,7 @@ on:
 
 jobs:
   label-pr-codeowners:
+    if: false
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
