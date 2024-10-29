@@ -9,7 +9,7 @@ RSpec.describe RepresentationManagement::Form2122Data, type: :model do
         accredited_organization = create(:accredited_organization, name: 'Accredited Org Name')
         form_2122_data = described_class.new(organization_id: accredited_organization.id)
 
-        expect(form_2122_data.organization.name).to eq('Accredited Org Name')
+        expect(form_2122_data.organization).to eq(accredited_organization)
       end
     end
 
@@ -18,7 +18,7 @@ RSpec.describe RepresentationManagement::Form2122Data, type: :model do
         veteran_org = create(:organization, name: 'Veteran Org Name')
         form_2122_data = described_class.new(organization_id: veteran_org.poa)
 
-        expect(form_2122_data.organization.name).to eq('Veteran Org Name')
+        expect(form_2122_data.organization).to eq(veteran_org)
       end
     end
 
