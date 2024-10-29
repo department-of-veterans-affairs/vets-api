@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'zero_silent_failures/monitor'
 require 'logging/monitor'
 
 RSpec.describe Logging::Monitor do
@@ -9,7 +8,8 @@ RSpec.describe Logging::Monitor do
   let(:monitor) { described_class.new(service) }
   let(:call_location) { double('Location', base_label: 'method_name', path: '/path/to/file.rb', lineno: 42) }
   let(:metric) { 'api.monitor.404' }
-  let(:form_type) { '21P-50EZ' }
+  let(:context) { '21P-50EZ' }
+  let(:tags) { ['form_id:21P-50EZ'] }
   let(:user_account_uuid) { '123-test-uuid' }
   let(:payload) do
     {
@@ -17,7 +17,8 @@ RSpec.describe Logging::Monitor do
       user_account_uuid:,
       function: call_location.base_label,
       file: call_location.path,
-      line: call_location.lineno
+      line: call_location.lineno,
+      context:
     }
   end
 
@@ -26,10 +27,12 @@ RSpec.describe Logging::Monitor do
       it 'logs a request with call location' do
         payload[:statsd] = 'api.monitor.404'
 
-        expect(StatsD).to receive(:increment).with('api.monitor.404')
-        expect(Rails.logger).to receive(:error).with('21P-50EZ 404 Not Found!', payload)
+        expect(StatsD).to receive(:increment).with('api.monitor.404',
+                                                   { tags: ['service:test-application', 'function:method_name',
+                                                            'form_id:21P-50EZ'] })
+        expect(Rails.logger).to receive(:error).with('404 Not Found!', payload)
 
-        monitor.track_request('404 Not Found!', metric, form_type, user_account_uuid, call_location:)
+        monitor.track_request('error', '404 Not Found!', metric, tags, context, user_account_uuid, call_location:)
       end
     end
   end

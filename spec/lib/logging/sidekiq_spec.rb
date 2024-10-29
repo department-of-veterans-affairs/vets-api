@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'zero_silent_failures/monitor'
 require 'logging/monitor'
 require 'logging/sidekiq'
 
@@ -13,29 +12,7 @@ RSpec.describe Logging::Sidekiq do
   let(:user_account_uuid) { '123-test-uuid' }
   let(:benefits_intake_uuid) { '123-test-uuid' }
   let(:additional_context) { { file: 'foobar.pdf', attachments: ['file.txt', 'file2.txt'] } }
-  let(:claim) do
-    FactoryBot.create(
-      :pensions_module_pension_claim,
-      form: {
-        veteranFullName: {
-          first: 'Test',
-          last: 'User'
-        },
-        email: 'foo@foo.com',
-        veteranDateOfBirth: '1989-12-13',
-        veteranSocialSecurityNumber: '111223333',
-        veteranAddress: {
-          country: 'USA',
-          state: 'CA',
-          postalCode: '90210',
-          street: '123 Main St',
-          city: 'Anytown'
-        },
-        statementOfTruthCertified: true,
-        statementOfTruthSignature: 'Test User'
-      }.to_json
-    )
-  end
+  let(:claim) { FactoryBot.create(:pensions_module_pension_claim) }
   let(:payload) do
     {
       statsd: 'OVERRIDE',

@@ -7,7 +7,7 @@ module Pensions
   # Monitor functions for Rails logging and StatsD
   # @todo abstract, split logging for controller and sidekiq
   #
-  class Monitor < ::ZeroSilentFailures::Monitor
+  class Monitor
     include Logging::Monitor
 
     # statsd key for api
