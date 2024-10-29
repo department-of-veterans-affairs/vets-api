@@ -26,7 +26,7 @@ module Vye
         private
 
         def end_point
-          'verifications/vye/claimantLookup'
+          'dgi/vye/claimantLookup'
         end
 
         def json
