@@ -41,7 +41,7 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
       expect(fake_claim).to receive(:insert_notification).with(confirmation_email_template_id)
 
       metric = "#{VANotify::NotificationEmail::STATSD}.deliver_success"
-      # expect(VANotify::NotificationEmail).to receive(:monitor_send_failure)
+      # monitor_send_failure
       expect(StatsD).to receive(:increment).with(metric, tags: anything)
       expect(Rails.logger).to receive(:info)
 
@@ -61,7 +61,7 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
       expect(fake_claim).to receive(:insert_notification).with(confirmation_email_template_id)
 
       metric = "#{VANotify::NotificationEmail::STATSD}.deliver_success"
-      # expect(VANotify::NotificationEmail).to receive(:monitor_send_failure)
+      # monitor_send_failure
       expect(StatsD).to receive(:increment).with(metric, tags: anything)
       expect(Rails.logger).to receive(:info)
 
@@ -72,7 +72,7 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
       allow(fake_claim).to receive(:email).and_return nil
 
       metric = "#{VANotify::NotificationEmail::STATSD}.send_failure"
-      # expect(VANotify::NotificationEmail).to receive(:monitor_send_failure)
+      # monitor_send_failure
       expect(StatsD).to receive(:increment).with(metric, tags: anything)
       expect(Rails.logger).to receive(:error)
 
@@ -83,7 +83,7 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
       allow(fake_claim).to receive(:va_notification?).and_return true
 
       metric = "#{VANotify::NotificationEmail::STATSD}.duplicate_attempt"
-      # expect(VANotify::NotificationEmail).to receive(:monitor_duplicate_attempt)
+      # monitor_duplicate_attempt
       expect(StatsD).to receive(:increment).with(metric, tags: anything)
       expect(Rails.logger).to receive(:warn)
 
