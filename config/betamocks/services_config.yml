@@ -852,8 +852,14 @@
       :path: "/oauth2/health/system/v1/token"
       :file_path: "/lighthouse/veterans_health/token"
     - :method: :get
+      :path: "/services/fhir/v0/r4/AllergyIntolerance/*"
+      :file_path: "/lighthouse/veterans_health/AllergyIntolerance/show"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: "\/services\/fhir\/v0\/r4\/AllergyIntolerance\/(.*)"
+    - :method: :get
       :path: "/services/fhir/v0/r4/AllergyIntolerance"
-      :file_path: "/lighthouse/veterans_health/AllergyIntolerance"
+      :file_path: "/lighthouse/veterans_health/AllergyIntolerance/index"
       :cache_multiple_responses:
         :uid_location: query
         :uid_locator: patient
