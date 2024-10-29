@@ -33,7 +33,7 @@ module AskVAApi
             MiddleName: veteran_info[:middle],
             LastName: veteran_info[:last],
             PreferredName: veteran_info[:preferred_name],
-            Suffix: @translator.call(veteran_info[:suffix]),
+            Suffix: @translator.call(:suffix, veteran_info[:suffix]),
             Country: nil,
             Street: veteran_info[:street],
             City: veteran_info[:city],
