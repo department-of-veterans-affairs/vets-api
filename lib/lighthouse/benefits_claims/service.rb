@@ -28,7 +28,7 @@ module BenefitsClaims
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
       tracked_items = claims['data']['attributes']['trackedItems']
-      tracked_items.select{|i| i['displayName'] == 'PMR Pending'}.each {|i| i['status'] = 'NEEDED_FROM_OTHERS'}
+      tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each { |i| i['status'] = 'NEEDED_FROM_OTHERS' }
       claims
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -42,7 +42,7 @@ module BenefitsClaims
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
       tracked_items = claim['data']['attributes']['trackedItems']
-      tracked_items.select{|i| i['displayName'] == 'PMR Pending'}.each {|i| i['status'] = 'NEEDED_FROM_OTHERS'}
+      tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each { |i| i['status'] = 'NEEDED_FROM_OTHERS' }
       claim
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
