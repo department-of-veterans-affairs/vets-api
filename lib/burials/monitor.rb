@@ -14,8 +14,7 @@ module Burials
     SUBMISSION_STATS_KEY = 'worker.lighthouse.submit_benefits_intake_claim'
 
     def initialize
-      super('burial-application') # Pass the service to Logging::Monitor
-      # @service is already set from super and included
+      super('burial-application')
     end
 
     ##
