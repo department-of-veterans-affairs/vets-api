@@ -23,6 +23,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
            saved_claim_id: saved_claim.id,
            submitted_claim_id: '600130094')
   end
+  let(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission: submission, job_id: 1) }
+  let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
 
   let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
 
@@ -385,6 +387,39 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             end
           end
         end
+      end
+    end
+
+    describe 'when an error occurs during exhaustion handling and FailureEmail fails to enqueue' do
+      let!(:zsf_tag) { Form526Submission::ZSF_DD_TAG_SERVICE }
+      let!(:zsf_monitor) { ZeroSilentFailures::Monitor.new(zsf_tag) }
+      let!(:failure_email) { EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail }
+
+      before do
+        Flipper.enable(:form526_send_document_upload_failure_notification)
+        allow(ZeroSilentFailures::Monitor).to receive(:new).with(zsf_tag).and_return(zsf_monitor)
+      end
+
+      it 'logs a silent failure' do
+        expect(zsf_monitor).to receive(:log_silent_failure).with(
+          {
+            job_id: form526_job_status.job_id,
+            error_class: nil,
+            error_message: 'An error occured',
+            timestamp: instance_of(Time),
+            form526_submission_id: submission.id
+          },
+          nil,
+          call_location: instance_of(ZeroSilentFailures::Monitor::CallLocation)
+        )
+
+        args = { 'jid' => form526_job_status.job_id, 'args' => [submission.id, upload_data] }
+
+        expect do
+          subject.within_sidekiq_retries_exhausted_block(args) do
+            allow(failure_email).to receive(:perform_async).and_raise(StandardError, 'Simulated error')
+          end
+        end.to raise_error(StandardError, 'Simulated error')
       end
     end
   end

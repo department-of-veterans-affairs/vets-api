@@ -21,6 +21,9 @@ module IvcChampva
       # Send each form UUID to DataDog
       forms.each do |form|
         StatsD.increment('ivc_champva.form_missing_status', tags: ["id:#{form.id}"])
+        # TODO: Pending a policy decision, we'll want to check if any forms have
+        # been missing a status for > X days. If so, here's where we'll also want
+        # to send the user an email asking them to resubmit their form.
       end
     rescue => e
       Rails.logger.error "IVC Forms MissingFormStatusJob Error: #{e.message}"

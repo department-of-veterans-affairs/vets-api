@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_21_182334) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_29_143650) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -294,6 +294,23 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_21_182334) do
     t.float "average_days"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "banners", force: :cascade do |t|
+    t.integer "entity_id", null: false
+    t.string "entity_bundle"
+    t.string "headline"
+    t.string "alert_type"
+    t.boolean "show_close"
+    t.text "content"
+    t.jsonb "context"
+    t.boolean "operating_status_cta"
+    t.boolean "email_updates_button"
+    t.boolean "find_facilities_cta"
+    t.boolean "limit_subpage_inheritance"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["entity_id"], name: "index_banners_on_entity_id"
   end
 
   create_table "base_facilities", id: false, force: :cascade do |t|
@@ -1090,6 +1107,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_21_182334) do
     t.datetime "delete_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "failure_notification_sent_at"
     t.index ["appeal_submission_id"], name: "index_secondary_appeal_forms_on_appeal_submission_id"
   end
 
