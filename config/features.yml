@@ -1800,3 +1800,6 @@ features:
   gi_comparison_tool_lce_toggle_flag:
     actor_type: user
     description: Used to show lce page in comparison tool
+  va_notify_notification_creation:
+    actor_type: user
+    description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
