@@ -423,6 +423,10 @@ features:
     actor_type: user
     description: Enable saving record of 4142 forms submitted to Lighthouse as part of a Supplemental Claim
     enable_in_development: true
+  decision_review_notify_4142_failures:
+    actor_type: user
+    description: Enable sending an email if a 4142 submission is not successful in Lighthouse
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
