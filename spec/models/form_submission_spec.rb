@@ -19,7 +19,7 @@ RSpec.describe FormSubmission, type: :model do
       @fsa, @fsb, @fsc = create_list(:form_submission, 3, user_account:)
                          .zip(%w[FORM-A FORM-B FORM-C])
                          .map do |submission, form_type|
-        submission.update(form_type:, benefits_intake_uuid: SecureRandom.uuid)
+        submission.update(form_type:)
         submission
       end
 
