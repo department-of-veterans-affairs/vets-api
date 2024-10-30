@@ -223,7 +223,7 @@ module CentralMail
 
     def create_form_submission_attempt(form526_submission)
       form_submission = form526_submission.saved_claim.form_submissions.find_by(form_type: FORM4142_FORMSUBMISSION_TYPE)
-      if form_submission.present?
+      unless form_submission.present?
         form_submission = FormSubmission.create(
           form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
           benefits_intake_uuid: lighthouse_service.uuid,
@@ -232,7 +232,7 @@ module CentralMail
           saved_claim: form526_submission.saved_claim
         )
       end
-      FormSubmissionAttempt.create(form_submission:)
+      FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: lighthouse_service.uuid)
     end
   end
 end
