@@ -1405,6 +1405,8 @@ vanotify:
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
     password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
+  status_callback:
+    bearer_token: fake_bearer_token
 
 # Settings to connect to the drupal forms graphql api
 va_forms:
