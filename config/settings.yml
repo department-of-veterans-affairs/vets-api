@@ -1329,6 +1329,7 @@ vanotify:
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form21_4142_error_email: form21_4142_error_email_template_id
         form21_4142_received_email: form21_4142_received_email_template_id
+        form27_8832_action_needed_email: form27_8832_action_needed_email_template_id
         form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
         form40_0247_error_email: form40_0247_error_email_template_id
         form40_10007_error_email: form40_10007_error_email_template_id

@@ -4,6 +4,7 @@ require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pension_burial/tag_sentry'
 require 'burials/monitor'
+require 'pcpg/monitor'
 require 'benefits_intake_service/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'pdf_info'
@@ -37,6 +38,9 @@ module Lighthouse
       if %w[21P-530V2 21P-530].include?(claim&.form_id)
         burial_monitor = Burials::Monitor.new
         burial_monitor.track_submission_exhaustion(msg, claim)
+      elsif %w[28-8832].include?(claim&.form_id)
+          pcpg_monitor = PCPG::Monitor.new
+          pcpg_monitor.track_submission_exhaustion(msg, claim)
       end
     end
 

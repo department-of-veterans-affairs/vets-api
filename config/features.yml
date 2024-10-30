@@ -997,6 +997,9 @@ features:
   organic_conversion_experiment:
     actor_type: user
     description: Toggle to enable login.gov create account experiment
+  pcpg_trigger_action_needed_email:
+    actor_type: user
+    description: Set whether to enable VANotify email to Veteran for PCPG failure exhaustion
   pension_income_and_assets_clarification:
     actor_type: user
     description: >
