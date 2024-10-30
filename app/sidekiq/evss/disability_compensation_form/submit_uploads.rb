@@ -18,7 +18,7 @@ module EVSS
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
         upload_data = msg['args'][1]
-        
+
         # Match existing data check in perform method
         upload_data = upload_data.first if upload_data.is_a?(Array)
         log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
