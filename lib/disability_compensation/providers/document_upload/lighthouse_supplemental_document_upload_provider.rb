@@ -155,7 +155,7 @@ class LighthouseSupplementalDocumentUploadProvider
   #
   # @param lighthouse_request_id [String] unique ID Lighthouse provides us in the API response for polling later
   def create_lighthouse_polling_record(lighthouse_request_id)
-    document_type = polling_document_type
+    document_type = polling_record_document_type
 
     Lighthouse526DocumentUpload.create!(
       form526_submission: @form526_submission,
