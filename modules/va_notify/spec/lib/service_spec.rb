@@ -170,9 +170,9 @@ describe VaNotify::Service do
           allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
 
           expect(Rails.logger).to receive(:error).with(
-          'VANotify notification record failed to save',
-          { error_messages: notification.errors.full_messages }
-        )
+            'VANotify notification record failed to save',
+            { error_messages: notification.errors.full_messages }
+          )
 
           subject.send_sms(send_sms_parameters)
         end
