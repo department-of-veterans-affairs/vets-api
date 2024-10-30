@@ -1793,3 +1793,6 @@ features:
   gi_comparison_tool_lce_toggle_flag:
     actor_type: user
     description: Used to show lce page in comparison tool
+  is_DGIB_endpoint:
+    actor_type: user
+    description: used to call data from DGIB endpoints
