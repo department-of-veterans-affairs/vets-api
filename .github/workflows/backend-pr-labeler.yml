@@ -1,7 +1,7 @@
 name: Backend PR Labeler
 on:
   pull_request:
-    types: [opened, reopened, review_requested, synchronize, ready_for_review, labeled, unlabeled]
+    types: [opened, reopened, review_requested, synchronize, ready_for_review, converted_to_draft, labeled, unlabeled]
 jobs:
   labeler:
     runs-on: ubuntu-latest
@@ -27,6 +27,15 @@ jobs:
             exit 0
           fi
 
+      # Remove require-backend-approval label ??
+      - name: Remove require-backend-approval label
+        if: ${{ (env.draft || env.exempt) && contains(github.event.pull_request.labels.*.name, 'require-backend-approval')}}
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            require-backend-approval
+
       # Add require-backend-approval label
       - name: Add require-backend-approval label
         if: ${{ ! env.draft && ! env.exempt }}
@@ -35,6 +44,7 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: |
             require-backend-approval
+
 
       # Add ready-for-backend-review label
 
@@ -48,6 +58,7 @@ jobs:
         run: |
           echo "exempt: ${{ env.exempt || false }}"
           echo "draft: ${{ env.draft || false }}"
+          echo "github.event.pull_request.labels.*.name: ${{ github.event.pull_request.labels.*.name }}"
           echo '${{ toJSON(github.event.pull_request.requested_teams) }}' | jq 'length'
           echo '${{ toJSON(github.event.pull_request.requested_teams) }}' | jq .
           echo '${{ toJSON(github.event.pull_request) }}' | jq .
