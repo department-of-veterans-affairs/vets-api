@@ -192,7 +192,7 @@ module SimpleFormsApi
       when 'vba_40_0247'
         form_data.dig('applicant_full_name', 'first')
       when 'vba_40_10007'
-        form_data.dig('application', 'claimant', 'name', 'first')
+        form40_10007_first_name
       end
     end
     # rubocop:enable Metrics/MethodLength
@@ -341,6 +341,15 @@ module SimpleFormsApi
                                     ' (VA Form 21P-534 or VA Form 21P-534EZ)'
                                 end
       { 'intent_to_file_benefits' => intent_to_file_benefits }
+    end
+
+    def form40_10007_first_name
+      applicant_relationship = form_data.dig('application', 'applicant', 'applicant_relationship_to_claimant')
+      if applicant_relationship == 'self'
+        form_data.dig('application', 'veteran', 'current_name', 'first')
+      else
+        form_data.dig('application', 'claimant', 'name', 'first')
+      end
     end
   end
 end

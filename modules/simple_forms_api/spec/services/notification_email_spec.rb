@@ -445,7 +445,7 @@ describe SimpleFormsApi::NotificationEmail do
       end
     end
 
-    describe '40_10007' do
+    describe '40_10007 email' do
       let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
       let(:config) do
         { form_data: data, form_number: 'vba_40_10007',
@@ -475,7 +475,7 @@ describe SimpleFormsApi::NotificationEmail do
 
             it 'does not send the confirmation email' do
               allow(VANotify::EmailJob).to receive(:perform_async)
-              expect(data['applicant_email']).to be_nil
+              expect(data['application']['claimant']['email']).to be_nil
 
               subject = described_class.new(config, notification_type:)
 
@@ -516,6 +516,61 @@ describe SimpleFormsApi::NotificationEmail do
           subject.send
 
           expect(VANotify::EmailJob).not_to have_received(:perform_async)
+        end
+      end
+    end
+
+    describe '40-10007 first name' do
+      subject { described_class.new(config) }
+
+      let(:config) do
+        {
+          form_number: 'vba_40_10007',
+          form_data: form_data,
+          confirmation_number: '8679305',
+          date_submitted: Time.zone.today.strftime('%B %d, %Y')
+        }
+      end
+
+      context 'when the applicant is the claimant ("self")' do
+        let(:form_data) do
+          {
+            'application' => {
+              'applicant' => {
+                'applicant_relationship_to_claimant' => 'self'
+              },
+              'veteran' => {
+                'current_name' => {
+                  'first' => 'Freddy'
+                }
+              }
+            }
+          }
+        end
+
+        it 'returns the veteran first name' do
+          expect(subject.instance_eval { form40_10007_first_name }).to eq('Freddy')
+        end
+      end
+
+      context 'when the applicant is not the claimant' do
+        let(:form_data) do
+          {
+            'application' => {
+              'applicant' => {
+                'applicant_relationship_to_claimant' => 'other'
+              },
+              'claimant' => {
+                'name' => {
+                  'first' => 'Jason'
+                }
+              }
+            }
+          }
+        end
+
+        it 'returns the claimant first name' do
+          expect(subject.instance_eval { form40_10007_first_name }).to eq('Jason')
         end
       end
     end
