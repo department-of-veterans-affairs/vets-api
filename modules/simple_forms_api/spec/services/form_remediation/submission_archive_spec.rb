@@ -36,6 +36,8 @@ module SimpleFormsApi
       end
       let(:config) { Configuration::VffConfig.new }
       let(:temp_file_path) { Rails.root.join('tmp', 'random-letters-n-numbers-archive').to_s }
+      let(:default_args) { { id: benefits_intake_uuid, config:, type: } }
+      let(:hydrated_submission_args) { default_args.merge(submission:, file_path:, attachments:, metadata:) }
 
       before do
         allow(FormSubmission).to receive(:find_by).and_return(submission)
@@ -47,24 +49,36 @@ module SimpleFormsApi
         allow(FileUtils).to receive(:mkdir_p).and_return(true)
       end
 
-      %i[submission remediation].each do |type|
-        describe "when archiving a #{type}" do
-          let(:default_args) { { id: benefits_intake_uuid, config:, type: } }
-          let(:hydrated_submission_args) { default_args.merge(submission:, file_path:, attachments:, metadata:) }
+      def expected_manifest_entry
+        [
+          submission.created_at,
+          form_type,
+          benefits_intake_uuid,
+          metadata['fileNumber'],
+          metadata['veteranFirstName'],
+          metadata['veteranLastName']
+        ]
+      end
+
+      %i[submission remediation].each do |archive_type|
+        describe "when archiving a #{archive_type}" do
+          let(:type) { archive_type }
 
           describe '#initialize' do
+            subject(:archive_instance) { described_class.new(**args) }
+
             context 'when initialized with a valid id' do
-              subject(:new) { described_class.new(**default_args) }
+              let(:args) { default_args }
 
               it 'successfully completes initialization' do
-                expect { new }.not_to raise_exception
+                expect { archive_instance }.not_to raise_exception
               end
 
               context 'when no id is passed' do
                 let(:benefits_intake_uuid) { nil }
 
                 it 'raises an exception' do
-                  expect { new }.to raise_exception(RuntimeError, 'No benefits_intake_uuid was provided')
+                  expect { archive_instance }.to raise_exception(RuntimeError, 'No benefits_intake_uuid was provided')
                 end
               end
 
@@ -72,16 +86,16 @@ module SimpleFormsApi
                 let(:config) { nil }
 
                 it 'raises an exception' do
-                  expect { new }.to raise_exception(NoConfigurationError, 'No configuration was provided')
+                  expect { archive_instance }.to raise_exception(NoConfigurationError, 'No configuration was provided')
                 end
               end
             end
 
             context 'when initialized with valid hydrated submission data' do
-              subject(:new) { described_class.new(**hydrated_submission_args) }
+              let(:args) { hydrated_submission_args }
 
               it 'successfully completes initialization' do
-                expect { new }.not_to raise_exception
+                expect { archive_instance }.not_to raise_exception
               end
 
               context 'when no submission is passed' do
@@ -89,14 +103,14 @@ module SimpleFormsApi
                 let(:benefits_intake_uuid) { 'random-letters-n-numbers' }
 
                 it 'successfully completes initialization' do
-                  expect { new }.not_to raise_exception
+                  expect { archive_instance }.not_to raise_exception
                 end
 
                 context 'when no id is passed' do
                   let(:benefits_intake_uuid) { nil }
 
                   it 'raises an exception' do
-                    expect { new }.to raise_exception(RuntimeError, 'No benefits_intake_uuid was provided')
+                    expect { archive_instance }.to raise_exception(RuntimeError, 'No benefits_intake_uuid was provided')
                   end
                 end
               end
@@ -115,26 +129,13 @@ module SimpleFormsApi
               build_archive
             end
 
-            context 'when initialized with a valid id' do
-              let(:archive_instance) { described_class.new(**default_args) }
-
-              subject(:build_archive) { archive_instance.build! }
-
+            shared_examples 'successfully built submission archive' do
               it 'builds the file path correctly' do
                 expect(build_archive[0]).to include(file_name)
               end
 
               it 'builds the manifest entry correctly' do
-                expect(build_archive[1]).to eq(
-                  [
-                    submission.created_at,
-                    form_type,
-                    benefits_intake_uuid,
-                    metadata['fileNumber'],
-                    metadata['veteranFirstName'],
-                    metadata['veteranLastName']
-                  ]
-                )
+                expect(build_archive[1]).to eq(expected_manifest_entry)
               end
 
               it 'writes the submission pdf file' do
@@ -164,53 +165,20 @@ module SimpleFormsApi
               end
             end
 
+            context 'when initialized with a valid id' do
+              let(:archive_instance) { described_class.new(**default_args) }
+
+              subject(:build_archive) { archive_instance.build! }
+
+              include_examples 'successfully built submission archive'
+            end
+
             context 'when initialized with valid submission data' do
               let(:archive_instance) { described_class.new(**hydrated_submission_args) }
 
               subject(:build_archive) { archive_instance.build! }
 
-              it 'builds the file path correctly' do
-                expect(build_archive[0]).to include(file_name)
-              end
-
-              it 'builds the manifest entry correctly' do
-                expect(build_archive[1]).to eq(
-                  [
-                    submission.created_at,
-                    form_type,
-                    benefits_intake_uuid,
-                    metadata['fileNumber'],
-                    metadata['veteranFirstName'],
-                    metadata['veteranLastName']
-                  ]
-                )
-              end
-
-              it 'writes the submission pdf file' do
-                expect(File).to have_received(:write).with(
-                  "#{temp_file_path}/#{submission_file_path}.pdf", a_string_starting_with('%PDF')
-                )
-              end
-
-              it 'writes the attachment files' do
-                attachments.each_with_index do |_, i|
-                  expect(File).to have_received(:write).with(
-                    "#{temp_file_path}/attachment_#{i + 1}__#{submission_file_path}.pdf", a_string_starting_with('%PDF')
-                  )
-                end
-              end
-
-              it 'zips the directory when necessary' do
-                if type == :submission
-                  expect(archive_instance).not_to have_received(:zip_directory!)
-                else
-                  expect(archive_instance).to have_received(:zip_directory!).with(
-                    config.parent_dir,
-                    a_string_including('/tmp/random-letters-n-numbers-archive/'),
-                    a_string_including(submission_file_path)
-                  )
-                end
-              end
+              include_examples 'successfully built submission archive'
             end
           end
         end
