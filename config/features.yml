@@ -420,6 +420,10 @@ features:
     actor_type: user
     description: Enable saving record of 4142 forms submitted to Lighthouse as part of a Supplemental Claim
     enable_in_development: true
+  decision_review_notify_4142_failures:
+    actor_type: user
+    description: Enable sending an email if a 4142 submission is not successful in Lighthouse
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -1787,6 +1791,9 @@ features:
   fsr_wizard:
     actor_type: user
     description: Used to toggle the FSR wizard
+  gi_comparison_tool_show_ratings:
+    actor_type: user
+    description: Display Veteran student ratings in GI comparison Tool
   gi_comparison_tool_programs_toggle_flag:
     actor_type: user
     description: Used to show links to programs page in comparison tool
