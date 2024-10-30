@@ -105,11 +105,14 @@ module RepresentationManagement
     end
 
     def representative_individual_type
-      if representative.is_a?(AccreditedIndividual)
-        representative.individual_type
-      else
-        representative.user_types.first
-      end
+      type = if representative.is_a?(AccreditedIndividual)
+               representative.individual_type
+             else
+               representative.user_types.first
+             end
+      # We're converting 'claims_agent' and 'claim_agents' to 'agent'
+      # here because the PDF checkbox responds to 'agent'.
+      type&.include?('agent') ? 'agent' : type
     end
 
     def representative_phone

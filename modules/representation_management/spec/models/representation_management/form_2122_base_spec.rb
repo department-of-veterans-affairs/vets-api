@@ -96,6 +96,12 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
           subject.representative_id = representative.id
           expect(subject.representative_individual_type).to eq(representative.individual_type)
         end
+
+        it 'returns "agent" if individual_type includes "agent"' do
+          representative = create(:accredited_individual, individual_type: 'claims_agent')
+          subject.representative_id = representative.id
+          expect(subject.representative_individual_type).to eq('agent')
+        end
       end
 
       context 'when representative is an instance of Veteran::Service::Representative' do
