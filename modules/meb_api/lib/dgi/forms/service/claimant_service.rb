@@ -14,7 +14,9 @@ module MebApi
           configuration MebApi::DGI::Forms::Configuration
           STATSD_KEY_PREFIX = 'api.dgi.claimant'
 
-          def get_claimant_info(type = 'toe')
+          def get_claimant_info(type)
+            type ||= 'toe'
+
             with_monitoring do
               headers = request_headers
               options = { timeout: 60 }
