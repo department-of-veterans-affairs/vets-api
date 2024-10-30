@@ -81,17 +81,16 @@ module Lighthouse
       veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
 
-      metadata = {
-        'veteranFirstName' => veteran_full_name['first'],
-        'veteranLastName' => veteran_full_name['last'],
-        'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'zipCode' => address['postalCode'],
-        'source' => "#{@claim.class} va.gov",
-        'docType' => @claim.form_id,
-        'businessLine' => @claim.business_line
-      }
-
-      SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: check_zipcode(address))
+      # also validates/manipulates the metadata
+      BenefitsIntake::Metadata.generate(
+        veteran_full_name['first'],
+        veteran_full_name['last'],
+        form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+        address['postalCode'],
+        "#{@claim.class} va.gov",
+        @claim.form_id,
+        @claim.business_line
+      )
     end
 
     def process_record(record, timestamp = nil, form_id = nil)

@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require 'zero_silent_failures/monitor'
+
 module EVSS
   module DisabilityCompensationForm
     class SubmitUploads < Job
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_upload'
+      ZSF_DD_TAG_FUNCTION = '526_evidence_upload_failure_email_queuing'
 
       # retry for one day
       sidekiq_options retry: 14
@@ -14,6 +17,9 @@ module EVSS
         error_message = msg['error_message']
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
+        log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+
+        Rails.logger.warn('Submit Form 526 Upload Retries exhausted', log_info)
 
         form_job_status = Form526JobStatus.find_by(job_id:)
         bgjob_errors = form_job_status.bgjob_errors || {}
@@ -31,6 +37,8 @@ module EVSS
           bgjob_errors: bgjob_errors.merge(new_error)
         )
 
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+
         if Flipper.enabled?(:form526_send_document_upload_failure_notification)
           # Extract original job arguments
           # (form526_submission_id already extracted above;
@@ -41,14 +49,18 @@ module EVSS
           guid = upload_data['confirmationCode']
           Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
         end
-
-        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
-
-        ::Rails.logger.warn(
-          'Submit Form 526 Upload Retries exhausted',
-          { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
-        )
       rescue => e
+        cl = caller_locations.first
+        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+        user_account_id = begin
+          Form526Submission.find(form526_submission_id).user_account_id
+        rescue
+          nil
+        end
+
+        zsf_monitor.log_silent_failure(log_info, user_account_id, call_location:)
+
         ::Rails.logger.error(
           'Failure in SubmitUploads#sidekiq_retries_exhausted',
           {
