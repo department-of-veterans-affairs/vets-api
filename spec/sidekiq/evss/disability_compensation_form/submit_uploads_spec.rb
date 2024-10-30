@@ -7,7 +7,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:disability_compensation_lighthouse_document_service_provider)
+
+    Flipper.disable(:disability_compensation_use_api_provider_for_submit_veteran_upload)
     Flipper.disable(:form526_send_document_upload_failure_notification)
   end
 
