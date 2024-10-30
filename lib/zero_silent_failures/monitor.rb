@@ -9,6 +9,8 @@ module ZeroSilentFailures
       attr_accessor :base_label, :path, :lineno
 
       # create proxy caller_location
+      # @see Thread::Backtrace::Location
+      # @see ZeroSilentFailures::Monitor#parse_caller
       def initialize(function = nil, file = nil, line = nil)
         @base_label = function
         @path = file
@@ -26,17 +28,18 @@ module ZeroSilentFailures
 
       metric = 'silent_failure'
       message = 'Silent failure!'
+      payload =  {
+         statsd: metric,
+         service:,
+         function:,
+         file:,
+         line:,
+         user_account_uuid:,
+         additional_context:
+       }
 
       StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
-      Rails.logger.error(message, {
-                           statsd: metric,
-                           service:,
-                           function:,
-                           file:,
-                           line:,
-                           user_account_uuid:,
-                           additional_context:
-                         })
+      Rails.logger.error(message, payload)
     end
 
     def log_silent_failure_avoided(additional_context, user_account_uuid = nil, call_location: nil,
@@ -51,16 +54,18 @@ module ZeroSilentFailures
         message = "#{message} (no confirmation)"
       end
 
+      payload =  {
+         statsd: metric,
+         service:,
+         function:,
+         file:,
+         line:,
+         user_account_uuid:,
+         additional_context:
+       }
+
       StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
-      Rails.logger.error(message, {
-                           statsd: metric,
-                           service:,
-                           function:,
-                           file:,
-                           line:,
-                           user_account_uuid:,
-                           additional_context:
-                         })
+      Rails.logger.error(message, payload)
     end
 
     private

@@ -44,10 +44,11 @@ module Burials
       def generate_metadata
         base = super
 
-        lighthouse_benefit_intake_submission = FormSubmission.where(saved_claim_id: claim.id).order(id: :asc).last
+        submission = FormSubmission.where(saved_claim_id: claim.id)&.order(id: :asc)&.last
+        attempt = submission&.form_submission_attempts&.order(id: :asc)&.last
         burials = {
-          lighthouseBenefitIntakeSubmissionUUID: lighthouse_benefit_intake_submission&.benefits_intake_uuid,
-          lighthouseBenefitIntakeSubmissionDate: lighthouse_benefit_intake_submission&.created_at
+          lighthouseBenefitIntakeSubmissionUUID: attempt&.benefits_intake_uuid,
+          lighthouseBenefitIntakeSubmissionDate: attempt&.created_at
         }
 
         base.merge(burials)
