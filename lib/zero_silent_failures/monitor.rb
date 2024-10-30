@@ -28,15 +28,15 @@ module ZeroSilentFailures
 
       metric = 'silent_failure'
       message = 'Silent failure!'
-      payload =  {
-         statsd: metric,
-         service:,
-         function:,
-         file:,
-         line:,
-         user_account_uuid:,
-         additional_context:
-       }
+      payload = {
+        statsd: metric,
+        service:,
+        function:,
+        file:,
+        line:,
+        user_account_uuid:,
+        additional_context:
+      }
 
       StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
       Rails.logger.error(message, payload)
@@ -54,15 +54,15 @@ module ZeroSilentFailures
         message = "#{message} (no confirmation)"
       end
 
-      payload =  {
-         statsd: metric,
-         service:,
-         function:,
-         file:,
-         line:,
-         user_account_uuid:,
-         additional_context:
-       }
+      payload = {
+        statsd: metric,
+        service:,
+        function:,
+        file:,
+        line:,
+        user_account_uuid:,
+        additional_context:
+      }
 
       StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
       Rails.logger.error(message, payload)

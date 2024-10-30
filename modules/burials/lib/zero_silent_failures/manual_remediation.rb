@@ -6,7 +6,6 @@ module Burials
   module ZeroSilentFailures
     # @see ZeroSilentFailures::ManualRemediation::SavedClaim
     class ManualRemediation < ::ZeroSilentFailures::ManualRemediation::SavedClaim
-
       private
 
       # specify the claim class to be used
@@ -28,8 +27,15 @@ module Burials
           }
         ]
 
-        if ['21P-530V2'].include?(claim.form_id)
-          burials << {
+        burials += v2_stamps(timestamp) if ['21P-530V2'].include?(claim.form_id)
+
+        base + burials
+      end
+
+      # specific stamps for burials v2
+      def v2_stamps(timestamp)
+        [
+          {
             text: 'Application Submitted on va.gov',
             x: 425,
             y: 675,
@@ -40,9 +46,7 @@ module Burials
             template: "lib/pdf_fill/forms/pdfs/#{claim.form_id}.pdf",
             multistamp: true
           }
-        end
-
-        base + burials
+        ]
       end
 
       # override - add additional metadata

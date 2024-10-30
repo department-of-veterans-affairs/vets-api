@@ -7,7 +7,6 @@ module ZeroSilentFailures
   module ManualRemediation
     # super class for manual remediation of a SavedClaim type
     class SavedClaim
-
       attr_reader :claim, :zipfile, :aws_download_zip_link
 
       # constructor
@@ -36,7 +35,7 @@ module ZeroSilentFailures
 
         Rails.logger.info "Manual Remediation for #{claim.form_id} #{claim.id} Complete!"
       ensure
-        Common::FileHelpers.delete_file_if_exists(zipfile) if is_prod?
+        Common::FileHelpers.delete_file_if_exists(zipfile) if on_prod?
         files.each { |file| Common::FileHelpers.delete_file_if_exists(file[:path]) }
       end
 
@@ -56,7 +55,7 @@ module ZeroSilentFailures
       def upload_documents
         Rails.logger.info "Uploading documents - #{claim.form_id} #{claim.id}"
 
-        aws_upload_zipfile if is_prod?
+        aws_upload_zipfile if on_prod?
         # @todo ? upload to sharepoint directly ?
 
         aws_download_zip_link || zipfile
@@ -73,7 +72,7 @@ module ZeroSilentFailures
       private
 
       # is the current environment production
-      def is_prod?
+      def on_prod?
         Settings.vsp_environment == 'production'
       end
 
@@ -182,13 +181,11 @@ module ZeroSilentFailures
       def zip_files
         Zip::File.open(zipfile, Zip::File::CREATE) do |zip|
           files.each do |file|
-            begin
-              Rails.logger.info("Adding to zip: #{file}")
-              zip.add(file[:name], file[:path])
-            rescue => e
-              Rails.logger.error "Error adding to zip: #{file}"
-              raise e
-            end
+            Rails.logger.info("Adding to zip: #{file}")
+            zip.add(file[:name], file[:path])
+          rescue => e
+            Rails.logger.error "Error adding to zip: #{file}"
+            raise e
           end
         end
 
@@ -208,7 +205,7 @@ module ZeroSilentFailures
 
         Rails.logger.info("AWS Download Zip Link #{aws_download_zip_link}")
       rescue => e
-        Rails.logger.error "Error uploading to AWS"
+        Rails.logger.error 'Error uploading to AWS'
         raise e
       end
     end

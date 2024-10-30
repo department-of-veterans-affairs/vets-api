@@ -22,7 +22,7 @@ RSpec.describe ZeroSilentFailures::ManualRemediation::SavedClaim do
     fake_claim.persistent_attachments << attachment
     fake_claim.form_submissions << submission
     allow(fake_claim).to receive(:to_pdf).and_return(fake_pdf_path)
-    allow(::SavedClaim).to receive(:find).and_return(fake_claim)
+    allow(SavedClaim).to receive(:find).and_return(fake_claim)
 
     # ensure that the testing zip file is deleted
     allow(Settings).to receive(:vsp_environment).and_return 'production'
@@ -37,7 +37,7 @@ RSpec.describe ZeroSilentFailures::ManualRemediation::SavedClaim do
 
   describe '#run' do
     it 'completes manual remediation process successfully' do
-      expect(stamper).to receive(:run).exactly(2).times
+      expect(stamper).to receive(:run).twice
 
       # metadata.json, claim.pdf, attachment.pdf
       expect_any_instance_of(Zip::File).to receive(:add).exactly(3).times

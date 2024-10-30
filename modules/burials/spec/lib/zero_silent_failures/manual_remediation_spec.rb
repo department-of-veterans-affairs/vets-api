@@ -38,7 +38,8 @@ RSpec.describe Burials::ZeroSilentFailures::ManualRemediation do
       remediation = described_class.new(fake_claim.id)
 
       metadata = remediation.send('generate_metadata')
-      expected = hash_including(lighthouseBenefitIntakeSubmissionUUID: anything, lighthouseBenefitIntakeSubmissionDate: anything)
+      expected = hash_including(lighthouseBenefitIntakeSubmissionUUID: anything,
+                                lighthouseBenefitIntakeSubmissionDate: anything)
 
       expect(metadata).to match(expected)
     end

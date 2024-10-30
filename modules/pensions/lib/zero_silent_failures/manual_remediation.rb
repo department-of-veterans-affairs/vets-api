@@ -6,7 +6,6 @@ module Pensions
   module ZeroSilentFailures
     # @see ZeroSilentFailures::ManualRemediation::SavedClaim
     class ManualRemediation < ::ZeroSilentFailures::ManualRemediation::SavedClaim
-
       private
 
       # specify the claim class to be used
