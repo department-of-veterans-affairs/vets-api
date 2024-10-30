@@ -149,7 +149,27 @@ module EVSS
       end
 
       def submission_account(submission)
-        UserAccount.find_by(id: submission.user_account_id) || Account.lookup_by_user_uuid(submission.user_uuid)
+        # first, check for an ICN on the UserAccount associated to the submission, return it if found
+        account = UserAccount.find_by(id: submission.user_account_id)
+        return account if account.present? && account.icn.present?
+
+        # next, check for any duplicate/historical UserAccounts for that user which might have an ICN
+        user_verifications = UserVerification.where(idme_uuid: submission.user_uuid)
+                                             .or(UserVerification.where(backing_idme_uuid: submission.user_uuid))
+        if account.present?
+          user_verifications = user_verifications.filter do |uv|
+            uv.user_account_id != account.id
+          end
+        end
+        unique_user_account_ids = user_verifications.map(&:user_account_id).uniq
+
+        unique_user_account_ids.each do |user_account_id|
+          user_account = UserAccount.find(user_account_id)
+          return user_account if user_account.icn.present?
+        end
+
+        # failing all the above, default to an Account lookup
+        Account.lookup_by_user_uuid(submission.user_uuid)
       end
 
       def send_submission_data_to_lighthouse(submission, icn)
