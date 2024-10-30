@@ -22,12 +22,15 @@ module MyHealth
     def client
       use_oh_data_path = Flipper.enabled?(:mhv_accelerated_delivery_allergies_enabled, @current_user) &&
                          params[:use_oh_data_path].to_i == 1
-      @client ||= if use_oh_data_path
-                    MedicalRecords::LighthouseClient.new(current_user.icn)
-                  else
-                    MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
-                                                          icn: current_user.icn })
-                  end
+      if @client.nil?
+        @client ||= if use_oh_data_path
+                      MedicalRecords::LighthouseClient.new(current_user.icn)
+                    else
+                      MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
+                                                            icn: current_user.icn })
+                    end
+      end
+      @client
     end
 
     def phrmgr_client
