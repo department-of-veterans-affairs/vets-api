@@ -6,6 +6,7 @@ module RepresentationManagement
       service_tag 'representation-management'
       skip_before_action :authenticate
       before_action :feature_enabled
+      before_action :seed_organization_and_individual_in_dev
 
       private
 
@@ -131,6 +132,30 @@ module RepresentationManagement
 
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
+      end
+
+      def seed_organization_and_individual_in_dev
+        return unless Rails.env.development?
+
+        if AccreditedIndividual.count.zero?
+          FactoryBot.create(:accredited_individual,
+                            first_name: 'First',
+                            middle_initial: 'M',
+                            last_name: 'Last',
+                            address_line1: '789 Rep St',
+                            city: 'RepCity',
+                            state_code: 'RC',
+                            zip_code: '54321',
+                            phone: '5555555555',
+                            email: 'rep@rep.com',
+                            individual_type: 'claims_agent')
+        end
+        FactoryBot.create(:accredited_organization, name: 'Best VSO') if AccreditedOrganization.count.zero?
+
+        p '*' * 100, 'Seeded accredited individual and organization', '*' * 100,
+          "AccreditedIndividual: #{AccreditedIndividual.first.inspect}",
+          '*' * 100,
+          "AccreditedOrganization: #{AccreditedOrganization.first.inspect}"
       end
     end
   end
