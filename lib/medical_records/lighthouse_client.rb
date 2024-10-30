@@ -21,8 +21,9 @@ module MedicalRecords
       @icn = icn
     end
 
-    def authenticate # rubocop:disable Lint/UselessMethodDefinition
-      super()
+    # override the authenticate method
+    def authenticate
+      Rails.logger.info("Authenticating with ICN: #{@icn}")
     end
 
     def list_allergies
