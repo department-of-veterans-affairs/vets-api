@@ -90,6 +90,26 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     let(:parsed_0781_form) { JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781'] }
     let(:parsed_0781a_form) { JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781a'] }
 
+    let(:form0781_only) do
+      original = JSON.parse(form0781)
+      original['form0781'].delete('form0781a')
+      original.to_json
+    end
+
+    let(:form0781a_only) do
+      original = JSON.parse(form0781)
+      original['form0781'].delete('form0781')
+      original.to_json
+    end
+
+    let(:submission) do
+      Form526Submission.create(user_uuid: user.uuid,
+                               auth_headers_json: auth_headers.to_json,
+                               saved_claim_id: saved_claim.id,
+                               form_json: form0781, # 0781 and 0781a
+                               submitted_claim_id: evss_claim_id)
+    end
+
     let(:perform_upload) do
       subject.perform_async(submission.id)
       described_class.drain
@@ -99,6 +119,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       Flipper.enable(:disability_compensation_use_api_provider_for_0781_upload)
       # StatsD metrics are incremented in several callbacks we're not testing here so we need to allow them
       allow(StatsD).to receive(:increment)
+      # The ensure block in the upload_to_vbms method deletes the generated PDF, this skips over that step to not delete the sample fixture files
       allow(File).to receive(:delete).and_return(nil)
     end
 
@@ -140,14 +161,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       context 'when a submission has both 0781 and 0781a' do
-        let(:submission) do
-          Form526Submission.create(user_uuid: user.uuid,
-                                   auth_headers_json: auth_headers.to_json,
-                                   saved_claim_id: saved_claim.id,
-                                   form_json: form0781,
-                                   submitted_claim_id: evss_claim_id)
-        end
-
         it 'uploads both 0781 documents to Lighthouse' do
           # 0781
           allow_any_instance_of(described_class)
@@ -271,20 +284,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       context 'when a submission only has 0781' do
-        let(:form0781_only) do
-          original = JSON.parse(form0781)
-          original['form0781'].delete('form0781a')
-          original.to_json
-        end
-        let(:submission) do
-          Form526Submission.create(user_uuid: user.uuid,
-                                   auth_headers_json: auth_headers.to_json,
-                                   saved_claim_id: saved_claim.id,
-                                   form_json: form0781_only,
-                                   submitted_claim_id: evss_claim_id)
-        end
+        it 'uploads the 0781 document to Lighthouse' do
+          submission.update!(form_json: form0781_only)
 
-        it 'uploads the document to Lighthouse' do
           allow_any_instance_of(described_class)
             .to receive(:generate_stamp_pdf)
             .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
@@ -303,21 +305,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       context 'when a submission only has 0781a' do
-        let(:form0781a_only) do
-          original = JSON.parse(form0781)
-          original['form0781'].delete('form0781')
-          original.to_json
-        end
+        it 'uploads the 0781a document to Lighthouse' do
+          submission.update!(form_json: form0781a_only)
 
-        let(:submission) do
-          Form526Submission.create(user_uuid: user.uuid,
-                                   auth_headers_json: auth_headers.to_json,
-                                   saved_claim_id: saved_claim.id,
-                                   form_json: form0781a_only,
-                                   submitted_claim_id: evss_claim_id)
-        end
-
-        it 'uploads the document to Lighthouse' do
           allow_any_instance_of(described_class)
             .to receive(:generate_stamp_pdf)
             .with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a')
@@ -337,13 +327,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     end
 
     context 'when the disability_compensation_upload_0781_to_lighthouse flipper is disabled' do
-      let(:submission) do
-        Form526Submission.create(user_uuid: user.uuid,
-                                 auth_headers_json: auth_headers.to_json,
-                                 saved_claim_id: saved_claim.id,
-                                 form_json: form0781,
-                                 submitted_claim_id: evss_claim_id)
-      end
       let(:faraday_response) { instance_double(Faraday::Response) }
       let(:expected_statsd_metrics_prefix) do
         'worker.evss.submit_form0781.evss_supplemental_document_upload_provider'
@@ -385,41 +368,63 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                                                 .and_return(evss_claim_0781a_document)
       end
 
-      it 'uploads the 0781 documents to EVSS' do
-        expect(client_stub).to receive(:upload).with(File.read(path_to_0781_fixture), evss_claim_0781_document)
+      context 'when a submission has both 0781 and 0781a' do
+        it 'uploads the 0781 documents to EVSS' do
+          expect(client_stub).to receive(:upload).with(File.read(path_to_0781_fixture), evss_claim_0781_document)
 
-        expect(client_stub).to receive(:upload).with(File.read(path_to_0781a_fixture), evss_claim_0781a_document)
+          expect(client_stub).to receive(:upload).with(File.read(path_to_0781a_fixture), evss_claim_0781a_document)
 
-        perform_upload
+          perform_upload
+        end
+
+        it 'logs the upload attempt with the correct job prefix' do
+          allow(client_stub).to receive(:upload)
+          expect(StatsD).to receive(:increment).with(
+            "#{expected_statsd_metrics_prefix}.upload_attempt"
+          ).twice # For 0781 and 0781a
+
+          perform_upload
+        end
+
+        it 'increments the correct StatsD success metric' do
+          allow(client_stub).to receive(:upload)
+          expect(StatsD).to receive(:increment).with(
+            "#{expected_statsd_metrics_prefix}.upload_success"
+          ).twice # For 0781 and 0781a
+
+          perform_upload
+        end
+
+        context 'when an upload raises an EVSS response error' do
+          it 'logs an upload error' do
+            allow(client_stub).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
+            expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_upload_failure)
+
+            expect do
+              subject.perform_async(submission.id)
+              described_class.drain
+            end.to raise_error(EVSS::ErrorMiddleware::EVSSError)
+          end
+        end
       end
 
-      it 'logs the upload attempt with the correct job prefix' do
-        allow(client_stub).to receive(:upload)
-        expect(StatsD).to receive(:increment).with(
-          "#{expected_statsd_metrics_prefix}.upload_attempt"
-        ).twice # For 0781 and 0781a
+      context 'when a submission only has 0781' do
+        it 'uploads the 0781 document to Lighthouse' do
+          submission.update!(form_json: form0781_only)
 
-        perform_upload
+          expect(client_stub).to receive(:upload).with(File.read(path_to_0781_fixture), evss_claim_0781_document)
+
+          perform_upload
+        end
       end
 
-      it 'increments the correct StatsD success metric' do
-        allow(client_stub).to receive(:upload)
-        expect(StatsD).to receive(:increment).with(
-          "#{expected_statsd_metrics_prefix}.upload_success"
-        ).twice # For 0781 and 0781a
+      context 'when a submission only has 0781a' do
+        it 'uploads the 0781a document to Lighthouse' do
+          submission.update!(form_json: form0781a_only)
 
-        perform_upload
-      end
+          expect(client_stub).to receive(:upload).with(File.read(path_to_0781a_fixture), evss_claim_0781a_document)
 
-      context 'when an upload raises an EVSS response error' do
-        it 'logs an upload error' do
-          allow(client_stub).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
-          expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_upload_failure)
-
-          expect do
-            subject.perform_async(submission.id)
-            described_class.drain
-          end.to raise_error(EVSS::ErrorMiddleware::EVSSError)
+          perform_upload
         end
       end
     end
