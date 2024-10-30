@@ -29,7 +29,7 @@ jobs:
 
       # Add require-backend-approval label
       - name: Add require-backend-approval label
-        if: ! env.draft && ! env.exempt
+        if: ${{ ! env.draft && ! env.exempt }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
