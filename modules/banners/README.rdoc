@@ -1,0 +1,2 @@
+= Banners
+The Banners API provides a means to generate VA.gov banners quickly, without relying on content-build.
