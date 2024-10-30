@@ -8,14 +8,6 @@ class LighthouseSupplementalDocumentUploadProvider
 
   STATSD_PROVIDER_METRIC = 'lighthouse_supplemental_document_upload_provider'
 
-  # Maps VA's internal Document Types to the correct document_type attribute for a Lighthouse526DocumentUpload polling
-  # record. We need this to create a valid polling record
-  # POLLING_DOCUMENT_TYPES = {
-  #   'L023' => Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE
-  #   # VETERAN EVIDENCE DO WE NEED TO WHITELIST A WHOLE BUNCH OF THESE BAD BOIS?
-  #   # DOES THE POLLING ACCOUNT FOR THIS?
-  # }.freeze
-
   # @param form526_submission [Form526Submission]
   #
   # @param va_document_type [String] VA document code, see LighthouseDocument::DOCUMENT_TYPES
@@ -155,8 +147,6 @@ class LighthouseSupplementalDocumentUploadProvider
   #
   # @param lighthouse_request_id [String] unique ID Lighthouse provides us in the API response for polling later
   def create_lighthouse_polling_record(lighthouse_request_id)
-    document_type = polling_record_document_type
-
     Lighthouse526DocumentUpload.create!(
       form526_submission: @form526_submission,
       document_type: polling_record_document_type,

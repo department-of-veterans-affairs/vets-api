@@ -54,13 +54,6 @@ module EVSS
           provider = api_upload_provider(submission, upload_data['attachmentId'], nil)
           provider.log_uploading_job_failure(self, error_class, error_message)
         end
-
-        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
-
-        ::Rails.logger.warn(
-          'Submit Form 526 Upload Retries exhausted',
-          { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
-        )
       rescue => e
         cl = caller_locations.first
         call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)

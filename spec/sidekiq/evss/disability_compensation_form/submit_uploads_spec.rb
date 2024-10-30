@@ -115,7 +115,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       let!(:attachment) do
         sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
         sea.set_file_data!(file)
-        sea.save!
+        sea.save
       end
 
       it 'calls the documents service api with file body and document data' do
