@@ -22,6 +22,7 @@ class FormSubmissionAttempt < ApplicationRecord
 
     state :pending, initial: true
     state :failure, :success, :vbms
+    state :manually, :failure
 
     event :fail do
       after do
@@ -56,6 +57,10 @@ class FormSubmissionAttempt < ApplicationRecord
     event :remediate do
       transitions from: :failure, to: :vbms
     end
+
+    event :manual do
+      transitions from: :failure, to: :manually
+    end
   end
 
   def log_status_change
@@ -72,6 +77,9 @@ class FormSubmissionAttempt < ApplicationRecord
       Rails.logger.error(log_hash)
     elsif aasm.current_event == 'vbms!'
       log_hash[:message] = 'Form Submission Attempt went to vbms'
+      Rails.logger.info(log_hash)
+    elsif aasm.current_event == 'manual!'
+      log_hash[:message] = 'Form Submission Attempt is being manually remediated'
       Rails.logger.info(log_hash)
     else
       log_hash[:message] = 'Form Submission Attempt State change'

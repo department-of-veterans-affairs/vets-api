@@ -42,7 +42,7 @@ module ZeroSilentFailures
         Rails.logger.info "Uploading documents - #{claim.form_id} #{claim.id}"
 
         aws_upload_zipfile if is_prod?
-        # @todo upload to sharepoint directly?
+        # @todo ? upload to sharepoint directly ?
 
         aws_download_zip_link || zipfile
       end
@@ -50,7 +50,8 @@ module ZeroSilentFailures
       def update_database
         Rails.logger.info "Updating database - #{claim.form_id} #{claim.id}"
 
-        # @todo set form_submission_attempts to 'manual'
+        fs_ids = claim.form_submissions.map(&:id)
+        FormSubmissionAttempt.where(form_submission_id: fs_ids, aasm_state: 'failure').map(&:manual!)
       end
 
       private
