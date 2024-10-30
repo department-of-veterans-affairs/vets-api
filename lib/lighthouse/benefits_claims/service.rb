@@ -262,7 +262,7 @@ module BenefitsClaims
 
     def filter_by_status(items)
       items.reject { |item| FILTERED_STATUSES.include?(item.dig('attributes', 'status')) }
-    end    
+    end
 
     def handle_error(error, lighthouse_client_id, endpoint)
       Lighthouse::ServiceException.send_error(
