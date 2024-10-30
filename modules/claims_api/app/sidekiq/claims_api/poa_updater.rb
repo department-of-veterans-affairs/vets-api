@@ -4,12 +4,6 @@ require 'bgs'
 
 module ClaimsApi
   class PoaUpdater < ClaimsApi::ServiceBase
-    # Generate a 21-22 or 21-22a form for a given POA request.
-    # Uploads the generated form to VBMS or BD. If successfully uploaded,
-    # it queues a job to update the POA code in BGS, as well.
-    #
-    # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-    # @param rep []
     def perform(power_of_attorney_id, rep = nil) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       service = BGS::Services.new(
