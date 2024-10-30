@@ -4,111 +4,193 @@ require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 
-RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
-  let(:form_type) { '20-10207' }
-  let(:fixtures_path) { 'modules/simple_forms_api/spec/fixtures' }
-  let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_20_10207_with_supporting_documents.json').read }
-  let(:file_path) { Rails.root.join(fixtures_path, 'pdfs', 'vba_20_10207-completed.pdf') }
-  let(:attachments) { Array.new(5) { fixture_file_upload('doctors-note.pdf', 'application/pdf').path } }
-  let(:submission) { create(:form_submission, :pending, form_type:, form_data:) }
-  let(:benefits_intake_uuid) { submission.benefits_intake_uuid }
-  let(:metadata) do
-    {
-      'veteranFirstName' => 'John',
-      'veteranLastName' => 'Veteran',
-      'fileNumber' => '222773333',
-      'zipCode' => '12345',
-      'source' => 'VA Platform Digital Forms',
-      'docType' => form_type,
-      'businessLine' => 'CMP'
-    }
-  end
-  let(:submission_archive_instance) { instance_double(SimpleFormsApi::FormRemediation::SubmissionArchive) }
-  let(:temp_file_path) { Rails.root.join('tmp', 'random-letters-n-numbers-archive').to_s }
-  let(:submission_file_path) do
-    [Time.zone.today.strftime('%-m.%d.%y'), 'form', form_type, 'vagov', benefits_intake_uuid].join('_')
-  end
-  let(:uploader) { instance_double(SimpleFormsApi::FormRemediation::Uploader) }
-  let(:carrier_wave_file) { instance_double(CarrierWave::Storage::Fog::File) }
-  let(:s3_file) { instance_double(Aws::S3::Object) }
-  let(:manifest_entry) do
-    [
-      submission.created_at,
-      form_type,
-      benefits_intake_uuid,
-      metadata['fileNumber'],
-      metadata['veteranFirstName'],
-      metadata['veteranLastName']
-    ]
-  end
-  let(:config) { SimpleFormsApi::FormRemediation::Configuration::VffConfig.new }
+module SimpleFormsApi
+  module FormRemediation
+    RSpec.describe S3Client do
+      include FileUtilities
 
-  before do
-    allow(FileUtils).to receive(:mkdir_p).and_return(true)
-    allow(File).to receive(:directory?).and_return(true)
-    allow(CSV).to receive(:open).and_return(true)
-    allow(SimpleFormsApi::FormRemediation::SubmissionArchive).to(receive(:new).and_return(submission_archive_instance))
-    allow(submission_archive_instance).to receive(:build!).and_return(
-      ["#{temp_file_path}/", manifest_entry]
-    )
-    allow(SimpleFormsApi::FormRemediation::Uploader).to receive_messages(new: uploader)
-    allow(uploader).to receive_messages(get_s3_link: '/s3_url/stuff.pdf', get_s3_file: s3_file)
-    allow(uploader).to receive_messages(store!: carrier_wave_file)
-    allow(Rails.logger).to receive(:info).and_call_original
-    allow(Rails.logger).to receive(:error).and_call_original
-  end
-
-  describe '#initialize' do
-    subject(:new) { described_class.new(id: benefits_intake_uuid, config:) }
-
-    context 'when initialized with a valid benefits_intake_uuid' do
-      it 'successfully completes initialization' do
-        expect { new }.not_to raise_exception
-      end
-    end
-  end
-
-  describe '#upload' do
-    subject(:upload) { instance.upload }
-
-    let(:instance) { described_class.new(id: benefits_intake_uuid, config:) }
-
-    context 'when no errors occur' do
-      it 'logs notifications' do
-        upload
-        expect(Rails.logger).to have_received(:info).with(
-          { message: "Uploading remediation: #{benefits_intake_uuid} to S3 bucket" }
-        )
-        expect(Rails.logger).to have_received(:info).with(
-          { message: "Initialized S3Client for remediation with ID: #{benefits_intake_uuid}" }
-        )
-        expect(Rails.logger).to have_received(:info).with(
-          { message: "Cleaning up path: #{temp_file_path}/" }
-        )
+      # Initial form data setup
+      let(:form_type) { '20-10207' }
+      let(:fixtures_path) { 'modules/simple_forms_api/spec/fixtures' }
+      let(:form_data) do
+        Rails.root.join(fixtures_path, 'form_json', 'vba_20_10207_with_supporting_documents.json').read
       end
 
-      it 'returns the s3 directory' do
-        expect(upload).to eq('/s3_url/stuff.pdf')
+      # Params setup
+      let(:attachments) { Array.new(5) { Rails.root.join(fixtures_path, 'doctors-note.pdf') } }
+      let(:submission) { create(:form_submission, :pending, form_type:, form_data:) }
+      let(:benefits_intake_uuid) { submission.benefits_intake_uuid }
+      let(:config) { Configuration::VffConfig.new }
+      let(:file_path) { Rails.root.join(fixtures_path, 'pdfs', 'vba_20_10207-completed.pdf') }
+      let(:metadata) do
+        {
+          'veteranFirstName' => 'John',
+          'veteranLastName' => 'Veteran',
+          'fileNumber' => '222773333',
+          'zipCode' => '12345',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => form_type,
+          'businessLine' => 'CMP'
+        }
+      end
+      let(:default_args) { { id: benefits_intake_uuid, config:, type: } }
+      let(:hydrated_submission_args) { default_args.merge(submission:, file_path:, attachments:, metadata:) }
+
+      # Mock file paths
+      let(:submission_file_name) { unique_file_name(form_type, benefits_intake_uuid) }
+      let(:s3_archive_dir) { "#{type}/#{dated_directory_name(form_type)}" }
+      let(:s3_archive_path) { "#{s3_archive_dir}/#{submission_file_name}.#{type == :remediation ? 'zip' : 'pdf'}" }
+      let(:local_archive_dir) { Rails.root.join('tmp', 'random-letters-n-numbers-archive').to_s }
+      let(:local_archive_path) do
+        "#{local_archive_dir}/#{submission_file_name}.#{type == :remediation ? 'zip' : 'pdf'}"
       end
 
-      context 'when a different parent_dir is provided' do
-        let(:instance) { described_class.new(id: benefits_intake_uuid, config:) }
+      # Doubles and mocks
+      let(:submission_archive_double) { instance_double(SubmissionArchive) }
+      let(:uploader) { instance_double(Uploader) }
+      let(:carrier_wave_file) { instance_double(CarrierWave::SanitizedFile) }
+      let(:file_double) { instance_double(File, read: 'content') }
+      let(:s3_file) { instance_double(Aws::S3::Object) }
 
-        it 'returns the s3 directory' do
-          expect(upload).to eq('/s3_url/stuff.pdf')
-        end
+      let(:manifest_entry) do
+        [
+          submission.created_at,
+          form_type,
+          benefits_intake_uuid,
+          metadata['fileNumber'],
+          metadata['veteranFirstName'],
+          metadata['veteranLastName']
+        ]
       end
-    end
 
-    context 'when an error occurs' do
       before do
-        allow(File).to receive(:directory?).and_return(false)
+        allow(FileUtils).to receive(:mkdir_p).and_return(true)
+        allow(SecureRandom).to receive(:hex).and_return('random-letters-n-numbers')
+        allow(File).to receive(:directory?).with(local_archive_path).and_return(false)
+        allow(File).to receive(:directory?).with(a_string_including('-manifest')).and_return(false)
+        allow(File).to receive(:open).with(local_archive_path).and_yield(file_double)
+        allow(File).to receive(:open).with(a_string_including('-manifest')).and_yield(file_double)
+        allow(CarrierWave::SanitizedFile).to receive(:new).with(file_double).and_return(carrier_wave_file)
+        allow(CSV).to receive(:open).and_return(true)
+        allow(SubmissionArchive).to(receive(:new).and_return(submission_archive_double))
+        allow(submission_archive_double).to receive(:build!).and_return([local_archive_path, manifest_entry])
+        allow(Uploader).to receive_messages(new: uploader)
+        allow(uploader).to receive(:get_s3_link).with(local_archive_path).and_return('/s3_url/stuff.pdf')
+        allow(uploader).to receive_messages(get_s3_file: s3_file, store!: carrier_wave_file)
+        allow(Rails.logger).to receive(:info).and_call_original
+        allow(Rails.logger).to receive(:error).and_call_original
       end
 
-      let(:instance) { described_class.new(id: benefits_intake_uuid, config:) }
+      %i[submission remediation].each do |archive_type|
+        describe "when archiving a #{archive_type}" do
+          let(:type) { archive_type }
 
-      it 'raises the error' do
-        expect { upload }.to raise_exception(Errno::ENOENT)
+          describe '.fetch_presigned_url' do
+          end
+
+          describe '#initialize' do
+            subject(:new) { described_class.new(id: benefits_intake_uuid, type:, config:) }
+
+            context 'when initialized with a valid benefits_intake_uuid' do
+              it 'successfully completes initialization' do
+                expect { new }.not_to raise_exception
+              end
+            end
+          end
+
+          describe '#upload' do
+            shared_examples 'thing' do
+              context 'when no errors occur' do
+                before { upload }
+
+                it 'logs "uploading" notification' do
+                  expect(Rails.logger).to have_received(:info).with(
+                    { message: "Uploading #{type}: #{benefits_intake_uuid} to S3 bucket" }
+                  )
+                end
+
+                describe '#build_archive!' do
+                  it 'initializes the submission archive' do
+                    expect(SubmissionArchive).to have_received(:new)
+                  end
+
+                  it 'builds the submission archive' do
+                    expect(submission_archive_double).to have_received(:build!)
+                  end
+                end
+
+                describe '#upload_to_s3' do
+                  it 'opens the correct file path' do
+                    expect(File).to have_received(:open).with(local_archive_path).once
+                    expect(File).to have_received(:open).with(a_string_including('-manifest')) if type == :remediation
+                  end
+
+                  it 'creates and stores sanitized file(s)' do
+                    if type == :remediation
+                      # One for the zip, one for the manifest
+                      expect(CarrierWave::SanitizedFile).to have_received(:new).with(file_double).twice
+                      expect(uploader).to have_received(:store!).with(carrier_wave_file).twice
+                    else
+                      # Once for the pdf
+                      expect(CarrierWave::SanitizedFile).to have_received(:new).with(file_double)
+                      expect(uploader).to have_received(:store!).with(carrier_wave_file)
+                    end
+                  end
+                end
+
+                describe '#log_initialization' do
+                  it 'logs s3 client initialization notification' do
+                    expect(Rails.logger).to have_received(:info).with(
+                      { message: "Initialized S3Client for #{type} with ID: #{benefits_intake_uuid}" }
+                    )
+                  end
+                end
+
+                describe '#cleanup!' do
+                  it 'logs clean up notification' do
+                    expect(Rails.logger).to have_received(:info).with(
+                      { message: "Cleaning up path: #{local_archive_path}" }
+                    )
+                  end
+                end
+
+                describe '#s3_uploader' do
+                  it 'initializes uploader with correct directory' do
+                    expect(Uploader).to have_received(:new).with(config:, directory: s3_archive_dir)
+                  end
+                end
+
+                it 'requests the s3 link for the correct file' do
+                  expect(uploader).to have_received(:get_s3_link).with(local_archive_path)
+                end
+              end
+
+              context 'when an error occurs' do
+                before { allow(File).to receive(:directory?).and_raise('oops') }
+
+                it 'raises the error' do
+                  expect { upload }.to raise_exception(RuntimeError, 'oops')
+                end
+              end
+            end
+
+            context 'when initialized with a valid id' do
+              let(:archive_instance) { described_class.new(**default_args) }
+
+              subject(:upload) { archive_instance.upload }
+
+              include_examples 'thing'
+            end
+
+            context 'when initialized with valid submission data' do
+              let(:archive_instance) { described_class.new(**hydrated_submission_args) }
+
+              subject(:upload) { archive_instance.upload }
+
+              include_examples 'thing'
+            end
+          end
+        end
       end
     end
   end
