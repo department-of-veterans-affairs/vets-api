@@ -4,6 +4,7 @@ require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 
+# rubocop:disable Metrics/ModuleLength
 module SimpleFormsApi
   module FormRemediation
     RSpec.describe SubmissionArchive do
@@ -47,17 +48,6 @@ module SimpleFormsApi
         allow(File).to receive_messages(write: true, directory?: true)
         allow(CSV).to receive(:open).and_return(true)
         allow(FileUtils).to receive(:mkdir_p).and_return(true)
-      end
-
-      def expected_manifest_entry
-        [
-          submission.created_at,
-          form_type,
-          benefits_intake_uuid,
-          metadata['fileNumber'],
-          metadata['veteranFirstName'],
-          metadata['veteranLastName']
-        ]
       end
 
       %i[submission remediation].each do |archive_type|
@@ -131,11 +121,20 @@ module SimpleFormsApi
 
             shared_examples 'successfully built submission archive' do
               it 'builds the file path correctly' do
-                expect(build_archive[0]).to include(file_name)
+                expect(build_archive.first).to include(file_name)
               end
 
               it 'builds the manifest entry correctly' do
-                expect(build_archive[1]).to eq(expected_manifest_entry)
+                expect(build_archive.second).to eq(
+                  [
+                    submission.created_at,
+                    form_type,
+                    benefits_intake_uuid,
+                    metadata['fileNumber'],
+                    metadata['veteranFirstName'],
+                    metadata['veteranLastName']
+                  ]
+                )
               end
 
               it 'writes the submission pdf file' do
@@ -157,9 +156,7 @@ module SimpleFormsApi
                   expect(archive_instance).not_to have_received(:zip_directory!)
                 else
                   expect(archive_instance).to have_received(:zip_directory!).with(
-                    config.parent_dir,
-                    a_string_including('/tmp/random-letters-n-numbers-archive/'),
-                    a_string_including(submission_file_path)
+                    config.parent_dir, "#{temp_file_path}/", submission_file_path
                   )
                 end
               end
@@ -186,3 +183,4 @@ module SimpleFormsApi
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
