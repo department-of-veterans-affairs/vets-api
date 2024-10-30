@@ -17,6 +17,8 @@ module ZeroSilentFailures
       def run
         Rails.logger.info "Manual Remediation for #{claim.form_id} #{claim.id} started"
 
+        @files = []
+
         package_claim
         upload_documents
         update_database
@@ -51,7 +53,7 @@ module ZeroSilentFailures
         Rails.logger.info "Updating database - #{claim.form_id} #{claim.id}"
 
         fs_ids = claim.form_submissions.map(&:id)
-        FormSubmissionAttempt.where(form_submission_id: fs_ids, aasm_state: 'failure').map(&:manual!)
+        FormSubmissionAttempt.where(form_submission_id: fs_ids, aasm_state: 'failure')&.map(&:manual!)
       end
 
       private
@@ -119,11 +121,14 @@ module ZeroSilentFailures
       def stamp_pdf(pdf_path, timestamp)
         stamped = pdf_path
         stamps(timestamp).each do |stamp|
-          stamped = PDFUtilities::DatestampPdf.new(stamped).run(**stamp)
+          previous = stamped
+          stamped = PDFUtilities::DatestampPdf.new(previous).run(**stamp)
+          Common::FileHelpers.delete_file_if_exists(previous)
         end
 
         stamped
       rescue
+        Common::FileHelpers.delete_file_if_exists(stamped) if stamped != pdf_path
         Rails.logger.error "Error stamping pdf: #{pdf_path}"
         pdf_path
       end
@@ -131,15 +136,17 @@ module ZeroSilentFailures
       def zip_files
         Zip::File.open(zipfile, Zip::File::CREATE) do |zip|
           files.each do |file|
-            Rails.logger.info("Adding to zip: #{file}")
-            zip.add(file[:name], file[:path])
+            begin
+              Rails.logger.info("Adding to zip: #{file}")
+              zip.add(file[:name], file[:path])
+            rescue => e
+              Rails.logger.error "Error adding to zip: #{file}"
+              raise e
+            end
           end
         end
 
         Rails.logger.info("Packaged #{claim.form_id} #{claim.id} - #{zipfile}")
-      rescue => e
-        Rails.logger.error "Error adding to zip: #{file}"
-        raise e
       end
 
       def aws_upload_zipfile

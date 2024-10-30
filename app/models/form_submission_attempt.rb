@@ -22,7 +22,7 @@ class FormSubmissionAttempt < ApplicationRecord
 
     state :pending, initial: true
     state :failure, :success, :vbms
-    state :manually, :failure
+    state :manually
 
     event :fail do
       after do
