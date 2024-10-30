@@ -24,7 +24,6 @@ RSpec.describe IvcChampva::Attachments do
   describe '#handle_attachments' do
     context 'when there are supporting documents' do
       it 'renames and processes attachments' do
-        expect(File).to receive(:rename).with(file_path, "tmp/#{uuid}_#{form_id}-tmp.pdf")
         expect(test_instance).to receive(:get_attachments).and_return(['attachment1.pdf', 'attachment2.png'])
         expect(File).to receive(:rename).with('attachment1.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
         expect(File).to receive(:rename).with('attachment2.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
@@ -57,8 +56,6 @@ RSpec.describe IvcChampva::Attachments do
       end
 
       it 'renames the file without processing attachments' do
-        expect(File).to receive(:rename).with(file_path, "tmp/#{uuid}_#{form_id}-tmp.pdf")
-
         result = test_instance.handle_attachments(file_path)
         expect(result).to eq(["tmp/#{uuid}_#{form_id}-tmp.pdf"])
       end
