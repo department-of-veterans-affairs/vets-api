@@ -1254,6 +1254,7 @@ spec/factories/va_profile @department-of-veterans-affairs/vfs-authenticated-expe
 spec/factories/veteran_readiness_employment_claim.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/veteran_onboardings.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-iir
 spec/factories/persistent_attachments.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/saved_claim.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/ask @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/ask/minimal.json @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/bgs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
