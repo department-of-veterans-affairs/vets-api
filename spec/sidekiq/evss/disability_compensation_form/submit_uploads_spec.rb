@@ -24,18 +24,20 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
            submitted_claim_id: '600130094')
   end
 
+  let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
+
+  let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
+  let!(:attachment) do
+    sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
+    sea.set_file_data!(file)
+    sea.save!
+    sea
+  end
+
   describe 'perform' do
-    let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
     let(:document_data) { double(:document_data, valid?: true) }
 
     context 'when file_data exists' do
-      let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
-      let!(:attachment) do
-        sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
-        sea.set_file_data!(file)
-        sea.save!
-      end
-
       it 'calls the documents service api with file body and document data' do
         VCR.use_cassette('evss/documents/upload_with_errors') do
           expect(EVSSClaimDocument)
@@ -72,14 +74,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             form526_submission: submission,
             job_id: 1
           )
-        end
-
-        let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
-        let!(:attachment) do
-          sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
-          sea.set_file_data!(file)
-          sea.save!
-          sea
         end
 
         context 'when the form526_send_document_upload_failure_notification Flipper is enabled' do
@@ -161,25 +155,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       allow(StatsD).to receive(:increment)
     end
 
-    # let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
-    # let(:document_data) { double(:document_data, valid?: true) }
-
-    let(:upload_data) do
-      submission.form[Form526Submission::FORM_526_UPLOADS][0]
-    end
-
-    # should not be duping all of these
     context 'when file_data exists' do
-      let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
-      let!(:attachment) do
-        sea = SupportingEvidenceAttachment.new(guid: upload_data['confirmationCode'])
-        sea.set_file_data!(file)
-        sea.save!
-        sea
-      end
-
       let(:perform_upload) do
-        subject.perform_async(submission.id, upload_data)
+        subject.perform_async(submission.id, upload_data.first)
         described_class.drain
       end
 
@@ -194,7 +172,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           LighthouseDocument.new(
             claim_id: submission.submitted_claim_id,
             participant_id: user.participant_id,
-            document_type: upload_data['attachmentId'],
+            document_type: upload_data.first['attachmentId'],
             file_name: attachment.converted_filename,
             supporting_evidence_attachment: attachment
           )
@@ -311,7 +289,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         let(:evss_claim_document) do
           EVSSClaimDocument.new(
             evss_claim_id: submission.submitted_claim_id,
-            document_type: upload_data['attachmentId'],
+            document_type: upload_data.first['attachmentId'],
             file_name: attachment.converted_filename
           )
         end
@@ -345,15 +323,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
         context 'when an upload raises an EVSS response error' do
           it 'logs an upload error and re-raises the error' do
-            allow_any_instance_of(EVSS::DocumentsService).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
+            allow_any_instance_of(EVSS::DocumentsService)
+              .to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
+
             expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_upload_failure)
 
             expect { perform_upload }.to raise_error(EVSS::ErrorMiddleware::EVSSError)
-
-            # expect do
-              # subject.perform_async(submission.id)
-              # described_class.drain
-            # end.to raise_error(EVSS::ErrorMiddleware::EVSSError)
           end
         end
       end
@@ -379,16 +354,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           Flipper.enable(:disability_compensation_use_api_provider_for_submit_veteran_upload)
         end
 
-        let(:upload_data) do
-          form526_submission.form[Form526Submission::FORM_526_UPLOADS][0]
-        end
-    
         let(:sidekiq_job_exhaustion_errors) do
           {
             'jid' => form526_job_status.job_id,
             'error_class' => 'Broken Job Error',
             'error_message' => 'Your Job Broke',
-            'args' => [form526_submission.id, upload_data]
+            'args' => [form526_submission.id, upload_data.first]
           }
         end
 
