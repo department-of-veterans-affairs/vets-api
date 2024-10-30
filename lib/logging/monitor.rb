@@ -13,7 +13,6 @@ module Logging
     # @param message [String]
     # @param metric [String]
     # @param additional_context [Hash]
-    # @param user_account_uuid [User]
     #
     def track_request(error_level, message, metric, additional_context, call_location: nil)
       function, file, line = parse_caller(call_location)
