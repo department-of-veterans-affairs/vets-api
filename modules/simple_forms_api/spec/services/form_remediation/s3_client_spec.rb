@@ -109,6 +109,14 @@ module SimpleFormsApi
                   )
                 end
 
+                describe '#log_initialization' do
+                  it 'logs s3 client initialization notification' do
+                    expect(Rails.logger).to have_received(:info).with(
+                      { message: "Initialized S3Client for #{type} with ID: #{benefits_intake_uuid}" }
+                    )
+                  end
+                end
+
                 describe '#build_archive!' do
                   it 'initializes the submission archive' do
                     expect(SubmissionArchive).to have_received(:new)
@@ -120,39 +128,22 @@ module SimpleFormsApi
                 end
 
                 describe '#upload_to_s3' do
-                  it 'opens the correct file path' do
+                  it 'opens the correct file path(s) and creates/stores sanitized file(s)' do
                     expect(File).to have_received(:open).with(local_archive_path).once
-                    expect(File).to have_received(:open).with(a_string_including('-manifest')) if type == :remediation
-                  end
-
-                  it 'creates and stores sanitized file(s)' do
                     if type == :remediation
-                      # One for the zip, one for the manifest
-                      expect(CarrierWave::SanitizedFile).to have_received(:new).with(file_double).twice
-                      expect(uploader).to have_received(:store!).with(carrier_wave_file).twice
-                    else
-                      # Once for the pdf
-                      expect(CarrierWave::SanitizedFile).to have_received(:new).with(file_double)
-                      expect(uploader).to have_received(:store!).with(carrier_wave_file)
+                      expect(File).to have_received(:open).with(a_string_including('-manifest')).once
                     end
+
+                    times = type == :remediation ? 2 : 1
+                    expect(CarrierWave::SanitizedFile).to have_received(:new).with(file_double).exactly(times).times
+                    expect(uploader).to have_received(:store!).with(carrier_wave_file).exactly(times).times
                   end
                 end
 
-                describe '#log_initialization' do
-                  it 'logs s3 client initialization notification' do
-                    expect(Rails.logger).to have_received(:info).with(
-                      { message: "Initialized S3Client for #{type} with ID: #{benefits_intake_uuid}" }
-                    )
-                  end
-                end
-
-                describe '#cleanup!' do
-                  it 'logs clean up notification' do
-                    expect(Rails.logger).to have_received(:info).with(
-                      { message: "Cleaning up path: #{local_archive_path}" }
-                    )
-                  end
-                end
+                describe '#update_manifest'
+                describe '#build_s3_manifest_path'
+                describe '#download_manifest'
+                describe '#write_and_upload_manifest'
 
                 describe '#s3_uploader' do
                   it 'initializes uploader with correct directory' do
@@ -160,8 +151,24 @@ module SimpleFormsApi
                   end
                 end
 
-                it 'requests the s3 link for the correct file' do
-                  expect(uploader).to have_received(:get_s3_link).with(local_archive_path)
+                describe '#s3_directory_path'
+
+                describe '#generate_presigned_url' do
+                  it 'requests the s3 link for the correct file' do
+                    expect(uploader).to have_received(:get_s3_link).with(local_archive_path)
+                  end
+                end
+
+                describe '#s3_upload_file_path'
+                describe '#presign_required?'
+                describe '#manifest_required?'
+
+                describe '#cleanup!' do
+                  it 'logs clean up notification' do
+                    expect(Rails.logger).to have_received(:info).with(
+                      { message: "Cleaning up path: #{local_archive_path}" }
+                    )
+                  end
                 end
               end
 
