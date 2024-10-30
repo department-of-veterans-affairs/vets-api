@@ -265,7 +265,7 @@ module BenefitsClaims
     def override_pmr_pending(claim)
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
-      
+
       tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each { |i| i['status'] = 'NEEDED_FROM_OTHERS' }
       tracked_items
     end
