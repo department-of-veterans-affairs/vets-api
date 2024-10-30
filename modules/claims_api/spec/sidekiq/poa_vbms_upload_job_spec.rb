@@ -266,7 +266,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
           allow(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return true
         end
 
-        it 'calls the PoaDocumentService before calling BD' do
+        it 'calls the PoaDocumentService' do
           allow_any_instance_of(BGS::PersonWebService)
             .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
