@@ -29,8 +29,8 @@ module TravelPay
     # API responds with travel pay claims including status for the specified date-range
     #
     # @params {
-    # startDate: string ('2024-01-01T12:45:34.465Z') (Required)
-    # endDate: string ('2024-01-01T12:45:34.465Z') (Required)
+    # startDate: string ('2024-01-01T12:45:34Z') (Required)
+    # endDate: string ('2024-01-01T12:45:34Z') (Required)
     # pageNumber: int
     # pageSize: int
     # sortField: string

@@ -11,6 +11,7 @@ path 'modules' do
   gem 'apps_api'
   gem 'ask_va_api'
   gem 'avs'
+  gem 'banners'
   gem 'burials'
   gem 'check_in'
   gem 'claims_api'

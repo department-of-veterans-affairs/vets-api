@@ -171,42 +171,40 @@ describe TravelPay::ClaimsService do
       )
     end
 
-    let(:tokens) { %w[veis_token btsss_token] }
-
-    let(:params) do
-      {
-        'start_date' => '2024-01-01T16:45:34Z',
-        'end_date' => '2024-03-01T16:45:34Z'
-      }
-    end
+    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
     before do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
-        .with(*tokens, params)
+        .with(tokens[:veis_token], tokens[:btsss_token], {
+                'start_date' => '2024-01-01T16:45:34Z',
+                'end_date' => '2024-03-01T16:45:34Z'
+              })
         .and_return(claims_by_date_response)
+
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @service = TravelPay::ClaimsService.new(auth_manager)
     end
 
     it 'returns claims that are in the specified date range' do
-      service = TravelPay::ClaimsService.new
-      claims_by_date = service.get_claims_by_date_range(*tokens, params)
+      claims_by_date = @service.get_claims_by_date_range({
+                                                           'start_date' => '2024-01-01T16:45:34Z',
+                                                           'end_date' => '2024-03-01T16:45:34Z'
+                                                         })
 
       expect(claims_by_date[:data].count).to equal(3)
     end
 
     it 'throws an Argument exception if both start and end dates are not provided' do
-      service = TravelPay::ClaimsService.new
-
-      expect { service.get_claims_by_date_range(*tokens, { 'start_date' => '2024-01-01T16:45:34.465Z' }) }
+      expect { @service.get_claims_by_date_range({ 'start_date' => '2024-01-01T16:45:34.465Z' }) }
         .to raise_error(ArgumentError, /Both start and end/i)
     end
 
     it 'throws an exception if dates are invalid' do
-      service = TravelPay::ClaimsService.new
-
       expect do
-        service.get_claims_by_date_range(*tokens,
-                                         { 'start_date' => '2024-01-01T16:45:34.465Z', 'end_date' => 'banana' })
+        @service.get_claims_by_date_range(
+          { 'start_date' => '2024-01-01T16:45:34.465Z', 'end_date' => 'banana' }
+        )
       end
         .to raise_error(ArgumentError, /Invalid date/i)
     end

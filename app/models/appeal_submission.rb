@@ -14,6 +14,7 @@ class AppealSubmission < ApplicationRecord
   has_encrypted :upload_metadata, key: :kms_key, **lockbox_options
 
   has_many :appeal_submission_uploads, dependent: :destroy
+  has_many :secondary_appeal_forms, dependent: :destroy
 
   scope :failure_not_sent, -> { where(failure_notification_sent_at: nil).order(id: :asc) }
 

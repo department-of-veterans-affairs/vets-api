@@ -67,6 +67,14 @@ Rspec.describe 'MebApi::V0 Forms', type: :request do
           expect(response).to match_response_schema('dgi/toe_claimant_info_response', { strict: false })
         end
       end
+
+      it 'returns a claimant info 200 status with type as a parameter' do
+        VCR.use_cassette('dgi/post_chapter35_claimant_info') do
+          get '/meb_api/v0/forms_claimant_info', params: { type: 'chapter35' }
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('dgi/toe_claimant_info_response', { strict: false })
+        end
+      end
     end
   end
 
