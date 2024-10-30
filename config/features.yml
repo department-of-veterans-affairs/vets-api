@@ -1787,3 +1787,9 @@ features:
   fsr_wizard:
     actor_type: user
     description: Used to toggle the FSR wizard
+  gi_comparison_tool_programs_toggle_flag:
+    actor_type: user
+    description: Used to show links to programs page in comparison tool
+  gi_comparison_tool_lce_toggle_flag:
+    actor_type: user
+    description: Used to show lce page in comparison tool
