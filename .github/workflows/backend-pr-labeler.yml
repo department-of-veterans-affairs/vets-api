@@ -21,7 +21,7 @@ jobs:
       - name: Check Draft state
         id: check_draft
         run: |
-          if [ ${{ github.event.pull_request.draft }} ]; then
+          if ${{ github.event.pull_request.draft }}; then
             echo "draft=true" >> $GITHUB_ENV
             echo "Draft PR detected, skipping label checks."
             exit 0
@@ -46,7 +46,8 @@ jobs:
       - name: DELETE ME - echo vars
         if: always()
         run: |
-          echo "exempt: ${{ env.exempt }}"
+          echo "exempt: ${{ env.exempt || false }}"
+          echo "draft: ${{ env.draft || false }}"
           echo '${{ toJSON(github.event.pull_request.requested_teams) }}' | jq 'length'
           echo '${{ toJSON(github.event.pull_request.requested_teams) }}' | jq .
           echo '${{ toJSON(github.event.pull_request) }}' | jq .
