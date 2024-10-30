@@ -181,9 +181,6 @@ class LighthouseSupplementalDocumentUploadProvider
     # Veteran-uploaded documents can be numerous VA document types
     return Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE if @supporting_evidence_attachment
 
-    case @va_document_type
-    when 'L023'
-      Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE
-    end
+    POLLING_DOCUMENT_TYPES[@va_document_type]
   end
 end
