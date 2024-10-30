@@ -99,7 +99,7 @@ module SimpleFormsApi
           end
 
           describe '#upload' do
-            shared_examples 'thing' do
+            shared_examples 's3 client acts as expected' do
               context 'when no errors occur' do
                 before { upload }
 
@@ -179,7 +179,7 @@ module SimpleFormsApi
 
               subject(:upload) { archive_instance.upload }
 
-              include_examples 'thing'
+              include_examples 's3 client acts as expected'
             end
 
             context 'when initialized with valid submission data' do
@@ -187,7 +187,7 @@ module SimpleFormsApi
 
               subject(:upload) { archive_instance.upload }
 
-              include_examples 'thing'
+              include_examples 's3 client acts as expected'
             end
           end
         end
