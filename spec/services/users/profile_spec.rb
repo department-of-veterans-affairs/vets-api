@@ -36,6 +36,15 @@ RSpec.describe Users::Profile do
     let(:va_profile) { subject.va_profile }
     let(:veteran_status) { subject.veteran_status }
 
+    demographics_loose_matcher = lambda do |request1, request2|
+      # These tests use a custom edipi, but we should use the demographics cassette we have for another edipi
+      demo_path = '/demographics/demographics/v1'
+      uri1 = URI(request1.uri)
+      uri2 = URI(request2.uri)
+      matched = (uri1.host == uri2.host) && uri1.path.start_with?(demo_path) && uri2.path.start_with?(demo_path)
+      matched
+    end
+
     before do
       allow(user).to receive(:edipi).and_return(edipi)
     end
@@ -49,14 +58,20 @@ RSpec.describe Users::Profile do
     it 'sets the status to 200' do
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[method body],
                                                                                   allow_playback_repeats: true) do
-        expect(subject.status).to eq 200
+        VCR.use_cassette('va_profile/demographics/demographics',
+                         match_requests_on: [:method, demographics_loose_matcher], allow_playback_repeats: true) do
+          expect(subject.status).to eq 200
+        end
       end
     end
 
     it 'sets the errors to nil' do
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[method body],
                                                                                   allow_playback_repeats: true) do
-        expect(subject.errors).to be_nil
+        VCR.use_cassette('va_profile/demographics/demographics',
+                         match_requests_on: [:method, demographics_loose_matcher], allow_playback_repeats: true) do
+          expect(subject.errors).to be_nil
+        end
       end
     end
 
@@ -269,7 +284,10 @@ RSpec.describe Users::Profile do
         it 'sets the status to 200' do
           VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
                            match_requests_on: %i[method body], allow_playback_repeats: true) do
-            expect(subject.status).to eq 200
+            VCR.use_cassette('va_profile/demographics/demographics',
+                             match_requests_on: [:method, demographics_loose_matcher], allow_playback_repeats: true) do
+              expect(subject.status).to eq 200
+            end
           end
         end
 
@@ -294,9 +312,8 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
-          error = subject.errors.first
-
-          expect(error[:external_service]).to eq 'MVI'
+          error = subject.errors.find { |err| err[:external_service] == 'MVI' }
+          expect(error).not_to be_nil
           expect(error[:start_time]).to be_present
           expect(error[:description]).to include 'Not authorized'
           expect(error[:status]).to eq 401
@@ -315,8 +332,8 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
-          error = subject.errors.first
-          expect(error[:external_service]).to eq 'MVI'
+          error = subject.errors.find { |err| err[:external_service] == 'MVI' }
+          expect(error).not_to be_nil
           expect(error[:start_time]).to be_present
           expect(error[:description]).to include 'Record not found'
           expect(error[:status]).to eq 404
@@ -354,7 +371,10 @@ RSpec.describe Users::Profile do
         it 'sets the status to 200' do
           VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
                            match_requests_on: %i[method body], allow_playback_repeats: true) do
-            expect(subject.status).to eq 200
+            VCR.use_cassette('va_profile/demographics/demographics',
+                             match_requests_on: [:method, demographics_loose_matcher], allow_playback_repeats: true) do
+              expect(subject.status).to eq 200
+            end
           end
         end
       end
@@ -367,11 +387,14 @@ RSpec.describe Users::Profile do
         it 'populates the #errors array with the serialized error' do
           VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank',
                            match_requests_on: %i[method body], allow_playback_repeats: true) do
-            error = subject.errors.first
-            expect(error[:external_service]).to eq 'VAProfile'
-            expect(error[:start_time]).to be_present
-            expect(error[:description]).to be_present
-            expect(error[:status]).to eq 404
+            VCR.use_cassette('va_profile/demographics/demographics',
+                             match_requests_on: [:method, demographics_loose_matcher], allow_playback_repeats: true) do
+              error = subject.errors.first
+              expect(error[:external_service]).to eq 'VAProfile'
+              expect(error[:start_time]).to be_present
+              expect(error[:description]).to be_present
+              expect(error[:status]).to eq 404
+            end
           end
         end
 
@@ -386,9 +409,8 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
-          error = subject.errors.first
-
-          expect(error[:external_service]).to eq 'VAProfile'
+          error = subject.errors.find { |err| err[:external_service] == 'VAProfile' }
+          expect(error).not_to be_nil
           expect(error[:start_time]).to be_present
           expect(error[:description]).to be_present
           expect(error[:status]).to eq 503
@@ -455,7 +477,10 @@ RSpec.describe Users::Profile do
         it 'sets the status to 200' do
           VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
                            match_requests_on: %i[method body], allow_playback_repeats: true) do
-            expect(subject.status).to eq 200
+            VCR.use_cassette('va_profile/demographics/demographics',
+                             match_requests_on: [:method, demographics_loose_matcher], allow_playback_repeats: true) do
+                               expect(subject.status).to eq 200
+                             end
           end
         end
       end
@@ -472,9 +497,8 @@ RSpec.describe Users::Profile do
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           results = Users::Profile.new(user).pre_serialize
-          error   = results.errors.first
-
-          expect(error[:external_service]).to eq 'VAProfile'
+          error = results.errors.find { |err| err[:external_service] == 'VAProfile' }
+          expect(error).not_to be_nil
           expect(error[:start_time]).to be_present
           expect(error[:description]).to be_present
           expect(error[:status]).to eq 503
