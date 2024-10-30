@@ -5,6 +5,7 @@ require 'common/exceptions'
 require 'evss/disability_compensation_form/metrics'
 require 'evss/disability_compensation_form/form4142_processor'
 require 'logging/third_party_transaction'
+require 'zero_silent_failures/monitor'
 
 # TODO: Update Namespace once we are 100% done with CentralMail here
 module CentralMail
@@ -43,6 +44,10 @@ module CentralMail
       timestamp = Time.now.utc
       form526_submission_id = msg['args'].first
 
+      log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+
+      ::Rails.logger.warn('Submit Form 4142 Retries exhausted', log_info)
+
       form_job_status = Form526JobStatus.find_by(job_id:)
       bgjob_errors = form_job_status.bgjob_errors || {}
       new_error = {
@@ -70,12 +75,18 @@ module CentralMail
       if Flipper.enabled?(:form526_send_4142_failure_notification)
         EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(form526_submission_id)
       end
-
-      ::Rails.logger.warn(
-        'Submit Form 4142 Retries exhausted',
-        { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
-      )
     rescue => e
+      cl = caller_locations.first
+      call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+      zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+      user_account_id = begin
+        Form526Submission.find(form526_submission_id).user_account_id
+      rescue
+        nil
+      end
+
+      zsf_monitor.log_silent_failure(log_info, user_account_id, call_location:)
+
       ::Rails.logger.error(
         'Failure in SubmitForm4142#sidekiq_retries_exhausted',
         {
@@ -104,7 +115,7 @@ module CentralMail
       with_tracking('Form4142 Submission', submission.saved_claim_id, submission.id) do
         @pdf_path = processor.pdf_path
         response = upload_to_api
-        handle_service_exception(response) if response.present? && response.status.between?(201, 600)
+        handle_service_exception(response) if response_can_be_logged(response)
       end
     rescue => e
       # Cannot move job straight to dead queue dynamically within an executing job
@@ -117,6 +128,13 @@ module CentralMail
     end
 
     private
+
+    def response_can_be_logged(response)
+      response.present? &&
+        response.respond_to?(:status) &&
+        response.status.respond_to?(:between?) &&
+        response.status.between?(201, 600)
+    end
 
     def processor
       @processor ||= EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
