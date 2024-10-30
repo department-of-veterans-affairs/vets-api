@@ -399,14 +399,16 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
             expect(secondary_form1.reload.failure_notification_sent_at).to eq frozen_time
             expect(secondary_form2.reload.failure_notification_sent_at).to be_nil
 
-            expect(vanotify_service).to have_received(:send_email).with({ email_address:,
-                                                                          personalisation:,
-                                                                          template_id: 'fake_sc_secondary_form_template_id',
-                                                                          reference: })
+            expect(vanotify_service).to have_received(:send_email)
+              .with({ email_address:,
+                      personalisation:,
+                      template_id: 'fake_sc_secondary_form_template_id',
+                      reference: })
 
-            expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
-                                                                              personalisation: anything,
-                                                                              template_id: 'fake_sc_evidence_template_id' })
+            expect(vanotify_service).not_to have_received(:send_email)
+              .with({ email_address: anything,
+                      personalisation: anything,
+                      template_id: 'fake_sc_evidence_template_id' })
 
             expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
                                                                               personalisation: anything,
@@ -441,10 +443,11 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
             it 'does not send another email' do
               subject.new.perform
 
-              expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
-                                                                                personalisation: anything,
-                                                                                template_id: 'fake_sc_secondary_form_template_id',
-                                                                                reference: anything })
+              expect(vanotify_service).not_to have_received(:send_email)
+                .with({ email_address: anything,
+                        personalisation: anything,
+                        template_id: 'fake_sc_secondary_form_template_id',
+                        reference: anything })
 
               expect(Rails.logger).not_to have_received(:error)
             end
