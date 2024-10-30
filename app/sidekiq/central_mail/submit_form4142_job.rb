@@ -223,7 +223,7 @@ module CentralMail
 
     def create_form_submission_attempt(form526_submission)
       form_submission = form526_submission.saved_claim.form_submissions.find_by(form_type: FORM4142_FORMSUBMISSION_TYPE)
-      unless form_submission.present?
+      if form_submission.blank?
         form_submission = FormSubmission.create(
           form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
           benefits_intake_uuid: lighthouse_service.uuid,
