@@ -50,7 +50,8 @@ module Pensions
           fileNumber: form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
           zipCode: address['postalCode'],
           businessLine: claim.business_line,
-          lighthouseBenefitIntakeSubmissionUUID: lighthouse_benefit_intake_submission&.latest_attempt&.benefits_intake_uuid,
+          lighthouseBenefitIntakeSubmissionUUID:
+            lighthouse_benefit_intake_submission&.latest_attempt&.benefits_intake_uuid,
           lighthouseBenefitIntakeSubmissionDate: lighthouse_benefit_intake_submission&.created_at
         }
 
