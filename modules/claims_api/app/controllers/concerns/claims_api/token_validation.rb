@@ -104,6 +104,8 @@ module ClaimsApi
         claims_user.first_name_last_name(first_name, last_name)
         middle_name = mpi_profile&.profile&.given_names&.second
         claims_user.middle_name = middle_name unless middle_name.nil?
+        suffix = mpi_profile&.profile&.suffix
+        claims_user.suffix = suffix unless suffix.nil?
       end
       claims_user
     end

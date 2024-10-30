@@ -141,31 +141,35 @@ RSpec.describe Form526StatusPollingJob, type: :job do
 
       context 'when a failure type response is returned from the API' do
         context 'when send_backup_submission_exhaustion_email_notice is enabled' do
+          let(:timestamp) { Time.now.utc }
+
           before do
             Flipper.enable(:send_backup_submission_polling_failure_email_notice)
           end
 
           it 'enqueues a failure notification email job' do
-            pending_claim_ids = Form526Submission.pending_backup.pluck(:backup_submitted_claim_id)
+            Timecop.freeze(timestamp) do
+              pending_claim_ids = Form526Submission.pending_backup.pluck(:backup_submitted_claim_id)
 
-            response = double
-            allow(response).to receive(:body).and_return(api_response)
-            allow_any_instance_of(BenefitsIntakeService::Service)
-              .to receive(:get_bulk_status_of_uploads)
-              .with(pending_claim_ids)
-              .and_return(response)
+              response = double
+              allow(response).to receive(:body).and_return(api_response)
+              allow_any_instance_of(BenefitsIntakeService::Service)
+                .to receive(:get_bulk_status_of_uploads)
+                .with(pending_claim_ids)
+                .and_return(response)
 
-            expect(Form526SubmissionFailureEmailJob)
-              .not_to receive(:perform_async).with({ form526_submission_id: backup_submission_a.id })
-            expect(Form526SubmissionFailureEmailJob)
-              .not_to receive(:perform_async).with({ form526_submission_id: backup_submission_b.id })
+              expect(Form526SubmissionFailureEmailJob)
+                .not_to receive(:perform_async).with(backup_submission_a.id, timestamp)
+              expect(Form526SubmissionFailureEmailJob)
+                .not_to receive(:perform_async).with(backup_submission_b.id, timestamp)
 
-            expect(Form526SubmissionFailureEmailJob)
-              .to receive(:perform_async).once.ordered.with({ form526_submission_id: backup_submission_c.id })
-            expect(Form526SubmissionFailureEmailJob)
-              .to receive(:perform_async).once.ordered.with({ form526_submission_id: backup_submission_d.id })
+              expect(Form526SubmissionFailureEmailJob)
+                .to receive(:perform_async).once.ordered.with(backup_submission_c.id, timestamp)
+              expect(Form526SubmissionFailureEmailJob)
+                .to receive(:perform_async).once.ordered.with(backup_submission_d.id, timestamp)
 
-            Form526StatusPollingJob.new.perform
+              Form526StatusPollingJob.new.perform
+            end
           end
         end
 

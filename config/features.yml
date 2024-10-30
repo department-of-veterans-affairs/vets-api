@@ -206,6 +206,10 @@ features:
     actor_type: user
     description: Diverts codepath to use refactored BD methods
     enable_in_development: true
+  claims_api_ews_uploads_bd_refactor:
+    actor_type: user
+    description: When enabled, sends ews forms to BD via the refactored logic
+    enable_in_development: true
   claims_api_poa_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends poa forms to BD via the refactored logic
@@ -416,6 +420,10 @@ features:
     actor_type: user
     description: Enable saving record of 4142 forms submitted to Lighthouse as part of a Supplemental Claim
     enable_in_development: true
+  decision_review_notify_4142_failures:
+    actor_type: user
+    description: Enable sending an email if a 4142 submission is not successful in Lighthouse
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -435,6 +443,14 @@ features:
   dependents_management:
     actor_type: user
     description: Manage dependent removal from view dependent page
+    enable_in_development: true
+  disability_526_form4142_polling_records:
+    actor_type: user
+    description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
+    enable_in_development: true
+  disability_526_form4142_polling_record_failure_email:
+    actor_type: user
+    description: enables failure email when explicit failure is detected downstream
     enable_in_development: true
   contention_classification_claim_linker:
     actor_type: user
@@ -736,19 +752,19 @@ features:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
   form1010d:
-    actor_type: cookie_id
+    actor_type: user
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
   form107959c:
-    actor_type: cookie_id
+    actor_type: user
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
   form107959a:
-    actor_type: cookie_id
+    actor_type: user
     description: If enabled shows the digital form experience for form 10-7959a (IVC CHAMPVA claim form)
   form107959f1:
-    actor_type: cookie_id
+    actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program register form)
   form107959f2:
-    actor_type: cookie_id
+    actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-2 (Foreign Medical Program claim form)
   form_upload_flow:
     actor_type: user
@@ -1051,9 +1067,6 @@ features:
   profile_show_quick_submit_notification_setting:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
-  profile_show_proof_of_veteran_status_eligible:
-    actor_type: user
-    description: Include/exclude the proof of veteran status eligibility in service_history response
   profile_show_no_validation_key_address_alert:
     actor_type: user
     description: Show/Hide alert messages when no validationKey is returned from the address_validation endpoint
@@ -1204,6 +1217,10 @@ features:
   show_meb_5490_maintenance_alert:
     actor_type: user
     description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
+    enable_in_development: false
+  submission_pdf_s3_upload:
+    actor_type: user
+    description: Used to toggle use of uploading a submission pdf to S3 and returning a pre-signed url.
     enable_in_development: false
   meb_1606_30_automation:
     actor_type: user
@@ -1610,6 +1627,10 @@ features:
     actor_type: user
     description: HLR show form content updates
     enable_in_development: true
+  sc_new_form:
+    actor_type: user
+    description: Supplemental Claim new form updates
+    enable_in_development: true
   pension_ipf_callbacks_endpoint:
     actor_type: user
     description: Pension IPF VANotify notification callbacks endpoint
@@ -1767,3 +1788,15 @@ features:
   banner_use_alternative_banners:
     actor_type: user
     description: Used to toggle use of alternative banners.
+  fsr_wizard:
+    actor_type: user
+    description: Used to toggle the FSR wizard
+  gi_comparison_tool_show_ratings:
+    actor_type: user
+    description: Display Veteran student ratings in GI comparison Tool
+  gi_comparison_tool_programs_toggle_flag:
+    actor_type: user
+    description: Used to show links to programs page in comparison tool
+  gi_comparison_tool_lce_toggle_flag:
+    actor_type: user
+    description: Used to show lce page in comparison tool
