@@ -468,3 +468,7 @@ travel_pay:
 
 pension_ipf_vanotify_status_callback:
   bearer_token: bearer_token_secret
+
+va_notify:
+  status_callback:
+    bearer_token: 'va_notify_bearer_token'

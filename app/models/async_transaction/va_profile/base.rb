@@ -42,10 +42,13 @@ module AsyncTransaction
       #   be it Email, Address, etc.
       #
       def self.start(user, response)
+        # vet360_id is no longer required for Contact Information API V2
+        source_id = Flipper.enabled?(:va_v3_contact_information_service, user) ? user.vet360_id || 0 : user.vet360_id
+
         create(
           user_uuid: user.uuid,
           user_account: user.user_account,
-          source_id: user.vet360_id,
+          source_id: source_id,
           source: 'va_profile',
           status: REQUESTED,
           transaction_id: response.transaction.id,

@@ -109,6 +109,16 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
       expect(claim_with_treatments.form_data['treatments']).to eq(orig_form_data['treatments'])
     end
+
+    it 'rescues a Lighthouse::BackendServiceException and does not raise an error' do
+      evss_service_stub = instance_double('ClaimsApi::EVSSService::Base')
+      allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
+      allow(evss_service_stub).to receive(:submit).and_raise(
+        ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException.new(errors)
+      )
+
+      expect { subject.new.perform(claim.id) }.not_to raise_error
+    end
   end
 
   describe 'when an errored job has exhausted its retries' do

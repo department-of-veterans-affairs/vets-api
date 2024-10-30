@@ -8,6 +8,7 @@ module AppealsApi::V2
         include SentryLogging
         include AppealsApi::CharacterUtilities
         include AppealsApi::Schemas
+        include AppealsApi::GatewayOriginCheck
 
         SCHEMA_OPTIONS = { schema_version: 'v2', api_name: 'decision_reviews' }.freeze
         FORM_NUMBER = AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController::FORM_NUMBER

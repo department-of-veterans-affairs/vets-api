@@ -9,7 +9,7 @@ module VAProfile
         self.read_timeout = VAProfile::Configuration::SETTINGS.contact_information.timeout || 30
 
         def base_path
-          "#{VAProfile::Configuration::SETTINGS.contact_information.url}/contact-information-hub/contact-information/v2"
+          "#{VAProfile::Configuration::SETTINGS.url}/contact-information-hub/contact-information/v2"
         end
 
         def service_name

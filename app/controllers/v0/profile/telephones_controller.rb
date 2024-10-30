@@ -6,7 +6,7 @@ module V0
       include Vet360::Writeable
       service_tag 'profile'
 
-      before_action { authorize :vet360, :access? }
+      before_action { authorize :va_profile, :access_to_v2? }
       after_action :invalidate_cache
 
       def create

@@ -9,12 +9,13 @@ module MebApi
   module V0
     class FormsController < MebApi::V0::BaseController
       before_action :check_forms_flipper
+      before_action :set_type, only: %i[claim_letter claim_status claimant_info]
 
       def claim_letter
-        claimant_response = claimant_service.get_claimant_info('toe')
+        claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = claimant_response['claimant']['claimant_id']
-        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, 'toe')
-        claim_letter_response = letter_service.get_claim_letter(claimant_id, 'toe')
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
+        claim_letter_response = letter_service.get_claim_letter(claimant_id, @form_type)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
         response = claimant_response.status == 200 ? claim_letter_response : claimant_response
 
@@ -28,7 +29,7 @@ module MebApi
       end
 
       def claim_status
-        claimant_response = claimant_service.get_claimant_info('toe')
+        claimant_response = claimant_service.get_claimant_info(@form_type)
 
         return render_claimant_error(claimant_response) unless valid_claimant_response?(claimant_response)
 
@@ -36,14 +37,14 @@ module MebApi
 
         return render_claimant_id_error if claimant_id.blank?
 
-        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, 'toe')
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         response, serializer = determine_response_and_serializer(claim_status_response, claimant_response)
 
         render json: serializer.new(response)
       end
 
       def claimant_info
-        response = claimant_service.get_claimant_info('toe')
+        response = claimant_service.get_claimant_info(@form_type)
 
         render json: ToeClaimantInfoSerializer.new(response)
       end
@@ -91,6 +92,10 @@ module MebApi
 
       private
 
+      def set_type
+        @form_type = params['type'] == 'toe' ? 'toe' : params['type']&.capitalize
+      end
+
       def valid_claimant_response?(response)
         [200, 201, 204].include?(response.status)
       end
@@ -121,7 +126,7 @@ module MebApi
         if claim_status_response.status == 200
           [claim_status_response, ClaimStatusSerializer]
         else
-          [claimant_response, ClaimantSerializer]
+          [claimant_response, ToeClaimantInfoSerializer]
         end
       end
 

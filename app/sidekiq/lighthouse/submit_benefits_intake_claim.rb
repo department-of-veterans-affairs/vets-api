@@ -81,17 +81,16 @@ module Lighthouse
       veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
 
-      metadata = {
-        'veteranFirstName' => veteran_full_name['first'],
-        'veteranLastName' => veteran_full_name['last'],
-        'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'zipCode' => address['postalCode'],
-        'source' => "#{@claim.class} va.gov",
-        'docType' => @claim.form_id,
-        'businessLine' => @claim.business_line
-      }
-
-      SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: check_zipcode(address))
+      # also validates/manipulates the metadata
+      BenefitsIntake::Metadata.generate(
+        veteran_full_name['first'],
+        veteran_full_name['last'],
+        form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+        address['postalCode'],
+        "#{@claim.class} va.gov",
+        @claim.form_id,
+        @claim.business_line
+      )
     end
 
     def process_record(record, timestamp = nil, form_id = nil)
@@ -161,14 +160,17 @@ module Lighthouse
                           benefits_intake_uuid: @lighthouse_service.uuid,
                           confirmation_number: @claim.confirmation_number
                         })
-      form_submission = FormSubmission.create(
-        form_type: @claim.form_id,
-        form_data: @claim.to_json,
-        benefits_intake_uuid: @lighthouse_service.uuid,
-        saved_claim: @claim,
-        saved_claim_id: @claim.id
-      )
-      @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
+      FormSubmissionAttempt.transaction do
+        form_submission = FormSubmission.create(
+          form_type: @claim.form_id,
+          form_data: @claim.to_json,
+          benefits_intake_uuid: @lighthouse_service.uuid,
+          saved_claim: @claim,
+          saved_claim_id: @claim.id
+        )
+        @form_submission_attempt = FormSubmissionAttempt.create(form_submission:,
+                                                                benefits_intake_uuid: @lighthouse_service.uuid)
+      end
     end
 
     def cleanup_file_paths
