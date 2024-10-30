@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'dgib/verification_record/service'
+
+require 'dgib/claimant_lookup/service'
 
 module Vye
   module Vye::V1
@@ -42,11 +43,9 @@ module Vye
       end
 
       def claimant_lookup
-        Logger.info("\n\n\n*** Claimant Lookup ***")
-        Logger.info("*** SSN: #{params[:ssn]} ***\n\n\n")
         response = claimant_lookup_service.claimant_lookup(params[:ssn])
         serializer = Vye::ClaimantLookupSerializer
-        process_response(response.status, serializer)
+        process_response(response, serializer)
       end
 
       def create
@@ -66,7 +65,7 @@ module Vye
 
       # Vye Services related stuff
       def claimant_lookup_service
-        Vye::DGIB::ClaimantLookupService.new(@current_user)
+        Vye::DGIB::ClaimantLookup::Service.new(@current_user)
       end
 
       def claimant_status_service
@@ -81,24 +80,46 @@ module Vye
         Vye::DGIB::VerifyClaimantService.new(@current_user)
       end
 
-      def process_response(response_status, serializer)
-        case response_status
+      # def process_response(response_status, serializer)
+      #   case response_status
+      #   when 200
+      #     render json: serializer.new(response)
+      #   when 204
+      #     head :no_content
+      #   when 403
+      #     head :forbidden
+      #   when 404
+      #     head :not_found
+      #   when 422
+      #     head :unprocessable_entity
+      #   else
+      #     head :internal_server_error
+      #   end
+      # end
+      def process_response(response, serializer)
+        Rails.logger.debug "Processing response with status: #{response.status}"
+        case response.status
         when 200
+          Rails.logger.debug "Rendering JSON response"
           render json: serializer.new(response)
         when 204
+          Rails.logger.debug "Sending no content"
           head :no_content
         when 403
+          Rails.logger.debug "Sending forbidden"
           head :forbidden
         when 404
+          Rails.logger.debug "Sending not found"
           head :not_found
         when 422
+          Rails.logger.debug "Sending unprocessable entity"
           head :unprocessable_entity
-        when 500
-          head :internal_server_error
         else
-          head :server_error
+          Rails.logger.debug "Sending internal server error"
+          head :internal_server_error
         end
       end
+      
       # End Vye Services
 
       def cert_through_date
