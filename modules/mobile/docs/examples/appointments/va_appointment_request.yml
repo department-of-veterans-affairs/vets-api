@@ -48,11 +48,6 @@ data:
         - Evening
         - Morning
       friendly_location_name: 'CHYSHR-Cheyenne VA Medical Center'
-      locationId: '938'
 meta:
-  errors: null
-  checkinWindow:
-    minutesBefore: 45
-    minutesAfter: 15
   upcomingAppointmentsCount: 1
-  upcomingDaysLimit: 7
+  upcomingDaysLimit: 30

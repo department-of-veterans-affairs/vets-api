@@ -56,9 +56,10 @@ module Login
     end
 
     def create_mhv_account
-      return unless Settings.mhv.account_creation.create_after_login
+      return unless current_user.loa3?
+      return unless Flipper.enabled?(:mhv_account_creation_after_login, current_user.user_account)
 
-      MHV::AccountCreatorJob.perform_async(current_user.user_verification.id)
+      MHV::AccountCreatorJob.perform_async(current_user.user_verification_id)
     end
   end
 end

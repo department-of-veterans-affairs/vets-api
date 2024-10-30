@@ -16,7 +16,6 @@ require 'pdf_fill/filler'
 #    files to the submitted claim, and to begin processing them.
 
 class SavedClaim < ApplicationRecord
-  self.ignored_columns += %w[itf_datetime]
   include SetGuid
 
   validates(:form, presence: true)
@@ -28,6 +27,7 @@ class SavedClaim < ApplicationRecord
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :form_submissions, dependent: :nullify
+  has_many :claim_va_notifications, dependent: :destroy
 
   after_create :after_create_metrics
   after_destroy :after_destroy_metrics

@@ -79,7 +79,7 @@ module SimpleFormsApi
           form_number = manifest_row[1]
           s3_path = build_s3_manifest_path(form_number)
           local_path = download_manifest(temp_dir, s3_path)
-          write_and_upload_manifest(local_path)
+          write_and_upload_manifest(local_path) if config.include_manifest
         ensure
           cleanup!(temp_dir)
         end
@@ -122,6 +122,8 @@ module SimpleFormsApi
       end
 
       def presign_required?
+        return true if upload_type == :submission
+
         config.presign_s3_url
       end
     end

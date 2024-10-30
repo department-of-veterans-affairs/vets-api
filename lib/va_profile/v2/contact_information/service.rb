@@ -63,7 +63,7 @@ module VAProfile
 
         def update_address(address)
           address_type =
-            if address.address_pou == VAProfile::Models::V2::BaseAddress::RESIDENCE
+            if address.address_pou == VAProfile::Models::V3::BaseAddress::RESIDENCE
               'residential'
             else
               'mailing'
@@ -236,8 +236,6 @@ module VAProfile
         end
 
         def send_contact_change_notification(transaction_status, personalisation)
-          return unless Flipper.enabled?(:contact_info_change_email, @user)
-
           transaction = transaction_status.transaction
 
           if transaction.completed_success?
@@ -258,8 +256,6 @@ module VAProfile
         end
 
         def send_email_change_notification(transaction_status)
-          return unless Flipper.enabled?(:contact_info_change_email, @user)
-
           transaction = transaction_status.transaction
 
           if transaction.completed_success?

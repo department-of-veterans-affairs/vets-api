@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
   - meta
@@ -9,29 +10,38 @@ properties:
       $ref: "./Appointment.yml"
   meta:
     type: object
+    additionalProperties: false
     required:
-      - errors
-      - checkinWindow
       - upcomingAppointmentsCount
       - upcomingDaysLimit
+      - pagination
     properties:
       errors:
         type: [array, null]
-      checkinWindow:
-        type: object
-        required:
-          - minutesBefore
-          - minutesAfter
-        properties:
-          minutesBefore:
-            type: integer
-            example: 45
-          minutesAfter:
-            type: integer
-            example: 15
       upcomingAppointmentsCount:
         type: number
         description: The number of BOOKED, non-pending appointments in the next upcomingDaysLimit number of days.
       upcomingDaysLimit:
         type: number
-        description: The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 7.
+        description: The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 30.
+      pagination:
+        type: object
+        additionalProperties: false
+        required:
+          - currentPage
+          - perPage
+          - totalPages
+          - totalEntries
+        properties:
+          currentPage:
+            type: number
+            example: 1
+          perPage:
+            type: number
+            example: 10
+          totalPages:
+            type: number
+            example: 2
+          totalEntries:
+            type: number
+            example: 15

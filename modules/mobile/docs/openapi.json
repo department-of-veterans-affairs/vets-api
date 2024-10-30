@@ -22,7 +22,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Message"
+                  "$ref": "#/components/schemas/EndpointDiscovery"
                 }
               }
             },
@@ -459,19 +459,13 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -523,19 +517,13 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -587,19 +575,13 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -642,19 +624,13 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -722,19 +698,13 @@
                             "best_time_to_call": [
                               "Morning"
                             ],
-                            "friendly_location_name": "DAYTSHR -Dayton VA Medical Center",
-                            "locationId": "938"
+                            "friendly_location_name": "DAYTSHR -Dayton VA Medical Center"
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -804,22 +774,28 @@
                               "Evening",
                               "Morning"
                             ],
-                            "friendly_location_name": "CHYSHR-Cheyenne VA Medical Center",
-                            "locationId": "938"
+                            "friendly_location_name": "CHYSHR-Cheyenne VA Medical Center"
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
-                  },
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Appointments"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "207": {
+            "content": {
+              "application/json": {
+                "examples": {
                   "Partial Appointments": {
                     "description": "For cases when 1 or more errors are returned from upstream, an error message with source `VA Service` is added within the meta",
                     "value": {
@@ -869,8 +845,7 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
@@ -880,12 +855,8 @@
                             "source": "VA Service"
                           }
                         ],
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   }
@@ -895,7 +866,7 @@
                 }
               }
             },
-            "description": "OK"
+            "description": "Multi Status"
           },
           "401": {
             "$ref": "#/components/responses/401"
@@ -949,6 +920,9 @@
           },
           "408": {
             "$ref": "#/components/responses/408"
+          },
+          "418": {
+            "$ref": "#/components/responses/418"
           },
           "422": {
             "$ref": "#/components/responses/422"
@@ -3480,6 +3454,81 @@
           }
         ],
         "summary": "/v0/efolder/documents"
+      }
+    },
+    "/v0/efolder/documents/{documentId}/download": {
+      "post": {
+        "description": "returns requested document",
+        "parameters": [
+          {
+            "description": "File name of the document to be returned.",
+            "in": "query",
+            "name": "file_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "ID of the document to be returned.",
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "{93631483-E9F9-44AA-BB55-3552376400D8}"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/efolder/documents/{documentId}/download"
       }
     },
     "/v0/enrollment-status": {
@@ -8349,6 +8398,16 @@
         },
         "description": "The response from this API timed out."
       },
+      "418": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CustomErrors"
+            }
+          }
+        },
+        "description": "Custom Error Message"
+      },
       "422": {
         "content": {
           "application/json": {
@@ -8411,21 +8470,50 @@
       }
     },
     "schemas": {
-      "Message": {
+      "EndpointDiscovery": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
-          "attributes"
+          "data"
         ],
         "properties": {
-          "attributes": {
+          "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
-              "message"
+              "id",
+              "type",
+              "attributes"
             ],
             "properties": {
-              "message": {
+              "id": {
                 "type": "string",
-                "example": "Welcome to the mobile API"
+                "example": "welcome"
+              },
+              "type": {
+                "type": "string",
+                "example": "welcome"
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "message",
+                  "endpoints"
+                ],
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "Welcome to the mobile API"
+                  },
+                  "endpoints": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "mobile/v0/appointments"
+                    }
+                  }
+                }
               }
             }
           }
@@ -8433,6 +8521,7 @@
       },
       "DiscoveryRequest": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "environment",
           "buildNumber",
@@ -8462,12 +8551,14 @@
       },
       "DiscoveryResponse": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "id",
               "type",
@@ -8485,6 +8576,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "endpoints",
                   "authBaseUrl",
@@ -8496,9 +8588,7 @@
                 "properties": {
                   "endpoints": {
                     "type": "object",
-                    "additionalProperties": {
-                      "type": "object"
-                    },
+                    "additionalProperties": false,
                     "example": {
                       "appointments": {
                         "url": "/v0/appointments",
@@ -8551,6 +8641,7 @@
       },
       "Error": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "title",
           "detail",
@@ -8575,6 +8666,7 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "messages"
             ],
@@ -8583,6 +8675,7 @@
                 "type": "array",
                 "items": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "key",
                     "severity",
@@ -8607,6 +8700,7 @@
       },
       "Errors": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "errors"
         ],
@@ -8740,12 +8834,14 @@
       },
       "Appeal": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -8761,6 +8857,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "appealIds",
                   "active",
@@ -8862,9 +8959,11 @@
                   },
                   "status": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                       "details": {
                         "type": "object",
+                        "additionalProperties": false,
                         "properties": {
                           "lastSocDate": {
                             "type": "string"
@@ -8969,6 +9068,7 @@
       },
       "Appointment": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "type",
           "id",
@@ -8986,13 +9086,12 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "appointmentType",
               "appointmentIen",
               "cancelId",
               "comment",
-              "clinicId",
-              "facilityId",
               "healthcareProvider",
               "healthcareService",
               "location",
@@ -9006,8 +9105,7 @@
               "timeZone",
               "vetextId",
               "reason",
-              "isCovidVaccine",
-              "locationId"
+              "isCovidVaccine"
             ],
             "properties": {
               "appointmentType": {
@@ -9024,45 +9122,57 @@
               },
               "appointmentIen": {
                 "type": "string",
+                "nullable": true,
                 "example": 19648
               },
               "cancelId": {
                 "type": "string",
+                "nullable": true,
                 "example": "MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s="
               },
               "comment": {
                 "type": "string",
+                "nullable": true,
                 "example": "Please arrive 20 minutes before the start of your appointment"
               },
               "healthcareProvider": {
                 "type": "string",
+                "nullable": true,
                 "example": "John Smith"
               },
               "healthcareService": {
-                "type": null,
+                "type": "string",
+                "nullable": true,
                 "example": null,
                 "description": "This is deprecated and will always return null. It is still included for backwards compatibility."
               },
               "location": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
+                  "id",
                   "name",
                   "address",
-                  "phoneNumber",
+                  "lat",
+                  "long",
+                  "phone",
                   "url",
                   "code"
                 ],
                 "properties": {
                   "id": {
                     "type": "string",
+                    "nullable": true,
                     "example": 442
                   },
                   "name": {
                     "type": "string",
+                    "nullable": true,
                     "example": "VA Long Beach Healthcare System"
                   },
                   "address": {
                     "type": "object",
+                    "additionalProperties": false,
                     "required": [
                       "street",
                       "city",
@@ -9072,67 +9182,82 @@
                     "properties": {
                       "street": {
                         "type": "string",
+                        "nullable": true,
                         "example": "5901 East 7th Street, Building 166"
                       },
                       "city": {
                         "type": "string",
+                        "nullable": true,
                         "example": "Long Beach"
                       },
                       "state": {
                         "type": "string",
+                        "nullable": true,
                         "example": "CA"
                       },
                       "zipCode": {
                         "type": "string",
+                        "nullable": true,
                         "example": 90822
                       }
                     }
                   },
                   "lat": {
                     "type": "float",
+                    "nullable": true,
                     "example": 33.77005
                   },
                   "long": {
                     "type": "float",
+                    "nullable": true,
                     "example": -118.193741
                   },
                   "phone": {
                     "type": "object",
+                    "additionalProperties": false,
                     "required": [
+                      "areaCode",
                       "number",
                       "extension"
                     ],
                     "properties": {
                       "areaCode": {
                         "type": "string",
+                        "nullable": true,
                         "example": 562
                       },
                       "number": {
                         "type": "string",
+                        "nullable": true,
                         "example": "434-6008"
                       },
                       "extension": {
                         "type": "string",
+                        "nullable": true,
                         "example": 1001
                       }
                     }
                   },
                   "url": {
                     "type": "string",
+                    "nullable": true,
                     "example": "https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#"
                   },
                   "code": {
                     "type": "string",
+                    "nullable": true,
                     "example": "GL32C"
                   }
                 }
               },
               "physicalLocation": {
                 "type": "string",
+                "nullable": true,
                 "example": "Blind Rehabilitation Center"
               },
               "minutesDuration": {
                 "type": "integer",
+                "nullable": true,
                 "example": 60
               },
               "phoneOnly": {
@@ -9160,6 +9285,7 @@
               },
               "statusDetail": {
                 "type": "string",
+                "nullable": true,
                 "description": "For a cancelled appointment return details about who or why it was cancelled.",
                 "enum": [
                   "CANCELLED BY CLINIC & AUTO RE-BOOK",
@@ -9172,6 +9298,7 @@
               },
               "timeZone": {
                 "type": "string",
+                "nullable": true,
                 "example": "America/Los_Angeles"
               },
               "vetextId": {
@@ -9180,6 +9307,7 @@
               },
               "reason": {
                 "type": "string",
+                "nullable": true,
                 "example": "Follow-up/Routine: Reason 1"
               },
               "isCovidVaccine": {
@@ -9192,6 +9320,7 @@
               },
               "proposedTimes": {
                 "type": "array",
+                "nullable": true,
                 "example": [
                   {
                     "date": "10/01/2020",
@@ -9209,18 +9338,22 @@
               },
               "typeOfCare": {
                 "type": "string",
+                "nullable": true,
                 "example": "Primary Care"
               },
               "patientPhoneNumber": {
                 "type": "string",
+                "nullable": true,
                 "example": "123-456-7890"
               },
               "patientEmail": {
                 "type": "string",
+                "nullable": true,
                 "example": "someone@example.com"
               },
               "bestTimeToCall": {
                 "type": "array",
+                "nullable": true,
                 "example": [
                   "Morning",
                   "Afternoon",
@@ -9229,15 +9362,13 @@
               },
               "friendlyLocationName": {
                 "type": "string",
+                "nullable": true,
                 "example": "CHYSHR-Cheyenne VA Medical Center"
               },
               "serviceCategoryName": {
                 "type": "string",
+                "nullable": true,
                 "example": "COMPENSATION & PENSION"
-              },
-              "locationId": {
-                "type": "string",
-                "example": "983"
               }
             }
           }
@@ -9245,6 +9376,7 @@
       },
       "Appointments": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -9258,11 +9390,11 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
-              "errors",
-              "checkinWindow",
               "upcomingAppointmentsCount",
-              "upcomingDaysLimit"
+              "upcomingDaysLimit",
+              "pagination"
             ],
             "properties": {
               "errors": {
@@ -9271,30 +9403,84 @@
                   null
                 ]
               },
-              "checkinWindow": {
-                "type": "object",
-                "required": [
-                  "minutesBefore",
-                  "minutesAfter"
-                ],
-                "properties": {
-                  "minutesBefore": {
-                    "type": "integer",
-                    "example": 45
-                  },
-                  "minutesAfter": {
-                    "type": "integer",
-                    "example": 15
-                  }
-                }
-              },
               "upcomingAppointmentsCount": {
                 "type": "number",
                 "description": "The number of BOOKED, non-pending appointments in the next upcomingDaysLimit number of days."
               },
               "upcomingDaysLimit": {
                 "type": "number",
-                "description": "The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 7."
+                "description": "The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 30."
+              },
+              "pagination": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "currentPage",
+                  "perPage",
+                  "totalPages",
+                  "totalEntries"
+                ],
+                "properties": {
+                  "currentPage": {
+                    "type": "number",
+                    "example": 1
+                  },
+                  "perPage": {
+                    "type": "number",
+                    "example": 10
+                  },
+                  "totalPages": {
+                    "type": "number",
+                    "example": 2
+                  },
+                  "totalEntries": {
+                    "type": "number",
+                    "example": 15
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "CustomErrors": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "title",
+                "body",
+                "source",
+                "telephone",
+                "refreshable"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                },
+                "telephone": {
+                  "type": "string"
+                },
+                "refreshable": {
+                  "type": "boolean"
+                },
+                "status": {
+                  "type": "integer"
+                }
               }
             }
           }
@@ -9302,6 +9488,7 @@
       },
       "AppointmentCheckin": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "code",
           "message"
@@ -9319,6 +9506,7 @@
       },
       "AppointmentCheckinErrors400": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "errors"
         ],
@@ -9327,6 +9515,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "title",
                 "detail",
@@ -9342,6 +9531,7 @@
                   "type": "array",
                   "items": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                       "id": {
                         "type": "string",
@@ -9351,6 +9541,7 @@
                         "type": "array",
                         "items": {
                           "type": "object",
+                          "additionalProperties": false,
                           "properties": {
                             "status": {
                               "type": "string",
@@ -9399,6 +9590,7 @@
       },
       "AppointmentCheckinErrors500": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "errors"
         ],
@@ -9407,6 +9599,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "title",
                 "detail",
@@ -9423,11 +9616,13 @@
                   "description": "Detail status and title can be found at either errors[0]['detail'][0] or errors[0]['detail'][0]['errors'][0].",
                   "items": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                       "errors": {
                         "type": "array",
                         "items": {
                           "type": "object",
+                          "additionalProperties": false,
                           "properties": {
                             "status": {
                               "type": "string",
@@ -9472,6 +9667,7 @@
       },
       "AppointmentCheckinDemographics": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "insuranceVerificationNeeded",
           "needsConfirmation",
@@ -9495,6 +9691,7 @@
           },
           "mailingAddress": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "street1",
               "street2",
@@ -9538,6 +9735,7 @@
           },
           "residentialAddress": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "street1",
               "street2",
@@ -9593,6 +9791,7 @@
           },
           "emergencyContact": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "needsConfirmation",
               "name",
@@ -9619,6 +9818,7 @@
               },
               "address": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "street1",
                   "street2",
@@ -9664,6 +9864,7 @@
           },
           "nextOfKin": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "needsConfirmation",
               "name",
@@ -9690,6 +9891,7 @@
               },
               "address": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "street1",
                   "street2",
@@ -9737,6 +9939,7 @@
       },
       "AppointmentCheckinDemographicsPatch": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "contactNeedsUpdate",
           "emergencyContactNeedsUpdate",
@@ -9759,12 +9962,14 @@
       },
       "CommunityCaresEligibility": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -9782,6 +9987,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "eligible"
                 ],
@@ -9798,6 +10004,7 @@
       },
       "FacilityEligibility": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "type",
           "id",
@@ -9815,6 +10022,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "facility_id",
               "eligible",
@@ -9839,6 +10047,7 @@
       },
       "FacilityEligibilities": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -9847,6 +10056,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "$ref": "#/components/schemas/FacilityEligibility"
             }
           }
@@ -9854,6 +10064,7 @@
       },
       "FacilityClinic": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "type",
           "id",
@@ -9871,6 +10082,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "name"
             ],
@@ -9885,6 +10097,7 @@
       },
       "FacilityClinics": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -9893,6 +10106,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "$ref": "#/components/schemas/FacilityClinic"
             }
           }
@@ -9900,6 +10114,7 @@
       },
       "Slot": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "type",
           "id",
@@ -9917,6 +10132,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "start_date",
               "end_date"
@@ -9948,6 +10164,7 @@
       },
       "ClinicSlots": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -9956,6 +10173,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "$ref": "#/components/schemas/Slot"
             }
           }
@@ -9963,12 +10181,14 @@
       },
       "AppointmentPreferences": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -9986,6 +10206,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "notificationFrequency",
                   "emailAllowed",
@@ -10022,6 +10243,7 @@
       },
       "AppointmentPreferencesRequest": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "notification_frequency"
         ],
@@ -10050,12 +10272,14 @@
       },
       "ServiceEligibilities": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -10073,6 +10297,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "ccSupported",
                   "services"
@@ -10092,6 +10317,7 @@
                     "items": {
                       "type": "object"
                     },
+                    "additionalProperties": false,
                     "example": [
                       {
                         "name": "amputation",
@@ -10267,6 +10493,7 @@
       },
       "Practitioner": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "identifier",
           "address"
@@ -10276,6 +10503,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "system",
                 "value"
@@ -10294,6 +10522,7 @@
           },
           "address": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "line",
               "city",
@@ -10338,6 +10567,7 @@
       },
       "Period": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "start",
           "end"
@@ -10357,6 +10587,7 @@
       },
       "ContactPoint": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "type",
           "value"
@@ -10381,6 +10612,7 @@
       "PatientContact": {
         "description": "Patient contact information",
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "telecom"
         ],
@@ -10395,6 +10627,7 @@
       },
       "PreferredLocation": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "city",
           "state"
@@ -10416,6 +10649,7 @@
       "CreateAppointmentCC": {
         "description": "A request to create a new appointment.",
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "kind",
           "status",
@@ -10534,6 +10768,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "code": {
                   "type": "string",
@@ -10557,6 +10792,7 @@
       "CreateAppointmentRequest": {
         "description": "A request to create a new appointment.",
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "kind",
           "status",
@@ -10619,6 +10855,7 @@
           },
           "reasonCode": {
             "type": "object",
+            "additionalProperties": false,
             "$ref": "#/components/schemas/ReasonCode"
           },
           "locationId": {
@@ -10647,6 +10884,7 @@
       "CreateAppointmentDirect": {
         "description": "Direct schedule new appointment",
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "kind",
           "clinic",
@@ -10678,10 +10916,12 @@
           },
           "reasonCode": {
             "type": "object",
+            "additionalProperties": false,
             "$ref": "#/components/schemas/ReasonCode"
           },
           "slot": {
             "type": "object",
+            "additionalProperties": false,
             "description": "Id of direct schedule time slot",
             "example": {
               "id": "3230323230383032313833303A323032323038303231393030"
@@ -10689,6 +10929,7 @@
           },
           "extension": {
             "type": "object",
+            "additionalProperties": false,
             "description": "date of direct schedule time slot",
             "example": {
               "desiredDate": "2022-08-02T00:00:00+00:00"
@@ -10961,6 +11202,7 @@
           },
           "slot": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "id": {
                 "pattern": "[A-Za-z0-9\\-\\.]{1,64}",
@@ -11040,12 +11282,14 @@
       },
       "Awards": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -11062,6 +11306,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "id",
                   "aportnRecipId",
@@ -11274,6 +11519,10 @@
           "upload_date": {
             "type": "string",
             "example": "2023-03-01"
+          },
+          "document_id": {
+            "type": "string",
+            "example": "{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}"
           }
         }
       },
@@ -11357,17 +11606,25 @@
           "filename": {
             "type": "string",
             "example": "7B434B58-477C-4379-816F-05E6D3A10487.pdf"
+          },
+          "document_id": {
+            "type": "string",
+            "description": "Only used for other_documents_list type event for untracked documents",
+            "nullable": true,
+            "example": "{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}"
           }
         }
       },
       "Claim": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -11385,6 +11642,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "dateFiled",
                   "minEstDate",
@@ -11489,12 +11747,14 @@
       },
       "ClaimDocUpload": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "jobId"
             ],
@@ -11514,6 +11774,7 @@
       },
       "ClaimUploadRequestBody": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "files",
           "trackedItemId",
@@ -11539,6 +11800,7 @@
       },
       "DecisionLetterRecord": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -11556,6 +11818,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "seriesId",
               "version",
@@ -11625,6 +11888,7 @@
       },
       "DecisionLetters": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -11633,6 +11897,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "$ref": "#/components/schemas/DecisionLetterRecord"
             }
           }
@@ -12805,6 +13070,7 @@
       },
       "CreatePreneedBurialResponse": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -12813,6 +13079,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "id",
                 "type",
@@ -12830,6 +13097,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "receiveApplicationId",
                     "trackingNumber",
@@ -12872,6 +13140,7 @@
       },
       "PreneedBurial": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -12880,6 +13149,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "id",
                 "type",
@@ -12897,6 +13167,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "name",
                     "type"
@@ -12943,6 +13214,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "subtype",
               "completed",
@@ -13010,6 +13282,7 @@
       },
       "ClaimsAndAppealsOverviewErrors": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "service",
           "errorDetails"
@@ -13031,6 +13304,7 @@
       },
       "ClaimsAndAppealsOverview": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -13040,6 +13314,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "$ref": "#/components/schemas/ClaimsAndAppeals"
             }
           },
@@ -13051,6 +13326,7 @@
                   "type": "array",
                   "items": {
                     "type": "object",
+                    "additionalProperties": false,
                     "$ref": "#/components/schemas/ClaimsAndAppealsOverviewErrors",
                     "description": "Array info about failing upstream services"
                   }
@@ -13058,6 +13334,7 @@
               },
               "pagination": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "currentPage",
                   "perPage",
@@ -13094,6 +13371,7 @@
       },
       "ClaimsAndAppealsOverviewClaimsError": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -13103,6 +13381,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "id": {
                   "type": "string",
@@ -13118,6 +13397,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "subtype",
                     "completed",
@@ -13156,12 +13436,14 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "errors": {
                 "type": "array",
                 "description": "Array of objects of failing upstream services. Used for debugging only.",
                 "items": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "service",
                     "errorDetails"
@@ -13184,6 +13466,7 @@
               },
               "pagination": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "currentPage",
                   "perPage",
@@ -13215,6 +13498,7 @@
       },
       "ClaimsAndAppealsOverviewAppealsError": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -13224,6 +13508,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "id": {
                   "type": "string",
@@ -13239,6 +13524,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "subtype",
                     "completed",
@@ -13277,12 +13563,14 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "errors": {
                 "type": "array",
                 "description": "Array of objects of failing upstream services. Used for debugging only.",
                 "items": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "service",
                     "errorDetails"
@@ -13305,6 +13593,7 @@
               },
               "pagination": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "currentPage",
                   "perPage",
@@ -13336,6 +13625,7 @@
       },
       "FacilityAddress": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "street",
           "city",
@@ -13363,6 +13653,7 @@
       },
       "CommunityCareProvider": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "type",
           "id",
@@ -13380,6 +13671,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "name",
               "address",
@@ -13392,6 +13684,7 @@
               },
               "address": {
                 "type": "object",
+                "additionalProperties": false,
                 "$ref": "#/components/schemas/FacilityAddress"
               },
               "distance": {
@@ -13404,6 +13697,7 @@
       },
       "CommunityCareProviders": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -13412,6 +13706,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "$ref": "#/components/schemas/CommunityCareProvider"
             }
           }
@@ -13419,6 +13714,7 @@
       },
       "Debts": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -13444,6 +13740,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "fileNumber",
                     "payeeNumber",
@@ -13507,6 +13804,7 @@
                       "type": "array",
                       "items": {
                         "type": "object",
+                        "additionalProperties": false,
                         "properties": {
                           "date": {
                             "type": "string",
@@ -13530,6 +13828,7 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "hasDependentDebts"
             ],
@@ -13544,6 +13843,7 @@
       },
       "Debt": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -13551,6 +13851,7 @@
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -13568,6 +13869,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "fileNumber",
                   "payeeNumber",
@@ -13631,6 +13933,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "properties": {
                         "date": {
                           "type": "string",
@@ -13653,6 +13956,7 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "hasDependentDebts"
             ],
@@ -13667,6 +13971,7 @@
       },
       "Dependents": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -13675,6 +13980,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "type",
                 "id",
@@ -13692,6 +13998,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "awardIndicator",
                     "dateOfBirth",
@@ -17355,12 +17662,14 @@
       },
       "CreateDependentsResponse": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "id",
               "type",
@@ -17378,6 +17687,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "submitFormJobId"
                 ],
@@ -17394,12 +17704,14 @@
       },
       "DependentsRequestDecisions": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "id",
               "type",
@@ -17417,6 +17729,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "dependencyVerifications",
                   "diaries",
@@ -17427,6 +17740,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "awardEffectiveDate",
                         "awardEventId",
@@ -17589,6 +17903,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "awardDiaryId",
                         "awardType",
@@ -17702,6 +18017,7 @@
       },
       "IndividualDisabilityRatings": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "decision",
           "effectiveDate",
@@ -17729,12 +18045,14 @@
       },
       "DisabilityRating": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -17752,6 +18070,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "combinedDisabilityRating",
                   "individualRatings"
@@ -17765,6 +18084,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "$ref": "#/components/schemas/IndividualDisabilityRatings"
                     }
                   }
@@ -17776,6 +18096,7 @@
       },
       "LighthouseErrors": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "errors"
         ],
@@ -17784,6 +18105,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "status": {
                   "type": "string"
@@ -17813,46 +18135,52 @@
       },
       "Efolder": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
-            "type": "object",
-            "required": [
-              "type",
-              "id",
-              "attributes"
-            ],
-            "properties": {
-              "type": {
-                "type": "string",
-                "example": "efolder_document"
-              },
-              "id": {
-                "type": "string",
-                "example": "{23fe358d-6e82-4541-804c-ce7562ba28f4}",
-                "description": "document id"
-              },
-              "attributes": {
-                "type": "object",
-                "required": [
-                  "doc_type",
-                  "type_description",
-                  "received_at"
-                ],
-                "properties": {
-                  "doc_type": {
-                    "type": "string",
-                    "example": 1215
-                  },
-                  "type_description": {
-                    "type": "string",
-                    "example": "DMC - Debt Increase Letter"
-                  },
-                  "received_at": {
-                    "type": "date",
-                    "example": "2020-05-28"
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "type",
+                "attributes"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "{23fe358d-6e82-4541-804c-ce7562ba28f4}",
+                  "description": "document id"
+                },
+                "type": {
+                  "type": "string",
+                  "example": "efolder_document"
+                },
+                "attributes": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "doc_type",
+                    "type_description",
+                    "received_at"
+                  ],
+                  "properties": {
+                    "doc_type": {
+                      "type": "string",
+                      "example": 1215
+                    },
+                    "type_description": {
+                      "type": "string",
+                      "example": "DMC - Debt Increase Letter"
+                    },
+                    "received_at": {
+                      "type": "date",
+                      "example": "2020-05-28"
+                    }
                   }
                 }
               }
@@ -17862,12 +18190,14 @@
       },
       "EnrollmentStatus": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -17885,6 +18215,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "status"
                 ],
@@ -17902,6 +18233,7 @@
       },
       "FacilityInfo": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "name",
@@ -17941,12 +18273,14 @@
       },
       "FacilitiesInfo": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -17964,6 +18298,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "facilities"
                 ],
@@ -17972,6 +18307,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "$ref": "#/components/schemas/FacilityInfo"
                     }
                   }
@@ -17998,6 +18334,7 @@
       },
       "ImmunizationRecord": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "type",
           "id",
@@ -18016,6 +18353,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "cvxCode",
               "date",
@@ -18029,61 +18367,76 @@
             ],
             "properties": {
               "cvxCode": {
-                "type": "integer, null",
+                "type": "integer",
+                "nullable": true,
                 "example": 140
               },
               "date": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "2009-03-19T12:24:55Z"
               },
               "doseNumber": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Booster"
               },
               "doseSeries": {
-                "type": "integer, null",
+                "type": {
+                  "anyOf": [
+                    "string",
+                    "integer"
+                  ]
+                },
+                "nullable": true,
                 "example": 1
               },
               "groupName": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "FLU"
               },
               "manufacturer": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "nil"
               },
               "note": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
               },
               "shortDescription": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Influenza  seasonal  injectable  preservative free"
               },
               "reaction": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Swelling"
               }
             }
           },
           "relationships": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "location"
             ],
             "properties": {
               "location": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "data",
                   "links"
                 ],
                 "properties": {
                   "data": {
-                    "type": [
-                      "object",
-                      null
-                    ],
+                    "type": "object",
+                    "additionalProperties": false,
+                    "nullable": true,
                     "required": [
                       "id",
                       "type"
@@ -18101,15 +18454,14 @@
                   },
                   "links": {
                     "type": "object",
+                    "additionalProperties": false,
                     "required": [
                       "related"
                     ],
                     "properties": {
                       "related": {
-                        "type": [
-                          "string",
-                          null
-                        ],
+                        "type": "string",
+                        "nullable": true,
                         "example": "staging-api.va.gov/mobile/v0/health/locations/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000"
                       }
                     }
@@ -18122,6 +18474,7 @@
       },
       "Immunizations": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -18130,6 +18483,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "$ref": "#/components/schemas/ImmunizationRecord"
             }
           }
@@ -18137,6 +18491,7 @@
       },
       "AllergyIntolerances": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -18145,6 +18500,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "type",
                 "id",
@@ -18162,6 +18518,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "resourceType",
                     "type",
@@ -18184,6 +18541,7 @@
                     },
                     "clinicalStatus": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "coding"
                       ],
@@ -18192,6 +18550,7 @@
                           "type": "array",
                           "items": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "system",
                               "code",
@@ -18213,6 +18572,7 @@
                     },
                     "code": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "coding"
                       ],
@@ -18221,6 +18581,7 @@
                           "type": "array",
                           "items": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "system",
                               "code",
@@ -18248,6 +18609,7 @@
                       "type": "array",
                       "items": {
                         "type": "object",
+                        "additionalProperties": false,
                         "required": [
                           "authorReference",
                           "time",
@@ -18256,6 +18618,7 @@
                         "properties": {
                           "authorReference": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "reference",
                               "display"
@@ -18288,6 +18651,7 @@
                     },
                     "patient": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "reference",
                         "display"
@@ -18305,6 +18669,7 @@
                     },
                     "recorder": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "reference",
                         "display"
@@ -18324,6 +18689,7 @@
                       "type": "array",
                       "items": {
                         "type": "object",
+                        "additionalProperties": false,
                         "required": [
                           "substance",
                           "manifestation",
@@ -18332,6 +18698,7 @@
                         "properties": {
                           "substance": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "coding"
                             ],
@@ -18340,6 +18707,7 @@
                                 "type": "array",
                                 "items": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "system",
                                     "code",
@@ -18367,6 +18735,7 @@
                             "type": "array",
                             "items": {
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "coding"
                               ],
@@ -18375,6 +18744,7 @@
                                   "type": "array",
                                   "items": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "system",
                                       "code",
@@ -18417,6 +18787,7 @@
       },
       "LabsAndTests": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -18425,6 +18796,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "type",
                 "id",
@@ -18442,6 +18814,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "category",
                     "subject",
@@ -18456,6 +18829,7 @@
                     },
                     "subject": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "reference",
                         "display"
@@ -18483,6 +18857,7 @@
                       "type": "array",
                       "items": {
                         "type": "object",
+                        "additionalProperties": false,
                         "required": [
                           "reference",
                           "display"
@@ -18508,6 +18883,7 @@
       },
       "Observation": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -18516,6 +18892,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "type",
                 "id",
@@ -18533,6 +18910,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "status",
                     "category",
@@ -18550,6 +18928,7 @@
                     },
                     "category": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "coding",
                         "text"
@@ -18559,6 +18938,7 @@
                           "type": "array",
                           "items": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "system",
                               "code",
@@ -18588,6 +18968,7 @@
                     },
                     "code": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "coding",
                         "text"
@@ -18597,6 +18978,7 @@
                           "type": "array",
                           "items": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "system",
                               "code",
@@ -18626,6 +19008,7 @@
                     },
                     "subject": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "reference",
                         "display"
@@ -18651,6 +19034,7 @@
                     },
                     "performer": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "reference",
                         "display"
@@ -18668,6 +19052,7 @@
                     },
                     "valueQuantity": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "value",
                         "unit",
@@ -18702,12 +19087,14 @@
       },
       "Locations": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -18725,6 +19112,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "name",
                   "address"
@@ -18736,6 +19124,7 @@
                   },
                   "address": {
                     "type": "object",
+                    "additionalProperties": false,
                     "$ref": "#/components/schemas/FacilityAddress"
                   }
                 }
@@ -18746,6 +19135,7 @@
       },
       "PrescriptionRecord": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -18763,6 +19153,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "refillStatus",
               "refillSubmitDate",
@@ -18869,6 +19260,7 @@
       },
       "Prescriptions": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -18878,17 +19270,20 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "$ref": "#/components/schemas/PrescriptionRecord"
             }
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "prescriptionStatusCount"
             ],
             "properties": {
               "prescriptionStatusCount": {
                 "type": "object",
+                "additionalProperties": false,
                 "description": "Count of different types of prescriptions. \"active\" contains prescriptions that have a `refillStatus` of active,\nsubmitted, providerHold, activeParked, refillinprocess, and/or prescriptions that have a tracking number \nassociated with them. If a prescriptions does not meet the criteria for \"active\", it appends it's `refillStatus` to the list. \nIf a refillStatus is not present in any prescription, it will not be included in this list.\nSee `refillStatus` enum for all possible values. \"isRefillable\" is a separate count of prescriptions with `isRefillable` set to true. \nA prescription can be counted in both `isRefillable` and any other status count.\n",
                 "example": {
                   "active": 1,
@@ -18910,6 +19305,7 @@
       },
       "RefillPayload": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "ids"
         ],
@@ -18926,6 +19322,7 @@
       },
       "PrescriptionsRefill": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -18943,6 +19340,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "failedStationList",
               "successfulStationList",
@@ -18997,6 +19395,7 @@
       },
       "PrescriptionTrackingRecord": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -19014,6 +19413,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "prescriptionName",
               "prescriptionNumber",
@@ -19063,6 +19463,7 @@
                 ],
                 "items": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "prescriptionName",
                     "prescriptionNumber"
@@ -19084,6 +19485,7 @@
       },
       "PrescriptionTracking": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -19092,6 +19494,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "$ref": "#/components/schemas/PrescriptionTrackingRecord"
             }
           }
@@ -19099,6 +19502,7 @@
       },
       "LettersInfo": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "name",
           "letterType"
@@ -19137,12 +19541,14 @@
       },
       "Letters": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -19160,6 +19566,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "letters"
                 ],
@@ -19168,6 +19575,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "$ref": "#/components/schemas/LettersInfo"
                     }
                   }
@@ -19179,12 +19587,14 @@
       },
       "LettersBeneficiaryInfo": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -19202,6 +19612,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "letters",
                   "benefitInformation"
@@ -19209,6 +19620,7 @@
                 "properties": {
                   "benefitInformation": {
                     "type": "object",
+                    "additionalProperties": false,
                     "required": [
                       "awardEffectiveDate",
                       "hasChapter35Eligibility",
@@ -19270,6 +19682,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "branch",
                         "characterOfService",
@@ -19312,6 +19725,7 @@
       },
       "LetterOptions": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "militaryService",
           "serviceConnectedDisabilities",
@@ -19363,12 +19777,14 @@
       },
       "Letter": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -19385,12 +19801,14 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "letter"
                 ],
                 "properties": {
                   "letter": {
                     "type": "object",
+                    "additionalProperties": false,
                     "required": [
                       "letterDescription",
                       "letterContent"
@@ -19404,6 +19822,7 @@
                         "type": "array",
                         "items": {
                           "type": "object",
+                          "additionalProperties": false,
                           "required": [
                             "contentKey",
                             "contentTitle",
@@ -19435,6 +19854,7 @@
       },
       "MaintenanceWindows": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -19443,6 +19863,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "id": {
                   "type": "string",
@@ -19455,6 +19876,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "service",
                     "start_time",
@@ -19498,6 +19920,7 @@
       },
       "SecureMessagingFolder": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -19516,6 +19939,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "folderId",
               "name",
@@ -19553,6 +19977,7 @@
           },
           "links": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "self"
             ],
@@ -19567,6 +19992,7 @@
       },
       "SecureMessagingFolders": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -19580,12 +20006,14 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "pagination"
             ],
             "properties": {
               "pagination": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "currentPage",
                   "perPage",
@@ -19617,12 +20045,14 @@
       },
       "CreateSecureMessagingFolder": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "folder"
         ],
         "properties": {
           "folder": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "name"
             ],
@@ -19637,6 +20067,7 @@
       },
       "CreateSecureMessagingFolderResponse": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -19645,6 +20076,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "id",
                 "type",
@@ -19663,6 +20095,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "folderId",
                     "name",
@@ -19700,6 +20133,7 @@
                 },
                 "links": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "self"
                   ],
@@ -19717,6 +20151,7 @@
       },
       "SecureMessageSummary": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "type",
           "id",
@@ -19735,6 +20170,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "messageId",
               "category",
@@ -19822,6 +20258,7 @@
           },
           "links": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "self"
             ],
@@ -19836,6 +20273,7 @@
       },
       "SecureMessageList": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -19849,6 +20287,7 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "sort",
               "pagination"
@@ -19856,6 +20295,7 @@
             "properties": {
               "sort": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": "sentDate",
                 "properties": {
                   "sentDate": {
@@ -19869,6 +20309,7 @@
               },
               "pagination": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "currentPage",
                   "perPage",
@@ -19896,6 +20337,7 @@
               },
               "messageCounts": {
                 "type": "object",
+                "additionalProperties": false,
                 "description": "Count of read and unread messages. `readReceipt` field containing \"READ\" count towards \"read\" count \nwhile a null value will count towards \"unread\". If either read or unread is 0, the key will not be included.\n",
                 "properties": {
                   "read": {
@@ -19914,6 +20356,7 @@
       },
       "SecureMessageThread": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -19932,6 +20375,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "threadId",
               "folderId",
@@ -20041,6 +20485,7 @@
           },
           "links": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "self"
             ],
@@ -20055,6 +20500,7 @@
       },
       "SecureMessageThreadList": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -20069,6 +20515,7 @@
       },
       "SecureMessageNewMessageRequest": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "recipient_id",
           "category",
@@ -20101,6 +20548,7 @@
       },
       "SecureMessageAttachment": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -20118,6 +20566,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "name",
               "messageId",
@@ -20140,6 +20589,7 @@
           },
           "links": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "download"
             ],
@@ -20155,6 +20605,7 @@
       },
       "PostSecureMessageDetail": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "type",
           "id",
@@ -20174,6 +20625,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "messageId",
               "category",
@@ -20261,12 +20713,14 @@
           },
           "relationships": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "attachments"
             ],
             "properties": {
               "attachments": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "data"
                 ],
@@ -20275,6 +20729,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "id",
                         "type"
@@ -20297,6 +20752,7 @@
           },
           "links": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "self"
             ],
@@ -20319,6 +20775,7 @@
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "id",
               "type",
@@ -20336,6 +20793,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "messageCategoryType"
                 ],
@@ -20362,12 +20820,14 @@
       },
       "SecureMessageSignature": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -20385,6 +20845,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "signatureName",
                   "includeSignature",
@@ -20410,6 +20871,7 @@
       },
       "GetSecureMessageDetail": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "type",
           "id",
@@ -20430,6 +20892,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "messageId",
               "category",
@@ -20517,12 +20980,14 @@
           },
           "relationships": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "attachments"
             ],
             "properties": {
               "attachments": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "data"
                 ],
@@ -20531,6 +20996,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "id",
                         "type"
@@ -20553,6 +21019,7 @@
           },
           "links": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "self"
             ],
@@ -20571,6 +21038,7 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "userInTriageTeam?"
             ],
@@ -20586,6 +21054,7 @@
       },
       "SecureMessageReplyRequest": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "recipient_id",
           "category",
@@ -20619,6 +21088,7 @@
       },
       "SecureMessageListV1": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -20628,6 +21098,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "type",
                 "id",
@@ -20646,6 +21117,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "messageId",
                     "category",
@@ -20765,6 +21237,7 @@
                 },
                 "links": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "self"
                   ],
@@ -20780,6 +21253,7 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "sort",
               "pagination"
@@ -20787,6 +21261,7 @@
             "properties": {
               "sort": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": "sentDate",
                 "properties": {
                   "sentDate": {
@@ -20800,6 +21275,7 @@
               },
               "pagination": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "currentPage",
                   "perPage",
@@ -20827,6 +21303,7 @@
               },
               "messageCounts": {
                 "type": "object",
+                "additionalProperties": false,
                 "description": "Count of read and unread messages. `readReceipt` field containing \"READ\" count towards \"read\" count \nwhile a null value will count towards \"unread\". If either read or unread is 0, the key will not be included.\n",
                 "properties": {
                   "read": {
@@ -20845,6 +21322,7 @@
       },
       "SecureMessagingRecipients": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -20854,6 +21332,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "id",
                 "type",
@@ -20871,6 +21350,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "triageTeamId",
                     "name",
@@ -20899,12 +21379,14 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "sort"
             ],
             "properties": {
               "sort": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "name"
                 ],
@@ -20925,6 +21407,7 @@
       },
       "ServiceHistory": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "branchOfService",
           "beginDate",
@@ -21001,12 +21484,14 @@
       },
       "MilitaryHistory": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -21024,6 +21509,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "serviceHistory"
                 ],
@@ -21032,6 +21518,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "$ref": "#/components/schemas/ServiceHistory"
                     }
                   }
@@ -21043,6 +21530,7 @@
       },
       "PaymentHistory": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -21067,6 +21555,7 @@
                 },
                 "attributes": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "amount",
                     "date",
@@ -21107,6 +21596,7 @@
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "errors",
               "pagination",
@@ -21121,6 +21611,7 @@
               },
               "pagination": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "currentPage",
                   "perPage",
@@ -21165,6 +21656,7 @@
       },
       "PaymentInfo": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -21188,6 +21680,7 @@
             "properties": {
               "accountControl": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "canUpdateAddress",
                   "corpAvailIndicator",
@@ -21235,6 +21728,7 @@
               },
               "paymentAccount": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "accountNumber",
                   "accountType",
@@ -21270,6 +21764,7 @@
       },
       "UpdatePaymentInfoRequest": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "accountNumber",
           "accountType",
@@ -21301,12 +21796,14 @@
       },
       "Pensions": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -21324,6 +21821,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "isEligibleForPension",
                   "isInReceiptOfPension",
@@ -21350,12 +21848,14 @@
       },
       "PushGetPreferences": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -21373,6 +21873,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "preferences"
                 ],
@@ -21381,6 +21882,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "preferenceId",
                         "preferenceName",
@@ -21418,6 +21920,7 @@
       },
       "PushPreferences": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "preference",
           "enabled"
@@ -21439,6 +21942,7 @@
       },
       "PushRegistration": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "deviceToken",
           "osName",
@@ -21472,12 +21976,14 @@
       },
       "PushRegistrationResponse": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "type",
               "id",
@@ -21495,6 +22001,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "endpointSid"
                 ],
@@ -21511,6 +22018,7 @@
       },
       "PushSendRequestBody": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "appName",
           "templateId",
@@ -21527,6 +22035,7 @@
           },
           "personalization": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "%APPOINTMENT_DATE%": {
                 "type": "string",
@@ -21546,6 +22055,7 @@
       },
       "EmailUpdate": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "emailAddress"
@@ -21563,6 +22073,7 @@
       },
       "Address": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "addressLine1",
@@ -21642,6 +22153,7 @@
       },
       "PhoneUpdate": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "areaCode",
@@ -21685,6 +22197,7 @@
       },
       "User": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -21702,6 +22215,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "profile",
               "authorizedServices",
@@ -21710,6 +22224,7 @@
             "properties": {
               "profile": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "firstName",
                   "middleName",
@@ -21784,6 +22299,7 @@
               },
               "health": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "isCernerPatient",
                   "facilities",
@@ -21797,6 +22313,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "properties": {
                         "facilityId": {
                           "type": "string",
@@ -21821,6 +22338,7 @@
       },
       "UserAuthorizedServices": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -21838,6 +22356,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "authorizedServices"
             ],
@@ -21845,6 +22364,7 @@
               "authorizedServices": {
                 "description": "All services with a boolean value of whether or not the service has access to that service.",
                 "type": "object",
+                "additionalProperties": false,
                 "example": {
                   "appeals": true,
                   "appointments": true,
@@ -21999,6 +22519,7 @@
       },
       "UserContactInfo": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -22016,6 +22537,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "residentialAddress",
               "mailingAddress",
@@ -22041,6 +22563,7 @@
               },
               "contactEmail": {
                 "type": "object",
+                "additionalProperties": false,
                 "nullable": true,
                 "required": [
                   "id",
@@ -22063,6 +22586,7 @@
       },
       "UserV1": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -22080,6 +22604,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "profile",
               "authorizedServices",
@@ -22088,6 +22613,7 @@
             "properties": {
               "profile": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "firstName",
                   "preferredName",
@@ -22169,6 +22695,7 @@
               },
               "health": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "isCernerPatient",
                   "facilities",
@@ -22182,6 +22709,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "properties": {
                         "facilityId": {
                           "type": "string",
@@ -22206,6 +22734,7 @@
       },
       "UserV2": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -22223,6 +22752,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "id",
               "firstName",
@@ -22274,6 +22804,7 @@
       },
       "AddressUpdate": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "addressLine1",
@@ -22289,6 +22820,7 @@
           },
           "addressMetaData": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "confidenceScore": {
                 "type": "integer",
@@ -22371,12 +22903,14 @@
       },
       "AddressTransaction": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "id",
               "type",
@@ -22394,6 +22928,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "transactionId",
                   "transactionStatus",
@@ -22430,12 +22965,14 @@
       },
       "AddressCreate": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "addressLine1",
               "addressPou",
@@ -22446,6 +22983,7 @@
             "properties": {
               "addressMetaData": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "confidenceScore": {
                     "type": "integer",
@@ -22526,6 +23064,7 @@
       },
       "AddressResponse": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
@@ -22547,6 +23086,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "transactionId",
                   "transactionStatus",
@@ -22617,9 +23157,11 @@
               },
               "meta": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "address": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                       "confidenceScore": {
                         "type": "float",
@@ -22651,6 +23193,7 @@
       },
       "UserDemographics": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "type",
@@ -22668,6 +23211,7 @@
           },
           "attributes": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "genderIdentity",
               "preferredName"
@@ -22687,12 +23231,14 @@
       },
       "EmailTransaction": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "id",
               "string"
@@ -22709,6 +23255,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "transactionId",
                   "transactionStatus",
@@ -22745,6 +23292,7 @@
       },
       "Email": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "emailAddress"
         ],
@@ -22757,6 +23305,7 @@
       },
       "GenderIdentityUpdate": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "code"
         ],
@@ -22769,12 +23318,14 @@
       },
       "GenderIdentityEdit": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "code"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "id": {
                 "type": "string",
@@ -22787,12 +23338,14 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "options"
                 ],
                 "properties": {
                   "options": {
                     "type": "object",
+                    "additionalProperties": false,
                     "example": {
                       "M": "Man",
                       "B": "Non-binary",
@@ -22811,6 +23364,7 @@
       },
       "PreferredNameUpdate": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "text"
         ],
@@ -22823,12 +23377,14 @@
       },
       "PhoneTransaction": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data"
         ],
         "properties": {
           "data": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "id",
               "string"
@@ -22845,6 +23401,7 @@
               },
               "attributes": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "transactionId",
                   "transactionStatus",
@@ -22881,6 +23438,7 @@
       },
       "Phone": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "areaCode",
           "countryCode",
@@ -22923,6 +23481,7 @@
       },
       "ImmunizationsV1": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta"
@@ -22932,17 +23491,20 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "$ref": "#/components/schemas/ImmunizationRecord"
             }
           },
           "meta": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "pagination"
             ],
             "properties": {
               "pagination": {
                 "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "currentPage",
                   "perPage",
@@ -22951,19 +23513,19 @@
                 ],
                 "properties": {
                   "currentPage": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 1
                   },
                   "perPage": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 10
                   },
                   "totalPages": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 2
                   },
                   "totalEntries": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 15
                   }
                 }

@@ -1,0 +1,39 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/Chapter35/claimants
+    body:
+      encoding: UTF-8
+      string: '{"ssn":"810907308"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Server:
+      - nginx/1.21.6
+      Date:
+      - Wed, 07 Sep 2022 20:39:33 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+    body:
+      encoding: UTF-8
+      string: '{"claimant":{"claimantId":0,"suffix":null,"dateOfBirth":"1992-04-01","firstName":"Black","lastName":"Johnson","middleName":"Jet","notificationMethod":"NONE","contactInfo":null,"preferredContact":null},"serviceData":null,"toeSponsors":{"transferOfEntitlements":[{"fistName":"SEAN","secondName":"JOHNSON","sponsorRelationship":"Child","sponsorVaId":1000000077,"dateOfBirth":"1971-05-24"}]}}'
+  recorded_at: Wed, 07 Sep 2022 20:39:33 GMT
+recorded_with: VCR 6.1.0

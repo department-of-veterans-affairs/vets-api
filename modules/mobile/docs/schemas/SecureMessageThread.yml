@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -14,6 +15,7 @@ properties:
     example: "message_threads"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - threadId
       - folderId
@@ -95,6 +97,7 @@ properties:
         example: true
   links:
     type: object
+    additionalProperties: false
     required:
       - self
     properties:

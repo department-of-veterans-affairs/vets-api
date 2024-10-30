@@ -20,9 +20,14 @@ module Vet360
     # @return [Response] Normal controller `render json:` response with a response.body, .status, etc.
     #
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
+      output_rails_logs = Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+      Rails.logger.info('Building vaprofile record') if output_rails_logs
       record = build_record(type, params)
+      Rails.logger.info('Validating vaprofile record') if output_rails_logs
       validate!(record)
+      Rails.logger.info('Write vaprofile valid record') if output_rails_logs
       response = write_valid_record!(http_verb, type, record)
+      Rails.logger.info('Render new va profile transaction') if output_rails_logs
       render_new_transaction!(type, response)
     end
 
@@ -39,7 +44,7 @@ module Vet360
     def build_record(type, params)
       # This needs to be refactored after V2 upgrade is complete
       model = if type == 'address' && Flipper.enabled?(:va_v3_contact_information_service, @current_user)
-                'VAProfile::Models::V2::Address'
+                'VAProfile::Models::V3::Address'
               else
                 "VAProfile::Models::#{type.capitalize}"
               end

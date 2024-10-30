@@ -69,9 +69,9 @@
     }
   },
   "paths": {
-    "/power-of-attorney-requests/{id}/decision": {
+    "/veterans/power-of-attorney-requests/decide": {
       "post": {
-        "summary": "Create the decision for Power of Attorney requests.",
+        "summary": "Submit the decision for Power of Attorney requests.",
         "tags": [
           "Power of Attorney"
         ],
@@ -97,36 +97,128 @@
         ],
         "description": "Create the decision for Power of Attorney requests",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
+
         ],
         "responses": {
-          "202": {
-            "description": "Create decision",
+          "200": {
+            "description": "Submit decision",
             "content": {
               "application/json": {
                 "example": {
+                  "VSOUserEmail": null,
+                  "VSOUserFirstName": "vets-api",
+                  "VSOUserLastName": "vets-api",
+                  "dateRequestActioned": "2024-10-15T17:40:36-05:00",
+                  "declinedReason": null,
+                  "procId": "76529",
+                  "secondaryStatus": "ACC"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "VSOUserEmail": {
+                      "type": "string"
+                    },
+                    "VSOUserFirstName": {
+                      "type": "string"
+                    },
+                    "VSOUserLastName": {
+                      "type": "string"
+                    },
+                    "dateRequestActioned": {
+                      "type": "string"
+                    },
+                    "declinedReason": {
+                      "type": "string"
+                    },
+                    "procId": {
+                      "type": "string"
+                    },
+                    "secondaryStatus": {
+                      "type": "string",
+                      "enum": [
+                        "ACC",
+                        "DEC",
+                        "OBS"
+                      ]
+                    }
+                  }
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "schema_validation_error": {
+                    "summary": "Schema validation error",
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Missing parameter",
+                          "detail": "procId is required",
+                          "code": "108",
+                          "status": "400"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "400"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Malformed request body",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "title": "Record not found",
-                      "detail": "The record identified by 1234_5678 could not be found",
-                      "code": "404",
-                      "status": "404"
+                      "title": "Unprocessable entity",
+                      "status": "422",
+                      "detail": "The request body is not a valid JSON object: Hash/Object not terminated (after ) at line 1",
+                      "source": {
+                        "pointer": " at line 1"
+                      }
                     }
                   ]
                 },
@@ -143,104 +235,6 @@
                         "required": [
                           "title",
                           "detail",
-                          "code",
-                          "status"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Record not found"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string"
-                          },
-                          "code": {
-                            "type": "string",
-                            "enum": [
-                              "404"
-                            ]
-                          },
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "404"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "examples": {
-                  "schema_validation_error": {
-                    "summary": "Schema validation error",
-                    "value": {
-                      "errors": [
-                        {
-                          "title": "Validation error",
-                          "detail": "object at `/data/attributes` is missing required properties: status, decliningReason",
-                          "code": "109",
-                          "status": "422"
-                        }
-                      ]
-                    }
-                  },
-                  "invalid_recreation_error": {
-                    "summary": "Invalid recreation error",
-                    "value": {
-                      "errors": [
-                        {
-                          "title": "must be original",
-                          "detail": "base - must be original",
-                          "code": "100",
-                          "source": {
-                            "pointer": "data/attributes/base"
-                          },
-                          "status": "422"
-                        }
-                      ]
-                    }
-                  },
-                  "obsolete_error": {
-                    "summary": "Obsolete Power Of Attorney request",
-                    "value": {
-                      "errors": [
-                        {
-                          "title": "Power of attorney request must not be obsolete",
-                          "detail": "power-of-attorney-request - must not be obsolete",
-                          "code": "100",
-                          "source": {
-                            "pointer": "data/attributes/power-of-attorney-request"
-                          },
-                          "status": "422"
-                        }
-                      ]
-                    }
-                  }
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail",
-                          "code",
                           "status"
                         ],
                         "properties": {
@@ -248,9 +242,6 @@
                             "type": "string"
                           },
                           "detail": {
-                            "type": "string"
-                          },
-                          "code": {
                             "type": "string"
                           },
                           "source": {
@@ -270,163 +261,6 @@
               }
             }
           },
-          "400": {
-            "description": "Malformed request body",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Bad request",
-                      "detail": "Malformed JSON in request body",
-                      "code": "400",
-                      "status": "400"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail",
-                          "code",
-                          "status"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Bad request"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Malformed JSON in request body"
-                            ]
-                          },
-                          "code": {
-                            "type": "string",
-                            "enum": [
-                              "400"
-                            ]
-                          },
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "400"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "Bad gateway",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Bad Gateway",
-                      "detail": "Bad Gateway"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Bad Gateway"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Bad Gateway"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "504": {
-            "description": "Gateway timeout",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Gateway timeout",
-                      "detail": "Did not receive a timely response from an upstream server"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Gateway timeout"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Did not receive a timely response from an upstream server"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -435,6 +269,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -464,6 +299,12 @@
                             "type": "string",
                             "enum": [
                               "Not authorized"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "401"
                             ]
                           }
                         }
@@ -490,58 +331,33 @@
                     "type": "object",
                     "additionalProperties": false,
                     "required": [
-                      "type",
                       "attributes"
                     ],
                     "properties": {
-                      "type": {
-                        "type": "string",
-                        "enum": [
-                          "powerOfAttorneyRequestDecision"
-                        ]
-                      },
                       "attributes": {
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
-                          "status",
-                          "decliningReason",
-                          "createdBy"
+                          "procId",
+                          "decision"
                         ],
                         "properties": {
-                          "status": {
+                          "procId": {
                             "type": "string",
-                            "description": "TODO",
+                            "description": "The unique identifier of a process."
+                          },
+                          "decision": {
+                            "type": "string",
+                            "description": "The decision of the request.",
                             "enum": [
-                              "accepting",
-                              "declining"
+                              "approved",
+                              "declined"
                             ]
                           },
-                          "decliningReason": {
+                          "declinedReason": {
                             "type": "string",
-                            "description": "TODO",
+                            "description": "The reason for declining the request.",
                             "nullable": true
-                          },
-                          "createdBy": {
-                            "type": "object",
-                            "description": "TODO",
-                            "additionalProperties": false,
-                            "required": [
-                              "firstName",
-                              "lastName",
-                              "email"
-                            ],
-                            "properties": {
-                              "firstName": {
-                                "type": "string"
-                              },
-                              "lastName": {
-                                "type": "string"
-                              },
-                              "email": {
-                                "type": "string"
-                              }
-                            }
                           }
                         }
                       }
@@ -550,15 +366,10 @@
                 },
                 "example": {
                   "data": {
-                    "type": "powerOfAttorneyRequestDecision",
                     "attributes": {
-                      "status": "accepting",
-                      "decliningReason": null,
-                      "createdBy": {
-                        "firstName": "BEATRICE",
-                        "lastName": "STROUD",
-                        "email": "Beatrice.Stroud44@va.gov"
-                      }
+                      "procId": "76529",
+                      "decision": "accepted",
+                      "declinedReason": null
                     }
                   }
                 }
@@ -569,8 +380,8 @@
         }
       }
     },
-    "/power-of-attorney-requests": {
-      "get": {
+    "/veterans/power-of-attorney-requests": {
+      "post": {
         "summary": "Search for Power of Attorney requests.",
         "tags": [
           "Power of Attorney"
@@ -595,589 +406,153 @@
             ]
           }
         ],
-        "description": "Faceted, paginated, and sorted search of Power of Attorney requests",
+        "description": "Search for Power of Attorney requests",
         "parameters": [
-          {
-            "name": "query",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "filter"
-              ],
-              "properties": {
-                "filter": {
-                  "type": "object",
-                  "required": [
-                    "poaCodes"
-                  ],
-                  "properties": {
-                    "poaCodes": {
-                      "type": "array",
-                      "minItems": 1,
-                      "items": {
-                        "type": "string",
-                        "minLength": 1
-                      }
-                    },
-                    "decision": {
-                      "type": "object",
-                      "properties": {
-                        "statuses": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "accepting",
-                              "declining"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "page": {
-                  "type": "object",
-                  "properties": {
-                    "number": {
-                      "type": "integer",
-                      "minimum": 1
-                    },
-                    "size": {
-                      "type": "integer",
-                      "minimum": 1,
-                      "maximum": 100
-                    }
-                  }
-                },
-                "sort": {
-                  "type": "object",
-                  "required": [
-                    "field",
-                    "order"
-                  ],
-                  "properties": {
-                    "field": {
-                      "type": "string",
-                      "enum": [
-                        "createdAt"
-                      ]
-                    },
-                    "order": {
-                      "type": "string",
-                      "enum": [
-                        "asc",
-                        "desc"
-                      ]
-                    }
-                  }
-                }
-              },
-              "example": {
-                "filter": {
-                  "poaCodes": [
-                    "083",
-                    "002",
-                    "003",
-                    "065",
-                    "074",
-                    "022",
-                    "091",
-                    "070",
-                    "097",
-                    "077",
-                    "1EY",
-                    "6B6",
-                    "862",
-                    "9U7",
-                    "BQX"
-                  ],
-                  "decision": {
-                    "statuses": [
-                      "none",
-                      "accepting",
-                      "declining"
-                    ]
-                  }
-                },
-                "page": {
-                  "number": 2,
-                  "size": 3
-                },
-                "sort": {
-                  "field": "createdAt",
-                  "order": "asc"
-                }
-              }
-            },
-            "example": {
-              "filter": {
-                "poaCodes": [
-                  "083",
-                  "002",
-                  "003",
-                  "065",
-                  "074",
-                  "022",
-                  "091",
-                  "070",
-                  "097",
-                  "077",
-                  "1EY",
-                  "6B6",
-                  "862",
-                  "9U7",
-                  "BQX"
-                ],
-                "decision": {
-                  "statuses": [
-                    "none",
-                    "accepting",
-                    "declining"
-                  ]
-                }
-              },
-              "page": {
-                "number": 2,
-                "size": 3
-              },
-              "sort": {
-                "field": "createdAt",
-                "order": "asc"
-              }
-            }
-          }
+
         ],
         "responses": {
           "200": {
             "description": "Search results",
             "content": {
               "application/json": {
-                "example": {
-                  "metadata": {
-                    "totalCount": 121,
-                    "query": {
-                      "filter": {
-                        "poaCodes": [
-                          "083",
-                          "002",
-                          "003",
-                          "065",
-                          "074",
-                          "022",
-                          "091",
-                          "070",
-                          "097",
-                          "077",
-                          "1EY",
-                          "6B6",
-                          "862",
-                          "9U7",
-                          "BQX"
-                        ],
-                        "decision": {
-                          "statuses": [
-                            "none",
-                            "accepting",
-                            "declining"
-                          ]
-                        }
-                      },
-                      "page": {
-                        "number": 2,
-                        "size": 3
-                      },
-                      "sort": {
-                        "field": "createdAt",
-                        "order": "asc"
-                      }
-                    }
+                "example": [
+                  {
+                    "VSOUserEmail": null,
+                    "VSOUserFirstName": "Joe",
+                    "VSOUserLastName": "BestRep",
+                    "changeAddressAuth": "Y",
+                    "claimantCity": "Charlottesville",
+                    "claimantCountry": "USA",
+                    "claimantMilitaryPO": null,
+                    "claimantMilitaryPostalCode": null,
+                    "claimantState": null,
+                    "claimantZip": "00123",
+                    "dateRequestActioned": "2024-05-25T13:45:00-05:00",
+                    "dateRequestReceived": "2012-11-23T16:49:16-06:00",
+                    "declinedReason": null,
+                    "healthInfoAuth": "Y",
+                    "poaCode": "083",
+                    "procID": "11027",
+                    "secondaryStatus": "New",
+                    "vetFirstName": "[Vet First Name]",
+                    "vetLastName": "[Vet Last Name]",
+                    "vetMiddleName": null,
+                    "vetPtcpntID": "111"
                   },
-                  "data": [
-                    {
-                      "id": "111_10910",
-                      "type": "powerOfAttorneyRequest",
-                      "attributes": {
-                        "powerOfAttorneyCode": "002",
-                        "isAddressChangingAuthorized": true,
-                        "isTreatmentDisclosureAuthorized": true,
-                        "veteran": {
-                          "firstName": "Kent",
-                          "middleName": "David",
-                          "lastName": "Richardson"
-                        },
-                        "claimant": null,
-                        "claimantAddress": {
-                          "city": "Houston",
-                          "state": "TX",
-                          "zip": "00123",
-                          "country": "USA",
-                          "militaryPostOffice": null,
-                          "militaryPostalCode": null
-                        },
-                        "decision": {
-                          "status": "declining",
-                          "decliningReason": "Kent has an appeal in progress.",
-                          "createdAt": "2013-01-15T14:57:18Z",
-                          "createdBy": {
-                            "firstName": "Nate",
-                            "lastName": "Karev",
-                            "email": "test_evss_5@id.me"
-                          }
-                        },
-                        "createdAt": "2013-01-14T14:57:18Z"
-                      }
-                    },
-                    {
-                      "id": "111_11023",
-                      "type": "powerOfAttorneyRequest",
-                      "attributes": {
-                        "powerOfAttorneyCode": "003",
-                        "isAddressChangingAuthorized": true,
-                        "isTreatmentDisclosureAuthorized": true,
-                        "veteran": {
-                          "firstName": "Kent",
-                          "middleName": "David",
-                          "lastName": "Richardson"
-                        },
-                        "claimant": null,
-                        "claimantAddress": {
-                          "city": "Houston",
-                          "state": "TX",
-                          "zip": "00123",
-                          "country": "USA",
-                          "militaryPostOffice": null,
-                          "militaryPostalCode": null
-                        },
-                        "decision": null,
-                        "createdAt": "2013-01-17T16:54:11Z"
-                      }
-                    },
-                    {
-                      "id": "600043203_3851911",
-                      "type": "powerOfAttorneyRequest",
-                      "attributes": {
-                        "powerOfAttorneyCode": "003",
-                        "isAddressChangingAuthorized": true,
-                        "isTreatmentDisclosureAuthorized": true,
-                        "veteran": {
-                          "firstName": "Kyle",
-                          "middleName": "Michael",
-                          "lastName": "Cole"
-                        },
-                        "claimant": {
-                          "firstName": "John",
-                          "lastName": "Doe",
-                          "relationshipToVeteran": "Brother"
-                        },
-                        "claimantAddress": {
-                          "city": "Alpharetta",
-                          "state": "GA",
-                          "zip": "30022",
-                          "country": "USA",
-                          "militaryPostOffice": null,
-                          "militaryPostalCode": null
-                        },
-                        "decision": null,
-                        "createdAt": "2023-08-23T17:16:37Z"
-                      }
-                    }
-                  ]
-                },
+                  {
+                    "VSOUserEmail": null,
+                    "VSOUserFirstName": "VDC USER",
+                    "VSOUserLastName": null,
+                    "changeAddressAuth": "Y",
+                    "claimantCity": "USAG J",
+                    "claimantCountry": "USA",
+                    "claimantMilitaryPO": "APO",
+                    "claimantMilitaryPostalCode": "AP",
+                    "claimantState": null,
+                    "claimantZip": "01234",
+                    "dateRequestActioned": "2013-01-14T08:50:17-06:00",
+                    "dateRequestReceived": "2013-01-14T08:50:17-06:00",
+                    "declinedReason": null,
+                    "healthInfoAuth": "Y",
+                    "poaCode": "002",
+                    "procID": "10906",
+                    "secondaryStatus": "New",
+                    "vetFirstName": "first",
+                    "vetLastName": "last",
+                    "vetMiddleName": null,
+                    "vetPtcpntID": "111"
+                  },
+                  {
+                    "VSOUserEmail": null,
+                    "VSOUserFirstName": "VDC USER",
+                    "VSOUserLastName": null,
+                    "changeAddressAuth": "Y",
+                    "claimantCity": "Bourges",
+                    "claimantCountry": "France",
+                    "claimantMilitaryPO": null,
+                    "claimantMilitaryPostalCode": null,
+                    "claimantState": null,
+                    "claimantZip": "00123",
+                    "dateRequestActioned": "2013-01-14T08:51:25-06:00",
+                    "dateRequestReceived": "2013-01-14T08:51:25-06:00",
+                    "declinedReason": null,
+                    "healthInfoAuth": "Y",
+                    "poaCode": "002",
+                    "procID": "10907",
+                    "secondaryStatus": "New",
+                    "vetFirstName": "first",
+                    "vetLastName": "last",
+                    "vetMiddleName": null,
+                    "vetPtcpntID": "111"
+                  }
+                ],
                 "schema": {
-                  "type": "object",
-                  "required": [
-                    "metadata",
-                    "data"
-                  ],
-                  "properties": {
-                    "metadata": {
-                      "type": "object",
-                      "description": "Metadata about the search results including the number of records satisfying the filters and the query that was used after defaults were applied",
-                      "additionalProperties": false,
-                      "required": [
-                        "totalCount",
-                        "query"
-                      ],
-                      "properties": {
-                        "totalCount": {
-                          "type": "integer",
-                          "description": "The number of records that are satisified by the filters",
-                          "minimum": 0
-                        },
-                        "query": {
-                          "type": "object",
-                          "description": "The query that was used after defaults were applied",
-                          "additionalProperties": false,
-                          "required": [
-                            "filter"
-                          ],
-                          "properties": {
-                            "filter": {
-                              "type": "object",
-                              "required": [
-                                "poaCodes"
-                              ],
-                              "properties": {
-                                "poaCodes": {
-                                  "type": "array",
-                                  "minItems": 1,
-                                  "items": {
-                                    "type": "string",
-                                    "minLength": 1
-                                  }
-                                },
-                                "decision": {
-                                  "type": "object",
-                                  "properties": {
-                                    "statuses": {
-                                      "type": "array",
-                                      "items": {
-                                        "type": "string",
-                                        "enum": [
-                                          "none",
-                                          "accepting",
-                                          "declining"
-                                        ]
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            "page": {
-                              "type": "object",
-                              "properties": {
-                                "number": {
-                                  "type": "integer",
-                                  "minimum": 1
-                                },
-                                "size": {
-                                  "type": "integer",
-                                  "minimum": 1,
-                                  "maximum": 100
-                                }
-                              }
-                            },
-                            "sort": {
-                              "type": "object",
-                              "required": [
-                                "field",
-                                "order"
-                              ],
-                              "properties": {
-                                "field": {
-                                  "type": "string",
-                                  "enum": [
-                                    "createdAt"
-                                  ]
-                                },
-                                "order": {
-                                  "type": "string",
-                                  "enum": [
-                                    "asc",
-                                    "desc"
-                                  ]
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "data": {
-                      "type": "array",
-                      "description": "List of Power of Attorney requests satisfying the given search",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "type",
-                          "id",
-                          "attributes"
-                        ],
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "powerOfAttorneyRequest"
-                            ]
-                          },
-                          "id": {
-                            "type": "string",
-                            "description": "The ID of this Power of Attorney request"
-                          },
-                          "attributes": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "powerOfAttorneyCode",
-                              "isTreatmentDisclosureAuthorized",
-                              "isAddressChangingAuthorized",
-                              "createdAt",
-                              "veteran",
-                              "claimant",
-                              "claimantAddress",
-                              "decision"
-                            ],
-                            "properties": {
-                              "powerOfAttorneyCode": {
-                                "type": "string",
-                                "description": "The code that indicates an individual or organization's ability to be granted Power of Attorney for a Veteran"
-                              },
-                              "isTreatmentDisclosureAuthorized": {
-                                "type": "boolean",
-                                "description": "Whether the representative is authorized to receive disclosures of the Veteran's treatment records"
-                              },
-                              "isAddressChangingAuthorized": {
-                                "type": "boolean",
-                                "description": "Whether the representative is authorized to change the claimant's address"
-                              },
-                              "createdAt": {
-                                "type": "string",
-                                "description": "UTC datetime at which the Power of Attorney request was submitted",
-                                "format": "date-time"
-                              },
-                              "veteran": {
-                                "type": "object",
-                                "description": "The Veteran for whom the Power of Attorney is being requested",
-                                "additionalProperties": false,
-                                "required": [
-                                  "firstName",
-                                  "middleName",
-                                  "lastName"
-                                ],
-                                "properties": {
-                                  "firstName": {
-                                    "type": "string"
-                                  },
-                                  "middleName": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "lastName": {
-                                    "type": "string"
-                                  }
-                                }
-                              },
-                              "claimant": {
-                                "type": "object",
-                                "description": "If applicable, the claimant acting on behalf of the Veteran",
-                                "additionalProperties": false,
-                                "nullable": true,
-                                "required": [
-                                  "firstName",
-                                  "lastName",
-                                  "relationshipToVeteran"
-                                ],
-                                "properties": {
-                                  "firstName": {
-                                    "type": "string"
-                                  },
-                                  "lastName": {
-                                    "type": "string"
-                                  },
-                                  "relationshipToVeteran": {
-                                    "type": "string"
-                                  }
-                                }
-                              },
-                              "claimantAddress": {
-                                "type": "object",
-                                "description": "The mailing address of the claimant who may or may not be the Veteran",
-                                "additionalProperties": false,
-                                "required": [
-                                  "city",
-                                  "state",
-                                  "zip",
-                                  "country",
-                                  "militaryPostOffice",
-                                  "militaryPostalCode"
-                                ],
-                                "properties": {
-                                  "city": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "state": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "zip": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "country": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "militaryPostOffice": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "militaryPostalCode": {
-                                    "type": "string",
-                                    "nullable": true
-                                  }
-                                }
-                              },
-                              "decision": {
-                                "type": "object",
-                                "description": "The decision to accept or decline a Power of Attorney request",
-                                "additionalProperties": false,
-                                "nullable": true,
-                                "required": [
-                                  "status",
-                                  "createdAt",
-                                  "createdBy"
-                                ],
-                                "properties": {
-                                  "status": {
-                                    "type": "string",
-                                    "description": "Whether the Power of Attorney request was accepted or declined",
-                                    "enum": [
-                                      "accepting",
-                                      "declining"
-                                    ]
-                                  },
-                                  "decliningReason": {
-                                    "type": "string",
-                                    "description": "The reason given for declining the Power of Attorney request",
-                                    "nullable": true
-                                  },
-                                  "createdAt": {
-                                    "type": "string",
-                                    "description": "UTC datetime at which the Power of Attorney request was accepted or declined",
-                                    "format": "date-time"
-                                  },
-                                  "createdBy": {
-                                    "type": "object",
-                                    "description": "The individual who decided on the Power of Attorney request",
-                                    "additionalProperties": false,
-                                    "required": [
-                                      "firstName",
-                                      "lastName",
-                                      "email"
-                                    ],
-                                    "properties": {
-                                      "firstName": {
-                                        "type": "string"
-                                      },
-                                      "lastName": {
-                                        "type": "string"
-                                      },
-                                      "email": {
-                                        "type": "string"
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "VSOUserEmail": {
+                        "type": "string"
+                      },
+                      "VSOUserFirstName": {
+                        "type": "string"
+                      },
+                      "VSOUserLastName": {
+                        "type": "string"
+                      },
+                      "changeAddressAuth": {
+                        "type": "string"
+                      },
+                      "claimantCity": {
+                        "type": "string"
+                      },
+                      "claimantCountry": {
+                        "type": "string"
+                      },
+                      "claimantMilitaryPO": {
+                        "type": "string"
+                      },
+                      "claimantMilitaryPostalCode": {
+                        "type": "string"
+                      },
+                      "claimantState": {
+                        "type": "string"
+                      },
+                      "claimantZip": {
+                        "type": "string"
+                      },
+                      "dateRequestActioned": {
+                        "type": "string"
+                      },
+                      "dateRequestReceived": {
+                        "type": "string"
+                      },
+                      "declinedReason": {
+                        "type": "string"
+                      },
+                      "healthInfoAuth": {
+                        "type": "string"
+                      },
+                      "poaCode": {
+                        "type": "string"
+                      },
+                      "procID": {
+                        "type": "string"
+                      },
+                      "secondaryStatus": {
+                        "type": "string"
+                      },
+                      "vetFirstName": {
+                        "type": "string"
+                      },
+                      "vetLastName": {
+                        "type": "string"
+                      },
+                      "vetMiddleName": {
+                        "type": "string"
+                      },
+                      "vetPtcpntID": {
+                        "type": "string"
                       }
                     }
                   }
@@ -1185,69 +560,17 @@
               }
             }
           },
-          "422": {
-            "description": "Invalid query",
+          "400": {
+            "description": "Invalid request",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "title": "Validation error",
-                      "detail": {
-                        "errors": {
-                          "filter": {
-                            "poaCodes": [
-                              "is missing",
-                              "must be an array"
-                            ],
-                            "decision": {
-                              "statuses": {
-                                "0": [
-                                  "must be one of: none, accepting, declining"
-                                ]
-                              }
-                            }
-                          },
-                          "page": {
-                            "number": [
-                              "must be an integer",
-                              "must be greater than or equal to 1"
-                            ],
-                            "size": [
-                              "must be an integer",
-                              "must be greater than or equal to 1",
-                              "must be less than or equal to 100"
-                            ]
-                          },
-                          "sort": {
-                            "field": [
-                              "must be one of: createdAt"
-                            ],
-                            "order": [
-                              "must be one of: asc, desc"
-                            ]
-                          }
-                        },
-                        "params": {
-                          "filter": {
-                            "decision": {
-                              "statuses": [
-                                "NotAStatus"
-                              ]
-                            }
-                          },
-                          "page": {
-                            "number": "",
-                            "size": "whoops"
-                          },
-                          "sort": {
-                            "field": "",
-                            "order": ""
-                          }
-                        }
-                      },
-                      "code": "109",
-                      "status": "422"
+                      "title": "Missing parameter",
+                      "detail": "poaCodes is required and cannot be empty",
+                      "code": "108",
+                      "status": "400"
                     }
                   ]
                 },
@@ -1269,133 +592,18 @@
                         ],
                         "properties": {
                           "title": {
-                            "type": "string",
-                            "enum": [
-                              "Validation error"
-                            ]
+                            "type": "string"
                           },
                           "detail": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "errors",
-                              "params"
-                            ],
-                            "properties": {
-                              "errors": {
-                                "type": "object",
-                                "description": "The reasons that the request params were invalid"
-                              },
-                              "params": {
-                                "type": "object",
-                                "description": "The invalid request params provided in the request"
-                              }
-                            }
+                            "type": "string"
                           },
                           "code": {
-                            "type": "string",
-                            "enum": [
-                              "109"
-                            ]
+                            "type": "string"
                           },
                           "status": {
                             "type": "string",
                             "enum": [
-                              "422"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "Bad gateway",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Bad Gateway",
-                      "detail": "Bad Gateway"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Bad Gateway"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Bad Gateway"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "504": {
-            "description": "Gateway timeout",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Gateway timeout",
-                      "detail": "Did not receive a timely response from an upstream server"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Gateway timeout"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Did not receive a timely response from an upstream server"
+                              "400"
                             ]
                           }
                         }
@@ -1414,6 +622,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -1430,7 +639,8 @@
                         "additionalProperties": false,
                         "required": [
                           "title",
-                          "detail"
+                          "detail",
+                          "status"
                         ],
                         "properties": {
                           "title": {
@@ -1444,6 +654,12 @@
                             "enum": [
                               "Not authorized"
                             ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "401"
+                            ]
                           }
                         }
                       }
@@ -1453,6 +669,58 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "attributes"
+                    ],
+                    "properties": {
+                      "attributes": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "poaCodes"
+                        ],
+                        "properties": {
+                          "poaCodes": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "attributes": {
+                      "poaCodes": [
+                        "002",
+                        "003",
+                        "083"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
         }
       }
     },

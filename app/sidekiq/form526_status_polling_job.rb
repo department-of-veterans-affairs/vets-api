@@ -53,6 +53,7 @@ class Form526StatusPollingJob
     if %w[error expired].include? status
       log_result('failure')
       form_submission.rejected!
+      notify_veteran(form_submission.id)
     elsif status == 'vbms'
       log_result('true_success')
       form_submission.accepted!
@@ -71,5 +72,11 @@ class Form526StatusPollingJob
   def log_result(result)
     StatsD.increment("#{STATS_KEY}.526.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
+  end
+
+  def notify_veteran(submission_id)
+    if Flipper.enabled?(:send_backup_submission_polling_failure_email_notice)
+      Form526SubmissionFailureEmailJob.perform_async(submission_id, Time.now.utc)
+    end
   end
 end
