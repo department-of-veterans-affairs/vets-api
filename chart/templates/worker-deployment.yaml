@@ -95,12 +95,12 @@ spec:
                   key: {{ $secret.name }}
           {{- end }}
           {{- end }}
-          {{- range $key, $path := .Values.parameters }}
-            - name: {{ $key }}
+          {{- range $varName := .Values.parameters }}
+            - name: {{ $varName }}
               valueFrom:
                 secretKeyRef:
                   name: common-environment-vars
-                  key: {{ $key }}
+                  key: {{ $varName }}
           {{- end }}
         {{- if $root.Values.clamav.enabled  }}
         - name: clamav

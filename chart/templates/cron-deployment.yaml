@@ -39,12 +39,12 @@ spec:
                       key: {{ $secret.name }}
               {{- end }}
               {{- end }}
-              {{- range $key, $path := .Values.parameters }}
-                - name: {{ $key }}
+              {{- range $varName := $root.Values.parameters }}
+                - name: {{ $varName }}
                   valueFrom:
                     secretKeyRef:
                       name: common-environment-vars
-                      key: {{ $key }}
+                      key: {{ $varName }}
               {{- end }}
           restartPolicy: OnFailure
           securityContext:
