@@ -1395,6 +1395,7 @@ vanotify:
         form_10_10d_email: form_10_10d_email
         form_10_10d_failure_email: form_10_10d_failure_email
         form_10_7959f_1_email: form_10_7959f_1_email
+        form_10_7959f_1_failure_email: form_10_7959f_1_failure_email
         form_10_7959f_2_email: form_10_7959f_2_email
         form_10_7959c_email: form_10_7959c_email
         form_10_7959a_email: form_10_7959a_email
