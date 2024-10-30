@@ -4,6 +4,7 @@ require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 
+# rubocop:disable Metrics/ModuleLength
 module SimpleFormsApi
   module FormRemediation
     RSpec.describe S3Client do
@@ -202,3 +203,4 @@ module SimpleFormsApi
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
