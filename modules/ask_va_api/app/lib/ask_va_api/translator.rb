@@ -12,7 +12,9 @@ module AskVAApi
     end
 
     def call(key)
-      retrieve_option_set.find { |obj| key&.include?(obj.name) }&.id
+      return if key.nil?
+
+      retrieve_option_set.find { |obj| key.downcase.include?(obj.name.downcase) }&.id
     end
 
     private

@@ -11,6 +11,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
   let(:file_path) { Rails.root.join(fixtures_path, 'pdfs', 'vba_20_10207-completed.pdf').to_s }
   let(:created_at) { 3.years.ago }
   let(:submission) { create(:form_submission, :pending, form_type:, form_data:, created_at:) }
+  let(:submission_attempt) { submission.form_submission_attempts.first }
   let(:benefits_intake_uuid) { submission.benefits_intake_uuid }
   let(:config) { SimpleFormsApi::FormRemediation::Configuration::VffConfig.new }
   let(:submission_instance) { described_class.new(id: benefits_intake_uuid, config:) }
@@ -31,7 +32,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
   let(:signature_date) { submission.created_at.in_time_zone('America/Chicago') }
 
   before do
-    allow(FormSubmission).to receive(:find_by).with(benefits_intake_uuid:).and_return(submission)
+    allow(FormSubmissionAttempt).to receive(:find_by).with(benefits_intake_uuid:).and_return(submission_attempt)
     allow(SecureRandom).to receive(:hex).and_return('random-letters-n-numbers')
     allow(SimpleFormsApi::PdfFiller).to receive(:new).and_return(filler)
     allow(filler).to receive(:generate).with(timestamp: submission.created_at).and_return(file_path)
@@ -48,7 +49,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
       before { new }
 
       it 'fetches the form submission data' do
-        expect(FormSubmission).to have_received(:find_by).with(benefits_intake_uuid:)
+        expect(FormSubmissionAttempt).to have_received(:find_by).with(benefits_intake_uuid:)
       end
 
       it 'sets the form submission data' do
@@ -85,7 +86,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
     end
 
     context 'when the form submission is not found' do
-      before { allow(FormSubmission).to receive(:find_by).and_return(nil) }
+      before { allow(FormSubmissionAttempt).to receive(:find_by).and_return(nil) }
 
       it 'throws an error' do
         expect { new }.to raise_exception('Submission was not found or invalid')
@@ -95,7 +96,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
     context 'when benefits_intake_uuid is invalid' do
       let(:benefits_intake_uuid) { 'complete-nonsense' }
 
-      before { allow(FormSubmission).to receive(:find_by).and_call_original }
+      before { allow(FormSubmissionAttempt).to receive(:find_by).and_call_original }
 
       it 'raises an error' do
         expect { new }.to raise_exception('Submission was not found or invalid')

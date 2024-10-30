@@ -655,7 +655,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       context 'efolder index' do
-        stub_efolder_documents(:index)
+        stub_efolder_index_documents
 
         it 'validates the route' do
           expect(subject).to validate(
@@ -668,7 +668,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       context 'efolder show' do
-        stub_efolder_documents(:show)
+        stub_efolder_show_document
 
         it 'validates the route' do
           expect(subject).to validate(

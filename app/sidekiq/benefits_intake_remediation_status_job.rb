@@ -70,7 +70,7 @@ class BenefitsIntakeRemediationStatusJob
     intake_service = BenefitsIntake::Service.new
 
     failures.each_slice(batch_size) do |batch|
-      batch_uuids = batch.map(&:benefits_intake_uuid)
+      batch_uuids = batch.map { |submission| submission.latest_attempt&.benefits_intake_uuid }
       Rails.logger.info('BenefitsIntakeRemediationStatusJob processing batch', batch_uuids:)
 
       response = intake_service.bulk_status(uuids: batch_uuids)
@@ -94,7 +94,7 @@ class BenefitsIntakeRemediationStatusJob
     response_data.each do |submission|
       uuid = submission['id']
       form_submission = failure_batch.find do |submission_from_db|
-        submission_from_db.benefits_intake_uuid == uuid
+        submission_from_db.latest_attempt&.benefits_intake_uuid == uuid
       end
       form_submission.form_type
 
@@ -135,8 +135,8 @@ class BenefitsIntakeRemediationStatusJob
 
       failures = outstanding_failures(submissions)
       failures.map! do |fs|
-        last_attempt = fs.form_submission_attempts.max_by(&:created_at)
-        { claim_id: fs.saved_claim_id, uuid: fs.benefits_intake_uuid, error_message: last_attempt.error_message }
+        { claim_id: fs.saved_claim_id, uuid: fs.latest_attempt.benefits_intake_uuid,
+          error_message: fs.latest_attempt.error_message }
       end
 
       audit_log = "BenefitsIntakeRemediationStatusJob submission audit #{form_type}"

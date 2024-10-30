@@ -71,7 +71,7 @@ module ClaimsApi
                     Settings.brd.base_name
                   end
 
-      api_key = Settings.brd&.api_key || ENV.fetch('BRD_API_KEY', '')
+      api_key = Settings.brd&.api_key || ''
       raise StandardError, 'BRD api_key missing' if api_key.blank?
 
       Faraday.new("https://#{base_name}/benefits-reference-data/v1",

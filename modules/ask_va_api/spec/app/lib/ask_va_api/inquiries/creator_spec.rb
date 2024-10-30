@@ -16,13 +16,15 @@ RSpec.describe AskVAApi::Inquiries::Creator do
   let(:file) { "data:image/png;base64,#{base64_encoded_file}" }
   let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
   let(:translator) { instance_double(AskVAApi::Translator) }
+  let(:cache_data_service) { instance_double(Crm::CacheData) }
 
   before do
+    allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
+    allow(cache_data_service).to receive(:call).with(
+      endpoint: 'optionset',
+      cache_key: 'optionset'
+    ).and_return(optionset_cached_data)
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
-    allow(AskVAApi::Translator).to receive(:new).and_return(translator)
-    allow(AskVAApi::Translator).to receive(:new).and_return(translator)
-    # translated_payload is in include_context 'shared data'
-    allow(translator).to receive(:call).and_return(translated_payload)
   end
 
   describe '#call' do
@@ -40,7 +42,6 @@ RSpec.describe AskVAApi::Inquiries::Creator do
       end
 
       it 'assigns VeteranICN and posts data to the service' do
-        # inquiry_params is in include_context 'shared data'
         response = creator.call(inquiry_params: inquiry_params[:inquiry])
         expect(response).to eq({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
       end
