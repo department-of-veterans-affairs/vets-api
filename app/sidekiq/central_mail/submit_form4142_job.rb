@@ -156,7 +156,7 @@ module CentralMail
       )
 
       payload = payload_hash(lighthouse_service.location)
-      lighthouse_service.upload_doc(**payload)
+      response = lighthouse_service.upload_doc(**payload)
 
       if Flipper.enabled?(POLLING_FLIPPER_KEY)
         form526_submission = Form526Submission.find(@submission_id)
@@ -164,6 +164,7 @@ module CentralMail
         log_info[:form_submission_id] = form_submission_attempt.form_submission.id
       end
       Rails.logger.info('Successful Form4142 Submission to Lighthouse', log_info)
+      response
     end
 
     def generate_metadata
