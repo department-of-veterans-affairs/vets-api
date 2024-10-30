@@ -42,6 +42,8 @@ module Vye
       end
 
       def claimant_lookup
+        Logger.info("\n\n\n*** Claimant Lookup ***")
+        Logger.info("*** SSN: #{params[:ssn]} ***\n\n\n")
         response = claimant_lookup_service.claimant_lookup(params[:ssn])
         serializer = Vye::ClaimantLookupSerializer
         process_response(response.status, serializer)
