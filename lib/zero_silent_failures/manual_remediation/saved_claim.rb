@@ -5,18 +5,29 @@ require 'pdf_utilities/datestamp_pdf'
 
 module ZeroSilentFailures
   module ManualRemediation
+    # super class for manual remediation of a SavedClaim type
     class SavedClaim
 
       attr_reader :claim, :zipfile, :aws_download_zip_link
 
+      # constructor
+      #
+      # @param saved_claim_id [Integer] the id of the claim needing manual remediation
       def initialize(saved_claim_id)
         @claim = claim_class.find(saved_claim_id)
         @zipfile = "#{Common::FileHelpers.random_file_path}.zip"
       end
 
+      # process the _claim_ for remediation:
+      # - generate and stamp claim and attachment pdf
+      # - create a zipfile of generated pdf and metadata.json
+      # - upload zipfile to AWS S3 bucket (only if running on prod)
+      # - update database records for claim FormSubmissionAttempts
+      # - all generated files are deleted
       def run
         Rails.logger.info "Manual Remediation for #{claim.form_id} #{claim.id} started"
 
+        # reset in case there are multiple runs with the same instance
         @files = []
 
         package_claim
@@ -29,6 +40,7 @@ module ZeroSilentFailures
         files.each { |file| Common::FileHelpers.delete_file_if_exists(file[:path]) }
       end
 
+      # generate metadata, claim.pdf, attachment.pdf, and zip
       def package_claim
         files << generate_metadata_json
         files << generate_form_pdf
@@ -40,6 +52,7 @@ module ZeroSilentFailures
         zip_files
       end
 
+      # upload documents to s3 bucket (only if running on prod)
       def upload_documents
         Rails.logger.info "Uploading documents - #{claim.form_id} #{claim.id}"
 
@@ -49,6 +62,7 @@ module ZeroSilentFailures
         aws_download_zip_link || zipfile
       end
 
+      # update FormSubmissionAttempt records for _claim_
       def update_database
         Rails.logger.info "Updating database - #{claim.form_id} #{claim.id}"
 
@@ -58,18 +72,24 @@ module ZeroSilentFailures
 
       private
 
+      # is the current environment production
       def is_prod?
         Settings.vsp_environment == 'production'
       end
 
+      # claim class to be used
+      # - inheritor should override to specific type
       def claim_class
         ::SavedClaim
       end
 
+      # array of files to be packaged
       def files
         @files ||= []
       end
 
+      # assemble metadata for _claim_
+      # - inheritor should append to _super_ if needed
       def generate_metadata
         form = claim.parsed_form
         address = form['claimantAddress'] || form['veteranAddress']
@@ -88,6 +108,8 @@ module ZeroSilentFailures
         }
       end
 
+      # create the _claim_ metadata.json file
+      # @return [Hash] the name and path to the file
       def generate_metadata_json
         metadata = generate_metadata
 
@@ -95,6 +117,8 @@ module ZeroSilentFailures
         { name: "#{claim.form_id}_#{claim.id}-metadata.json", path: metafile }
       end
 
+      # create and stamp the _claim_ form pdf
+      # @return [Hash] the name and path to the file
       def generate_form_pdf
         filepath = claim.to_pdf
         Rails.logger.info "Stamping #{claim.form_id} #{claim.id} - #{filepath}"
@@ -103,6 +127,8 @@ module ZeroSilentFailures
         { name: File.basename(filepath), path: stamped }
       end
 
+      # create and stamp a _claim_ attachment pdf
+      # @return [Hash] the name and path to the file
       def generate_attachment_pdf(pa)
         filename = "#{claim.form_id}_#{claim.id}-attachment_#{pa.id}.pdf"
         filepath = pa.to_pdf
@@ -112,12 +138,30 @@ module ZeroSilentFailures
         { name: filename, path: stamped }
       end
 
+      # list of stamps to be applied to a generated pdf for _claim_
+      # - inheritor should append to _super_ if needed
+      #
+      # @see PDFUtilites::DatestampPdf#run
+      #
+      # @param timestamp [String|Datetime] the timestamp to be used; should be the claim.created_at
+      #
+      # @return [Array<Hash>] the list of stamps to be applied
       def stamps(timestamp)
         [
           { text: 'VA.GOV', x: 5, y: 5, timestamp: }
         ]
       end
 
+      # stamp a generated pdf
+      # if there is an error stamping the pdf, the original path is returned
+      # - user uploaded attachments can be malformed
+      #
+      # @see PDFUtilites::DatestampPdf#run
+      #
+      # @param pdf_path [String] the path to a generated pdf; ie. claim.to_pdf
+      # @param timestamp [String|Datetime] the timestamp to be used; should be the claim.created_at
+      #
+      # @return [String] the path to the stamped pdf
       def stamp_pdf(pdf_path, timestamp)
         stamped = pdf_path
         stamps(timestamp).each do |stamp|
@@ -133,6 +177,8 @@ module ZeroSilentFailures
         pdf_path
       end
 
+      # package all _files_ for _claim_
+      # @raise Error if unable to add a file to the zip
       def zip_files
         Zip::File.open(zipfile, Zip::File::CREATE) do |zip|
           files.each do |file|
@@ -149,6 +195,9 @@ module ZeroSilentFailures
         Rails.logger.info("Packaged #{claim.form_id} #{claim.id} - #{zipfile}")
       end
 
+      # upload _zipfile_ to AWS
+      # @see Aws::S3::Resource
+      # @raise Error if unable to upload
       def aws_upload_zipfile
         s3_resource = Aws::S3::Resource.new(region: Settings.vba_documents.s3.region,
                                             access_key_id: Settings.vba_documents.s3.aws_access_key_id,

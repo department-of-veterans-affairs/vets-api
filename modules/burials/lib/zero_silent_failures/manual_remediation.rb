@@ -4,14 +4,18 @@ require 'zero_silent_failures/manual_remediation/saved_claim'
 
 module Burials
   module ZeroSilentFailures
+    # @see ZeroSilentFailures::ManualRemediation::SavedClaim
     class ManualRemediation < ::ZeroSilentFailures::ManualRemediation::SavedClaim
 
       private
 
+      # specify the claim class to be used
       def claim_class
         ::SavedClaim::Burial
       end
 
+      # override - add additional stamps
+      # @see ZeroSilentFailures::ManualRemediation::SavedClaim#stamps
       def stamps(timestamp)
         base = super(timestamp)
         burials = [
@@ -41,6 +45,8 @@ module Burials
         base + burials
       end
 
+      # override - add additional metadata
+      # @see ZeroSilentFailures::ManualRemediation::SavedClaim#generate_metadata
       def generate_metadata
         base = super
 

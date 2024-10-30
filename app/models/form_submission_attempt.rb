@@ -72,19 +72,20 @@ class FormSubmissionAttempt < ApplicationRecord
       to_state: aasm.to_state,
       event: aasm.current_event
     }
-    if aasm.current_event == 'fail!'
+
+    case aasm.current_event
+    when 'fail!'
       log_hash[:message] = 'Form Submission Attempt failed'
       Rails.logger.error(log_hash)
-    elsif aasm.current_event == 'vbms!'
+    when 'vbms!'
       log_hash[:message] = 'Form Submission Attempt went to vbms'
-      Rails.logger.info(log_hash)
-    elsif aasm.current_event == 'manual!'
+    when 'manual!'
       log_hash[:message] = 'Form Submission Attempt is being manually remediated'
-      Rails.logger.info(log_hash)
     else
       log_hash[:message] = 'Form Submission Attempt State change'
-      Rails.logger.info(log_hash)
     end
+
+    Rails.logger.info(log_hash) if aasm.current_event != 'fail!'
   end
 
   private
