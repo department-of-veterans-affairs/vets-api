@@ -104,7 +104,7 @@ module VaNotify
       end
 
       notification = VANotify::Notification.new(
-        notification_id: response['id'],
+        notification_id: response.id,
         source_location: find_caller_locations
       )
 
