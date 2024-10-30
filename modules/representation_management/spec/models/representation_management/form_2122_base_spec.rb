@@ -100,7 +100,7 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
 
       context 'when representative is an instance of Veteran::Service::Representative' do
         it 'returns the first element in the user_types array' do
-          representative = create(:representative, user_types: %w[attorney claims_agent])
+          representative = create(:representative, user_types: %w[attorney claim_agents])
           subject.representative_id = representative.representative_id
           expect(subject.representative_individual_type).to eq(representative.user_types.first)
         end
