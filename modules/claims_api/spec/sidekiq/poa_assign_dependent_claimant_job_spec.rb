@@ -55,13 +55,18 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
                         form_data: claimant_form_data)
     end
 
-    it 'calls the POAUpdater when successful' do
+    it 'calls the PoaVBMSUpdater when successful' do
       allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
         .to receive(:assign_poa_to_dependent!).and_return(
           true
         )
 
-      expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
+      allow_any_instance_of(ClaimsApi::ServiceBase)
+        .to receive(:enable_vbms_access?).and_return(
+          true
+        )
+
+      expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
       described_class.new.perform(poa.id)
     end
   end

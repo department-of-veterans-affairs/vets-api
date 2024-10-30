@@ -15,7 +15,7 @@ module ClaimsApi
       res = service.assign_poa_to_dependent!
 
       if res
-        ClaimsApi::PoaUpdater.perform_async(poa.id)
+        ClaimsApi::PoaVBMSUpdater.perform_async(poa.id) if enable_vbms_access?(poa_form: poa)
       else
         log_job_progress(
           poa.id,
@@ -43,7 +43,7 @@ module ClaimsApi
         poa_code: find_poa_code(data),
         veteran_participant_id: auth_headers['va_eauth_pid'],
         dependent_participant_id: auth_headers.dig('dependent', 'participant_id'),
-        veteran_file_number: auth_headers['va_eauth_birlsfilenumber'],
+        veteran_file_number: auth_headers['file_number'],
         allow_poa_access: data['recordConsent'].present? ? 'Y' : nil,
         allow_poa_cadd: data['consentAddressChange'].present? ? 'Y' : nil,
         claimant_ssn: auth_headers.dig('dependent', 'ssn')

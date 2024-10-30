@@ -32,7 +32,7 @@ module ClaimsApi
         end
 
         if dependent_filing?(power_of_attorney)
-          ClaimsApi::PoaAssignDependentClaimantJob.new.perform(power_of_attorney.id)
+          ClaimsApi::PoaAssignDependentClaimantJob.perform_async(power_of_attorney.id)
         else
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep)
         end
@@ -169,10 +169,6 @@ module ClaimsApi
             'organizationName' => name
           }
         }
-      end
-
-      def dependent_filing?(poa)
-        poa.auth_headers.key?('dependent')
       end
     end
   end

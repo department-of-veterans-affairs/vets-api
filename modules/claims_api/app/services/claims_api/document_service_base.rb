@@ -37,6 +37,19 @@ module ClaimsApi
       ptcpnt_vet_id.presence || auth_headers['va_eauth_pid']
     end
 
+    def file_name(record, veteran_name, form_suffix)
+      build_file_name(
+        veteran_name:,
+        identifier: record.id,
+        suffix: form_suffix,
+        dependent: dependent_filing?(record)
+      )
+    end
+
+    def dependent_filing?(record)
+      record.auth_headers['dependent']
+    end
+
     private
 
     def build_body(options = {})

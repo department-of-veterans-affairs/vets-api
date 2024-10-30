@@ -40,6 +40,10 @@ module ClaimsApi
 
     protected
 
+    def dependent_filing?(poa)
+      poa.auth_headers.key?('dependent')
+    end
+
     def slack_alert_on_failure(job_name, msg)
       notify_on_failure(
         job_name,
@@ -114,8 +118,12 @@ module ClaimsApi
       auto_claim.save!
     end
 
-    def set_vbms_error_message(poa, _error)
-      poa.vbms_error_message = get_error_message(e)
+    def enable_vbms_access?(poa_form:)
+      poa_form.form_data['recordConsent'] && poa_form.form_data['consentLimits'].blank?
+    end
+
+    def set_vbms_error_message(poa, error)
+      poa.vbms_error_message = get_error_message(error)
       poa.save!
     end
 

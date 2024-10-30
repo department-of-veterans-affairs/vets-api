@@ -124,8 +124,10 @@ module ClaimsApi
 
           headers.merge!({
                            dependent: {
-                             participant_id: claimant.participant_id,
-                             ssn: claimant.ssn
+                             participant_id: claimant.participant_ids[0],
+                             ssn: claimant.ssn,
+                             first_name: claimant.given_names[0],
+                             last_name: claimant.family_name
                            }
                          })
         end

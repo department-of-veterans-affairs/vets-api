@@ -29,8 +29,8 @@ module ClaimsApi
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
-          check_file_number_exists!
-          dependent_participant_id, claimant_ssn = validate_dependent_claimant!(poa_code:)
+          file_number = check_file_number_exists!
+          claimant_information = validate_dependent_claimant!(poa_code:)
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
                                                                                           source_name:)
@@ -52,22 +52,17 @@ module ClaimsApi
             if feature_enabled_and_claimant_present?
               update_auth_headers_for_dependent(
                 power_of_attorney,
-                dependent_participant_id,
-                claimant_ssn
+                claimant_information
               )
             end
 
             power_of_attorney.auth_headers['participant_id'] = target_veteran.participant_id
+            power_of_attorney.auth_headers['file_number'] = file_number
             power_of_attorney.save!
           end
 
           data = power_of_attorney.form_data
 
-          # if feature_enabled_and_claimant_present?
-          #   ClaimsApi::PoaAssignDependentClaimantJob.perform_async(
-          #     dependent_claimant_poa_assignment_service(poa_code:, file_number:, dependent_participant_id:,
-          #                                               claimant_ssn:)
-          #   )
           if data.dig('signatures', 'veteran').present? && data.dig('signatures', 'representative').present?
             # Autogenerate a 21-22 form from the request body and upload it to VBMS.
             # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
@@ -162,13 +157,15 @@ module ClaimsApi
 
         private
 
-        def update_auth_headers_for_dependent(poa, claimant_pctpnt_id, claimant_ssn)
+        def update_auth_headers_for_dependent(poa, claimant_information)
           auth_headers = poa.auth_headers
 
           auth_headers.merge!({
                                 dependent: {
-                                  participant_id: claimant_pctpnt_id,
-                                  ssn: claimant_ssn
+                                  first_name: claimant_information['claimant_first_name'],
+                                  last_name: claimant_information['claimant_last_name'],
+                                  participant_id: claimant_information['claimant_participant_id'],
+                                  ssn: claimant_information['claimant_ssn']
                                 }
                               })
         end
@@ -192,7 +189,12 @@ module ClaimsApi
           service.validate_poa_code_exists!
           service.validate_dependent_by_participant_id!
 
-          [service.claimant_participant_id, service.claimant_ssn]
+          {
+            'claimant_participant_id' => service.claimant_participant_id,
+            'claimant_first_name' => claimant_first_name,
+            'claimant_last_name' => claimant_last_name,
+            'claimant_ssn' => service.claimant_ssn
+          }
         end
 
         def dependent_claimant_poa_assignment_service(poa_code:, file_number:, dependent_participant_id:, claimant_ssn:)
