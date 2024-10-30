@@ -39,9 +39,17 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
 
   describe 'GET /meb_api/v0/claimant_info' do
     context 'Looks up veteran in LTS' do
-      it 'returns a 200 with claimant info' do
+      it 'returns a 200 with claimant info and no parameter in the url' do
         VCR.use_cassette('dgi/post_claimant_info') do
           get '/meb_api/v0/claimant_info'
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('dgi/claimant_info_response', { strict: false })
+        end
+      end
+
+      it 'returns a 200 with claimant info with a type parameter' do
+        VCR.use_cassette('dgi/post_claimant_info_1606') do
+          get '/meb_api/v0/claimant_info', params: { type: 'chapter1606' }
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('dgi/claimant_info_response', { strict: false })
         end
@@ -60,6 +68,16 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
           end
         end
       end
+
+      it 'returns a 200 with eligibility data with type as a parameter' do
+        VCR.use_cassette('dgi/get_eligibility_1606') do
+          travel_to Time.zone.local(2022, 2, 9, 12) do
+            get '/meb_api/v0/eligibility', params: { type: 'chapter1606' }
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('dgi/eligibility_response', { strict: false })
+          end
+        end
+      end
     end
   end
 
@@ -71,6 +89,13 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
           expect(response).to have_http_status(:ok)
         end
       end
+
+      it 'returns a 200 status when given type as parameter' do
+        VCR.use_cassette('dgi/get_claim_letter_1606') do
+          get '/meb_api/v0/claim_letter', params: { type: 'chapter1606' }
+          expect(response).to have_http_status(:ok)
+        end
+      end
     end
   end
 
@@ -79,6 +104,14 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
       it 'returns a 200 status when given claimant id as parameter and claimant is returned' do
         VCR.use_cassette('dgi/get_claim_status') do
           get '/meb_api/v0/claim_status'
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('dgi/claim_status_response', { strict: false })
+        end
+      end
+
+      it 'returns a 200 status when given type as parameter' do
+        VCR.use_cassette('dgi/get_claim_status_1606') do
+          get '/meb_api/v0/claim_status', params: { type: 'chapter1606' }
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('dgi/claim_status_response', { strict: false })
         end

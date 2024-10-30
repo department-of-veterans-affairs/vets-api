@@ -86,6 +86,7 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
             filename: nil
           }
         end
+        let(:reference) { "SC-form-#{guid1}" }
 
         before do
           SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', metadata: '{"status":"error"}')
@@ -119,14 +120,17 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
 
             expect(vanotify_service).to have_received(:send_email).with({ email_address:,
                                                                           personalisation:,
+                                                                          reference:,
                                                                           template_id: 'fake_sc_template_id' })
 
             expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
                                                                               personalisation: anything,
+                                                                              reference: anything,
                                                                               template_id: 'fake_nod_template_id' })
 
             expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
                                                                               personalisation: anything,
+                                                                              reference: anything,
                                                                               template_id: 'fake_hlr_template_id' })
 
             logger_params = [
@@ -228,7 +232,6 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
             date_submitted: created_at.strftime('%B %d, %Y')
           }
         end
-
         let(:personalisation2) do
           {
             first_name: mpi_profile2.given_names[0],
@@ -236,6 +239,8 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
             date_submitted: created_at.strftime('%B %d, %Y')
           }
         end
+        let(:reference) { "NOD-evidence-#{upload_guid1}" }
+        let(:reference2) { "NOD-evidence-#{upload_guid5}" }
 
         before do
           SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}', metadata: metadata1.to_json)
@@ -286,10 +291,12 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
 
             expect(vanotify_service).to have_received(:send_email).with({ email_address:,
                                                                           template_id: 'fake_nod_evidence_template_id',
+                                                                          reference:,
                                                                           personalisation: })
 
             expect(vanotify_service).to have_received(:send_email).with({ email_address: email_address2,
                                                                           template_id: 'fake_nod_evidence_template_id',
+                                                                          reference: reference2,
                                                                           personalisation: personalisation2 })
 
             upload1 = AppealSubmissionUpload.find_by(lighthouse_upload_id: upload_guid1)
