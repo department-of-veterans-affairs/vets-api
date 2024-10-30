@@ -152,6 +152,39 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           form526_job_status.reload
           expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
         end
+
+        describe 'when an error occurs during exhaustion handling and FailureEmail fails to enqueue' do
+          let!(:zsf_tag) { Form526Submission::ZSF_DD_TAG_SERVICE }
+          let!(:zsf_monitor) { ZeroSilentFailures::Monitor.new(zsf_tag) }
+          let!(:failure_email) { EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail }
+
+          before do
+            Flipper.enable(:form526_send_4142_failure_notification)
+            allow(ZeroSilentFailures::Monitor).to receive(:new).with(zsf_tag).and_return(zsf_monitor)
+          end
+
+          it 'logs a silent failure' do
+            expect(zsf_monitor).to receive(:log_silent_failure).with(
+              {
+                job_id: form526_job_status.job_id,
+                error_class: nil,
+                error_message: 'An error occured',
+                timestamp: instance_of(Time),
+                form526_submission_id: form526_submission.id
+              },
+              nil,
+              call_location: instance_of(ZeroSilentFailures::Monitor::CallLocation)
+            )
+
+            args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
+
+            expect do
+              subject.within_sidekiq_retries_exhausted_block(args) do
+                allow(failure_email).to receive(:perform_async).and_raise(StandardError, 'Simulated error')
+              end
+            end.to raise_error(StandardError, 'Simulated error')
+          end
+        end
       end
     end
 
@@ -219,6 +252,24 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           fs_attempt_record = FormSubmissionAttempt.last
           expect(Form526Submission.find_by(saved_claim_id: fs_record.saved_claim_id).id).to eq(submission.id)
           expect(fs_attempt_record.pending?).to be(true)
+        end
+
+        it 'Returns successfully after creating polling record' do
+          Flipper.enable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
+          Sidekiq::Testing.inline! do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                allow_any_instance_of(SemanticLogger::Logger).to receive(:info).and_return(true)
+                jid = subject.perform_async(submission.id)
+                subject.drain
+                job_status_record = submission.form526_job_statuses.find_by(job_id: jid)
+                Rails.logger.level
+                expect(job_status_record).not_to be_nil
+                expect(job_status_record.job_class).to eq('SubmitForm4142Job')
+                expect(job_status_record.status).to eq('success')
+              end
+            end
+          end
         end
 
         it 'Does not create a form 4142 submission polling record, when disabled' do

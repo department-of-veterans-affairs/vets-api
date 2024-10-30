@@ -3,6 +3,7 @@
 require 'common/models/concerns/cache_aside'
 require 'gi/client'
 require 'gi/search_client'
+require 'gi/lce/client'
 
 # Facade for GIDS.
 class GIDSRedis < Common::RedisStore
@@ -24,6 +25,8 @@ class GIDSRedis < Common::RedisStore
       response_from_redis_or_service(gi_service).body
     elsif search_respond_to?(name)
       response_from_redis_or_service(gi_search_service).body
+    elsif lce_respond_to?(name)
+      response_from_redis_or_service(gi_lce_service).body
     else
       super
     end
@@ -35,6 +38,10 @@ class GIDSRedis < Common::RedisStore
 
   def search_respond_to?(name)
     gi_search_service.respond_to?(name)
+  end
+
+  def lce_respond_to?(name)
+    gi_lce_service.respond_to?(name)
   end
 
   private
@@ -51,5 +58,9 @@ class GIDSRedis < Common::RedisStore
 
   def gi_search_service
     @search_client ||= ::GI::SearchClient.new
+  end
+
+  def gi_lce_service
+    @lce_service ||= ::GI::Lce::Client.new
   end
 end

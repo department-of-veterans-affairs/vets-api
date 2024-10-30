@@ -93,6 +93,7 @@ PATH
       sidekiq
     ask_va_api (0.1.0)
     avs (0.1.0)
+    banners (0.1.0)
     burials (0.1.0)
     check_in (0.1.0)
     claims_api (0.0.1)
@@ -1030,7 +1031,7 @@ GEM
       ffi
     ssrf_filter (1.1.2)
     staccato (0.5.3)
-    statsd-instrument (3.9.3)
+    statsd-instrument (3.9.4)
     stringio (3.1.1)
     strong_migrations (2.0.1)
       activerecord (>= 6.1)
@@ -1132,6 +1133,7 @@ DEPENDENCIES
   aws-sdk-kms
   aws-sdk-s3 (~> 1)
   aws-sdk-sns (~> 1)
+  banners!
   betamocks!
   bgs_ext!
   blueprinter
