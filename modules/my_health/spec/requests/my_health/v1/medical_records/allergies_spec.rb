@@ -102,14 +102,16 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
 
   context 'Premium user when use_oh_data_path is true' do
     let(:mhv_account_type) { 'Premium' }
+    let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:, icn: '23000219') }
 
     before do
+      sign_in_as(current_user)
+
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
                                                 instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
 
-      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                          match_requests_on: %i[method sm_user_ignoring_path_param])
+      VCR.insert_cassette('mr_client/get_a_list_of_allergies_oh_data_path')
     end
 
     after do
@@ -117,12 +119,18 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
     end
 
     it 'responds to GET #index' do
-      VCR.use_cassette('mr_client/get_a_list_of_allergies_oh_data_path') do
-        get '/my_health/v1/medical_records/allergies?use_oh_data_path=1'
-      end
+      get '/my_health/v1/medical_records/allergies?use_oh_data_path=1'
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
+
+      body = JSON.parse(response.body)
+      expect(body['entry']).to be_an(Array)
+      expect(body['entry'].size).to be 2
+
+      item = body['entry'][1]
+      expect(item['resource']['resourceType']).to eq('AllergyIntolerance')
+      expect(item['resource']['category'][0]).to eq('food')
     end
   end
 end

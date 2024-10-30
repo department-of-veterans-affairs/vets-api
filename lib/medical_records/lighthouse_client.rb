@@ -2,7 +2,6 @@
 
 require 'common/client/base'
 require 'lighthouse/veterans_health/client'
-# require 'medical_records/patient_not_found'
 
 module MedicalRecords
   ##
@@ -20,6 +19,10 @@ module MedicalRecords
       raise Common::Exceptions::ParameterMissing, 'ICN' if icn.blank?
 
       @icn = icn
+    end
+
+    def authenticate # rubocop:disable Lint/UselessMethodDefinition
+      super()
     end
 
     def list_allergies
