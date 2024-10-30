@@ -225,9 +225,10 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
     let(:pdf_path) { 'some/path' }
     let(:doc_type) { 'L075' }
 
-    context 'when the bd upload feature flag is enabled' do
+    context 'when the bd upload feature flag is enabled and BD refactor flag is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
+        allow(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return false
       end
 
       it 'calls the benefits document API with doc_type L075' do
@@ -257,6 +258,26 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
           power_of_attorney.reload
           expect(power_of_attorney.status).to eq(ClaimsApi::PowerOfAttorney::ERRORED)
           expect(power_of_attorney.vbms_error_message).to eq(e.message)
+        end
+      end
+
+      context 'when the BD upload refactor feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return true
+        end
+
+        it 'calls the PoaDocumentService' do
+          allow_any_instance_of(BGS::PersonWebService)
+            .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+          allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
+            .and_return({ return_code: 'BMOD0001' })
+          expect_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload).with(
+            poa: power_of_attorney,
+            pdf_path: anything,
+            doc_type: 'L075',
+            action: 'put'
+          )
+          subject.new.perform(power_of_attorney.id, 'put')
         end
       end
     end

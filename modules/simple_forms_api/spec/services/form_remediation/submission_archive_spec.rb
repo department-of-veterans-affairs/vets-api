@@ -217,8 +217,8 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
             expect(build_archive[0]).to include(submission_file_path)
           end
 
-          it 'does not build the manifest entry' do
-            expect(build_archive[1]).to eq(nil)
+          it 'builds the manifest entry' do
+            expect(build_archive[1]).not_to eq(nil)
           end
 
           it 'writes the submission pdf file' do
@@ -239,8 +239,8 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
             expect(build_archive[0]).to include(submission_file_path)
           end
 
-          it 'does not build the manifest entry' do
-            expect(build_archive[1]).to eq(nil)
+          it 'builds the manifest entry' do
+            expect(build_archive[1]).not_to eq(nil)
           end
 
           it 'writes the submission pdf file' do

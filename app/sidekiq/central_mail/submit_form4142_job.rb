@@ -5,6 +5,7 @@ require 'common/exceptions'
 require 'evss/disability_compensation_form/metrics'
 require 'evss/disability_compensation_form/form4142_processor'
 require 'logging/third_party_transaction'
+require 'zero_silent_failures/monitor'
 
 # TODO: Update Namespace once we are 100% done with CentralMail here
 module CentralMail
@@ -43,6 +44,10 @@ module CentralMail
       timestamp = Time.now.utc
       form526_submission_id = msg['args'].first
 
+      log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+
+      ::Rails.logger.warn('Submit Form 4142 Retries exhausted', log_info)
+
       form_job_status = Form526JobStatus.find_by(job_id:)
       bgjob_errors = form_job_status.bgjob_errors || {}
       new_error = {
@@ -70,12 +75,18 @@ module CentralMail
       if Flipper.enabled?(:form526_send_4142_failure_notification)
         EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(form526_submission_id)
       end
-
-      ::Rails.logger.warn(
-        'Submit Form 4142 Retries exhausted',
-        { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
-      )
     rescue => e
+      cl = caller_locations.first
+      call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+      zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+      user_account_id = begin
+        Form526Submission.find(form526_submission_id).user_account_id
+      rescue
+        nil
+      end
+
+      zsf_monitor.log_silent_failure(log_info, user_account_id, call_location:)
+
       ::Rails.logger.error(
         'Failure in SubmitForm4142#sidekiq_retries_exhausted',
         {
@@ -156,21 +167,15 @@ module CentralMail
       )
 
       payload = payload_hash(lighthouse_service.location)
-      lighthouse_service.upload_doc(**payload)
+      response = lighthouse_service.upload_doc(**payload)
 
       if Flipper.enabled?(POLLING_FLIPPER_KEY)
         form526_submission = Form526Submission.find(@submission_id)
-        form_submission    = FormSubmission.create(
-          form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
-          benefits_intake_uuid: lighthouse_service.uuid,
-          form_data: '{}', # we have this already in the Form526Submission.form['form4142']
-          user_account: form526_submission.user_account,
-          saved_claim: form526_submission.saved_claim
-        )
-        FormSubmissionAttempt.create(form_submission:)
-        log_info[:form_submission_id] = form_submission.id
+        form_submission_attempt = create_form_submission_attempt(form526_submission)
+        log_info[:form_submission_id] = form_submission_attempt.form_submission.id
       end
       Rails.logger.info('Successful Form4142 Submission to Lighthouse', log_info)
+      response
     end
 
     def generate_metadata
@@ -225,6 +230,19 @@ module CentralMail
         code: key,
         source: source.to_s
       }
+    end
+
+    def create_form_submission_attempt(form526_submission)
+      FormSubmissionAttempt.transaction do
+        form_submission = FormSubmission.create(
+          form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
+          benefits_intake_uuid: lighthouse_service.uuid,
+          form_data: '{}', # we have this already in the Form526Submission.form['form4142']
+          user_account: form526_submission.user_account,
+          saved_claim: form526_submission.saved_claim
+        )
+        FormSubmissionAttempt.create(form_submission:)
+      end
     end
   end
 end
