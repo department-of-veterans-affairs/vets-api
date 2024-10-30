@@ -152,6 +152,39 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           form526_job_status.reload
           expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
         end
+
+        describe 'when an error occurs during exhaustion handling and FailureEmail fails to enqueue' do
+          let!(:zsf_tag) { Form526Submission::ZSF_DD_TAG_SERVICE }
+          let!(:zsf_monitor) { ZeroSilentFailures::Monitor.new(zsf_tag) }
+          let!(:failure_email) { EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail }
+
+          before do
+            Flipper.enable(:form526_send_4142_failure_notification)
+            allow(ZeroSilentFailures::Monitor).to receive(:new).with(zsf_tag).and_return(zsf_monitor)
+          end
+
+          it 'logs a silent failure' do
+            expect(zsf_monitor).to receive(:log_silent_failure).with(
+              {
+                job_id: form526_job_status.job_id,
+                error_class: nil,
+                error_message: 'An error occured',
+                timestamp: instance_of(Time),
+                form526_submission_id: form526_submission.id
+              },
+              nil,
+              call_location: instance_of(ZeroSilentFailures::Monitor::CallLocation)
+            )
+
+            args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
+
+            expect do
+              subject.within_sidekiq_retries_exhausted_block(args) do
+                allow(failure_email).to receive(:perform_async).and_raise(StandardError, 'Simulated error')
+              end
+            end.to raise_error(StandardError, 'Simulated error')
+          end
+        end
       end
     end
 
