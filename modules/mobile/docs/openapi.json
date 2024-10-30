@@ -465,7 +465,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -523,7 +523,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -581,7 +581,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -630,7 +630,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -704,7 +704,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -780,7 +780,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   }
@@ -856,7 +856,7 @@
                           }
                         ],
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   }
@@ -9409,7 +9409,7 @@
               },
               "upcomingDaysLimit": {
                 "type": "number",
-                "description": "The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 7."
+                "description": "The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 30."
               },
               "pagination": {
                 "type": "object",
@@ -11519,6 +11519,10 @@
           "upload_date": {
             "type": "string",
             "example": "2023-03-01"
+          },
+          "document_id": {
+            "type": "string",
+            "example": "{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}"
           }
         }
       },
@@ -11602,6 +11606,12 @@
           "filename": {
             "type": "string",
             "example": "7B434B58-477C-4379-816F-05E6D3A10487.pdf"
+          },
+          "document_id": {
+            "type": "string",
+            "description": "Only used for other_documents_list type event for untracked documents",
+            "nullable": true,
+            "example": "{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}"
           }
         }
       },
@@ -18131,43 +18141,46 @@
         ],
         "properties": {
           "data": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "type",
-              "id",
-              "attributes"
-            ],
-            "properties": {
-              "type": {
-                "type": "string",
-                "example": "efolder_document"
-              },
-              "id": {
-                "type": "string",
-                "example": "{23fe358d-6e82-4541-804c-ce7562ba28f4}",
-                "description": "document id"
-              },
-              "attributes": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "doc_type",
-                  "type_description",
-                  "received_at"
-                ],
-                "properties": {
-                  "doc_type": {
-                    "type": "string",
-                    "example": 1215
-                  },
-                  "type_description": {
-                    "type": "string",
-                    "example": "DMC - Debt Increase Letter"
-                  },
-                  "received_at": {
-                    "type": "date",
-                    "example": "2020-05-28"
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "type",
+                "attributes"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "{23fe358d-6e82-4541-804c-ce7562ba28f4}",
+                  "description": "document id"
+                },
+                "type": {
+                  "type": "string",
+                  "example": "efolder_document"
+                },
+                "attributes": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "doc_type",
+                    "type_description",
+                    "received_at"
+                  ],
+                  "properties": {
+                    "doc_type": {
+                      "type": "string",
+                      "example": 1215
+                    },
+                    "type_description": {
+                      "type": "string",
+                      "example": "DMC - Debt Increase Letter"
+                    },
+                    "received_at": {
+                      "type": "date",
+                      "example": "2020-05-28"
+                    }
                   }
                 }
               }

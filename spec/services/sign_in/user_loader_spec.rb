@@ -89,6 +89,32 @@ RSpec.describe SignIn::UserLoader do
         it 'reloads user object so that MPI can be called for additional attributes' do
           expect(subject.edipi).to be edipi
         end
+
+        context 'when an MHV account is created' do
+          let(:enabled) { true }
+
+          before do
+            allow(MHV::AccountCreatorJob).to receive(:perform_async)
+            allow(Flipper).to receive(:enabled?).with(:mhv_account_creation_after_login,
+                                                      user_account).and_return(enabled)
+          end
+
+          context 'when :mhv_account_creation_after_login is enabled' do
+            it 'enqueues an MHV::AccountCreatorJob' do
+              subject
+              expect(MHV::AccountCreatorJob).to have_received(:perform_async).with(user_verification.id)
+            end
+          end
+
+          context 'when :mhv_account_creation_after_login is disabled' do
+            let(:enabled) { false }
+
+            it 'does not enqueue an MHV::AccountCreatorJob' do
+              subject
+              expect(MHV::AccountCreatorJob).not_to have_received(:perform_async)
+            end
+          end
+        end
       end
     end
 

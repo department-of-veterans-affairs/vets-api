@@ -44,4 +44,4 @@ data:
 meta:
   errors: [{source: "VA Service"}]
   upcomingAppointmentsCount: 1
-  upcomingDaysLimit: 7
+  upcomingDaysLimit: 30
