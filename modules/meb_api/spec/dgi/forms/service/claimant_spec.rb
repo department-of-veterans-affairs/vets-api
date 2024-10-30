@@ -67,7 +67,7 @@ Rspec.describe MebApi::DGI::Forms::Claimant::Service do
       context 'with a successful submission and info exists for toe' do
         it 'successfully receives an Claimant object' do
           VCR.use_cassette('dgi/post_toe_claimant_info') do
-            response = service.get_claimant_info
+            response = service.get_claimant_info('toe')
             expect(response.status).to eq(200)
             expect(response.toe_sponsors).to include({
                                                        'transfer_of_entitlements' =>
