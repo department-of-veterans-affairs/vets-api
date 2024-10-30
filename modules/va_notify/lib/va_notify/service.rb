@@ -29,6 +29,7 @@ module VaNotify
           notify_client.send_email(args)
         end
         create_notification(response)
+        response
       else
         with_monitoring do
           notify_client.send_email(args)
@@ -44,6 +45,7 @@ module VaNotify
           notify_client.send_sms(args)
         end
         create_notification(response)
+        response
       else
         with_monitoring do
           notify_client.send_sms(args)

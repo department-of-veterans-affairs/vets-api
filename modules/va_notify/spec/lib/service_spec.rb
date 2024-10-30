@@ -106,6 +106,15 @@ describe VaNotify::Service do
     end
 
     context 'when :notification_creation flag is on' do
+      it 'returns a response object' do
+        VCR.use_cassette('va_notify/success_email') do
+          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+
+          response = subject.send_email(send_email_parameters)
+          expect(response).to an_instance_of(Notifications::Client::ResponseNotification)
+        end
+      end
+
       it 'creates a notification record' do
         VCR.use_cassette('va_notify/success_email') do
           allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
@@ -151,6 +160,15 @@ describe VaNotify::Service do
     end
 
     context 'when :notification_creation flag is on' do
+      it 'returns a response object' do
+        VCR.use_cassette('va_notify/success_sms') do
+          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+
+          response = subject.send_sms(send_sms_parameters)
+          expect(response).to an_instance_of(Notifications::Client::ResponseNotification)
+        end
+      end
+
       it 'creates a notification record' do
         VCR.use_cassette('va_notify/success_sms') do
           allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
