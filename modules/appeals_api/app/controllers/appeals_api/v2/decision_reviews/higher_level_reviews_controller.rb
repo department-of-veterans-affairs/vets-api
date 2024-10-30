@@ -10,6 +10,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   include AppealsApi::MPIVeteran
   include AppealsApi::Schemas
   include AppealsApi::PdfDownloads
+  include AppealsApi::GatewayOriginCheck
 
   skip_before_action :authenticate
   before_action :validate_icn_header, only: %i[index download]

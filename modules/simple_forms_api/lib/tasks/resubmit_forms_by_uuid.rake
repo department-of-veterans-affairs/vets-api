@@ -10,7 +10,8 @@ namespace :simple_forms_api do
     benefits_intake_uuids = args[:benefits_intake_uuids].split
     benefits_intake_uuids.each do |benefits_intake_uuid|
       # Get the original submission
-      form_submission = FormSubmission.find_by(benefits_intake_uuid:)
+      form_submission_attempt = FormSubmissionAttempt.find_by(benefits_intake_uuid:)
+      form_submission = form_submission_attempt&.form_submission
       next unless form_submission
 
       # Re-generate the form PDF

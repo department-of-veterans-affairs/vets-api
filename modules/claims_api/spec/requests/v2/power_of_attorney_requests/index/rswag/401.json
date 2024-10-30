@@ -10,7 +10,8 @@
         "additionalProperties": false,
         "required": [
           "title",
-          "detail"
+          "detail",
+          "status"
         ],
         "properties": {
           "title": {
@@ -23,6 +24,12 @@
             "type": "string",
             "enum": [
               "Not authorized"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "401"
             ]
           }
         }
