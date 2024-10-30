@@ -13,8 +13,7 @@ module Pensions
     SUBMISSION_STATS_KEY = 'worker.lighthouse.pension_benefit_intake_job'
 
     def initialize
-      super('pension-application') # Pass the service to Logging::Monitor
-      # @service is already set from super and included
+      super('pension-application')
     end
 
     ##
