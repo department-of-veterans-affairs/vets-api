@@ -40,7 +40,7 @@ module BenefitsClaims
       # Manual status override for PMR Pending items
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
-      override_pmr_pending(claim)
+      override_pmr_pending(claim['data'])
       claim
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
