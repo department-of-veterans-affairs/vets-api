@@ -2,6 +2,9 @@
 
 module ClaimsApi
   class ClaimsUser
+    attr_reader :uuid
+    attr_accessor :first_name, :last_name, :middle_name, :email, :suffix
+
     def initialize(id)
       @uuid = id
       @identifier = UserIdentifier.new(id)
@@ -26,9 +29,6 @@ module ClaimsApi
     def loa
       @identifier.loa
     end
-
-    attr_reader :uuid
-    attr_accessor :first_name, :last_name, :middle_name, :email
 
     def authn_context
       'authn'

@@ -31,12 +31,12 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   ]
   authenticated_forms = forms - unauthenticated_forms
 
-  let(:presigned_s3_url) { 'https://s3.com/presigned-goodness' }
+  let(:pdf_url) { 'https://s3.com/presigned-goodness' }
   let(:mock_s3_client) { instance_double(SimpleFormsApi::FormRemediation::S3Client) }
 
   before do
     allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:new).and_return(mock_s3_client)
-    allow(mock_s3_client).to receive(:upload).and_return(presigned_s3_url)
+    allow(mock_s3_client).to receive(:upload).and_return(pdf_url)
     allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
   end
 
@@ -109,7 +109,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(mock_s3_client).to have_received(:upload)
-            expect(JSON.parse(response.body)['presigned_s3_url']).to eq(presigned_s3_url)
+            expect(JSON.parse(response.body)['pdf_url']).to eq(pdf_url)
           end
         end
       end
