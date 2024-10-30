@@ -4,12 +4,12 @@ require 'rails_helper'
 
 RSpec.describe V1::NodCallbacksController, type: :controller do
   let(:notification_id) { SecureRandom.uuid }
-  let(:reference) { 'reference-id' }
+  let(:reference) { "NOD-form-#{SecureRandom.uuid}" }
   let(:status) { 'delivered' }
   let(:params) do
     {
       id: notification_id,
-      reference: reference,
+      reference:,
       to: 'test@test.com',
       status:,
       created_at: '2023-01-10T00:04:25.273410Z',
@@ -55,6 +55,58 @@ RSpec.describe V1::NodCallbacksController, type: :controller do
 
         res = JSON.parse(response.body)
         expect(res['message']).to eq 'failed'
+      end
+    end
+
+    context 'the reference value is formatted correctly' do
+      let(:tags) { ['service:board-appeal', 'function: form submission to Lighthouse'] }
+
+      before do
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'sends a silent_failure_avoided statsd metric' do
+        expect(StatsD).to receive(:increment).with('silent_failure_avoided', tags:)
+        expect(Rails.logger).not_to receive(:error)
+
+        post(:create, params:, as: :json)
+      end
+    end
+
+    context 'the reference appeal_type is invalid' do
+      let(:reference) { 'APPEALTYPE-form-submitted-appeal-uuid' }
+      let(:logged_params) { { reference:, message: 'key not found: "APPEALTYPE"' } }
+
+      before do
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs an error and does not send a silent_failure_avoided statsd metric' do
+        expect(StatsD).not_to receive(:increment).with('silent_failure_avoided', tags: anything)
+        expect(Rails.logger).to receive(:error).with('Failed to send silent_failure_avoided metric',
+                                                     params: logged_params)
+
+        post(:create, params:, as: :json)
+      end
+    end
+
+    context 'the reference function_type is invalid' do
+      let(:reference) { 'HLR-function_type-submitted-appeal-uuid' }
+      let(:logged_params) { { reference:, message: 'Invalid function_type' } }
+
+      before do
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs an error and does not send a silent_failure_avoided statsd metric' do
+        expect(StatsD).not_to receive(:increment).with('silent_failure_avoided', tags: anything)
+        expect(Rails.logger).to receive(:error).with('Failed to send silent_failure_avoided metric',
+                                                     params: logged_params)
+
+        post(:create, params:, as: :json)
       end
     end
   end
