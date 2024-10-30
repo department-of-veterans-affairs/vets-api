@@ -112,7 +112,7 @@ module RepresentationManagement
              end
       # We're converting 'claims_agent' and 'claim_agents' to 'agent'
       # here because the PDF checkbox responds to 'agent'.
-      type&.include?('agent') ? 'agent' : type
+      ['claims_agent', 'claim_agents'].include?(type) ? 'agent' : type
     end
 
     def representative_phone
