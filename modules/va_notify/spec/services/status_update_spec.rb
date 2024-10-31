@@ -55,17 +55,15 @@ describe VANotify::StatusUpdate do
     context 'notification without callback' do
       it 'logs the status' do
         notification_id = SecureRandom.uuid
-        notification = create(:notification, notification_id:, callback: nil)
+        notification = create(:notification, notification_id:)
 
         provider_callback = {
           id: notification_id,
-          status: 'temporary-failure'
         }
 
-        expected_error_message = "undefined method `constantize' for nil"
+        expected_error_message = "VANotify - no callback provided for notification: #{notification.id}"
 
-        expect(Rails.logger).to receive(:info).with(source: notification.source_location, status: notification.status,
-                                                    error_message: expected_error_message)
+        expect(Rails.logger).to receive(:info).with(message: expected_error_message)
 
         subject.delegate(provider_callback)
       end
