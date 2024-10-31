@@ -7,7 +7,7 @@ module VANotify
     def delegate(notification_callback)
       @notification = VANotify::Notification.find_by(notification_id: notification_callback[:id])
 
-      return if no_callback_info?
+      return if callback_info_missing?
 
       klass = constantized_class(notification.callback)
       if klass.respond_to?(:call)
@@ -34,10 +34,12 @@ module VANotify
       class_name.constantize
     end
 
-    def no_callback_info?
+    def callback_info_missing?
       if notification.callback.blank?
         Rails.logger.info(message: "VANotify - no callback provided for notification: #{notification.id}")
         true
+      else
+        false
       end
     end
   end
