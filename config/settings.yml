@@ -519,7 +519,6 @@ hca:
 
 ppms:
   url: https://some.fakesite.com
-  apim_url: https://some.other.fakesite.com
   open_timeout: 15
   read_timeout: 55
   api_keys:
@@ -914,7 +913,6 @@ search_typeahead:
 search_click_tracking:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
-  mock: false
   url: https://api.gsa.gov/technology/searchgov/v2
 
 bgs:
@@ -930,7 +928,6 @@ bgs:
 directory:
   url: http://example.com/services/apps/v0/
   apikey: fake_apikey
-  health_server_id: ~
 
 va_mobile:
   url: "https://veteran.apps.va.gov"
@@ -948,9 +945,7 @@ vetext:
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
-  key_path: /app/secret/health-quest.key
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
-  timeout: 15
   facilities:
     url: "https://staging-api.va.gov"
     ids_path: "/facilities_api/v1/va"
@@ -1110,11 +1105,6 @@ vbms:
   server_cert: vbms.aide.oit.va.gov.crt
   environment_directory: /app/secret
   env: test
-
-vet_verification:
-  key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
-  mock_bgs: false
-  mock_bgs_url: false
 
 github_stats:
   username: github-stats-rake
@@ -1542,7 +1532,6 @@ chip:
   url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
   base_path: dev
   api_gtwy_id: 2dcdrrn5zc
-  redis_timeout: 30
   mock: true
   mobile_app:
     tenant_id: 6f1c8b41-9c77-469d-852d-269c51a7d380
@@ -1578,33 +1567,17 @@ check_in:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days
-  chip_api:
-    url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
-    base_path: dev
-    host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
-    tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
-    tmp_api_id: 2dcdrrn5zc
-    tmp_api_username: vetsapiTempUser
-    service_name: CHIP-API
-    mock: false
-    key_path: fake_api_path
-    redis_session_prefix: check_in
-    timeout: 30
   chip_api_v2:
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     base_path: dev
-    host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
     tmp_api_id: 2dcdrrn5zc
     tmp_api_username: vetsapiTempUser
     service_name: CHIP-API
     mock: false
-    key_path: fake_api_path
     redis_session_prefix: check_in_chip_v2
-    timeout: 30
   lorota_v2:
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
-    host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     base_path: dev
     api_id: 22t00c6f97
     api_key: fake_key
