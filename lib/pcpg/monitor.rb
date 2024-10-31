@@ -31,8 +31,9 @@ module PCPG
 
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
       Rails.logger.error(
-        "Lighthouse::SubmitBenefitsIntakeClaim PCPG 28-8832 submission to LH exhausted!", 
-        user_uuid: user_account_uuid, **additional_context)
+        'Lighthouse::SubmitBenefitsIntakeClaim PCPG 28-8832 submission to LH exhausted!',
+        user_uuid: user_account_uuid, **additional_context
+      )
     end
   end
 end

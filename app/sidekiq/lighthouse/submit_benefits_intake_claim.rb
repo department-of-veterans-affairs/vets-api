@@ -39,8 +39,8 @@ module Lighthouse
         burial_monitor = Burials::Monitor.new
         burial_monitor.track_submission_exhaustion(msg, claim)
       elsif %w[28-8832].include?(claim&.form_id)
-          pcpg_monitor = PCPG::Monitor.new
-          pcpg_monitor.track_submission_exhaustion(msg, claim)
+        pcpg_monitor = PCPG::Monitor.new
+        pcpg_monitor.track_submission_exhaustion(msg, claim)
       end
     end
 
