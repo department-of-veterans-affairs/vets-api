@@ -5,6 +5,10 @@ on:
 jobs:
   check-pr-status:
     runs-on: ubuntu-latest
+    outputs:
+      exempt: ${{ steps.check_exemption.outputs.exempt }}
+      draft: ${{ steps.check_draft.outputs.draft }}
+      no_failures: ${{ steps.audit_pr_labels.outputs.no_failures }}
     steps:
       # - name: Checkout code
       #   uses: actions/checkout@v4
@@ -46,7 +50,10 @@ jobs:
 
   check-approvals:
     runs-on: ubuntu-latest
-    if: ${{ !steps.check_exemption.outputs.exempt && !steps.check_draft.outputs.draft }}
+    needs: check-pr-status
+    outputs:
+      approval_status: ${{ steps.verify_approval.outputs.approval_status }}
+    if: ${{ !needs.check-pr-status.outputs.exempt && !needs.check-pr-status.outputs.draft }}
     steps:
       # - uses: actions/checkout@v4
 
@@ -107,19 +114,20 @@ jobs:
 
   apply-labels:
     runs-on: ubuntu-latest
+    needs: [check-pr-status, check-approvals]
     steps:
       - name: Set vars from outputs
         id: set-vars
         run: |
-          echo "exempt=${{ steps.check_exemption.outputs.exempt }}" >> $GITHUB_ENV
-          echo "draft=${{ steps.check_draft.outputs.draft }}" >> $GITHUB_ENV
-          echo "approval_status=${{ steps.verify_approval.outputs.approval_status }}" >> $GITHUB_ENV
-          echo "no_failures=${{ steps.audit_pr_labels.outputs.no_failures }}" >> $GITHUB_ENV
+          echo "exempt=${{ needs.check-pr-status.outputs.exempt }}" >> $GITHUB_ENV
+          echo "draft=${{ needs.check-pr-status.outputs.draft }}" >> $GITHUB_ENV
+          echo "no_failures=${{ needs.check-pr-status.outputs.no_failures }}" >> $GITHUB_ENV
+          echo "approval_status=${{ needs.check-approvals.outputs.approval_status }}" >> $GITHUB_ENV
 
           echo ${{ env.exempt }}
           echo ${{ env.draft }}
-          echo ${{ env.approval_status }}
           echo ${{ env.no_failures }}
+          echo ${{ env.approval_status }}
 
       # Remove require-backend-approval label
       - name: Remove require-backend-approval label
@@ -166,16 +174,9 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: |
             ready-for-backend-review
-
-
-  delete-this:
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: DELETE ME - echo vars
+      
+      - name: Debugging
         run: |
-          echo "exempt: ${{ env.exempt || false }}"
-          echo "draft: ${{ env.draft || false }}"
           echo "labels: ${{ toJSON(github.event.pull_request.labels.*.name) }}"
           echo "labels: ${{ github.event.pull_request.labels.*.name[0] }}"
           echo '${{ toJSON(github.event.pull_request.requested_teams) }}' | jq 'length'
